@@ -19,12 +19,8 @@ class SkMatrix;
 
 namespace GrNonAAStrokeRectBatch {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec&,
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec&,
                  bool snapToPixelCenters);
-
 }
 
 #endif

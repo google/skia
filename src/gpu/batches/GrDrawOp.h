@@ -25,7 +25,7 @@ public:
     static GrDrawOpUploadToken AlreadyFlushedToken() { return GrDrawOpUploadToken(0); }
 
     GrDrawOpUploadToken(const GrDrawOpUploadToken& that) : fSequenceNumber(that.fSequenceNumber) {}
-    GrDrawOpUploadToken& operator =(const GrDrawOpUploadToken& that) {
+    GrDrawOpUploadToken& operator=(const GrDrawOpUploadToken& that) {
         fSequenceNumber = that.fSequenceNumber;
         return *this;
     }
@@ -47,10 +47,9 @@ private:
 class GrDrawOp : public GrOp {
 public:
     /** Method that performs an upload on behalf of a DeferredUploadFn. */
-    using WritePixelsFn = std::function<bool(GrSurface* texture,
-                                             int left, int top, int width, int height,
-                                             GrPixelConfig config, const void* buffer,
-                                             size_t rowBytes)>;
+    using WritePixelsFn =
+            std::function<bool(GrSurface* texture, int left, int top, int width, int height,
+                               GrPixelConfig config, const void* buffer, size_t rowBytes)>;
     /** See comments before GrDrawOp::Target definition on how deferred uploaders work. */
     using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
 
@@ -81,14 +80,12 @@ protected:
         string.appendf("RT: %d\n", pipeline.getRenderTarget()->uniqueID().asUInt());
         string.append("ColorStages:\n");
         for (int i = 0; i < pipeline.numColorFragmentProcessors(); i++) {
-            string.appendf("\t\t%s\n\t\t%s\n",
-                           pipeline.getColorFragmentProcessor(i).name(),
+            string.appendf("\t\t%s\n\t\t%s\n", pipeline.getColorFragmentProcessor(i).name(),
                            pipeline.getColorFragmentProcessor(i).dumpInfo().c_str());
         }
         string.append("CoverageStages:\n");
         for (int i = 0; i < pipeline.numCoverageFragmentProcessors(); i++) {
-            string.appendf("\t\t%s\n\t\t%s\n",
-                           pipeline.getCoverageFragmentProcessor(i).name(),
+            string.appendf("\t\t%s\n\t\t%s\n", pipeline.getCoverageFragmentProcessor(i).name(),
                            pipeline.getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
         string.appendf("XP: %s\n", pipeline.getXferProcessor().name());
@@ -126,17 +123,16 @@ private:
 protected:
     struct QueuedUpload {
         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
-            : fUpload(std::move(upload))
-            , fUploadBeforeToken(token) {}
-        DeferredUploadFn    fUpload;
+            : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
+        DeferredUploadFn fUpload;
         GrDrawOpUploadToken fUploadBeforeToken;
     };
 
-    SkTArray<QueuedUpload>                          fInlineUploads;
+    SkTArray<QueuedUpload> fInlineUploads;
 
 private:
-    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
-    bool                                            fPipelineInstalled;
+    SkAlignedSTStorage<1, GrPipeline> fPipelineStorage;
+    bool fPipelineInstalled;
     typedef GrOp INHERITED;
 };
 

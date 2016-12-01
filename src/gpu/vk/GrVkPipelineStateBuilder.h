@@ -29,11 +29,9 @@ public:
     * as input. After successful generation, the builder result objects are available to be used.
     * @return true if generation was successful.
     */
-    static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
-                                                  const GrPipeline&,
+    static GrVkPipelineState* CreatePipelineState(GrVkGpu*, const GrPipeline&,
                                                   const GrStencilSettings&,
-                                                  const GrPrimitiveProcessor&,
-                                                  GrPrimitiveType,
+                                                  const GrPrimitiveProcessor&, GrPrimitiveType,
                                                   const GrVkPipelineState::Desc&,
                                                   const GrVkRenderPass& renderPass);
 
@@ -45,18 +43,13 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*,
-                             const GrPipeline&,
-                             const GrPrimitiveProcessor&,
+    GrVkPipelineStateBuilder(GrVkGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
                              const GrProgramDesc&);
 
-    GrVkPipelineState* finalize(const GrStencilSettings&,
-                                GrPrimitiveType primitiveType,
-                                const GrVkRenderPass& renderPass,
-                                const GrVkPipelineState::Desc&);
+    GrVkPipelineState* finalize(const GrStencilSettings&, GrPrimitiveType primitiveType,
+                                const GrVkRenderPass& renderPass, const GrVkPipelineState::Desc&);
 
-    static bool CreateVkShaderModule(const GrVkGpu* gpu,
-                                     VkShaderStageFlagBits stage,
+    static bool CreateVkShaderModule(const GrVkGpu* gpu, VkShaderStageFlagBits stage,
                                      const GrGLSLShaderBuilder& builder,
                                      VkShaderModule* shaderModule,
                                      VkPipelineShaderStageCreateInfo* stageInfo);
@@ -66,8 +59,8 @@ private:
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
     GrVkGpu* fGpu;
-    GrVkVaryingHandler        fVaryingHandler;
-    GrVkUniformHandler        fUniformHandler;
+    GrVkVaryingHandler fVaryingHandler;
+    GrVkUniformHandler fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

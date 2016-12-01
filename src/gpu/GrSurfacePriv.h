@@ -20,18 +20,12 @@ public:
     /** Helpers used in read/write pixels implementations. The paramters are adjusted so that the
         read/write respects the bounds of a surface. If the input *rowBytes is 0 it will be
         the tight row bytes (based on width and bpp) on output. */
-    static bool AdjustReadPixelParams(int surfaceWidth,
-                                      int surfaceHeight,
-                                      size_t bpp,
-                                      int* left, int* top, int* width, int* height,
-                                      void** data,
+    static bool AdjustReadPixelParams(int surfaceWidth, int surfaceHeight, size_t bpp, int* left,
+                                      int* top, int* width, int* height, void** data,
                                       size_t* rowBytes);
-    static bool AdjustWritePixelParams(int surfaceWidth,
-                                      int surfaceHeight,
-                                      size_t bpp,
-                                      int* left, int* top, int* width, int* height,
-                                      const void** data,
-                                      size_t* rowBytes);
+    static bool AdjustWritePixelParams(int surfaceWidth, int surfaceHeight, size_t bpp, int* left,
+                                       int* top, int* width, int* height, const void** data,
+                                       size_t* rowBytes);
 
     /**
      * Write the contents of the surface to a PNG. Returns true if successful.
@@ -45,8 +39,8 @@ public:
 
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}
-    GrSurfacePriv(const GrSurfacePriv&); // unimpl
-    GrSurfacePriv& operator=(const GrSurfacePriv&); // unimpl
+    GrSurfacePriv(const GrSurfacePriv&);             // unimpl
+    GrSurfacePriv& operator=(const GrSurfacePriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrSurfacePriv* operator&() const;
@@ -54,7 +48,7 @@ private:
 
     GrSurface* fSurface;
 
-    friend class GrSurface; // to construct/copy this type.
+    friend class GrSurface;  // to construct/copy this type.
 };
 
 inline GrSurfacePriv GrSurface::surfacePriv() { return GrSurfacePriv(this); }

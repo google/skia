@@ -6,9 +6,9 @@
  */
 
 #include "GrVkTexture.h"
+#include "GrTexturePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
-#include "GrTexturePriv.h"
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkUtil.h"
 
@@ -17,11 +17,8 @@
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
-GrVkTexture::GrVkTexture(GrVkGpu* gpu,
-                         SkBudgeted budgeted,
-                         const GrSurfaceDesc& desc,
-                         const GrVkImageInfo& info,
-                         const GrVkImageView* view)
+GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+                         const GrVkImageInfo& info, const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(info, GrVkImage::kNot_Wrapped)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
@@ -31,11 +28,8 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     this->registerWithCache(budgeted);
 }
 
-GrVkTexture::GrVkTexture(GrVkGpu* gpu,
-                         Wrapped,
-                         const GrSurfaceDesc& desc,
-                         const GrVkImageInfo& info,
-                         const GrVkImageView* view,
+GrVkTexture::GrVkTexture(GrVkGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
+                         const GrVkImageInfo& info, const GrVkImageView* view,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
@@ -47,18 +41,14 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 }
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
-GrVkTexture::GrVkTexture(GrVkGpu* gpu,
-                         const GrSurfaceDesc& desc,
-                         const GrVkImageInfo& info,
-                         const GrVkImageView* view,
-                         GrVkImage::Wrapped wrapped)
+GrVkTexture::GrVkTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc, const GrVkImageInfo& info,
+                         const GrVkImageView* view, GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
                 desc.fIsMipMapped)
     , fTextureView(view)
-    , fLinearTextureView(nullptr) {
-}
+    , fLinearTextureView(nullptr) {}
 
 GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
                                            const GrSurfaceDesc& desc,
@@ -70,9 +60,8 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage, info.fFormat,
-                                                           GrVkImageView::kColor_Type,
-                                                           info.fLevelCount);
+    const GrVkImageView* imageView = GrVkImageView::Create(
+            gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount);
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
@@ -81,17 +70,15 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
     return new GrVkTexture(gpu, budgeted, desc, info, imageView);
 }
 
-sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
-                                                   const GrSurfaceDesc& desc,
+sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc,
                                                    GrWrapOwnership ownership,
                                                    const GrVkImageInfo* info) {
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
     SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc.fMemory);
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info->fImage, info->fFormat,
-                                                           GrVkImageView::kColor_Type,
-                                                           info->fLevelCount);
+    const GrVkImageView* imageView = GrVkImageView::Create(
+            gpu, info->fImage, info->fFormat, GrVkImageView::kColor_Type, info->fLevelCount);
     if (!imageView) {
         return nullptr;
     }
@@ -140,9 +127,7 @@ void GrVkTexture::onAbandon() {
     INHERITED::onAbandon();
 }
 
-GrBackendObject GrVkTexture::getTextureHandle() const {
-    return (GrBackendObject)&fInfo;
-}
+GrBackendObject GrVkTexture::getTextureHandle() const { return (GrBackendObject)&fInfo; }
 
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
@@ -156,9 +141,8 @@ const GrVkImageView* GrVkTexture::textureView(bool allowSRGB) {
     }
 
     if (!fLinearTextureView) {
-        fLinearTextureView = GrVkImageView::Create(this->getVkGpu(), fInfo.fImage,
-                                                   linearFormat, GrVkImageView::kColor_Type,
-                                                   fInfo.fLevelCount);
+        fLinearTextureView = GrVkImageView::Create(this->getVkGpu(), fInfo.fImage, linearFormat,
+                                                   GrVkImageView::kColor_Type, fInfo.fLevelCount);
         SkASSERT(fLinearTextureView);
     }
 
@@ -205,8 +189,8 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
     // have to create a new image view for new resource
     const GrVkImageView* oldView = fTextureView;
     VkImage image = info.fImage;
-    const GrVkImageView* textureView = GrVkImageView::Create(gpu, image, info.fFormat,
-                                                             GrVkImageView::kColor_Type, mipLevels);
+    const GrVkImageView* textureView =
+            GrVkImageView::Create(gpu, image, info.fFormat, GrVkImageView::kColor_Type, mipLevels);
     if (!textureView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return false;

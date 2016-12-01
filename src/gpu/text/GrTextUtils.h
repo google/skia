@@ -34,38 +34,31 @@ class SkSurfaceProps;
 class GrTextUtils {
 public:
     // Functions for appending BMP text to GrAtlasTextBlob
-    static void DrawBmpText(GrAtlasTextBlob*, int runIndex,
-                            GrBatchFontCache*, const SkSurfaceProps&,
-                            const SkPaint&,
-                            GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
-                            const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y);
+    static void DrawBmpText(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
+                            const SkSurfaceProps&, const SkPaint&, GrColor,
+                            uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength, SkScalar x, SkScalar y);
 
-    static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex,
-                               GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                               GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
-                               const char text[], size_t byteLength,
-                               const SkScalar pos[], int scalarsPerPosition,
-                               const SkPoint& offset);
+    static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
+                               const SkSurfaceProps&, const SkPaint&, GrColor,
+                               uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                               const char text[], size_t byteLength, const SkScalar pos[],
+                               int scalarsPerPosition, const SkPoint& offset);
 
     // functions for appending distance field text
     static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                         const SkSurfaceProps& props, const GrShaderCaps& caps);
 
-    static void DrawDFText(GrAtlasTextBlob* blob, int runIndex,
-                           GrBatchFontCache*, const SkSurfaceProps&,
-                           const SkPaint& skPaint, GrColor color, uint32_t scalerContextFlags,
-                           const SkMatrix& viewMatrix,
-                           const char text[], size_t byteLength,
-                           SkScalar x, SkScalar y);
+    static void DrawDFText(GrAtlasTextBlob* blob, int runIndex, GrBatchFontCache*,
+                           const SkSurfaceProps&, const SkPaint& skPaint, GrColor color,
+                           uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                           const char text[], size_t byteLength, SkScalar x, SkScalar y);
 
-    static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
-                              GrBatchFontCache*, const SkSurfaceProps&, const SkPaint&,
-                              GrColor color, uint32_t scalerContextFlags,
-                              const SkMatrix& viewMatrix,
-                              const char text[], size_t byteLength,
-                              const SkScalar pos[], int scalarsPerPosition,
-                              const SkPoint& offset);
+    static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrBatchFontCache*,
+                              const SkSurfaceProps&, const SkPaint&, GrColor color,
+                              uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                              const char text[], size_t byteLength, const SkScalar pos[],
+                              int scalarsPerPosition, const SkPoint& offset);
 
     // Functions for drawing text as paths
     static void DrawTextAsPath(GrContext*, GrRenderTargetContext*, const GrClip& clip,
@@ -73,23 +66,19 @@ public:
                                const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                const SkIRect& clipBounds);
 
-    static void DrawPosTextAsPath(GrContext* context,
-                                  GrRenderTargetContext* rtc,
-                                  const SkSurfaceProps& props,
-                                  const GrClip& clip,
+    static void DrawPosTextAsPath(GrContext* context, GrRenderTargetContext* rtc,
+                                  const SkSurfaceProps& props, const GrClip& clip,
                                   const SkPaint& origPaint, const SkMatrix& viewMatrix,
-                                  const char text[], size_t byteLength,
-                                  const SkScalar pos[], int scalarsPerPosition,
-                                  const SkPoint& offset, const SkIRect& clipBounds);
+                                  const char text[], size_t byteLength, const SkScalar pos[],
+                                  int scalarsPerPosition, const SkPoint& offset,
+                                  const SkIRect& clipBounds);
 
     static bool ShouldDisableLCD(const SkPaint& paint);
 
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
 private:
-    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
-                                       SkPaint* skPaint,
-                                       SkScalar* textRatio,
+    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob, SkPaint* skPaint, SkScalar* textRatio,
                                        const SkMatrix& viewMatrix);
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
@@ -97,10 +86,9 @@ private:
                                GrColor color, SkGlyphCache*);
 
     static bool DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrBatchFontCache*,
-                              GrBatchTextStrike**, const SkGlyph&,
-                              SkScalar sx, SkScalar sy, GrColor color,
-                              SkGlyphCache* cache,
-                              SkScalar textRatio, const SkMatrix& viewMatrix);
+                              GrBatchTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                              GrColor color, SkGlyphCache* cache, SkScalar textRatio,
+                              const SkMatrix& viewMatrix);
 };
 
 #endif

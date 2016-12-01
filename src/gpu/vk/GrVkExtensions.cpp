@@ -11,7 +11,7 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-namespace { // This cannot be static because it is used as a template parameter.
+namespace {  // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
     return strcmp(a.c_str(), b.c_str()) < 0;
 }
@@ -23,18 +23,14 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
         return -1;
     }
     SkString extensionStr(ext);
-    int idx = SkTSearch<SkString, extension_compare>(&strings.front(),
-                                                     strings.count(),
-                                                     extensionStr,
-                                                     sizeof(SkString));
+    int idx = SkTSearch<SkString, extension_compare>(&strings.front(), strings.count(),
+                                                     extensionStr, sizeof(SkString));
     return idx;
 }
 
-#define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
+#define GET_PROC_LOCAL(inst, F) PFN_vk##F F = (PFN_vk##F)vkGetInstanceProcAddr(inst, "vk" #F)
 
-static uint32_t remove_patch_version(uint32_t specVersion) {
-    return (specVersion >> 12) << 12;
-}
+static uint32_t remove_patch_version(uint32_t specVersion) { return (specVersion >> 12) << 12; }
 
 bool GrVkExtensions::initInstance(uint32_t specVersion) {
     uint32_t nonPatchVersion = remove_patch_version(specVersion);
@@ -44,8 +40,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
 
     SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
 
-    if (!EnumerateInstanceExtensionProperties ||
-        !EnumerateInstanceLayerProperties) {
+    if (!EnumerateInstanceExtensionProperties || !EnumerateInstanceLayerProperties) {
         return false;
     }
 
@@ -89,7 +84,7 @@ bool GrVkExtensions::initInstance(uint32_t specVersion) {
             fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
         }
     }
-    delete [] extensions;
+    delete[] extensions;
     // sort so we can search
     if (!fInstanceExtensionStrings->empty()) {
         SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(), cmp);
@@ -133,8 +128,7 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
 
     SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
 
-    if (!EnumerateDeviceExtensionProperties ||
-        !EnumerateDeviceLayerProperties) {
+    if (!EnumerateDeviceExtensionProperties || !EnumerateDeviceLayerProperties) {
         return false;
     }
 
@@ -188,16 +182,14 @@ bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysica
     layerCount = fDeviceLayerStrings->count();
     for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
         uint32_t extensionCount = 0;
-        res = EnumerateDeviceExtensionProperties(physDev,
-            (*fDeviceLayerStrings)[layerIndex].c_str(),
-            &extensionCount, nullptr);
+        res = EnumerateDeviceExtensionProperties(
+                physDev, (*fDeviceLayerStrings)[layerIndex].c_str(), &extensionCount, nullptr);
         if (VK_SUCCESS != res) {
             return false;
         }
         VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
-        res = EnumerateDeviceExtensionProperties(physDev,
-            (*fDeviceLayerStrings)[layerIndex].c_str(),
-            &extensionCount, extensions);
+        res = EnumerateDeviceExtensionProperties(
+                physDev, (*fDeviceLayerStrings)[layerIndex].c_str(), &extensionCount, extensions);
         if (VK_SUCCESS != res) {
             delete[] extensions;
             return false;

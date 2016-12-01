@@ -10,8 +10,8 @@
 
 #include "GrPathRenderer.h"
 
-#include "SkTypes.h"
 #include "SkTArray.h"
+#include "SkTypes.h"
 
 class GrContext;
 
@@ -47,8 +47,7 @@ public:
         is drawing the path to the stencil buffer then stencilSupport can be used to determine
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
-    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    DrawType drawType,
+    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args, DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
 private:
@@ -58,7 +57,7 @@ private:
     enum {
         kPreAllocCount = 8,
     };
-    SkSTArray<kPreAllocCount, GrPathRenderer*, true>    fChain;
+    SkSTArray<kPreAllocCount, GrPathRenderer*, true> fChain;
 };
 
 #endif

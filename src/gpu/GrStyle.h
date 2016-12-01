@@ -29,7 +29,7 @@ public:
     static const GrStyle& SimpleFill() {
         static const GrStyle kFill(SkStrokeRec::kFill_InitStyle);
         return kFill;
-        }
+    }
 
     /**
      * A style object that represents a hairline stroke with no path effect.
@@ -40,10 +40,7 @@ public:
         return kHairline;
     }
 
-    enum class Apply {
-        kPathEffectOnly,
-        kPathEffectAndStrokeRec
-    };
+    enum class Apply { kPathEffectOnly, kPathEffectAndStrokeRec };
 
     /**
      * Optional flags for computing keys that may remove unnecessary variation in the key due to
@@ -88,7 +85,7 @@ public:
     }
 
     explicit GrStyle(const SkPaint& paint, SkPaint::Style overrideStyle)
-            : fStrokeRec(paint, overrideStyle) {
+        : fStrokeRec(paint, overrideStyle) {
         this->initPathEffect(paint.getPathEffect());
     }
 
@@ -198,16 +195,16 @@ private:
             fType = SkPathEffect::kNone_DashType;
             fIntervals.reset(0);
         }
-        SkPathEffect::DashType      fType;
-        SkScalar                    fPhase;
-        SkAutoSTArray<4, SkScalar>  fIntervals;
+        SkPathEffect::DashType fType;
+        SkScalar fPhase;
+        SkAutoSTArray<4, SkScalar> fIntervals;
     };
 
     bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const;
 
-    SkStrokeRec         fStrokeRec;
+    SkStrokeRec fStrokeRec;
     sk_sp<SkPathEffect> fPathEffect;
-    DashInfo            fDashInfo;
+    DashInfo fDashInfo;
 };
 
 #endif

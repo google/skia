@@ -13,8 +13,7 @@
 
 namespace GrRectBatchFactory {
 
-GrDrawOp* CreateAAFillNestedRects(GrColor color,
-                                  const SkMatrix& viewMatrix,
+GrDrawOp* CreateAAFillNestedRects(GrColor color, const SkMatrix& viewMatrix,
                                   const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
@@ -31,5 +30,4 @@ GrDrawOp* CreateAAFillNestedRects(GrColor color,
 
     return GrAAStrokeRectBatch::CreateFillBetweenRects(color, viewMatrix, devOutside, devInside);
 }
-
 };

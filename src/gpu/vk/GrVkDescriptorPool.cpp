@@ -10,11 +10,8 @@
 #include "GrVkGpu.h"
 #include "SkTemplates.h"
 
-
 GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type, uint32_t count)
-    : INHERITED()
-    , fType (type)
-    , fCount(count) {
+    : INHERITED(), fType(type), fCount(count) {
     VkDescriptorPoolSize poolSize;
     memset(&poolSize, 0, sizeof(VkDescriptorPoolSize));
     poolSize.descriptorCount = count;
@@ -30,10 +27,8 @@ GrVkDescriptorPool::GrVkDescriptorPool(const GrVkGpu* gpu, VkDescriptorType type
     createInfo.poolSizeCount = 1;
     createInfo.pPoolSizes = &poolSize;
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorPool(gpu->device(),
-                                                                 &createInfo,
-                                                                 nullptr,
-                                                                 &fDescPool));
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                        CreateDescriptorPool(gpu->device(), &createInfo, nullptr, &fDescPool));
 }
 
 bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) const {

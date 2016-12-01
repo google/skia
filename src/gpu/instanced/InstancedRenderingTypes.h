@@ -17,18 +17,18 @@ namespace gr_instanced {
  * Per-vertex data. These values get fed into normal vertex attribs.
  */
 struct ShapeVertex {
-    float     fX, fY;  //!< Shape coordinates.
-    int32_t   fAttrs;  //!< Shape-specific vertex attributes, if needed.
+    float fX, fY;    //!< Shape coordinates.
+    int32_t fAttrs;  //!< Shape-specific vertex attributes, if needed.
 };
 
 /**
  * Per-instance data. These values get fed into instanced vertex attribs.
  */
 struct Instance {
-    uint32_t   fInfo;               //!< Packed info about the instance. See InfoBits.
-    float      fShapeMatrix2x3[6];  //!< Maps canonical shape coords -> device space coords.
-    uint32_t   fColor;              //!< Color to be written out by the primitive processor.
-    float      fLocalRect[4];       //!< Local coords rect that spans [-1, +1] in shape coords.
+    uint32_t fInfo;            //!< Packed info about the instance. See InfoBits.
+    float fShapeMatrix2x3[6];  //!< Maps canonical shape coords -> device space coords.
+    uint32_t fColor;           //!< Color to be written out by the primitive processor.
+    float fLocalRect[4];       //!< Local coords rect that spans [-1, +1] in shape coords.
 };
 
 enum class Attrib : uint8_t {
@@ -42,26 +42,14 @@ enum class Attrib : uint8_t {
 };
 constexpr int kNumAttribs = 1 + (int)Attrib::kLocalRect;
 
-enum class AntialiasMode : uint8_t {
-    kNone,
-    kCoverage,
-    kMSAA,
-    kMixedSamples
-};
+enum class AntialiasMode : uint8_t { kNone, kCoverage, kMSAA, kMixedSamples };
 constexpr int kNumAntialiasModes = 1 + (int)AntialiasMode::kMixedSamples;
 
-enum class ShapeType : uint8_t {
-    kRect,
-    kOval,
-    kSimpleRRect,
-    kNinePatch,
-    kComplexRRect
-};
+enum class ShapeType : uint8_t { kRect, kOval, kSimpleRRect, kNinePatch, kComplexRRect };
 constexpr int kNumShapeTypes = 1 + (int)ShapeType::kComplexRRect;
 
 inline static ShapeType GetRRectShapeType(const SkRRect& rrect) {
-    SkASSERT(rrect.getType() >= SkRRect::kRect_Type &&
-             rrect.getType() <= SkRRect::kComplex_Type);
+    SkASSERT(rrect.getType() >= SkRRect::kRect_Type && rrect.getType() <= SkRRect::kComplex_Type);
     return static_cast<ShapeType>(rrect.getType() - 1);
 
     GR_STATIC_ASSERT((int)ShapeType::kRect == SkRRect::kRect_Type - 1);
@@ -73,11 +61,11 @@ inline static ShapeType GetRRectShapeType(const SkRRect& rrect) {
 }
 
 enum ShapeFlag {
-    kRect_ShapeFlag          = (1 << (int)ShapeType::kRect),
-    kOval_ShapeFlag          = (1 << (int)ShapeType::kOval),
-    kSimpleRRect_ShapeFlag   = (1 << (int)ShapeType::kSimpleRRect),
-    kNinePatch_ShapeFlag     = (1 << (int)ShapeType::kNinePatch),
-    kComplexRRect_ShapeFlag  = (1 << (int)ShapeType::kComplexRRect),
+    kRect_ShapeFlag = (1 << (int)ShapeType::kRect),
+    kOval_ShapeFlag = (1 << (int)ShapeType::kOval),
+    kSimpleRRect_ShapeFlag = (1 << (int)ShapeType::kSimpleRRect),
+    kNinePatch_ShapeFlag = (1 << (int)ShapeType::kNinePatch),
+    kComplexRRect_ShapeFlag = (1 << (int)ShapeType::kComplexRRect),
 
     kRRect_ShapesMask = kSimpleRRect_ShapeFlag | kNinePatch_ShapeFlag | kComplexRRect_ShapeFlag
 };
@@ -88,24 +76,24 @@ constexpr uint8_t GetShapeFlag(ShapeType type) { return 1 << (int)type; }
  * Defines what data is stored at which bits in the fInfo field of the instanced data.
  */
 enum InfoBits {
-    kShapeType_InfoBit       = 29,
-    kInnerShapeType_InfoBit  = 27,
-    kPerspective_InfoBit     = 26,
-    kLocalMatrix_InfoBit     = 25,
-    kParamsIdx_InfoBit       =  0
+    kShapeType_InfoBit = 29,
+    kInnerShapeType_InfoBit = 27,
+    kPerspective_InfoBit = 26,
+    kLocalMatrix_InfoBit = 25,
+    kParamsIdx_InfoBit = 0
 };
 
 enum InfoMasks {
-    kShapeType_InfoMask       = 0u - (1 << kShapeType_InfoBit),
-    kInnerShapeType_InfoMask  = (1 << kShapeType_InfoBit) - (1 << kInnerShapeType_InfoBit),
-    kPerspective_InfoFlag     = (1 << kPerspective_InfoBit),
-    kLocalMatrix_InfoFlag     = (1 << kLocalMatrix_InfoBit),
-    kParamsIdx_InfoMask       = (1 << kLocalMatrix_InfoBit) - 1
+    kShapeType_InfoMask = 0u - (1 << kShapeType_InfoBit),
+    kInnerShapeType_InfoMask = (1 << kShapeType_InfoBit) - (1 << kInnerShapeType_InfoBit),
+    kPerspective_InfoFlag = (1 << kPerspective_InfoBit),
+    kLocalMatrix_InfoFlag = (1 << kLocalMatrix_InfoBit),
+    kParamsIdx_InfoMask = (1 << kLocalMatrix_InfoBit) - 1
 };
 
 GR_STATIC_ASSERT((kNumShapeTypes - 1) <= (uint32_t)kShapeType_InfoMask >> kShapeType_InfoBit);
-GR_STATIC_ASSERT((int)ShapeType::kSimpleRRect <=
-                 kInnerShapeType_InfoMask >> kInnerShapeType_InfoBit);
+GR_STATIC_ASSERT((int)ShapeType::kSimpleRRect <= kInnerShapeType_InfoMask >>
+                 kInnerShapeType_InfoBit);
 
 /**
  * Additional parameters required by some instances (e.g. round rect radii, perspective column,
@@ -128,22 +116,20 @@ struct BatchInfo {
 
     static bool CanCombine(const BatchInfo& a, const BatchInfo& b);
 
-    bool isSimpleRects() const {
-        return !((fShapeTypes & ~kRect_ShapeFlag) | fInnerShapeTypes);
-    }
+    bool isSimpleRects() const { return !((fShapeTypes & ~kRect_ShapeFlag) | fInnerShapeTypes); }
 
     union {
         struct {
-            AntialiasMode   fAntialiasMode;
-            uint8_t         fShapeTypes;
-            uint8_t         fInnerShapeTypes;
-            bool            fHasPerspective               : 1;
-            bool            fHasLocalMatrix               : 1;
-            bool            fHasParams                    : 1;
-            bool            fNonSquare                    : 1;
-            bool            fUsesLocalCoords              : 1;
-            bool            fCannotTweakAlphaForCoverage  : 1;
-            bool            fCannotDiscard                : 1;
+            AntialiasMode fAntialiasMode;
+            uint8_t fShapeTypes;
+            uint8_t fInnerShapeTypes;
+            bool fHasPerspective : 1;
+            bool fHasLocalMatrix : 1;
+            bool fHasParams : 1;
+            bool fNonSquare : 1;
+            bool fUsesLocalCoords : 1;
+            bool fCannotTweakAlphaForCoverage : 1;
+            bool fCannotDiscard : 1;
         };
         uint32_t fData;
     };
@@ -174,11 +160,11 @@ GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(BatchInfo));
 GR_STATIC_ASSERT(kNumShapeTypes <= 8);
 
 struct IndexRange {
-    bool operator ==(const IndexRange& that) const {
+    bool operator==(const IndexRange& that) const {
         SkASSERT(fStart != that.fStart || fCount == that.fCount);
         return fStart == that.fStart;
     }
-    bool operator !=(const IndexRange& that) const { return !(*this == that); }
+    bool operator!=(const IndexRange& that) const { return !(*this == that); }
 
     bool isEmpty() const { return fCount <= 0; }
     int end() { return fStart + fCount; }
@@ -186,7 +172,6 @@ struct IndexRange {
     int16_t fStart;
     int16_t fCount;
 };
-
 }
 
 #endif

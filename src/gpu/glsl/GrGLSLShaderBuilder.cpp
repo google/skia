@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "GrShaderVar.h"
-#include "GrShaderCaps.h"
-#include "GrSwizzle.h"
 #include "glsl/GrGLSLShaderBuilder.h"
+#include "GrShaderCaps.h"
+#include "GrShaderVar.h"
+#include "GrSwizzle.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -35,11 +35,8 @@ void GrGLSLShaderBuilder::declAppend(const GrShaderVar& var) {
     this->codeAppendf("%s;", tempDecl.c_str());
 }
 
-void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
-                                       const char* name,
-                                       int argCnt,
-                                       const GrShaderVar* args,
-                                       const char* body,
+void GrGLSLShaderBuilder::emitFunction(GrSLType returnType, const char* name, int argCnt,
+                                       const GrShaderVar* args, const char* body,
                                        SkString* outName) {
     this->functions().append(GrGLSLTypeString(returnType));
     fProgramBuilder->nameVariable(outName, '\0', name);
@@ -62,19 +59,17 @@ static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
     }
 }
 
-void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
-                                              SamplerHandle samplerHandle,
-                                              const char* coordName,
-                                              GrSLType varyingType) const {
+void GrGLSLShaderBuilder::appendTextureLookup(SkString* out, SamplerHandle samplerHandle,
+                                              const char* coordName, GrSLType varyingType) const {
     const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
     GrSLType samplerType = sampler.getType();
     if (samplerType == kTexture2DRectSampler_GrSLType) {
         if (varyingType == kVec2f_GrSLType) {
-            out->appendf("texture(%s, textureSize(%s) * %s)",
-                         sampler.c_str(), sampler.c_str(), coordName);
+            out->appendf("texture(%s, textureSize(%s) * %s)", sampler.c_str(), sampler.c_str(),
+                         coordName);
         } else {
-            out->appendf("texture(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
-                         sampler.c_str(), sampler.c_str(), coordName, coordName);
+            out->appendf("texture(%s, vec3(textureSize(%s) * %s.xy, %s.z))", sampler.c_str(),
+                         sampler.c_str(), coordName, coordName);
         }
     } else {
         out->appendf("texture(%s, %s)", sampler.c_str(), coordName);
@@ -82,8 +77,7 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
     append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
 }
 
-void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
-                                              const char* coordName,
+void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle, const char* coordName,
                                               GrSLType varyingType,
                                               GrGLSLColorSpaceXformHelper* colorXformHelper) {
     if (colorXformHelper && colorXformHelper->getXformMatrix()) {
@@ -97,11 +91,8 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
 }
 
 void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
-                                                    const char* modulation,
-                                                    SamplerHandle samplerHandle,
-                                                    const char* coordName,
-                                                    GrSLType varyingType,
-                                                    GrGLSLColorSpaceXformHelper* colorXformHelper) {
+        const char* modulation, SamplerHandle samplerHandle, const char* coordName,
+        GrSLType varyingType, GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
     if (colorXformHelper && colorXformHelper->getXformMatrix()) {
@@ -113,27 +104,21 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
     }
 }
 
-void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
-                                                const char* srcColor,
+void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out, const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
     // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
     // re-insert the original alpha. The supplied srcColor is likely to be of the form
     // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
     static const GrShaderVar gColorGamutXformArgs[] = {
-        GrShaderVar("color", kVec4f_GrSLType),
-        GrShaderVar("xform", kMat44f_GrSLType),
+            GrShaderVar("color", kVec4f_GrSLType), GrShaderVar("xform", kMat44f_GrSLType),
     };
     SkString functionBody;
     // Gamut xform, clamp to destination gamut
     functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);\n");
     functionBody.append("\treturn color;");
     SkString colorGamutXformFuncName;
-    this->emitFunction(kVec4f_GrSLType,
-                       "colorGamutXform",
-                       SK_ARRAY_COUNT(gColorGamutXformArgs),
-                       gColorGamutXformArgs,
-                       functionBody.c_str(),
-                       &colorGamutXformFuncName);
+    this->emitFunction(kVec4f_GrSLType, "colorGamutXform", SK_ARRAY_COUNT(gColorGamutXformArgs),
+                       gColorGamutXformArgs, functionBody.c_str(), &colorGamutXformFuncName);
 
     out->appendf("%s(%s, %s)", colorGamutXformFuncName.c_str(), srcColor,
                  colorXformHelper->getXformMatrix());
@@ -146,8 +131,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
     this->codeAppend(xform.c_str());
 }
 
-void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
-                                           SamplerHandle samplerHandle,
+void GrGLSLShaderBuilder::appendTexelFetch(SkString* out, SamplerHandle samplerHandle,
                                            const char* coordExpr) const {
     const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
     SkASSERT(fProgramBuilder->shaderCaps()->texelFetchSupport());
@@ -195,10 +179,7 @@ void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifi
 }
 
 void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
-    static const char* interfaceQualifierNames[] = {
-        "in",
-        "out"
-    };
+    static const char* interfaceQualifierNames[] = {"in", "out"};
 
     for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
         const SkTArray<SkString>& params = fLayoutParams[interface];
@@ -222,7 +203,7 @@ void GrGLSLShaderBuilder::finalize(uint32_t visibility) {
     this->versionDecl() = fProgramBuilder->shaderCaps()->versionDeclString();
     this->compileAndAppendLayoutQualifiers();
     SkASSERT(visibility);
-    fProgramBuilder->appendUniformDecls((GrShaderFlags) visibility, &this->uniforms());
+    fProgramBuilder->appendUniformDecls((GrShaderFlags)visibility, &this->uniforms());
     this->appendDecls(fInputs, &this->inputs());
     this->appendDecls(fOutputs, &this->outputs());
     this->onFinalize();

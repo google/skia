@@ -8,10 +8,10 @@
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
+#include "GrTypesPriv.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
-#include "GrTypesPriv.h"
 
 class GrBuffer;
 class GrGpu;
@@ -56,11 +56,9 @@ protected:
      *                              This value will be clamped to some
      *                              reasonable minimum.
      */
-     GrBufferAllocPool(GrGpu* gpu,
-                       GrBufferType bufferType,
-                       size_t   bufferSize = 0);
+    GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, size_t bufferSize = 0);
 
-     virtual ~GrBufferAllocPool();
+    virtual ~GrBufferAllocPool();
 
     /**
      * Returns a block of memory to hold data. A buffer designated to hold the
@@ -81,17 +79,14 @@ protected:
      * @param offset       returns the offset into buffer of the data.
      * @return pointer to where the client should write the data.
      */
-    void* makeSpace(size_t size,
-                    size_t alignment,
-                    const GrBuffer** buffer,
-                    size_t* offset);
+    void* makeSpace(size_t size, size_t alignment, const GrBuffer** buffer, size_t* offset);
 
     GrBuffer* getBuffer(size_t size);
 
 private:
     struct BufferBlock {
-        size_t      fBytesFree;
-        GrBuffer*   fBuffer;
+        size_t fBytesFree;
+        GrBuffer* fBuffer;
     };
 
     bool createBlock(size_t requestSize);
@@ -102,16 +97,16 @@ private:
 #ifdef SK_DEBUG
     void validate(bool unusedBlockAllowed = false) const;
 #endif
-    size_t                          fBytesInUse;
+    size_t fBytesInUse;
 
-    GrGpu*                          fGpu;
-    size_t                          fMinBlockSize;
-    GrBufferType                    fBufferType;
+    GrGpu* fGpu;
+    size_t fMinBlockSize;
+    GrBufferType fBufferType;
 
-    SkTArray<BufferBlock>           fBlocks;
-    void*                           fCpuData;
-    void*                           fBufferPtr;
-    size_t                          fBufferMapThreshold;
+    SkTArray<BufferBlock> fBlocks;
+    void* fCpuData;
+    void* fBufferPtr;
+    size_t fBufferMapThreshold;
 };
 
 /**
@@ -147,10 +142,7 @@ public:
      *                     In units of the size of a vertex from layout param.
      * @return pointer to first vertex.
      */
-    void* makeSpace(size_t vertexSize,
-                    int vertexCount,
-                    const GrBuffer** buffer,
-                    int* startVertex);
+    void* makeSpace(size_t vertexSize, int vertexCount, const GrBuffer** buffer, int* startVertex);
 
 private:
     typedef GrBufferAllocPool INHERITED;
@@ -186,9 +178,7 @@ public:
      * @param startIndex   returns the offset into buffer of the first index.
      * @return pointer to first index.
      */
-    void* makeSpace(int indexCount,
-                    const GrBuffer** buffer,
-                    int* startIndex);
+    void* makeSpace(int indexCount, const GrBuffer** buffer, int* startIndex);
 
 private:
     typedef GrBufferAllocPool INHERITED;

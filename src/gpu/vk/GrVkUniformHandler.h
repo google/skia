@@ -28,8 +28,8 @@ public:
     // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
     struct UniformInfo {
         GrShaderVar fVariable;
-        uint32_t        fVisibility;
-        uint32_t        fUBOffset;
+        uint32_t fVisibility;
+        uint32_t fUBOffset;
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
@@ -48,22 +48,15 @@ private:
         , fSamplers(kUniformsPerBlock)
         , fCurrentVertexUBOOffset(0)
         , fCurrentFragmentUBOOffset(0)
-        , fCurrentSamplerBinding(0) {
-    }
+        , fCurrentSamplerBinding(0) {}
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
-                                          GrSLType type,
-                                          GrSLPrecision precision,
-                                          const char* name,
-                                          bool mangleName,
-                                          int arrayCount,
+    UniformHandle internalAddUniformArray(uint32_t visibility, GrSLType type,
+                                          GrSLPrecision precision, const char* name,
+                                          bool mangleName, int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(uint32_t visibility,
-                             GrSwizzle swizzle,
-                             GrSLType type,
-                             GrSLPrecision precision,
-                             const char* name) override;
+    SamplerHandle addSampler(uint32_t visibility, GrSwizzle swizzle, GrSLType type,
+                             GrSLPrecision precision, const char* name) override;
 
     int numSamplers() const { return fSamplers.count(); }
     const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
@@ -76,7 +69,7 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
-    ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType,  GrImageStorageFormat,
+    ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType, GrImageStorageFormat,
                                        GrSLMemoryModel, GrSLRestrict, GrIOType,
                                        const char* name) override {
         SkFAIL("Image storages not implemented for Vulkan.");
@@ -94,19 +87,15 @@ private:
     bool hasVertexUniforms() const { return fCurrentVertexUBOOffset > 0; }
     bool hasFragmentUniforms() const { return fCurrentFragmentUBOOffset > 0; }
 
+    const UniformInfo& getUniformInfo(UniformHandle u) const { return fUniforms[u.toIndex()]; }
 
-    const UniformInfo& getUniformInfo(UniformHandle u) const {
-        return fUniforms[u.toIndex()];
-    }
-
-
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
+    UniformInfoArray fUniforms;
+    UniformInfoArray fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
 
-    uint32_t            fCurrentVertexUBOOffset;
-    uint32_t            fCurrentFragmentUBOOffset;
-    uint32_t            fCurrentSamplerBinding;
+    uint32_t fCurrentVertexUBOOffset;
+    uint32_t fCurrentFragmentUBOOffset;
+    uint32_t fCurrentSamplerBinding;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;

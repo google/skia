@@ -31,25 +31,15 @@ DRAW_BATCH_TEST_EXTERN(TextBlobBatch);
 DRAW_BATCH_TEST_EXTERN(VerticesBatch);
 
 static BatchTestFunc gTestBatches[] = {
-    DRAW_BATCH_TEST_ENTRY(AAConvexPathBatch),
-    DRAW_BATCH_TEST_ENTRY(AADistanceFieldPathBatch),
-    DRAW_BATCH_TEST_ENTRY(AAFillRectBatch),
-    DRAW_BATCH_TEST_ENTRY(AAFillRectBatchLocalMatrix),
-    DRAW_BATCH_TEST_ENTRY(AAHairlineBatch),
-    DRAW_BATCH_TEST_ENTRY(AAStrokeRectBatch),
-    DRAW_BATCH_TEST_ENTRY(AnalyticRectBatch),
-    DRAW_BATCH_TEST_ENTRY(DashBatch),
-    DRAW_BATCH_TEST_ENTRY(DefaultPathBatch),
-    DRAW_BATCH_TEST_ENTRY(CircleBatch),
-    DRAW_BATCH_TEST_ENTRY(DIEllipseBatch),
-    DRAW_BATCH_TEST_ENTRY(EllipseBatch),
-    DRAW_BATCH_TEST_ENTRY(GrDrawAtlasBatch),
-    DRAW_BATCH_TEST_ENTRY(NonAAStrokeRectBatch),
-    DRAW_BATCH_TEST_ENTRY(RRectBatch),
-    DRAW_BATCH_TEST_ENTRY(TesselatingPathBatch),
-    DRAW_BATCH_TEST_ENTRY(TextBlobBatch),
-    DRAW_BATCH_TEST_ENTRY(VerticesBatch)
-};
+        DRAW_BATCH_TEST_ENTRY(AAConvexPathBatch), DRAW_BATCH_TEST_ENTRY(AADistanceFieldPathBatch),
+        DRAW_BATCH_TEST_ENTRY(AAFillRectBatch),   DRAW_BATCH_TEST_ENTRY(AAFillRectBatchLocalMatrix),
+        DRAW_BATCH_TEST_ENTRY(AAHairlineBatch),   DRAW_BATCH_TEST_ENTRY(AAStrokeRectBatch),
+        DRAW_BATCH_TEST_ENTRY(AnalyticRectBatch), DRAW_BATCH_TEST_ENTRY(DashBatch),
+        DRAW_BATCH_TEST_ENTRY(DefaultPathBatch),  DRAW_BATCH_TEST_ENTRY(CircleBatch),
+        DRAW_BATCH_TEST_ENTRY(DIEllipseBatch),    DRAW_BATCH_TEST_ENTRY(EllipseBatch),
+        DRAW_BATCH_TEST_ENTRY(GrDrawAtlasBatch),  DRAW_BATCH_TEST_ENTRY(NonAAStrokeRectBatch),
+        DRAW_BATCH_TEST_ENTRY(RRectBatch),        DRAW_BATCH_TEST_ENTRY(TesselatingPathBatch),
+        DRAW_BATCH_TEST_ENTRY(TextBlobBatch),     DRAW_BATCH_TEST_ENTRY(VerticesBatch)};
 
 GrDrawOp* GrRandomDrawBatch(SkRandom* random, GrContext* context) {
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gTestBatches)));

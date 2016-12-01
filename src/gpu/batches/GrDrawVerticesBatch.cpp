@@ -8,33 +8,30 @@
 #include "GrDrawVerticesBatch.h"
 
 #include "GrBatchFlushState.h"
-#include "GrInvariantOutput.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrInvariantOutput.h"
 
-static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
-                                                        int* colorOffset,
-                                                        int* texOffset,
-                                                        const SkMatrix& viewMatrix,
+static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords, int* colorOffset,
+                                                        int* texOffset, const SkMatrix& viewMatrix,
                                                         bool coverageIgnored) {
     using namespace GrDefaultGeoProcFactory;
     *texOffset = -1;
     *colorOffset = -1;
 
     Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type :
-                                             LocalCoords::kUsePosition_Type);
+    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type
+                                           : LocalCoords::kUsePosition_Type);
     *colorOffset = sizeof(SkPoint);
     if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
     }
-    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
-                                         coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type), coverage, localCoords,
+                                         viewMatrix);
 }
 
 GrDrawVerticesBatch::GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiveType,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPoint* positions, int vertexCount,
-                                         const uint16_t* indices, int indexCount,
+                                         const SkMatrix& viewMatrix, const SkPoint* positions,
+                                         int vertexCount, const uint16_t* indices, int indexCount,
                                          const GrColor* colors, const SkPoint* localCoords,
                                          const SkRect& bounds)
     : INHERITED(ClassID()) {
@@ -105,8 +102,8 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
                                                         fViewMatrix, fCoverageIgnored));
     size_t vertexStride = gp->getVertexStride();
 
-    SkASSERT(vertexStride == sizeof(SkPoint) + (hasLocalCoords ? sizeof(SkPoint) : 0)
-                                             + sizeof(GrColor));
+    SkASSERT(vertexStride ==
+             sizeof(SkPoint) + (hasLocalCoords ? sizeof(SkPoint) : 0) + sizeof(GrColor));
 
     int instanceCount = fMeshes.count();
 
@@ -162,8 +159,8 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
 
     GrMesh mesh;
     if (indices) {
-        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertexCount, fIndexCount);
+        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex, firstIndex,
+                         fVertexCount, fIndexCount);
 
     } else {
         mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
@@ -256,11 +253,10 @@ static SkPoint random_point(SkRandom* random, SkScalar min, SkScalar max) {
 }
 
 static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkScalar max,
-                             SkRandom* random,
-                             SkTArray<SkPoint>* positions,
+                             SkRandom* random, SkTArray<SkPoint>* positions,
                              SkTArray<SkPoint>* texCoords, bool hasTexCoords,
-                             SkTArray<GrColor>* colors, bool hasColors,
-                             SkTArray<uint16_t>* indices, bool hasIndices) {
+                             SkTArray<GrColor>* colors, bool hasColors, SkTArray<uint16_t>* indices,
+                             bool hasIndices) {
     for (uint32_t v = 0; v < count; v++) {
         positions->push_back(random_point(random, min, max));
         if (hasTexCoords) {
@@ -294,33 +290,27 @@ DRAW_BATCH_TEST_DEFINE(VerticesBatch) {
 
     static const SkScalar kMinVertExtent = -100.f;
     static const SkScalar kMaxVertExtent = 100.f;
-    randomize_params(seed_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
-                     random,
-                     &positions,
-                     &texCoords, hasTexCoords,
-                     &colors, hasColors,
-                     &indices, hasIndices);
+    randomize_params(seed_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent, random,
+                     &positions, &texCoords, hasTexCoords, &colors, hasColors, &indices,
+                     hasIndices);
 
     for (uint32_t i = 1; i < primitiveCount; i++) {
         randomize_params(primitive_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
-                         random,
-                         &positions,
-                         &texCoords, hasTexCoords,
-                         &colors, hasColors,
-                         &indices, hasIndices);
+                         random, &positions, &texCoords, hasTexCoords, &colors, hasColors, &indices,
+                         hasIndices);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkRect bounds;
-    SkDEBUGCODE(bool result = ) bounds.setBoundsCheck(positions.begin(), vertexCount);
+    SkDEBUGCODE(bool result =) bounds.setBoundsCheck(positions.begin(), vertexCount);
     SkASSERT(result);
 
     viewMatrix.mapRect(&bounds);
 
     GrColor color = GrRandomColor(random);
     return new GrDrawVerticesBatch(color, type, viewMatrix, positions.begin(), vertexCount,
-                                   indices.begin(), hasIndices ? vertexCount : 0,
-                                   colors.begin(), texCoords.begin(), bounds);
+                                   indices.begin(), hasIndices ? vertexCount : 0, colors.begin(),
+                                   texCoords.begin(), bounds);
 }
 
 #endif

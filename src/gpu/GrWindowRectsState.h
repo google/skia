@@ -12,17 +12,11 @@
 
 class GrWindowRectsState {
 public:
-    enum class Mode : bool {
-        kExclusive,
-        kInclusive
-    };
+    enum class Mode : bool { kExclusive, kInclusive };
 
     GrWindowRectsState() : fMode(Mode::kExclusive) {}
     GrWindowRectsState(const GrWindowRectangles& windows, const SkIPoint& origin, Mode mode)
-        : fMode(mode)
-        , fOrigin(origin)
-        , fWindows(windows) {
-    }
+        : fMode(mode), fOrigin(origin), fWindows(windows) {}
 
     bool enabled() const { return Mode::kInclusive == fMode || !fWindows.empty(); }
     Mode mode() const { return fMode; }
@@ -52,9 +46,9 @@ public:
     }
 
 private:
-    Mode                 fMode;
-    SkIPoint             fOrigin;
-    GrWindowRectangles   fWindows;
+    Mode fMode;
+    SkIPoint fOrigin;
+    GrWindowRectangles fWindows;
 };
 
 #endif

@@ -5,19 +5,18 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
 #include <functional>
 
+#include "../private/GrGLSL.h"
 #include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
 #include "GrSwizzle.h"
 #include "SkChecksum.h"
-#include "SkTHash.h"
 #include "SkTArray.h"
-#include "../private/GrGLSL.h"
+#include "SkTHash.h"
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
@@ -73,36 +72,36 @@ public:
     };
 
     enum BlitFramebufferFlags {
-        kNoSupport_BlitFramebufferFlag                    = 1 << 0,
-        kNoScalingOrMirroring_BlitFramebufferFlag         = 1 << 1,
-        kResolveMustBeFull_BlitFrambufferFlag             = 1 << 2,
-        kNoMSAADst_BlitFramebufferFlag                    = 1 << 3,
-        kNoFormatConversion_BlitFramebufferFlag           = 1 << 4,
+        kNoSupport_BlitFramebufferFlag = 1 << 0,
+        kNoScalingOrMirroring_BlitFramebufferFlag = 1 << 1,
+        kResolveMustBeFull_BlitFrambufferFlag = 1 << 2,
+        kNoMSAADst_BlitFramebufferFlag = 1 << 3,
+        kNoFormatConversion_BlitFramebufferFlag = 1 << 4,
         kNoFormatConversionForMSAASrc_BlitFramebufferFlag = 1 << 5,
-        kRectsMustMatchForMSAASrc_BlitFramebufferFlag     = 1 << 6,
+        kRectsMustMatchForMSAASrc_BlitFramebufferFlag = 1 << 6,
     };
 
     enum InvalidateFBType {
         kNone_InvalidateFBType,
-        kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
-        kInvalidate_InvalidateFBType,    //<! glInvalidateFramebuffer()
+        kDiscard_InvalidateFBType,     //<! glDiscardFramebuffer()
+        kInvalidate_InvalidateFBType,  //<! glInvalidateFramebuffer()
 
         kLast_InvalidateFBType = kInvalidate_InvalidateFBType
     };
 
     enum MapBufferType {
         kNone_MapBufferType,
-        kMapBuffer_MapBufferType,         // glMapBuffer()
-        kMapBufferRange_MapBufferType,    // glMapBufferRange()
-        kChromium_MapBufferType,          // GL_CHROMIUM_map_sub
+        kMapBuffer_MapBufferType,       // glMapBuffer()
+        kMapBufferRange_MapBufferType,  // glMapBufferRange()
+        kChromium_MapBufferType,        // GL_CHROMIUM_map_sub
 
         kLast_MapBufferType = kChromium_MapBufferType,
     };
 
     enum TransferBufferType {
         kNone_TransferBufferType,
-        kPBO_TransferBufferType,          // ARB_pixel_buffer_object
-        kChromium_TransferBufferType,     // CHROMIUM_pixel_transfer_buffer_object
+        kPBO_TransferBufferType,       // ARB_pixel_buffer_object
+        kChromium_TransferBufferType,  // CHROMIUM_pixel_transfer_buffer_object
 
         kLast_TransferBufferType = kChromium_TransferBufferType,
     };
@@ -170,9 +169,7 @@ public:
     * to be supported by the driver but are legal GLenum names given the GL
     * version and extensions supported.
     */
-    const SkTArray<StencilFormat, true>& stencilFormats() const {
-        return fStencilFormats;
-    }
+    const SkTArray<StencilFormat, true>& stencilFormats() const { return fStencilFormats; }
 
     /**
      * Has a stencil format index been found for the config (or we've found that no format works).
@@ -231,10 +228,8 @@ public:
      * Does the preferred MSAA FBO extension have MSAA renderbuffers?
      */
     bool usesMSAARenderBuffers() const {
-        return kNone_MSFBOType != fMSFBOType &&
-               kES_IMG_MsToTexture_MSFBOType != fMSFBOType &&
-               kES_EXT_MsToTexture_MSFBOType != fMSFBOType &&
-               kMixedSamples_MSFBOType != fMSFBOType;
+        return kNone_MSFBOType != fMSFBOType && kES_IMG_MsToTexture_MSFBOType != fMSFBOType &&
+               kES_EXT_MsToTexture_MSFBOType != fMSFBOType && kMixedSamples_MSFBOType != fMSFBOType;
     }
 
     /**
@@ -323,11 +318,10 @@ public:
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
     /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
-    bool readPixelsSupported(GrPixelConfig surfaceConfig,
-                             GrPixelConfig readConfig,
-                             std::function<void (GrGLenum, GrGLint*)> getIntegerv,
-                             std::function<bool ()> bindRenderTarget,
-                             std::function<void ()> unbindRenderTarget) const;
+    bool readPixelsSupported(GrPixelConfig surfaceConfig, GrPixelConfig readConfig,
+                             std::function<void(GrGLenum, GrGLint*)> getIntegerv,
+                             std::function<bool()> bindRenderTarget,
+                             std::function<void()> unbindRenderTarget) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -388,10 +382,10 @@ private:
 
     int fMaxFragmentUniformVectors;
 
-    MSFBOType           fMSFBOType;
-    InvalidateFBType    fInvalidateFBType;
-    MapBufferType       fMapBufferType;
-    TransferBufferType  fTransferBufferType;
+    MSFBOType fMSFBOType;
+    InvalidateFBType fInvalidateFBType;
+    MapBufferType fMapBufferType;
+    TransferBufferType fTransferBufferType;
 
     bool fUnpackRowLengthSupport : 1;
     bool fUnpackFlipYSupport : 1;
@@ -399,7 +393,7 @@ private:
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
     bool fTextureRedSupport : 1;
-    bool fImagingSupport  : 1;
+    bool fImagingSupport : 1;
     bool fVertexArrayObjectSupport : 1;
     bool fDirectStateAccessSupport : 1;
     bool fDebugSupport : 1;
@@ -478,19 +472,19 @@ private:
         };
 
         // Index fStencilFormats.
-        int      fStencilFormatIndex;
+        int fStencilFormatIndex;
 
         enum {
             kVerifiedColorAttachment_Flag = 0x1,
-            kTextureable_Flag             = 0x2,
-            kRenderable_Flag              = 0x4,
-            kRenderableWithMSAA_Flag      = 0x8,
+            kTextureable_Flag = 0x2,
+            kRenderable_Flag = 0x4,
+            kRenderableWithMSAA_Flag = 0x8,
             /** kFBOColorAttachment means that even if the config cannot be a GrRenderTarget, we can
                 still attach it to a FBO for blitting or reading pixels. */
-            kFBOColorAttachment_Flag      = 0x10,
-            kCanUseTexStorage_Flag        = 0x20,
-            kCanUseWithTexelBuffer_Flag   = 0x40,
-            kCanUseAsImageStorage_Flag    = 0x80,
+            kFBOColorAttachment_Flag = 0x10,
+            kCanUseTexStorage_Flag = 0x20,
+            kCanUseWithTexelBuffer_Flag = 0x40,
+            kCanUseAsImageStorage_Flag = 0x80,
         };
         uint32_t fFlags;
 

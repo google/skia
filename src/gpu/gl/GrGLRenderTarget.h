@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLRenderTarget_DEFINED
 #define GrGLRenderTarget_DEFINED
 
@@ -24,16 +23,14 @@ public:
     enum { kUnresolvableFBOID = 0 };
 
     struct IDDesc {
-        GrGLuint                   fRTFBOID;
-        GrBackendObjectOwnership   fRTFBOOwnership;
-        GrGLuint                   fTexFBOID;
-        GrGLuint                   fMSColorRenderbufferID;
-        bool                       fIsMixedSampled;
+        GrGLuint fRTFBOID;
+        GrBackendObjectOwnership fRTFBOOwnership;
+        GrGLuint fTexFBOID;
+        GrGLuint fMSColorRenderbufferID;
+        bool fIsMixedSampled;
     };
 
-    static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
-                                               const GrSurfaceDesc&,
-                                               const IDDesc&,
+    static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&,
                                                int stencilBits);
 
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
@@ -49,8 +46,7 @@ public:
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
-        if (!this->isUnifiedMultisampled() ||
-            fRTFBOID == fTexFBOID) {
+        if (!this->isUnifiedMultisampled() || fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case
             return kAutoResolves_ResolveType;
         } else if (kUnresolvableFBOID == fTexFBOID) {
@@ -94,21 +90,21 @@ private:
     // The number total number of samples, including both MSAA and resolve texture samples.
     int totalSamples() const;
 
-    GrGLuint    fRTFBOID;
-    GrGLuint    fTexFBOID;
-    GrGLuint    fMSColorRenderbufferID;
+    GrGLuint fRTFBOID;
+    GrGLuint fTexFBOID;
+    GrGLuint fMSColorRenderbufferID;
 
     GrBackendObjectOwnership fRTFBOOwnership;
 
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect   fViewport;
+    GrGLIRect fViewport;
 
     // The RenderTarget needs to be able to report its VRAM footprint even after abandon and
     // release have potentially zeroed out the IDs (e.g., so the cache can reset itself). Since
     // the IDs are just required for the computation in totalSamples we cache that result here.
-    int         fNumSamplesOwnedPerPixel;
+    int fNumSamplesOwnedPerPixel;
 
     typedef GrRenderTarget INHERITED;
 };

@@ -17,8 +17,7 @@ class GrGLPathProcessor : public GrGLSLPrimitiveProcessor {
 public:
     GrGLPathProcessor() : fColor(GrColor_ILLEGAL) {}
 
-    static void GenKey(const GrPathProcessor& pathProc,
-                       const GrShaderCaps&,
+    static void GenKey(const GrPathProcessor& pathProc, const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
         b->add32(SkToInt(pathProc.overrides().readsColor()) |
                  (SkToInt(pathProc.overrides().readsCoverage()) << 1) |
@@ -39,11 +38,9 @@ public:
         // Setup uniform color
         if (pathProc.overrides().readsColor()) {
             const char* stagedLocalVarName;
-            fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kVec4f_GrSLType,
-                                                             kDefault_GrSLPrecision,
-                                                             "Color",
-                                                             &stagedLocalVarName);
+            fColorUniform = args.fUniformHandler->addUniform(
+                    kFragment_GrShaderFlag, kVec4f_GrSLType, kDefault_GrSLPrecision, "Color",
+                    &stagedLocalVarName);
             fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
         }
 
@@ -57,17 +54,16 @@ public:
                         FPCoordTransformHandler* transformHandler) {
         int i = 0;
         while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
-            GrSLType varyingType =
-                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
-                                                                 : kVec2f_GrSLType;
+            GrSLType varyingType = coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
+                                                                                : kVec2f_GrSLType;
 
             SkString strVaryingName;
             strVaryingName.printf("TransformedCoord_%d", i);
             GrGLSLVertToFrag v(varyingType);
-            GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*) varyingHandler;
+            GrGLVaryingHandler* glVaryingHandler = (GrGLVaryingHandler*)varyingHandler;
             fInstalledTransforms.push_back().fHandle =
-                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(),
-                                                               &v).toIndex();
+                    glVaryingHandler->addPathProcessingVarying(strVaryingName.c_str(), &v)
+                            .toIndex();
             fInstalledTransforms.back().fType = varyingType;
 
             transformHandler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
@@ -75,8 +71,7 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pd,
-                 const GrPrimitiveProcessor& primProc,
+    void setData(const GrGLSLProgramDataManager& pd, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.overrides().readsColor() && pathProc.color() != fColor) {
@@ -106,9 +101,9 @@ public:
 private:
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
     struct TransformVarying {
-        VaryingHandle  fHandle;
-        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
-        GrSLType       fType = kVoid_GrSLType;
+        VaryingHandle fHandle;
+        SkMatrix fCurrentValue = SkMatrix::InvalidMatrix();
+        GrSLType fType = kVoid_GrSLType;
     };
 
     SkTArray<TransformVarying, true> fInstalledTransforms;
@@ -119,14 +114,9 @@ private:
     typedef GrGLSLPrimitiveProcessor INHERITED;
 };
 
-GrPathProcessor::GrPathProcessor(GrColor color,
-                                 const GrXPOverridesForBatch& overrides,
-                                 const SkMatrix& viewMatrix,
-                                 const SkMatrix& localMatrix)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fLocalMatrix(localMatrix)
-    , fOverrides(overrides) {
+GrPathProcessor::GrPathProcessor(GrColor color, const GrXPOverridesForBatch& overrides,
+                                 const SkMatrix& viewMatrix, const SkMatrix& localMatrix)
+    : fColor(color), fViewMatrix(viewMatrix), fLocalMatrix(localMatrix), fOverrides(overrides) {
     this->initClassID<GrPathProcessor>();
 }
 

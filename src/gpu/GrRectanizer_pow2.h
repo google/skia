@@ -19,11 +19,9 @@
 // The skyline algorithm almost always provides a better packing.
 class GrRectanizerPow2 : public GrRectanizer {
 public:
-    GrRectanizerPow2(int w, int h) : INHERITED(w, h) {
-        this->reset();
-    }
+    GrRectanizerPow2(int w, int h) : INHERITED(w, h) { this->reset(); }
 
-    virtual ~GrRectanizerPow2() { }
+    virtual ~GrRectanizerPow2() {}
 
     void reset() override {
         fNextStripY = 0;
@@ -42,17 +40,17 @@ private:
     static const int kMaxExponent = 16;
 
     struct Row {
-        SkIPoint16  fLoc;
+        SkIPoint16 fLoc;
         // fRowHeight is actually known by this struct's position in fRows
         // but it is used to signal if there exists an open row of this height
-        int         fRowHeight;
+        int fRowHeight;
 
         bool canAddWidth(int width, int containerWidth) const {
             return fLoc.fX + width <= containerWidth;
         }
     };
 
-    Row fRows[kMaxExponent];    // 0-th entry will be unused
+    Row fRows[kMaxExponent];  // 0-th entry will be unused
 
     int fNextStripY;
     int32_t fAreaSoFar;
@@ -64,9 +62,7 @@ private:
         return index;
     }
 
-    bool canAddStrip(int height) const {
-        return fNextStripY + height <= this->height();
-    }
+    bool canAddStrip(int height) const { return fNextStripY + height <= this->height(); }
 
     void initRow(Row* row, int rowHeight) {
         row->fLoc.set(0, fNextStripY);

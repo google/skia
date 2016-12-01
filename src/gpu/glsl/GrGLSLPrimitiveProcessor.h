@@ -28,8 +28,8 @@ public:
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 
-    using UniformHandle      = GrGLSLProgramDataManager::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     /**
@@ -43,15 +43,14 @@ public:
     public:
         FPCoordTransformHandler(const GrPipeline& pipeline,
                                 SkTArray<GrShaderVar>* transformedCoordVars)
-                : fIter(pipeline)
-                , fTransformedCoordVars(transformedCoordVars) {}
+            : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {}
 
-        ~FPCoordTransformHandler() { SkASSERT(!this->nextCoordTransform());}
+        ~FPCoordTransformHandler() { SkASSERT(!this->nextCoordTransform()); }
 
         const GrCoordTransform* nextCoordTransform();
 
         // 'args' are constructor params to GrShaderVar.
-        template<typename... Args>
+        template <typename... Args>
         void specifyCoordsForCurrCoordTransform(Args&&... args) {
             SkASSERT(!fAddedCoord);
             fTransformedCoordVars->emplace_back(std::forward<Args>(args)...);
@@ -60,26 +59,18 @@ public:
 
     private:
         GrFragmentProcessor::CoordTransformIter fIter;
-        SkDEBUGCODE(bool                        fAddedCoord = false;)
-        SkDEBUGCODE(const GrCoordTransform*     fCurr = nullptr;)
-        SkTArray<GrShaderVar>*                  fTransformedCoordVars;
+        SkDEBUGCODE(bool fAddedCoord = false;) SkDEBUGCODE(const GrCoordTransform* fCurr = nullptr;)
+                SkTArray<GrShaderVar>* fTransformedCoordVars;
     };
 
     struct EmitArgs {
-        EmitArgs(GrGLSLVertexBuilder* vertBuilder,
-                 GrGLSLGeometryBuilder* geomBuilder,
-                 GrGLSLPPFragmentBuilder* fragBuilder,
-                 GrGLSLVaryingHandler* varyingHandler,
-                 GrGLSLUniformHandler* uniformHandler,
-                 const GrShaderCaps* caps,
-                 const GrPrimitiveProcessor& gp,
-                 const char* outputColor,
-                 const char* outputCoverage,
-                 const char* distanceVectorName,
-                 const SamplerHandle* texSamplers,
-                 const SamplerHandle* bufferSamplers,
-                 const ImageStorageHandle* imageStorages,
-                 FPCoordTransformHandler* transformHandler)
+        EmitArgs(GrGLSLVertexBuilder* vertBuilder, GrGLSLGeometryBuilder* geomBuilder,
+                 GrGLSLPPFragmentBuilder* fragBuilder, GrGLSLVaryingHandler* varyingHandler,
+                 GrGLSLUniformHandler* uniformHandler, const GrShaderCaps* caps,
+                 const GrPrimitiveProcessor& gp, const char* outputColor,
+                 const char* outputCoverage, const char* distanceVectorName,
+                 const SamplerHandle* texSamplers, const SamplerHandle* bufferSamplers,
+                 const ImageStorageHandle* imageStorages, FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
             , fGeomBuilder(geomBuilder)
             , fFragBuilder(fragBuilder)
@@ -134,8 +125,7 @@ public:
 
 protected:
     void setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
-                           GrGLSLUniformHandler* uniformHandler,
-                           const char* outputName,
+                           GrGLSLUniformHandler* uniformHandler, const char* outputName,
                            UniformHandle* colorUniform);
 };
 

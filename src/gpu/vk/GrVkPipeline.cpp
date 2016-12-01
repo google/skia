@@ -17,13 +17,13 @@
 static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
     SkASSERT(type >= 0 && type < kGrVertexAttribTypeCount);
     static const VkFormat kFormats[kGrVertexAttribTypeCount] = {
-        VK_FORMAT_R32_SFLOAT,          // kFloat_GrVertexAttribType
-        VK_FORMAT_R32G32_SFLOAT,       // kVec2f_GrVertexAttribType
-        VK_FORMAT_R32G32B32_SFLOAT,    // kVec3f_GrVertexAttribType
-        VK_FORMAT_R32G32B32A32_SFLOAT, // kVec4f_GrVertexAttribType
-        VK_FORMAT_R8_UNORM,            // kUByte_GrVertexAttribType
-        VK_FORMAT_R8G8B8A8_UNORM,      // kVec4ub_GrVertexAttribType
-        VK_FORMAT_R16G16_UNORM,        // kVec2us_GrVertexAttribType
+            VK_FORMAT_R32_SFLOAT,           // kFloat_GrVertexAttribType
+            VK_FORMAT_R32G32_SFLOAT,        // kVec2f_GrVertexAttribType
+            VK_FORMAT_R32G32B32_SFLOAT,     // kVec3f_GrVertexAttribType
+            VK_FORMAT_R32G32B32A32_SFLOAT,  // kVec4f_GrVertexAttribType
+            VK_FORMAT_R8_UNORM,             // kUByte_GrVertexAttribType
+            VK_FORMAT_R8G8B8A8_UNORM,       // kVec4ub_GrVertexAttribType
+            VK_FORMAT_R16G16_UNORM,         // kVec2us_GrVertexAttribType
     };
     GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
     GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
@@ -56,8 +56,8 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
             GrVertexAttribType attribType = attrib.fType;
 
             VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
-            vkAttrib.location = attribIndex; // for now assume location = attribIndex
-            vkAttrib.binding = 0; // for now only one vertex buffer & binding
+            vkAttrib.location = attribIndex;  // for now assume location = attribIndex
+            vkAttrib.binding = 0;             // for now only one vertex buffer & binding
             vkAttrib.format = attrib_type_to_vkformat(attribType);
             vkAttrib.offset = static_cast<uint32_t>(offset);
             offset += attrib.fOffset;
@@ -74,17 +74,12 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
     vertexInputInfo->pVertexAttributeDescriptions = attributeDesc;
 }
 
-
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
     static const VkPrimitiveTopology gPrimitiveType2VkTopology[] = {
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
-        VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP
-    };
+            VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+            VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,  VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+            VK_PRIMITIVE_TOPOLOGY_LINE_LIST,     VK_PRIMITIVE_TOPOLOGY_LINE_STRIP};
 
     memset(inputAssemblyInfo, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -94,17 +89,16 @@ static void setup_input_assembly_state(GrPrimitiveType primitiveType,
     inputAssemblyInfo->topology = gPrimitiveType2VkTopology[primitiveType];
 }
 
-
 static VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
     static const VkStencilOp gTable[] = {
-        VK_STENCIL_OP_KEEP,                 // kKeep
-        VK_STENCIL_OP_ZERO,                 // kZero
-        VK_STENCIL_OP_REPLACE,              // kReplace
-        VK_STENCIL_OP_INVERT,               // kInvert
-        VK_STENCIL_OP_INCREMENT_AND_WRAP,   // kIncWrap
-        VK_STENCIL_OP_DECREMENT_AND_WRAP,   // kDecWrap
-        VK_STENCIL_OP_INCREMENT_AND_CLAMP,  // kIncClamp
-        VK_STENCIL_OP_DECREMENT_AND_CLAMP,  // kDecClamp
+            VK_STENCIL_OP_KEEP,                 // kKeep
+            VK_STENCIL_OP_ZERO,                 // kZero
+            VK_STENCIL_OP_REPLACE,              // kReplace
+            VK_STENCIL_OP_INVERT,               // kInvert
+            VK_STENCIL_OP_INCREMENT_AND_WRAP,   // kIncWrap
+            VK_STENCIL_OP_DECREMENT_AND_WRAP,   // kDecWrap
+            VK_STENCIL_OP_INCREMENT_AND_CLAMP,  // kIncClamp
+            VK_STENCIL_OP_DECREMENT_AND_CLAMP,  // kDecClamp
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrStencilOpCount);
     GR_STATIC_ASSERT(0 == (int)GrStencilOp::kKeep);
@@ -121,14 +115,14 @@ static VkStencilOp stencil_op_to_vk_stencil_op(GrStencilOp op) {
 
 static VkCompareOp stencil_func_to_vk_compare_op(GrStencilTest test) {
     static const VkCompareOp gTable[] = {
-        VK_COMPARE_OP_ALWAYS,              // kAlways
-        VK_COMPARE_OP_NEVER,               // kNever
-        VK_COMPARE_OP_GREATER,             // kGreater
-        VK_COMPARE_OP_GREATER_OR_EQUAL,    // kGEqual
-        VK_COMPARE_OP_LESS,                // kLess
-        VK_COMPARE_OP_LESS_OR_EQUAL,       // kLEqual
-        VK_COMPARE_OP_EQUAL,               // kEqual
-        VK_COMPARE_OP_NOT_EQUAL,           // kNotEqual
+            VK_COMPARE_OP_ALWAYS,            // kAlways
+            VK_COMPARE_OP_NEVER,             // kNever
+            VK_COMPARE_OP_GREATER,           // kGreater
+            VK_COMPARE_OP_GREATER_OR_EQUAL,  // kGEqual
+            VK_COMPARE_OP_LESS,              // kLess
+            VK_COMPARE_OP_LESS_OR_EQUAL,     // kLEqual
+            VK_COMPARE_OP_EQUAL,             // kEqual
+            VK_COMPARE_OP_NOT_EQUAL,         // kNotEqual
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrStencilTestCount);
     GR_STATIC_ASSERT(0 == (int)GrStencilTest::kAlways);
@@ -192,25 +186,24 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     viewportInfo->flags = 0;
 
     viewportInfo->viewportCount = 1;
-    viewportInfo->pViewports = nullptr; // This is set dynamically
+    viewportInfo->pViewports = nullptr;  // This is set dynamically
 
     viewportInfo->scissorCount = 1;
-    viewportInfo->pScissors = nullptr; // This is set dynamically
+    viewportInfo->pScissors = nullptr;  // This is set dynamically
 
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
 static void setup_multisample_state(const GrPipeline& pipeline,
-                                    const GrPrimitiveProcessor& primProc,
-                                    const GrCaps* caps,
+                                    const GrPrimitiveProcessor& primProc, const GrCaps* caps,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
     int numSamples = pipeline.getRenderTarget()->numColorSamples();
-    SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
-                   &multisampleInfo->rasterizationSamples));
+    SkAssertResult(
+            GrSampleCountToVkSampleCount(numSamples, &multisampleInfo->rasterizationSamples));
     float sampleShading = primProc.getSampleShading();
     SkASSERT(sampleShading == 0.0f || caps->sampleShadingSupport());
     multisampleInfo->sampleShadingEnable = sampleShading > 0.0f;
@@ -222,24 +215,24 @@ static void setup_multisample_state(const GrPipeline& pipeline,
 
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
     static const VkBlendFactor gTable[] = {
-        VK_BLEND_FACTOR_ZERO,                      // kZero_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE,                       // kOne_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC_COLOR,                 // kSC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,       // kISC_GrBlendCoeff
-        VK_BLEND_FACTOR_DST_COLOR,                 // kDC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,       // kIDC_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC_ALPHA,                 // kSA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,       // kISA_GrBlendCoeff
-        VK_BLEND_FACTOR_DST_ALPHA,                 // kDA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,       // kIDA_GrBlendCoeff
-        VK_BLEND_FACTOR_CONSTANT_COLOR,            // kConstC_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,  // kIConstC_GrBlendCoeff
-        VK_BLEND_FACTOR_CONSTANT_ALPHA,            // kConstA_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,  // kIConstA_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC1_COLOR,                // kS2C_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR,      // kIS2C_GrBlendCoeff
-        VK_BLEND_FACTOR_SRC1_ALPHA,                // kS2A_GrBlendCoeff
-        VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA,      // kIS2A_GrBlendCoeff
+            VK_BLEND_FACTOR_ZERO,                      // kZero_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE,                       // kOne_GrBlendCoeff
+            VK_BLEND_FACTOR_SRC_COLOR,                 // kSC_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,       // kISC_GrBlendCoeff
+            VK_BLEND_FACTOR_DST_COLOR,                 // kDC_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,       // kIDC_GrBlendCoeff
+            VK_BLEND_FACTOR_SRC_ALPHA,                 // kSA_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,       // kISA_GrBlendCoeff
+            VK_BLEND_FACTOR_DST_ALPHA,                 // kDA_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,       // kIDA_GrBlendCoeff
+            VK_BLEND_FACTOR_CONSTANT_COLOR,            // kConstC_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,  // kIConstC_GrBlendCoeff
+            VK_BLEND_FACTOR_CONSTANT_ALPHA,            // kConstA_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA,  // kIConstA_GrBlendCoeff
+            VK_BLEND_FACTOR_SRC1_COLOR,                // kS2C_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR,      // kIS2C_GrBlendCoeff
+            VK_BLEND_FACTOR_SRC1_ALPHA,                // kS2A_GrBlendCoeff
+            VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA,      // kIS2A_GrBlendCoeff
 
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrBlendCoeffCnt);
@@ -266,12 +259,11 @@ static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
     return gTable[coeff];
 }
 
-
 static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
     static const VkBlendOp gTable[] = {
-        VK_BLEND_OP_ADD,               // kAdd_GrBlendEquation
-        VK_BLEND_OP_SUBTRACT,          // kSubtract_GrBlendEquation
-        VK_BLEND_OP_REVERSE_SUBTRACT,  // kReverseSubtract_GrBlendEquation
+            VK_BLEND_OP_ADD,               // kAdd_GrBlendEquation
+            VK_BLEND_OP_SUBTRACT,          // kSubtract_GrBlendEquation
+            VK_BLEND_OP_REVERSE_SUBTRACT,  // kReverseSubtract_GrBlendEquation
     };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
@@ -284,26 +276,11 @@ static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
 
 static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
     static const bool gCoeffReferencesBlendConst[] = {
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
+            false, false, false, false, false, false, false, false, false, false, true, true, true,
+            true,
 
-        // extended blend coeffs
-        false,
-        false,
-        false,
-        false,
+            // extended blend coeffs
+            false, false, false, false,
     };
     return gCoeffReferencesBlendConst[coeff];
     GR_STATIC_ASSERT(kGrBlendCoeffCnt == SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
@@ -353,9 +330,9 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
 static VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
     // Assumes that we've set the front face to be ccw
     static const VkCullModeFlags gTable[] = {
-        VK_CULL_MODE_NONE,              // kBoth_DrawFace
-        VK_CULL_MODE_BACK_BIT,          // kCCW_DrawFace, cull back face
-        VK_CULL_MODE_FRONT_BIT,         // kCW_DrawFace, cull front face
+            VK_CULL_MODE_NONE,       // kBoth_DrawFace
+            VK_CULL_MODE_BACK_BIT,   // kCCW_DrawFace, cull back face
+            VK_CULL_MODE_FRONT_BIT,  // kCW_DrawFace, cull front face
     };
     GR_STATIC_ASSERT(0 == (int)GrDrawFace::kBoth);
     GR_STATIC_ASSERT(1 == (int)GrDrawFace::kCCW);
@@ -400,10 +377,8 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                    const GrStencilSettings& stencil,
                                    const GrPrimitiveProcessor& primProc,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                   int shaderStageCount,
-                                   GrPrimitiveType primitiveType,
-                                   const GrVkRenderPass& renderPass,
-                                   VkPipelineLayout layout,
+                                   int shaderStageCount, GrPrimitiveType primitiveType,
+                                   const GrVkRenderPass& renderPass, VkPipelineLayout layout,
                                    VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     VkVertexInputBindingDescription bindingDesc;
@@ -459,10 +434,9 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     pipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline vkPipeline;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          cache, 1,
-                                                                          &pipelineCreateInfo,
-                                                                          nullptr, &vkPipeline));
+    VkResult err = GR_VK_CALL(gpu->vkInterface(),
+                              CreateGraphicsPipelines(gpu->device(), cache, 1, &pipelineCreateInfo,
+                                                      nullptr, &vkPipeline));
     if (err) {
         return nullptr;
     }
@@ -474,10 +448,8 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
-static void set_dynamic_scissor_state(GrVkGpu* gpu,
-                                      GrVkCommandBuffer* cmdBuffer,
-                                      const GrPipeline& pipeline,
-                                      const GrRenderTarget& target) {
+static void set_dynamic_scissor_state(GrVkGpu* gpu, GrVkCommandBuffer* cmdBuffer,
+                                      const GrPipeline& pipeline, const GrRenderTarget& target) {
     // We always use one scissor and if it is disabled we just make it the size of the RT
     const GrScissorState& scissorState = pipeline.getScissorState();
     VkRect2D scissor;
@@ -507,8 +479,7 @@ static void set_dynamic_scissor_state(GrVkGpu* gpu,
     cmdBuffer->setScissor(gpu, 0, 1, &scissor);
 }
 
-static void set_dynamic_viewport_state(GrVkGpu* gpu,
-                                       GrVkCommandBuffer* cmdBuffer,
+static void set_dynamic_viewport_state(GrVkGpu* gpu, GrVkCommandBuffer* cmdBuffer,
                                        const GrRenderTarget& target) {
     // We always use one viewport the size of the RT
     VkViewport viewport;
@@ -521,8 +492,7 @@ static void set_dynamic_viewport_state(GrVkGpu* gpu,
     cmdBuffer->setViewport(gpu, 0, 1, &viewport);
 }
 
-static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
-                                             GrVkCommandBuffer* cmdBuffer,
+static void set_dynamic_blend_constant_state(GrVkGpu* gpu, GrVkCommandBuffer* cmdBuffer,
                                              const GrPipeline& pipeline) {
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
@@ -537,8 +507,7 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
     cmdBuffer->setBlendConstants(gpu, floatColors);
 }
 
-void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
-                                   GrVkCommandBuffer* cmdBuffer,
+void GrVkPipeline::SetDynamicState(GrVkGpu* gpu, GrVkCommandBuffer* cmdBuffer,
                                    const GrPipeline& pipeline) {
     const GrRenderTarget& target = *pipeline.getRenderTarget();
     set_dynamic_scissor_state(gpu, cmdBuffer, pipeline, target);

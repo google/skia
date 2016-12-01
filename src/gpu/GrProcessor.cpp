@@ -24,21 +24,21 @@ class GrGeometryProcessor;
  * Originally these were both in the processor unit test header, but then it seemed to cause linker
  * problems on android.
  */
-template<>
+template <>
 SkTArray<GrProcessorTestFactory<GrFragmentProcessor>*, true>*
 GrProcessorTestFactory<GrFragmentProcessor>::GetFactories() {
     static SkTArray<GrProcessorTestFactory<GrFragmentProcessor>*, true> gFactories;
     return &gFactories;
 }
 
-template<>
+template <>
 SkTArray<GrProcessorTestFactory<GrXPFactory>*, true>*
 GrProcessorTestFactory<GrXPFactory>::GetFactories() {
     static SkTArray<GrProcessorTestFactory<GrXPFactory>*, true> gFactories;
     return &gFactories;
 }
 
-template<>
+template <>
 SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true>*
 GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
     static SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true> gFactories;
@@ -54,35 +54,34 @@ static const int kFPFactoryCount = 40;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 5;
 
-template<>
+template <>
 void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
     if (kFPFactoryCount != GetFactories()->count()) {
-        SkDebugf("\nExpected %d fragment processor factories, found %d.\n",
-                 kFPFactoryCount, GetFactories()->count());
+        SkDebugf("\nExpected %d fragment processor factories, found %d.\n", kFPFactoryCount,
+                 GetFactories()->count());
         SkFAIL("Wrong number of fragment processor factories!");
     }
 }
 
-template<>
+template <>
 void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
     if (kGPFactoryCount != GetFactories()->count()) {
-        SkDebugf("\nExpected %d geometry processor factories, found %d.\n",
-                 kGPFactoryCount, GetFactories()->count());
+        SkDebugf("\nExpected %d geometry processor factories, found %d.\n", kGPFactoryCount,
+                 GetFactories()->count());
         SkFAIL("Wrong number of geometry processor factories!");
     }
 }
 
-template<>
+template <>
 void GrProcessorTestFactory<GrXPFactory>::VerifyFactoryCount() {
     if (kXPFactoryCount != GetFactories()->count()) {
-        SkDebugf("\nExpected %d xp factory factories, found %d.\n",
-                 kXPFactoryCount, GetFactories()->count());
+        SkDebugf("\nExpected %d xp factory factories, found %d.\n", kXPFactoryCount,
+                 GetFactories()->count());
         SkFAIL("Wrong number of xp factory factories!");
     }
 }
 
 #endif
-
 
 // We use a global pool protected by a mutex(spinlock). Chrome may use the same GrContext on
 // different threads. The GrContext is not used concurrently on different threads and there is a
@@ -92,7 +91,6 @@ namespace {
 static SkSpinlock gProcessorSpinlock;
 class MemoryPoolAccessor {
 public:
-
 // We know in the Android framework there is only one GrContext.
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     MemoryPoolAccessor() {}
@@ -130,15 +128,13 @@ void GrProcessor::addImageStorageAccess(const ImageStorageAccess* access) {
     this->addGpuResource(access->programTexture());
 }
 
-void* GrProcessor::operator new(size_t size) {
-    return MemoryPoolAccessor().pool()->allocate(size);
-}
+void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }
 
 void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {
+bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor& that) const {
     if (this->numTextureSamplers() != that.numTextureSamplers() ||
         this->numBuffers() != that.numBuffers() ||
         this->numImageStorages() != that.numImageStorages()) {
@@ -177,8 +173,7 @@ GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
     this->reset(texture, filterMode, tileXAndY, visibility);
 }
 
-void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        const GrSamplerParams& params,
+void GrProcessor::TextureSampler::reset(GrTexture* texture, const GrSamplerParams& params,
                                         GrShaderFlags visibility) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
@@ -187,10 +182,8 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
     fVisibility = visibility;
 }
 
-void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        GrSamplerParams::FilterMode filterMode,
-                                        SkShader::TileMode tileXAndY,
-                                        GrShaderFlags visibility) {
+void GrProcessor::TextureSampler::reset(GrTexture* texture, GrSamplerParams::FilterMode filterMode,
+                                        SkShader::TileMode tileXAndY, GrShaderFlags visibility) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());

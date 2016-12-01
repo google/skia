@@ -16,12 +16,9 @@
 
 class GrVkImageView : public GrVkResource {
 public:
-    enum Type {
-        kColor_Type,
-        kStencil_Type
-    };
+    enum Type { kColor_Type, kStencil_Type };
 
-    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format, 
+    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
                                        Type viewType, uint32_t miplevels);
 
     VkImageView imageView() const { return fImageView; }
@@ -40,7 +37,7 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkImageView  fImageView;
+    VkImageView fImageView;
 
     typedef GrVkResource INHERITED;
 };

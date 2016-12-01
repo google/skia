@@ -57,13 +57,12 @@ private:
     static GrCaps::InstancedSupport CheckSupport(const GrShaderCaps&, const GrCaps&);
 
     const BatchInfo fBatchInfo;
-    BufferAccess    fParamsAccess;
+    BufferAccess fParamsAccess;
 
-    friend class GLInstancedRendering; // For CheckSupport.
+    friend class GLInstancedRendering;  // For CheckSupport.
 
     typedef GrGeometryProcessor INHERITED;
 };
-
 }
 
 #endif

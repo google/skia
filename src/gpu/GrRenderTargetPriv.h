@@ -8,8 +8,8 @@
 #ifndef GrRenderTargetPriv_DEFINED
 #define GrRenderTargetPriv_DEFINED
 
-#include "GrRenderTarget.h"
 #include "GrGpu.h"
+#include "GrRenderTarget.h"
 
 class GrStencilSettings;
 
@@ -43,8 +43,8 @@ public:
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
-    GrRenderTargetPriv(const GrRenderTargetPriv&) {} // unimpl
-    GrRenderTargetPriv& operator=(const GrRenderTargetPriv&); // unimpl
+    GrRenderTargetPriv(const GrRenderTargetPriv&) {}           // unimpl
+    GrRenderTargetPriv& operator=(const GrRenderTargetPriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrRenderTargetPriv* operator&() const;
@@ -52,12 +52,12 @@ private:
 
     GrRenderTarget* fRenderTarget;
 
-    friend class GrRenderTarget; // to construct/copy this type.
+    friend class GrRenderTarget;  // to construct/copy this type.
 };
 
 inline GrRenderTargetPriv GrRenderTarget::renderTargetPriv() { return GrRenderTargetPriv(this); }
 
-inline const GrRenderTargetPriv GrRenderTarget::renderTargetPriv () const {
+inline const GrRenderTargetPriv GrRenderTarget::renderTargetPriv() const {
     return GrRenderTargetPriv(const_cast<GrRenderTarget*>(this));
 }
 

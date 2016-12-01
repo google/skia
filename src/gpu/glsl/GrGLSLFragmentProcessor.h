@@ -28,8 +28,8 @@ public:
         }
     }
 
-    using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using UniformHandle = GrGLSLUniformHandler::UniformHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
 private:
@@ -42,9 +42,9 @@ private:
     template <typename T, typename FPBASE, int (FPBASE::*COUNT)() const>
     class BuilderInputProvider {
     public:
-        BuilderInputProvider(const GrFragmentProcessor* fp, const T* ts) : fFP(fp) , fTs(ts) {}
+        BuilderInputProvider(const GrFragmentProcessor* fp, const T* ts) : fFP(fp), fTs(ts) {}
 
-        const T& operator[] (int i) const {
+        const T& operator[](int i) const {
             SkASSERT(i >= 0 && i < (fFP->*COUNT)());
             return fTs[i];
         }
@@ -64,18 +64,18 @@ private:
 
     private:
         const GrFragmentProcessor* fFP;
-        const T*                   fTs;
+        const T* fTs;
     };
 
 public:
     using TransformedCoordVars = BuilderInputProvider<GrShaderVar, GrFragmentProcessor,
                                                       &GrFragmentProcessor::numCoordTransforms>;
-    using TextureSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
-                                                 &GrProcessor::numTextureSamplers>;
-    using BufferSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
-                                                &GrProcessor::numBuffers>;
-    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrProcessor,
-                                               &GrProcessor::numImageStorages>;
+    using TextureSamplers =
+            BuilderInputProvider<SamplerHandle, GrProcessor, &GrProcessor::numTextureSamplers>;
+    using BufferSamplers =
+            BuilderInputProvider<SamplerHandle, GrProcessor, &GrProcessor::numBuffers>;
+    using ImageStorages =
+            BuilderInputProvider<ImageStorageHandle, GrProcessor, &GrProcessor::numImageStorages>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -109,17 +109,11 @@ public:
                                  provides a vector to the nearest edge of the shape being rendered.
      */
     struct EmitArgs {
-        EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
-                 GrGLSLUniformHandler* uniformHandler,
-                 const GrShaderCaps* caps,
-                 const GrFragmentProcessor& fp,
-                 const char* outputColor,
-                 const char* inputColor,
-                 const TransformedCoordVars& transformedCoordVars,
-                 const TextureSamplers& textureSamplers,
-                 const BufferSamplers& bufferSamplers,
-                 const ImageStorages& imageStorages,
-                 bool gpImplementsDistanceVector)
+        EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder, GrGLSLUniformHandler* uniformHandler,
+                 const GrShaderCaps* caps, const GrFragmentProcessor& fp, const char* outputColor,
+                 const char* inputColor, const TransformedCoordVars& transformedCoordVars,
+                 const TextureSamplers& textureSamplers, const BufferSamplers& bufferSamplers,
+                 const ImageStorages& imageStorages, bool gpImplementsDistanceVector)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fShaderCaps(caps)
@@ -152,9 +146,7 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLSLFragmentProcessor* childProcessor(int index) {
-        return fChildProcessors[index];
-    }
+    GrGLSLFragmentProcessor* childProcessor(int index) { return fChildProcessors[index]; }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
      *  emitChild will automatically extract the coords and samplers of that child and pass them

@@ -27,13 +27,13 @@ class GrGLProgramDataManager : public GrGLSLProgramDataManager {
 public:
     struct UniformInfo {
         GrShaderVar fVariable;
-        uint32_t        fVisibility;
-        GrGLint         fLocation;
+        uint32_t fVisibility;
+        GrGLint fLocation;
     };
 
     struct VaryingInfo {
         GrShaderVar fVariable;
-        GrGLint         fLocation;
+        GrGLint fLocation;
     };
 
     // This uses an allocator rather than array so that the GrShaderVars don't move in memory
@@ -45,9 +45,8 @@ public:
     GrGLProgramDataManager(GrGLGpu*, GrGLuint programID, const UniformInfoArray&,
                            const VaryingInfoArray&);
 
-
     void setSamplers(const UniformInfoArray& samplers) const;
-    void setImageStorages(const UniformInfoArray &images) const;
+    void setImageStorages(const UniformInfoArray& images) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -81,10 +80,10 @@ private:
     };
 
     struct Uniform {
-        GrGLint     fLocation;
+        GrGLint fLocation;
 #ifdef SK_DEBUG
-        GrSLType    fType;
-        int         fArrayCount;
+        GrSLType fType;
+        int fArrayCount;
 #endif
     };
 
@@ -92,17 +91,14 @@ private:
         kUnusedPathProcVarying = -1,
     };
     struct PathProcVarying {
-        GrGLint     fLocation;
-        SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
-        );
+        GrGLint fLocation;
+        SkDEBUGCODE(GrSLType fType; int fArrayCount;);
     };
 
     SkDEBUGCODE(void printUnused(const Uniform&) const;)
 
-    template<int N> inline void setMatrices(UniformHandle, int arrayCount,
-                                            const float matrices[]) const;
+            template <int N>
+            inline void setMatrices(UniformHandle, int arrayCount, const float matrices[]) const;
 
     SkTArray<Uniform, true> fUniforms;
     SkTArray<PathProcVarying, true> fPathProcVaryings;

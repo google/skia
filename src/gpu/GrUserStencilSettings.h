@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrUserStencilSettings_DEFINED
 #define GrUserStencilSettings_DEFINED
 
@@ -33,24 +32,25 @@
  */
 
 enum GrStencilFlags {
-    kDisabled_StencilFlag         = 0x1,
-    kNoModifyStencil_StencilFlag  = 0x2,
-    kNoWrapOps_StencilFlag        = 0x4,
-    kSingleSided_StencilFlag      = 0x8,
+    kDisabled_StencilFlag = 0x1,
+    kNoModifyStencil_StencilFlag = 0x2,
+    kNoWrapOps_StencilFlag = 0x4,
+    kSingleSided_StencilFlag = 0x8,
 
     kLast_StencilFlag = kSingleSided_StencilFlag,
     kAll_StencilFlags = kLast_StencilFlag | (kLast_StencilFlag - 1)
 };
 
-template<typename TTest, typename TOp> struct GrTStencilFaceSettings {
-    uint16_t   fRef;        // Reference value for stencil test and ops.
-    TTest      fTest;       // Stencil test function, where fRef is on the left side.
-    uint16_t   fTestMask;   // Bitwise "and" to perform on fRef and stencil values before testing.
-                            // (e.g. (fRef & fTestMask) < (stencil & fTestMask))
-    TOp        fPassOp;     // Op to perform when the test passes.
-    TOp        fFailOp;     // Op to perform when the test fails.
-    uint16_t   fWriteMask;  // Indicates which bits in the stencil buffer should be updated.
-                            // (e.g. stencil = (newValue & fWriteMask) | (stencil & ~fWriteMask))
+template <typename TTest, typename TOp>
+struct GrTStencilFaceSettings {
+    uint16_t fRef;        // Reference value for stencil test and ops.
+    TTest fTest;          // Stencil test function, where fRef is on the left side.
+    uint16_t fTestMask;   // Bitwise "and" to perform on fRef and stencil values before testing.
+                          // (e.g. (fRef & fTestMask) < (stencil & fTestMask))
+    TOp fPassOp;          // Op to perform when the test passes.
+    TOp fFailOp;          // Op to perform when the test fails.
+    uint16_t fWriteMask;  // Indicates which bits in the stencil buffer should be updated.
+                          // (e.g. stencil = (newValue & fWriteMask) | (stencil & ~fWriteMask))
 };
 
 enum class GrUserStencilTest : uint16_t {
@@ -80,7 +80,7 @@ enum class GrUserStencilOp : uint8_t {
 
     // Ops that only modify user bits. These must not be paired with ops that modify the clip bit.
     kZero,
-    kReplace, // Replace stencil value with fRef (only the bits enabled in fWriteMask).
+    kReplace,  // Replace stencil value with fRef (only the bits enabled in fWriteMask).
     kInvert,
     kIncWrap,
     kDecWrap,
@@ -111,72 +111,68 @@ constexpr static int kGrUserStencilOpCount = 1 + (int)GrUserStencilOp::kZeroClip
 struct GrUserStencilSettings {
     typedef GrTStencilFaceSettings<GrUserStencilTest, GrUserStencilOp> Face;
 
-    template<GrUserStencilTest, GrUserStencilOp PassOp, GrUserStencilOp FailOp> struct Attrs;
+    template <GrUserStencilTest, GrUserStencilOp PassOp, GrUserStencilOp FailOp>
+    struct Attrs;
 
     // Unfortunately, this is the only way to pass template arguments to a constructor.
-    template<uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask,
-             GrUserStencilOp PassOp, GrUserStencilOp FailOp, uint16_t WriteMask> struct Init {};
+    template <uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask, GrUserStencilOp PassOp,
+              GrUserStencilOp FailOp, uint16_t WriteMask>
+    struct Init {};
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask> struct InitSeparate {};
+    template <uint16_t FtRef, uint16_t BkRef, GrUserStencilTest FtTest, GrUserStencilTest BkTest,
+              uint16_t FtTestMask, uint16_t BkTestMask, GrUserStencilOp FtPassOp,
+              GrUserStencilOp BkPassOp, GrUserStencilOp FtFailOp, GrUserStencilOp BkFailOp,
+              uint16_t FtWriteMask, uint16_t BkWriteMask>
+    struct InitSeparate {};
 
-    template<uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask,
-             GrUserStencilOp PassOp, GrUserStencilOp FailOp, uint16_t WriteMask>
+    template <uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask, GrUserStencilOp PassOp,
+              GrUserStencilOp FailOp, uint16_t WriteMask>
     constexpr static Init<Ref, Test, TestMask, PassOp, FailOp, WriteMask> StaticInit() {
         return Init<Ref, Test, TestMask, PassOp, FailOp, WriteMask>();
     }
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask>
-    constexpr static InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                                  FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask,
-                                  BkWriteMask> StaticInitSeparate() {
-        return InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                            FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>();
+    template <uint16_t FtRef, uint16_t BkRef, GrUserStencilTest FtTest, GrUserStencilTest BkTest,
+              uint16_t FtTestMask, uint16_t BkTestMask, GrUserStencilOp FtPassOp,
+              GrUserStencilOp BkPassOp, GrUserStencilOp FtFailOp, GrUserStencilOp BkFailOp,
+              uint16_t FtWriteMask, uint16_t BkWriteMask>
+    constexpr static InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask, FtPassOp,
+                                  BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>
+    StaticInitSeparate() {
+        return InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask, FtPassOp,
+                            BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>();
     }
 
     // We construct with template arguments in order to enforce that the struct be compile-time
     // constant and to make use of static asserts.
-    template<uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask,
-             GrUserStencilOp PassOp, GrUserStencilOp FailOp, uint16_t WriteMask,
-             typename Attrs = Attrs<Test, PassOp, FailOp> >
+    template <uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask, GrUserStencilOp PassOp,
+              GrUserStencilOp FailOp, uint16_t WriteMask,
+              typename Attrs = Attrs<Test, PassOp, FailOp> >
     constexpr explicit GrUserStencilSettings(
             const Init<Ref, Test, TestMask, PassOp, FailOp, WriteMask>&)
         : fFrontFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
                       (uint16_t)(Attrs::Flags(true) | kSingleSided_StencilFlag)}
-        , fFront{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
-                 Attrs::EffectiveWriteMask(WriteMask)}
+        , fFront{Ref,    Test,   Attrs::EffectiveTestMask(TestMask),
+                 PassOp, FailOp, Attrs::EffectiveWriteMask(WriteMask)}
         , fBackFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
                      (uint16_t)(Attrs::Flags(true) | kSingleSided_StencilFlag)}
-        , fBack{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
-                Attrs::EffectiveWriteMask(WriteMask)} {
-    }
+        , fBack{Ref,    Test,   Attrs::EffectiveTestMask(TestMask),
+                PassOp, FailOp, Attrs::EffectiveWriteMask(WriteMask)} {}
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask,
-             typename FtAttrs = Attrs<FtTest, FtPassOp, FtFailOp>,
-             typename BkAttrs = Attrs<BkTest, BkPassOp, BkFailOp> >
+    template <uint16_t FtRef, uint16_t BkRef, GrUserStencilTest FtTest, GrUserStencilTest BkTest,
+              uint16_t FtTestMask, uint16_t BkTestMask, GrUserStencilOp FtPassOp,
+              GrUserStencilOp BkPassOp, GrUserStencilOp FtFailOp, GrUserStencilOp BkFailOp,
+              uint16_t FtWriteMask, uint16_t BkWriteMask,
+              typename FtAttrs = Attrs<FtTest, FtPassOp, FtFailOp>,
+              typename BkAttrs = Attrs<BkTest, BkPassOp, BkFailOp> >
     constexpr explicit GrUserStencilSettings(
-            const InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                               FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>&)
+            const InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask, FtPassOp,
+                               BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>&)
         : fFrontFlags{FtAttrs::Flags(false), FtAttrs::Flags(true)}
-        , fFront{FtRef, FtTest, FtAttrs::EffectiveTestMask(FtTestMask), FtPassOp, FtFailOp,
-                 FtAttrs::EffectiveWriteMask(FtWriteMask)}
+        , fFront{FtRef,    FtTest,   FtAttrs::EffectiveTestMask(FtTestMask),
+                 FtPassOp, FtFailOp, FtAttrs::EffectiveWriteMask(FtWriteMask)}
         , fBackFlags{BkAttrs::Flags(false), BkAttrs::Flags(true)}
-        , fBack{BkRef, BkTest, BkAttrs::EffectiveTestMask(BkTestMask), BkPassOp, BkFailOp,
-                BkAttrs::EffectiveWriteMask(BkWriteMask)} {}
+        , fBack{BkRef,    BkTest,   BkAttrs::EffectiveTestMask(BkTestMask),
+                BkPassOp, BkFailOp, BkAttrs::EffectiveWriteMask(BkWriteMask)} {}
 
     // This struct can only be constructed with static initializers.
     GrUserStencilSettings() = delete;
@@ -198,17 +194,17 @@ struct GrUserStencilSettings {
         return !(this->flags(hasStencilClip) & kNoWrapOps_StencilFlag);
     }
 
-    const uint16_t   fFrontFlags[2]; // frontFlagsForDraw = fFrontFlags[hasStencilClip].
-    const Face       fFront;
-    const uint16_t   fBackFlags[2]; // backFlagsForDraw = fBackFlags[hasStencilClip].
-    const Face       fBack;
+    const uint16_t fFrontFlags[2];  // frontFlagsForDraw = fFrontFlags[hasStencilClip].
+    const Face fFront;
+    const uint16_t fBackFlags[2];  // backFlagsForDraw = fBackFlags[hasStencilClip].
+    const Face fBack;
 
     static const GrUserStencilSettings& kUnused;
 
     bool isUnused() const { return this == &kUnused; }
 };
 
-template<GrUserStencilTest Test, GrUserStencilOp PassOp, GrUserStencilOp FailOp>
+template <GrUserStencilTest Test, GrUserStencilOp PassOp, GrUserStencilOp FailOp>
 struct GrUserStencilSettings::Attrs {
     // Ensure an op that only modifies user bits isn't paired with one that modifies clip bits.
     GR_STATIC_ASSERT(GrUserStencilOp::kKeep == PassOp || GrUserStencilOp::kKeep == FailOp ||
@@ -219,11 +215,11 @@ struct GrUserStencilSettings::Attrs {
 
     constexpr static bool TestAlwaysPasses(bool hasStencilClip) {
         return (!hasStencilClip && GrUserStencilTest::kAlwaysIfInClip == Test) ||
-                GrUserStencilTest::kAlways == Test;
+               GrUserStencilTest::kAlways == Test;
     }
     constexpr static bool DoesNotModifyStencil(bool hasStencilClip) {
         return (GrUserStencilTest::kNever == Test || GrUserStencilOp::kKeep == PassOp) &&
-                (TestAlwaysPasses(hasStencilClip) || GrUserStencilOp::kKeep == FailOp);
+               (TestAlwaysPasses(hasStencilClip) || GrUserStencilOp::kKeep == FailOp);
     }
     constexpr static bool IsDisabled(bool hasStencilClip) {
         return TestAlwaysPasses(hasStencilClip) && DoesNotModifyStencil(hasStencilClip);

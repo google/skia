@@ -26,5 +26,4 @@ private:
     typedef GrPathRenderer INHERITED;
 };
 
-
 #endif

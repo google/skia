@@ -11,13 +11,9 @@
 #include "gl/GrGLCaps.h"
 
 GrXferProcessor::GrXferProcessor()
-    : fWillReadDstColor(false)
-    , fDstReadUsesMixedSamples(false)
-    , fDstTextureOffset() {
-}
+    : fWillReadDstColor(false), fDstReadUsesMixedSamples(false), fDstTextureOffset() {}
 
-GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
-                                 bool willReadDstColor,
+GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture, bool willReadDstColor,
                                  bool hasMixedSamples)
     : fWillReadDstColor(willReadDstColor)
     , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)
@@ -32,14 +28,10 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
 }
 
 GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(
-                                                       const GrPipelineOptimizations& optimizations,
-                                                       bool doesStencilWrite,
-                                                       GrColor* overrideColor,
-                                                       const GrCaps& caps) const {
-    GrXferProcessor::OptFlags flags = this->onGetOptimizations(optimizations,
-                                                               doesStencilWrite,
-                                                               overrideColor,
-                                                               caps);
+        const GrPipelineOptimizations& optimizations, bool doesStencilWrite, GrColor* overrideColor,
+        const GrCaps& caps) const {
+    GrXferProcessor::OptFlags flags =
+            this->onGetOptimizations(optimizations, doesStencilWrite, overrideColor, caps);
 
     if (this->willReadDstColor()) {
         // When performing a dst read we handle coverage in the base class.

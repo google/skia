@@ -50,20 +50,17 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
+    bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
     GrTextureOpList* asTextureOpList() override { return this; }
 
     SkDEBUGCODE(void dump() const override;)
 
-private:
-    void recordBatch(GrOp*);
+            private : void recordBatch(GrOp*);
 
     SkSTArray<2, sk_sp<GrOp>, true> fRecordedBatches;
-    GrGpu*                          fGpu;
+    GrGpu* fGpu;
 
     typedef GrOpList INHERITED;
 };

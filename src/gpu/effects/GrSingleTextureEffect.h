@@ -8,9 +8,9 @@
 #ifndef GrSingleTextureEffect_DEFINED
 #define GrSingleTextureEffect_DEFINED
 
-#include "GrFragmentProcessor.h"
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkMatrix.h"
 
@@ -38,9 +38,7 @@ protected:
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           GrSamplerParams::FilterMode filterMode);
-    GrSingleTextureEffect(GrTexture*,
-                          sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           const GrSamplerParams&);
 
     /**

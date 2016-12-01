@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrPathRendererChain.h"
 
 #include "GrCaps.h"
-#include "GrShaderCaps.h"
-#include "gl/GrGLCaps.h"
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrShaderCaps.h"
+#include "gl/GrGLCaps.h"
 
 #include "batches/GrAAConvexPathRenderer.h"
 #include "batches/GrAADistanceFieldPathRenderer.h"
@@ -30,15 +29,15 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         const GrCaps& caps = *context->caps();
         this->addPathRenderer(new GrDashLinePathRenderer)->unref();
 
-        if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(context->resourceProvider(),
-                                                                       caps)) {
+        if (GrPathRenderer* pr =
+                    GrStencilAndCoverPathRenderer::Create(context->resourceProvider(), caps)) {
             this->addPathRenderer(pr)->unref();
         }
-    #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
         if (caps.sampleShadingSupport()) {
             this->addPathRenderer(new GrMSAAPathRenderer)->unref();
         }
-    #endif
+#endif
         this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
         this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
         this->addPathRenderer(new GrAALinearizingConvexPathRenderer)->unref();
@@ -50,7 +49,8 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         }
         this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
         this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
-                                                        caps.stencilWrapOpsSupport()))->unref();
+                                                        caps.stencilWrapOpsSupport()))
+                ->unref();
     }
 }
 
@@ -67,8 +67,7 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
-        const GrPathRenderer::CanDrawPathArgs& args,
-        DrawType drawType,
+        const GrPathRenderer::CanDrawPathArgs& args, DrawType drawType,
         GrPathRenderer::StencilSupport* stencilSupport) {
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);

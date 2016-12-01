@@ -7,22 +7,21 @@
 
 #include "GrTextureProvider.h"
 
-#include "GrCaps.h"
-#include "GrTexturePriv.h"
-#include "GrResourceCache.h"
-#include "GrGpu.h"
 #include "../private/GrSingleOwner.h"
+#include "GrCaps.h"
+#include "GrGpu.h"
+#include "GrResourceCache.h"
+#include "GrTexturePriv.h"
 #include "SkMathPriv.h"
 #include "SkTArray.h"
 #include "SkTLazy.h"
 
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+#define ASSERT_SINGLE_OWNER SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
 enum ScratchTextureFlags {
-    kExact_ScratchTextureFlag           = 0x1,
-    kNoPendingIO_ScratchTextureFlag     = 0x2,
-    kNoCreate_ScratchTextureFlag        = 0x4,
+    kExact_ScratchTextureFlag = 0x1,
+    kNoPendingIO_ScratchTextureFlag = 0x2,
+    kNoCreate_ScratchTextureFlag = 0x4,
 };
 
 GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* singleOwner)
@@ -31,7 +30,7 @@ GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingl
 #ifdef SK_DEBUG
     , fSingleOwner(singleOwner)
 #endif
-    {
+{
 }
 
 GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -58,8 +57,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
     }
     if (!GrPixelConfigIsCompressed(desc.fConfig)) {
         if (mipLevelCount < 2) {
-            static const uint32_t kFlags = kExact_ScratchTextureFlag |
-                                           kNoCreate_ScratchTextureFlag;
+            static const uint32_t kFlags = kExact_ScratchTextureFlag | kNoCreate_ScratchTextureFlag;
             if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
                 if (!mipLevelCount ||
                     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
@@ -114,8 +112,7 @@ GrTexture* GrTextureProvider::internalCreateApproxTexture(const GrSurfaceDesc& d
     }
 }
 
-GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
-                                                uint32_t flags) {
+GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(!GrPixelConfigIsCompressed(inDesc.fConfig));
@@ -127,7 +124,7 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
             // bin by pow2 with a reasonable min
             const int kMinSize = 16;
             GrSurfaceDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(kMinSize, GrNextPow2(desc->fWidth));
+            wdesc->fWidth = SkTMax(kMinSize, GrNextPow2(desc->fWidth));
             wdesc->fHeight = SkTMax(kMinSize, GrNextPow2(desc->fHeight));
         }
 
@@ -136,14 +133,13 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
         uint32_t scratchFlags = 0;
         if (kNoPendingIO_ScratchTextureFlag & flags) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        } else if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
             // If it is not a render target then it will most likely be populated by
             // writePixels() which will trigger a flush if the texture has pending IO.
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
-        GrGpuResource* resource = fCache->findAndRefScratchResource(key,
-                                                                   GrSurface::WorstCaseSize(*desc),
-                                                                   scratchFlags);
+        GrGpuResource* resource = fCache->findAndRefScratchResource(
+                key, GrSurface::WorstCaseSize(*desc), scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
             GrRenderTarget* rt = surface->asRenderTarget();
@@ -171,8 +167,7 @@ sk_sp<GrTexture> GrTextureProvider::wrapBackendTexture(const GrBackendTextureDes
 }
 
 sk_sp<GrRenderTarget> GrTextureProvider::wrapBackendRenderTarget(
-    const GrBackendRenderTargetDesc& desc)
-{
+        const GrBackendRenderTargetDesc& desc) {
     ASSERT_SINGLE_OWNER
     return this->isAbandoned() ? nullptr
                                : fGpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);

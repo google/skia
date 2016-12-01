@@ -22,8 +22,7 @@ uint32_t GrVkResource::fKeyCounter = 0;
 #endif
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
-    : fGpu(gpu)
-    , fPipelineCache(VK_NULL_HANDLE) {
+    : fGpu(gpu), fPipelineCache(VK_NULL_HANDLE) {
     fPipelineStateCache = new PipelineStateCache(gpu);
 }
 
@@ -41,9 +40,9 @@ void GrVkResourceProvider::init() {
     createInfo.flags = 0;
     createInfo.initialDataSize = 0;
     createInfo.pInitialData = nullptr;
-    VkResult result = GR_VK_CALL(fGpu->vkInterface(),
-                                 CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
-                                                     &fPipelineCache));
+    VkResult result =
+            GR_VK_CALL(fGpu->vkInterface(),
+                       CreatePipelineCache(fGpu->device(), &createInfo, nullptr, &fPipelineCache));
     SkASSERT(VK_SUCCESS == result);
     if (VK_SUCCESS != result) {
         fPipelineCache = VK_NULL_HANDLE;
@@ -55,23 +54,18 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
-                                                   const GrStencilSettings& stencil,
-                                                   const GrPrimitiveProcessor& primProc,
-                                                   VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                                   int shaderStageCount,
-                                                   GrPrimitiveType primitiveType,
-                                                   const GrVkRenderPass& renderPass,
-                                                   VkPipelineLayout layout) {
-
+GrVkPipeline* GrVkResourceProvider::createPipeline(
+        const GrPipeline& pipeline, const GrStencilSettings& stencil,
+        const GrPrimitiveProcessor& primProc, VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        int shaderStageCount, GrPrimitiveType primitiveType, const GrVkRenderPass& renderPass,
+        VkPipelineLayout layout) {
     return GrVkPipeline::Create(fGpu, pipeline, stencil, primProc, shaderStageInfo,
                                 shaderStageCount, primitiveType, renderPass, layout,
                                 fPipelineCache);
 }
 
 GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
-        const GrVkRenderTarget* dst,
-        VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        const GrVkRenderTarget* dst, VkPipelineShaderStageCreateInfo* shaderStageInfo,
         VkPipelineLayout pipelineLayout) {
     // Find or Create a compatible pipeline
     GrVkCopyPipeline* pipeline = nullptr;
@@ -81,10 +75,8 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
         }
     }
     if (!pipeline) {
-        pipeline = GrVkCopyPipeline::Create(fGpu, shaderStageInfo,
-                                            pipelineLayout,
-                                            dst->numColorSamples(),
-                                            *dst->simpleRenderPass(),
+        pipeline = GrVkCopyPipeline::Create(fGpu, shaderStageInfo, pipelineLayout,
+                                            dst->numColorSamples(), *dst->simpleRenderPass(),
                                             fPipelineCache);
         fCopyPipelines.push_back(pipeline);
     }
@@ -96,9 +88,8 @@ GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(
 // To create framebuffers, we first need to create a simple RenderPass that is
 // only used for framebuffer creation. When we actually render we will create
 // RenderPasses as needed that are compatible with the framebuffer.
-const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
-                                               CompatibleRPHandle* compatibleHandle) {
+const GrVkRenderPass* GrVkResourceProvider::findCompatibleRenderPass(
+        const GrVkRenderTarget& target, CompatibleRPHandle* compatibleHandle) {
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
         if (fRenderPassArray[i].isCompatible(target)) {
             const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
@@ -111,7 +102,7 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
     }
 
     const GrVkRenderPass* renderPass =
-        fRenderPassArray.emplace_back(fGpu, target).getCompatibleRenderPass();
+            fRenderPassArray.emplace_back(fGpu, target).getCompatibleRenderPass();
     renderPass->ref();
 
     if (compatibleHandle) {
@@ -120,8 +111,8 @@ GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
     return renderPass;
 }
 
-const GrVkRenderPass*
-GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle) {
+const GrVkRenderPass* GrVkResourceProvider::findCompatibleRenderPass(
+        const CompatibleRPHandle& compatibleHandle) {
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     int index = compatibleHandle.toIndex();
     const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
@@ -130,13 +121,11 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
 }
 
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
-                                                     const GrVkRenderTarget& target,
-                                                     const GrVkRenderPass::LoadStoreOps& colorOps,
-                                                     const GrVkRenderPass::LoadStoreOps& stencilOps,
-                                                     CompatibleRPHandle* compatibleHandle) {
+        const GrVkRenderTarget& target, const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& stencilOps, CompatibleRPHandle* compatibleHandle) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
-    GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
-                                                                           : &tempRPHandle;
+    GrVkResourceProvider::CompatibleRPHandle* pRPHandle =
+            compatibleHandle ? compatibleHandle : &tempRPHandle;
     *pRPHandle = target.compatibleRenderPassHandle();
 
     // This will get us the handle to (and possible create) the compatible set for the specific
@@ -145,21 +134,18 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
     return this->findRenderPass(*pRPHandle, colorOps, stencilOps);
 }
 
-const GrVkRenderPass*
-GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
-                                     const GrVkRenderPass::LoadStoreOps& colorOps,
-                                     const GrVkRenderPass::LoadStoreOps& stencilOps) {
+const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
+        const CompatibleRPHandle& compatibleHandle, const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& stencilOps) {
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     CompatibleRenderPassSet& compatibleSet = fRenderPassArray[compatibleHandle.toIndex()];
-    const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu,
-                                                                   colorOps,
-                                                                   stencilOps);
+    const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu, colorOps, stencilOps);
     renderPass->ref();
     return renderPass;
 }
 
 GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
-                                                            VkDescriptorType type, uint32_t count) {
+        VkDescriptorType type, uint32_t count) {
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
@@ -176,10 +162,8 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSampler
 }
 
 sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-                                                                 const GrPipeline& pipeline,
-                                                                 const GrPrimitiveProcessor& proc,
-                                                                 GrPrimitiveType primitiveType,
-                                                                 const GrVkRenderPass& renderPass) {
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc, GrPrimitiveType primitiveType,
+        const GrVkRenderPass& renderPass) {
     return fPipelineStateCache->refPipelineState(pipeline, proc, primitiveType, renderPass);
 }
 
@@ -189,8 +173,8 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(const GrVkUniformHandle
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
         if (fDescriptorSetManagers[i].isCompatible(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                    &uniformHandler)) {
-           *handle = GrVkDescriptorSetManager::Handle(i);
-           return;
+            *handle = GrVkDescriptorSetManager::Handle(i);
+            return;
         }
     }
 
@@ -263,7 +247,7 @@ GrVkPrimaryCommandBuffer* GrVkResourceProvider::findOrCreatePrimaryCommandBuffer
 }
 
 void GrVkResourceProvider::checkCommandBuffers() {
-    for (int i = fActiveCommandBuffers.count()-1; i >= 0; --i) {
+    for (int i = fActiveCommandBuffers.count() - 1; i >= 0; --i) {
         if (fActiveCommandBuffers[i]->finished(fGpu)) {
             GrVkPrimaryCommandBuffer* cmdBuffer = fActiveCommandBuffers[i];
             cmdBuffer->reset(fGpu);
@@ -277,7 +261,7 @@ GrVkSecondaryCommandBuffer* GrVkResourceProvider::findOrCreateSecondaryCommandBu
     GrVkSecondaryCommandBuffer* cmdBuffer = nullptr;
     int count = fAvailableSecondaryCommandBuffers.count();
     if (count > 0) {
-        cmdBuffer = fAvailableSecondaryCommandBuffers[count-1];
+        cmdBuffer = fAvailableSecondaryCommandBuffers[count - 1];
         fAvailableSecondaryCommandBuffers.removeShuffle(count - 1);
     } else {
         cmdBuffer = GrVkSecondaryCommandBuffer::Create(fGpu, fGpu->cmdPool());
@@ -431,15 +415,14 @@ void GrVkResourceProvider::abandonResources() {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(
-                                                                     const GrVkGpu* gpu,
-                                                                     const GrVkRenderTarget& target)
+        const GrVkGpu* gpu, const GrVkRenderTarget& target)
     : fLastReturnedIndex(0) {
     fRenderPasses.emplace_back(new GrVkRenderPass());
     fRenderPasses[0]->initSimple(gpu, target);
 }
 
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
-                                                             const GrVkRenderTarget& target) const {
+        const GrVkRenderTarget& target) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
@@ -447,9 +430,8 @@ bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
-                                                   const GrVkGpu* gpu,
-                                                   const GrVkRenderPass::LoadStoreOps& colorOps,
-                                                   const GrVkRenderPass::LoadStoreOps& stencilOps) {
+        const GrVkGpu* gpu, const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& stencilOps) {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
         if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, stencilOps)) {

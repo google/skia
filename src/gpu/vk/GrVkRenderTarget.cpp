@@ -21,11 +21,8 @@
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
-GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
-                                   SkBudgeted budgeted,
-                                   const GrSurfaceDesc& desc,
-                                   const GrVkImageInfo& info,
-                                   const GrVkImageInfo& msaaInfo,
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+                                   const GrVkImageInfo& info, const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrVkImage::Wrapped wrapped)
@@ -45,10 +42,8 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
-GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
-                                   const GrSurfaceDesc& desc,
-                                   const GrVkImageInfo& info,
-                                   const GrVkImageInfo& msaaInfo,
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu, const GrSurfaceDesc& desc,
+                                   const GrVkImageInfo& info, const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrVkImage::Wrapped wrapped)
@@ -67,9 +62,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
-GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
-                                   SkBudgeted budgeted,
-                                   const GrSurfaceDesc& desc,
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
                                    GrVkImage::Wrapped wrapped)
@@ -88,8 +81,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
 // constructor must be explicitly called.
-GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
-                                   const GrSurfaceDesc& desc,
+GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu, const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
                                    GrVkImage::Wrapped wrapped)
@@ -105,12 +97,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     this->createFramebuffer(gpu);
 }
 
-GrVkRenderTarget*
-GrVkRenderTarget::Create(GrVkGpu* gpu,
-                         SkBudgeted budgeted,
-                         const GrSurfaceDesc& desc,
-                         const GrVkImageInfo& info,
-                         GrVkImage::Wrapped wrapped) {
+GrVkRenderTarget* GrVkRenderTarget::Create(GrVkGpu* gpu, SkBudgeted budgeted,
+                                           const GrSurfaceDesc& desc, const GrVkImageInfo& info,
+                                           GrVkImage::Wrapped wrapped) {
     SkASSERT(1 == info.fLevelCount);
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
@@ -130,8 +119,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
         msImageDesc.fSamples = desc.fSampleCnt;
         msImageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         msImageDesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &msInfo)) {
@@ -142,8 +130,8 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
         colorImage = msInfo.fImage;
 
         // Create Resolve attachment view
-        resolveAttachmentView = GrVkImageView::Create(gpu, info.fImage, pixelFormat,
-                                                      GrVkImageView::kColor_Type, 1);
+        resolveAttachmentView =
+                GrVkImageView::Create(gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type, 1);
         if (!resolveAttachmentView) {
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
             return nullptr;
@@ -154,8 +142,8 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     }
 
     // Get color attachment view
-    const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
-                                                                     GrVkImageView::kColor_Type, 1);
+    const GrVkImageView* colorAttachmentView =
+            GrVkImageView::Create(gpu, colorImage, pixelFormat, GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
         if (desc.fSampleCnt) {
             resolveAttachmentView->unref(gpu);
@@ -166,8 +154,8 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
 
     GrVkRenderTarget* texRT;
     if (desc.fSampleCnt) {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo,
-                                     colorAttachmentView, resolveAttachmentView, wrapped);
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo, colorAttachmentView,
+                                     resolveAttachmentView, wrapped);
     } else {
         texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, colorAttachmentView, wrapped);
     }
@@ -175,11 +163,9 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     return texRT;
 }
 
-GrVkRenderTarget*
-GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
-                                        SkBudgeted budgeted,
-                                        const GrSurfaceDesc& desc,
-                                        const GrVkImage::ImageDesc& imageDesc) {
+GrVkRenderTarget* GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu, SkBudgeted budgeted,
+                                                          const GrSurfaceDesc& desc,
+                                                          const GrVkImage::ImageDesc& imageDesc) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
     GrVkImageInfo info;
@@ -187,19 +173,18 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, info,
-                                                    GrVkImage::kNot_Wrapped);
+    GrVkRenderTarget* rt =
+            GrVkRenderTarget::Create(gpu, budgeted, desc, info, GrVkImage::kNot_Wrapped);
     if (!rt) {
         GrVkImage::DestroyImageInfo(gpu, &info);
     }
     return rt;
 }
 
-sk_sp<GrVkRenderTarget>
-GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
-                                          const GrSurfaceDesc& desc,
-                                          GrWrapOwnership ownership,
-                                          const GrVkImageInfo* info) {
+sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
+                                                                  const GrSurfaceDesc& desc,
+                                                                  GrWrapOwnership ownership,
+                                                                  const GrVkImageInfo* info) {
     SkASSERT(info);
     // We can wrap a rendertarget without its allocation, as long as we don't take ownership
     SkASSERT(VK_NULL_HANDLE != info->fImage);
@@ -209,7 +194,7 @@ GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
                                                                       : GrVkImage::kAdopted_Wrapped;
 
     return sk_sp<GrVkRenderTarget>(
-        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, wrapped));
+            GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, wrapped));
 }
 
 bool GrVkRenderTarget::completeStencilAttachment() {
@@ -228,19 +213,19 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
     // Vulkan requires us to create a compatible renderpass before we can create our framebuffer,
     // so we use this to get a (cached) basic renderpass, only for creation.
     fCachedSimpleRenderPass =
-        gpu->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
+            gpu->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
 
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = this->stencilAttachmentView();
-    fFramebuffer = GrVkFramebuffer::Create(gpu, this->width(), this->height(),
-                                           fCachedSimpleRenderPass, fColorAttachmentView,
-                                           stencilView);
+    fFramebuffer =
+            GrVkFramebuffer::Create(gpu, this->width(), this->height(), fCachedSimpleRenderPass,
+                                    fColorAttachmentView, stencilView);
     SkASSERT(fFramebuffer);
 }
 
 void GrVkRenderTarget::getAttachmentsDescriptor(
-                                           GrVkRenderPass::AttachmentsDescriptor* desc,
-                                           GrVkRenderPass::AttachmentFlags* attachmentFlags) const {
+        GrVkRenderPass::AttachmentsDescriptor* desc,
+        GrVkRenderPass::AttachmentFlags* attachmentFlags) const {
     int colorSamples = this->numColorSamples();
     VkFormat colorFormat;
     GrPixelConfigToVkFormat(this->config(), &colorFormat);
@@ -344,7 +329,6 @@ void GrVkRenderTarget::onAbandon() {
     GrRenderTarget::onAbandon();
 }
 
-
 GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
     // If the render target is multisampled, we currently return the ImageInfo for the resolved
     // image. If we only wrap the msaa target (currently not implemented) we should return a handle
@@ -371,7 +355,6 @@ const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
 
     return nullptr;
 }
-
 
 GrVkGpu* GrVkRenderTarget::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());

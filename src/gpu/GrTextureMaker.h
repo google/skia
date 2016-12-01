@@ -25,18 +25,14 @@ public:
                                    sk_sp<SkColorSpace>* texColorSpace);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint filterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
+            const SkMatrix& textureMatrix, const SkRect& constraintRect,
+            FilterConstraint filterConstraint, bool coordsLimitedToConstraintRect,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic, SkColorSpace* dstColorSpace,
+            SkDestinationSurfaceColorMode) override;
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
-        : INHERITED(width, height, isAlphaOnly)
-        , fContext(context) {}
+        : INHERITED(width, height, isAlphaOnly), fContext(context) {}
 
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
@@ -66,7 +62,7 @@ protected:
     GrContext* context() const { return fContext; }
 
 private:
-    GrContext*  fContext;
+    GrContext* fContext;
 
     typedef GrTextureProducer INHERITED;
 };

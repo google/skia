@@ -15,7 +15,6 @@
 class GrSamplerParams;
 class GrVkGpu;
 
-
 class GrVkSampler : public GrVkResource {
 public:
     static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerParams&, uint32_t mipLevels);
@@ -39,8 +38,8 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkSampler  fSampler;
-    uint16_t   fKey;
+    VkSampler fSampler;
+    uint16_t fKey;
 
     typedef GrVkResource INHERITED;
 };

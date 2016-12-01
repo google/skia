@@ -10,9 +10,9 @@
 
 #include "GrGpuResource.h"
 #include "GrTypesPriv.h"
+#include "SkTArray.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLTypes.h"
-#include "SkTArray.h"
 
 class GrBuffer;
 class GrGLGpu;
@@ -23,9 +23,7 @@ class GrGLGpu;
  */
 class GrGLAttribArrayState {
 public:
-    explicit GrGLAttribArrayState(int arrayCount = 0) {
-        this->resize(arrayCount);
-    }
+    explicit GrGLAttribArrayState(int arrayCount = 0) { this->resize(arrayCount); }
 
     void resize(int newCount) {
         fAttribArrayStates.resize_back(newCount);
@@ -39,12 +37,8 @@ public:
      * assumed that the GrGLAttribArrayState is tracking the state of the currently bound vertex
      * array object.
      */
-    void set(GrGLGpu*,
-             int attribIndex,
-             const GrBuffer* vertexBuffer,
-             GrVertexAttribType type,
-             GrGLsizei stride,
-             GrGLvoid* offset);
+    void set(GrGLGpu*, int attribIndex, const GrBuffer* vertexBuffer, GrVertexAttribType type,
+             GrGLsizei stride, GrGLvoid* offset);
 
     /**
      * This function disables vertex attribs not present in the mask. It is assumed that the
@@ -74,12 +68,12 @@ private:
             fVertexBufferUniqueID.makeInvalid();
         }
 
-        bool                            fEnableIsValid;
-        bool                            fEnabled;
-        GrGpuResource::UniqueID         fVertexBufferUniqueID;
-        GrVertexAttribType              fType;
-        GrGLsizei                       fStride;
-        GrGLvoid*                       fOffset;
+        bool fEnableIsValid;
+        bool fEnabled;
+        GrGpuResource::UniqueID fVertexBufferUniqueID;
+        GrVertexAttribType fType;
+        GrGLsizei fStride;
+        GrGLvoid* fOffset;
     };
 
     SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
@@ -111,9 +105,9 @@ public:
     void invalidateCachedState();
 
 private:
-    GrGLuint                  fID;
-    GrGLAttribArrayState      fAttribArrays;
-    GrGpuResource::UniqueID   fIndexBufferUniqueID;
+    GrGLuint fID;
+    GrGLAttribArrayState fAttribArrays;
+    GrGpuResource::UniqueID fIndexBufferUniqueID;
 };
 
 #endif

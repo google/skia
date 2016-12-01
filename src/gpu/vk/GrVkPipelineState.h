@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrVkPipelineState_DEFINED
 #define GrVkPipelineState_DEFINED
 
@@ -71,12 +70,10 @@ public:
      */
     class Desc : public GrProgramDesc {
     public:
-        static bool Build(Desc*,
-                          const GrPrimitiveProcessor&,
-                          const GrPipeline&,
-                          const GrStencilSettings&,
-                          GrPrimitiveType primitiveType,
+        static bool Build(Desc*, const GrPrimitiveProcessor&, const GrPipeline&,
+                          const GrStencilSettings&, GrPrimitiveType primitiveType,
                           const GrShaderCaps&);
+
     private:
         typedef GrProgramDesc INHERITED;
     };
@@ -87,16 +84,12 @@ private:
     typedef GrVkPipelineStateDataManager::UniformInfoArray UniformInfoArray;
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    GrVkPipelineState(GrVkGpu* gpu,
-                      const GrVkPipelineState::Desc&,
-                      GrVkPipeline* pipeline,
+    GrVkPipelineState(GrVkGpu* gpu, const GrVkPipelineState::Desc&, GrVkPipeline* pipeline,
                       VkPipelineLayout layout,
                       const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
-                      const UniformInfoArray& uniforms,
-                      uint32_t vertexUniformSize,
-                      uint32_t fragmentUniformSize,
-                      uint32_t numSamplers,
+                      const UniformInfoArray& uniforms, uint32_t vertexUniformSize,
+                      uint32_t fragmentUniformSize, uint32_t numSamplers,
                       GrGLSLPrimitiveProcessor* geometryProcessor,
                       GrGLSLXferProcessor* xferProcessor,
                       const GrGLSLFragProcs& fragmentProcessors);
@@ -111,7 +104,7 @@ private:
             , fDescCountPerSet(descCount)
             , fCurrentDescriptorCount(0)
             , fPool(nullptr) {
-            SkASSERT(descCount < kMaxDescLimit >> 2);
+            SkASSERT(descCount<kMaxDescLimit>> 2);
             fMaxDescriptors = fDescCountPerSet << 2;
             this->getNewPool(gpu);
         }
@@ -126,12 +119,12 @@ private:
         void freeGPUResources(const GrVkGpu* gpu);
         void abandonGPUResources();
 
-        VkDescriptorSetLayout  fDescLayout;
-        VkDescriptorType       fDescType;
-        uint32_t               fDescCountPerSet;
-        uint32_t               fMaxDescriptors;
-        uint32_t               fCurrentDescriptorCount;
-        GrVkDescriptorPool*    fPool;
+        VkDescriptorSetLayout fDescLayout;
+        VkDescriptorType fDescType;
+        uint32_t fDescCountPerSet;
+        uint32_t fMaxDescriptors;
+        uint32_t fCurrentDescriptorCount;
+        GrVkDescriptorPool* fPool;
 
     private:
         static const uint32_t kMaxDescLimit = 1 << 10;
@@ -151,7 +144,7 @@ private:
     * them.
     */
     struct RenderTargetState {
-        SkISize         fRenderTargetSize;
+        SkISize fRenderTargetSize;
         GrSurfaceOrigin fRenderTargetOrigin;
 
         RenderTargetState() { this->invalidate(); }

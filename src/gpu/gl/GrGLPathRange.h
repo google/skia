@@ -33,10 +33,7 @@ public:
      * path objects. This class assumes ownership of the GPU path objects and
      * will delete them when done.
      */
-    GrGLPathRange(GrGLGpu*,
-                  GrGLuint basePathID,
-                  int numPaths,
-                  size_t gpuMemorySize,
+    GrGLPathRange(GrGLGpu*, GrGLuint basePathID, int numPaths, size_t gpuMemorySize,
                   const GrStyle&);
 
     GrGLuint basePathID() const { return fBasePathID; }

@@ -53,8 +53,8 @@ bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* ima
     }
 
     if (!fData) {
-        fData = reinterpret_cast<unsigned char*>(sk_calloc_throw(fBytesPerPixel * fWidth *
-                                                                 fHeight));
+        fData = reinterpret_cast<unsigned char*>(
+                sk_calloc_throw(fBytesPerPixel * fWidth * fHeight));
     }
     size_t rowBytes = width * fBytesPerPixel;
     const unsigned char* imagePtr = (const unsigned char*)image;
@@ -83,7 +83,7 @@ bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* ima
     loc->fY += fOffset.fY;
     SkDEBUGCODE(fDirty = true;)
 
-    return true;
+            return true;
 }
 
 void GrBatchAtlas::BatchPlot::uploadToTexture(GrDrawOp::WritePixelsFn& writePixels,
@@ -121,9 +121,7 @@ void GrBatchAtlas::BatchPlot::resetRects() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrBatchAtlas::GrBatchAtlas(sk_sp<GrTexture> texture, int numPlotsX, int numPlotsY)
-    : fTexture(std::move(texture))
-    , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
-
+    : fTexture(std::move(texture)), fAtlasGeneration(kInvalidAtlasGeneration + 1) {
     fPlotWidth = fTexture->width() / numPlotsX;
     fPlotHeight = fTexture->height() / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
@@ -132,11 +130,11 @@ GrBatchAtlas::GrBatchAtlas(sk_sp<GrTexture> texture, int numPlotsX, int numPlots
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
-    // We currently do not support compressed atlases...
-    SkASSERT(!GrPixelConfigIsCompressed(fTexture->desc().fConfig));
+            // We currently do not support compressed atlases...
+            SkASSERT(!GrPixelConfigIsCompressed(fTexture->desc().fConfig));
 
     // set up allocated plots
-    fPlotArray.reset(new sk_sp<BatchPlot>[numPlotsX * numPlotsY]);
+    fPlotArray.reset(new sk_sp<BatchPlot>[ numPlotsX * numPlotsY ]);
 
     sk_sp<BatchPlot>* currPlot = fPlotArray.get();
     for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
@@ -168,18 +166,17 @@ inline void GrBatchAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Batc
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<BatchPlot> plotsp(SkRef(plot));
         GrTexture* texture = fTexture.get();
-        GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
-            [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
-               plotsp->uploadToTexture(writePixels, texture);
-            }
-        );
+        GrDrawOpUploadToken lastUploadToken =
+                target->addAsapUpload([plotsp, texture](GrDrawOp::WritePixelsFn& writePixels) {
+                    plotsp->uploadToTexture(writePixels, texture);
+                });
         plot->setLastUploadToken(lastUploadToken);
     }
     *id = plot->id();
 }
 
-bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target,
-                              int width, int height, const void* image, SkIPoint16* loc) {
+bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
+                              const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
     SkASSERT(fTexture);
     if (width > fPlotWidth || height > fPlotHeight) {
@@ -207,7 +204,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target,
         this->processEviction(plot->id());
         plot->resetRects();
         SkASSERT(GrBytesPerPixel(fTexture->desc().fConfig) == plot->bpp());
-        SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
+        SkDEBUGCODE(bool verify =) plot->addSubImage(width, height, image, loc);
         SkASSERT(verify);
         this->updatePlot(target, id, plot);
         fAtlasGeneration++;
@@ -230,7 +227,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target,
 
     fPlotList.addToHead(newPlot.get());
     SkASSERT(GrBytesPerPixel(fTexture->desc().fConfig) == newPlot->bpp());
-    SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
+    SkDEBUGCODE(bool verify =) newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
     // Note that this plot will be uploaded inline with the draws whereas the
@@ -238,11 +235,10 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target,
     // With c+14 we could move sk_sp into lamba to only ref once.
     sk_sp<BatchPlot> plotsp(SkRef(newPlot.get()));
     GrTexture* texture = fTexture.get();
-    GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
-        [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
-            plotsp->uploadToTexture(writePixels, texture);
-        }
-    );
+    GrDrawOpUploadToken lastUploadToken =
+            target->addInlineUpload([plotsp, texture](GrDrawOp::WritePixelsFn& writePixels) {
+                plotsp->uploadToTexture(writePixels, texture);
+            });
     newPlot->setLastUploadToken(lastUploadToken);
 
     *id = newPlot->id();

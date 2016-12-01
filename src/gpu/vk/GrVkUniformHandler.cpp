@@ -15,7 +15,7 @@
 // the std140 alignment, you can use this, but then make sure if you have an array type it is
 // aligned to 16 bytes (i.e. has mask of 0xF).
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
-    switch(type) {
+    switch (type) {
         case kInt_GrSLType:
             return 0x3;
         case kUint_GrSLType:
@@ -57,7 +57,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     For non floating point type returns 0. Currently this reflects the std140 alignment
     so a mat22 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
-    switch(type) {
+    switch (type) {
         case kInt_GrSLType:
             return 4;
         case kUint_GrSLType:
@@ -71,7 +71,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kVec4f_GrSLType:
             return 4 * sizeof(float);
         case kMat22f_GrSLType:
-            //TODO: this will be 4 * szof(float) on std430.
+            // TODO: this will be 4 * szof(float) on std430.
             return 8 * sizeof(float);
         case kMat33f_GrSLType:
             return 12 * sizeof(float);
@@ -96,13 +96,10 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     return 0;
 }
 
-
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
-void get_ubo_aligned_offset(uint32_t* uniformOffset,
-                            uint32_t* currentOffset,
-                            GrSLType type,
+void get_ubo_aligned_offset(uint32_t* uniformOffset, uint32_t* currentOffset, GrSLType type,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
@@ -125,15 +122,11 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
 }
 
 GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            GrSLPrecision precision,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+        uint32_t visibility, GrSLType type, GrSLPrecision precision, const char* name,
+        bool mangleName, int arrayCount, const char** outName) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_GrShaderFlag|kFragment_GrShaderFlag);
+    SkDEBUGCODE(static const uint32_t kVisibilityMask =
+                        kVertex_GrShaderFlag | kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisibilityMask & visibility));
     SkASSERT(0 != visibility);
     SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeIsFloatType(type));
@@ -173,8 +166,7 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visibility,
-                                                                   GrSwizzle swizzle,
-                                                                   GrSLType type,
+                                                                   GrSwizzle swizzle, GrSLType type,
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
@@ -224,8 +216,8 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
     if (!uniformsString.isEmpty()) {
-        uint32_t uniformBinding = (visibility == kVertex_GrShaderFlag) ? kVertexBinding
-                                                                       : kFragBinding;
+        uint32_t uniformBinding =
+                (visibility == kVertex_GrShaderFlag) ? kVertexBinding : kFragBinding;
         const char* stage = (visibility == kVertex_GrShaderFlag) ? "vertex" : "fragment";
         out->appendf("layout (set=%d, binding=%d) uniform %sUniformBuffer\n{\n",
                      kUniformBufferDescSet, uniformBinding, stage);

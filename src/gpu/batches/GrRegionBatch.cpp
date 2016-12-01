@@ -7,8 +7,8 @@
 
 #include "GrRegionBatch.h"
 
-#include "GrDefaultGeoProcFactory.h"
 #include "GrBatchFlushState.h"
+#include "GrDefaultGeoProcFactory.h"
 #include "GrResourceProvider.h"
 #include "GrVertexBatch.h"
 #include "SkMatrixPriv.h"
@@ -26,23 +26,21 @@ static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage, const SkMatrix& vi
     return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
 }
 
-static void tesselate_region(intptr_t vertices,
-                            size_t vertexStride,
-                            GrColor color,
-                            const SkRegion& region) {
+static void tesselate_region(intptr_t vertices, size_t vertexStride, GrColor color,
+                             const SkRegion& region) {
     SkRegion::Iterator iter(region);
 
     intptr_t verts = vertices;
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
-        SkPoint* position = (SkPoint*) verts;
+        SkPoint* position = (SkPoint*)verts;
         position->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
         static const int kColorOffset = sizeof(SkPoint);
         GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
         for (int i = 0; i < kVertsPerInstance; i++) {
             *vertColor = color;
-            vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+            vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
         }
 
         verts += vertexStride * kVertsPerInstance;
@@ -55,9 +53,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     RegionBatch(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region)
-            : INHERITED(ClassID())
-            , fViewMatrix(viewMatrix)
-    {
+        : INHERITED(ClassID()), fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
         info.fRegion = region;
@@ -73,16 +69,15 @@ public:
         str.appendf("# batched: %d\n", fRegions.count());
         for (int i = 0; i < fRegions.count(); ++i) {
             const RegionInfo& info = fRegions[i];
-            str.appendf("%d: Color: 0x%08x, Region with %d rects\n",
-                        i, info.fColor, info.fRegion.computeRegionComplexity());
+            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor,
+                        info.fRegion.computeRegionComplexity());
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one region.
         color->setKnownFourComponents(fRegions[0].fColor);
@@ -95,7 +90,6 @@ public:
     }
 
 private:
-
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage(), fViewMatrix);
         if (!gp) {
@@ -113,9 +107,9 @@ private:
         size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerInstance, kIndicesPerInstance,
-                                     numRects);
+        void* vertices =
+                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+                            kVertsPerInstance, kIndicesPerInstance, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -163,5 +157,4 @@ namespace GrRegionBatch {
 GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
     return new RegionBatch(color, viewMatrix, region);
 }
-
 };

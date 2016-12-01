@@ -27,25 +27,21 @@ public:
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface> tex);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
-                                                         const GrBackendTextureDesc& desc,
-                                                         sk_sp<SkColorSpace> colorSpace,
-                                                         const SkSurfaceProps* = nullptr,
-                                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
+            const GrBackendTextureDesc& desc, sk_sp<SkColorSpace> colorSpace,
+            const SkSurfaceProps* = nullptr, GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     sk_sp<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
-                                                              const GrBackendRenderTargetDesc& desc,
-                                                              sk_sp<SkColorSpace> colorSpace,
-                                                              const SkSurfaceProps* = nullptr);
+            const GrBackendRenderTargetDesc& desc, sk_sp<SkColorSpace> colorSpace,
+            const SkSurfaceProps* = nullptr);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
-                                                                 const GrBackendTextureDesc& desc,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 const SkSurfaceProps* = nullptr);
+            const GrBackendTextureDesc& desc, sk_sp<SkColorSpace> colorSpace,
+            const SkSurfaceProps* = nullptr);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
-    GrContextPriv(const GrContextPriv&) {} // unimpl
-    GrContextPriv& operator=(const GrContextPriv&); // unimpl
+    GrContextPriv(const GrContextPriv&) {}           // unimpl
+    GrContextPriv& operator=(const GrContextPriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrContextPriv* operator&() const;
@@ -53,12 +49,12 @@ private:
 
     GrContext* fContext;
 
-    friend class GrContext; // to construct/copy this type.
+    friend class GrContext;  // to construct/copy this type.
 };
 
 inline GrContextPriv GrContext::contextPriv() { return GrContextPriv(this); }
 
-inline const GrContextPriv GrContext::contextPriv () const {
+inline const GrContextPriv GrContext::contextPriv() const {
     return GrContextPriv(const_cast<GrContext*>(this));
 }
 

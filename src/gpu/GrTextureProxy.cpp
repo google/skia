@@ -12,12 +12,11 @@
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/)
     : INHERITED(srcDesc, fit, budgeted) {
-    SkASSERT(!srcData);   // currently handled in Make()
+    SkASSERT(!srcData);  // currently handled in Make()
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
-    : INHERITED(std::move(surf), SkBackingFit::kExact) {
-}
+    : INHERITED(std::move(surf), SkBackingFit::kExact) {}
 
 GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
     GrSurface* surf = this->INHERITED::instantiate(texProvider);

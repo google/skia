@@ -6,28 +6,25 @@
  */
 
 #include "GrGLPathRange.h"
+#include "GrGLGpu.h"
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
-#include "GrGLGpu.h"
 
 GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, PathGenerator* pathGenerator, const GrStyle& style)
-    : INHERITED(gpu, pathGenerator),
-      fStyle(style),
-      fBasePathID(gpu->glPathRendering()->genPaths(this->getNumPaths())),
-      fGpuMemorySize(0) {
+    : INHERITED(gpu, pathGenerator)
+    , fStyle(style)
+    , fBasePathID(gpu->glPathRendering()->genPaths(this->getNumPaths()))
+    , fGpuMemorySize(0) {
     this->init();
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrGLPathRange::GrGLPathRange(GrGLGpu* gpu,
-                             GrGLuint basePathID,
-                             int numPaths,
-                             size_t gpuMemorySize,
+GrGLPathRange::GrGLPathRange(GrGLGpu* gpu, GrGLuint basePathID, int numPaths, size_t gpuMemorySize,
                              const GrStyle& style)
-    : INHERITED(gpu, numPaths),
-      fStyle(style),
-      fBasePathID(basePathID),
-      fGpuMemorySize(gpuMemorySize) {
+    : INHERITED(gpu, numPaths)
+    , fStyle(style)
+    , fBasePathID(basePathID)
+    , fGpuMemorySize(gpuMemorySize) {
     this->init();
     this->registerWithCache(SkBudgeted::kYes);
 }
@@ -37,16 +34,16 @@ void GrGLPathRange::init() {
     // Must force fill:
     // * dashing: NVPR stroke dashing is different to Skia.
     // * end caps: NVPR stroking degenerate contours with end caps is different to Skia.
-    bool forceFill = fStyle.pathEffect() ||
-            (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap);
+    bool forceFill =
+            fStyle.pathEffect() || (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap);
 
     if (forceFill) {
         fShouldStroke = false;
         fShouldFill = true;
     } else {
         fShouldStroke = stroke.needToApply();
-        fShouldFill = stroke.isFillStyle() ||
-                stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+        fShouldFill =
+                stroke.isFillStyle() || stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
     }
 }
 
@@ -56,9 +53,8 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
         return;
     }
     // Make sure the path at this index hasn't been initted already.
-    SkDEBUGCODE(
-        GrGLboolean isPath;
-        GR_GL_CALL_RET(gpu->glInterface(), isPath, IsPath(fBasePathID + index)));
+    SkDEBUGCODE(GrGLboolean isPath;
+                GR_GL_CALL_RET(gpu->glInterface(), isPath, IsPath(fBasePathID + index)));
     SkASSERT(GR_GL_FALSE == isPath);
 
     if (origSkPath.isEmpty()) {
@@ -83,7 +79,6 @@ void GrGLPathRange::onInitPath(int index, const SkPath& origSkPath) const {
             // so after application we better have a filled path.
             SkASSERT(SkStrokeRec::kFill_InitStyle == fill);
             skPath = tmpPath.get();
-
         }
         GrGLPath::InitPathObjectPathData(gpu, fBasePathID + index, *skPath);
     }
@@ -95,8 +90,9 @@ void GrGLPathRange::onRelease() {
     SkASSERT(this->getGpu());
 
     if (0 != fBasePathID) {
-        static_cast<GrGLGpu*>(this->getGpu())->glPathRendering()->deletePaths(fBasePathID,
-                                                                              this->getNumPaths());
+        static_cast<GrGLGpu*>(this->getGpu())
+                ->glPathRendering()
+                ->deletePaths(fBasePathID, this->getNumPaths());
         fBasePathID = 0;
     }
 

@@ -8,8 +8,8 @@
 #ifndef GrRect_DEFINED
 #define GrRect_DEFINED
 
-#include "SkTypes.h"
 #include "SkRect.h"
+#include "SkTypes.h"
 
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
@@ -47,9 +47,9 @@ struct GrIRect16 {
     }
 
     void set(const SkIRect& r) {
-        fLeft   = SkToS16(r.fLeft);
-        fTop    = SkToS16(r.fTop);
-        fRight  = SkToS16(r.fRight);
+        fLeft = SkToS16(r.fLeft);
+        fTop = SkToS16(r.fTop);
+        fRight = SkToS16(r.fRight);
         fBottom = SkToS16(r.fBottom);
     }
 };

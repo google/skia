@@ -6,11 +6,11 @@
  */
 
 #include "GrGLShaderStringBuilder.h"
-#include "gl/GrGLGpu.h"
-#include "gl/GrGLSLPrettyPrint.h"
-#include "SkTraceEvent.h"
 #include "SkSLCompiler.h"
 #include "SkSLGLSLCodeGenerator.h"
+#include "SkTraceEvent.h"
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLSLPrettyPrint.h"
 #include "ir/SkSLProgram.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
@@ -38,12 +38,8 @@ static void dump_string(SkString s) {
     }
 }
 
-GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
-                                    GrGLuint programId,
-                                    GrGLenum type,
-                                    const char** strings,
-                                    int* lengths,
-                                    int count,
+GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx, GrGLuint programId, GrGLenum type,
+                                    const char** strings, int* lengths, int count,
                                     GrGpu::Stats* stats) {
     const GrGLInterface* gli = glCtx.interface();
 
@@ -65,12 +61,10 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     SkString glsl;
     if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
         SkSL::Compiler& compiler = *glCtx.compiler();
-        SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
-                                                                    ? SkSL::Program::kVertex_Kind
-                                                                    : SkSL::Program::kFragment_Kind,
-                                                   sksl,
-                                                   *glCtx.caps()->shaderCaps(),
-                                                   &glsl);
+        SkDEBUGCODE(bool result =)
+                compiler.toGLSL(type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
+                                                            : SkSL::Program::kFragment_Kind,
+                                sksl, *glCtx.caps()->shaderCaps(), &glsl);
 #ifdef SK_DEBUG
         if (!result) {
             SkDebugf("SKSL compilation error\n----------------------\n");
@@ -87,7 +81,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 
     const char* glslChars = glsl.c_str();
-    GrGLint glslLength = (GrGLint) glsl.size();
+    GrGLint glslLength = (GrGLint)glsl.size();
     GR_GL_CALL(gli, ShaderSource(shaderId, 1, &glslChars, &glslLength));
 
     // If tracing is enabled in chrome then we pretty print
@@ -114,18 +108,18 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         if (!compiled) {
             GrGLint infoLen = GR_GL_INIT_ZERO;
             GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
-            SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
+            SkAutoMalloc log(sizeof(char) * (infoLen + 1));  // outside if for debugger
             if (infoLen > 0) {
                 // retrieve length even though we don't need it to workaround bug in Chromium cmd
                 // buffer param validation.
                 GrGLsizei length = GR_GL_INIT_ZERO;
-                GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
+                GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen + 1, &length, (char*)log.get()));
                 SkDebugf("GLSL compilation error\n----------------------\n");
                 SkDebugf("SKSL:\n");
                 dump_string(sksl);
                 SkDebugf("GLSL:\n");
                 dump_string(glsl);
-                SkDebugf("Errors:\n%s\n", (const char*) log.get());
+                SkDebugf("Errors:\n%s\n", (const char*)log.get());
             }
             SkDEBUGFAIL("GLSL compilation failed!");
             GR_GL_CALL(gli, DeleteShader(shaderId));
@@ -136,9 +130,15 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     if (c_PrintShaders) {
         const char* typeName = "Unknown";
         switch (type) {
-            case GR_GL_VERTEX_SHADER: typeName = "Vertex"; break;
-            case GR_GL_GEOMETRY_SHADER: typeName = "Geometry"; break;
-            case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
+            case GR_GL_VERTEX_SHADER:
+                typeName = "Vertex";
+                break;
+            case GR_GL_GEOMETRY_SHADER:
+                typeName = "Geometry";
+                break;
+            case GR_GL_FRAGMENT_SHADER:
+                typeName = "Fragment";
+                break;
         }
         SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
         print_shader_source(strings, lengths, count);

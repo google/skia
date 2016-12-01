@@ -28,20 +28,14 @@ public:
         supported at this time. The actual uniform name will be mangled. If outName is not nullptr
         then it will refer to the final uniform name after return. Use the addUniformArray variant
         to add an array of uniforms. */
-    UniformHandle addUniform(uint32_t visibility,
-                             GrSLType type,
-                             GrSLPrecision precision,
-                             const char* name,
-                             const char** outName = nullptr) {
+    UniformHandle addUniform(uint32_t visibility, GrSLType type, GrSLPrecision precision,
+                             const char* name, const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
-    UniformHandle addUniformArray(uint32_t visibility,
-                                  GrSLType type,
-                                  GrSLPrecision precision,
-                                  const char* name,
-                                  int arrayCount,
+    UniformHandle addUniformArray(uint32_t visibility, GrSLType type, GrSLPrecision precision,
+                                  const char* name, int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
@@ -73,12 +67,9 @@ private:
                                                GrImageStorageFormat, GrSLMemoryModel, GrSLRestrict,
                                                GrIOType, const char* name) = 0;
 
-    virtual UniformHandle internalAddUniformArray(uint32_t visibility,
-                                                  GrSLType type,
-                                                  GrSLPrecision precision,
-                                                  const char* name,
-                                                  bool mangleName,
-                                                  int arrayCount,
+    virtual UniformHandle internalAddUniformArray(uint32_t visibility, GrSLType type,
+                                                  GrSLPrecision precision, const char* name,
+                                                  bool mangleName, int arrayCount,
                                                   const char** outName) = 0;
 
     virtual void appendUniformDecls(GrShaderFlags visibility, SkString*) const = 0;

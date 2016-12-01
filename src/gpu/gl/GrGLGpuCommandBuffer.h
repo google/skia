@@ -16,11 +16,11 @@
 class GrGLRenderTarget;
 
 class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
-/**
- * We do not actually buffer up draws or do any work in the this class for GL. Instead commands
- * are immediately sent to the gpu to execute. Thus all the commands in this class are simply
- * pass through functions to corresponding calls in the GrGLGpu class.
- */
+    /**
+     * We do not actually buffer up draws or do any work in the this class for GL. Instead commands
+     * are immediately sent to the gpu to execute. Thus all the commands in this class are simply
+     * pass through functions to corresponding calls in the GrGLGpu class.
+     */
 public:
     GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
 
@@ -46,11 +46,8 @@ private:
 
     void onSubmit() override {}
 
-    void onDraw(const GrPipeline& pipeline,
-                const GrPrimitiveProcessor& primProc,
-                const GrMesh* mesh,
-                int meshCount,
-                const SkRect& bounds) override {
+    void onDraw(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+                const GrMesh* mesh, int meshCount, const SkRect& bounds) override {
         GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
         if (!fRenderTarget) {
             fRenderTarget = target;
@@ -78,11 +75,10 @@ private:
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
-    GrGLGpu*                    fGpu;
-    GrGLRenderTarget*           fRenderTarget;
+    GrGLGpu* fGpu;
+    GrGLRenderTarget* fRenderTarget;
 
     typedef GrGpuCommandBuffer INHERITED;
 };
 
 #endif
-

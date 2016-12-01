@@ -13,9 +13,7 @@
  */
 class MaskedColor {
 public:
-    MaskedColor(GrColor color, GrColorComponentFlags flags)
-        : fColor(color)
-        , fFlags(flags) {}
+    MaskedColor(GrColor color, GrColorComponentFlags flags) : fColor(color), fFlags(flags) {}
 
     MaskedColor() {}
 
@@ -29,32 +27,34 @@ public:
     }
 
     static MaskedColor ExtractAlpha(const MaskedColor& in) {
-        GrColorComponentFlags flags = (in.fFlags & kA_GrColorComponentFlag) ?
-            kRGBA_GrColorComponentFlags : kNone_GrColorComponentFlags;
+        GrColorComponentFlags flags = (in.fFlags & kA_GrColorComponentFlag)
+                                              ? kRGBA_GrColorComponentFlags
+                                              : kNone_GrColorComponentFlags;
         return MaskedColor(GrColorPackA4(GrColorUnpackA(in.fColor)), flags);
     }
 
     static MaskedColor ExtractInverseAlpha(const MaskedColor& in) {
-        GrColorComponentFlags flags = (in.fFlags & kA_GrColorComponentFlag) ?
-            kRGBA_GrColorComponentFlags : kNone_GrColorComponentFlags;
+        GrColorComponentFlags flags = (in.fFlags & kA_GrColorComponentFlag)
+                                              ? kRGBA_GrColorComponentFlags
+                                              : kNone_GrColorComponentFlags;
         return MaskedColor(GrColorPackA4(0xFF - GrColorUnpackA(in.fColor)), flags);
     }
 
     static MaskedColor Mul(const MaskedColor& a, const MaskedColor& b) {
-        GrColorComponentFlags outFlags = (a.fFlags & b.fFlags) | a.componentsWithValue(0) |
-                                         b.componentsWithValue(0);
+        GrColorComponentFlags outFlags =
+                (a.fFlags & b.fFlags) | a.componentsWithValue(0) | b.componentsWithValue(0);
         return MaskedColor(GrColorMul(a.fColor, b.fColor), outFlags);
     }
 
     static MaskedColor SatAdd(const MaskedColor& a, const MaskedColor& b) {
-        GrColorComponentFlags outFlags = (a.fFlags & b.fFlags) | a.componentsWithValue(0xFF) |
-                                         b.componentsWithValue(0xFF);
+        GrColorComponentFlags outFlags =
+                (a.fFlags & b.fFlags) | a.componentsWithValue(0xFF) | b.componentsWithValue(0xFF);
         return MaskedColor(GrColorSatAdd(a.fColor, b.fColor), outFlags);
     }
 
     GrColor color() const { return fColor; }
 
-    GrColorComponentFlags validFlags () const { return fFlags; }
+    GrColorComponentFlags validFlags() const { return fFlags; }
 
 private:
     GrColorComponentFlags componentsWithValue(unsigned value) const {
@@ -74,8 +74,8 @@ private:
         return flags;
     }
 
-    GrColor                 fColor;
-    GrColorComponentFlags   fFlags;
+    GrColor fColor;
+    GrColorComponentFlags fFlags;
 };
 
 static MaskedColor get_term(GrBlendCoeff coeff, const MaskedColor& src, const MaskedColor& dst,
@@ -107,10 +107,9 @@ static MaskedColor get_term(GrBlendCoeff coeff, const MaskedColor& src, const Ma
     }
 }
 
-void GrGetCoeffBlendKnownComponents(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff,
-                                    GrColor srcColor, GrColorComponentFlags srcColorFlags,
-                                    GrColor dstColor, GrColorComponentFlags dstColorFlags,
-                                    GrColor* outColor,
+void GrGetCoeffBlendKnownComponents(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff, GrColor srcColor,
+                                    GrColorComponentFlags srcColorFlags, GrColor dstColor,
+                                    GrColorComponentFlags dstColorFlags, GrColor* outColor,
                                     GrColorComponentFlags* outFlags) {
     MaskedColor src(srcColor, srcColorFlags);
     MaskedColor dst(dstColor, dstColorFlags);

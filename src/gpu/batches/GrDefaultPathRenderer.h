@@ -21,7 +21,6 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
 private:
-
     StencilSupport onGetStencilSupport(const GrShape&) const override;
 
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -30,16 +29,12 @@ private:
 
     void onStencilPath(const StencilPathArgs&) override;
 
-    bool internalDrawPath(GrRenderTargetContext*,
-                          const GrPaint&,
-                          const GrUserStencilSettings&,
-                          const GrClip&,
-                          const SkMatrix& viewMatrix,
-                          const GrShape&,
+    bool internalDrawPath(GrRenderTargetContext*, const GrPaint&, const GrUserStencilSettings&,
+                          const GrClip&, const SkMatrix& viewMatrix, const GrShape&,
                           bool stencilOnly);
 
-    bool    fSeparateStencil;
-    bool    fStencilWrapOps;
+    bool fSeparateStencil;
+    bool fStencilWrapOps;
 
     typedef GrPathRenderer INHERITED;
 };

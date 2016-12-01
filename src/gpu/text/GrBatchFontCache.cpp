@@ -24,10 +24,9 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = fContext->resourceProvider()->makeAtlas(config, width, height,
-                                                                  numPlotsX, numPlotsY,
-                                                                  &GrBatchFontCache::HandleEviction,
-                                                                  (void*)this);
+        fAtlases[index] = fContext->resourceProvider()->makeAtlas(
+                config, width, height, numPlotsX, numPlotsY, &GrBatchFontCache::HandleEviction,
+                (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -36,9 +35,7 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
 }
 
 GrBatchFontCache::GrBatchFontCache(GrContext* context)
-    : fContext(context)
-    , fPreserveStrike(nullptr) {
-
+    : fContext(context), fPreserveStrike(nullptr) {
     // setup default atlas configs
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = 2048;
     fAtlasConfigs[kA8_GrMaskFormat].fHeight = 2048;
@@ -136,7 +133,7 @@ static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
     SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
     switch (format) {
         case SkMask::kBW_Format:
-            // fall through to kA8 -- we store BW glyphs in our 8-bit cache
+        // fall through to kA8 -- we store BW glyphs in our 8-bit cache
         case SkMask::kA8_Format:
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
@@ -177,11 +174,7 @@ static inline bool get_packed_glyph_df_bounds(SkGlyphCache* cache, const SkGlyph
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
 // A8, RGB565, or RGBA8888.
 template <typename INT_TYPE>
-static void expand_bits(INT_TYPE* dst,
-                        const uint8_t* src,
-                        int width,
-                        int height,
-                        int dstRowBytes,
+static void expand_bits(INT_TYPE* dst, const uint8_t* src, int width, int height, int dstRowBytes,
                         int srcRowBytes) {
     for (int i = 0; i < height; ++i) {
         int rowWritesLeft = width;
@@ -198,9 +191,8 @@ static void expand_bits(INT_TYPE* dst,
     }
 }
 
-static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, int width,
-                                   int height, int dstRB, GrMaskFormat expectedMaskFormat,
-                                   void* dst) {
+static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, int width, int height,
+                                   int dstRB, GrMaskFormat expectedMaskFormat, void* dst) {
     SkASSERT(glyph.fWidth == width);
     SkASSERT(glyph.fHeight == height);
     const void* src = cache->findImage(glyph);
@@ -228,7 +220,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
         // expand bits to our mask type
         const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
         switch (expectedMaskFormat) {
-            case kA8_GrMaskFormat:{
+            case kA8_GrMaskFormat: {
                 uint8_t* bytes = reinterpret_cast<uint8_t*>(dst);
                 expand_bits(bytes, bits, width, height, dstRB, srcRB);
                 break;
@@ -254,10 +246,10 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
     return true;
 }
 
-static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
-                                      int width, int height, void* dst) {
-    SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
-    SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
+static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph, int width,
+                                      int height, void* dst) {
+    SkASSERT(glyph.fWidth + 2 * SK_DistanceFieldPad == width);
+    SkASSERT(glyph.fHeight + 2 * SK_DistanceFieldPad == height);
     const void* image = cache->findImage(glyph);
     if (nullptr == image) {
         return false;
@@ -267,16 +259,12 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
     if (SkMask::kA8_Format == maskFormat) {
         // make the distance field from the image
-        SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
-                                           (unsigned char*)image,
-                                           glyph.fWidth, glyph.fHeight,
-                                           glyph.rowBytes());
+        SkGenerateDistanceFieldFromA8Image((unsigned char*)dst, (unsigned char*)image, glyph.fWidth,
+                                           glyph.fHeight, glyph.rowBytes());
     } else if (SkMask::kBW_Format == maskFormat) {
         // make the distance field from the image
-        SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
-                                           (unsigned char*)image,
-                                           glyph.fWidth, glyph.fHeight,
-                                           glyph.rowBytes());
+        SkGenerateDistanceFieldFromBWImage((unsigned char*)dst, (unsigned char*)image, glyph.fWidth,
+                                           glyph.fHeight, glyph.rowBytes());
     } else {
         return false;
     }
@@ -296,8 +284,8 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
 
 GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& key)
     : fFontScalerKey(key)
-    , fPool(9/*start allocations at 512 bytes*/)
-    , fBatchFontCache(owner) // no need to ref, it won't go away before we do
+    , fPool(9 /*start allocations at 512 bytes*/)
+    , fBatchFontCache(owner)  // no need to ref, it won't go away before we do
     , fAtlasedGlyphs(0)
     , fIsAbandoned(false) {}
 
@@ -341,10 +329,8 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
-                                        GrGlyph* glyph,
-                                        SkGlyphCache* cache,
-                                        GrMaskFormat expectedMaskFormat) {
+bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target, GrGlyph* glyph,
+                                        SkGlyphCache* cache, GrMaskFormat expectedMaskFormat) {
     SkASSERT(glyph);
     SkASSERT(cache);
     SkASSERT(fCache.find(glyph->fPackedID));
@@ -369,8 +355,8 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
     }
 
     bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
-                                               glyph->width(), glyph->height(),
-                                               storage.get(), &glyph->fAtlasLocation);
+                                               glyph->width(), glyph->height(), storage.get(),
+                                               &glyph->fAtlasLocation);
     if (success) {
         SkASSERT(GrBatchAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;

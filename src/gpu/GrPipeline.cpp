@@ -8,10 +8,10 @@
 #include "GrPipeline.h"
 
 #include "GrCaps.h"
-#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
@@ -26,7 +26,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (!rt) {
         return nullptr;
     }
-    
+
     GrPipeline* pipeline = new (memory) GrPipeline;
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
@@ -64,10 +64,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXPFactory* xpFactory = builder.getXPFactory();
     sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
-        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
-                                                           hasMixedSamples,
-                                                           &args.fDstTexture,
-                                                           *args.fCaps));
+        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts, hasMixedSamples,
+                                                           &args.fDstTexture, *args.fCaps));
         if (!xferProcessor) {
             pipeline->~GrPipeline();
             return nullptr;
@@ -75,10 +73,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     } else {
         // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                                                                        *args.fCaps,
-                                                                        args.fOpts,
-                                                                        hasMixedSamples,
-                                                                        &args.fDstTexture));
+                *args.fCaps, args.fOpts, hasMixedSamples, &args.fDstTexture));
     }
     GrColor overrideColor = GrColor_ILLEGAL;
     if (args.fOpts.fColorPOI.firstEffectiveProcessorIndex() != 0) {
@@ -87,12 +82,10 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
-    const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
-                                                       &GrPorterDuffXPFactory::SimpleSrcOverXP();
-    optFlags = xpForOpts->getOptimizations(args.fOpts,
-                                           userStencil->doesWrite(args.fHasStencilClip),
-                                           &overrideColor,
-                                           *args.fCaps);
+    const GrXferProcessor* xpForOpts =
+            xferProcessor ? xferProcessor.get() : &GrPorterDuffXPFactory::SimpleSrcOverXP();
+    optFlags = xpForOpts->getOptimizations(args.fOpts, userStencil->doesWrite(args.fHasStencilClip),
+                                           &overrideColor, *args.fCaps);
 
     // When path rendering the stencil settings are not always set on the GrPipelineBuilder
     // so we must check the draw type. In cases where we will skip drawing we simply return a
@@ -165,10 +158,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (xpFactory) {
         xpFactory->getInvariantBlendedColor(args.fOpts.fColorPOI, &blendedColor);
     } else {
-        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fOpts.fColorPOI.color(),
-                                                            args.fOpts.fColorPOI.validFlags(),
-                                                            args.fOpts.fColorPOI.isOpaque(),
-                                                            &blendedColor);
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(
+                args.fOpts.fColorPOI.color(), args.fOpts.fColorPOI.validFlags(),
+                args.fOpts.fColorPOI.isOpaque(), &blendedColor);
     }
     if (blendedColor.fWillBlendWithDst) {
         overrides->fFlags |= GrXPOverridesForBatch::kWillColorBlendWithDst_Flag;
@@ -224,12 +216,9 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
 
     if (a.getRenderTarget() != b.getRenderTarget() ||
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
-        a.fNumColorProcessors != b.fNumColorProcessors ||
-        a.fScissorState != b.fScissorState ||
-        !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
-        a.fFlags != b.fFlags ||
-        a.fUserStencilSettings != b.fUserStencilSettings ||
-        a.fDrawFace != b.fDrawFace ||
+        a.fNumColorProcessors != b.fNumColorProcessors || a.fScissorState != b.fScissorState ||
+        !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) || a.fFlags != b.fFlags ||
+        a.fUserStencilSettings != b.fUserStencilSettings || a.fDrawFace != b.fDrawFace ||
         a.fIgnoresCoverage != b.fIgnoresCoverage) {
         return false;
     }

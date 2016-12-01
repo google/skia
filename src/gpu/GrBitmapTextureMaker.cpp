@@ -20,8 +20,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
     , fBitmap(bitmap) {
     if (!bitmap.isVolatile()) {
         SkIPoint origin = bitmap.pixelRefOrigin();
-        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
-                                           bitmap.height());
+        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(), bitmap.height());
         GrMakeKeyFromImageID(&fOriginalKey, bitmap.pixelRef()->getGenerationID(), subset);
     }
 }
@@ -61,9 +60,7 @@ void GrBitmapTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     GrInstallBitmapUniqueKeyInvalidator(copyKey, fBitmap.pixelRef());
 }
 
-SkAlphaType GrBitmapTextureMaker::alphaType() const {
-    return fBitmap.alphaType();
-}
+SkAlphaType GrBitmapTextureMaker::alphaType() const { return fBitmap.alphaType(); }
 
 sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkDestinationSurfaceColorMode colorMode) {
     // Color space doesn't depend on mode - it's just whatever is in the bitmap

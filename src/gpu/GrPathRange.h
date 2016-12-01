@@ -23,8 +23,6 @@ class SkDescriptor;
 
 class GrPathRange : public GrGpuResource {
 public:
-
-
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t
         kU16_PathIndexType,  //!< uint16_t
@@ -72,7 +70,8 @@ public:
 
     void loadPathsIfNeeded(const void* indices, PathIndexType, int count) const;
 
-    template<typename IndexType> void loadPathsIfNeeded(const IndexType* indices, int count) const {
+    template <typename IndexType>
+    void loadPathsIfNeeded(const IndexType* indices, int count) const {
         if (!fPathGenerator) {
             return;
         }
@@ -112,7 +111,8 @@ public:
 #ifdef SK_DEBUG
     void assertPathsLoaded(const void* indices, PathIndexType, int count) const;
 
-    template<typename IndexType> void assertPathsLoaded(const IndexType* indices, int count) const {
+    template <typename IndexType>
+    void assertPathsLoaded(const IndexType* indices, int count) const {
         if (!fPathGenerator) {
             return;
         }
@@ -140,7 +140,7 @@ protected:
 
 private:
     enum {
-        kPathsPerGroup = 16 // Paths get tracked in groups of 16 for lazy loading.
+        kPathsPerGroup = 16  // Paths get tracked in groups of 16 for lazy loading.
     };
 
     mutable sk_sp<PathGenerator> fPathGenerator;

@@ -16,11 +16,8 @@ class SkMatrix;
 class SkRRect;
 class SkStrokeRec;
 
-GrDrawOp* CreateShadowRRectBatch(GrColor,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRRect& rrect,
-                                 const SkScalar blurRadius,
-                                 const SkStrokeRec& stroke,
+GrDrawOp* CreateShadowRRectBatch(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
+                                 const SkScalar blurRadius, const SkStrokeRec& stroke,
                                  const GrShaderCaps* shaderCaps);
 
 #endif

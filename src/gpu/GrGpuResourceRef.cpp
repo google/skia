@@ -101,7 +101,6 @@ void GrGpuResourceRef::pendingIOComplete() const {
             fResource->completedRead();
             fResource->completedWrite();
             break;
-
     }
     fPendingIO = false;
 }

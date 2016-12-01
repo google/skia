@@ -14,12 +14,9 @@ class GrVkCopyPipeline : public GrVkPipeline {
 public:
     // We expect the passed in renderPass to be stored on the GrVkResourceProvider and not a local
     // object of the client.
-    static GrVkCopyPipeline* Create(GrVkGpu* gpu,
-                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                    VkPipelineLayout pipelineLayout,
-                                    int numSamples,
-                                    const GrVkRenderPass& renderPass,
-                                    VkPipelineCache cache);
+    static GrVkCopyPipeline* Create(GrVkGpu* gpu, VkPipelineShaderStageCreateInfo* shaderStageInfo,
+                                    VkPipelineLayout pipelineLayout, int numSamples,
+                                    const GrVkRenderPass& renderPass, VkPipelineCache cache);
 
     bool isCompatible(const GrVkRenderPass& rp) const;
 
@@ -31,9 +28,7 @@ public:
 
 private:
     GrVkCopyPipeline(VkPipeline pipeline, const GrVkRenderPass* renderPass)
-        : INHERITED(pipeline)
-        , fRenderPass(renderPass) {
-    }
+        : INHERITED(pipeline), fRenderPass(renderPass) {}
 
     const GrVkRenderPass* fRenderPass;
 

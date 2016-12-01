@@ -28,11 +28,10 @@ SkString GrDrawPathBatch::dumpInfo() const {
 }
 
 void GrDrawPathBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
-    GrProgramDesc  desc;
+    GrProgramDesc desc;
 
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                            this->overrides(),
-                                                            this->viewMatrix()));
+    sk_sp<GrPathProcessor> pathProc(
+            GrPathProcessor::Create(this->color(), this->overrides(), this->viewMatrix()));
     state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
                                             this->stencilPassSettings(), fPath.get());
 }
@@ -65,10 +64,8 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, SkScalar 
 bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawPathRangeBatch* that = t->cast<GrDrawPathRangeBatch>();
     if (this->fPathRange.get() != that->fPathRange.get() ||
-        this->transformType() != that->transformType() ||
-        this->fScale != that->fScale ||
-        this->color() != that->color() ||
-        !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        this->transformType() != that->transformType() || this->fScale != that->fScale ||
+        this->color() != that->color() || !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
     }
     if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
@@ -91,7 +88,8 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
                 return false;
             }
             break;
-        default: break;
+        default:
+            break;
     }
     // TODO: Check some other things here. (winding, opaque, pathProc color, vm, ...)
     // Try to combine this call with the previous DrawPaths. We do this by stenciling all the
@@ -129,22 +127,15 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds
     localMatrix.setScale(fScale, fScale);
     localMatrix.preTranslate(head.fX, head.fY);
 
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                            this->overrides(),
-                                                            drawMatrix,
-                                                            localMatrix));
+    sk_sp<GrPathProcessor> pathProc(
+            GrPathProcessor::Create(this->color(), this->overrides(), drawMatrix, localMatrix));
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
-                                                 *pathProc,
-                                                 this->stencilPassSettings(),
-                                                 fPathRange.get(),
-                                                 instances.indices(),
-                                                 GrPathRange::kU16_PathIndexType,
-                                                 instances.transformValues(),
-                                                 instances.transformType(),
-                                                 instances.count());
+        state->gpu()->pathRendering()->drawPaths(
+                *this->pipeline(), *pathProc, this->stencilPassSettings(), fPathRange.get(),
+                instances.indices(), GrPathRange::kU16_PathIndexType, instances.transformValues(),
+                instances.transformType(), instances.count());
     } else {
         int floatsPerTransform = GrPathRendering::PathTransformSize(this->transformType());
         SkAutoSTMalloc<4096, float> transformStorage(floatsPerTransform * fTotalPathCount);
@@ -155,8 +146,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds
             const InstanceData& instances = *draw.fInstanceData;
             memcpy(&indexStorage[idx], instances.indices(), instances.count() * sizeof(uint16_t));
             pre_translate_transform_values(instances.transformValues(), this->transformType(),
-                                           instances.count(),
-                                           draw.fX - head.fX, draw.fY - head.fY,
+                                           instances.count(), draw.fX - head.fX, draw.fY - head.fY,
                                            &transformStorage[floatsPerTransform * idx]);
             idx += instances.count();
 
@@ -165,15 +155,10 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
-                                                 *pathProc,
-                                                 this->stencilPassSettings(),
-                                                 fPathRange.get(),
-                                                 indexStorage,
-                                                 GrPathRange::kU16_PathIndexType,
-                                                 transformStorage,
-                                                 this->transformType(),
-                                                 fTotalPathCount);
+        state->gpu()->pathRendering()->drawPaths(
+                *this->pipeline(), *pathProc, this->stencilPassSettings(), fPathRange.get(),
+                indexStorage, GrPathRange::kU16_PathIndexType, transformStorage,
+                this->transformType(), fTotalPathCount);
     }
 }
 

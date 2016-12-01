@@ -44,44 +44,34 @@ public:
     }
 
     bool isConfigRenderableLinearly(GrPixelConfig config, bool withMSAA) const {
-        return !withMSAA && SkToBool(ConfigInfo::kRenderable_Flag &
-                                     fConfigTable[config].fLinearFlags);
+        return !withMSAA &&
+               SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fLinearFlags);
     }
 
     bool configCanBeDstofBlit(GrPixelConfig config, bool linearTiled) const {
-        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
-                                              fConfigTable[config].fOptimalFlags;
+        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags
+                                            : fConfigTable[config].fOptimalFlags;
         return SkToBool(ConfigInfo::kBlitDst_Flag & flags);
     }
 
     bool configCanBeSrcofBlit(GrPixelConfig config, bool linearTiled) const {
-        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags :
-                                              fConfigTable[config].fOptimalFlags;
+        const uint16_t& flags = linearTiled ? fConfigTable[config].fLinearFlags
+                                            : fConfigTable[config].fOptimalFlags;
         return SkToBool(ConfigInfo::kBlitSrc_Flag & flags);
     }
 
-    bool canUseGLSLForShaderModule() const {
-        return fCanUseGLSLForShaderModule;
-    }
+    bool canUseGLSLForShaderModule() const { return fCanUseGLSLForShaderModule; }
 
-    bool mustDoCopiesFromOrigin() const {
-        return fMustDoCopiesFromOrigin;
-    }
+    bool mustDoCopiesFromOrigin() const { return fMustDoCopiesFromOrigin; }
 
-    bool supportsCopiesAsDraws() const {
-        return fSupportsCopiesAsDraws;
-    }
+    bool supportsCopiesAsDraws() const { return fSupportsCopiesAsDraws; }
 
-    bool mustSubmitCommandsBeforeCopyOp() const {
-        return fMustSubmitCommandsBeforeCopyOp;
-    }
+    bool mustSubmitCommandsBeforeCopyOp() const { return fMustSubmitCommandsBeforeCopyOp; }
 
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
-    const StencilFormat& preferedStencilFormat() const {
-        return fPreferedStencilFormat;
-    }
+    const StencilFormat& preferedStencilFormat() const { return fPreferedStencilFormat; }
 
 private:
     enum VkVendor {
@@ -91,12 +81,10 @@ private:
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
               VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
-    void initGrCaps(const VkPhysicalDeviceProperties&,
-                    const VkPhysicalDeviceMemoryProperties&,
+    void initGrCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
     void initShaderCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
-
 
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
@@ -109,9 +97,9 @@ private:
 
         enum {
             kTextureable_Flag = 0x1,
-            kRenderable_Flag  = 0x2,
-            kBlitSrc_Flag     = 0x4,
-            kBlitDst_Flag     = 0x8,
+            kRenderable_Flag = 0x2,
+            kBlitSrc_Flag = 0x4,
+            kBlitDst_Flag = 0x8,
         };
 
         uint16_t fOptimalFlags;

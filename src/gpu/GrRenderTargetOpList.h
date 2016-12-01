@@ -12,8 +12,8 @@
 #include "GrContext.h"
 #include "GrOpList.h"
 #include "GrPathProcessor.h"
-#include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
+#include "GrPrimitiveProcessor.h"
 #include "GrXferProcessor.h"
 
 #include "batches/GrDrawOp.h"
@@ -41,17 +41,14 @@ class GrRenderTargetOpList final : public GrOpList {
 public:
     /** Options for GrRenderTargetOpList behavior. */
     struct Options {
-        Options ()
-            : fClipBatchToBounds(false)
-            , fMaxBatchLookback(-1)
-            , fMaxBatchLookahead(-1) {}
+        Options() : fClipBatchToBounds(false), fMaxBatchLookback(-1), fMaxBatchLookahead(-1) {}
         bool fClipBatchToBounds;
-        int  fMaxBatchLookback;
-        int  fMaxBatchLookahead;
+        int fMaxBatchLookback;
+        int fMaxBatchLookahead;
     };
 
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
-                         GrAuditTrail*, const Options&);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*, GrAuditTrail*,
+                         const Options&);
 
     ~GrRenderTargetOpList() override;
 
@@ -93,11 +90,8 @@ public:
      * possible in the 3D API).  Note, we will never have an inverse fill with
      * stencil path.
      */
-    void stencilPath(GrRenderTargetContext*,
-                     const GrClip&,
-                     bool useHWAA,
-                     const SkMatrix& viewMatrix,
-                     const GrPath*);
+    void stencilPath(GrRenderTargetContext*, const GrClip&, bool useHWAA,
+                     const SkMatrix& viewMatrix, const GrPath*);
 
     /** Clears the entire render target */
     void fullClear(GrRenderTarget*, GrColor color);
@@ -115,9 +109,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
+    bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
     gr_instanced::InstancedRendering* instancedRendering() const {
@@ -129,8 +121,8 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-private:
-    friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
+            private : friend class GrRenderTargetContextPriv;  // for clearStencilClip and stencil
+                                                               // clip state.
 
     // Returns the batch that the input batch was combined with or the input batch if it wasn't
     // combined.
@@ -140,36 +132,33 @@ private:
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
     // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
     // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-                                 GrRenderTarget*,
-                                 const GrClip&,
+    bool setupDstReadIfNecessary(const GrPipelineBuilder&, GrRenderTarget*, const GrClip&,
                                  const GrPipelineOptimizations& optimizations,
-                                 GrXferProcessor::DstTexture*,
-                                 const SkRect& batchBounds);
+                                 GrXferProcessor::DstTexture*, const SkRect& batchBounds);
 
     // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {
         sk_sp<GrOp> fBatch;
-        SkRect         fClippedBounds;
+        SkRect fClippedBounds;
     };
-    SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
-    GrClearBatch*                                   fLastFullClearBatch;
+    SkSTArray<256, RecordedBatch, true> fRecordedBatches;
+    GrClearBatch* fLastFullClearBatch;
     // The context is only in service of the GrClip, remove once it doesn't need this.
-    GrContext*                                      fContext;
-    GrGpu*                                          fGpu;
-    GrResourceProvider*                             fResourceProvider;
+    GrContext* fContext;
+    GrGpu* fGpu;
+    GrResourceProvider* fResourceProvider;
 
-    bool                                            fClipBatchToBounds;
-    int                                             fMaxBatchLookback;
-    int                                             fMaxBatchLookahead;
+    bool fClipBatchToBounds;
+    int fMaxBatchLookback;
+    int fMaxBatchLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    int32_t                                         fLastClipStackGenID;
-    SkIRect                                         fLastClipStackRect;
-    SkIPoint                                        fLastClipOrigin;
+    int32_t fLastClipStackGenID;
+    SkIRect fLastClipStackRect;
+    SkIPoint fLastClipOrigin;
 
     typedef GrOpList INHERITED;
 };

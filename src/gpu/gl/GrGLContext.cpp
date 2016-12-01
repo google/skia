@@ -56,17 +56,15 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
         args.fGLSLGeneration = k110_GrGLSLGeneration;
     }
 
-    GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
-                      &args.fDriver, &args.fDriverVersion);
+    GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver, &args.fDriver,
+                      &args.fDriverVersion);
 
     args.fContextOptions = &options;
 
     return new GrGLContext(args);
 }
 
-GrGLContext::~GrGLContext() {
-    delete fCompiler;
-}
+GrGLContext::~GrGLContext() { delete fCompiler; }
 
 SkSL::Compiler* GrGLContext::compiler() const {
     if (!fCompiler) {

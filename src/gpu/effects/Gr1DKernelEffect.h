@@ -21,16 +21,13 @@
  */
 
 class Gr1DKernelEffect : public GrSingleTextureEffect {
-
 public:
     enum Direction {
         kX_Direction,
         kY_Direction,
     };
 
-    Gr1DKernelEffect(GrTexture* texture,
-                     Direction direction,
-                     int radius)
+    Gr1DKernelEffect(GrTexture* texture, Direction direction, int radius)
         : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fDirection(direction)
         , fRadius(radius) {}
@@ -51,9 +48,8 @@ public:
     }
 
 private:
-
-    Direction       fDirection;
-    int             fRadius;
+    Direction fDirection;
+    int fRadius;
 
     typedef GrSingleTextureEffect INHERITED;
 };

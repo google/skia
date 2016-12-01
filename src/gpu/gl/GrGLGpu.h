@@ -28,7 +28,9 @@ class GrPipeline;
 class GrNonInstancedMesh;
 class GrSwizzle;
 
-namespace gr_instanced { class GLInstancedRendering; }
+namespace gr_instanced {
+class GLInstancedRendering;
+}
 
 #ifdef SK_DEBUG
 #define PROGRAM_CACHE_STATS
@@ -62,7 +64,7 @@ public:
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
-    void bindImageStorage(int unitIdx, GrIOType, GrGLTexture *);
+    void bindImageStorage(int unitIdx, GrIOType, GrGLTexture*);
 
     void generateMipmaps(const GrSamplerParams& params, bool allowSRGBInputs, GrGLTexture* texture);
 
@@ -70,23 +72,18 @@ public:
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override;
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height, GrPixelConfig srcConfig,
+                              DrawPreference*, WritePixelTempDrawInfo*) override;
 
     bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
-    void bindVertexArray(GrGLuint id) {
-        fHWVertexArrayState.setVertexArrayID(this, id);
-    }
+    void bindVertexArray(GrGLuint id) { fHWVertexArrayState.setVertexArrayID(this, id); }
 
     // These callbacks update state tracking when GL objects are deleted. They are called from
     // GrGLResource onRelease functions.
-    void notifyVertexArrayDelete(GrGLuint id) {
-        fHWVertexArrayState.notifyVertexArrayDelete(id);
-    }
+    void notifyVertexArrayDelete(GrGLuint id) { fHWVertexArrayState.notifyVertexArrayDelete(id); }
 
     // Binds a buffer to the GL target corresponding to 'type', updates internal state tracking, and
     // returns the GL target the buffer was bound to.
@@ -100,10 +97,7 @@ public:
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLGpuCommandBuffer.
-    void draw(const GrPipeline&,
-              const GrPrimitiveProcessor&,
-              const GrMesh*,
-              int meshCount);
+    void draw(const GrPipeline&, const GrPrimitiveProcessor&, const GrMesh*, int meshCount);
 
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
@@ -115,9 +109,7 @@ public:
     // function on GrGLGpuCommandBuffer.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
-    const GrGLContext* glContextForTesting() const override {
-        return &this->glContext();
-    }
+    const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
 
     void clearStencil(GrRenderTarget*) override;
 
@@ -125,12 +117,9 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
-    void invalidateBoundRenderTarget() {
-        fHWBoundRenderTargetUniqueID.makeInvalid();
-    }
+    void invalidateBoundRenderTarget() { fHWBoundRenderTargetUniqueID.makeInvalid(); }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                int width,
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt, int width,
                                                                 int height) override;
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
@@ -159,8 +148,7 @@ private:
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>& texels) override;
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                         SkBudgeted budgeted,
+    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                          const SkTArray<GrMipLevel>& texels) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
@@ -176,13 +164,12 @@ private:
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
 
-
     // Returns whether the texture is successfully created. On success, the
     // result is stored in |info|.
     // The texture is populated with |texels|, if it exists.
     // The texture parameters are cached in |initialTexParams|.
-    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
-                           bool renderTarget, GrGLTexture::TexParams* initialTexParams,
+    bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
+                           GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
     bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
@@ -202,32 +189,23 @@ private:
     // variations above, depending on whether the surface is a render target or not.
     bool readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig);
 
-    bool onReadPixels(GrSurface*,
-                      int left, int top,
-                      int width, int height,
-                      GrPixelConfig,
-                      void* buffer,
-                      size_t rowBytes) override;
+    bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrPixelConfig,
+                      void* buffer, size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config,
+    bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrPixelConfig config,
                        const SkTArray<GrMipLevel>& texels) override;
 
-    bool onTransferPixels(GrSurface*,
-                          int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override;
+    bool onTransferPixels(GrSurface*, int left, int top, int width, int height,
+                          GrPixelConfig config, GrBuffer* transferBuffer, size_t offset,
+                          size_t rowBytes) override;
 
     void onResolveRenderTarget(GrRenderTarget* target) override;
 
-    bool onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
+    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    void onQueryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override;
+    void onQueryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&, int* effectiveSampleCnt,
+                                 SamplePattern*) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -241,25 +219,18 @@ private:
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for vertices.startIndex() but rather the start
     // index is relative to the returned offset.
-    void setupGeometry(const GrPrimitiveProcessor&,
-                       const GrNonInstancedMesh& mesh,
+    void setupGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh& mesh,
                        size_t* indexOffsetInBytes);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
     bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 
-    bool copySurfaceAsDraw(GrSurface* dst,
-                           GrSurface* src,
-                           const SkIRect& srcRect,
+    bool copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
-    void copySurfaceAsCopyTexSubImage(GrSurface* dst,
-                                      GrSurface* src,
-                                      const SkIRect& srcRect,
+    void copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
-    bool copySurfaceAsBlitFramebuffer(GrSurface* dst,
-                                      GrSurface* src,
-                                      const SkIRect& srcRect,
+    bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
 
@@ -295,18 +266,18 @@ private:
         int search(const GrProgramDesc& desc) const;
 
         // sorted array of all the entries
-        Entry*                      fEntries[kMaxEntries];
+        Entry* fEntries[kMaxEntries];
         // hash table based on lowest kHashBits bits of the program key. Used to avoid binary
         // searching fEntries.
-        Entry*                      fHashTable[1 << kHashBits];
+        Entry* fHashTable[1 << kHashBits];
 
-        int                         fCount;
-        unsigned int                fCurrLRUStamp;
-        GrGLGpu*                    fGpu;
+        int fCount;
+        unsigned int fCurrLRUStamp;
+        GrGLGpu* fGpu;
 #ifdef PROGRAM_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
-        int                         fHashMisses; // cache hit but hash table missed
+        int fTotalRequests;
+        int fCacheMisses;
+        int fHashMisses;  // cache hit but hash table missed
 #endif
     };
 
@@ -315,9 +286,7 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const GrScissorState&,
-                      const GrGLIRect& rtViewport,
-                      GrSurfaceOrigin rtOrigin);
+    void flushScissor(const GrScissorState&, const GrGLIRect& rtViewport, GrSurfaceOrigin rtOrigin);
 
     // disables the scissor
     void disableScissor();
@@ -353,15 +322,12 @@ private:
 
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
-        kNewTexture_UploadType,    // we are creating a new texture
-        kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
-        kTransfer_UploadType,      // we are using a transfer buffer to copy data
+        kNewTexture_UploadType,  // we are creating a new texture
+        kWrite_UploadType,       // we are using TexSubImage2D to copy data to an existing texture
+        kTransfer_UploadType,    // we are using a transfer buffer to copy data
     };
-    bool uploadTexData(const GrSurfaceDesc& desc,
-                       GrGLenum target,
-                       UploadType uploadType,
-                       int left, int top, int width, int height,
-                       GrPixelConfig dataConfig,
+    bool uploadTexData(const GrSurfaceDesc& desc, GrGLenum target, UploadType uploadType, int left,
+                       int top, int width, int height, GrPixelConfig dataConfig,
                        const SkTArray<GrMipLevel>& texels);
 
     // helper for onCreateCompressedTexture. If width and height are
@@ -370,20 +336,15 @@ private:
     // whenever a new texture needs to be created. Otherwise, we assume that
     // the texture is already in GPU memory and that it's going to be updated
     // with new data.
-    bool uploadCompressedTexData(const GrSurfaceDesc& desc,
-                                 GrGLenum target,
+    bool uploadCompressedTexData(const GrSurfaceDesc& desc, GrGLenum target,
                                  const SkTArray<GrMipLevel>& texels,
-                                 UploadType uploadType = kNewTexture_UploadType,
-                                 int left = 0, int top = 0,
-                                 int width = -1, int height = -1);
+                                 UploadType uploadType = kNewTexture_UploadType, int left = 0,
+                                 int top = 0, int width = -1, int height = -1);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
 
-    enum TempFBOTarget {
-        kSrc_TempFBOTarget,
-        kDst_TempFBOTarget
-    };
+    enum TempFBOTarget { kSrc_TempFBOTarget, kDst_TempFBOTarget };
 
     // Binds a surface as a FBO for copying or reading. If the surface already owns an FBO ID then
     // that ID is bound. If not the surface is temporarily bound to a FBO and that FBO is bound.
@@ -394,7 +355,7 @@ private:
     // Must be called if bindSurfaceFBOForPixelOps was used to bind a surface for copying.
     void unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface);
 
-    sk_sp<GrGLContext>          fGLContext;
+    sk_sp<GrGLContext> fGLContext;
 
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
@@ -402,29 +363,25 @@ private:
     bool createPLSSetupProgram();
 
     // GL program-related state
-    ProgramCache*               fProgramCache;
+    ProgramCache* fProgramCache;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State
     ///@{
-    int                         fHWActiveTextureUnitIdx;
-    GrGLuint                    fHWProgramID;
+    int fHWActiveTextureUnitIdx;
+    GrGLuint fHWProgramID;
 
-    enum TriState {
-        kNo_TriState,
-        kYes_TriState,
-        kUnknown_TriState
-    };
+    enum TriState { kNo_TriState, kYes_TriState, kUnknown_TriState };
 
-    GrGLuint                    fTempSrcFBOID;
-    GrGLuint                    fTempDstFBOID;
+    GrGLuint fTempSrcFBOID;
+    GrGLuint fTempDstFBOID;
 
-    GrGLuint                    fStencilClearFBOID;
+    GrGLuint fStencilClearFBOID;
 
     // last scissor / viewport scissor state seen by the GL.
     struct {
-        TriState    fEnabled;
-        GrGLIRect   fRect;
+        TriState fEnabled;
+        GrGLIRect fRect;
         void invalidate() {
             fEnabled = kUnknown_TriState;
             fRect.invalidate();
@@ -462,12 +419,12 @@ private:
     private:
         enum { kInvalidSurfaceOrigin = -1 };
 
-        int                  fRTOrigin;
-        GrGLIRect            fViewport;
-        GrWindowRectsState   fWindowState;
+        int fRTOrigin;
+        GrGLIRect fViewport;
+        GrWindowRectsState fWindowState;
     } fHWWindowRectsState;
 
-    GrGLIRect                   fHWViewport;
+    GrGLIRect fHWViewport;
 
     /**
      * Tracks vertex attrib array state.
@@ -518,8 +475,8 @@ private:
         GrGLAttribArrayState* bindInternalVertexArray(GrGLGpu*, const GrBuffer* ibuff = nullptr);
 
     private:
-        GrGLuint             fBoundVertexArrayID;
-        bool                 fBoundVertexArrayIDIsValid;
+        GrGLuint fBoundVertexArrayID;
+        bool fBoundVertexArrayIDIsValid;
 
         // We return a non-const pointer to this from bindArrayAndBuffersToDraw when vertex array 0
         // is bound. However, this class is internal to GrGLGpu and this object never leaks out of
@@ -527,27 +484,27 @@ private:
         GrGLAttribArrayState fDefaultVertexArrayAttribState;
 
         // This is used when we're using a core profile.
-        GrGLVertexArray*     fCoreProfileVertexArray;
-    }                                       fHWVertexArrayState;
+        GrGLVertexArray* fCoreProfileVertexArray;
+    } fHWVertexArrayState;
 
     struct {
-        GrGLenum                fGLTarget;
+        GrGLenum fGLTarget;
         GrGpuResource::UniqueID fBoundBufferUniqueID;
-        bool                    fBufferZeroKnownBound;
+        bool fBufferZeroKnownBound;
 
         void invalidate() {
             fBoundBufferUniqueID.makeInvalid();
             fBufferZeroKnownBound = false;
         }
-    }                                       fHWBufferState[kGrBufferTypeCount];
+    } fHWBufferState[kGrBufferTypeCount];
 
     struct {
         GrBlendEquation fEquation;
-        GrBlendCoeff    fSrcCoeff;
-        GrBlendCoeff    fDstCoeff;
-        GrColor         fConstColor;
-        bool            fConstColorValid;
-        TriState        fEnabled;
+        GrBlendCoeff fSrcCoeff;
+        GrBlendCoeff fDstCoeff;
+        GrColor fConstColor;
+        bool fConstColorValid;
+        TriState fEnabled;
 
         void invalidate() {
             fEquation = static_cast<GrBlendEquation>(-1);
@@ -556,69 +513,70 @@ private:
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
-    }                                       fHWBlendState;
+    } fHWBlendState;
 
     TriState fMSAAEnabled;
 
-    GrStencilSettings                       fHWStencilSettings;
-    TriState                                fHWStencilTestEnabled;
+    GrStencilSettings fHWStencilSettings;
+    TriState fHWStencilTestEnabled;
 
-
-    GrDrawFace                              fHWDrawFace;
-    TriState                                fHWWriteToColor;
-    GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
-    TriState                                fHWSRGBFramebuffer;
+    GrDrawFace fHWDrawFace;
+    TriState fHWWriteToColor;
+    GrGpuResource::UniqueID fHWBoundRenderTargetUniqueID;
+    TriState fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
 
     struct Image {
         GrGpuResource::UniqueID fTextureUniqueID;
-        GrIOType                fIOType;
+        GrIOType fIOType;
     };
-    SkTArray<Image, true>                   fHWBoundImageStorages;
+    SkTArray<Image, true> fHWBoundImageStorages;
 
     struct BufferTexture {
-        BufferTexture() : fTextureID(0), fKnownBound(false),
-                          fAttachedBufferUniqueID(SK_InvalidUniqueID),
-                          fSwizzle(GrSwizzle::RGBA()) {}
+        BufferTexture()
+            : fTextureID(0)
+            , fKnownBound(false)
+            , fAttachedBufferUniqueID(SK_InvalidUniqueID)
+            , fSwizzle(GrSwizzle::RGBA()) {}
 
-        GrGLuint                fTextureID;
-        bool                    fKnownBound;
-        GrPixelConfig           fTexelConfig;
+        GrGLuint fTextureID;
+        bool fKnownBound;
+        GrPixelConfig fTexelConfig;
         GrGpuResource::UniqueID fAttachedBufferUniqueID;
-        GrSwizzle               fSwizzle;
+        GrSwizzle fSwizzle;
     };
 
-    SkTArray<BufferTexture, true>           fHWBufferTextures;
-    int                                     fHWMaxUsedBufferTextureUnit;
+    SkTArray<BufferTexture, true> fHWBufferTextures;
+    int fHWMaxUsedBufferTextureUnit;
 
     // EXT_raster_multisample.
-    TriState                                fHWRasterMultisampleEnabled;
-    int                                     fHWNumRasterSamples;
+    TriState fHWRasterMultisampleEnabled;
+    int fHWNumRasterSamples;
     ///@}
 
     /** IDs for copy surface program. (4 sampler types) */
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fTextureUniform;
-        GrGLint     fTexCoordXformUniform;
-        GrGLint     fPosXformUniform;
-    }                                       fCopyPrograms[4];
-    sk_sp<GrGLBuffer>                       fCopyProgramArrayBuffer;
+        GrGLuint fProgram;
+        GrGLint fTextureUniform;
+        GrGLint fTexCoordXformUniform;
+        GrGLint fPosXformUniform;
+    } fCopyPrograms[4];
+    sk_sp<GrGLBuffer> fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fTextureUniform;
-        GrGLint     fTexCoordXformUniform;
-    }                                       fMipmapPrograms[4];
-    sk_sp<GrGLBuffer>                       fMipmapProgramArrayBuffer;
+        GrGLuint fProgram;
+        GrGLint fTextureUniform;
+        GrGLint fTexCoordXformUniform;
+    } fMipmapPrograms[4];
+    sk_sp<GrGLBuffer> fMipmapProgramArrayBuffer;
 
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fColorUniform;
-        GrGLint     fRectUniform;
-    }                                       fWireRectProgram;
-    sk_sp<GrGLBuffer>                       fWireRectArrayBuffer;
+        GrGLuint fProgram;
+        GrGLint fColorUniform;
+        GrGLint fRectUniform;
+    } fWireRectProgram;
+    sk_sp<GrGLBuffer> fWireRectArrayBuffer;
 
     static int TextureToCopyProgramIdx(GrTexture* texture) {
         switch (texture->texturePriv().samplerType()) {
@@ -643,19 +601,19 @@ private:
     }
 
     struct {
-        GrGLuint          fProgram;
-        GrGLint           fPosXformUniform;
+        GrGLuint fProgram;
+        GrGLint fPosXformUniform;
         sk_sp<GrGLBuffer> fArrayBuffer;
-    }                                       fPLSSetupProgram;
+    } fPLSSetupProgram;
 
-    bool                                    fHWPLSEnabled;
-    bool                                    fPLSHasBeenUsed;
+    bool fHWPLSEnabled;
+    bool fPLSHasBeenUsed;
 
-    float                                   fHWMinSampleShading;
+    float fHWMinSampleShading;
 
     typedef GrGpu INHERITED;
-    friend class GrGLPathRendering; // For accessing setTextureUnit.
-    friend class gr_instanced::GLInstancedRendering; // For accessing flushGLState.
+    friend class GrGLPathRendering;                   // For accessing setTextureUnit.
+    friend class gr_instanced::GLInstancedRendering;  // For accessing flushGLState.
 };
 
 #endif

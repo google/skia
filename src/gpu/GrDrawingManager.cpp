@@ -8,8 +8,8 @@
 #include "GrDrawingManager.h"
 
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
@@ -40,9 +40,7 @@ void GrDrawingManager::cleanup() {
     SkSafeSetNull(fSoftwarePathRenderer);
 }
 
-GrDrawingManager::~GrDrawingManager() {
-    this->cleanup();
-}
+GrDrawingManager::~GrDrawingManager() { this->cleanup(); }
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
@@ -75,15 +73,14 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     }
     fFlushing = true;
     bool flushed = false;
-    SkDEBUGCODE(bool result =)
-                        SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
+    SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->prepareBatches(&fFlushState);
     }
 
-    // Enable this to print out verbose batching information
+// Enable this to print out verbose batching information
 #if 0
     for (int i = 0; i < fOpLists.count(); ++i) {
         SkDEBUGCODE(fOpLists[i]->dump();)
@@ -158,15 +155,13 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
         // DrawingManager gets the creation ref - this ref is for the caller
 
         // TODO: although this is true right now it isn't cool
-        return SkRef((GrRenderTargetOpList*) fOpLists[0]);
+        return SkRef((GrRenderTargetOpList*)fOpLists[0]);
     }
 #endif
 
-    GrRenderTargetOpList* opList = new GrRenderTargetOpList(rtp,
-                                                            fContext->getGpu(),
-                                                            fContext->resourceProvider(),
-                                                            fContext->getAuditTrail(),
-                                                            fOptionsForOpLists);
+    GrRenderTargetOpList* opList =
+            new GrRenderTargetOpList(rtp, fContext->getGpu(), fContext->resourceProvider(),
+                                     fContext->getAuditTrail(), fOptionsForOpLists);
 
     *fOpLists.append() = opList;
 
@@ -177,8 +172,8 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
 GrTextureOpList* GrDrawingManager::newOpList(GrTextureProxy* textureProxy) {
     SkASSERT(fContext);
 
-    GrTextureOpList* opList = new GrTextureOpList(textureProxy, fContext->getGpu(),
-                                                  fContext->getAuditTrail());
+    GrTextureOpList* opList =
+            new GrTextureOpList(textureProxy, fContext->getGpu(), fContext->getAuditTrail());
 
 #ifndef ENABLE_MDB
     // When MDB is disabled we still create a new GrOpList, but don't store or ref it - we rely
@@ -210,7 +205,6 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   bool allowSW,
                                                   GrPathRendererChain::DrawType drawType,
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
-
     if (!fPathRendererChain) {
         fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
     }
@@ -229,9 +223,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 }
 
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-                                                            sk_sp<GrSurfaceProxy> sProxy,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps) {
+        sk_sp<GrSurfaceProxy> sProxy, sk_sp<SkColorSpace> colorSpace,
+        const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
         return nullptr;
     }
@@ -261,17 +254,14 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
-                                                        fContext, this, std::move(rtp),
-                                                        std::move(colorSpace), surfaceProps,
-                                                        fContext->getAuditTrail(), fSingleOwner));
+                    fContext, this, std::move(rtp), std::move(colorSpace), surfaceProps,
+                    fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),
-                                                                  std::move(colorSpace),
-                                                                  surfaceProps,
-                                                                  fContext->getAuditTrail(),
-                                                                  fSingleOwner));
+    return sk_sp<GrRenderTargetContext>(
+            new GrRenderTargetContext(fContext, this, std::move(rtp), std::move(colorSpace),
+                                      surfaceProps, fContext->getAuditTrail(), fSingleOwner));
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy) {

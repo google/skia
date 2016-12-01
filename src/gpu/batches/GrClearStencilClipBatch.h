@@ -43,7 +43,7 @@ public:
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
         string.appendf("], IC: %d, RT: %d", fInsideStencilMask,
-                                            fRenderTarget.get()->uniqueID().asUInt());
+                       fRenderTarget.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -57,9 +57,9 @@ private:
         state->commandBuffer()->clearStencilClip(fRenderTarget.get(), fClip, fInsideStencilMask);
     }
 
-    const GrFixedClip                                       fClip;
-    const bool                                              fInsideStencilMask;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    const GrFixedClip fClip;
+    const bool fInsideStencilMask;
+    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
 
     typedef GrOp INHERITED;
 };

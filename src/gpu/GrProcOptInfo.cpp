@@ -11,12 +11,9 @@
 
 #include "batches/GrDrawOp.h"
 
-void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const processors[],
-                                          int cnt,
-                                          GrColor startColor,
-                                          GrColorComponentFlags flags,
-                                          bool areCoverageStages,
-                                          bool isLCD) {
+void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor* const processors[], int cnt,
+                                          GrColor startColor, GrColorComponentFlags flags,
+                                          bool areCoverageStages, bool isLCD) {
     GrInitInvariantOutput out;
     out.fIsSingleComponent = areCoverageStages;
     out.fColor = startColor;
@@ -30,7 +27,7 @@ void GrProcOptInfo::initUsingInvariantOutput(GrInitInvariantOutput invOutput) {
     fInOut.reset(invOutput);
 }
 
-void GrProcOptInfo::completeCalculations(const GrFragmentProcessor * const processors[], int cnt) {
+void GrProcOptInfo::completeCalculations(const GrFragmentProcessor* const processors[], int cnt) {
     this->internalCalc(processors, cnt);
 }
 

@@ -14,7 +14,6 @@
 class GrVkGpu;
 
 class GrVkIndexBuffer : public GrBuffer, public GrVkBuffer {
-
 public:
     static GrVkIndexBuffer* Create(GrVkGpu* gpu, size_t size, bool dynamic);
 

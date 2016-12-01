@@ -10,12 +10,12 @@
 #include "GrOpList.h"
 #include "GrSurfacePriv.h"
 
+#include <stdio.h>
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkImageEncoder.h"
 #include "SkMathPriv.h"
 #include "SkStream.h"
-#include <stdio.h>
 
 GrSurface::~GrSurface() {
     if (fLastOpList) {
@@ -43,30 +43,28 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
         }
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        size_t colorBytes = (size_t)width * height * GrBytesPerPixel(desc.fConfig);
 
         // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
         // Unfortunately Chromium seems to want to do this.
-        //SkASSERT(colorBytes > 0);
+        // SkASSERT(colorBytes > 0);
 
         size = colorValuesPerPixel * colorBytes;
-        size += colorBytes/3; // in case we have to mipmap
+        size += colorBytes / 3;  // in case we have to mipmap
     } else {
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
             size = GrCompressedFormatDataSize(desc.fConfig, width, height);
         } else {
-            size = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+            size = (size_t)width * height * GrBytesPerPixel(desc.fConfig);
         }
 
-        size += size/3;  // in case we have to mipmap
+        size += size / 3;  // in case we have to mipmap
     }
 
     return size;
 }
 
-size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
-                              int colorSamplesPerPixel,
-                              bool hasMIPMaps,
+size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel, bool hasMIPMaps,
                               bool useNextPow2) {
     size_t colorSize;
 
@@ -77,7 +75,7 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         colorSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
     } else {
-        colorSize = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
+        colorSize = (size_t)width * height * GrBytesPerPixel(desc.fConfig);
     }
     SkASSERT(colorSize > 0);
 
@@ -86,19 +84,16 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
     if (hasMIPMaps) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
-        finalSize += colorSize/3;
+        finalSize += colorSize / 3;
     }
 
     SkASSERT(finalSize <= WorstCaseSize(desc, useNextPow2));
     return finalSize;
 }
 
-template<typename T> static bool adjust_params(int surfaceWidth,
-                                               int surfaceHeight,
-                                               size_t bpp,
-                                               int* left, int* top, int* width, int* height,
-                                               T** data,
-                                               size_t* rowBytes) {
+template <typename T>
+static bool adjust_params(int surfaceWidth, int surfaceHeight, size_t bpp, int* left, int* top,
+                          int* width, int* height, T** data, size_t* rowBytes) {
     if (!*rowBytes) {
         *rowBytes = *width * bpp;
     }
@@ -110,7 +105,8 @@ template<typename T> static bool adjust_params(int surfaceWidth,
         return false;
     }
     *data = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(*data) +
-            (subRect.fTop - *top) * *rowBytes + (subRect.fLeft - *left) * bpp);
+                                    (subRect.fTop - *top) * *rowBytes +
+                                    (subRect.fLeft - *left) * bpp);
 
     *left = subRect.fLeft;
     *top = subRect.fTop;
@@ -119,51 +115,42 @@ template<typename T> static bool adjust_params(int surfaceWidth,
     return true;
 }
 
-bool GrSurfacePriv::AdjustReadPixelParams(int surfaceWidth,
-                                          int surfaceHeight,
-                                          size_t bpp,
-                                          int* left, int* top, int* width, int* height,
-                                          void** data,
+bool GrSurfacePriv::AdjustReadPixelParams(int surfaceWidth, int surfaceHeight, size_t bpp,
+                                          int* left, int* top, int* width, int* height, void** data,
                                           size_t* rowBytes) {
     return adjust_params<void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height, data,
                                rowBytes);
 }
 
-bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
-                                           int surfaceHeight,
-                                           size_t bpp,
+bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth, int surfaceHeight, size_t bpp,
                                            int* left, int* top, int* width, int* height,
-                                           const void** data,
-                                           size_t* rowBytes) {
+                                           const void** data, size_t* rowBytes) {
     return adjust_params<const void>(surfaceWidth, surfaceHeight, bpp, left, top, width, height,
                                      data, rowBytes);
 }
 
-
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrSurface::writePixels(int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer, size_t rowBytes,
-                            uint32_t pixelOpsFlags) {
+bool GrSurface::writePixels(int left, int top, int width, int height, GrPixelConfig config,
+                            const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
     if (nullptr == context) {
         return false;
     }
-    return context->writeSurfacePixels(this, left, top, width, height, config, buffer,
-                                       rowBytes, pixelOpsFlags);
+    return context->writeSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
+                                       pixelOpsFlags);
 }
 
-bool GrSurface::readPixels(int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer, size_t rowBytes,
-                           uint32_t pixelOpsFlags) {
+bool GrSurface::readPixels(int left, int top, int width, int height, GrPixelConfig config,
+                           void* buffer, size_t rowBytes, uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
     if (nullptr == context) {
         return false;
     }
-    return context->readSurfacePixels(this, left, top, width, height, config, buffer,
-                                      rowBytes, pixelOpsFlags);
+    return context->readSurfacePixels(this, left, top, width, height, config, buffer, rowBytes,
+                                      pixelOpsFlags);
 }
 
 static bool encode_image_to_file(const char* path, const SkBitmap& src) {
@@ -191,7 +178,7 @@ bool GrSurface::savePixels(const char* filename) {
 
     if (!encode_image_to_file(filename, bm)) {
         SkDebugf("------ failed to encode %s\n", filename);
-        remove(filename);   // remove any partial file
+        remove(filename);  // remove any partial file
         return false;
     }
 
@@ -252,7 +239,7 @@ void GrSurface::onAbandon() {
 
 void GrSurface::setLastOpList(GrOpList* opList) {
     if (fLastOpList) {
-        // The non-MDB world never closes so we can't check this condition
+// The non-MDB world never closes so we can't check this condition
 #ifdef ENABLE_MDB
         SkASSERT(fLastOpList->isClosed());
 #endif

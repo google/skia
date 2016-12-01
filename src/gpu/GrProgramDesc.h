@@ -37,16 +37,11 @@ public:
     * @param GrShaderCaps   Capabilities of the shading language.
     * @param GrProgramDesc  The built and finalized descriptor
     **/
-    static bool Build(GrProgramDesc*,
-                      const GrPrimitiveProcessor&,
-                      bool hasPointSize,
-                      const GrPipeline&,
-                      const GrShaderCaps&);
+    static bool Build(GrProgramDesc*, const GrPrimitiveProcessor&, bool hasPointSize,
+                      const GrPipeline&, const GrShaderCaps&);
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
-    const uint32_t* asKey() const {
-        return reinterpret_cast<const uint32_t*>(fKey.begin());
-    }
+    const uint32_t* asKey() const { return reinterpret_cast<const uint32_t*>(fKey.begin()); }
 
     // Gets the number of bytes in asKey(). It will be a 4-byte aligned value. When comparing two
     // keys the size of either key can be used with memcmp() since the lengths themselves begin the
@@ -56,14 +51,14 @@ public:
     // Gets the a checksum of the key. Can be used as a hash value for a fast lookup in a cache.
     uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
 
-    GrProgramDesc& operator= (const GrProgramDesc& other) {
+    GrProgramDesc& operator=(const GrProgramDesc& other) {
         uint32_t keyLength = other.keyLength();
         fKey.reset(SkToInt(keyLength));
         memcpy(fKey.begin(), other.fKey.begin(), keyLength);
         return *this;
     }
 
-    bool operator== (const GrProgramDesc& that) const {
+    bool operator==(const GrProgramDesc& that) const {
         SkASSERT(SkIsAlign4(this->keyLength()));
         int l = this->keyLength() >> 2;
         const uint32_t* aKey = this->asKey();
@@ -76,9 +71,7 @@ public:
         return true;
     }
 
-    bool operator!= (const GrProgramDesc& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const GrProgramDesc& other) const { return !(*this == other); }
 
     static bool Less(const GrProgramDesc& a, const GrProgramDesc& b) {
         SkASSERT(SkIsAlign4(a.keyLength()));
@@ -96,17 +89,17 @@ public:
     struct KeyHeader {
         // Set to uniquely identify the sample pattern, or 0 if the shader doesn't use sample
         // locations.
-        uint8_t                     fSamplePatternKey;
+        uint8_t fSamplePatternKey;
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
-        uint8_t                     fOutputSwizzle;
-        uint8_t                     fColorFragmentProcessorCnt : 4;
-        uint8_t                     fCoverageFragmentProcessorCnt : 4;
+        uint8_t fOutputSwizzle;
+        uint8_t fColorFragmentProcessorCnt : 4;
+        uint8_t fCoverageFragmentProcessorCnt : 4;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint8_t                     fSurfaceOriginKey : 2;
-        uint8_t                     fIgnoresCoverage : 1;
-        uint8_t                     fSnapVerticesToPixelCenters : 1;
-        uint8_t                     fHasPointSize : 1;
-        uint8_t                     fPad : 3;
+        uint8_t fSurfaceOriginKey : 2;
+        uint8_t fIgnoresCoverage : 1;
+        uint8_t fSnapVerticesToPixelCenters : 1;
+        uint8_t fHasPointSize : 1;
+        uint8_t fPad : 3;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 
@@ -124,11 +117,13 @@ public:
     }
 
 protected:
-    template<typename T, size_t OFFSET> T* atOffset() {
+    template <typename T, size_t OFFSET>
+    T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
-    template<typename T, size_t OFFSET> const T* atOffset() const {
+    template <typename T, size_t OFFSET>
+    const T* atOffset() const {
         return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
@@ -153,7 +148,7 @@ protected:
 
     enum {
         kMaxPreallocProcessors = 8,
-        kIntsPerProcessor      = 4,    // This is an overestimate of the average effect key size.
+        kIntsPerProcessor = 4,  // This is an overestimate of the average effect key size.
         kPreAllocSize = kHeaderOffset + kHeaderSize +
                         kMaxPreallocProcessors * sizeof(uint32_t) * kIntsPerProcessor,
     };

@@ -10,8 +10,8 @@
 
 #include "GrAllocator.h"
 #include "GrShaderVar.h"
-#include "glsl/GrGLSLUniformHandler.h"
 #include "SkTDArray.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 #include <stdarg.h>
 
@@ -25,7 +25,7 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
@@ -33,26 +33,20 @@ public:
         order of the result depends on the GrProcessor::TextureSampler associated with the
         SamplerHandle.
         */
-    void appendTextureLookup(SkString* out,
-                             SamplerHandle,
-                             const char* coordName,
+    void appendTextureLookup(SkString* out, SamplerHandle, const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
     /** Version of above that appends the result to the shader code instead.*/
-    void appendTextureLookup(SamplerHandle,
-                             const char* coordName,
+    void appendTextureLookup(SamplerHandle, const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType,
                              GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
-
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
         always a vec4. modulation and the swizzle specified by SamplerHandle must both be
         vec4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
-    void appendTextureLookupAndModulate(const char* modulation,
-                                        SamplerHandle,
-                                        const char* coordName,
-                                        GrSLType coordType = kVec2f_GrSLType,
+    void appendTextureLookupAndModulate(const char* modulation, SamplerHandle,
+                                        const char* coordName, GrSLType coordType = kVec2f_GrSLType,
                                         GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
     /** Adds a helper function to facilitate color gamut transformation, and produces code that
@@ -94,31 +88,31 @@ public:
     }
 
     void defineConstantf(const char* type, const char* name, const char* fmt, ...) {
-       this->definitions().appendf("const %s %s = ", type, name);
-       va_list args;
-       va_start(args, fmt);
-       this->definitions().appendVAList(fmt, args);
-       va_end(args);
-       this->definitions().append(";\n");
+        this->definitions().appendf("const %s %s = ", type, name);
+        va_list args;
+        va_start(args, fmt);
+        this->definitions().appendVAList(fmt, args);
+        va_end(args);
+        this->definitions().append(";\n");
     }
 
     /**
     * Called by GrGLSLProcessors to add code to one of the shaders.
     */
     void codeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-       va_list args;
-       va_start(args, format);
-       this->code().appendVAList(format, args);
-       va_end(args);
+        va_list args;
+        va_start(args, format);
+        this->code().appendVAList(format, args);
+        va_end(args);
     }
 
     void codeAppend(const char* str) { this->code().append(str); }
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
-       va_list args;
-       va_start(args, format);
-       this->code().prependVAList(format, args);
-       va_end(args);
+        va_list args;
+        va_start(args, format);
+        this->code().prependVAList(format, args);
+        va_end(args);
     }
 
     /**
@@ -127,12 +121,8 @@ public:
     void declAppend(const GrShaderVar& var);
 
     /** Emits a helper function outside of main() in the fragment shader. */
-    void emitFunction(GrSLType returnType,
-                      const char* name,
-                      int argCnt,
-                      const GrShaderVar* args,
-                      const char* body,
-                      SkString* outName);
+    void emitFunction(GrSLType returnType, const char* name, int argCnt, const GrShaderVar* args,
+                      const char* body, SkString* outName);
 
     /*
      * Combines the various parts of the shader to create a single finalized shader string.
@@ -154,9 +144,8 @@ public:
             fBuilder->codeAppend("{");
         }
 
-        ~ShaderBlock() {
-            fBuilder->codeAppend("}");
-        }
+        ~ShaderBlock() { fBuilder->codeAppend("}"); }
+
     private:
         GrGLSLShaderBuilder* fBuilder;
     };
@@ -257,8 +246,8 @@ protected:
 
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
-    friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.
-    friend class GrGLPathProgramBuilder; // to access fInputs.
+    friend class GrGLSLVaryingHandler;    // to access noperspective interpolation feature.
+    friend class GrGLPathProgramBuilder;  // to access fInputs.
     friend class GrVkPipelineStateBuilder;
 };
 #endif

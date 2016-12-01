@@ -21,22 +21,15 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle   = GrGLSLUniformHandler::ImageStorageHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
+    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     struct EmitArgs {
-        EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
-                 GrGLSLUniformHandler* uniformHandler,
-                 const GrShaderCaps* caps,
-                 const GrXferProcessor& xp,
-                 const char* inputColor,
-                 const char* inputCoverage,
-                 const char* outputPrimary,
-                 const char* outputSecondary,
-                 const SamplerHandle* texSamplers,
-                 const SamplerHandle* bufferSamplers,
-                 const ImageStorageHandle* imageStorages,
-                 const bool usePLSDstRead)
+        EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder, GrGLSLUniformHandler* uniformHandler,
+                 const GrShaderCaps* caps, const GrXferProcessor& xp, const char* inputColor,
+                 const char* inputCoverage, const char* outputPrimary, const char* outputSecondary,
+                 const SamplerHandle* texSamplers, const SamplerHandle* bufferSamplers,
+                 const ImageStorageHandle* imageStorages, const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
             , fShaderCaps(caps)
@@ -80,10 +73,8 @@ public:
 
 protected:
     static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
-                                          const char* srcCoverage,
-                                          const char* dstColor,
-                                          const char* outColor,
-                                          const char* outColorSecondary,
+                                          const char* srcCoverage, const char* dstColor,
+                                          const char* outColor, const char* outColorSecondary,
                                           const GrXferProcessor& proc);
 
 private:
@@ -101,14 +92,10 @@ private:
      * the blending logic. The base class applies coverage. A subclass only needs to implement this
      * method if it can construct a GrXferProcessor that reads the dst color.
      */
-    virtual void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder*,
-                                         GrGLSLUniformHandler*,
-                                         const char* srcColor,
-                                         const char* srcCoverage,
-                                         const char* dstColor,
-                                         const char* outColor,
-                                         const char* outColorSecondary,
-                                         const GrXferProcessor&) {
+    virtual void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder*, GrGLSLUniformHandler*,
+                                         const char* srcColor, const char* srcCoverage,
+                                         const char* dstColor, const char* outColor,
+                                         const char* outColorSecondary, const GrXferProcessor&) {
         SkFAIL("emitBlendCodeForDstRead not implemented.");
     }
 

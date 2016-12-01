@@ -16,8 +16,7 @@
 typedef GrVkRenderPass::AttachmentsDescriptor::AttachmentDesc AttachmentDesc;
 
 void setup_vk_attachment_description(VkAttachmentDescription* attachment,
-                                     const AttachmentDesc& desc,
-                                     VkImageLayout layout) {
+                                     const AttachmentDesc& desc, VkImageLayout layout) {
     attachment->flags = 0;
     attachment->format = desc.fFormat;
     SkAssertResult(GrSampleCountToVkSampleCount(desc.fSamples, &attachment->samples));
@@ -49,8 +48,7 @@ void GrVkRenderPass::initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& targ
     this->init(gpu, target, kBasicLoadStoreOps, kBasicLoadStoreOps);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const LoadStoreOps& colorOp,
+void GrVkRenderPass::init(const GrVkGpu* gpu, const LoadStoreOps& colorOp,
                           const LoadStoreOps& stencilOp) {
     uint32_t numAttachments = fAttachmentsDescriptor.fAttachmentCount;
     // Attachment descriptions to be set on the render pass
@@ -126,30 +124,23 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     createInfo.dependencyCount = 0;
     createInfo.pDependencies = nullptr;
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateRenderPass(gpu->device(),
-                                                             &createInfo,
-                                                             nullptr,
-                                                             &fRenderPass));
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                        CreateRenderPass(gpu->device(), &createInfo, nullptr, &fRenderPass));
 
     // Get granularity for this render pass
-    GR_VK_CALL(gpu->vkInterface(), GetRenderAreaGranularity(gpu->device(),
-                                                            fRenderPass,
-                                                            &fGranularity));
+    GR_VK_CALL(gpu->vkInterface(),
+               GetRenderAreaGranularity(gpu->device(), fRenderPass, &fGranularity));
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const GrVkRenderPass& compatibleRenderPass,
-                          const LoadStoreOps& colorOp,
-                          const LoadStoreOps& stencilOp) {
+void GrVkRenderPass::init(const GrVkGpu* gpu, const GrVkRenderPass& compatibleRenderPass,
+                          const LoadStoreOps& colorOp, const LoadStoreOps& stencilOp) {
     fAttachmentFlags = compatibleRenderPass.fAttachmentFlags;
     fAttachmentsDescriptor = compatibleRenderPass.fAttachmentsDescriptor;
     this->init(gpu, colorOp, stencilOp);
 }
 
-void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const GrVkRenderTarget& target, 
-                          const LoadStoreOps& colorOp,
-                          const LoadStoreOps& stencilOp) {
+void GrVkRenderPass::init(const GrVkGpu* gpu, const GrVkRenderTarget& target,
+                          const LoadStoreOps& colorOp, const LoadStoreOps& stencilOp) {
     // Get attachment information from render target. This includes which attachments the render
     // target has (color, stencil) and the attachments format and sample count.
     target.getAttachmentsDescriptor(&fAttachmentsDescriptor, &fAttachmentFlags);
@@ -183,14 +174,13 @@ bool GrVkRenderPass::stencilAttachmentIndex(uint32_t* index) const {
     return false;
 }
 
-void GrVkRenderPass::getBeginInfo(const GrVkRenderTarget& target,
-                                  VkRenderPassBeginInfo* beginInfo,
+void GrVkRenderPass::getBeginInfo(const GrVkRenderTarget& target, VkRenderPassBeginInfo* beginInfo,
                                   VkSubpassContents* contents) const {
     SkASSERT(this->isCompatible(target));
 
     VkRect2D renderArea;
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = { (uint32_t)target.width(), (uint32_t)target.height() };
+    renderArea.offset = {0, 0};
+    renderArea.extent = {(uint32_t)target.width(), (uint32_t)target.height()};
 
     memset(beginInfo, 0, sizeof(VkRenderPassBeginInfo));
     beginInfo->sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

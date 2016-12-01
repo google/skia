@@ -55,11 +55,11 @@ private:
     void validate() const;
 #endif
 
-    GrBufferType   fIntendedType;
-    GrGLuint       fBufferID;
-    GrGLenum       fUsage;
-    size_t         fGLSizeInBytes;
-    bool           fHasAttachedToTexture;
+    GrBufferType fIntendedType;
+    GrGLuint fBufferID;
+    GrGLenum fUsage;
+    size_t fGLSizeInBytes;
+    bool fHasAttachedToTexture;
 
     typedef GrBuffer INHERITED;
 };

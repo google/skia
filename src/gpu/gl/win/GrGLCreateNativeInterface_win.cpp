@@ -9,15 +9,13 @@
 
 #include "SkLeanWindows.h"
 
-#include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
+#include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 
 class AutoLibraryUnload {
 public:
-    AutoLibraryUnload(const char* moduleName) {
-        fModule = LoadLibraryA(moduleName);
-    }
+    AutoLibraryUnload(const char* moduleName) { fModule = LoadLibraryA(moduleName); }
     ~AutoLibraryUnload() {
         if (fModule) {
             FreeLibrary(fModule);
@@ -37,10 +35,10 @@ public:
 
     GrGLFuncPtr getProc(const char name[]) const {
         GrGLFuncPtr proc;
-        if ((proc = (GrGLFuncPtr) GetProcAddress(fGLLib.get(), name))) {
+        if ((proc = (GrGLFuncPtr)GetProcAddress(fGLLib.get(), name))) {
             return proc;
         }
-        if ((proc = (GrGLFuncPtr) wglGetProcAddress(name))) {
+        if ((proc = (GrGLFuncPtr)wglGetProcAddress(name))) {
             return proc;
         }
         return nullptr;
@@ -53,7 +51,7 @@ private:
 static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
     SkASSERT(ctx);
     SkASSERT(wglGetCurrentContext());
-    const GLProcGetter* getter = (const GLProcGetter*) ctx;
+    const GLProcGetter* getter = (const GLProcGetter*)ctx;
     return getter->getProc(name);
 }
 
@@ -87,4 +85,4 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     return nullptr;
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif  // defined(SK_BUILD_FOR_WIN32)

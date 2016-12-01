@@ -7,9 +7,8 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC)
 
-
-#include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
+#include "gl/GrGLInterface.h"
 
 #include <dlfcn.h>
 
@@ -17,8 +16,8 @@ class GLLoader {
 public:
     GLLoader() {
         fLibrary = dlopen(
-                    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
-                    RTLD_LAZY);
+                "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+                RTLD_LAZY);
     }
 
     ~GLLoader() {
@@ -27,9 +26,7 @@ public:
         }
     }
 
-    void* handle() const {
-        return nullptr == fLibrary ? RTLD_DEFAULT : fLibrary;
-    }
+    void* handle() const { return nullptr == fLibrary ? RTLD_DEFAULT : fLibrary; }
 
 private:
     void* fLibrary;
@@ -40,7 +37,7 @@ public:
     GLProcGetter() {}
 
     GrGLFuncPtr getProc(const char name[]) const {
-        return (GrGLFuncPtr) dlsym(fLoader.handle(), name);
+        return (GrGLFuncPtr)dlsym(fLoader.handle(), name);
     }
 
 private:
@@ -49,7 +46,7 @@ private:
 
 static GrGLFuncPtr mac_get_gl_proc(void* ctx, const char name[]) {
     SkASSERT(ctx);
-    const GLProcGetter* getter = (const GLProcGetter*) ctx;
+    const GLProcGetter* getter = (const GLProcGetter*)ctx;
     return getter->getProc(name);
 }
 
@@ -58,4 +55,4 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     return GrGLAssembleGLInterface(&getter, mac_get_gl_proc);
 }
 
-#endif//defined(SK_BUILD_FOR_MAC)
+#endif  // defined(SK_BUILD_FOR_MAC)

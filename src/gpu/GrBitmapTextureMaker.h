@@ -29,8 +29,8 @@ protected:
     sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) override;
 
 private:
-    const SkBitmap  fBitmap;
-    GrUniqueKey     fOriginalKey;
+    const SkBitmap fBitmap;
+    GrUniqueKey fOriginalKey;
 
     typedef GrTextureMaker INHERITED;
 };

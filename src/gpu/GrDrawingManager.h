@@ -8,14 +8,13 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "text/GrAtlasTextContext.h"
 #include "GrBatchFlushState.h"
-#include "GrPathRendererChain.h"
 #include "GrPathRenderer.h"
+#include "GrPathRendererChain.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTDArray.h"
-
+#include "text/GrAtlasTextContext.h"
 
 class GrContext;
 class GrRenderTargetContext;
@@ -37,8 +36,7 @@ public:
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
 
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
-                                                         sk_sp<SkColorSpace>,
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
     sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>);
 
@@ -51,8 +49,7 @@ public:
 
     GrAtlasTextContext* getAtlasTextContext();
 
-    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
-                                    bool allowSW,
+    GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args, bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = NULL);
 
@@ -69,8 +66,7 @@ public:
     void prepareSurfaceForExternalIO(GrSurface*);
 
 private:
-    GrDrawingManager(GrContext* context,
-                     const GrRenderTargetOpList::Options& optionsForOpLists,
+    GrDrawingManager(GrContext* context, const GrRenderTargetOpList::Options& optionsForOpLists,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
                      bool isImmediateMode, GrSingleOwner* singleOwner)
         : fContext(context)
@@ -83,8 +79,7 @@ private:
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
-        , fIsImmediateMode(isImmediateMode) {
-    }
+        , fIsImmediateMode(isImmediateMode) {}
 
     void abandon();
     void cleanup();
@@ -94,28 +89,28 @@ private:
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
 
-    static const int kNumPixelGeometries = 5; // The different pixel geometries
-    static const int kNumDFTOptions = 2;      // DFT or no DFT
+    static const int kNumPixelGeometries = 5;  // The different pixel geometries
+    static const int kNumDFTOptions = 2;       // DFT or no DFT
 
-    GrContext*                        fContext;
-    GrRenderTargetOpList::Options     fOptionsForOpLists;
-    GrPathRendererChain::Options      fOptionsForPathRendererChain;
+    GrContext* fContext;
+    GrRenderTargetOpList::Options fOptionsForOpLists;
+    GrPathRendererChain::Options fOptionsForPathRendererChain;
 
     // In debug builds we guard against improper thread handling
-    GrSingleOwner*                    fSingleOwner;
+    GrSingleOwner* fSingleOwner;
 
-    bool                              fAbandoned;
-    SkTDArray<GrOpList*>              fOpLists;
+    bool fAbandoned;
+    SkTDArray<GrOpList*> fOpLists;
 
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
-    GrPathRendererChain*              fPathRendererChain;
-    GrSoftwarePathRenderer*           fSoftwarePathRenderer;
+    GrPathRendererChain* fPathRendererChain;
+    GrSoftwarePathRenderer* fSoftwarePathRenderer;
 
-    GrBatchFlushState                 fFlushState;
-    bool                              fFlushing;
+    GrBatchFlushState fFlushState;
+    bool fFlushing;
 
-    bool                              fIsImmediateMode;
+    bool fIsImmediateMode;
 };
 
 #endif

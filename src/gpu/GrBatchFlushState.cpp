@@ -24,7 +24,7 @@ void* GrBatchFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
     return fVertexPool.makeSpace(vertexSize, vertexCount, buffer, startVertex);
 }
 
-uint16_t* GrBatchFlushState::makeIndexSpace(int indexCount,
-                                            const GrBuffer** buffer, int* startIndex) {
+uint16_t* GrBatchFlushState::makeIndexSpace(int indexCount, const GrBuffer** buffer,
+                                            int* startIndex) {
     return reinterpret_cast<uint16_t*>(fIndexPool.makeSpace(indexCount, buffer, startIndex));
 }

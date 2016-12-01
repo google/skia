@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrShaderCaps.h"
 
 #include "GrContextOptions.h"
@@ -14,24 +13,24 @@
 
 static const char* shader_type_to_string(GrShaderType type) {
     switch (type) {
-    case kVertex_GrShaderType:
-        return "vertex";
-    case kGeometry_GrShaderType:
-        return "geometry";
-    case kFragment_GrShaderType:
-        return "fragment";
+        case kVertex_GrShaderType:
+            return "vertex";
+        case kGeometry_GrShaderType:
+            return "geometry";
+        case kFragment_GrShaderType:
+            return "fragment";
     }
     return "";
 }
 
 static const char* precision_to_string(GrSLPrecision p) {
     switch (p) {
-    case kLow_GrSLPrecision:
-        return "low";
-    case kMedium_GrSLPrecision:
-        return "medium";
-    case kHigh_GrSLPrecision:
-        return "high";
+        case kLow_GrSLPrecision:
+            return "low";
+        case kMedium_GrSLPrecision:
+            return "medium";
+        case kHigh_GrSLPrecision:
+            return "high";
     }
     return "";
 }
@@ -86,13 +85,13 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMaxVertexImageStorages = 0;
     fMaxGeometryImageStorages = 0;
     fMaxFragmentImageStorages = 0;
-    fMaxCombinedImageStorages   = 0;
+    fMaxCombinedImageStorages = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
 SkString GrShaderCaps::dump() const {
     SkString r;
-    static const char* gNY[] = { "NO", "YES" };
+    static const char* gNY[] = {"NO", "YES"};
     r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
     r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
     r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
@@ -111,19 +110,14 @@ SkString GrShaderCaps::dump() const {
             if (fFloatPrecisions[s][p].supported()) {
                 GrSLPrecision precision = static_cast<GrSLPrecision>(p);
                 r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
-                    precision_to_string(precision),
-                    fFloatPrecisions[s][p].fLogRangeLow,
-                    fFloatPrecisions[s][p].fLogRangeHigh,
-                    fFloatPrecisions[s][p].fBits);
+                          precision_to_string(precision), fFloatPrecisions[s][p].fLogRangeLow,
+                          fFloatPrecisions[s][p].fLogRangeHigh, fFloatPrecisions[s][p].fBits);
             }
         }
     }
 
     static const char* kAdvBlendEqInteractionStr[] = {
-        "Not Supported",
-        "Automatic",
-        "General Enable",
-        "Specific Enables",
+            "Not Supported", "Automatic", "General Enable", "Specific Enables",
     };
     GR_STATIC_ASSERT(0 == kNotSupported_AdvBlendEqInteraction);
     GR_STATIC_ASSERT(1 == kAutomatic_AdvBlendEqInteraction);
@@ -139,18 +133,18 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Uses precision modifiers: %s\n", (fUsesPrecisionModifiers ? "YES" : "NO"));
     r.appendf("Can use any() function: %s\n", (fCanUseAnyFunctionInShader ? "YES" : "NO"));
     r.appendf("Can use min() and abs() together: %s\n", (fCanUseMinAndAbsTogether ? "YES" : "NO"));
-    r.appendf("Must force negated atan param to float: %s\n", (fMustForceNegatedAtanParamToFloat ?
-                                                               "YES" : "NO"));
-    r.appendf("Must use local out color for FBFetch: %s\n", (fRequiresLocalOutputColorForFBFetch ?
-                                                             "YES" : "NO"));
-    r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
-    r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
-                                                             "YES" : "NO"));
-    r.appendf("Multisample interpolation support: %s\n", (fMultisampleInterpolationSupport ?
-                                                          "YES" : "NO"));
+    r.appendf("Must force negated atan param to float: %s\n",
+              (fMustForceNegatedAtanParamToFloat ? "YES" : "NO"));
+    r.appendf("Must use local out color for FBFetch: %s\n",
+              (fRequiresLocalOutputColorForFBFetch ? "YES" : "NO"));
+    r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ? "YES" : "NO"));
+    r.appendf("No perspective interpolation support: %s\n",
+              (fNoPerspectiveInterpolationSupport ? "YES" : "NO"));
+    r.appendf("Multisample interpolation support: %s\n",
+              (fMultisampleInterpolationSupport ? "YES" : "NO"));
     r.appendf("Sample variables support: %s\n", (fSampleVariablesSupport ? "YES" : "NO"));
-    r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
-                                                              "YES" : "NO"));
+    r.appendf("Sample mask override coverage support: %s\n",
+              (fSampleMaskOverrideCoverageSupport ? "YES" : "NO"));
     r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
     r.appendf("texelFetch support: %s\n", (fTexelFetchSupport ? "YES" : "NO"));
     r.appendf("Max VS Samplers: %d\n", fMaxVertexSamplers);
@@ -173,10 +167,12 @@ void GrShaderCaps::initSamplerPrecisionTable() {
     GrSLPrecision effectiveLowP[kGrShaderTypeCount];
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
         const PrecisionInfo* info = fFloatPrecisions[s];
-        effectiveMediumP[s] = info[kHigh_GrSLPrecision] == info[kMedium_GrSLPrecision] ?
-                                  kHigh_GrSLPrecision : kMedium_GrSLPrecision;
-        effectiveLowP[s] = info[kMedium_GrSLPrecision] == info[kLow_GrSLPrecision] ?
-                               effectiveMediumP[s] : kLow_GrSLPrecision;
+        effectiveMediumP[s] = info[kHigh_GrSLPrecision] == info[kMedium_GrSLPrecision]
+                                      ? kHigh_GrSLPrecision
+                                      : kMedium_GrSLPrecision;
+        effectiveLowP[s] = info[kMedium_GrSLPrecision] == info[kLow_GrSLPrecision]
+                                   ? effectiveMediumP[s]
+                                   : kLow_GrSLPrecision;
     }
 
     // Determine which precision qualifiers should be used with samplers.
@@ -200,23 +196,23 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         }
 
         uint8_t* table = fSamplerPrecisions[visibility];
-        table[kUnknown_GrPixelConfig]        = kDefault_GrSLPrecision;
-        table[kAlpha_8_GrPixelConfig]        = lowp;
-        table[kIndex_8_GrPixelConfig]        = lowp;
-        table[kRGB_565_GrPixelConfig]        = lowp;
-        table[kRGBA_4444_GrPixelConfig]      = lowp;
-        table[kRGBA_8888_GrPixelConfig]      = lowp;
-        table[kBGRA_8888_GrPixelConfig]      = lowp;
-        table[kSRGBA_8888_GrPixelConfig]     = lowp;
-        table[kSBGRA_8888_GrPixelConfig]     = lowp;
+        table[kUnknown_GrPixelConfig] = kDefault_GrSLPrecision;
+        table[kAlpha_8_GrPixelConfig] = lowp;
+        table[kIndex_8_GrPixelConfig] = lowp;
+        table[kRGB_565_GrPixelConfig] = lowp;
+        table[kRGBA_4444_GrPixelConfig] = lowp;
+        table[kRGBA_8888_GrPixelConfig] = lowp;
+        table[kBGRA_8888_GrPixelConfig] = lowp;
+        table[kSRGBA_8888_GrPixelConfig] = lowp;
+        table[kSBGRA_8888_GrPixelConfig] = lowp;
         table[kRGBA_8888_sint_GrPixelConfig] = lowp;
-        table[kETC1_GrPixelConfig]           = lowp;
-        table[kLATC_GrPixelConfig]           = lowp;
-        table[kR11_EAC_GrPixelConfig]        = lowp;
-        table[kASTC_12x12_GrPixelConfig]     = lowp;
-        table[kRGBA_float_GrPixelConfig]     = kHigh_GrSLPrecision;
-        table[kAlpha_half_GrPixelConfig]     = mediump;
-        table[kRGBA_half_GrPixelConfig]      = mediump;
+        table[kETC1_GrPixelConfig] = lowp;
+        table[kLATC_GrPixelConfig] = lowp;
+        table[kR11_EAC_GrPixelConfig] = lowp;
+        table[kASTC_12x12_GrPixelConfig] = lowp;
+        table[kRGBA_float_GrPixelConfig] = kHigh_GrSLPrecision;
+        table[kAlpha_half_GrPixelConfig] = mediump;
+        table[kRGBA_half_GrPixelConfig] = mediump;
 
         GR_STATIC_ASSERT(17 == kGrPixelConfigCnt);
     }

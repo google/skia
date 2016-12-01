@@ -10,9 +10,7 @@
 #include "GrResourceProvider.h"
 
 GrVertexBatch::GrVertexBatch(uint32_t classID)
-    : INHERITED(classID)
-    , fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {
-}
+    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
 
 void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
     Target target(state, this);
@@ -30,7 +28,8 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     const GrBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerInstance * instancesToDraw;
-    void* vertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
+    void* vertices =
+            target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
         SkDebugf("Vertices could not be allocated for instanced rendering.");
         return nullptr;
@@ -39,9 +38,8 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
 
-    fMesh.initInstanced(primType, vertexBuffer, indexBuffer,
-        firstVertex, verticesPerInstance, indicesPerInstance, instancesToDraw,
-        maxInstancesPerDraw);
+    fMesh.initInstanced(primType, vertexBuffer, indexBuffer, firstVertex, verticesPerInstance,
+                        indicesPerInstance, instancesToDraw, maxInstancesPerDraw);
     return vertices;
 }
 
@@ -50,10 +48,8 @@ void GrVertexBatch::InstancedHelper::recordDraw(Target* target, const GrGeometry
     target->draw(gp, fMesh);
 }
 
-void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
-                                      int quadsToDraw) {
-    sk_sp<const GrBuffer> quadIndexBuffer(
-        target->resourceProvider()->refQuadIndexBuffer());
+void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride, int quadsToDraw) {
+    sk_sp<const GrBuffer> quadIndexBuffer(target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return nullptr;
@@ -75,7 +71,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
         }
-        const QueuedDraw &draw = fQueuedDraws[currDrawIdx];
+        const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
                                      fMeshes.begin() + currMeshIdx, draw.fMeshCnt, bounds);
         currMeshIdx += draw.fMeshCnt;

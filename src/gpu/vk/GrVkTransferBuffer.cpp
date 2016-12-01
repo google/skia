@@ -9,7 +9,6 @@
 #include "GrVkGpu.h"
 #include "SkTraceMemoryDump.h"
 
-
 GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = true;
@@ -31,9 +30,8 @@ GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBu
 
 GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                        const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, desc.fSizeInBytes,
-                kCopyRead_Type == desc.fType ?
-                    kXferCpuToGpu_GrBufferType : kXferGpuToCpu_GrBufferType,
+    : INHERITED(gpu, desc.fSizeInBytes, kCopyRead_Type == desc.fType ? kXferCpuToGpu_GrBufferType
+                                                                     : kXferGpuToCpu_GrBufferType,
                 kStream_GrAccessPattern)
     , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -56,6 +54,5 @@ void GrVkTransferBuffer::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                           const SkString& dumpName) const {
     SkString buffer_id;
     buffer_id.appendU64((uint64_t)this->buffer());
-    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "vk_buffer",
-                                      buffer_id.c_str());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "vk_buffer", buffer_id.c_str());
 }

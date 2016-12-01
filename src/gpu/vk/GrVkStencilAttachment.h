@@ -18,14 +18,14 @@ class GrVkGpu;
 class GrVkStencilAttachment : public GrStencilAttachment, public GrVkImage {
 public:
     struct Format {
-        VkFormat  fInternalFormat;
-        int  fStencilBits;
-        int  fTotalBits;
+        VkFormat fInternalFormat;
+        int fStencilBits;
+        int fTotalBits;
         bool fPacked;
     };
 
-    static GrVkStencilAttachment* Create(GrVkGpu* gpu, int width, int height,
-                                         int sampleCnt, const Format& format);
+    static GrVkStencilAttachment* Create(GrVkGpu* gpu, int width, int height, int sampleCnt,
+                                         const Format& format);
 
     ~GrVkStencilAttachment() override;
 
@@ -41,17 +41,14 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrVkStencilAttachment(GrVkGpu* gpu,
-                          const Format& format,
-                          const GrVkImage::ImageDesc&,
-                          const GrVkImageInfo&,
-                          const GrVkImageView* stencilView);
+    GrVkStencilAttachment(GrVkGpu* gpu, const Format& format, const GrVkImage::ImageDesc&,
+                          const GrVkImageInfo&, const GrVkImageView* stencilView);
 
     GrVkGpu* getVkGpu() const;
 
     Format fFormat;
 
-    const GrVkImageView*       fStencilView;
+    const GrVkImageView* fStencilView;
 };
 
 #endif

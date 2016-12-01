@@ -6,12 +6,12 @@
  */
 
 #include "GrDitherEffect.h"
+#include "../private/GrGLSL.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "../private/GrGLSL.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -78,22 +78,20 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
 
     // For each channel c, add the random offset to the pixel to either bump
     // it up or let it remain constant during quantization.
-    fragBuilder->codeAppendf("\t\tfloat r = "
-                             "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
-                             fragBuilder->fragmentPosition());
-    fragBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
-                             args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
+    fragBuilder->codeAppendf(
+            "\t\tfloat r = "
+            "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
+            fragBuilder->fragmentPosition());
+    fragBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n", args.fOutputColor,
+                             GrGLSLExpr4(args.fInputColor).c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                         GrProcessorKeyBuilder* b) const {
+void DitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const  {
-    return new GLDitherEffect;
-}
+GrGLSLFragmentProcessor* DitherEffect::onCreateGLSLInstance() const { return new GLDitherEffect; }
 
 sk_sp<GrFragmentProcessor> GrDitherEffect::Make() { return DitherEffect::Make(); }

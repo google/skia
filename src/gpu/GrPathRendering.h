@@ -8,10 +8,10 @@
 #ifndef GrPathRendering_DEFINED
 #define GrPathRendering_DEFINED
 
-#include "SkPath.h"
 #include "GrGpu.h"
 #include "GrPathRange.h"
 #include "GrPipeline.h"
+#include "SkPath.h"
 
 class SkDescriptor;
 class SkTypeface;
@@ -33,7 +33,7 @@ class GrStyle;
  */
 class GrPathRendering {
 public:
-    virtual ~GrPathRendering() { }
+    virtual ~GrPathRendering() {}
 
     typedef GrPathRange::PathIndexType PathIndexType;
 
@@ -42,7 +42,7 @@ public:
         kTranslateX_PathTransformType,  //!< [kMTransX]
         kTranslateY_PathTransformType,  //!< [kMTransY]
         kTranslate_PathTransformType,   //!< [kMTransX, kMTransY]
-        kAffine_PathTransformType,      //!< [kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY]
+        kAffine_PathTransformType,  //!< [kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY]
 
         kLast_PathTransformType = kAffine_PathTransformType
     };
@@ -129,22 +129,18 @@ public:
      *
      * @return a new path range populated with glyphs.
      */
-    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
+                              const GrStyle&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
-        StencilPathArgs(bool useHWAA,
-                        GrRenderTarget* renderTarget,
-                        const SkMatrix* viewMatrix,
-                        const GrScissorState* scissor,
-                        const GrStencilSettings* stencil)
+        StencilPathArgs(bool useHWAA, GrRenderTarget* renderTarget, const SkMatrix* viewMatrix,
+                        const GrScissorState* scissor, const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
             , fRenderTarget(renderTarget)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
-            , fStencil(stencil) {
-        }
+            , fStencil(stencil) {}
         bool fUseHWAA;
         GrRenderTarget* fRenderTarget;
         const SkMatrix* fViewMatrix;
@@ -157,9 +153,8 @@ public:
         this->onStencilPath(args, path);
     }
 
-    void drawPath(const GrPipeline& pipeline,
-                  const GrPrimitiveProcessor& primProc,
-                  const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+    void drawPath(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+                  const GrStencilSettings& stencilPassSettings,  // Cover pass settings in pipeline.
                   const GrPath* path) {
         fGpu->handleDirtyContext();
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
@@ -168,15 +163,11 @@ public:
         this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
     }
 
-    void drawPaths(const GrPipeline& pipeline,
-                   const GrPrimitiveProcessor& primProc,
-                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
-                   const GrPathRange* pathRange,
-                   const void* indices,
-                   PathIndexType indexType,
-                   const float transformValues[],
-                   PathTransformType transformType,
-                   int count) {
+    void drawPaths(
+            const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+            const GrStencilSettings& stencilPassSettings,  // Cover pass settings in pipeline.
+            const GrPathRange* pathRange, const void* indices, PathIndexType indexType,
+            const float transformValues[], PathTransformType transformType, int count) {
         fGpu->handleDirtyContext();
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
             fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
@@ -189,25 +180,17 @@ public:
     }
 
 protected:
-    GrPathRendering(GrGpu* gpu)
-        : fGpu(gpu) {
-    }
+    GrPathRendering(GrGpu* gpu) : fGpu(gpu) {}
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
-    virtual void onDrawPath(const GrPipeline&,
-                            const GrPrimitiveProcessor&,
-                            const GrStencilSettings&,
-                            const GrPath*) = 0;
-    virtual void onDrawPaths(const GrPipeline&,
-                             const GrPrimitiveProcessor&,
-                             const GrStencilSettings&,
-                             const GrPathRange*,
-                             const void* indices,
-                             PathIndexType,
-                             const float transformValues[],
-                             PathTransformType,
+    virtual void onDrawPath(const GrPipeline&, const GrPrimitiveProcessor&,
+                            const GrStencilSettings&, const GrPath*) = 0;
+    virtual void onDrawPaths(const GrPipeline&, const GrPrimitiveProcessor&,
+                             const GrStencilSettings&, const GrPathRange*, const void* indices,
+                             PathIndexType, const float transformValues[], PathTransformType,
                              int count) = 0;
 
     GrGpu* fGpu;
+
 private:
     GrPathRendering& operator=(const GrPathRendering&);
 };

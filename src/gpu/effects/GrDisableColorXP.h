@@ -36,9 +36,7 @@ private:
         return false;
     }
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        return true;
-    }
+    bool onIsEqual(const GrXPFactory& xpfBase) const override { return true; }
 
     GR_DECLARE_XP_FACTORY_TEST;
 

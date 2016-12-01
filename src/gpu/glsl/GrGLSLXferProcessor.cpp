@@ -31,29 +31,27 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         if (args.fInputCoverage) {
             // We don't think any shaders actually output negative coverage, but just as a safety
             // check for floating point precision errors we compare with <= here
-            fragBuilder->codeAppendf("if (all(lessThanEqual(%s, vec4(0)))) {"
-                                     "    discard;"
-                                     "}", args.fInputCoverage);
+            fragBuilder->codeAppendf(
+                    "if (all(lessThanEqual(%s, vec4(0)))) {"
+                    "    discard;"
+                    "}",
+                    args.fInputCoverage);
         }
 
         const char* dstTopLeftName;
         const char* dstCoordScaleName;
 
-        fDstTopLeftUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kVec2f_GrSLType,
-                                                    kDefault_GrSLPrecision,
-                                                    "DstTextureUpperLeft",
+        fDstTopLeftUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kVec2f_GrSLType,
+                                                    kDefault_GrSLPrecision, "DstTextureUpperLeft",
                                                     &dstTopLeftName);
-        fDstScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                  kVec2f_GrSLType,
-                                                  kDefault_GrSLPrecision,
-                                                  "DstTextureCoordScale",
+        fDstScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kVec2f_GrSLType,
+                                                  kDefault_GrSLPrecision, "DstTextureCoordScale",
                                                   &dstCoordScaleName);
         const char* fragPos = fragBuilder->fragmentPosition();
 
         fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-        fragBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
-                                 fragPos, dstTopLeftName, dstCoordScaleName);
+        fragBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;", fragPos, dstTopLeftName,
+                                 dstCoordScaleName);
 
         if (!topDown) {
             fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
@@ -73,13 +71,8 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->codeAppendf("vec4 %s;", outColor);
     }
 
-    this->emitBlendCodeForDstRead(fragBuilder,
-                                  uniformHandler,
-                                  args.fInputColor,
-                                  args.fInputCoverage,
-                                  dstColor,
-                                  outColor,
-                                  args.fOutputSecondary,
+    this->emitBlendCodeForDstRead(fragBuilder, uniformHandler, args.fInputColor,
+                                  args.fInputCoverage, dstColor, outColor, args.fOutputSecondary,
                                   args.fXP);
     if (needsLocalOutColor) {
         fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, outColor);
@@ -104,8 +97,7 @@ void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrX
 }
 
 void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
-                                                    const char* srcCoverage,
-                                                    const char* dstColor,
+                                                    const char* srcCoverage, const char* dstColor,
                                                     const char* outColor,
                                                     const char* outColorSecondary,
                                                     const GrXferProcessor& proc) {
@@ -117,7 +109,7 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
             fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
         }
     } else if (srcCoverage) {
-        fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
-                                 outColor, srcCoverage, outColor, srcCoverage, dstColor);
+        fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;", outColor, srcCoverage,
+                                 outColor, srcCoverage, dstColor);
     }
 }

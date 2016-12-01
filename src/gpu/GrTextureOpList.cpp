@@ -16,13 +16,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTextureOpList::GrTextureOpList(GrTextureProxy* tex, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(tex, auditTrail)
-    , fGpu(SkRef(gpu)) {
-}
+    : INHERITED(tex, auditTrail), fGpu(SkRef(gpu)) {}
 
-GrTextureOpList::~GrTextureOpList() {
-    fGpu->unref();
-}
+GrTextureOpList::~GrTextureOpList() { fGpu->unref(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +33,8 @@ void GrTextureOpList::dump() const {
         SkString str = fRecordedBatches[i]->dumpInfo();
         SkDebugf("%s\n", str.c_str());
         const SkRect& clippedBounds = fRecordedBatches[i]->bounds();
-        SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                    clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
-                    clippedBounds.fBottom);
+        SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", clippedBounds.fLeft,
+                 clippedBounds.fTop, clippedBounds.fRight, clippedBounds.fBottom);
     }
 }
 #endif
@@ -72,15 +67,11 @@ bool GrTextureOpList::drawBatches(GrBatchFlushState* flushState) {
     return true;
 }
 
-void GrTextureOpList::reset() {
-    fRecordedBatches.reset();
-}
+void GrTextureOpList::reset() { fRecordedBatches.reset(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureOpList::copySurface(GrSurface* dst,
-                                  GrSurface* src,
-                                  const SkIRect& srcRect,
+bool GrTextureOpList::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
     GrOp* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
     if (!batch) {
@@ -100,12 +91,11 @@ void GrTextureOpList::recordBatch(GrOp* batch) {
     SkASSERT(!this->isClosed());
 
     GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch);
-    GrOP_INFO("Re-Recording (%s, B%u)\n"
-        "\tBounds LRTB (%f, %f, %f, %f)\n",
-        batch->name(),
-        batch->uniqueID(),
-        batch->bounds().fLeft, batch->bounds().fRight,
-        batch->bounds().fTop, batch->bounds().fBottom);
+    GrOP_INFO(
+            "Re-Recording (%s, B%u)\n"
+            "\tBounds LRTB (%f, %f, %f, %f)\n",
+            batch->name(), batch->uniqueID(), batch->bounds().fLeft, batch->bounds().fRight,
+            batch->bounds().fTop, batch->bounds().fBottom);
     GrOP_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
 

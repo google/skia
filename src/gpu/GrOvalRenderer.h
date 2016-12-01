@@ -23,26 +23,15 @@ class SkStrokeRec;
  */
 class GrOvalRenderer {
 public:
-    static GrDrawOp* CreateOvalBatch(GrColor,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRect& oval,
-                                     const SkStrokeRec& stroke,
-                                     const GrShaderCaps* shaderCaps);
-    static GrDrawOp* CreateRRectBatch(GrColor,
-                                      bool needsDistance,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRRect& rrect,
-                                      const SkStrokeRec& stroke,
+    static GrDrawOp* CreateOvalBatch(GrColor, const SkMatrix& viewMatrix, const SkRect& oval,
+                                     const SkStrokeRec& stroke, const GrShaderCaps* shaderCaps);
+    static GrDrawOp* CreateRRectBatch(GrColor, bool needsDistance, const SkMatrix& viewMatrix,
+                                      const SkRRect& rrect, const SkStrokeRec& stroke,
                                       const GrShaderCaps* shaderCaps);
 
-    static GrDrawOp* CreateArcBatch(GrColor,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRect& oval,
-                                    SkScalar startAngle,
-                                    SkScalar sweepAngle,
-                                    bool useCenter,
-                                    const GrStyle&,
-                                    const GrShaderCaps* shaderCaps);
+    static GrDrawOp* CreateArcBatch(GrColor, const SkMatrix& viewMatrix, const SkRect& oval,
+                                    SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
+                                    const GrStyle&, const GrShaderCaps* shaderCaps);
 };
 
-#endif // GrOvalRenderer_DEFINED
+#endif  // GrOvalRenderer_DEFINED

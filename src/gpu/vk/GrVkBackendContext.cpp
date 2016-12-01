@@ -15,18 +15,15 @@
 
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
-    // elements of VK_LAYER_LUNARG_standard_validation
-    "VK_LAYER_GOOGLE_threading",
-    "VK_LAYER_LUNARG_parameter_validation",
-    "VK_LAYER_LUNARG_object_tracker",
-    "VK_LAYER_LUNARG_image",
-    "VK_LAYER_LUNARG_core_validation",
-    "VK_LAYER_LUNARG_swapchain",
-    "VK_LAYER_GOOGLE_unique_objects",
-    // not included in standard_validation
-    //"VK_LAYER_LUNARG_api_dump",
-    //"VK_LAYER_LUNARG_vktrace",
-    //"VK_LAYER_LUNARG_screenshot",
+        // elements of VK_LAYER_LUNARG_standard_validation
+        "VK_LAYER_GOOGLE_threading",       "VK_LAYER_LUNARG_parameter_validation",
+        "VK_LAYER_LUNARG_object_tracker",  "VK_LAYER_LUNARG_image",
+        "VK_LAYER_LUNARG_core_validation", "VK_LAYER_LUNARG_swapchain",
+        "VK_LAYER_GOOGLE_unique_objects",
+        // not included in standard_validation
+        //"VK_LAYER_LUNARG_api_dump",
+        //"VK_LAYER_LUNARG_vktrace",
+        //"VK_LAYER_LUNARG_screenshot",
 };
 #endif
 
@@ -46,13 +43,13 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     VkResult err;
 
     const VkApplicationInfo app_info = {
-        VK_STRUCTURE_TYPE_APPLICATION_INFO, // sType
-        nullptr,                            // pNext
-        "vktest",                           // pApplicationName
-        0,                                  // applicationVersion
-        "vktest",                           // pEngineName
-        0,                                  // engineVerison
-        kGrVkMinimumVersion,                // apiVersion
+            VK_STRUCTURE_TYPE_APPLICATION_INFO,  // sType
+            nullptr,                             // pNext
+            "vktest",                            // pApplicationName
+            0,                                   // applicationVersion
+            "vktest",                            // pEngineName
+            0,                                   // engineVerison
+            kGrVkMinimumVersion,                 // apiVersion
     };
 
     GrVkExtensions extensions;
@@ -99,14 +96,14 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
 #endif
 
     const VkInstanceCreateInfo instance_create = {
-        VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,    // sType
-        nullptr,                                   // pNext
-        0,                                         // flags
-        &app_info,                                 // pApplicationInfo
-        (uint32_t) instanceLayerNames.count(),     // enabledLayerNameCount
-        instanceLayerNames.begin(),                // ppEnabledLayerNames
-        (uint32_t) instanceExtensionNames.count(), // enabledExtensionNameCount
-        instanceExtensionNames.begin(),            // ppEnabledExtensionNames
+            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,    // sType
+            nullptr,                                   // pNext
+            0,                                         // flags
+            &app_info,                                 // pApplicationInfo
+            (uint32_t)instanceLayerNames.count(),      // enabledLayerNameCount
+            instanceLayerNames.begin(),                // ppEnabledLayerNames
+            (uint32_t)instanceExtensionNames.count(),  // enabledExtensionNameCount
+            instanceExtensionNames.begin(),            // ppEnabledExtensionNames
     };
 
     err = vkCreateInstance(&instance_create, nullptr, &inst);
@@ -205,40 +202,39 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         featureFlags |= kSampleRateShading_GrVkFeatureFlag;
     }
 
-    float queuePriorities[1] = { 0.0 };
+    float queuePriorities[1] = {0.0};
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
     const VkDeviceQueueCreateInfo queueInfo[2] = {
-        {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
-            nullptr,                                    // pNext
-            0,                                          // VkDeviceQueueCreateFlags
-            graphicsQueueIndex,                         // queueFamilyIndex
-            1,                                          // queueCount
-            queuePriorities,                            // pQueuePriorities
-        },
-        {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, // sType
-            nullptr,                                    // pNext
-            0,                                          // VkDeviceQueueCreateFlags
-            presentQueueIndex,                          // queueFamilyIndex
-            1,                                          // queueCount
-            queuePriorities,                            // pQueuePriorities
-        }
-    };
+            {
+                    VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // sType
+                    nullptr,                                     // pNext
+                    0,                                           // VkDeviceQueueCreateFlags
+                    graphicsQueueIndex,                          // queueFamilyIndex
+                    1,                                           // queueCount
+                    queuePriorities,                             // pQueuePriorities
+            },
+            {
+                    VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // sType
+                    nullptr,                                     // pNext
+                    0,                                           // VkDeviceQueueCreateFlags
+                    presentQueueIndex,                           // queueFamilyIndex
+                    1,                                           // queueCount
+                    queuePriorities,                             // pQueuePriorities
+            }};
     uint32_t queueInfoCount = (presentQueueIndex != graphicsQueueIndex) ? 2 : 1;
 
     const VkDeviceCreateInfo deviceInfo = {
-        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,    // sType
-        nullptr,                                 // pNext
-        0,                                       // VkDeviceCreateFlags
-        queueInfoCount,                          // queueCreateInfoCount
-        queueInfo,                               // pQueueCreateInfos
-        (uint32_t) deviceLayerNames.count(),     // layerCount
-        deviceLayerNames.begin(),                // ppEnabledLayerNames
-        (uint32_t) deviceExtensionNames.count(), // extensionCount
-        deviceExtensionNames.begin(),            // ppEnabledExtensionNames
-        &deviceFeatures                          // ppEnabledFeatures
+            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,    // sType
+            nullptr,                                 // pNext
+            0,                                       // VkDeviceCreateFlags
+            queueInfoCount,                          // queueCreateInfoCount
+            queueInfo,                               // pQueueCreateInfos
+            (uint32_t)deviceLayerNames.count(),      // layerCount
+            deviceLayerNames.begin(),                // ppEnabledLayerNames
+            (uint32_t)deviceExtensionNames.count(),  // extensionCount
+            deviceExtensionNames.begin(),            // ppEnabledExtensionNames
+            &deviceFeatures                          // ppEnabledFeatures
     };
 
     err = vkCreateDevice(physDev, &deviceInfo, nullptr, &device);

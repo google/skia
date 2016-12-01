@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
 #include "GrGLContext.h"
-#include "GrProgramDesc.h"
-#include "GrGLTexture.h"
 #include "GrGLProgramDataManager.h"
+#include "GrGLTexture.h"
+#include "GrProgramDesc.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
@@ -57,14 +56,14 @@ public:
      * them.
      */
     struct RenderTargetState {
-        SkISize         fRenderTargetSize;
+        SkISize fRenderTargetSize;
         GrSurfaceOrigin fRenderTargetOrigin;
 
         RenderTargetState() { this->invalidate(); }
         void invalidate() {
             fRenderTargetSize.fWidth = -1;
             fRenderTargetSize.fHeight = -1;
-            fRenderTargetOrigin = (GrSurfaceOrigin) -1;
+            fRenderTargetOrigin = (GrSurfaceOrigin)-1;
         }
 
         /**
@@ -102,20 +101,15 @@ public:
     void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
 
 protected:
-    using UniformHandle    = GrGLSLProgramDataManager::UniformHandle ;
+    using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     using UniformInfoArray = GrGLProgramDataManager::UniformInfoArray;
     using VaryingInfoArray = GrGLProgramDataManager::VaryingInfoArray;
 
-    GrGLProgram(GrGLGpu*,
-                const GrProgramDesc&,
-                const BuiltinUniformHandles&,
-                GrGLuint programID,
-                const UniformInfoArray& uniforms,
-                const UniformInfoArray& samplers,
+    GrGLProgram(GrGLGpu*, const GrProgramDesc&, const BuiltinUniformHandles&, GrGLuint programID,
+                const UniformInfoArray& uniforms, const UniformInfoArray& samplers,
                 const UniformInfoArray& imageStorages,
-                const VaryingInfoArray&, // used for NVPR only currently
-                GrGLSLPrimitiveProcessor* geometryProcessor,
-                GrGLSLXferProcessor* xferProcessor,
+                const VaryingInfoArray&,  // used for NVPR only currently
+                GrGLSLPrimitiveProcessor* geometryProcessor, GrGLSLXferProcessor* xferProcessor,
                 const GrGLSLFragProcs& fragmentProcessors);
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures

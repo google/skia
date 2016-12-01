@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
+#include "GrGLUtil.h"
 #include "GrGpu.h"
 #include "GrTexture.h"
-#include "GrGLUtil.h"
 
 class GrGLGpu;
 
@@ -29,8 +28,8 @@ public:
     };
 
     struct IDDesc {
-        GrGLTextureInfo             fInfo;
-        GrBackendObjectOwnership    fOwnership;
+        GrGLTextureInfo fInfo;
+        GrBackendObjectOwnership fOwnership;
     };
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&);
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&,
@@ -46,8 +45,7 @@ public:
         return fTexParams;
     }
 
-    void setCachedTexParams(const TexParams& texParams,
-                            GrGpu::ResetTimestamp timestamp) {
+    void setCachedTexParams(const TexParams& texParams, GrGpu::ResetTimestamp timestamp) {
         fTexParams = texParams;
         fTexParamsTimestamp = timestamp;
     }
@@ -57,6 +55,7 @@ public:
     GrGLenum target() const { return fInfo.fTarget; }
 
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+
 protected:
     // Constructor for subclasses.
     GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided);
@@ -73,12 +72,12 @@ protected:
                           const SkString& dumpName) const override;
 
 private:
-    TexParams                       fTexParams;
-    GrGpu::ResetTimestamp           fTexParamsTimestamp;
+    TexParams fTexParams;
+    GrGpu::ResetTimestamp fTexParamsTimestamp;
     // Holds the texture target and ID. A pointer to this may be shared to external clients for
     // direct interaction with the GL object.
-    GrGLTextureInfo                 fInfo;
-    GrBackendObjectOwnership        fTextureIDOwnership;
+    GrGLTextureInfo fInfo;
+    GrBackendObjectOwnership fTextureIDOwnership;
 
     typedef GrTexture INHERITED;
 };

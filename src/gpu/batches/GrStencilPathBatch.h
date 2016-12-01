@@ -19,16 +19,12 @@ class GrStencilPathBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrOp* Create(const SkMatrix& viewMatrix,
-                           bool useHWAA,
-                           GrPathRendering::FillType fillType,
-                           bool hasStencilClip,
-                           int numStencilBits,
-                           const GrScissorState& scissor,
-                           GrRenderTarget* renderTarget,
-                           const GrPath* path) {
-        return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
-                                      numStencilBits, scissor, renderTarget, path);
+    static GrOp* Create(const SkMatrix& viewMatrix, bool useHWAA,
+                        GrPathRendering::FillType fillType, bool hasStencilClip, int numStencilBits,
+                        const GrScissorState& scissor, GrRenderTarget* renderTarget,
+                        const GrPath* path) {
+        return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip, numStencilBits,
+                                      scissor, renderTarget, path);
     }
 
     const char* name() const override { return "StencilPath"; }
@@ -46,21 +42,17 @@ public:
     }
 
 private:
-    GrStencilPathBatch(const SkMatrix& viewMatrix,
-                       bool useHWAA,
-                       GrPathRendering::FillType fillType,
-                       bool hasStencilClip,
-                       int numStencilBits,
-                       const GrScissorState& scissor,
-                       GrRenderTarget* renderTarget,
-                       const GrPath* path)
-    : INHERITED(ClassID())
-    , fViewMatrix(viewMatrix)
-    , fUseHWAA(useHWAA)
-    , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip, numStencilBits)
-    , fScissor(scissor)
-    , fRenderTarget(renderTarget)
-    , fPath(path) {
+    GrStencilPathBatch(const SkMatrix& viewMatrix, bool useHWAA, GrPathRendering::FillType fillType,
+                       bool hasStencilClip, int numStencilBits, const GrScissorState& scissor,
+                       GrRenderTarget* renderTarget, const GrPath* path)
+        : INHERITED(ClassID())
+        , fViewMatrix(viewMatrix)
+        , fUseHWAA(useHWAA)
+        , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip,
+                   numStencilBits)
+        , fScissor(scissor)
+        , fRenderTarget(renderTarget)
+        , fPath(path) {
         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
@@ -74,12 +66,12 @@ private:
         state->gpu()->pathRendering()->stencilPath(args, fPath.get());
     }
 
-    SkMatrix                                                fViewMatrix;
-    bool                                                    fUseHWAA;
-    GrStencilSettings                                       fStencil;
-    GrScissorState                                          fScissor;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
-    GrPendingIOResource<const GrPath, kRead_GrIOType>       fPath;
+    SkMatrix fViewMatrix;
+    bool fUseHWAA;
+    GrStencilSettings fStencil;
+    GrScissorState fScissor;
+    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
     typedef GrOp INHERITED;
 };

@@ -8,8 +8,8 @@
 #ifndef SkGrPriv_DEFINED
 #define SkGrPriv_DEFINED
 
-#include "GrTypes.h"
 #include "GrBlend.h"
+#include "GrTypes.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkXfermodePriv.h"
@@ -45,38 +45,26 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
-bool SkPaintToGrPaint(GrContext*,
-                      GrRenderTargetContext*,
-                      const SkPaint& skPaint,
-                      const SkMatrix& viewM,
-                      GrPaint* grPaint);
+bool SkPaintToGrPaint(GrContext*, GrRenderTargetContext*, const SkPaint& skPaint,
+                      const SkMatrix& viewM, GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
-bool SkPaintToGrPaintNoShader(GrContext* context,
-                              GrRenderTargetContext* rtc,
-                              const SkPaint& skPaint,
-                              GrPaint* grPaint);
+bool SkPaintToGrPaintNoShader(GrContext* context, GrRenderTargetContext* rtc,
+                              const SkPaint& skPaint, GrPaint* grPaint);
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. The processor
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
-bool SkPaintToGrPaintReplaceShader(GrContext*,
-                                   GrRenderTargetContext*,
-                                   const SkPaint& skPaint,
-                                   sk_sp<GrFragmentProcessor> shaderFP,
-                                   GrPaint* grPaint);
+bool SkPaintToGrPaintReplaceShader(GrContext*, GrRenderTargetContext*, const SkPaint& skPaint,
+                                   sk_sp<GrFragmentProcessor> shaderFP, GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
     GrOp's GrPrimitiveProcesssor. Currently there is a bool param to indicate whether the
     primitive color is the dst or src color to the blend in order to work around differences between
     drawVertices and drawAtlas. */
-bool SkPaintToGrPaintWithXfermode(GrContext* context,
-                                  GrRenderTargetContext* rtc,
-                                  const SkPaint& skPaint,
-                                  const SkMatrix& viewM,
-                                  SkBlendMode primColorMode,
-                                  bool primitiveIsSrc,
-                                  GrPaint* grPaint);
+bool SkPaintToGrPaintWithXfermode(GrContext* context, GrRenderTargetContext* rtc,
+                                  const SkPaint& skPaint, const SkMatrix& viewM,
+                                  SkBlendMode primColorMode, bool primitiveIsSrc, GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
     the expectation is that the primitive color will be premultiplied, though it really should be
@@ -90,12 +78,9 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrRenderTarge
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
     lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
-bool SkPaintToGrPaintWithTexture(GrContext* context,
-                                 GrRenderTargetContext* rtc,
-                                 const SkPaint& paint,
-                                 const SkMatrix& viewM,
-                                 sk_sp<GrFragmentProcessor> fp,
-                                 bool textureIsAlphaOnly,
+bool SkPaintToGrPaintWithTexture(GrContext* context, GrRenderTargetContext* rtc,
+                                 const SkPaint& paint, const SkMatrix& viewM,
+                                 sk_sp<GrFragmentProcessor> fp, bool textureIsAlphaOnly,
                                  GrPaint* grPaint);
 
 //////////////////////////////////////////////////////////////////////////////
@@ -118,10 +103,9 @@ GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
  *  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
  *  ignores outStartOfDataToUpload.
  */
-GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
-                                                 int expectedW, int expectedH,
+GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data, int expectedW,
+                                                 int expectedH,
                                                  const void** outStartOfDataToUpload);
-
 
 /**
  * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.

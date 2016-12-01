@@ -41,12 +41,9 @@ public:
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override;
 
 private:
-    static bool PathNeedsSWRenderer(GrContext* context,
-                                    bool hasUserStencilSettings,
-                                    const GrRenderTargetContext*,
-                                    const SkMatrix& viewMatrix,
-                                    const SkClipStack::Element* element,
-                                    GrPathRenderer** prOut,
+    static bool PathNeedsSWRenderer(GrContext* context, bool hasUserStencilSettings,
+                                    const GrRenderTargetContext*, const SkMatrix& viewMatrix,
+                                    const SkClipStack::Element* element, GrPathRenderer** prOut,
                                     bool needsStencil);
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
@@ -56,16 +53,14 @@ private:
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     static sk_sp<GrTexture> CreateSoftwareClipMask(GrTextureProvider*, const GrReducedClip&);
 
-   static bool UseSWOnlyPath(GrContext*,
-                             bool hasUserStencilSettings,
-                             const GrRenderTargetContext*,
-                             const GrReducedClip&);
+    static bool UseSWOnlyPath(GrContext*, bool hasUserStencilSettings, const GrRenderTargetContext*,
+                              const GrReducedClip&);
 
     static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,
                                        bool renderTarget);
 
-    SkIPoint                 fOrigin;
+    SkIPoint fOrigin;
     sk_sp<const SkClipStack> fStack;
 };
 
-#endif // GrClipStackClip_DEFINED
+#endif  // GrClipStackClip_DEFINED

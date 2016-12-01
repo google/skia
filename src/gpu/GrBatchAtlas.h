@@ -87,9 +87,7 @@ public:
     public:
         BulkUseTokenUpdater() : fPlotAlreadyUpdated(0) {}
         BulkUseTokenUpdater(const BulkUseTokenUpdater& that)
-            : fPlotsToUpdate(that.fPlotsToUpdate)
-            , fPlotAlreadyUpdated(that.fPlotAlreadyUpdated) {
-        }
+            : fPlotsToUpdate(that.fPlotsToUpdate), fPlotAlreadyUpdated(that.fPlotAlreadyUpdated) {}
 
         void add(AtlasID id) {
             int index = GrBatchAtlas::GetIndexFromID(id);
@@ -159,7 +157,7 @@ private:
         }
         SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
 
-        bool addSubImage(int width, int height, const void* image, SkIPoint16* loc);
+                bool addSubImage(int width, int height, const void* image, SkIPoint16* loc);
 
         // To manage the lifetime of a plot, we use two tokens.  We use the last upload token to
         // know when we can 'piggy back' uploads, ie if the last upload hasn't been flushed to gpu,
@@ -183,7 +181,7 @@ private:
         // Create a clone of this plot. The cloned plot will take the place of the
         // current plot in the atlas.
         BatchPlot* clone() const {
-            return new BatchPlot(fIndex, fGenID+1, fX, fY, fWidth, fHeight, fConfig);
+            return new BatchPlot(fIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
         }
 
         static GrBatchAtlas::AtlasID CreateId(uint32_t index, uint64_t generation) {
@@ -192,39 +190,35 @@ private:
             return generation << 16 | index;
         }
 
-        GrDrawOpUploadToken   fLastUpload;
-        GrDrawOpUploadToken   fLastUse;
+        GrDrawOpUploadToken fLastUpload;
+        GrDrawOpUploadToken fLastUse;
 
-        const uint32_t        fIndex;
-        uint64_t              fGenID;
+        const uint32_t fIndex;
+        uint64_t fGenID;
         GrBatchAtlas::AtlasID fID;
-        unsigned char*        fData;
-        const int             fWidth;
-        const int             fHeight;
-        const int             fX;
-        const int             fY;
-        GrRectanizer*         fRects;
-        const SkIPoint16      fOffset;        // the offset of the plot in the backing texture
-        const GrPixelConfig   fConfig;
-        const size_t          fBytesPerPixel;
-        SkIRect               fDirtyRect;
-        SkDEBUGCODE(bool      fDirty;)
+        unsigned char* fData;
+        const int fWidth;
+        const int fHeight;
+        const int fX;
+        const int fY;
+        GrRectanizer* fRects;
+        const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
+        const GrPixelConfig fConfig;
+        const size_t fBytesPerPixel;
+        SkIRect fDirtyRect;
+        SkDEBUGCODE(bool fDirty;)
 
-        friend class GrBatchAtlas;
+                friend class GrBatchAtlas;
 
         typedef SkRefCnt INHERITED;
     };
 
     typedef SkTInternalLList<BatchPlot> GrBatchPlotList;
 
-    static uint32_t GetIndexFromID(AtlasID id) {
-        return id & 0xffff;
-    }
+    static uint32_t GetIndexFromID(AtlasID id) { return id & 0xffff; }
 
     // top 48 bits are reserved for the generation ID
-    static uint64_t GetGenerationFromID(AtlasID id) {
-        return (id >> 16) & 0xffffffffffff;
-    }
+    static uint64_t GetGenerationFromID(AtlasID id) { return (id >> 16) & 0xffffffffffff; }
 
     inline void updatePlot(GrDrawOp::Target*, AtlasID*, BatchPlot*);
 
@@ -244,7 +238,7 @@ private:
     int fPlotHeight;
     SkDEBUGCODE(uint32_t fNumPlots;)
 
-    uint64_t fAtlasGeneration;
+            uint64_t fAtlasGeneration;
 
     struct EvictionData {
         EvictionFunc fFunc;

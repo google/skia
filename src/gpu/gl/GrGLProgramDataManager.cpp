@@ -5,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkMatrix.h"
 #include "gl/GrGLProgramDataManager.h"
+#include "SkMatrix.h"
 #include "gl/GrGLGpu.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \
-         SkASSERT((COUNT) <= (UNI).fArrayCount || \
-                  (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
+    SkASSERT((COUNT) <= (UNI).fArrayCount ||      \
+             (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
 
 GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
                                                const UniformInfoArray& uniforms,
                                                const VaryingInfoArray& pathProcVaryings)
-    : fGpu(gpu)
-    , fProgramID(programID) {
+    : fGpu(gpu), fProgramID(programID) {
     int count = uniforms.count();
     fUniforms.push_back_n(count);
     for (int i = 0; i < count; i++) {
@@ -26,10 +25,8 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         const UniformInfo& builderUniform = uniforms[i];
         SkASSERT(GrShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
                  builderUniform.fVariable.getArrayCount() > 0);
-        SkDEBUGCODE(
-            uniform.fArrayCount = builderUniform.fVariable.getArrayCount();
-            uniform.fType = builderUniform.fVariable.getType();
-        );
+        SkDEBUGCODE(uniform.fArrayCount = builderUniform.fVariable.getArrayCount();
+                    uniform.fType = builderUniform.fVariable.getType(););
         uniform.fLocation = builderUniform.fLocation;
     }
 
@@ -42,10 +39,8 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         const VaryingInfo& builderPathProcVarying = pathProcVaryings[i];
         SkASSERT(GrShaderVar::kNonArray == builderPathProcVarying.fVariable.getArrayCount() ||
                  builderPathProcVarying.fVariable.getArrayCount() > 0);
-        SkDEBUGCODE(
-            pathProcVarying.fArrayCount = builderPathProcVarying.fVariable.getArrayCount();
-            pathProcVarying.fType = builderPathProcVarying.fVariable.getType();
-        );
+        SkDEBUGCODE(pathProcVarying.fArrayCount = builderPathProcVarying.fVariable.getArrayCount();
+                    pathProcVarying.fType = builderPathProcVarying.fVariable.getType(););
         pathProcVarying.fLocation = builderPathProcVarying.fLocation;
     }
 }
@@ -85,9 +80,7 @@ void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     }
 }
 
-void GrGLProgramDataManager::set1iv(UniformHandle u,
-                                    int arrayCount,
-                                    const int v[]) const {
+void GrGLProgramDataManager::set1iv(UniformHandle u, int arrayCount, const int v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kInt_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -101,15 +94,12 @@ void GrGLProgramDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fLocation, v0));
     }
 }
 
-void GrGLProgramDataManager::set1fv(UniformHandle u,
-                                    int arrayCount,
-                                    const float v[]) const {
+void GrGLProgramDataManager::set1fv(UniformHandle u, int arrayCount, const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
     SkASSERT(arrayCount > 0);
@@ -127,21 +117,17 @@ void GrGLProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fLocation, v0, v1));
     }
 }
 
-void GrGLProgramDataManager::set2fv(UniformHandle u,
-                                    int arrayCount,
-                                    const float v[]) const {
+void GrGLProgramDataManager::set2fv(UniformHandle u, int arrayCount, const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2fv(uni.fLocation, arrayCount, v));
     }
 }
@@ -150,48 +136,36 @@ void GrGLProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fLocation, v0, v1, v2));
     }
 }
 
-void GrGLProgramDataManager::set3fv(UniformHandle u,
-                                    int arrayCount,
-                                    const float v[]) const {
+void GrGLProgramDataManager::set3fv(UniformHandle u, int arrayCount, const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3fv(uni.fLocation, arrayCount, v));
     }
 }
 
-void GrGLProgramDataManager::set4f(UniformHandle u,
-                                   float v0,
-                                   float v1,
-                                   float v2,
-                                   float v3) const {
+void GrGLProgramDataManager::set4f(UniformHandle u, float v0, float v1, float v2, float v3) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fLocation, v0, v1, v2, v3));
     }
 }
 
-void GrGLProgramDataManager::set4fv(UniformHandle u,
-                                    int arrayCount,
-                                    const float v[]) const {
+void GrGLProgramDataManager::set4fv(UniformHandle u, int arrayCount, const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4fv(uni.fLocation, arrayCount, v));
     }
 }
@@ -220,53 +194,52 @@ void GrGLProgramDataManager::setMatrix4fv(UniformHandle u, int arrayCount, const
     this->setMatrices<4>(u, arrayCount, m);
 }
 
-template<int N> struct set_uniform_matrix;
+template <int N>
+struct set_uniform_matrix;
 
-template<int N> inline void GrGLProgramDataManager::setMatrices(UniformHandle u,
-                                                                int arrayCount,
-                                                                const float matrices[]) const {
+template <int N>
+inline void GrGLProgramDataManager::setMatrices(UniformHandle u, int arrayCount,
+                                                const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kMat22f_GrSLType + (N - 2));
     SkASSERT(arrayCount > 0);
     ASSERT_ARRAY_UPLOAD_IN_BOUNDS(uni, arrayCount);
-    SkDEBUGCODE(this->printUnused(uni);)
-    if (kUnusedUniform != uni.fLocation) {
+    SkDEBUGCODE(this->printUnused(uni);) if (kUnusedUniform != uni.fLocation) {
         set_uniform_matrix<N>::set(fGpu->glInterface(), uni.fLocation, arrayCount, matrices);
     }
 }
 
-template<> struct set_uniform_matrix<2> {
+template <>
+struct set_uniform_matrix<2> {
     inline static void set(const GrGLInterface* gli, const GrGLint loc, int cnt, const float m[]) {
         GR_GL_CALL(gli, UniformMatrix2fv(loc, cnt, false, m));
     }
 };
 
-template<> struct set_uniform_matrix<3> {
+template <>
+struct set_uniform_matrix<3> {
     inline static void set(const GrGLInterface* gli, const GrGLint loc, int cnt, const float m[]) {
         GR_GL_CALL(gli, UniformMatrix3fv(loc, cnt, false, m));
     }
 };
 
-template<> struct set_uniform_matrix<4> {
+template <>
+struct set_uniform_matrix<4> {
     inline static void set(const GrGLInterface* gli, const GrGLint loc, int cnt, const float m[]) {
         GR_GL_CALL(gli, UniformMatrix4fv(loc, cnt, false, m));
     }
 };
 
-void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u,
-                                                           int components,
+void GrGLProgramDataManager::setPathFragmentInputTransform(VaryingHandle u, int components,
                                                            const SkMatrix& matrix) const {
     SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
     const PathProcVarying& fragmentInput = fPathProcVaryings[u.toIndex()];
 
     SkASSERT((components == 2 && fragmentInput.fType == kVec2f_GrSLType) ||
-              (components == 3 && fragmentInput.fType == kVec3f_GrSLType));
+             (components == 3 && fragmentInput.fType == kVec3f_GrSLType));
 
-    fGpu->glPathRendering()->setProgramPathFragmentInputTransform(fProgramID,
-                                                                  fragmentInput.fLocation,
-                                                                  GR_GL_OBJECT_LINEAR,
-                                                                  components,
-                                                                  matrix);
+    fGpu->glPathRendering()->setProgramPathFragmentInputTransform(
+            fProgramID, fragmentInput.fLocation, GR_GL_OBJECT_LINEAR, components, matrix);
 }
 
 #ifdef SK_DEBUG

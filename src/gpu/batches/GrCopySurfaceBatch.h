@@ -20,15 +20,12 @@ public:
     /** This should not really be exposed as Create() will apply this clipping, but there is
      *  currently a workaround in GrContext::copySurface() for non-render target dsts that relies
      *  on it. */
-    static bool ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                       const GrSurface* src,
-                                       const SkIRect& srcRect,
-                                       const SkIPoint& dstPoint,
-                                       SkIRect* clippedSrcRect,
-                                       SkIPoint* clippedDstPoint);
+    static bool ClipSrcRectAndDstPoint(const GrSurface* dst, const GrSurface* src,
+                                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+                                       SkIRect* clippedSrcRect, SkIPoint* clippedDstPoint);
 
     static GrOp* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
+                        const SkIPoint& dstPoint);
 
     const char* name() const override { return "CopySurface"; }
 
@@ -42,10 +39,11 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("SRC: 0x%p, DST: 0x%p, SRECT: [L: %d, T: %d, R: %d, B: %d], "
-                      "DPT:[X: %d, Y: %d]",
-                      fDst.get(), fSrc.get(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
-                      fSrcRect.fBottom, fDstPoint.fX, fDstPoint.fY);
+        string.printf(
+                "SRC: 0x%p, DST: 0x%p, SRECT: [L: %d, T: %d, R: %d, B: %d], "
+                "DPT:[X: %d, Y: %d]",
+                fDst.get(), fSrc.get(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight,
+                fSrcRect.fBottom, fDstPoint.fX, fDstPoint.fY);
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -53,11 +51,7 @@ public:
 private:
     GrCopySurfaceBatch(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint)
-        : INHERITED(ClassID())
-        , fDst(dst)
-        , fSrc(src)
-        , fSrcRect(srcRect)
-        , fDstPoint(dstPoint) {
+        : INHERITED(ClassID()), fDst(dst), fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {
         SkRect bounds =
                 SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
                                  SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
@@ -79,9 +73,9 @@ private:
     }
 
     GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;
-    GrPendingIOResource<GrSurface, kRead_GrIOType>  fSrc;
-    SkIRect                                         fSrcRect;
-    SkIPoint                                        fDstPoint;
+    GrPendingIOResource<GrSurface, kRead_GrIOType> fSrc;
+    SkIRect fSrcRect;
+    SkIPoint fDstPoint;
 
     typedef GrOp INHERITED;
 };

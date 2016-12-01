@@ -23,9 +23,9 @@ public:
                                 GrGLSLProgramDataManager::UniformHandle* handle) {
         SkASSERT(uniformHandler && handle);
         if (colorSpaceXform) {
-            *handle = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
-                                                 kDefault_GrSLPrecision, "ColorXform",
-                                                 &fXformMatrix);
+            *handle =
+                    uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
+                                               kDefault_GrSLPrecision, "ColorXform", &fXformMatrix);
         } else {
             fXformMatrix = nullptr;
         }

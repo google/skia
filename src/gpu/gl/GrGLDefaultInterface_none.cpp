@@ -7,6 +7,4 @@
 
 #include "gl/GrGLInterface.h"
 
-const GrGLInterface* GrGLDefaultInterface() {
-    return nullptr;
-}
+const GrGLInterface* GrGLDefaultInterface() { return nullptr; }

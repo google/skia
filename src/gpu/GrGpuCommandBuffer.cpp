@@ -34,11 +34,8 @@ void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, const GrFixedClip&
     this->onClearStencilClip(rt, clip, insideStencilMask);
 }
 
-bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
-                              const GrPrimitiveProcessor& primProc,
-                              const GrMesh* mesh,
-                              int meshCount,
-                              const SkRect& bounds) {
+bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+                              const GrMesh* mesh, int meshCount, const SkRect& bounds) {
     if (primProc.numAttribs() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
@@ -46,4 +43,3 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
     this->onDraw(pipeline, primProc, mesh, meshCount, bounds);
     return true;
 }
-

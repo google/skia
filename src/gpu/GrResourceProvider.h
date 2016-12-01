@@ -11,8 +11,8 @@
 #include "GrBatchAtlas.h"
 #include "GrBuffer.h"
 #include "GrGpu.h"
-#include "GrTextureProvider.h"
 #include "GrPathRange.h"
+#include "GrTextureProvider.h"
 
 class GrBatchAtlas;
 class GrPath;
@@ -37,7 +37,8 @@ class GrResourceProvider : protected GrTextureProvider {
 public:
     GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner);
 
-    template <typename T> T* findAndRefTByUniqueKey(const GrUniqueKey& key) {
+    template <typename T>
+    T* findAndRefTByUniqueKey(const GrUniqueKey& key) {
         return static_cast<T*>(this->findAndRefResourceByUniqueKey(key));
     }
 
@@ -54,10 +55,8 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    const GrBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern,
-                                                     int patternSize,
-                                                     int reps,
-                                                     int vertCount,
+    const GrBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern, int patternSize,
+                                                     int reps, int vertCount,
                                                      const GrUniqueKey& key) {
         if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(key)) {
             return buffer;
@@ -73,8 +72,7 @@ public:
      * @ return the quad index buffer
      */
     const GrBuffer* refQuadIndexBuffer() {
-        if (GrBuffer* buffer =
-            this->findAndRefTByUniqueKey<GrBuffer>(fQuadIndexBufferKey)) {
+        if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(fQuadIndexBufferKey)) {
             return buffer;
         }
         return this->createQuadIndexBuffer();
@@ -86,8 +84,8 @@ public:
      */
     GrPath* createPath(const SkPath&, const GrStyle&);
     GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
-    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
+                              const GrStyle&);
 
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;
@@ -144,9 +142,9 @@ public:
      *
      *   @return                 An initialized GrBatchAtlas, or nullptr if creation fails
      */
-    std::unique_ptr<GrBatchAtlas> makeAtlas(GrPixelConfig, int width, int height,
-                                            int numPlotsX, int numPlotsY,
-                                            GrBatchAtlas::EvictionFunc func, void* data);
+    std::unique_ptr<GrBatchAtlas> makeAtlas(GrPixelConfig, int width, int height, int numPlotsX,
+                                            int numPlotsY, GrBatchAtlas::EvictionFunc func,
+                                            void* data);
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
@@ -156,23 +154,20 @@ public:
 
     const GrCaps* caps() { return this->gpu()->caps(); }
 
-     /**
-      * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
-      * texture has a format that cannot be textured from by Skia, but we want to raster to it.
-      *
-      * The texture is wrapped as borrowed. The texture object will not be freed once the
-      * render target is destroyed.
-      *
-      * @return GrRenderTarget object or NULL on failure.
-      */
-     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
+    /**
+     * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
+     * texture has a format that cannot be textured from by Skia, but we want to raster to it.
+     *
+     * The texture is wrapped as borrowed. The texture object will not be freed once the
+     * render target is destroyed.
+     *
+     * @return GrRenderTarget object or NULL on failure.
+     */
+    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
 
 private:
-    const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
-                                               int patternSize,
-                                               int reps,
-                                               int vertCount,
-                                               const GrUniqueKey& key);
+    const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern, int patternSize, int reps,
+                                               int vertCount, const GrUniqueKey& key);
 
     const GrBuffer* createQuadIndexBuffer();
 

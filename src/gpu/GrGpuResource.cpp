@@ -7,9 +7,9 @@
 
 #include "GrGpuResource.h"
 #include "GrContext.h"
-#include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
+#include "GrResourceCache.h"
 #include "SkTraceMemoryDump.h"
 
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
@@ -147,7 +147,7 @@ void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     static const uint32_t kFlag =
-        GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
+            GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, kFlag);
 }
 
@@ -158,8 +158,7 @@ bool GrGpuResource::notifyRefCountIsZero() const {
     }
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
-    uint32_t flags =
-        GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
+    uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
     if (!this->internalHasPendingIO()) {
         flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
     }
@@ -187,8 +186,7 @@ void GrGpuResource::makeBudgeted() {
 }
 
 void GrGpuResource::makeUnbudgeted() {
-    if (!this->wasDestroyed() && SkBudgeted::kYes == fBudgeted &&
-        !fUniqueKey.isValid()) {
+    if (!this->wasDestroyed() && SkBudgeted::kYes == fBudgeted && !fUniqueKey.isValid()) {
         fBudgeted = SkBudgeted::kNo;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }

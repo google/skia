@@ -18,24 +18,22 @@
 #include "batches/GrVertexBatch.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
+#include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 namespace {
 
 struct RectVertex {
-    SkPoint  fPos;
-    GrColor  fColor;
-    SkPoint  fCenter;
+    SkPoint fPos;
+    GrColor fColor;
+    SkPoint fCenter;
     SkVector fDownDir;
     SkScalar fHalfWidth;
     SkScalar fHalfHeight;
 };
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,18 +54,18 @@ class RectGeometryProcessor : public GrGeometryProcessor {
 public:
     RectGeometryProcessor(const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {
         this->initClassID<RectGeometryProcessor>();
-        fInPosition    = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                                kHigh_GrSLPrecision);
-        fInColor       = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-        fInRectEdge    = &this->addVertexAttrib("inRectEdge", kVec4f_GrVertexAttribType);
+        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
+                                             kHigh_GrSLPrecision);
+        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInRectEdge = &this->addVertexAttrib("inRectEdge", kVec4f_GrVertexAttribType);
         fInWidthHeight = &this->addVertexAttrib("inWidthHeight", kVec2f_GrVertexAttribType);
     }
 
     bool implementsDistanceVector() const override { return true; }
 
-    const Attribute* inPosition()    const { return fInPosition; }
-    const Attribute* inColor()       const { return fInColor; }
-    const Attribute* inRectEdge()    const { return fInRectEdge;    }
+    const Attribute* inPosition() const { return fInPosition; }
+    const Attribute* inColor() const { return fInColor; }
+    const Attribute* inRectEdge() const { return fInRectEdge; }
     const Attribute* inWidthHeight() const { return fInWidthHeight; }
 
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
@@ -80,7 +78,7 @@ public:
     public:
         GLSLProcessor() {}
 
-        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const RectGeometryProcessor& rgp = args.fGP.cast<RectGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -103,8 +101,8 @@ public:
             // setup the varying for the width/2+.5 and height/2+.5
             GrGLSLVertToFrag widthHeightVary(kVec2f_GrSLType);
             varyingHandler->addVarying("WidthHeight", &widthHeightVary);
-            vertBuilder->codeAppendf("%s = %s;",
-                                     widthHeightVary.vsOut(), rgp.inWidthHeight()->fName);
+            vertBuilder->codeAppendf("%s = %s;", widthHeightVary.vsOut(),
+                                     rgp.inWidthHeight()->fName);
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
@@ -115,12 +113,8 @@ public:
             this->setupPosition(vertBuilder, gpArgs, rgp.inPosition()->fName);
 
             // emit transforms
-            this->emitTransforms(vertBuilder,
-                                 varyingHandler,
-                                 uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 rgp.inPosition()->fName,
-                                 rgp.localMatrix(),
+            this->emitTransforms(vertBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
+                                 rgp.inPosition()->fName, rgp.localMatrix(),
                                  args.fFPCoordTransformHandler);
 
             // TODO: compute all these offsets, spans, and scales in the VS
@@ -139,8 +133,8 @@ public:
             fragBuilder->codeAppend("float scaleW = min(1.0, 2.0*insetW/spanW);");
             fragBuilder->codeAppend("float scaleH = min(1.0, 2.0*insetH/spanH);");
             // Compute the coverage for the rect's width
-            fragBuilder->codeAppendf("vec2 offset = %s.xy - %s.xy;",
-                                     positionVary.fsIn(), rectEdgeVary.fsIn());
+            fragBuilder->codeAppendf("vec2 offset = %s.xy - %s.xy;", positionVary.fsIn(),
+                                     rectEdgeVary.fsIn());
             fragBuilder->codeAppendf("float perpDot = abs(offset.x * %s.w - offset.y * %s.z);",
                                      rectEdgeVary.fsIn(), rectEdgeVary.fsIn());
 
@@ -153,8 +147,7 @@ public:
                     "float coverage = scaleW*clamp((%s.x-perpDot)/spanW, 0.0, 1.0);",
                     widthHeightVary.fsIn());
             // Compute the coverage for the rect's height and merge with the width
-            fragBuilder->codeAppendf("perpDot = abs(dot(offset, %s.zw));",
-                                   rectEdgeVary.fsIn());
+            fragBuilder->codeAppendf("perpDot = abs(dot(offset, %s.zw));", rectEdgeVary.fsIn());
 
             if (args.fDistanceVectorName) {
                 fragBuilder->codeAppendf("float heightDistance = %s.y - perpDot;",
@@ -168,28 +161,26 @@ public:
             fragBuilder->codeAppendf("%s = vec4(coverage);", args.fOutputCoverage);
 
             if (args.fDistanceVectorName) {
-                fragBuilder->codeAppend( "// Calculating distance vector\n");
-                fragBuilder->codeAppend( "vec2 dvAxis;");
-                fragBuilder->codeAppend( "float dvLength;");
+                fragBuilder->codeAppend("// Calculating distance vector\n");
+                fragBuilder->codeAppend("vec2 dvAxis;");
+                fragBuilder->codeAppend("float dvLength;");
 
-                fragBuilder->codeAppend( "if (heightDistance < widthDistance) {");
+                fragBuilder->codeAppend("if (heightDistance < widthDistance) {");
                 fragBuilder->codeAppendf("    dvAxis = %s.zw;", rectEdgeVary.fsIn());
-                fragBuilder->codeAppend( "    dvLength = heightDistance;");
-                fragBuilder->codeAppend( "} else {");
-                fragBuilder->codeAppendf("    dvAxis = vec2(-%s.w, %s.z);",
-                                         rectEdgeVary.fsIn(), rectEdgeVary.fsIn());
-                fragBuilder->codeAppend( "    dvLength = widthDistance;");
-                fragBuilder->codeAppend( "}");
+                fragBuilder->codeAppend("    dvLength = heightDistance;");
+                fragBuilder->codeAppend("} else {");
+                fragBuilder->codeAppendf("    dvAxis = vec2(-%s.w, %s.z);", rectEdgeVary.fsIn(),
+                                         rectEdgeVary.fsIn());
+                fragBuilder->codeAppend("    dvLength = widthDistance;");
+                fragBuilder->codeAppend("}");
 
-                fragBuilder->codeAppend( "float dvSign = sign(dot(offset, dvAxis));");
+                fragBuilder->codeAppend("float dvSign = sign(dot(offset, dvAxis));");
                 fragBuilder->codeAppendf("%s = vec4(dvSign * dvAxis, dvLength, 0.0);",
                                          args.fDistanceVectorName);
-
             }
         }
 
-        static void GenKey(const GrGeometryProcessor& gp,
-                           const GrShaderCaps&,
+        static void GenKey(const GrGeometryProcessor& gp, const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
@@ -197,7 +188,7 @@ public:
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                      FPCoordTransformIter&& transformIter) override {
             const RectGeometryProcessor& rgp = primProc.cast<RectGeometryProcessor>();
-            this->setTransformDataHelper(rgp.fLocalMatrix, pdman,&transformIter);
+            this->setTransformDataHelper(rgp.fLocalMatrix, pdman, &transformIter);
         }
 
     private:
@@ -213,7 +204,7 @@ public:
     }
 
 private:
-    SkMatrix         fLocalMatrix;
+    SkMatrix fLocalMatrix;
 
     const Attribute* fInPosition;
     const Attribute* fInColor;
@@ -228,8 +219,7 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(RectGeometryProcessor);
 
 sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return sk_sp<GrGeometryProcessor>(
-        new RectGeometryProcessor(GrTest::TestMatrix(d->fRandom)));
+    return sk_sp<GrGeometryProcessor>(new RectGeometryProcessor(GrTest::TestMatrix(d->fRandom)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,8 +230,7 @@ public:
 
     AnalyticRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                       const SkRect& croppedRect, const SkRect& bounds)
-        : INHERITED(ClassID())
-        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+        : INHERITED(ClassID()), fViewMatrixIfUsingLocalCoords(viewMatrix) {
         SkPoint center = SkPoint::Make(rect.centerX(), rect.centerY());
         viewMatrix.mapPoints(&center, 1);
         SkScalar halfWidth = viewMatrix.mapRadius(SkScalarHalf(rect.width()));
@@ -252,8 +241,8 @@ public:
         SkRect deviceSpaceCroppedRect = croppedRect;
         viewMatrix.mapRect(&deviceSpaceCroppedRect);
 
-        fGeoData.emplace_back(Geometry {color, center, downDir, halfWidth, halfHeight,
-                                        deviceSpaceCroppedRect});
+        fGeoData.emplace_back(
+                Geometry{color, center, downDir, halfWidth, halfHeight, deviceSpaceCroppedRect});
 
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
     }
@@ -264,19 +253,16 @@ public:
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
             string.appendf("Color: 0x%08x Rect [C:(%.2f, %.2f) D:<%.2f,%.3f> W/2:%.2f H/2:%.2f]\n",
-                           fGeoData[i].fColor,
-                           fGeoData[i].fCenter.x(), fGeoData[i].fCenter.y(),
+                           fGeoData[i].fColor, fGeoData[i].fCenter.x(), fGeoData[i].fCenter.y(),
                            fGeoData[i].fDownDir.x(), fGeoData[i].fDownDir.y(),
-                           fGeoData[i].fHalfWidth,
-                           fGeoData[i].fHalfHeight);
+                           fGeoData[i].fHalfWidth, fGeoData[i].fHalfHeight);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
@@ -305,8 +291,8 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(RectVertex));
         QuadHelper helper;
-        RectVertex* verts = reinterpret_cast<RectVertex*>(helper.init(target, vertexStride,
-                                                                      instanceCount));
+        RectVertex* verts =
+                reinterpret_cast<RectVertex*>(helper.init(target, vertexStride, instanceCount));
         if (!verts) {
             return;
         }
@@ -314,12 +300,12 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
-            GrColor  color       = geom.fColor;
-            SkPoint  center      = geom.fCenter;
-            SkVector downDir     = geom.fDownDir;
-            SkScalar halfWidth   = geom.fHalfWidth;
-            SkScalar halfHeight  = geom.fHalfHeight;
-            SkRect   croppedRect = geom.fCroppedRect;
+            GrColor color = geom.fColor;
+            SkPoint center = geom.fCenter;
+            SkVector downDir = geom.fDownDir;
+            SkScalar halfWidth = geom.fHalfWidth;
+            SkScalar halfHeight = geom.fHalfHeight;
+            SkRect croppedRect = geom.fCroppedRect;
 
             SkVector rightDir;
             downDir.rotateCCW(&rightDir);
@@ -374,22 +360,21 @@ private:
     }
 
     struct Geometry {
-        GrColor  fColor;
-        SkPoint  fCenter;
+        GrColor fColor;
+        SkPoint fCenter;
         SkVector fDownDir;
         SkScalar fHalfWidth;
         SkScalar fHalfHeight;
-        SkRect   fCroppedRect;
+        SkRect fCroppedRect;
     };
 
-    SkMatrix                     fViewMatrixIfUsingLocalCoords;
+    SkMatrix fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
 };
 
-GrDrawOp* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,
-                                                       const SkMatrix& viewMatrix,
+GrDrawOp* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color, const SkMatrix& viewMatrix,
                                                        const SkRect& rect,
                                                        const SkRect& croppedRect,
                                                        const SkRect& bounds) {

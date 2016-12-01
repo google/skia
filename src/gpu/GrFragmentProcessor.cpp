@@ -10,12 +10,12 @@
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrProcOptInfo.h"
+#include "effects/GrConstColorProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "effects/GrConstColorProcessor.h"
-#include "effects/GrXfermodeFragmentProcessor.h"
 
 GrFragmentProcessor::~GrFragmentProcessor() {
     // If we got here then our ref count must have reached zero, so we will have converted refs
@@ -26,8 +26,7 @@ GrFragmentProcessor::~GrFragmentProcessor() {
 }
 
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
-    if (this->classID() != that.classID() ||
-        !this->hasSameSamplersAndAccesses(that)) {
+    if (this->classID() != that.classID() || !this->hasSameSamplersAndAccesses(that)) {
         return false;
     }
     if (!this->hasSameTransforms(that)) {
@@ -100,7 +99,7 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
-    sk_sp<GrFragmentProcessor> fp) {
+        sk_sp<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
@@ -108,12 +107,9 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProcessor> fp) {
-
     class PremulInputFragmentProcessor : public GrFragmentProcessor {
     public:
-        PremulInputFragmentProcessor() {
-            this->initClassID<PremulInputFragmentProcessor>();
-        }
+        PremulInputFragmentProcessor() { this->initClassID<PremulInputFragmentProcessor>(); }
 
         const char* name() const override { return "PremultiplyInput"; }
 
@@ -125,8 +121,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                     fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, args.fInputColor);
-                    fragBuilder->codeAppendf("%s.rgb *= %s.a;",
-                                             args.fOutputColor, args.fInputColor);
+                    fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor,
+                                             args.fInputColor);
                 }
             };
             return new GLFP;
@@ -143,13 +139,12 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
     if (!fp) {
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { sk_make_sp<PremulInputFragmentProcessor>(), fp};
+    sk_sp<GrFragmentProcessor> fpPipeline[] = {sk_make_sp<PremulInputFragmentProcessor>(), fp};
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
-    sk_sp<GrFragmentProcessor> fp) {
-
+        sk_sp<GrFragmentProcessor> fp) {
     class PremulFragmentProcessor : public GrFragmentProcessor {
     public:
         PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
@@ -167,7 +162,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                     this->emitChild(0, nullptr, args);
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
-                                                                args.fInputColor);
+                                             args.fInputColor);
                     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
                 }
             };
@@ -197,16 +192,16 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             GrColor c1 = childOutput.color();
             GrColor color = 0x0;
             if (commonFlags & kR_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1)) <<
-                    GrColor_SHIFT_R;
+                color |= SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1))
+                         << GrColor_SHIFT_R;
             }
             if (commonFlags & kG_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1)) <<
-                    GrColor_SHIFT_G;
+                color |= SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1))
+                         << GrColor_SHIFT_G;
             }
             if (commonFlags & kB_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1)) <<
-                    GrColor_SHIFT_B;
+                color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1))
+                         << GrColor_SHIFT_B;
             }
             inout->setToOther(commonFlags, color, GrInvariantOutput::kWill_ReadInput);
         }
@@ -237,10 +232,9 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
                 GLFP() : fHaveSetColor(false) {}
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
-                    fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                 kVec4f_GrSLType,
-                                                                 kDefault_GrSLPrecision,
-                                                                 "Color", &colorName);
+                    fColorUni = args.fUniformHandler->addUniform(
+                            kFragment_GrShaderFlag, kVec4f_GrSLType, kDefault_GrSLPrecision,
+                            "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }
 
@@ -256,7 +250,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
                 }
 
                 GrGLSLProgramDataManager::UniformHandle fColorUni;
-                bool      fHaveSetColor;
+                bool fHaveSetColor;
                 GrColor4f fPreviousColor;
             };
 
@@ -264,8 +258,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
     private:
-        void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
-        {}
+        void onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                   GrProcessorKeyBuilder* b) const override {}
 
         bool onIsEqual(const GrFragmentProcessor& that) const override {
             return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
@@ -293,7 +287,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
                                                             int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
     public:
-        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt){
+        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt) {
             SkASSERT(cnt > 1);
             this->initClassID<SeriesFragmentProcessor>();
             for (int i = 0; i < cnt; ++i) {
@@ -344,8 +338,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
 
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcOptInfo info;
-    info.calcWithInitialValues(sk_sp_address_as_pointer_address(series), cnt,
-                               0x0, kNone_GrColorComponentFlags, false, false);
+    info.calcWithInitialValues(sk_sp_address_as_pointer_address(series), cnt, 0x0,
+                               kNone_GrColorComponentFlags, false, false);
     if (kRGBA_GrColorComponentFlags == info.validFlags()) {
         // TODO: We need to preserve 4f and color spaces during invariant processing. This color
         // has definitely lost precision, and could easily be in the wrong gamut (or have been
@@ -361,8 +355,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     if (firstIdx > 0 && info.inputColorIsUsed()) {
         // See comment above - need to preserve 4f and color spaces during invariant processing.
         sk_sp<GrFragmentProcessor> colorFP(GrConstColorProcessor::Make(
-            GrColor4f::FromGrColor(info.inputColorToFirstEffectiveProccesor()),
-            GrConstColorProcessor::kIgnore_InputMode));
+                GrColor4f::FromGrColor(info.inputColorToFirstEffectiveProccesor()),
+                GrConstColorProcessor::kIgnore_InputMode));
         cnt += 1;
         replacementSeries.reserve(cnt);
         replacementSeries.emplace_back(std::move(colorFP));
@@ -400,4 +394,3 @@ const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
     }
     return back;
 }
-

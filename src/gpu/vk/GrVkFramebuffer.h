@@ -20,8 +20,7 @@ class GrVkRenderPass;
 
 class GrVkFramebuffer : public GrVkResource {
 public:
-    static GrVkFramebuffer* Create(GrVkGpu* gpu,
-                                   int width, int height,
+    static GrVkFramebuffer* Create(GrVkGpu* gpu, int width, int height,
                                    const GrVkRenderPass* renderPass,
                                    const GrVkImageView* colorAttachment,
                                    const GrVkImageView* stencilAttachment);
@@ -42,7 +41,7 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkFramebuffer  fFramebuffer;
+    VkFramebuffer fFramebuffer;
 
     typedef GrVkResource INHERITED;
 };

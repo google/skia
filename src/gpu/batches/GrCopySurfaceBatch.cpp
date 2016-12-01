@@ -5,14 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrCopySurfaceBatch.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
-bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                                const GrSurface* src,
-                                                const SkIRect& srcRect,
-                                                const SkIPoint& dstPoint,
+bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst, const GrSurface* src,
+                                                const SkIRect& srcRect, const SkIPoint& dstPoint,
                                                 SkIRect* clippedSrcRect,
                                                 SkIPoint* clippedDstPoint) {
     *clippedSrcRect = srcRect;
@@ -60,7 +57,7 @@ bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
 }
 
 GrOp* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                    const SkIPoint& dstPoint) {
+                                 const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
     if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {

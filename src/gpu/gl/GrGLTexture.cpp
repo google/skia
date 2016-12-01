@@ -56,12 +56,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                         const IDDesc& idDesc,
-                         bool wasMipMapDataProvided)
+                         const IDDesc& idDesc, bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                highest_filter_mode(idDesc, desc.fConfig), wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -78,8 +76,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                highest_filter_mode(idDesc, desc.fConfig), wasMipMapDataProvided) {
     this->init(desc, idDesc);
 }
 
@@ -115,12 +112,10 @@ void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                    const SkString& dumpName) const {
     SkString texture_id;
     texture_id.appendU32(this->textureID());
-    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture",
-                                      texture_id.c_str());
+    traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_texture", texture_id.c_str());
 }
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             const IDDesc& idDesc) {
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
-

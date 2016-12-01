@@ -7,9 +7,7 @@
 
 #include "GrTextBlobCache.h"
 
-GrTextBlobCache::~GrTextBlobCache() {
-    this->freeAll();
-}
+GrTextBlobCache::~GrTextBlobCache() { this->freeAll(); }
 
 void GrTextBlobCache::freeAll() {
     SkTDynamicHash<GrAtlasTextBlob, GrAtlasTextBlob::Key>::Iter iter(&fCache);

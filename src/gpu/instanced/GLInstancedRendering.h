@@ -47,20 +47,19 @@ private:
         int fInstanceCount;
     };
 
-    GrGLuint                              fVertexArrayID;
-    sk_sp<GrBuffer>                       fInstanceBuffer;
-    sk_sp<GrBuffer>                       fDrawIndirectBuffer;
-    SkAutoSTMalloc<1024, GLDrawCmdInfo>   fGLDrawCmdsInfo;
-    GrGpuResource::UniqueID               fInstanceAttribsBufferUniqueId;
-    int                                   fInstanceAttribsBaseInstance;
+    GrGLuint fVertexArrayID;
+    sk_sp<GrBuffer> fInstanceBuffer;
+    sk_sp<GrBuffer> fDrawIndirectBuffer;
+    SkAutoSTMalloc<1024, GLDrawCmdInfo> fGLDrawCmdsInfo;
+    GrGpuResource::UniqueID fInstanceAttribsBufferUniqueId;
+    int fInstanceAttribsBaseInstance;
 
     class GLBatch;
 
-    friend class ::GrGLCaps; // For CheckSupport.
+    friend class ::GrGLCaps;  // For CheckSupport.
 
     typedef InstancedRendering INHERITED;
 };
-
 }
 
 #endif

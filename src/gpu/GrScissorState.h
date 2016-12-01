@@ -15,7 +15,10 @@ public:
     GrScissorState() : fEnabled(false) {}
     GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
     void setDisabled() { fEnabled = false; }
-    void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
+    void set(const SkIRect& rect) {
+        fRect = rect;
+        fEnabled = true;
+    }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
         if (!fEnabled) {
             this->set(rect);
@@ -24,8 +27,7 @@ public:
         return fRect.intersect(rect);
     }
     bool operator==(const GrScissorState& other) const {
-        return fEnabled == other.fEnabled &&
-                (false == fEnabled || fRect == other.fRect);
+        return fEnabled == other.fEnabled && (false == fEnabled || fRect == other.fRect);
     }
     bool operator!=(const GrScissorState& other) const { return !(*this == other); }
 
@@ -33,7 +35,7 @@ public:
     const SkIRect& rect() const { return fRect; }
 
 private:
-    bool    fEnabled;
+    bool fEnabled;
     SkIRect fRect;
 };
 

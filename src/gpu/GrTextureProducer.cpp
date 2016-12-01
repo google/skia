@@ -22,7 +22,7 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
     GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeRenderTargetContextWithFallback(
-        SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
+            SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
     if (!copyRTC) {
         return nullptr;
     }
@@ -41,16 +41,15 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
         (subset->width() != copyParams.fWidth || subset->height() != copyParams.fHeight)) {
         SkRect domain;
         domain.fLeft = (subset->fLeft + 0.5f) * sx;
-        domain.fTop = (subset->fTop + 0.5f)* sy;
+        domain.fTop = (subset->fTop + 0.5f) * sy;
         domain.fRight = (subset->fRight - 0.5f) * sx;
         domain.fBottom = (subset->fBottom - 0.5f) * sy;
         // This would cause us to read values from outside the subset. Surely, the caller knows
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
         paint.addColorFragmentProcessor(
-            GrTextureDomainEffect::Make(inputTexture, nullptr, SkMatrix::I(), domain,
-                                        GrTextureDomain::kClamp_Mode,
-                                        copyParams.fFilter));
+                GrTextureDomainEffect::Make(inputTexture, nullptr, SkMatrix::I(), domain,
+                                            GrTextureDomain::kClamp_Mode, copyParams.fFilter));
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
         paint.addColorTextureProcessor(inputTexture, nullptr, SkMatrix::I(), params);
@@ -86,19 +85,13 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
  *  latter is true we only need to consider whether the filter would extend beyond the rects.
  */
 GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
-                                    const SkRect& constraintRect,
-                                    FilterConstraint filterConstraint,
-                                    bool coordsLimitedToConstraintRect,
-                                    int texW, int texH,
-                                    const SkIRect* textureContentArea,
-                                    const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-                                    SkRect* domainRect) {
-
+        const SkRect& constraintRect, FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect, int texW, int texH, const SkIRect* textureContentArea,
+        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic, SkRect* domainRect) {
     SkASSERT(SkRect::MakeIWH(texW, texH).contains(constraintRect));
     // We only expect a content area rect if there is some non-content area.
-    SkASSERT(!textureContentArea ||
-             (!textureContentArea->contains(SkIRect::MakeWH(texW, texH)) &&
-              SkRect::Make(*textureContentArea).contains(constraintRect)));
+    SkASSERT(!textureContentArea || (!textureContentArea->contains(SkIRect::MakeWH(texW, texH)) &&
+                                     SkRect::Make(*textureContentArea).contains(constraintRect)));
 
     SkRect textureBounds = SkRect::MakeIWH(texW, texH);
     // If the src rectangle contains the whole texture then no need for a domain.
@@ -221,12 +214,9 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 }
 
 sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
-                                        GrTexture* texture,
-                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                        const SkMatrix& textureMatrix,
-                                        DomainMode domainMode,
-                                        const SkRect& domain,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
+        GrTexture* texture, sk_sp<GrColorSpaceXform> colorSpaceXform, const SkMatrix& textureMatrix,
+        DomainMode domainMode, const SkRect& domain,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
@@ -243,8 +233,8 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
             return GrBicubicEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
                                          domain);
         } else {
-            static const SkShader::TileMode kClampClamp[] =
-                { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+            static const SkShader::TileMode kClampClamp[] = {SkShader::kClamp_TileMode,
+                                                             SkShader::kClamp_TileMode};
             return GrBicubicEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
                                          kClampClamp);
         }

@@ -12,20 +12,19 @@
 
 #include "../private/GrAuditTrail.h"
 
-#define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
-#define RETURN_FALSE_IF_ABANDONED  if (fDrawingManager->wasAbandoned()) { return false; }
+#define ASSERT_SINGLE_OWNER SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
+#define RETURN_FALSE_IF_ABANDONED          \
+    if (fDrawingManager->wasAbandoned()) { \
+        return false;                      \
+    }
 
-GrTextureContext::GrTextureContext(GrContext* context,
-                                   GrDrawingManager* drawingMgr,
-                                   sk_sp<GrTextureProxy> textureProxy,
-                                   GrAuditTrail* auditTrail,
+GrTextureContext::GrTextureContext(GrContext* context, GrDrawingManager* drawingMgr,
+                                   sk_sp<GrTextureProxy> textureProxy, GrAuditTrail* auditTrail,
                                    GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, auditTrail, singleOwner)
     , fDrawingManager(drawingMgr)
     , fTextureProxy(std::move(textureProxy))
-    , fOpList(SkSafeRef(fTextureProxy->getLastTextureOpList()))
-{
+    , fOpList(SkSafeRef(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)
 }
 
@@ -49,7 +48,7 @@ GrTextureOpList* GrTextureContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpList || fOpList->isClosed()) {
+            if (!fOpList || fOpList->isClosed()) {
         fOpList = fDrawingManager->newOpList(fTextureProxy.get());
     }
 
@@ -61,7 +60,7 @@ bool GrTextureContext::copySurface(GrSurface* src, const SkIRect& srcRect,
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copySurface");
+            GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::copySurface");
 
     // TODO: this needs to be fixed up since it ends the deferrable of the GrTexture
     sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));

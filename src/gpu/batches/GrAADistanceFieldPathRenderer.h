@@ -58,7 +58,7 @@ private:
 
             bool operator==(const Key& that) const {
                 return fKey.count() == that.fKey.count() &&
-                        0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
+                       0 == memcmp(fKey.get(), that.fKey.get(), sizeof(uint32_t) * fKey.count());
             }
 
             int count32() const { return fKey.count(); }
@@ -69,16 +69,14 @@ private:
             // 64x64 max, 128x128 max) and the GrShape's key.
             SkAutoSTArray<24, uint32_t> fKey;
         };
-        Key                   fKey;
-        SkScalar              fScale;
+        Key fKey;
+        SkScalar fScale;
         GrBatchAtlas::AtlasID fID;
-        SkRect                fBounds;
-        SkIPoint16            fAtlasLocation;
+        SkRect fBounds;
+        SkIPoint16 fAtlasLocation;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
-        static inline const Key& GetKey(const ShapeData& data) {
-            return data.fKey;
-        }
+        static inline const Key& GetKey(const ShapeData& data) { return data.fKey; }
 
         static inline uint32_t Hash(Key key) {
             return SkOpts::hash(key.data(), sizeof(uint32_t) * key.count32());

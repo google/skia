@@ -23,9 +23,8 @@ void GrInvariantOutput::validate() const {
 
 bool GrInvariantOutput::colorComponentsAllEqual() const {
     unsigned colorA = GrColorUnpackA(fColor);
-    return(GrColorUnpackR(fColor) == colorA &&
-           GrColorUnpackG(fColor) == colorA &&
-           GrColorUnpackB(fColor) == colorA);
+    return (GrColorUnpackR(fColor) == colorA && GrColorUnpackG(fColor) == colorA &&
+            GrColorUnpackB(fColor) == colorA);
 }
 
-#endif // end DEBUG
+#endif  // end DEBUG

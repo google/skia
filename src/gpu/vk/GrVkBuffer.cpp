@@ -15,12 +15,14 @@
 #ifdef SK_DEBUG
 #define VALIDATE() this->validate()
 #else
-#define VALIDATE() do {} while(false)
+#define VALIDATE() \
+    do {           \
+    } while (false)
 #endif
 
 const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& desc) {
-    VkBuffer       buffer;
-    GrVkAlloc      alloc;
+    VkBuffer buffer;
+    GrVkAlloc alloc;
 
     // create the buffer object
     VkBufferCreateInfo bufInfo;
@@ -59,11 +61,7 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
         return nullptr;
     }
 
-    if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
-                                              buffer,
-                                              desc.fType,
-                                              desc.fDynamic,
-                                              &alloc)) {
+    if (!GrVkMemory::AllocAndBindBufferMemory(gpu, buffer, desc.fType, desc.fDynamic, &alloc)) {
         return nullptr;
     }
 
@@ -77,22 +75,19 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
     return resource;
 }
 
-void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
-                                  VkAccessFlags srcAccessMask,
-                                  VkAccessFlags dstAccesMask,
-                                  VkPipelineStageFlags srcStageMask,
-                                  VkPipelineStageFlags dstStageMask,
-                                  bool byRegion) const {
+void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu, VkAccessFlags srcAccessMask,
+                                  VkAccessFlags dstAccesMask, VkPipelineStageFlags srcStageMask,
+                                  VkPipelineStageFlags dstStageMask, bool byRegion) const {
     VkBufferMemoryBarrier bufferMemoryBarrier = {
-        VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER, // sType
-        NULL,                                    // pNext
-        srcAccessMask,                           // srcAccessMask
-        dstAccesMask,                            // dstAccessMask
-        VK_QUEUE_FAMILY_IGNORED,                 // srcQueueFamilyIndex
-        VK_QUEUE_FAMILY_IGNORED,                 // dstQueueFamilyIndex
-        this->buffer(),                          // buffer
-        0,                                       // offset
-        fDesc.fSizeInBytes,                      // size
+            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,  // sType
+            NULL,                                     // pNext
+            srcAccessMask,                            // srcAccessMask
+            dstAccesMask,                             // dstAccessMask
+            VK_QUEUE_FAMILY_IGNORED,                  // srcQueueFamilyIndex
+            VK_QUEUE_FAMILY_IGNORED,                  // dstQueueFamilyIndex
+            this->buffer(),                           // buffer
+            0,                                        // offset
+            fDesc.fSizeInBytes,                       // size
     };
 
     // TODO: restrict to area of buffer we're interested in
@@ -149,19 +144,15 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
             }
         } else {
             SkASSERT(fMapPtr);
-            this->addMemoryBarrier(gpu,
-                                   buffer_type_to_access_flags(fDesc.fType),
-                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                   VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                                   VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                   false);
+            this->addMemoryBarrier(gpu, buffer_type_to_access_flags(fDesc.fType),
+                                   VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                                   VK_PIPELINE_STAGE_TRANSFER_BIT, false);
         }
     }
 
     if (fDesc.fDynamic) {
         const GrVkAlloc& alloc = this->alloc();
-        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory,
-                                              alloc.fOffset + fOffset,
+        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory, alloc.fOffset + fOffset,
                                               size, 0, &fMapPtr));
         if (err) {
             fMapPtr = nullptr;
@@ -185,12 +176,9 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
         fMapPtr = nullptr;
     } else {
         gpu->updateBuffer(this, fMapPtr, this->offset(), size);
-        this->addMemoryBarrier(gpu,
-                               VK_ACCESS_TRANSFER_WRITE_BIT,
-                               buffer_type_to_access_flags(fDesc.fType),
-                               VK_PIPELINE_STAGE_TRANSFER_BIT,
-                               VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-                               false);
+        this->addMemoryBarrier(
+                gpu, VK_ACCESS_TRANSFER_WRITE_BIT, buffer_type_to_access_flags(fDesc.fType),
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, false);
     }
 }
 
@@ -218,7 +206,7 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 }
 
 void GrVkBuffer::validate() const {
-    SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType
-             || kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType
-             || kUniform_Type == fDesc.fType);
+    SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType ||
+             kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType ||
+             kUniform_Type == fDesc.fType);
 }

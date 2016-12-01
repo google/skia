@@ -6,8 +6,8 @@
  */
 
 #include "gl/GrGLPathRendering.h"
-#include "gl/GrGLUtil.h"
 #include "gl/GrGLGpu.h"
+#include "gl/GrGLUtil.h"
 
 #include "GrGLPath.h"
 #include "GrGLPathRange.h"
@@ -23,40 +23,27 @@
 // implementation. The call has a result value, and thus waiting for the call completion is needed.
 static const GrGLsizei kPathIDPreallocationAmount = 65536;
 
-static const GrGLenum gIndexType2GLType[] = {
-    GR_GL_UNSIGNED_BYTE,
-    GR_GL_UNSIGNED_SHORT,
-    GR_GL_UNSIGNED_INT
-};
+static const GrGLenum gIndexType2GLType[] = {GR_GL_UNSIGNED_BYTE, GR_GL_UNSIGNED_SHORT,
+                                             GR_GL_UNSIGNED_INT};
 
 GR_STATIC_ASSERT(0 == GrPathRange::kU8_PathIndexType);
 GR_STATIC_ASSERT(1 == GrPathRange::kU16_PathIndexType);
 GR_STATIC_ASSERT(2 == GrPathRange::kU32_PathIndexType);
 GR_STATIC_ASSERT(GrPathRange::kU32_PathIndexType == GrPathRange::kLast_PathIndexType);
 
-static const GrGLenum gXformType2GLType[] = {
-    GR_GL_NONE,
-    GR_GL_TRANSLATE_X,
-    GR_GL_TRANSLATE_Y,
-    GR_GL_TRANSLATE_2D,
-    GR_GL_TRANSPOSE_AFFINE_2D
-};
+static const GrGLenum gXformType2GLType[] = {GR_GL_NONE, GR_GL_TRANSLATE_X, GR_GL_TRANSLATE_Y,
+                                             GR_GL_TRANSLATE_2D, GR_GL_TRANSPOSE_AFFINE_2D};
 
 GR_STATIC_ASSERT(0 == GrPathRendering::kNone_PathTransformType);
 GR_STATIC_ASSERT(1 == GrPathRendering::kTranslateX_PathTransformType);
 GR_STATIC_ASSERT(2 == GrPathRendering::kTranslateY_PathTransformType);
 GR_STATIC_ASSERT(3 == GrPathRendering::kTranslate_PathTransformType);
 GR_STATIC_ASSERT(4 == GrPathRendering::kAffine_PathTransformType);
-GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
+GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType ==
+                 GrPathRendering::kLast_PathTransformType);
 
 #ifdef SK_DEBUG
-static const GrGLenum gXformType2ComponentCount[] = {
-    0,
-    1,
-    1,
-    2,
-    6
-};
+static const GrGLenum gXformType2ComponentCount[] = {0, 1, 1, 2, 6};
 
 static void verify_floats(const float* floats, int count) {
     for (int i = 0; i < count; ++i) {
@@ -78,11 +65,9 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
 }
 
 GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
-    : GrPathRendering(gpu)
-    , fPreallocatedPathCount(0) {
+    : GrPathRendering(gpu), fPreallocatedPathCount(0) {
     const GrGLInterface* glInterface = gpu->glInterface();
-    fCaps.bindFragmentInputSupport =
-        nullptr != glInterface->fFunctions.fBindFragmentInputLocation;
+    fCaps.bindFragmentInputSupport = nullptr != glInterface->fFunctions.fBindFragmentInputLocation;
 }
 
 GrGLPathRendering::~GrGLPathRendering() {
@@ -134,7 +119,7 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
+            gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
     GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
 
     if (glPath->shouldFill()) {
@@ -145,8 +130,7 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
-                                   const GrPrimitiveProcessor& primProc,
+void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
     if (!this->gpu()->flushGLState(pipeline, primProc, false)) {
@@ -158,7 +142,7 @@ void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
     GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
+            gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
     GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
 
     if (glPath->shouldStroke()) {
@@ -187,29 +171,27 @@ void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
     this->flushPathStencilSettings(stencilPassSettings);
     SkASSERT(!fHWPathStencilSettings.isTwoSided());
 
-
     const GrGLPathRange* glPathRange = static_cast<const GrGLPathRange*>(pathRange);
 
     GrGLenum fillMode =
-        gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
+            gr_stencil_op_to_gl_path_rendering_fill_mode(fHWPathStencilSettings.front().fPassOp);
     GrGLint writeMask = fHWPathStencilSettings.front().fWriteMask;
 
     if (glPathRange->shouldStroke()) {
         if (glPathRange->shouldFill()) {
-            GL_CALL(StencilFillPathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            fillMode, writeMask, gXformType2GLType[transformType],
-                            transformValues));
+            GL_CALL(StencilFillPathInstanced(count, gIndexType2GLType[indexType], indices,
+                                             glPathRange->basePathID(), fillMode, writeMask,
+                                             gXformType2GLType[transformType], transformValues));
         }
         GL_CALL(StencilThenCoverStrokePathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            0xffff, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
+                count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(), 0xffff,
+                writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES, gXformType2GLType[transformType],
+                transformValues));
     } else {
         GL_CALL(StencilThenCoverFillPathInstanced(
-                            count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(),
-                            fillMode, writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
-                            gXformType2GLType[transformType], transformValues));
+                count, gIndexType2GLType[indexType], indices, glPathRange->basePathID(), fillMode,
+                writeMask, GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES, gXformType2GLType[transformType],
+                transformValues));
     }
 }
 
@@ -239,10 +221,8 @@ void GrGLPathRendering::setProgramPathFragmentInputTransform(GrGLuint program, G
     GL_CALL(ProgramPathFragmentInputGen(program, location, genMode, components, coefficients));
 }
 
-void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
-                                            const SkISize& renderTargetSize,
+void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix, const SkISize& renderTargetSize,
                                             GrSurfaceOrigin renderTargetOrigin) {
-
     SkASSERT(this->gpu()->glCaps().shaderCaps()->pathRenderingSupport());
 
     if (renderTargetOrigin == fHWProjectionMatrixState.fRenderTargetOrigin &&
@@ -324,8 +304,7 @@ void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stenci
         GrStencilTest test = stencilSettings.front().fTest;
         uint16_t testMask = stencilSettings.front().fTestMask;
 
-        if (!fHWPathStencilSettings.isValid() ||
-            ref != fHWPathStencilSettings.front().fRef ||
+        if (!fHWPathStencilSettings.isValid() || ref != fHWPathStencilSettings.front().fRef ||
             test != fHWPathStencilSettings.front().fTest ||
             testMask != fHWPathStencilSettings.front().fTestMask) {
             GL_CALL(PathStencilFunc(GrToGLStencilFunc(test), ref, testMask));
@@ -334,6 +313,4 @@ void GrGLPathRendering::flushPathStencilSettings(const GrStencilSettings& stenci
     }
 }
 
-inline GrGLGpu* GrGLPathRendering::gpu() {
-    return static_cast<GrGLGpu*>(fGpu);
-}
+inline GrGLGpu* GrGLPathRendering::gpu() { return static_cast<GrGLGpu*>(fGpu); }

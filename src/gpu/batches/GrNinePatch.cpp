@@ -31,7 +31,7 @@ public:
     static const int kIndicesPerRect = 6;
 
     GrNonAANinePatchBatch(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect &dst)
+                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect& dst)
         : INHERITED(ClassID()) {
         Patch& patch = fPatches.push_back();
         patch.fViewMatrix = viewMatrix;
@@ -52,10 +52,8 @@ public:
         SkString str;
 
         for (int i = 0; i < fPatches.count(); ++i) {
-            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i,
-                        fPatches[i].fColor,
-                        fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
+            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        fPatches[i].fColor, fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
                         fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
@@ -64,8 +62,7 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setUnknownFourComponents();
         coverage->setKnownSingleComponent(0xff);
@@ -89,8 +86,7 @@ private:
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, numRects);
+                                     indexBuffer.get(), kVertsPerRect, kIndicesPerRect, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -111,8 +107,8 @@ private:
             intptr_t patchVerts = verts;
             while (patch.fIter->next(&srcR, &dstR)) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(verts);
-                positions->setRectFan(dstR.fLeft, dstR.fTop,
-                                      dstR.fRight, dstR.fBottom, vertexStride);
+                positions->setRectFan(dstR.fLeft, dstR.fTop, dstR.fRight, dstR.fBottom,
+                                      vertexStride);
 
                 // Setup local coords
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
@@ -123,7 +119,7 @@ private:
                 GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
                 for (int j = 0; j < 4; ++j) {
                     *vertColor = patch.fColor;
-                    vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+                    vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
                 }
                 verts += kVertsPerRect * vertexStride;
             }
@@ -131,8 +127,8 @@ private:
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                patch.fViewMatrix.mapPointsWithStride(positions, vertexStride,
-                        kVertsPerRect * patch.fIter->numRectsToDraw());
+                patch.fViewMatrix.mapPointsWithStride(
+                        positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
         helper.recordDraw(target, gp.get());

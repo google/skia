@@ -18,16 +18,11 @@ class SkStrokeRec;
 
 namespace GrAAStrokeRectBatch {
 
-GrDrawOp* CreateFillBetweenRects(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& devOutside,
-                                 const SkRect& devInside);
+GrDrawOp* CreateFillBetweenRects(GrColor color, const SkMatrix& viewMatrix,
+                                 const SkRect& devOutside, const SkRect& devInside);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkStrokeRec& stroke);
-
 }
 
 #endif

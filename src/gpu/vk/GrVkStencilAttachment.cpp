@@ -13,8 +13,7 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
-                                             const Format& format,
+GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu, const Format& format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              const GrVkImageView* stencilView)
@@ -26,11 +25,8 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
     stencilView->ref();
 }
 
-GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
-                                                     int width,
-                                                     int height,
-                                                     int sampleCnt,
-                                                     const Format& format) {
+GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu, int width, int height,
+                                                     int sampleCnt, const Format& format) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = format.fInternalFormat;
@@ -39,8 +35,8 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
     imageDesc.fLevels = 1;
     imageDesc.fSamples = sampleCnt;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    imageDesc.fUsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    imageDesc.fUsageFlags =
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     GrVkImageInfo info;
@@ -48,16 +44,15 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage,
-                                                           format.fInternalFormat,
+    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage, format.fInternalFormat,
                                                            GrVkImageView::kStencil_Type, 1);
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
     }
 
-    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
-                                                               info, imageView);
+    GrVkStencilAttachment* stencil =
+            new GrVkStencilAttachment(gpu, format, imageDesc, info, imageView);
     imageView->unref(gpu);
 
     return stencil;
@@ -72,7 +67,7 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= fFormat.fTotalBits;
-    size *= SkTMax(1,this->numSamples());
+    size *= SkTMax(1, this->numSamples());
     return static_cast<size_t>(size / 8);
 }
 

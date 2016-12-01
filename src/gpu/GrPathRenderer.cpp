@@ -7,13 +7,10 @@
 
 #include "GrPathRenderer.h"
 
-GrPathRenderer::GrPathRenderer() {
-}
+GrPathRenderer::GrPathRenderer() {}
 
-void GrPathRenderer::GetPathDevBounds(const SkPath& path,
-                                      int devW, int devH,
-                                      const SkMatrix& matrix,
-                                      SkRect* bounds) {
+void GrPathRenderer::GetPathDevBounds(const SkPath& path, int devW, int devH,
+                                      const SkMatrix& matrix, SkRect* bounds) {
     if (path.isInverseFillType()) {
         *bounds = SkRect::MakeWH(SkIntToScalar(devW), SkIntToScalar(devH));
         return;

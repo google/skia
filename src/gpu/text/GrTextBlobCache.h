@@ -41,10 +41,8 @@ public:
         return cacheBlob;
     }
 
-    GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob,
-                                      const GrAtlasTextBlob::Key& key,
-                                      const SkMaskFilter::BlurRec& blurRec,
-                                      const SkPaint& paint) {
+    GrAtlasTextBlob* createCachedBlob(const SkTextBlob* blob, const GrAtlasTextBlob::Key& key,
+                                      const SkMaskFilter::BlurRec& blurRec, const SkPaint& paint) {
         int glyphCount = 0;
         int runCount = 0;
         BlobGlyphCount(&glyphCount, &runCount, blob);
@@ -54,9 +52,7 @@ public:
         return cacheBlob;
     }
 
-    GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) {
-        return fCache.find(key);
-    }
+    GrAtlasTextBlob* find(const GrAtlasTextBlob::Key& key) { return fCache.find(key); }
 
     void remove(GrAtlasTextBlob* blob) {
         fCache.remove(blob->key());

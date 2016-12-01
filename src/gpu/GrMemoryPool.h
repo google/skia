@@ -76,43 +76,43 @@ private:
 
     struct BlockHeader {
 #ifdef SK_DEBUG
-        uint32_t     fBlockSentinal;  ///< known value to check for bad back pointers to blocks
+        uint32_t fBlockSentinal;  ///< known value to check for bad back pointers to blocks
 #endif
-        BlockHeader* fNext;      ///< doubly-linked list of blocks.
+        BlockHeader* fNext;  ///< doubly-linked list of blocks.
         BlockHeader* fPrev;
-        int          fLiveCount; ///< number of outstanding allocations in the
-                                 ///< block.
-        intptr_t     fCurrPtr;   ///< ptr to the start of blocks free space.
-        intptr_t     fPrevPtr;   ///< ptr to the last allocation made
-        size_t       fFreeSize;  ///< amount of free space left in the block.
-        size_t       fSize;      ///< total allocated size of the block
+        int fLiveCount;     ///< number of outstanding allocations in the
+                            ///< block.
+        intptr_t fCurrPtr;  ///< ptr to the start of blocks free space.
+        intptr_t fPrevPtr;  ///< ptr to the last allocation made
+        size_t fFreeSize;   ///< amount of free space left in the block.
+        size_t fSize;       ///< total allocated size of the block
     };
 
     static const uint32_t kAssignedMarker = 0xCDCDCDCD;
-    static const uint32_t kFreedMarker    = 0xEFEFEFEF;
+    static const uint32_t kFreedMarker = 0xEFEFEFEF;
 
     struct AllocHeader {
 #ifdef SK_DEBUG
-        uint32_t fSentinal;      ///< known value to check for memory stomping (e.g., (CD)*)
+        uint32_t fSentinal;  ///< known value to check for memory stomping (e.g., (CD)*)
 #endif
-        BlockHeader* fHeader;    ///< pointer back to the block header in which an alloc resides
+        BlockHeader* fHeader;  ///< pointer back to the block header in which an alloc resides
     };
 
-    size_t                            fSize;
-    size_t                            fMinAllocSize;
-    BlockHeader*                      fHead;
-    BlockHeader*                      fTail;
+    size_t fSize;
+    size_t fMinAllocSize;
+    BlockHeader* fHead;
+    BlockHeader* fTail;
 #ifdef SK_DEBUG
-    int                               fAllocationCnt;
-    int                               fAllocBlockCnt;
+    int fAllocationCnt;
+    int fAllocBlockCnt;
 #endif
 
 protected:
     enum {
         // We assume this alignment is good enough for everybody.
-        kAlignment    = 8,
-        kHeaderSize   = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
+        kAlignment = 8,
+        kHeaderSize = GR_CT_ALIGN_UP(sizeof(BlockHeader), kAlignment),
+        kPerAllocPad = GR_CT_ALIGN_UP(sizeof(AllocHeader), kAlignment),
     };
 };
 
@@ -144,7 +144,7 @@ protected:
  * GrMemoryPool does not.
  */
 template <class T>
-class GrObjectMemoryPool: public GrMemoryPool {
+class GrObjectMemoryPool : public GrMemoryPool {
 public:
     /**
      * Preallocates memory for preallocCount objects, and sets new block size to be
@@ -152,8 +152,7 @@ public:
      */
     GrObjectMemoryPool(size_t preallocCount, size_t minAllocCount)
         : GrMemoryPool(CountToSize(preallocCount),
-                       CountToSize(SkTMax(minAllocCount, kSmallestMinAllocCount))) {
-    }
+                       CountToSize(SkTMax(minAllocCount, kSmallestMinAllocCount))) {}
 
     /**
      * Allocates memory for an object, but doesn't construct or otherwise initialize it.
@@ -162,8 +161,7 @@ public:
     T* allocate() { return static_cast<T*>(GrMemoryPool::allocate(sizeof(T))); }
 
 private:
-    constexpr static size_t kTotalObjectSize =
-        kPerAllocPad + GR_CT_ALIGN_UP(sizeof(T), kAlignment);
+    constexpr static size_t kTotalObjectSize = kPerAllocPad + GR_CT_ALIGN_UP(sizeof(T), kAlignment);
 
     constexpr static size_t CountToSize(size_t count) {
         return kHeaderSize + count * kTotalObjectSize;
@@ -174,7 +172,7 @@ public:
      * Minimum value of minAllocCount constructor argument.
      */
     constexpr static size_t kSmallestMinAllocCount =
-        (GrMemoryPool::kSmallestMinAllocSize - kHeaderSize + kTotalObjectSize - 1) /
+            (GrMemoryPool::kSmallestMinAllocSize - kHeaderSize + kTotalObjectSize - 1) /
             kTotalObjectSize;
 };
 

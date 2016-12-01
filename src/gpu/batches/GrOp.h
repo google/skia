@@ -41,18 +41,18 @@ class GrBatchFlushState;
  */
 #define GR_OP_SPEW 0
 #if GR_OP_SPEW
-    #define GrOP_SPEW(code) code
-    #define GrOP_INFO(...) SkDebugf(__VA_ARGS__)
+#define GrOP_SPEW(code) code
+#define GrOP_INFO(...) SkDebugf(__VA_ARGS__)
 #else
-    #define GrOP_SPEW(code)
-    #define GrOP_INFO(...)
+#define GrOP_SPEW(code)
+#define GrOP_INFO(...)
 #endif
 
 // A helper macro to generate a class static id
-#define DEFINE_OP_CLASS_ID \
-    static uint32_t ClassID() { \
+#define DEFINE_OP_CLASS_ID                         \
+    static uint32_t ClassID() {                    \
         static uint32_t kClassID = GenOpClassID(); \
-        return kClassID; \
+        return kClassID;                           \
     }
 
 class GrOp : public GrNonAtomicRef<GrOp> {
@@ -88,27 +88,28 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
-    void* operator new(size_t size, void* placement) {
-        return ::operator new(size, placement);
-    }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
+    void* operator new(size_t size, void* placement) { return ::operator new(size, placement); }
+    void operator delete(void* target, void* placement) { ::operator delete(target, placement); }
 
     /**
      * Helper for safely down-casting to a GrOp subclass
      */
-    template <typename T> const T& cast() const {
+    template <typename T>
+    const T& cast() const {
         SkASSERT(T::ClassID() == this->classID());
         return *static_cast<const T*>(this);
     }
 
-    template <typename T> T* cast() {
+    template <typename T>
+    T* cast() {
         SkASSERT(T::ClassID() == this->classID());
         return static_cast<T*>(this);
     }
 
-    uint32_t classID() const { SkASSERT(kIllegalOpID != fClassID); return fClassID; }
+    uint32_t classID() const {
+        SkASSERT(kIllegalOpID != fClassID);
+        return fClassID;
+    }
 
     // We lazily initialize the uniqueID because currently the only user is GrAuditTrail
     uint32_t uniqueID() const {
@@ -119,9 +120,11 @@ public:
     }
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
-    /** Called prior to drawing. The op should perform any resource creation necessary to
-        to quickly issue its draw when draw is called. */
-    void prepare(GrBatchFlushState* state) { this->onPrepare(state); }
+            /** Called prior to drawing. The op should perform any resource creation necessary to
+                to quickly issue its draw when draw is called. */
+            void prepare(GrBatchFlushState* state) {
+        this->onPrepare(state);
+    }
 
     /** Issues the op's commands to GrGpu. */
     void draw(GrBatchFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
@@ -134,8 +137,8 @@ public:
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
         SkString string;
-        string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                       fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
+        string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", fBounds.fLeft,
+                       fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
 
@@ -145,24 +148,18 @@ protected:
      * purpose of ensuring that the fragment shader runs on partially covered pixels for
      * non-MSAA antialiasing.
      */
-    enum class HasAABloat {
-        kYes,
-        kNo
-    };
+    enum class HasAABloat { kYes, kNo };
     /**
      * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
      * points).
      */
-    enum class IsZeroArea {
-        kYes,
-        kNo
-    };
+    enum class IsZeroArea { kYes, kNo };
     void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
         fBounds = newBounds;
         this->setBoundsFlags(aabloat, zeroArea);
     }
-    void setTransformedBounds(const SkRect& srcBounds, const SkMatrix& m,
-                              HasAABloat aabloat, IsZeroArea zeroArea) {
+    void setTransformedBounds(const SkRect& srcBounds, const SkMatrix& m, HasAABloat aabloat,
+                              IsZeroArea zeroArea) {
         m.mapRect(&fBounds, srcBounds);
         this->setBoundsFlags(aabloat, zeroArea);
     }
@@ -204,7 +201,7 @@ private:
     void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
         fBoundsFlags = 0;
         fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
-        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+        fBoundsFlags |= (IsZeroArea::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
     }
 
     enum {
@@ -212,21 +209,20 @@ private:
     };
 
     enum BoundsFlags {
-        kAABloat_BoundsFlag                     = 0x1,
-        kZeroArea_BoundsFlag                    = 0x2,
-        SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
+        kAABloat_BoundsFlag = 0x1,
+        kZeroArea_BoundsFlag = 0x2,
+        SkDEBUGCODE(kUninitialized_BoundsFlag = 0x4)
     };
 
-    SkDEBUGCODE(bool                    fUsed;)
-    const uint16_t                      fClassID;
-    uint16_t                            fBoundsFlags;
+    SkDEBUGCODE(bool fUsed;) const uint16_t fClassID;
+    uint16_t fBoundsFlags;
 
     static uint32_t GenOpID() { return GenID(&gCurrOpUniqueID); }
-    mutable uint32_t                    fUniqueID;
-    SkRect                              fBounds;
+    mutable uint32_t fUniqueID;
+    SkRect fBounds;
 
-    static int32_t                      gCurrOpUniqueID;
-    static int32_t                      gCurrOpClassID;
+    static int32_t gCurrOpUniqueID;
+    static int32_t gCurrOpClassID;
 };
 
 #endif

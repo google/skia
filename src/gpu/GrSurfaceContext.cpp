@@ -9,13 +9,11 @@
 
 #include "../private/GrAuditTrail.h"
 
-
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrSurfaceContext::GrSurfaceContext(GrContext* context,
-                                   GrAuditTrail* auditTrail,
+GrSurfaceContext::GrSurfaceContext(GrContext* context, GrAuditTrail* auditTrail,
                                    GrSingleOwner* singleOwner)
     : fContext(context)
     , fAuditTrail(auditTrail)

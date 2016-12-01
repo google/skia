@@ -91,7 +91,7 @@ static SkString map_flags_to_string(uint32_t flags) {
         }
         SkDEBUGCODE(flags &= ~GrCaps::kSubset_MapFlag);
     }
-    SkASSERT(0 == flags); // Make sure we handled all the flags.
+    SkASSERT(0 == flags);  // Make sure we handled all the flags.
     return str;
 }
 
@@ -138,10 +138,7 @@ SkString GrCaps::dump() const {
     r.appendf("Max Window Rectangles              : %d\n", fMaxWindowRectangles);
 
     static const char* kInstancedSupportNames[] = {
-        "None",
-        "Basic",
-        "Multisampled",
-        "Mixed Sampled",
+            "None", "Basic", "Multisampled", "Mixed Sampled",
     };
     GR_STATIC_ASSERT(0 == (int)InstancedSupport::kNone);
     GR_STATIC_ASSERT(1 == (int)InstancedSupport::kBasic);
@@ -153,9 +150,7 @@ SkString GrCaps::dump() const {
               kInstancedSupportNames[(int)fInstancedSupport]);
 
     static const char* kBlendEquationSupportNames[] = {
-        "Basic",
-        "Advanced",
-        "Advanced Coherent",
+            "Basic", "Advanced", "Advanced Coherent",
     };
     GR_STATIC_ASSERT(0 == kBasic_BlendEquationSupport);
     GR_STATIC_ASSERT(1 == kAdvanced_BlendEquationSupport);
@@ -168,34 +163,34 @@ SkString GrCaps::dump() const {
               map_flags_to_string(fMapBufferFlags).c_str());
 
     static const char* kConfigNames[] = {
-        "Unknown",       // kUnknown_GrPixelConfig
-        "Alpha8",        // kAlpha_8_GrPixelConfig,
-        "Index8",        // kIndex_8_GrPixelConfig,
-        "RGB565",        // kRGB_565_GrPixelConfig,
-        "RGBA444",       // kRGBA_4444_GrPixelConfig,
-        "RGBA8888",      // kRGBA_8888_GrPixelConfig,
-        "BGRA8888",      // kBGRA_8888_GrPixelConfig,
-        "SRGBA8888",     // kSRGBA_8888_GrPixelConfig,
-        "SBGRA8888",     // kSBGRA_8888_GrPixelConfig,
-        "RGBA8888_sint", // kRGBA_8888_sint_GrPixelConfig,
-        "ETC1",          // kETC1_GrPixelConfig,
-        "LATC",          // kLATC_GrPixelConfig,
-        "R11EAC",        // kR11_EAC_GrPixelConfig,
-        "ASTC12x12",     // kASTC_12x12_GrPixelConfig,
-        "RGBAFloat",     // kRGBA_float_GrPixelConfig
-        "AlphaHalf",     // kAlpha_half_GrPixelConfig
-        "RGBAHalf",      // kRGBA_half_GrPixelConfig
+            "Unknown",        // kUnknown_GrPixelConfig
+            "Alpha8",         // kAlpha_8_GrPixelConfig,
+            "Index8",         // kIndex_8_GrPixelConfig,
+            "RGB565",         // kRGB_565_GrPixelConfig,
+            "RGBA444",        // kRGBA_4444_GrPixelConfig,
+            "RGBA8888",       // kRGBA_8888_GrPixelConfig,
+            "BGRA8888",       // kBGRA_8888_GrPixelConfig,
+            "SRGBA8888",      // kSRGBA_8888_GrPixelConfig,
+            "SBGRA8888",      // kSBGRA_8888_GrPixelConfig,
+            "RGBA8888_sint",  // kRGBA_8888_sint_GrPixelConfig,
+            "ETC1",           // kETC1_GrPixelConfig,
+            "LATC",           // kLATC_GrPixelConfig,
+            "R11EAC",         // kR11_EAC_GrPixelConfig,
+            "ASTC12x12",      // kASTC_12x12_GrPixelConfig,
+            "RGBAFloat",      // kRGBA_float_GrPixelConfig
+            "AlphaHalf",      // kAlpha_half_GrPixelConfig
+            "RGBAHalf",       // kRGBA_half_GrPixelConfig
     };
-    GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
-    GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kIndex_8_GrPixelConfig);
-    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
-    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
-    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
+    GR_STATIC_ASSERT(0 == kUnknown_GrPixelConfig);
+    GR_STATIC_ASSERT(1 == kAlpha_8_GrPixelConfig);
+    GR_STATIC_ASSERT(2 == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(3 == kRGB_565_GrPixelConfig);
+    GR_STATIC_ASSERT(4 == kRGBA_4444_GrPixelConfig);
+    GR_STATIC_ASSERT(5 == kRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(6 == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(7 == kSRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(8 == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9 == kRGBA_8888_sint_GrPixelConfig);
     GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
     GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
     GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
@@ -208,20 +203,18 @@ SkString GrCaps::dump() const {
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
 
-    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        r.appendf("%s is renderable: %s, with MSAA: %s\n",
-                  kConfigNames[i],
+        r.appendf("%s is renderable: %s, with MSAA: %s\n", kConfigNames[i],
                   gNY[this->isConfigRenderable(config, false)],
                   gNY[this->isConfigRenderable(config, true)]);
     }
 
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
-    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        r.appendf("%s is uploadable to a texture: %s\n",
-                  kConfigNames[i],
+        r.appendf("%s is uploadable to a texture: %s\n", kConfigNames[i],
                   gNY[this->isConfigTexturable(config)]);
     }
 

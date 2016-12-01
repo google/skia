@@ -12,8 +12,7 @@
 #include "GrVkGpu.h"
 #include "GrVkUniformHandler.h"
 
-GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
-                                                   VkDescriptorType type,
+GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu, VkDescriptorType type,
                                                    const GrVkUniformHandler* uniformHandler)
     : fPoolManager(type, gpu, uniformHandler) {
     if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
@@ -30,8 +29,7 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
     }
 }
 
-GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
-                                                   VkDescriptorType type,
+GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu, VkDescriptorType type,
                                                    const SkTArray<uint32_t>& visibilities)
     : fPoolManager(type, gpu, visibilities) {
     if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
@@ -40,8 +38,7 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
         }
     } else {
         SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-        SkASSERT(2 == visibilities.count() &&
-                 kVertex_GrShaderFlag == visibilities[0] &&
+        SkASSERT(2 == visibilities.count() && kVertex_GrShaderFlag == visibilities[0] &&
                  kFragment_GrShaderFlag == visibilities[1]);
         // We set the visibility of the first binding to the vertex shader and the second to the
         // fragment shader.
@@ -147,27 +144,18 @@ VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
 }
 
 GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
-        VkDescriptorType type,
-        GrVkGpu* gpu,
-        const GrVkUniformHandler* uniformHandler)
-    : fDescType(type)
-    , fCurrentDescriptorCount(0)
-    , fPool(nullptr) {
+        VkDescriptorType type, GrVkGpu* gpu, const GrVkUniformHandler* uniformHandler)
+    : fDescType(type), fCurrentDescriptorCount(0), fPool(nullptr) {
     this->init(gpu, type, uniformHandler, nullptr);
 }
 
 GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
-        VkDescriptorType type,
-        GrVkGpu* gpu,
-        const SkTArray<uint32_t>& visibilities)
-    : fDescType(type)
-    , fCurrentDescriptorCount(0)
-    , fPool(nullptr) {
+        VkDescriptorType type, GrVkGpu* gpu, const SkTArray<uint32_t>& visibilities)
+    : fDescType(type), fCurrentDescriptorCount(0), fPool(nullptr) {
     this->init(gpu, type, nullptr, &visibilities);
 }
 
-void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
-                                                           VkDescriptorType type,
+void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu, VkDescriptorType type,
                                                            const GrVkUniformHandler* uniformHandler,
                                                            const SkTArray<uint32_t>* visibilities) {
     if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
@@ -180,7 +168,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
         }
 
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
-            new VkDescriptorSetLayoutBinding[numSamplers]);
+                new VkDescriptorSetLayoutBinding[numSamplers]);
         for (uint32_t i = 0; i < numSamplers; ++i) {
             uint32_t visibility;
             if (uniformHandler) {
@@ -207,10 +195,8 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
         dsSamplerLayoutCreateInfo.pBindings = numSamplers ? dsSamplerBindings.get() : nullptr;
 
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
-                            CreateDescriptorSetLayout(gpu->device(),
-                                                      &dsSamplerLayoutCreateInfo,
-                                                      nullptr,
-                                                      &fDescLayout));
+                            CreateDescriptorSetLayout(gpu->device(), &dsSamplerLayoutCreateInfo,
+                                                      nullptr, &fDescLayout));
         fDescCountPerSet = numSamplers;
     } else {
         SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -237,10 +223,9 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
         uniformLayoutCreateInfo.bindingCount = 2;
         uniformLayoutCreateInfo.pBindings = dsUniBindings;
 
-        GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
-                                                                          &uniformLayoutCreateInfo,
-                                                                          nullptr,
-                                                                          &fDescLayout));
+        GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                            CreateDescriptorSetLayout(gpu->device(), &uniformLayoutCreateInfo,
+                                                      nullptr, &fDescLayout));
         fDescCountPerSet = kUniformDescPerSet;
     }
 
@@ -259,7 +244,6 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::getNewPool(GrVkGpu* gpu) {
         } else {
             fMaxDescriptors = kMaxDescriptors;
         }
-
     }
     fPool = gpu->resourceProvider().findOrCreateCompatibleDescriptorPool(fDescType,
                                                                          fMaxDescriptors);
@@ -284,15 +268,14 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::getNewDescriptorSet(GrVkGp
     dsAllocateInfo.descriptorPool = fPool->descPool();
     dsAllocateInfo.descriptorSetCount = 1;
     dsAllocateInfo.pSetLayouts = &fDescLayout;
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), AllocateDescriptorSets(gpu->device(),
-                                                                   &dsAllocateInfo,
-                                                                   ds));
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                        AllocateDescriptorSets(gpu->device(), &dsAllocateInfo, ds));
 }
 
 void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(const GrVkGpu* gpu) {
     if (fDescLayout) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDescLayout,
-                                                                  nullptr));
+        GR_VK_CALL(gpu->vkInterface(),
+                   DestroyDescriptorSetLayout(gpu->device(), fDescLayout, nullptr));
         fDescLayout = VK_NULL_HANDLE;
     }
 

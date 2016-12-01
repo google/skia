@@ -30,50 +30,46 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     const char* version = shaderCaps->versionDeclString();
     SkString vertShaderText(version);
     vertShaderText.append(
-        "#extension GL_ARB_separate_shader_objects : enable\n"
-        "#extension GL_ARB_shading_language_420pack : enable\n"
+            "#extension GL_ARB_separate_shader_objects : enable\n"
+            "#extension GL_ARB_shading_language_420pack : enable\n"
 
-        "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
+            "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
             "mediump vec4 uPosXform;"
             "mediump vec4 uTexCoordXform;"
-        "};"
-        "layout(location = 0) in highp vec2 inPosition;"
-        "layout(location = 1) out mediump vec2 vTexCoord;"
+            "};"
+            "layout(location = 0) in highp vec2 inPosition;"
+            "layout(location = 1) out mediump vec2 vTexCoord;"
 
-        "// Copy Program VS\n"
-        "void main() {"
+            "// Copy Program VS\n"
+            "void main() {"
             "vTexCoord = inPosition * uTexCoordXform.xy + uTexCoordXform.zw;"
             "gl_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
             "gl_Position.zw = vec2(0, 1);"
-        "}"
-    );
+            "}");
 
     SkString fragShaderText(version);
     fragShaderText.append(
-        "#extension GL_ARB_separate_shader_objects : enable\n"
-        "#extension GL_ARB_shading_language_420pack : enable\n"
+            "#extension GL_ARB_separate_shader_objects : enable\n"
+            "#extension GL_ARB_shading_language_420pack : enable\n"
 
-        "precision mediump float;"
+            "precision mediump float;"
 
-        "layout(set = 1, binding = 0) uniform mediump sampler2D uTextureSampler;"
-        "layout(location = 1) in mediump vec2 vTexCoord;"
-        "layout(location = 0, index = 0) out mediump vec4 fsColorOut;"
+            "layout(set = 1, binding = 0) uniform mediump sampler2D uTextureSampler;"
+            "layout(location = 1) in mediump vec2 vTexCoord;"
+            "layout(location = 0, index = 0) out mediump vec4 fsColorOut;"
 
-        "// Copy Program FS\n"
-        "void main() {"
+            "// Copy Program FS\n"
+            "void main() {"
             "fsColorOut = texture(uTextureSampler, vTexCoord);"
-        "}"
-    );
+            "}");
 
-    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(),
-                                 VK_SHADER_STAGE_VERTEX_BIT,
+    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(), VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0])) {
         this->destroyResources(gpu);
         return false;
     }
 
-    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(),
-                                 VK_SHADER_STAGE_FRAGMENT_BIT,
+    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(), VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1])) {
         this->destroyResources(gpu);
         return false;
@@ -90,7 +86,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 
     resourceProvider.getSamplerDescriptorSetHandle(visibilityArray, &fSamplerDSHandle);
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
-        resourceProvider.getSamplerDSLayout(fSamplerDSHandle);
+            resourceProvider.getSamplerDSLayout(fSamplerDSHandle);
 
     // Create the VkPipelineLayout
     VkPipelineLayoutCreateInfo layoutCreateInfo;
@@ -103,21 +99,15 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreatePipelineLayout(gpu->device(),
-                                                                       &layoutCreateInfo,
-                                                                       nullptr,
-                                                                       &fPipelineLayout));
+    VkResult err = GR_VK_CALL(
+            gpu->vkInterface(),
+            CreatePipelineLayout(gpu->device(), &layoutCreateInfo, nullptr, &fPipelineLayout));
     if (err) {
         this->destroyResources(gpu);
         return false;
     }
 
-    static const float vdata[] = {
-        0, 0,
-        0, 1,
-        1, 0,
-        1, 1
-    };
+    static const float vdata[] = {0, 0, 0, 1, 1, 0, 1, 1};
     fVertexBuffer.reset(GrVkVertexBuffer::Create(gpu, sizeof(vdata), false));
     SkASSERT(fVertexBuffer.get());
     fVertexBuffer->updateData(vdata, sizeof(vdata));
@@ -129,11 +119,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     return true;
 }
 
-bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
-                                        GrSurface* dst,
-                                        GrSurface* src,
-                                        const SkIRect& srcRect,
-                                        const SkIPoint& dstPoint) {
+bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu, GrSurface* dst, GrSurface* src,
+                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
     if (!gpu->vkCaps().supportsCopiesAsDraws()) {
         return false;
     }
@@ -149,10 +136,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     }
 
     if (VK_NULL_HANDLE == fVertShaderModule) {
-        SkASSERT(VK_NULL_HANDLE == fFragShaderModule &&
-                 VK_NULL_HANDLE == fPipelineLayout &&
-                 nullptr == fVertexBuffer.get() &&
-                 nullptr == fUniformBuffer);
+        SkASSERT(VK_NULL_HANDLE == fFragShaderModule && VK_NULL_HANDLE == fPipelineLayout &&
+                 nullptr == fVertexBuffer.get() && nullptr == fUniformBuffer);
         if (!this->createCopyProgram(gpu)) {
             SkDebugf("Failed to create copy program.\n");
             return false;
@@ -161,9 +146,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrVkResourceProvider& resourceProv = gpu->resourceProvider();
 
-    GrVkCopyPipeline* pipeline = resourceProv.findOrCreateCopyPipeline(rt,
-                                                                       fShaderStageInfo,
-                                                                       fPipelineLayout);
+    GrVkCopyPipeline* pipeline =
+            resourceProv.findOrCreateCopyPipeline(rt, fShaderStageInfo, fPipelineLayout);
     if (!pipeline) {
         return false;
     }
@@ -184,7 +168,6 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         dy1 = -dy1;
     }
 
-
     float sx0 = (float)srcRect.fLeft;
     float sx1 = (float)(srcRect.fLeft + w);
     float sy0 = (float)srcRect.fTop;
@@ -201,8 +184,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     sy0 /= sh;
     sy1 /= sh;
 
-    float uniData[] = { dx1 - dx0, dy1 - dy0, dx0, dy0,    // posXform
-                        sx1 - sx0, sy1 - sy0, sx0, sy0 };  // texCoordXform
+    float uniData[] = {dx1 - dx0, dy1 - dy0, dx0, dy0,   // posXform
+                       sx1 - sx0, sy1 - sy0, sx0, sy0};  // texCoordXform
 
     fUniformBuffer->updateData(gpu, uniData, sizeof(uniData), nullptr);
 
@@ -226,19 +209,17 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     descriptorWrites.pBufferInfo = &uniBufferInfo;
     descriptorWrites.pTexelBufferView = nullptr;
 
-    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(),
-                                                        1,
-                                                        &descriptorWrites,
-                                                        0, nullptr));
+    GR_VK_CALL(gpu->vkInterface(),
+               UpdateDescriptorSets(gpu->device(), 1, &descriptorWrites, 0, nullptr));
 
     // UPDATE SAMPLER DESCRIPTOR SET
     const GrVkDescriptorSet* samplerDS =
-        gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
+            gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
 
     GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
 
-    GrVkSampler* sampler =
-        resourceProv.findOrCreateCompatibleSampler(params, srcTex->texturePriv().maxMipMapLevel());
+    GrVkSampler* sampler = resourceProv.findOrCreateCompatibleSampler(
+            params, srcTex->texturePriv().maxMipMapLevel());
 
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
@@ -259,12 +240,9 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     writeInfo.pBufferInfo = nullptr;
     writeInfo.pTexelBufferView = nullptr;
 
-    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(),
-                                                        1,
-                                                        &writeInfo,
-                                                        0, nullptr));
+    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(), 1, &writeInfo, 0, nullptr));
 
-    VkDescriptorSet vkDescSets[] = { uniformDS->descriptorSet(), samplerDS->descriptorSet() };
+    VkDescriptorSet vkDescSets[] = {uniformDS->descriptorSet(), samplerDS->descriptorSet()};
 
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(srcTex->asRenderTarget());
     if (texRT) {
@@ -279,37 +257,26 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     // Change layouts of rt and texture
     GrVkImage* targetImage = rt->msaaImage() ? rt->msaaImage() : rt;
-    targetImage->setImageLayout(gpu,
-                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    targetImage->setImageLayout(gpu, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                false);
+                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, false);
 
-    srcTex->setImageLayout(gpu,
-                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                           VK_ACCESS_SHADER_READ_BIT,
-                           VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                           false);
+    srcTex->setImageLayout(gpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_SHADER_READ_BIT,
+                           VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, false);
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                             VK_ATTACHMENT_STORE_OP_STORE);
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                               VK_ATTACHMENT_STORE_OP_STORE);
     const GrVkRenderPass* renderPass;
-    const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-        rt->compatibleRenderPassHandle();
+    const GrVkResourceProvider::CompatibleRPHandle& rpHandle = rt->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
-        renderPass = gpu->resourceProvider().findRenderPass(rpHandle,
-                                                            vkColorOps,
-                                                            vkStencilOps);
+        renderPass = gpu->resourceProvider().findRenderPass(rpHandle, vkColorOps, vkStencilOps);
     } else {
-        renderPass = gpu->resourceProvider().findRenderPass(*rt,
-                                                            vkColorOps,
-                                                            vkStencilOps);
+        renderPass = gpu->resourceProvider().findRenderPass(*rt, vkColorOps, vkStencilOps);
     }
 
     SkASSERT(renderPass->isCompatible(*rt->simpleRenderPass()));
-
 
     cmdBuffer->beginRenderPass(gpu, renderPass, 0, nullptr, *rt, bounds, false);
     cmdBuffer->bindPipeline(gpu, pipeline);
@@ -326,15 +293,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     descriptorResources.push_back(srcTex->textureView(true));
     descriptorResources.push_back(srcTex->resource());
 
-    cmdBuffer->bindDescriptorSets(gpu,
-                                  descriptorRecycledResources,
-                                  descriptorResources,
-                                  fPipelineLayout,
-                                  0,
-                                  2,
-                                  vkDescSets,
-                                  0,
-                                  nullptr);
+    cmdBuffer->bindDescriptorSets(gpu, descriptorRecycledResources, descriptorResources,
+                                  fPipelineLayout, 0, 2, vkDescSets, 0, nullptr);
 
     // Set Dynamic viewport and stencil
     // We always use one viewport the size of the RT
@@ -371,20 +331,20 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
 void GrVkCopyManager::destroyResources(GrVkGpu* gpu) {
     if (VK_NULL_HANDLE != fVertShaderModule) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyShaderModule(gpu->device(), fVertShaderModule,
-                                                           nullptr));
+        GR_VK_CALL(gpu->vkInterface(),
+                   DestroyShaderModule(gpu->device(), fVertShaderModule, nullptr));
         fVertShaderModule = VK_NULL_HANDLE;
     }
 
     if (VK_NULL_HANDLE != fFragShaderModule) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyShaderModule(gpu->device(), fFragShaderModule,
-                                                           nullptr));
+        GR_VK_CALL(gpu->vkInterface(),
+                   DestroyShaderModule(gpu->device(), fFragShaderModule, nullptr));
         fFragShaderModule = VK_NULL_HANDLE;
     }
 
     if (VK_NULL_HANDLE != fPipelineLayout) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(), fPipelineLayout,
-                                                             nullptr));
+        GR_VK_CALL(gpu->vkInterface(),
+                   DestroyPipelineLayout(gpu->device(), fPipelineLayout, nullptr));
         fPipelineLayout = VK_NULL_HANDLE;
     }
 

@@ -28,8 +28,8 @@ GrVkUniformBuffer* GrVkUniformBuffer::Create(GrVkGpu* gpu, size_t size) {
     desc.fDynamic = true;
     desc.fType = GrVkBuffer::kUniform_Type;
     desc.fSizeInBytes = size;
-    GrVkUniformBuffer* buffer = new GrVkUniformBuffer(gpu, desc,
-                                                      (const GrVkUniformBuffer::Resource*) resource);
+    GrVkUniformBuffer* buffer =
+            new GrVkUniformBuffer(gpu, desc, (const GrVkUniformBuffer::Resource*)resource);
     if (!buffer) {
         // this will destroy anything we got from the resource provider,
         // but this avoids a conditional
@@ -44,8 +44,8 @@ const GrVkResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size)
         return nullptr;
     }
 
-    VkBuffer       buffer;
-    GrVkAlloc      alloc;
+    VkBuffer buffer;
+    GrVkAlloc alloc;
 
     // create the buffer object
     VkBufferCreateInfo bufInfo;
@@ -64,9 +64,7 @@ const GrVkResource* GrVkUniformBuffer::CreateResource(GrVkGpu* gpu, size_t size)
         return nullptr;
     }
 
-    if (!GrVkMemory::AllocAndBindBufferMemory(gpu,
-                                              buffer,
-                                              kUniform_Type,
+    if (!GrVkMemory::AllocAndBindBufferMemory(gpu, buffer, kUniform_Type,
                                               true,  // dynamic
                                               &alloc)) {
         return nullptr;
@@ -91,7 +89,7 @@ const GrVkBuffer::Resource* GrVkUniformBuffer::createResource(GrVkGpu* gpu,
     } else {
         vkResource = CreateResource(gpu, descriptor.fSizeInBytes);
     }
-    return (const GrVkBuffer::Resource*) vkResource;
+    return (const GrVkBuffer::Resource*)vkResource;
 }
 
 void GrVkUniformBuffer::Resource::onRecycle(GrVkGpu* gpu) const {

@@ -35,9 +35,7 @@ public:
      * instance, if sampleShading is 0.5 in MSAA16 mode, the fragment shader will run a minimum of
      * 8 times per pixel. The default value is zero.
      */
-    float getSampleShading() const override {
-        return fSampleShading;
-    }
+    float getSampleShading() const override { return fSampleShading; }
 
 protected:
     /**
@@ -81,9 +79,7 @@ protected:
         fLocalCoordsType = kHasTransformed_LocalCoordsType;
     }
 
-    void setSampleShading(float sampleShading) {
-        fSampleShading = sampleShading;
-    }
+    void setSampleShading(float sampleShading) { fSampleShading = sampleShading; }
 
 private:
     bool fWillUseGeoShader;

@@ -13,7 +13,7 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-namespace { // This cannot be static because it is used as a template parameter.
+namespace {  // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
     return strcmp(a.c_str(), b.c_str()) < 0;
 }
@@ -25,10 +25,8 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
         return -1;
     }
     SkString extensionStr(ext);
-    int idx = SkTSearch<SkString, extension_compare>(&strings.front(),
-                                                     strings.count(),
-                                                     extensionStr,
-                                                     sizeof(SkString));
+    int idx = SkTSearch<SkString, extension_compare>(&strings.front(), strings.count(),
+                                                     extensionStr, sizeof(SkString));
     return idx;
 }
 
@@ -62,12 +60,10 @@ static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
     }
 }
 
-bool GrGLExtensions::init(GrGLStandard standard,
-                          GrGLFunction<GrGLGetStringProc> getString,
+bool GrGLExtensions::init(GrGLStandard standard, GrGLFunction<GrGLGetStringProc> getString,
                           GrGLFunction<GrGLGetStringiProc> getStringi,
                           GrGLFunction<GrGLGetIntegervProc> getIntegerv,
-                          GrGLFunction<GrEGLQueryStringProc> queryString,
-                          GrEGLDisplay eglDisplay) {
+                          GrGLFunction<GrEGLQueryStringProc> queryString, GrEGLDisplay eglDisplay) {
     fInitialized = false;
     fStrings->reset();
 
@@ -77,7 +73,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
 
     // glGetStringi and indexed extensions were added in version 3.0 of desktop GL and ES.
     const GrGLubyte* verString = getString(GR_GL_VERSION);
-    GrGLVersion version = GrGLGetVersionFromString((const char*) verString);
+    GrGLVersion version = GrGLGetVersionFromString((const char*)verString);
     if (GR_GL_INVALID_VER == version) {
         return false;
     }
@@ -92,11 +88,11 @@ bool GrGLExtensions::init(GrGLStandard standard,
         getIntegerv(GR_GL_NUM_EXTENSIONS, &extensionCnt);
         fStrings->push_back_n(extensionCnt);
         for (int i = 0; i < extensionCnt; ++i) {
-            const char* ext = (const char*) getStringi(GR_GL_EXTENSIONS, i);
+            const char* ext = (const char*)getStringi(GR_GL_EXTENSIONS, i);
             (*fStrings)[i] = ext;
         }
     } else {
-        const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
+        const char* extensions = (const char*)getString(GR_GL_EXTENSIONS);
         if (!extensions) {
             return false;
         }

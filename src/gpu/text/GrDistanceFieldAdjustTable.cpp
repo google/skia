@@ -11,7 +11,7 @@
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
 
-SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma) {
+        SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma) {
     // This is used for an approximation of the mask gamma hack, used by raster and bitmap
     // text. The mask gamma hack is based off of guessing what the blend color is going to
     // be, and adjusting the mask so that when run through the linear blend will
@@ -56,8 +56,7 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
     SkScalar contrast = 0.5f;
 #endif
 
-    size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
-        &width, &height);
+    size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma, &width, &height);
 
     SkASSERT(kExpectedDistanceAdjustTableSize == height);
     SkScalar* table = new SkScalar[height];
@@ -68,7 +67,7 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
     // find the inverse points where we cross 0.5
     // binsearch might be better, but we only need to do this once on creation
     for (int row = 0; row < height; ++row) {
-        uint8_t* rowPtr = data.get() + row*width;
+        uint8_t* rowPtr = data.get() + row * width;
         for (int col = 0; col < width - 1; ++col) {
             if (rowPtr[col] <= 127 && rowPtr[col + 1] >= 128) {
                 // compute point where a mask value will give us a result of 0.5
@@ -77,11 +76,12 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
 
                 // compute t value for that alpha
                 // this is an approximate inverse for smoothstep()
-                float t = borderAlpha*(borderAlpha*(4.0f*borderAlpha - 6.0f) + 5.0f) / 3.0f;
+                float t = borderAlpha * (borderAlpha * (4.0f * borderAlpha - 6.0f) + 5.0f) / 3.0f;
 
                 // compute distance which gives us that t value
-                const float kDistanceFieldAAFactor = 0.65f; // should match SK_DistanceFieldAAFactor
-                float d = 2.0f*kDistanceFieldAAFactor*t - kDistanceFieldAAFactor;
+                const float kDistanceFieldAAFactor =
+                        0.65f;  // should match SK_DistanceFieldAAFactor
+                float d = 2.0f * kDistanceFieldAAFactor * t - kDistanceFieldAAFactor;
 
                 table[row] = d;
                 break;

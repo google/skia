@@ -20,13 +20,9 @@ public:
         return GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState;
     }
 
-    const SkRect& getBounds() const {
-       return fBounds;
-    }
+    const SkRect& getBounds() const { return fBounds; }
 
-    void setBounds(SkRect& bounds) {
-       fBounds = bounds;
-    }
+    void setBounds(SkRect& bounds) { fBounds = bounds; }
 
 private:
     SkRect fBounds;

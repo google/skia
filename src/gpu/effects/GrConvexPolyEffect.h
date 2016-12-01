@@ -48,7 +48,8 @@ public:
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return nullptr. If offset is non-nullptr, then
+     * inverse filled, or has too many edges, this will return nullptr. If offset is non-nullptr,
+     * then
      * the path is translated by the vector.
      */
     static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&,
@@ -80,14 +81,13 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrPrimitiveEdgeType    fEdgeType;
-    int                    fEdgeCount;
-    SkScalar               fEdges[3 * kMaxEdges];
+    GrPrimitiveEdgeType fEdgeType;
+    int fEdgeCount;
+    SkScalar fEdges[3 * kMaxEdges];
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrFragmentProcessor INHERITED;
 };
-
 
 #endif

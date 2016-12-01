@@ -12,16 +12,15 @@
 #include "GrDrawOp.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "GrPathRendering.h"
 #include "GrPathProcessor.h"
+#include "GrPathRendering.h"
 #include "GrStencilSettings.h"
 
 #include "SkTLList.h"
 
 class GrDrawPathBatchBase : public GrDrawOp {
 public:
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         color->setKnownFourComponents(fColor);
         coverage->setKnownSingleComponent(0xff);
@@ -30,13 +29,10 @@ public:
 protected:
     GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
                         GrPathRendering::FillType fill)
-        : INHERITED(classID)
-        , fViewMatrix(viewMatrix)
-        , fColor(initialColor)
-        , fFillType(fill) {}
+        : INHERITED(classID), fViewMatrix(viewMatrix), fColor(initialColor), fFillType(fill) {}
 
     const GrStencilSettings& stencilPassSettings() const {
-        SkASSERT(!fStencilPassSettings.isDisabled()); // This shouldn't be called before onPrepare.
+        SkASSERT(!fStencilPassSettings.isDisabled());  // This shouldn't be called before onPrepare.
         return fStencilPassSettings;
     }
     const GrXPOverridesForBatch& overrides() const { return fOverrides; }
@@ -50,13 +46,13 @@ private:
         fOverrides = overrides;
     }
 
-    void onPrepare(GrBatchFlushState*) override; // Initializes fStencilPassSettings.
+    void onPrepare(GrBatchFlushState*) override;  // Initializes fStencilPassSettings.
 
-    SkMatrix                                                fViewMatrix;
-    GrColor                                                 fColor;
-    GrPathRendering::FillType                               fFillType;
-    GrStencilSettings                                       fStencilPassSettings;
-    GrXPOverridesForBatch                                   fOverrides;
+    SkMatrix fViewMatrix;
+    GrColor fColor;
+    GrPathRendering::FillType fFillType;
+    GrStencilSettings fStencilPassSettings;
+    GrXPOverridesForBatch fOverrides;
 
     typedef GrDrawOp INHERITED;
 };
@@ -75,8 +71,7 @@ public:
 
 private:
     GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
-        : INHERITED(ClassID(), viewMatrix, color, path->getFillType())
-        , fPath(path) {
+        : INHERITED(ClassID(), viewMatrix, color, path->getFillType()), fPath(path) {
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
@@ -110,8 +105,7 @@ public:
             instanceData->fTransformType = transformType;
             instanceData->fInstanceCount = 0;
             instanceData->fRefCnt = 1;
-            SkDEBUGCODE(instanceData->fReserveCnt = reserveCnt;)
-            return instanceData;
+            SkDEBUGCODE(instanceData->fReserveCnt = reserveCnt;) return instanceData;
         }
 
         // Overload this method if we start using other transform types.
@@ -147,11 +141,11 @@ public:
         InstanceData() {}
         ~InstanceData() {}
 
-        uint16_t*       fIndices;
-        float*          fTransformValues;
-        TransformType   fTransformType;
-        int             fInstanceCount;
-        mutable int     fRefCnt;
+        uint16_t* fIndices;
+        float* fTransformValues;
+        TransformType fTransformType;
+        int fInstanceCount;
+        mutable int fRefCnt;
         SkDEBUGCODE(int fReserveCnt;)
     };
 
@@ -185,16 +179,16 @@ private:
         }
 
         sk_sp<const InstanceData> fInstanceData;
-        SkScalar                  fX, fY;
+        SkScalar fX, fY;
     };
 
     typedef GrPendingIOResource<const GrPathRange, kRead_GrIOType> PendingPathRange;
     typedef SkTLList<Draw, 4> DrawList;
 
-    PendingPathRange    fPathRange;
-    DrawList            fDraws;
-    int                 fTotalPathCount;
-    SkScalar            fScale;
+    PendingPathRange fPathRange;
+    DrawList fDraws;
+    int fTotalPathCount;
+    SkScalar fScale;
 
     typedef GrDrawPathBatchBase INHERITED;
 };

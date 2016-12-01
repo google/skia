@@ -52,9 +52,7 @@ public:
     static GrAtlasTextBlob* Create(GrMemoryPool* pool, int glyphCount, int runCount);
 
     struct Key {
-        Key() {
-            sk_bzero(this, sizeof(Key));
-        }
+        Key() { sk_bzero(this, sizeof(Key)); }
         uint32_t fUniqueID;
         // Color may affect the gamma of the mask we generate, but in a fairly limited way.
         // Each color is assigned to on of a fixed number of buckets based on its
@@ -66,13 +64,10 @@ public:
         bool fHasBlur;
         uint32_t fScalerContextFlags;
 
-        bool operator==(const Key& other) const {
-            return 0 == memcmp(this, &other, sizeof(Key));
-        }
+        bool operator==(const Key& other) const { return 0 == memcmp(this, &other, sizeof(Key)); }
     };
 
-    void setupKey(const GrAtlasTextBlob::Key& key,
-                  const SkMaskFilter::BlurRec& blurRec,
+    void setupKey(const GrAtlasTextBlob::Key& key, const SkMaskFilter::BlurRec& blurRec,
                   const SkPaint& paint) {
         fKey = key;
         if (key.fHasBlur) {
@@ -85,13 +80,9 @@ public:
         }
     }
 
-    static const Key& GetKey(const GrAtlasTextBlob& blob) {
-        return blob.fKey;
-    }
+    static const Key& GetKey(const GrAtlasTextBlob& blob) { return blob.fKey; }
 
-    static uint32_t Hash(const Key& key) {
-        return SkOpts::hash(&key, sizeof(Key));
-    }
+    static uint32_t Hash(const Key& key) { return SkOpts::hash(&key, sizeof(Key)); }
 
     void operator delete(void* p) {
         GrAtlasTextBlob* blob = reinterpret_cast<GrAtlasTextBlob*>(p);
@@ -103,9 +94,7 @@ public:
     }
 
     void* operator new(size_t, void* p) { return p; }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
+    void operator delete(void* target, void* placement) { ::operator delete(target, placement); }
 
     bool hasDistanceField() const { return SkToBool(fTextType & kHasDistanceField_TextType); }
     bool hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
@@ -131,9 +120,7 @@ public:
         subRun.setDrawAsDistanceFields();
     }
 
-    void setRunDrawAsPaths(int runIndex) {
-        fRuns[runIndex].fDrawAsPaths = true;
-    }
+    void setRunDrawAsPaths(int runIndex) { fRuns[runIndex].fDrawAsPaths = true; }
 
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
         // we init fMaxMinScale and fMinMaxScale in the constructor
@@ -150,21 +137,15 @@ public:
         run.fOverrideDescriptor.reset(new SkAutoDescriptor);
     }
 
-    SkGlyphCache* setupCache(int runIndex,
-                             const SkSurfaceProps& props,
-                             uint32_t scalerContextFlags,
-                             const SkPaint& skPaint,
-                             const SkMatrix* viewMatrix);
+    SkGlyphCache* setupCache(int runIndex, const SkSurfaceProps& props, uint32_t scalerContextFlags,
+                             const SkPaint& skPaint, const SkMatrix* viewMatrix);
 
     // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
     // as a path.
-    void appendGlyph(int runIndex,
-                     const SkRect& positions,
-                     GrColor color,
-                     GrBatchTextStrike* strike,
-                     GrGlyph* glyph,
-                     SkGlyphCache*, const SkGlyph& skGlyph,
-                     SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
+    void appendGlyph(int runIndex, const SkRect& positions, GrColor color,
+                     GrBatchTextStrike* strike, GrGlyph* glyph, SkGlyphCache*,
+                     const SkGlyph& skGlyph, SkScalar x, SkScalar y, SkScalar scale,
+                     bool treatAsBMP);
 
     static size_t GetVertexStride(GrMaskFormat maskFormat) {
         switch (maskFormat) {
@@ -181,30 +162,18 @@ public:
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrContext* context,
-                     GrRenderTargetContext* rtc,
-                     const SkTextBlob* blob,
+    void flushCached(GrContext* context, GrRenderTargetContext* rtc, const SkTextBlob* blob,
                      const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                     const SkPaint& skPaint,
-                     const GrPaint& grPaint,
-                     SkDrawFilter* drawFilter,
-                     const GrClip& clip,
-                     const SkMatrix& viewMatrix,
-                     const SkIRect& clipBounds,
-                     SkScalar x, SkScalar y);
+                     const GrDistanceFieldAdjustTable* distanceAdjustTable, const SkPaint& skPaint,
+                     const GrPaint& grPaint, SkDrawFilter* drawFilter, const GrClip& clip,
+                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrContext* context,
-                        GrRenderTargetContext* rtc,
-                        const SkSurfaceProps& props,
+    void flushThrowaway(GrContext* context, GrRenderTargetContext* rtc, const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const SkPaint& skPaint,
-                        const GrPaint& grPaint,
-                        const GrClip& clip,
-                        const SkMatrix& viewMatrix,
-                        const SkIRect& clipBounds,
-                        SkScalar x, SkScalar y);
+                        const SkPaint& skPaint, const GrPaint& grPaint, const GrClip& clip,
+                        const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                        SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
@@ -265,7 +234,7 @@ public:
      * multiple detach/attach operations of SkGlyphCache.
      */
     void regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
-                      GrBlobRegenHelper *helper, int run, int subRun, SkAutoGlyphCache*,
+                      GrBlobRegenHelper* helper, int run, int subRun, SkAutoGlyphCache*,
                       size_t vertexStride, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                       GrColor color, void** vertices, size_t* byteCount, int* glyphCount);
 
@@ -279,39 +248,33 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    GrDrawOp* test_createBatch(int glyphCount, int run, int subRun,
-                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               const SkPaint& skPaint, const SkSurfaceProps& props,
+    GrDrawOp* test_createBatch(int glyphCount, int run, int subRun, const SkMatrix& viewMatrix,
+                               SkScalar x, SkScalar y, GrColor color, const SkPaint& skPaint,
+                               const SkSurfaceProps& props,
                                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                GrBatchFontCache* cache);
 
 private:
-    GrAtlasTextBlob()
-        : fMaxMinScale(-SK_ScalarMax)
-        , fMinMaxScale(SK_ScalarMax)
-        , fTextType(0) {}
+    GrAtlasTextBlob() : fMaxMinScale(-SK_ScalarMax), fMinMaxScale(SK_ScalarMax), fTextType(0) {}
 
-    void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                          SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
+    void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph, SkScalar x,
+                          SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    inline void flushRun(GrRenderTargetContext* rtc, const GrPaint&, const GrClip&,
-                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                         const SkPaint& skPaint, const SkSurfaceProps& props,
+    inline void flushRun(GrRenderTargetContext* rtc, const GrPaint&, const GrClip&, int run,
+                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkPaint& skPaint,
+                         const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrBatchFontCache* cache);
 
-    void flushBigGlyphs(GrContext* context, GrRenderTargetContext* rtc,
-                        const GrClip& clip, const SkPaint& skPaint,
-                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+    void flushBigGlyphs(GrContext* context, GrRenderTargetContext* rtc, const GrClip& clip,
+                        const SkPaint& skPaint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 
-    void flushRunAsPaths(GrContext* context,
-                         GrRenderTargetContext* rtc,
-                         const SkSurfaceProps& props,
-                         const SkTextBlobRunIterator& it,
-                         const GrClip& clip, const SkPaint& skPaint,
-                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
-                         const SkIRect& clipBounds, SkScalar x, SkScalar y);
+    void flushRunAsPaths(GrContext* context, GrRenderTargetContext* rtc,
+                         const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
+                         const GrClip& clip, const SkPaint& skPaint, SkDrawFilter* drawFilter,
+                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                         SkScalar y);
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -356,9 +319,7 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        Run()
-            : fInitialized(false)
-            , fDrawAsPaths(false) {
+        Run() : fInitialized(false), fDrawAsPaths(false) {
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
@@ -390,8 +351,7 @@ private:
                 , fColor(that.fColor)
                 , fMaskFormat(that.fMaskFormat)
                 , fDrawAsDistanceFields(that.fDrawAsDistanceFields)
-                , fUseLCDText(that.fUseLCDText) {
-            }
+                , fUseLCDText(that.fUseLCDText) {}
 
             // TODO when this object is more internal, drop the privacy
             void resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -399,7 +359,9 @@ private:
             void setStrike(GrBatchTextStrike* strike) { fStrike.reset(SkRef(strike)); }
             GrBatchTextStrike* strike() const { return fStrike.get(); }
 
-            void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
+            void setAtlasGeneration(uint64_t atlasGeneration) {
+                fAtlasGeneration = atlasGeneration;
+            }
             uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
             size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
@@ -442,7 +404,7 @@ private:
 
             // This function assumes the translation will be applied before it is called again
             void computeTranslation(const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                    SkScalar*transX, SkScalar* transY);
+                                    SkScalar* transX, SkScalar* transY);
 
             // df properties
             void setUseLCDText(bool useLCDText) { fUseLCDText = useLCDText; }
@@ -464,8 +426,8 @@ private:
             SkScalar fY;
             GrColor fColor;
             GrMaskFormat fMaskFormat;
-            bool fDrawAsDistanceFields; // df property
-            bool fUseLCDText; // df property
+            bool fDrawAsDistanceFields;  // df property
+            bool fUseLCDText;            // df property
         };
 
         SubRunInfo& push_back() {
@@ -490,37 +452,26 @@ private:
         // though the distance field text and the coloremoji may share the same run, they
         // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
+        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor;  // df properties
         bool fInitialized;
         bool fDrawAsPaths;
     };
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInBatch(GrDrawOp::Target* target,
-                      GrBatchFontCache* fontCache,
-                      GrBlobRegenHelper* helper,
-                      Run* run, Run::SubRunInfo* info,
-                      SkAutoGlyphCache*, int glyphCount,
-                      size_t vertexStride,
-                      GrColor color, SkScalar transX,
+    void regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+                      GrBlobRegenHelper* helper, Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*,
+                      int glyphCount, size_t vertexStride, GrColor color, SkScalar transX,
                       SkScalar transY) const;
 
-    inline GrDrawOp* createBatch(const Run::SubRunInfo& info,
-                                 int glyphCount, int run, int subRun,
-                                 const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                 GrColor color,
+    inline GrDrawOp* createBatch(const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+                                 const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                  const SkPaint& skPaint, const SkSurfaceProps& props,
                                  const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                 bool useGammaCorrectDistanceTable,
-                                 GrBatchFontCache* cache);
+                                 bool useGammaCorrectDistanceTable, GrBatchFontCache* cache);
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
-            : fPath(path)
-            , fScale(scale)
-            , fX(vx)
-            , fY(vy)
-            , fTreatAsBMP(treatAsBMP) {}
+            : fPath(path), fScale(scale), fX(vx), fY(vy), fTreatAsBMP(treatAsBMP) {}
         SkPath fPath;
         SkScalar fScale;
         SkScalar fX;

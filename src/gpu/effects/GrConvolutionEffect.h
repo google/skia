@@ -17,29 +17,20 @@
  * the output color. The output color is modulated by the input color.
  */
 class GrConvolutionEffect : public Gr1DKernelEffect {
-
 public:
-
     /// Convolve with an arbitrary user-specified kernel
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
-                                           Direction dir,
-                                           int halfWidth,
-                                           const float* kernel,
-                                           bool useBounds,
-                                           float bounds[2]) {
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* tex, Direction dir, int halfWidth,
+                                           const float* kernel, bool useBounds, float bounds[2]) {
         return sk_sp<GrFragmentProcessor>(
-            new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds));
+                new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds));
     }
 
     /// Convolve with a Gaussian kernel
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* tex,
-                                                   Direction dir,
-                                                   int halfWidth,
-                                                   float gaussianSigma,
-                                                   bool useBounds,
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* tex, Direction dir, int halfWidth,
+                                                   float gaussianSigma, bool useBounds,
                                                    float bounds[2]) {
         return sk_sp<GrFragmentProcessor>(
-            new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
+                new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
 
     virtual ~GrConvolutionEffect();
@@ -63,23 +54,16 @@ public:
     };
 
 protected:
-
     float fKernel[kMaxKernelWidth];
     bool fUseBounds;
     float fBounds[2];
 
 private:
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth,
-                        const float* kernel,
-                        bool useBounds,
+    GrConvolutionEffect(GrTexture*, Direction, int halfWidth, const float* kernel, bool useBounds,
                         float bounds[2]);
 
     /// Convolve with a Gaussian kernel
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth,
-                        float gaussianSigma,
-                        bool useBounds,
+    GrConvolutionEffect(GrTexture*, Direction, int halfWidth, float gaussianSigma, bool useBounds,
                         float bounds[2]);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

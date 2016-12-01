@@ -11,8 +11,7 @@
 #include "GrVkImageView.h"
 #include "GrVkRenderPass.h"
 
-GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
-                                         int width, int height,
+GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu, int width, int height,
                                          const GrVkRenderPass* renderPass,
                                          const GrVkImageView* colorAttachment,
                                          const GrVkImageView* stencilAttachment) {
@@ -40,10 +39,8 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
     createInfo.layers = 1;
 
     VkFramebuffer framebuffer;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateFramebuffer(gpu->device(),
-                                                                    &createInfo,
-                                                                    nullptr,
-                                                                    &framebuffer));
+    VkResult err = GR_VK_CALL(gpu->vkInterface(),
+                              CreateFramebuffer(gpu->device(), &createInfo, nullptr, &framebuffer));
     if (err) {
         return nullptr;
     }

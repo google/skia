@@ -8,8 +8,8 @@
 #ifndef GrBitmapTextGeoProc_DEFINED
 #define GrBitmapTextGeoProc_DEFINED
 
-#include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
+#include "GrProcessor.h"
 
 class GrGLBitmapTextGeoProc;
 class GrInvariantOutput;
@@ -22,10 +22,10 @@ class GrInvariantOutput;
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrSamplerParams& p,
-                                       GrMaskFormat format, const SkMatrix& localMatrix,
-                                       bool usesLocalCoords) {
+                                           GrMaskFormat format, const SkMatrix& localMatrix,
+                                           bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords));
+                new GrBitmapTextGeoProc(color, tex, p, format, localMatrix, usesLocalCoords));
     }
 
     virtual ~GrBitmapTextGeoProc() {}
@@ -50,14 +50,14 @@ private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrSamplerParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
 
-    GrColor          fColor;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
-    TextureSampler   fTextureSampler;
+    GrColor fColor;
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
+    TextureSampler fTextureSampler;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
-    GrMaskFormat     fMaskFormat;
+    GrMaskFormat fMaskFormat;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 

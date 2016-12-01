@@ -31,8 +31,7 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         if (this->hasColors()) {
@@ -58,18 +57,18 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Geometry {
-        GrColor                 fColor;
+        GrColor fColor;
         SkTArray<uint8_t, true> fVerts;
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
 
     SkMatrix fViewMatrix;
-    GrColor  fColor;
-    int      fQuadCount;
-    bool     fColorIgnored;
-    bool     fCoverageIgnored;
-    bool     fHasColors;
+    GrColor fColor;
+    int fQuadCount;
+    bool fColorIgnored;
+    bool fCoverageIgnored;
+    bool fHasColors;
 
     typedef GrVertexBatch INHERITED;
 };

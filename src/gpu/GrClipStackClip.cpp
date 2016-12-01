@@ -10,12 +10,12 @@
 #include "GrAppliedClip.h"
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetPriv.h"
-#include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
+#include "GrStencilAttachment.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -30,16 +30,16 @@ bool GrClipStackClip::quickContains(const SkRect& rect) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
-    return fStack->quickContains(rect.makeOffset(SkIntToScalar(fOrigin.x()),
-                                                 SkIntToScalar(fOrigin.y())));
+    return fStack->quickContains(
+            rect.makeOffset(SkIntToScalar(fOrigin.x()), SkIntToScalar(fOrigin.y())));
 }
 
 bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
     if (!fStack || fStack->isWideOpen()) {
         return true;
     }
-    return fStack->quickContains(rrect.makeOffset(SkIntToScalar(fOrigin.fX),
-                                                  SkIntToScalar(fOrigin.fY)));
+    return fStack->quickContains(
+            rrect.makeOffset(SkIntToScalar(fOrigin.fX), SkIntToScalar(fOrigin.fY)));
 }
 
 bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, bool* aa) const {
@@ -80,8 +80,7 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
-                                                     const SkIRect &devBound) {
+static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result, const SkIRect& devBound) {
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     return GrDeviceSpaceTextureDecalFragmentProcessor::Make(result, domainTexels,
                                                             {devBound.fLeft, devBound.fTop});
@@ -90,13 +89,10 @@ static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
 // Does the path in 'element' require SW rendering? If so, return true (and,
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
-bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
-                                          bool hasUserStencilSettings,
+bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context, bool hasUserStencilSettings,
                                           const GrRenderTargetContext* renderTargetContext,
-                                          const SkMatrix& viewMatrix,
-                                          const Element* element,
-                                          GrPathRenderer** prOut,
-                                          bool needsStencil) {
+                                          const SkMatrix& viewMatrix, const Element* element,
+                                          GrPathRenderer** prOut, bool needsStencil) {
     if (Element::kRect_Type == element->getType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
@@ -118,13 +114,11 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         GrPathRendererChain::DrawType type;
 
         if (needsStencil) {
-            type = element->isAA()
-                            ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
-                            : GrPathRendererChain::kStencilAndColor_DrawType;
+            type = element->isAA() ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
+                                   : GrPathRendererChain::kStencilAndColor_DrawType;
         } else {
-            type = element->isAA()
-                            ? GrPathRendererChain::kColorAntiAlias_DrawType
-                            : GrPathRendererChain::kColor_DrawType;
+            type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType
+                                   : GrPathRendererChain::kColor_DrawType;
         }
 
         GrShape shape(path, GrStyle::SimpleFill());
@@ -138,7 +132,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
 
         // the 'false' parameter disallows use of the SW path renderer
         GrPathRenderer* pr =
-            context->contextPriv().drawingManager()->getPathRenderer(canDrawArgs, false, type);
+                context->contextPriv().drawingManager()->getPathRenderer(canDrawArgs, false, type);
         if (prOut) {
             *prOut = pr;
         }
@@ -151,8 +145,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
  * will be used on any element. If so, it returns true to indicate that the
  * entire clip should be rendered in SW and then uploaded en masse to the gpu.
  */
-bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
-                                    bool hasUserStencilSettings,
+bool GrClipStackClip::UseSWOnlyPath(GrContext* context, bool hasUserStencilSettings,
                                     const GrRenderTargetContext* renderTargetContext,
                                     const GrReducedClip& reducedClip) {
     // TODO: generalize this function so that when
@@ -169,21 +162,19 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 
         SkCanvas::ClipOp op = element->getOp();
         bool invert = element->isInverseFilled();
-        bool needsStencil = invert ||
-                            SkCanvas::kIntersect_Op == op || SkCanvas::kReverseDifference_Op == op;
+        bool needsStencil =
+                invert || SkCanvas::kIntersect_Op == op || SkCanvas::kReverseDifference_Op == op;
 
-        if (PathNeedsSWRenderer(context, hasUserStencilSettings,
-                                renderTargetContext, translate, element, nullptr, needsStencil)) {
+        if (PathNeedsSWRenderer(context, hasUserStencilSettings, renderTargetContext, translate,
+                                element, nullptr, needsStencil)) {
             return true;
         }
     }
     return false;
 }
 
-static bool get_analytic_clip_processor(const ElementList& elements,
-                                        bool abortIfAA,
-                                        const SkVector& clipToRTOffset,
-                                        const SkRect& drawBounds,
+static bool get_analytic_clip_processor(const ElementList& elements, bool abortIfAA,
+                                        const SkVector& clipToRTOffset, const SkRect& drawBounds,
                                         sk_sp<GrFragmentProcessor>* resultFP) {
     SkRect boundsInClipSpace;
     boundsInClipSpace = drawBounds.makeOffset(-clipToRTOffset.fX, -clipToRTOffset.fY);
@@ -197,7 +188,7 @@ static bool get_analytic_clip_processor(const ElementList& elements,
         switch (op) {
             case SkRegion::kReplace_Op:
                 SkASSERT(iter.get() == elements.head());
-                // Fallthrough, handled same as intersect.
+            // Fallthrough, handled same as intersect.
             case SkRegion::kIntersect_Op:
                 invert = false;
                 if (iter.get()->contains(boundsInClipSpace)) {
@@ -219,10 +210,10 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                     return false;
                 }
                 edgeType =
-                    invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
+                        invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
             } else {
                 edgeType =
-                    invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
+                        invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
 
             switch (iter.get()->getType()) {
@@ -274,8 +265,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return false;
     }
 
-    const SkScalar clipX = SkIntToScalar(fOrigin.x()),
-                   clipY = SkIntToScalar(fOrigin.y());
+    const SkScalar clipX = SkIntToScalar(fOrigin.x()), clipY = SkIntToScalar(fOrigin.y());
 
     SkRect clipSpaceDevBounds = devBounds.makeOffset(clipX, clipY);
     const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds,
@@ -302,7 +292,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->worstCaseWidth(),
                                         renderTargetContext->worstCaseHeight());
     SkIRect clipIBounds = reducedClip.ibounds().makeOffset(-fOrigin.x(), -fOrigin.y());
-    SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
+    SkASSERT(rtIBounds.contains(clipIBounds));  // Mask shouldn't be larger than the RT.
 #endif
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
@@ -401,11 +391,8 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
     }
 
     sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
-                                                                             SkBackingFit::kApprox,
-                                                                             reducedClip.width(),
-                                                                             reducedClip.height(),
-                                                                             kAlpha_8_GrPixelConfig,
-                                                                             nullptr));
+            SkBackingFit::kApprox, reducedClip.width(), reducedClip.height(),
+            kAlpha_8_GrPixelConfig, nullptr));
     if (!rtc) {
         return nullptr;
     }

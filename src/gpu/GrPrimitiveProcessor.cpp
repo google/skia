@@ -14,15 +14,15 @@
  * that indicates the source of the input coords.
  */
 enum {
-    kMatrixTypeKeyBits   = 1,
-    kMatrixTypeKeyMask   = (1 << kMatrixTypeKeyBits) - 1,
+    kMatrixTypeKeyBits = 1,
+    kMatrixTypeKeyMask = (1 << kMatrixTypeKeyBits) - 1,
 
-    kPrecisionBits       = 2,
-    kPrecisionShift      = kMatrixTypeKeyBits,
+    kPrecisionBits = 2,
+    kPrecisionShift = kMatrixTypeKeyBits,
 
     kPositionCoords_Flag = (1 << (kPrecisionShift + kPrecisionBits)),
 
-    kTransformKeyBits    = kMatrixTypeKeyBits + kPrecisionBits + 2,
+    kTransformKeyBits = kMatrixTypeKeyBits + kPrecisionBits + 2,
 };
 
 GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
@@ -31,13 +31,12 @@ GR_STATIC_ASSERT(kHigh_GrSLPrecision < (1 << kPrecisionBits));
  * We specialize the vertex code for each of these matrix types.
  */
 enum MatrixType {
-    kNoPersp_MatrixType  = 0,
-    kGeneral_MatrixType  = 1,
+    kNoPersp_MatrixType = 0,
+    kGeneral_MatrixType = 1,
 };
 
-uint32_t
-GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
-                                      int numCoords) const {
+uint32_t GrPrimitiveProcessor::getTransformKey(
+        const SkTArray<const GrCoordTransform*, true>& coords, int numCoords) const {
     uint32_t totalKey = 0;
     for (int t = 0; t < numCoords; ++t) {
         uint32_t key = 0;
@@ -57,7 +56,7 @@ GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, tr
 
         key <<= kTransformKeyBits * t;
 
-        SkASSERT(0 == (totalKey & key)); // keys for each transform ought not to overlap
+        SkASSERT(0 == (totalKey & key));  // keys for each transform ought not to overlap
         totalKey |= key;
     }
     return totalKey;

@@ -50,14 +50,10 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
 }
 
 sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
-                                        const SkMatrix& textureMatrix,
-                                        const SkRect& constraintRect,
-                                        FilterConstraint filterConstraint,
-                                        bool coordsLimitedToConstraintRect,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace,
-                                        SkDestinationSurfaceColorMode colorMode) {
-
+        const SkMatrix& textureMatrix, const SkRect& constraintRect,
+        FilterConstraint filterConstraint, bool coordsLimitedToConstraintRect,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic, SkColorSpace* dstColorSpace,
+        SkDestinationSurfaceColorMode colorMode) {
     const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
@@ -83,15 +79,14 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         return nullptr;
     }
     SkRect domain;
-    DomainMode domainMode =
-        DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            texture->width(), texture->height(), nullptr, fmForDetermineDomain,
-                            &domain);
+    DomainMode domainMode = DetermineDomainMode(
+            constraintRect, filterConstraint, coordsLimitedToConstraintRect, texture->width(),
+            texture->height(), nullptr, fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
     SkMatrix normalizedTextureMatrix = textureMatrix;
     normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
-                                                                       dstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform =
+            GrColorSpaceXform::Make(texColorSpace.get(), dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
                                                      normalizedTextureMatrix, domainMode, domain,
                                                      filterOrNullForBicubic);

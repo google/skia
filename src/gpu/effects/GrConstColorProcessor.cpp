@@ -19,10 +19,9 @@ public:
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const char* colorUni;
-        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                         kVec4f_GrSLType, kMedium_GrSLPrecision,
-                                                         "constantColor",
-                                                         &colorUni);
+        fColorUniform =
+                args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
+                                                 kMedium_GrSLPrecision, "constantColor", &colorUni);
         GrConstColorProcessor::InputMode mode = args.fFp.cast<GrConstColorProcessor>().inputMode();
         if (!args.fInputColor) {
             mode = GrConstColorProcessor::kIgnore_InputMode;
@@ -33,11 +32,11 @@ public:
                 break;
             case GrConstColorProcessor::kModulateRGBA_InputMode:
                 fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, args.fInputColor,
-                                       colorUni);
+                                         colorUni);
                 break;
             case GrConstColorProcessor::kModulateA_InputMode:
                 fragBuilder->codeAppendf("%s = %s.a * %s;", args.fOutputColor, args.fInputColor,
-                                       colorUni);
+                                         colorUni);
                 break;
         }
     }
@@ -55,7 +54,7 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fColorUniform;
-    GrColor4f                               fPrevColor;
+    GrColor4f fPrevColor;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -68,8 +67,8 @@ void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) c
                           GrInvariantOutput::kWillNot_ReadInput);
     } else {
         float r = fColor.fRGBA[0];
-        bool colorIsSingleChannel = r == fColor.fRGBA[1] && r == fColor.fRGBA[2] &&
-                                    r == fColor.fRGBA[3];
+        bool colorIsSingleChannel =
+                r == fColor.fRGBA[1] && r == fColor.fRGBA[2] && r == fColor.fRGBA[3];
         if (kModulateRGBA_InputMode == fMode) {
             if (colorIsSingleChannel) {
                 inout->mulByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
@@ -91,7 +90,7 @@ void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
     b->add32(fMode);
 }
 
-GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const  {
+GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
     return new GLConstColorProcessor;
 }
 
@@ -110,9 +109,9 @@ sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData
     switch (colorPicker) {
         case 0: {
             uint32_t a = d->fRandom->nextULessThan(0x100);
-            uint32_t r = d->fRandom->nextULessThan(a+1);
-            uint32_t g = d->fRandom->nextULessThan(a+1);
-            uint32_t b = d->fRandom->nextULessThan(a+1);
+            uint32_t r = d->fRandom->nextULessThan(a + 1);
+            uint32_t g = d->fRandom->nextULessThan(a + 1);
+            uint32_t b = d->fRandom->nextULessThan(a + 1);
             color = GrColor4f::FromGrColor(GrColorPackRGBA(r, g, b, a));
             break;
         }

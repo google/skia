@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrGpu.h"
 
 #include "GrBuffer.h"
@@ -15,26 +14,26 @@
 #include "GrMesh.h"
 #include "GrPathRendering.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
-#include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "SkMathPriv.h"
 
-GrMesh& GrMesh::operator =(const GrMesh& di) {
-    fPrimitiveType  = di.fPrimitiveType;
-    fStartVertex    = di.fStartVertex;
-    fStartIndex     = di.fStartIndex;
-    fVertexCount    = di.fVertexCount;
-    fIndexCount     = di.fIndexCount;
+GrMesh& GrMesh::operator=(const GrMesh& di) {
+    fPrimitiveType = di.fPrimitiveType;
+    fStartVertex = di.fStartVertex;
+    fStartIndex = di.fStartIndex;
+    fVertexCount = di.fVertexCount;
+    fIndexCount = di.fIndexCount;
 
-    fInstanceCount          = di.fInstanceCount;
-    fVerticesPerInstance    = di.fVerticesPerInstance;
-    fIndicesPerInstance     = di.fIndicesPerInstance;
-    fMaxInstancesPerDraw    = di.fMaxInstancesPerDraw;
+    fInstanceCount = di.fInstanceCount;
+    fVerticesPerInstance = di.fVerticesPerInstance;
+    fIndicesPerInstance = di.fIndicesPerInstance;
+    fMaxInstancesPerDraw = di.fMaxInstancesPerDraw;
 
     fVertexBuffer.reset(di.vertexBuffer());
     fIndexBuffer.reset(di.indexBuffer());
@@ -45,10 +44,8 @@ GrMesh& GrMesh::operator =(const GrMesh& di) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGpu::GrGpu(GrContext* context)
-    : fResetTimestamp(kExpiredTimestamp+1)
-    , fResetBits(kAll_GrBackendState)
-    , fContext(context) {
-    fMultisampleSpecs.emplace_back(0, 0, nullptr); // Index 0 is an invalid unique id.
+    : fResetTimestamp(kExpiredTimestamp + 1), fResetBits(kAll_GrBackendState), fContext(context) {
+    fMultisampleSpecs.emplace_back(0, 0, nullptr);  // Index 0 is an invalid unique id.
 }
 
 GrGpu::~GrGpu() {}
@@ -98,8 +95,8 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
  * @param desc The descriptor of the texture to create.
  * @param isRT Indicates if the texture can be a render target.
  */
-static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
-                                          bool* isRT, const SkTArray<GrMipLevel>& texels) {
+static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc, bool* isRT,
+                                          const SkTArray<GrMipLevel>& texels) {
     if (!caps.isConfigTexturable(desc.fConfig)) {
         return false;
     }
@@ -233,7 +230,7 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
     if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
-      return nullptr;
+        return nullptr;
     }
     if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
@@ -245,8 +242,8 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTex
     return this->onWrapBackendTextureAsRenderTarget(desc);
 }
 
-GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType,
-                              GrAccessPattern accessPattern, const void* data) {
+GrBuffer* GrGpu::createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern accessPattern,
+                              const void* data) {
     this->handleDirtyContext();
     GrBuffer* buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
     if (!this->caps()->reuseScratchBuffers()) {
@@ -260,9 +257,7 @@ gr_instanced::InstancedRendering* GrGpu::createInstancedRendering() {
     return this->onCreateInstancedRendering();
 }
 
-bool GrGpu::copySurface(GrSurface* dst,
-                        GrSurface* src,
-                        const SkIRect& srcRect,
+bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                         const SkIPoint& dstPoint) {
     SkASSERT(dst && src);
     this->handleDirtyContext();
@@ -362,10 +357,8 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     return true;
 }
 
-bool GrGpu::readPixels(GrSurface* surface,
-                       int left, int top, int width, int height,
-                       GrPixelConfig config, void* buffer,
-                       size_t rowBytes) {
+bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int height,
+                       GrPixelConfig config, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
 
     // We don't allow conversion between integer configs and float/fixed configs.
@@ -379,27 +372,21 @@ bool GrGpu::readPixels(GrSurface* surface,
     }
 
     size_t bpp = GrBytesPerPixel(config);
-    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
-                                              &left, &top, &width, &height,
-                                              &buffer,
-                                              &rowBytes)) {
+    if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp, &left, &top,
+                                              &width, &height, &buffer, &rowBytes)) {
         return false;
     }
 
     this->handleDirtyContext();
 
-    return this->onReadPixels(surface,
-                              left, top, width, height,
-                              config, buffer,
-                              rowBytes);
+    return this->onReadPixels(surface, left, top, width, height, config, buffer, rowBytes);
 }
 
-bool GrGpu::writePixels(GrSurface* surface,
-                        int left, int top, int width, int height,
+bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
                         GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
     SkASSERT(surface);
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
-        if (!texels[currentMipLevel].fPixels ) {
+        if (!texels[currentMipLevel].fPixels) {
             return false;
         }
     }
@@ -419,10 +406,8 @@ bool GrGpu::writePixels(GrSurface* surface,
     return false;
 }
 
-bool GrGpu::writePixels(GrSurface* surface,
-                        int left, int top, int width, int height,
-                        GrPixelConfig config, const void* buffer,
-                        size_t rowBytes) {
+bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
+                        GrPixelConfig config, const void* buffer, size_t rowBytes) {
     GrMipLevel mipLevel;
     mipLevel.fPixels = buffer;
     mipLevel.fRowBytes = rowBytes;
@@ -432,10 +417,9 @@ bool GrGpu::writePixels(GrSurface* surface,
     return this->writePixels(surface, left, top, width, height, config, texels);
 }
 
-bool GrGpu::transferPixels(GrSurface* surface,
-                           int left, int top, int width, int height,
-                           GrPixelConfig config, GrBuffer* transferBuffer,
-                           size_t offset, size_t rowBytes, GrFence* fence) {
+bool GrGpu::transferPixels(GrSurface* surface, int left, int top, int width, int height,
+                           GrPixelConfig config, GrBuffer* transferBuffer, size_t offset,
+                           size_t rowBytes, GrFence* fence) {
     SkASSERT(transferBuffer);
     SkASSERT(fence);
 
@@ -445,8 +429,8 @@ bool GrGpu::transferPixels(GrSurface* surface,
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(surface, left, top, width, height, config,
-                               transferBuffer, offset, rowBytes)) {
+    if (this->onTransferPixels(surface, left, top, width, height, config, transferBuffer, offset,
+                               rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, &rect);
         fStats.incTransfersToTexture();
@@ -502,7 +486,7 @@ const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pi
     if (this->caps()->sampleLocationsSupport()) {
         SkASSERT(pattern.count() == effectiveSampleCnt);
         const auto& insertResult = fMultisampleSpecsIdMap.insert(
-            MultisampleSpecsIdMap::value_type(pattern, SkTMin(fMultisampleSpecs.count(), 255)));
+                MultisampleSpecsIdMap::value_type(pattern, SkTMin(fMultisampleSpecs.count(), 255)));
         id = insertResult.first->second;
         if (insertResult.second) {
             // This means the insert did not find the pattern in the map already, and therefore an
@@ -536,5 +520,5 @@ bool GrGpu::SamplePatternComparator::operator()(const SamplePattern& a,
             return a[i].y() < b[i].y();
         }
     }
-    return false; // Equal.
+    return false;  // Equal.
 }

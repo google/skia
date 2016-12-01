@@ -18,8 +18,7 @@
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted)
-    : INHERITED(desc, fit, budgeted)
-    , fFlags(GrRenderTarget::Flags::kNone) {
+    : INHERITED(desc, fit, budgeted), fFlags(GrRenderTarget::Flags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fDesc.fSampleCnt > 0) {
@@ -33,8 +32,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
     : INHERITED(std::move(surf), SkBackingFit::kExact)
-    , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
-}
+    , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {}
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
     return (fFlags & GrRenderTarget::Flags::kWindowRectsSupport) ? caps.maxWindowRectangles() : 0;
@@ -60,6 +58,6 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false, SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt + 1, false,
+                                  SkBackingFit::kApprox == fFit);
 }
-

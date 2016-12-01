@@ -8,8 +8,8 @@
 #ifndef GrTextureProducer_DEFINED
 #define GrTextureProducer_DEFINED
 
-#include "GrSamplerParams.h"
 #include "GrResourceKey.h"
+#include "GrSamplerParams.h"
 
 class GrColorSpaceXform;
 class GrTexture;
@@ -26,8 +26,8 @@ class GrTextureProducer : public SkNoncopyable {
 public:
     struct CopyParams {
         GrSamplerParams::FilterMode fFilter;
-        int                         fWidth;
-        int                         fHeight;
+        int fWidth;
+        int fHeight;
     };
 
     enum FilterConstraint {
@@ -56,13 +56,10 @@ public:
      *                                         use bicubic filtering.
      **/
     virtual sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                    const SkMatrix& textureMatrix,
-                                    const SkRect& constraintRect,
-                                    FilterConstraint filterConstraint,
-                                    bool coordsLimitedToConstraintRect,
-                                    const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                    SkColorSpace* dstColorSpace,
-                                    SkDestinationSurfaceColorMode) = 0;
+            const SkMatrix& textureMatrix, const SkRect& constraintRect,
+            FilterConstraint filterConstraint, bool coordsLimitedToConstraintRect,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic, SkColorSpace* dstColorSpace,
+            SkDestinationSurfaceColorMode) = 0;
 
     virtual ~GrTextureProducer() {}
 
@@ -73,13 +70,10 @@ public:
 
 protected:
     GrTextureProducer(int width, int height, bool isAlphaOnly)
-        : fWidth(width)
-        , fHeight(height)
-        , fIsAlphaOnly(isAlphaOnly) {}
+        : fWidth(width), fHeight(height), fIsAlphaOnly(isAlphaOnly) {}
 
     /** Helper for creating a key for a copy from an original key. */
-    static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,
-                                       const CopyParams& copyParams,
+    static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey, const CopyParams& copyParams,
                                        GrUniqueKey* copyKey) {
         SkASSERT(!copyKey->isValid());
         if (origKey.isValid()) {
@@ -108,37 +102,26 @@ protected:
     */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
 
-
-    enum DomainMode {
-        kNoDomain_DomainMode,
-        kDomain_DomainMode,
-        kTightCopy_DomainMode
-    };
+    enum DomainMode { kNoDomain_DomainMode, kDomain_DomainMode, kTightCopy_DomainMode };
 
     static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
                                 const CopyParams& copyParams);
 
     static DomainMode DetermineDomainMode(
-        const SkRect& constraintRect,
-        FilterConstraint filterConstraint,
-        bool coordsLimitedToConstraintRect,
-        int texW, int texH,
-        const SkIRect* textureContentArea,
-        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
-        SkRect* domainRect);
+            const SkRect& constraintRect, FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect, int texW, int texH,
+            const SkIRect* textureContentArea,
+            const GrSamplerParams::FilterMode* filterModeOrNullForBicubic, SkRect* domainRect);
 
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrTexture* texture,
-        sk_sp<GrColorSpaceXform> colorSpaceXform,
-        const SkMatrix& textureMatrix,
-        DomainMode domainMode,
-        const SkRect& domain,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+            GrTexture* texture, sk_sp<GrColorSpaceXform> colorSpaceXform,
+            const SkMatrix& textureMatrix, DomainMode domainMode, const SkRect& domain,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 
 private:
-    const int   fWidth;
-    const int   fHeight;
-    const bool  fIsAlphaOnly;
+    const int fWidth;
+    const int fHeight;
+    const bool fIsAlphaOnly;
 
     typedef SkNoncopyable INHERITED;
 };

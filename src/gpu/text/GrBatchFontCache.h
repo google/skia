@@ -44,8 +44,7 @@ public:
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
     // draw a clear square.
     // skbug:4143 crbug:510931
-    inline GrGlyph* getGlyph(GrGlyph::PackedID packed,
-                             GrMaskFormat expectedMaskFormat,
+    inline GrGlyph* getGlyph(GrGlyph::PackedID packed, GrMaskFormat expectedMaskFormat,
                              SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (nullptr == glyph) {
@@ -92,8 +91,7 @@ private:
     bool fIsAbandoned;
 
     static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, GrGlyph::PackedID id) {
-        return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id),
-                                        GrGlyph::UnpackFixedX(id),
+        return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id), GrGlyph::UnpackFixedX(id),
                                         GrGlyph::UnpackFixedY(id));
     }
 
@@ -148,22 +146,20 @@ public:
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                      GrGlyph* glyph, GrDrawOpUploadToken token) {
+    void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater, GrGlyph* glyph,
+                                      GrDrawOpUploadToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
     void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
-                         GrDrawOpUploadToken token,
-                         GrMaskFormat format) {
+                         GrDrawOpUploadToken token, GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,
-                    GrDrawOp::Target* target,
+    bool addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id, GrDrawOp::Target* target,
                     GrMaskFormat format, int width, int height, const void* image,
                     SkIPoint16* loc) {
         fPreserveStrike = strike;
@@ -204,9 +200,7 @@ private:
     // There is a 1:1 mapping between GrMaskFormats and atlas indices
     static int MaskFormatToAtlasIndex(GrMaskFormat format) {
         static const int sAtlasIndices[] = {
-            kA8_GrMaskFormat,
-            kA565_GrMaskFormat,
-            kARGB_GrMaskFormat,
+                kA8_GrMaskFormat, kA565_GrMaskFormat, kARGB_GrMaskFormat,
         };
         static_assert(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, "array_size_mismatch");
 

@@ -53,8 +53,7 @@ private:
     uint64_t fSequence;
 };
 
-GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) 
-    : fSrcToDst(srcToDst) {}
+GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) : fSrcToDst(srcToDst) {}
 
 static SkSpinlock gColorSpaceXformCacheSpinlock;
 
@@ -69,7 +68,7 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    const SkMatrix44* toXYZD50   = as_CSB(src)->toXYZD50();
+    const SkMatrix44* toXYZD50 = as_CSB(src)->toXYZD50();
     const SkMatrix44* fromXYZD50 = as_CSB(dst)->fromXYZD50();
     if (!toXYZD50 || !fromXYZD50) {
         // unsupported colour spaces -- cannot specify gamut as a matrix

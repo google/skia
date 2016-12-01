@@ -6,6 +6,7 @@
  */
 
 #include "GrGLSLFragmentShaderBuilder.h"
+#include "../private/GrGLSL.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrShaderCaps.h"
@@ -13,15 +14,11 @@
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
-#include "../private/GrGLSL.h"
 
 const char* GrGLSLFragmentShaderBuilder::kDstColorName = "_dstColor";
 
 static const char* sample_offset_array_name(GrGLSLFPFragmentBuilder::Coordinates coords) {
-    static const char* kArrayNames[] = {
-        "deviceSpaceSampleOffsets",
-        "windowSpaceSampleOffsets"
-    };
+    static const char* kArrayNames[] = {"deviceSpaceSampleOffsets", "windowSpaceSampleOffsets"};
     return kArrayNames[coords];
 
     GR_STATIC_ASSERT(0 == GrGLSLFPFragmentBuilder::kSkiaDevice_Coordinates);
@@ -33,22 +30,14 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 
     static const char* kLayoutQualifierNames[] = {
-        "blend_support_screen",
-        "blend_support_overlay",
-        "blend_support_darken",
-        "blend_support_lighten",
-        "blend_support_colordodge",
-        "blend_support_colorburn",
-        "blend_support_hardlight",
-        "blend_support_softlight",
-        "blend_support_difference",
-        "blend_support_exclusion",
-        "blend_support_multiply",
-        "blend_support_hsl_hue",
-        "blend_support_hsl_saturation",
-        "blend_support_hsl_color",
-        "blend_support_hsl_luminosity"
-    };
+            "blend_support_screen",         "blend_support_overlay",
+            "blend_support_darken",         "blend_support_lighten",
+            "blend_support_colordodge",     "blend_support_colorburn",
+            "blend_support_hardlight",      "blend_support_softlight",
+            "blend_support_difference",     "blend_support_exclusion",
+            "blend_support_multiply",       "blend_support_hsl_hue",
+            "blend_support_hsl_saturation", "blend_support_hsl_color",
+            "blend_support_hsl_luminosity"};
     return kLayoutQualifierNames[equation - kFirstAdvancedGrBlendEquation];
 
     GR_STATIC_ASSERT(0 == kScreen_GrBlendEquation - kFirstAdvancedGrBlendEquation);
@@ -133,7 +122,7 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kFragmentPosition_RequiredFeature;)
 
-    const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
+            const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
     // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
     // declaration varies in earlier GLSL specs. So it is simpler to omit it.
@@ -143,14 +132,10 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     } else if (const char* extension = shaderCaps->fragCoordConventionsExtensionString()) {
         if (!fSetupFragPosition) {
             if (shaderCaps->generation() < k150_GrGLSLGeneration) {
-                this->addFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
-                                 extension);
+                this->addFeature(1 << kFragCoordConventions_GLSLPrivateFeature, extension);
             }
-            fInputs.push_back().set(kVec4f_GrSLType,
-                                    "gl_FragCoord",
-                                    GrShaderVar::kIn_TypeModifier,
-                                    kDefault_GrSLPrecision,
-                                    "origin_upper_left");
+            fInputs.push_back().set(kVec4f_GrSLType, "gl_FragCoord", GrShaderVar::kIn_TypeModifier,
+                                    kDefault_GrSLPrecision, "origin_upper_left");
             fSetupFragPosition = true;
         }
         return "gl_FragCoord";
@@ -177,9 +162,7 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     }
 }
 
-const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {
-    return "fsDistanceVector";
-}
+const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const { return "fsDistanceVector"; }
 
 void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Coordinates coords) {
     SkASSERT(fProgramBuilder->header().fSamplePatternKey);
@@ -235,7 +218,7 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
     SkDEBUGCODE(fHasReadDstColor = true;)
 
-    const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
+            const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
     if (override != nullptr) {
         return override;
     }
@@ -283,7 +266,7 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
         fCustomColorOutputIndex = fOutputs.count();
         fOutputs.push_back().set(kVec4f_GrSLType, DeclaredColorOutputName(),
                                  GrShaderVar::kOut_TypeModifier);
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 
@@ -333,9 +316,8 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                 *fProgramBuilder->shaderCaps(),
-                                                 &this->precisionQualifier());
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(
+            kDefault_GrSLPrecision, *fProgramBuilder->shaderCaps(), &this->precisionQualifier());
     if (fUsedSampleOffsetArrays & (1 << kSkiaDevice_Coordinates)) {
         this->defineSampleOffsetArray(sample_offset_array_name(kSkiaDevice_Coordinates),
                                       SkMatrix::MakeTrans(-0.5f, -0.5f));

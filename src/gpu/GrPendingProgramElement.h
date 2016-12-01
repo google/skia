@@ -8,20 +8,21 @@
 #ifndef GrPendingProgramElement_DEFINED
 #define GrPendingProgramElement_DEFINED
 
-#include "SkRefCnt.h"
 #include "GrTypes.h"
+#include "SkRefCnt.h"
 
 /**
  * Helper for owning a pending execution on a GrProgramElement. Using this rather than ref allows
  * resources that are owned by the program element to be correctly tracked as having pending reads
  * and writes rather than refs.
  */
-template <typename T> class GrPendingProgramElement : SkNoncopyable {
+template <typename T>
+class GrPendingProgramElement : SkNoncopyable {
 public:
-    GrPendingProgramElement() : fObj(nullptr) { }
+    GrPendingProgramElement() : fObj(nullptr) {}
 
     // Adds a pending execution on obj.
-    explicit GrPendingProgramElement(T* obj) : fObj(obj)  {
+    explicit GrPendingProgramElement(T* obj) : fObj(obj) {
         if (obj) {
             obj->addPendingExecution();
         }
@@ -40,7 +41,7 @@ public:
     T* get() const { return fObj; }
     operator T*() { return fObj; }
 
-    T *operator->() const { return fObj; }
+    T* operator->() const { return fObj; }
 
     ~GrPendingProgramElement() {
         if (fObj) {
@@ -49,7 +50,7 @@ public:
     }
 
 private:
-    T*   fObj;
+    T* fObj;
 
     typedef SkNoncopyable INHERITED;
 };

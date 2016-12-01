@@ -10,7 +10,7 @@
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */
 static inline int grsltype_to_location_size(GrSLType type) {
-    switch(type) {
+    switch (type) {
         case kVoid_GrSLType:
             return 0;
         case kFloat_GrSLType:
@@ -30,23 +30,23 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kTexture2DSampler_GrSLType:
             return 0;
         case kITexture2DSampler_GrSLType:
-             return 0;
+            return 0;
         case kTextureExternalSampler_GrSLType:
-             return 0;
+            return 0;
         case kTexture2DRectSampler_GrSLType:
-             return 0;
+            return 0;
         case kBufferSampler_GrSLType:
-             return 0;
+            return 0;
         case kBool_GrSLType:
-             return 1;
+            return 1;
         case kInt_GrSLType:
-             return 1;
+            return 1;
         case kUint_GrSLType:
-             return 1;
+            return 1;
         case kTexture2D_GrSLType:
-             return 0;
+            return 0;
         case kSampler_GrSLType:
-             return 0;
+            return 0;
         case kImageStorage2D_GrSLType:
             return 0;
         case kIImageStorage2D_GrSLType:
@@ -68,7 +68,7 @@ void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
         SkASSERT(elementSize);
         int numElements = 1;
         if (var.isArray()) {
-           numElements = var.getArrayCount();
+            numElements = var.getArrayCount();
         }
         locationIndex += elementSize * numElements;
     }

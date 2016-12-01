@@ -8,8 +8,8 @@
 #ifndef GrShadowGeoProc_DEFINED
 #define GrShadowGeoProc_DEFINED
 
-#include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
+#include "GrProcessor.h"
 
 class GrGLRRectShadowGeoProc;
 
@@ -41,8 +41,8 @@ public:
 private:
     GrRRectShadowGeoProc(const SkMatrix& localMatrix);
 
-    GrColor          fColor;
-    SkMatrix         fLocalMatrix;
+    GrColor fColor;
+    SkMatrix fLocalMatrix;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
@@ -51,6 +51,5 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-
 
 #endif

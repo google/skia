@@ -27,7 +27,6 @@ GrVkIndexBuffer* GrVkIndexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic
         return nullptr;
     }
 
-
     GrVkIndexBuffer* buffer = new GrVkIndexBuffer(gpu, desc, bufferResource);
     if (!buffer) {
         bufferResource->unref(gpu);

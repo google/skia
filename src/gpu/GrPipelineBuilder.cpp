@@ -22,11 +22,10 @@ GrPipelineBuilder::GrPipelineBuilder()
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 }
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
-    : GrPipelineBuilder() {
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA) : GrPipelineBuilder() {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
-    for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
+            for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
         fColorFragmentProcessors.emplace_back(SkRef(paint.getColorFragmentProcessor(i)));
     }
 
@@ -39,8 +38,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
     this->setState(GrPipelineBuilder::kHWAntialias_Flag, useHWAA);
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
-    this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,
-                   paint.getAllowSRGBInputs());
+    this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag, paint.getAllowSRGBInputs());
     this->setState(GrPipelineBuilder::kUsesDistanceVectorField_Flag,
                    paint.usesDistanceVectorField());
 }
@@ -56,7 +54,7 @@ bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
-                                                         const GrPipelineBuilder* pipelineBuilder) {
+        const GrPipelineBuilder* pipelineBuilder) {
     if (fPipelineBuilder) {
         int m = fPipelineBuilder->numColorFragmentProcessors() - fColorEffectCnt;
         SkASSERT(m >= 0);
@@ -78,6 +76,4 @@ void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrPipelineBuilder::~GrPipelineBuilder() {
-    SkASSERT(0 == fBlockEffectRemovalCnt);
-}
+GrPipelineBuilder::~GrPipelineBuilder() { SkASSERT(0 == fBlockEffectRemovalCnt); }

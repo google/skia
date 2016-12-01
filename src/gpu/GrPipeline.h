@@ -32,8 +32,7 @@ class GrPipelineBuilder;
 class GrRenderTargetContext;
 
 struct GrBatchToXPOverrides {
-    GrBatchToXPOverrides()
-    : fUsePLSDstRead(false) {}
+    GrBatchToXPOverrides() : fUsePLSDstRead(false) {}
 
     bool fUsePLSDstRead;
 };
@@ -54,13 +53,13 @@ public:
     /// @name Creation
 
     struct CreateArgs {
-        const GrPipelineBuilder*    fPipelineBuilder;
-        GrRenderTargetContext*      fRenderTargetContext;
-        const GrCaps*               fCaps;
-        GrPipelineOptimizations     fOpts;
-        const GrScissorState*       fScissor;
-        const GrWindowRectsState*   fWindowRectsState;
-        bool                        fHasStencilClip;
+        const GrPipelineBuilder* fPipelineBuilder;
+        GrRenderTargetContext* fRenderTargetContext;
+        const GrCaps* fCaps;
+        GrPipelineOptimizations fOpts;
+        const GrScissorState* fScissor;
+        const GrWindowRectsState* fWindowRectsState;
+        bool fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
@@ -85,17 +84,14 @@ public:
      * test than isEqual because it also considers blend barriers when the two batches' bounds
      * overlap
      */
-    static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
-                           const GrPipeline& b, const SkRect& bBounds,
-                           const GrCaps& caps)  {
+    static bool CanCombine(const GrPipeline& a, const SkRect& aBounds, const GrPipeline& b,
+                           const SkRect& bBounds, const GrCaps& caps) {
         if (!AreEqual(a, b)) {
             return false;
         }
         if (a.xferBarrierType(caps)) {
-            return aBounds.fRight <= bBounds.fLeft ||
-                   aBounds.fBottom <= bBounds.fTop ||
-                   bBounds.fRight <= aBounds.fLeft ||
-                   bBounds.fBottom <= aBounds.fTop;
+            return aBounds.fRight <= bBounds.fLeft || aBounds.fBottom <= bBounds.fTop ||
+                   bBounds.fRight <= aBounds.fLeft || bBounds.fBottom <= aBounds.fTop;
         }
         return true;
     }
@@ -159,18 +155,12 @@ public:
     bool getDisableOutputConversionToSRGB() const {
         return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
     }
-    bool getAllowSRGBInputs() const {
-        return SkToBool(fFlags & kAllowSRGBInputs_Flag);
-    }
+    bool getAllowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
     bool usesDistanceVectorField() const {
         return SkToBool(fFlags & kUsesDistanceVectorField_Flag);
     }
-    bool hasStencilClip() const {
-        return SkToBool(fFlags & kHasStencilClip_Flag);
-    }
-    bool isStencilEnabled() const {
-        return SkToBool(fFlags & kStencilEnabled_Flag);
-    }
+    bool hasStencilClip() const { return SkToBool(fFlags & kHasStencilClip_Flag); }
+    bool isStencilEnabled() const { return SkToBool(fFlags & kStencilEnabled_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
@@ -183,19 +173,18 @@ public:
      */
     GrDrawFace getDrawFace() const { return fDrawFace; }
 
-
     ///////////////////////////////////////////////////////////////////////////
 
     bool ignoresCoverage() const { return fIgnoresCoverage; }
 
 private:
-    GrPipeline() { /** Initialized in factory function*/ }
+    GrPipeline() { /** Initialized in factory function*/
+    }
 
     /**
      * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
      */
-    void adjustProgramFromOptimizations(const GrPipelineBuilder& ds,
-                                        GrXferProcessor::OptFlags,
+    void adjustProgramFromOptimizations(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags,
                                         const GrProcOptInfo& colorPOI,
                                         const GrProcOptInfo& coveragePOI,
                                         int* firstColorProcessorIdx,
@@ -206,35 +195,34 @@ private:
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.
      */
-    void setOutputStateInfo(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags,
-                            const GrCaps&);
+    void setOutputStateInfo(const GrPipelineBuilder& ds, GrXferProcessor::OptFlags, const GrCaps&);
 
     enum Flags {
-        kHWAA_Flag                          = 0x1,
-        kSnapVertices_Flag                  = 0x2,
+        kHWAA_Flag = 0x1,
+        kSnapVertices_Flag = 0x2,
         kDisableOutputConversionToSRGB_Flag = 0x4,
-        kAllowSRGBInputs_Flag               = 0x8,
-        kUsesDistanceVectorField_Flag       = 0x10,
-        kHasStencilClip_Flag                = 0x20,
-        kStencilEnabled_Flag                = 0x40,
+        kAllowSRGBInputs_Flag = 0x8,
+        kUsesDistanceVectorField_Flag = 0x10,
+        kHasStencilClip_Flag = 0x20,
+        kStencilEnabled_Flag = 0x40,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
     typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
     typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
-    RenderTarget                        fRenderTarget;
-    GrScissorState                      fScissorState;
-    GrWindowRectsState                  fWindowRectsState;
-    const GrUserStencilSettings*        fUserStencilSettings;
-    GrDrawFace                          fDrawFace;
-    uint32_t                            fFlags;
-    ProgramXferProcessor                fXferProcessor;
-    FragmentProcessorArray              fFragmentProcessors;
-    bool                                fIgnoresCoverage;
+    RenderTarget fRenderTarget;
+    GrScissorState fScissorState;
+    GrWindowRectsState fWindowRectsState;
+    const GrUserStencilSettings* fUserStencilSettings;
+    GrDrawFace fDrawFace;
+    uint32_t fFlags;
+    ProgramXferProcessor fXferProcessor;
+    FragmentProcessorArray fFragmentProcessors;
+    bool fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int                                 fNumColorProcessors;
+    int fNumColorProcessors;
 
     typedef SkRefCnt INHERITED;
 };

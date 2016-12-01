@@ -23,21 +23,18 @@ public:
     virtual ~GrVkBuffer() {
         // either release or abandon should have been called by the owner of this object.
         SkASSERT(!fResource);
-        delete [] (unsigned char*)fMapPtr;
+        delete[](unsigned char*) fMapPtr;
     }
 
-    VkBuffer                    buffer() const { return fResource->fBuffer; }
-    const GrVkAlloc&            alloc() const { return fResource->fAlloc; }
+    VkBuffer buffer() const { return fResource->fBuffer; }
+    const GrVkAlloc& alloc() const { return fResource->fAlloc; }
     const GrVkRecycledResource* resource() const { return fResource; }
-    size_t                      size() const { return fDesc.fSizeInBytes; }
-    VkDeviceSize                offset() const { return fOffset;  }
+    size_t size() const { return fDesc.fSizeInBytes; }
+    VkDeviceSize offset() const { return fOffset; }
 
-    void addMemoryBarrier(const GrVkGpu* gpu,
-                          VkAccessFlags srcAccessMask,
-                          VkAccessFlags dstAccessMask,
-                          VkPipelineStageFlags srcStageMask,
-                          VkPipelineStageFlags dstStageMask,
-                          bool byRegion) const;
+    void addMemoryBarrier(const GrVkGpu* gpu, VkAccessFlags srcAccessMask,
+                          VkAccessFlags dstAccessMask, VkPipelineStageFlags srcStageMask,
+                          VkPipelineStageFlags dstStageMask, bool byRegion) const;
 
     enum Type {
         kVertex_Type,
@@ -49,9 +46,9 @@ public:
 
 protected:
     struct Desc {
-        size_t      fSizeInBytes;
-        Type        fType;         // vertex buffer, index buffer, etc.
-        bool        fDynamic;
+        size_t fSizeInBytes;
+        Type fType;  // vertex buffer, index buffer, etc.
+        bool fDynamic;
     };
 
     class Resource : public GrVkRecycledResource {
@@ -64,9 +61,9 @@ protected:
             SkDebugf("GrVkBuffer: %d (%d refs)\n", fBuffer, this->getRefCnt());
         }
 #endif
-        VkBuffer           fBuffer;
-        GrVkAlloc          fAlloc;
-        Type               fType;
+        VkBuffer fBuffer;
+        GrVkAlloc fAlloc;
+        Type fType;
 
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
@@ -77,12 +74,10 @@ protected:
     };
 
     // convenience routine for raw buffer creation
-    static const Resource* Create(const GrVkGpu* gpu,
-                                  const Desc& descriptor);
+    static const Resource* Create(const GrVkGpu* gpu, const Desc& descriptor);
 
     GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)
-        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
-    }
+        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {}
 
     void* vkMap(GrVkGpu* gpu) {
         this->internalMap(gpu, fDesc.fSizeInBytes);
@@ -99,8 +94,7 @@ protected:
     void vkRelease(const GrVkGpu* gpu);
 
 private:
-    virtual const Resource* createResource(GrVkGpu* gpu,
-                                           const Desc& descriptor) {
+    virtual const Resource* createResource(GrVkGpu* gpu, const Desc& descriptor) {
         return Create(gpu, descriptor);
     }
 
@@ -110,10 +104,10 @@ private:
     void validate() const;
     bool vkIsMapped() const;
 
-    Desc                    fDesc;
-    const Resource*         fResource;
-    VkDeviceSize            fOffset;
-    void*                   fMapPtr;
+    Desc fDesc;
+    const Resource* fResource;
+    VkDeviceSize fOffset;
+    void* fMapPtr;
 
     typedef SkNoncopyable INHERITED;
 };

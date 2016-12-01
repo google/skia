@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkGpu.h"
 #include "GrVkImage.h"
+#include "GrVkGpu.h"
 #include "GrVkMemory.h"
 #include "GrVkUtil.h"
 
@@ -16,7 +16,7 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
     switch (format) {
         case VK_FORMAT_S8_UINT:
             return VK_IMAGE_ASPECT_STENCIL_BIT;
-        case VK_FORMAT_D24_UNORM_S8_UINT: // fallthrough
+        case VK_FORMAT_D24_UNORM_S8_UINT:  // fallthrough
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         default:
@@ -26,11 +26,9 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
 }
 
 void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
-                               VkAccessFlags dstAccessMask,
-                               VkPipelineStageFlags dstStageMask,
+                               VkAccessFlags dstAccessMask, VkPipelineStageFlags dstStageMask,
                                bool byRegion) {
-    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
-             VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
+    SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout && VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
 
     // If the old and new layout are the same, there is no reason to put in a barrier since the
@@ -46,16 +44,16 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
 
     VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(fInfo.fFormat);
     VkImageMemoryBarrier imageMemoryBarrier = {
-        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
-        nullptr,                                         // pNext
-        srcAccessMask,                                   // outputMask
-        dstAccessMask,                                   // inputMask
-        currentLayout,                                   // oldLayout
-        newLayout,                                       // newLayout
-        VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
-        VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
-        fInfo.fImage,                                    // image
-        { aspectFlags, 0, fInfo.fLevelCount, 0, 1 }      // subresourceRange
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,    // sType
+            nullptr,                                   // pNext
+            srcAccessMask,                             // outputMask
+            dstAccessMask,                             // inputMask
+            currentLayout,                             // oldLayout
+            newLayout,                                 // newLayout
+            VK_QUEUE_FAMILY_IGNORED,                   // srcQueueFamilyIndex
+            VK_QUEUE_FAMILY_IGNORED,                   // dstQueueFamilyIndex
+            fInfo.fImage,                              // image
+            {aspectFlags, 0, fInfo.fLevelCount, 0, 1}  // subresourceRange
     };
 
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
@@ -71,8 +69,8 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     GrVkAlloc alloc;
 
     bool isLinear = VK_IMAGE_TILING_LINEAR == imageDesc.fImageTiling;
-    VkImageLayout initialLayout = isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED
-                                           : VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageLayout initialLayout =
+            isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED : VK_IMAGE_LAYOUT_UNDEFINED;
 
     // Create Image
     VkSampleCountFlagBits vkSamples;
@@ -84,29 +82,29 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
              VK_SAMPLE_COUNT_1_BIT == vkSamples);
 
     // sRGB format images may need to be aliased to linear for various reasons (legacy mode):
-    VkImageCreateFlags createFlags = GrVkFormatIsSRGB(imageDesc.fFormat, nullptr)
-        ? VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT : 0;
+    VkImageCreateFlags createFlags =
+            GrVkFormatIsSRGB(imageDesc.fFormat, nullptr) ? VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT : 0;
 
     const VkImageCreateInfo imageCreateInfo = {
-        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
-        NULL,                                        // pNext
-        createFlags,                                 // VkImageCreateFlags
-        imageDesc.fImageType,                        // VkImageType
-        imageDesc.fFormat,                           // VkFormat
-        { imageDesc.fWidth, imageDesc.fHeight, 1 },  // VkExtent3D
-        imageDesc.fLevels,                           // mipLevels
-        1,                                           // arrayLayers
-        vkSamples,                                   // samples
-        imageDesc.fImageTiling,                      // VkImageTiling
-        imageDesc.fUsageFlags,                       // VkImageUsageFlags
-        VK_SHARING_MODE_EXCLUSIVE,                   // VkSharingMode
-        0,                                           // queueFamilyCount
-        0,                                           // pQueueFamilyIndices
-        initialLayout                                // initialLayout
+            VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,       // sType
+            NULL,                                      // pNext
+            createFlags,                               // VkImageCreateFlags
+            imageDesc.fImageType,                      // VkImageType
+            imageDesc.fFormat,                         // VkFormat
+            {imageDesc.fWidth, imageDesc.fHeight, 1},  // VkExtent3D
+            imageDesc.fLevels,                         // mipLevels
+            1,                                         // arrayLayers
+            vkSamples,                                 // samples
+            imageDesc.fImageTiling,                    // VkImageTiling
+            imageDesc.fUsageFlags,                     // VkImageUsageFlags
+            VK_SHARING_MODE_EXCLUSIVE,                 // VkSharingMode
+            0,                                         // queueFamilyCount
+            0,                                         // pQueueFamilyIndices
+            initialLayout                              // initialLayout
     };
 
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr,
-                                                        &image));
+    GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
+                        CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
 
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
@@ -157,5 +155,4 @@ void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
-void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {
-}
+void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {}

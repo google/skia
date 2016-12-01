@@ -24,29 +24,21 @@ public:
 
 protected:
     // A helper which subclasses can use if needed and used above in the default setTransformData().
-    void setTransformDataHelper(const SkMatrix& localMatrix,
-                                const GrGLSLProgramDataManager& pdman,
+    void setTransformDataHelper(const SkMatrix& localMatrix, const GrGLSLProgramDataManager& pdman,
                                 FPCoordTransformIter*);
 
     // Emit a uniform matrix for each coord transform.
-    void emitTransforms(GrGLSLVertexBuilder* vb,
-                        GrGLSLVaryingHandler* varyingHandler,
-                        GrGLSLUniformHandler* uniformHandler,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
-                        FPCoordTransformHandler* handler) {
-        this->emitTransforms(vb, varyingHandler, uniformHandler,
-                             posVar, localCoords, SkMatrix::I(), handler);
+    void emitTransforms(GrGLSLVertexBuilder* vb, GrGLSLVaryingHandler* varyingHandler,
+                        GrGLSLUniformHandler* uniformHandler, const GrShaderVar& posVar,
+                        const char* localCoords, FPCoordTransformHandler* handler) {
+        this->emitTransforms(vb, varyingHandler, uniformHandler, posVar, localCoords, SkMatrix::I(),
+                             handler);
     }
 
     // Emit pre-transformed coords as a vertex attribute per coord-transform.
-    void emitTransforms(GrGLSLVertexBuilder*,
-                        GrGLSLVaryingHandler*,
-                        GrGLSLUniformHandler*,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
-                        const SkMatrix& localMatrix,
-                        FPCoordTransformHandler*);
+    void emitTransforms(GrGLSLVertexBuilder*, GrGLSLVaryingHandler*, GrGLSLUniformHandler*,
+                        const GrShaderVar& posVar, const char* localCoords,
+                        const SkMatrix& localMatrix, FPCoordTransformHandler*);
 
     struct GrGPArgs {
         // The variable used by a GP to store its position. It can be
@@ -56,12 +48,8 @@ protected:
 
     // Create the correct type of position variable given the CTM
     void setupPosition(GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
-    void setupPosition(GrGLSLVertexBuilder*,
-                       GrGLSLUniformHandler* uniformHandler,
-                       GrGPArgs*,
-                       const char* posName,
-                       const SkMatrix& mat,
-                       UniformHandle* viewMatrixUniform);
+    void setupPosition(GrGLSLVertexBuilder*, GrGLSLUniformHandler* uniformHandler, GrGPArgs*,
+                       const char* posName, const SkMatrix& mat, UniformHandle* viewMatrixUniform);
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {
         if (mat.isIdentity()) {
@@ -77,8 +65,8 @@ private:
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;
 
     struct TransformUniform {
-        UniformHandle  fHandle;
-        SkMatrix       fCurrentValue = SkMatrix::InvalidMatrix();
+        UniformHandle fHandle;
+        SkMatrix fCurrentValue = SkMatrix::InvalidMatrix();
     };
 
     SkTArray<TransformUniform, true> fInstalledTransforms;

@@ -56,11 +56,9 @@ public:
     }
 
     static GrAtlasTextBatch* CreateDistanceField(
-                                              int glyphCount, GrBatchFontCache* fontCache,
-                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                              bool useGammaCorrectDistanceTable,
-                                              SkColor filteredColor, bool isLCD,
-                                              bool useBGR) {
+            int glyphCount, GrBatchFontCache* fontCache,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            bool useGammaCorrectDistanceTable, SkColor filteredColor, bool isLCD, bool useBGR) {
         GrAtlasTextBatch* batch = new GrAtlasTextBatch;
 
         batch->fFontCache = fontCache;
@@ -95,25 +93,23 @@ public:
     SkString dumpInfo() const override;
 
 protected:
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override;
-
 
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        sk_sp<const GrBuffer>      fVertexBuffer;
-        sk_sp<const GrBuffer>      fIndexBuffer;
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor> fGeometryProcessor;
-        int                        fGlyphsToFlush;
-        int                        fVertexOffset;
+        int fGlyphsToFlush;
+        int fVertexOffset;
     };
 
     void onPrepareDraws(Target* target) const override;
 
-    GrAtlasTextBatch() : INHERITED(ClassID()) {} // initialized in factory functions.
+    GrAtlasTextBatch() : INHERITED(ClassID()) {}  // initialized in factory functions.
 
     ~GrAtlasTextBatch() {
         for (int i = 0; i < fGeoCount; i++) {
@@ -132,7 +128,7 @@ private:
             case kLCDDistanceField_MaskType:
                 return kA8_GrMaskFormat;
         }
-        return kA8_GrMaskFormat; // suppress warning
+        return kA8_GrMaskFormat;  // suppress warning
     }
 
     bool usesDistanceFields() const {
@@ -141,8 +137,7 @@ private:
     }
 
     bool isLCD() const {
-        return kLCDCoverageMask_MaskType == fMaskType ||
-               kLCDDistanceField_MaskType == fMaskType;
+        return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
     }
 
     inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
@@ -180,7 +175,7 @@ private:
         kGrayscaleDistanceField_MaskType,
         kLCDDistanceField_MaskType,
     } fMaskType;
-    bool fUseBGR; // fold this into the enum?
+    bool fUseBGR;  // fold this into the enum?
 
     GrBatchFontCache* fFontCache;
 
@@ -189,7 +184,7 @@ private:
     SkColor fFilteredColor;
     bool fUseGammaCorrectDistanceTable;
 
-    friend class GrBlobRegenHelper; // Needs to trigger flushes
+    friend class GrBlobRegenHelper;  // Needs to trigger flushes
 
     typedef GrVertexBatch INHERITED;
 };
@@ -200,18 +195,13 @@ private:
  */
 class GrBlobRegenHelper {
 public:
-    GrBlobRegenHelper(const GrAtlasTextBatch* batch,
-                      GrVertexBatch::Target* target,
+    GrBlobRegenHelper(const GrAtlasTextBatch* batch, GrVertexBatch::Target* target,
                       GrAtlasTextBatch::FlushInfo* flushInfo)
-        : fBatch(batch)
-        , fTarget(target)
-        , fFlushInfo(flushInfo) {}
+        : fBatch(batch), fTarget(target), fFlushInfo(flushInfo) {}
 
     void flush();
 
-    void incGlyphCount(int glyphCount = 1) {
-        fFlushInfo->fGlyphsToFlush += glyphCount;
-    }
+    void incGlyphCount(int glyphCount = 1) { fFlushInfo->fGlyphsToFlush += glyphCount; }
 
 private:
     const GrAtlasTextBatch* fBatch;

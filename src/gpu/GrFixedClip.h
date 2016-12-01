@@ -22,7 +22,10 @@ public:
 
     const GrScissorState& scissorState() const { return fScissorState; }
     bool scissorEnabled() const { return fScissorState.enabled(); }
-    const SkIRect& scissorRect() const { SkASSERT(scissorEnabled()); return fScissorState.rect(); }
+    const SkIRect& scissorRect() const {
+        SkASSERT(scissorEnabled());
+        return fScissorState.rect();
+    }
 
     void disableScissor() { fScissorState.setDisabled(); }
 
@@ -48,8 +51,8 @@ public:
     static const GrFixedClip& Disabled();
 
 private:
-    GrScissorState       fScissorState;
-    GrWindowRectsState   fWindowRectsState;
+    GrScissorState fScissorState;
+    GrWindowRectsState fWindowRectsState;
 };
 
 #endif

@@ -47,7 +47,6 @@ public:
      */
     virtual SkString ensureCoords2D(const GrShaderVar&) = 0;
 
-
     /** Returns a variable name that represents the position of the fragment in the FS. The position
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     virtual const char* fragmentPosition() = 0;
@@ -158,8 +157,8 @@ public:
  */
 class GrGLSLFragmentShaderBuilder : public GrGLSLPPFragmentBuilder, public GrGLSLXPFragmentBuilder {
 public:
-   /** Returns a nonzero key for a surface's origin. This should only be called if a processor will
-       use the fragment position and/or sample locations. */
+    /** Returns a nonzero key for a surface's origin. This should only be called if a processor will
+        use the fragment position and/or sample locations. */
     static uint8_t KeyForSurfaceOrigin(GrSurfaceOrigin);
 
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
@@ -232,13 +231,13 @@ private:
      */
     SkString fMangleString;
 
-    bool       fSetupFragPosition;
-    bool       fHasCustomColorOutput;
-    int        fCustomColorOutputIndex;
-    bool       fHasSecondaryOutput;
-    uint8_t    fUsedSampleOffsetArrays;
-    bool       fHasInitializedSampleMask;
-    SkString   fDistanceVectorOutput;
+    bool fSetupFragPosition;
+    bool fHasCustomColorOutput;
+    int fCustomColorOutputIndex;
+    bool fHasSecondaryOutput;
+    uint8_t fUsedSampleOffsetArrays;
+    bool fHasInitializedSampleMask;
+    SkString fDistanceVectorOutput;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by

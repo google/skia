@@ -21,6 +21,7 @@ public:
     GrGLSLVertexBuilder(GrGLSLProgramBuilder* program);
 
     void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
+
 private:
     void onFinalize() override;
 

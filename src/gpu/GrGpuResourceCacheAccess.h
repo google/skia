@@ -12,7 +12,7 @@
 #include "GrGpuResourcePriv.h"
 
 namespace skiatest {
-    class Reporter;
+class Reporter;
 }
 
 /**
@@ -26,7 +26,7 @@ private:
      */
     bool isScratch() const {
         return !fResource->getUniqueKey().isValid() && fResource->fScratchKey.isValid() &&
-                SkBudgeted::kYes == fResource->resourcePriv().isBudgeted();
+               SkBudgeted::kYes == fResource->resourcePriv().isBudgeted();
     }
 
     /**
@@ -76,7 +76,7 @@ private:
 
     CacheAccess(GrGpuResource* resource) : fResource(resource) {}
     CacheAccess(const CacheAccess& that) : fResource(that.fResource) {}
-    CacheAccess& operator=(const CacheAccess&); // unimpl
+    CacheAccess& operator=(const CacheAccess&);  // unimpl
 
     // No taking addresses of this type.
     const CacheAccess* operator&() const;
@@ -84,9 +84,9 @@ private:
 
     GrGpuResource* fResource;
 
-    friend class GrGpuResource; // to construct/copy this type.
-    friend class GrResourceCache; // to use this type
-    friend void test_unbudgeted_to_scratch(skiatest::Reporter* reporter); // for unit testing
+    friend class GrGpuResource;    // to construct/copy this type.
+    friend class GrResourceCache;  // to use this type
+    friend void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);  // for unit testing
 };
 
 inline GrGpuResource::CacheAccess GrGpuResource::cacheAccess() { return CacheAccess(this); }

@@ -21,8 +21,7 @@
 template <bool regenPos, bool regenCol, bool regenTexCoords>
 inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexStride,
                            bool useDistanceFields, SkScalar transX, SkScalar transY,
-                           int32_t log2Width, int32_t log2Height,
-                           GrColor color) {
+                           int32_t log2Width, int32_t log2Height, GrColor color) {
     int u0, v0, u1, v1;
     if (regenTexCoords) {
         SkASSERT(glyph);
@@ -75,8 +74,8 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 
     if (regenTexCoords) {
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-        textureCoords[0] = (uint16_t) u0;
-        textureCoords[1] = (uint16_t) v0;
+        textureCoords[0] = (uint16_t)u0;
+        textureCoords[1] = (uint16_t)v0;
     }
     vertex += vertexStride;
 
@@ -138,15 +137,10 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
-                                   GrBatchFontCache* fontCache,
-                                   GrBlobRegenHelper *helper,
-                                   Run* run,
-                                   Run::SubRunInfo* info,
-                                   SkAutoGlyphCache* lazyCache,
-                                   int glyphCount, size_t vertexStride,
-                                   GrColor color, SkScalar transX,
-                                   SkScalar transY) const {
+void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+                                   GrBlobRegenHelper* helper, Run* run, Run::SubRunInfo* info,
+                                   SkAutoGlyphCache* lazyCache, int glyphCount, size_t vertexStride,
+                                   GrColor color, SkScalar transX, SkScalar transY) const {
     SkASSERT(lazyCache);
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     GrBatchTextStrike* strike = nullptr;
@@ -154,8 +148,8 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
         info->resetBulkUseToken();
 
         const SkDescriptor* desc = (run->fOverrideDescriptor && !info->drawAsDistanceFields())
-                                      ? run->fOverrideDescriptor->getDesc()
-                                      : run->fDescriptor.getDesc();
+                                           ? run->fOverrideDescriptor->getDesc()
+                                           : run->fDescriptor.getDesc();
 
         if (!*lazyCache || (*lazyCache)->getDescriptor() != *desc) {
             SkScalerContextEffects effects;
@@ -194,9 +188,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
                 helper->flush();
                 brokenRun = glyphIdx > 0;
 
-                SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target,
-                                                                    glyph,
-                                                                    lazyCache->get(),
+                SkDEBUGCODE(bool success =) strike->addGlyphToAtlas(target, glyph, lazyCache->get(),
                                                                     info->maskFormat());
                 SkASSERT(success);
             }
@@ -221,17 +213,17 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
         if (regenGlyphs) {
             info->setStrike(strike);
         }
-        info->setAtlasGeneration(brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
-                                 fontCache->atlasGeneration(info->maskFormat()));
+        info->setAtlasGeneration(brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration
+                                           : fontCache->atlasGeneration(info->maskFormat()));
     }
 }
 
 enum RegenMask {
-    kNoRegen    = 0x0,
-    kRegenPos   = 0x1,
-    kRegenCol   = 0x2,
-    kRegenTex   = 0x4,
-    kRegenGlyph = 0x8 | kRegenTex, // we have to regenerate the texture coords when we regen glyphs
+    kNoRegen = 0x0,
+    kRegenPos = 0x1,
+    kRegenCol = 0x2,
+    kRegenTex = 0x4,
+    kRegenGlyph = 0x8 | kRegenTex,  // we have to regenerate the texture coords when we regen glyphs
 
     // combinations
     kRegenPosCol = kRegenPos | kRegenCol,
@@ -243,16 +235,16 @@ enum RegenMask {
     kRegenColTexGlyph = kRegenCol | kRegenGlyph,
 };
 
-#define REGEN_ARGS target, fontCache, helper, &run, &info, lazyCache, \
-                   *glyphCount, vertexStride, color, transX, transY
+#define REGEN_ARGS                                                                               \
+    target, fontCache, helper, &run, &info, lazyCache, *glyphCount, vertexStride, color, transX, \
+            transY
 
-void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
-                                   GrBatchFontCache* fontCache,
-                                   GrBlobRegenHelper *helper,
-                                   int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,
-                                   size_t vertexStride, const SkMatrix& viewMatrix,
-                                   SkScalar x, SkScalar y, GrColor color,
-                                   void** vertices, size_t* byteCount, int* glyphCount) {
+void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+                                   GrBlobRegenHelper* helper, int runIndex, int subRunIndex,
+                                   SkAutoGlyphCache* lazyCache, size_t vertexStride,
+                                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                   GrColor color, void** vertices, size_t* byteCount,
+                                   int* glyphCount) {
     Run& run = fRuns[runIndex];
     Run::SubRunInfo& info = run.fSubRunInfo[subRunIndex];
 
@@ -271,10 +263,8 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
     // it.  These ids will still be valid as long as we hold the ref.  When we are done
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
     bool regenerateGlyphs = info.strike()->isAbandoned();
-    bool regenerateTextureCoords = info.atlasGeneration() != currentAtlasGen ||
-                                   regenerateGlyphs;
-    bool regenerateColors = kARGB_GrMaskFormat != info.maskFormat() &&
-                            info.color() != color;
+    bool regenerateTextureCoords = info.atlasGeneration() != currentAtlasGen || regenerateGlyphs;
+    bool regenerateColors = kARGB_GrMaskFormat != info.maskFormat() && info.color() != color;
     bool regeneratePositions = transX != 0.f || transY != 0.f;
     *glyphCount = info.glyphCount();
 
@@ -286,26 +276,48 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
     RegenMask regenMask = (RegenMask)regenMaskBits;
 
     switch (regenMask) {
-        case kRegenPos: this->regenInBatch<true, false, false, false>(REGEN_ARGS); break;
-        case kRegenCol: this->regenInBatch<false, true, false, false>(REGEN_ARGS); break;
-        case kRegenTex: this->regenInBatch<false, false, true, false>(REGEN_ARGS); break;
-        case kRegenGlyph: this->regenInBatch<false, false, true, true>(REGEN_ARGS); break;
+        case kRegenPos:
+            this->regenInBatch<true, false, false, false>(REGEN_ARGS);
+            break;
+        case kRegenCol:
+            this->regenInBatch<false, true, false, false>(REGEN_ARGS);
+            break;
+        case kRegenTex:
+            this->regenInBatch<false, false, true, false>(REGEN_ARGS);
+            break;
+        case kRegenGlyph:
+            this->regenInBatch<false, false, true, true>(REGEN_ARGS);
+            break;
 
-            // combinations
-        case kRegenPosCol: this->regenInBatch<true, true, false, false>(REGEN_ARGS); break;
-        case kRegenPosTex: this->regenInBatch<true, false, true, false>(REGEN_ARGS); break;
-        case kRegenPosTexGlyph: this->regenInBatch<true, false, true, true>(REGEN_ARGS); break;
-        case kRegenPosColTex: this->regenInBatch<true, true, true, false>(REGEN_ARGS); break;
-        case kRegenPosColTexGlyph: this->regenInBatch<true, true, true, true>(REGEN_ARGS); break;
-        case kRegenColTex: this->regenInBatch<false, true, true, false>(REGEN_ARGS); break;
-        case kRegenColTexGlyph: this->regenInBatch<false, true, true, true>(REGEN_ARGS); break;
+        // combinations
+        case kRegenPosCol:
+            this->regenInBatch<true, true, false, false>(REGEN_ARGS);
+            break;
+        case kRegenPosTex:
+            this->regenInBatch<true, false, true, false>(REGEN_ARGS);
+            break;
+        case kRegenPosTexGlyph:
+            this->regenInBatch<true, false, true, true>(REGEN_ARGS);
+            break;
+        case kRegenPosColTex:
+            this->regenInBatch<true, true, true, false>(REGEN_ARGS);
+            break;
+        case kRegenPosColTexGlyph:
+            this->regenInBatch<true, true, true, true>(REGEN_ARGS);
+            break;
+        case kRegenColTex:
+            this->regenInBatch<false, true, true, false>(REGEN_ARGS);
+            break;
+        case kRegenColTexGlyph:
+            this->regenInBatch<false, true, true, true>(REGEN_ARGS);
+            break;
         case kNoRegen:
             helper->incGlyphCount(*glyphCount);
 
             // set use tokens for all of the glyphs in our subrun.  This is only valid if we
             // have a valid atlas generation
             fontCache->setUseTokenBulk(*info.bulkUseToken(), target->nextDrawToken(),
-                                        info.maskFormat());
+                                       info.maskFormat());
             break;
     }
 

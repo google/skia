@@ -17,7 +17,6 @@ class SkRegion;
 namespace GrRegionBatch {
 
 GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region);
-
 };
 
 #endif

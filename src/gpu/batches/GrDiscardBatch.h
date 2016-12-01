@@ -17,9 +17,7 @@ class GrDiscardBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDiscardBatch(GrRenderTarget* rt)
-        : INHERITED(ClassID())
-        , fRenderTarget(rt) {
+    GrDiscardBatch(GrRenderTarget* rt) : INHERITED(ClassID()), fRenderTarget(rt) {
         this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
     }

@@ -86,8 +86,7 @@ public:
 
 private:
     friend class GrTraceMarkerSet;
-    Iter(const GrTraceMarkerSet* markers, int index)
-            : fMarkers(markers), fCurrentIndex(index) {
+    Iter(const GrTraceMarkerSet* markers, int index) : fMarkers(markers), fCurrentIndex(index) {
         SkASSERT(markers);
     }
 

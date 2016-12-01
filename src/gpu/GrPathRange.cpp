@@ -8,21 +8,16 @@
 #include "GrPathRange.h"
 #include "SkPath.h"
 
-GrPathRange::GrPathRange(GrGpu* gpu,
-                         PathGenerator* pathGenerator)
-    : INHERITED(gpu),
-      fPathGenerator(SkRef(pathGenerator)),
-      fNumPaths(fPathGenerator->getNumPaths()) {
+GrPathRange::GrPathRange(GrGpu* gpu, PathGenerator* pathGenerator)
+    : INHERITED(gpu)
+    , fPathGenerator(SkRef(pathGenerator))
+    , fNumPaths(fPathGenerator->getNumPaths()) {
     const int numGroups = (fNumPaths + kPathsPerGroup - 1) / kPathsPerGroup;
-    fGeneratedPaths.reset((numGroups + 7) / 8); // 1 bit per path group.
+    fGeneratedPaths.reset((numGroups + 7) / 8);  // 1 bit per path group.
     memset(&fGeneratedPaths.front(), 0, fGeneratedPaths.count());
 }
 
-GrPathRange::GrPathRange(GrGpu* gpu,
-                         int numPaths)
-    : INHERITED(gpu),
-      fNumPaths(numPaths) {
-}
+GrPathRange::GrPathRange(GrGpu* gpu, int numPaths) : INHERITED(gpu), fNumPaths(numPaths) {}
 
 void GrPathRange::loadPathsIfNeeded(const void* indices, PathIndexType indexType, int count) const {
     switch (indexType) {

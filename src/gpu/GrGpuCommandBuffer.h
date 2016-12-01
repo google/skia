@@ -47,7 +47,7 @@ public:
     };
 
     struct LoadAndStoreInfo {
-        LoadOp  fLoadOp;
+        LoadOp fLoadOp;
         StoreOp fStoreOp;
         GrColor fClearColor;
     };
@@ -66,10 +66,7 @@ public:
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
-    bool draw(const GrPipeline&,
-              const GrPrimitiveProcessor&,
-              const GrMesh*,
-              int meshCount,
+    bool draw(const GrPipeline&, const GrPrimitiveProcessor&, const GrMesh*, int meshCount,
               const SkRect& bounds);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
@@ -96,18 +93,14 @@ private:
     virtual void onSubmit() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onDraw(const GrPipeline&,
-                        const GrPrimitiveProcessor&,
-                        const GrMesh*,
-                        int meshCount,
-                        const SkRect& bounds) = 0;
+    virtual void onDraw(const GrPipeline&, const GrPrimitiveProcessor&, const GrMesh*,
+                        int meshCount, const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) = 0;
 
     virtual void onClearStencilClip(GrRenderTarget*, const GrFixedClip&,
                                     bool insideStencilMask) = 0;
-
 };
 
 #endif

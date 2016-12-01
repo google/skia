@@ -100,9 +100,7 @@ public:
     /**
      * Returns the item count.
      */
-    int count() const {
-        return fCount;
-    }
+    int count() const { return fCount; }
 
     /**
      * Is the count 0?
@@ -161,32 +159,30 @@ public:
          */
         void* get() const {
             SkASSERT(fItemIndex >= 0 && fItemIndex < fAllocator->fCount);
-            return (char*) fAllocator->fBlocks[fBlockIndex] + fIndexInBlock * fAllocator->fItemSize;
+            return (char*)fAllocator->fBlocks[fBlockIndex] + fIndexInBlock * fAllocator->fItemSize;
         }
 
     private:
         const GrAllocator* fAllocator;
-        int                fBlockIndex;
-        int                fIndexInBlock;
-        int                fItemIndex;
+        int fBlockIndex;
+        int fIndexInBlock;
+        int fItemIndex;
     };
 
     /**
      * Access item by index.
      */
-    void* operator[] (int i) {
+    void* operator[](int i) {
         SkASSERT(i >= 0 && i < fCount);
-        return (char*)fBlocks[i / fItemsPerBlock] +
-               fItemSize * (i % fItemsPerBlock);
+        return (char*)fBlocks[i / fItemsPerBlock] + fItemSize * (i % fItemsPerBlock);
     }
 
     /**
      * Access item by index.
      */
-    const void* operator[] (int i) const {
+    const void* operator[](int i) const {
         SkASSERT(i >= 0 && i < fCount);
-        return (const char*)fBlocks[i / fItemsPerBlock] +
-               fItemSize * (i % fItemsPerBlock);
+        return (const char*)fBlocks[i / fItemsPerBlock] + fItemSize * (i % fItemsPerBlock);
     }
 
 protected:
@@ -208,26 +204,30 @@ protected:
     }
 
     // For access to above function.
-    template <typename T> friend class GrTAllocator;
+    template <typename T>
+    friend class GrTAllocator;
 
 private:
     static const int NUM_INIT_BLOCK_PTRS = 8;
 
-    SkSTArray<NUM_INIT_BLOCK_PTRS, void*, true>   fBlocks;
-    size_t                                        fBlockSize;
-    size_t                                        fItemSize;
-    int                                           fItemsPerBlock;
-    bool                                          fOwnFirstBlock;
-    int                                           fCount;
-    int                                           fInsertionIndexInBlock;
+    SkSTArray<NUM_INIT_BLOCK_PTRS, void*, true> fBlocks;
+    size_t fBlockSize;
+    size_t fItemSize;
+    int fItemsPerBlock;
+    bool fOwnFirstBlock;
+    int fCount;
+    int fInsertionIndexInBlock;
 
     typedef SkNoncopyable INHERITED;
 };
 
-template <typename T> class GrTAllocator;
-template <typename T> void* operator new(size_t, GrTAllocator<T>*);
+template <typename T>
+class GrTAllocator;
+template <typename T>
+void* operator new(size_t, GrTAllocator<T>*);
 
-template <typename T> class GrTAllocator : SkNoncopyable {
+template <typename T>
+class GrTAllocator : SkNoncopyable {
 public:
     virtual ~GrTAllocator() { this->reset(); }
 
@@ -236,8 +236,7 @@ public:
      *
      * @param   itemsPerBlock   the number of items to allocate at once
      */
-    explicit GrTAllocator(int itemsPerBlock)
-        : fAllocator(sizeof(T), itemsPerBlock, nullptr) {}
+    explicit GrTAllocator(int itemsPerBlock) : fAllocator(sizeof(T), itemsPerBlock, nullptr) {}
 
     /**
      * Adds an item and returns it.
@@ -280,9 +279,7 @@ public:
     /**
      * Returns the item count.
      */
-    int count() const {
-        return fAllocator.count();
-    }
+    int count() const { return fAllocator.count(); }
 
     /**
      * Is the count 0?
@@ -292,16 +289,12 @@ public:
     /**
      * Access last item, only call if count() != 0
      */
-    T& back() {
-        return *(T*)fAllocator.back();
-    }
+    T& back() { return *(T*)fAllocator.back(); }
 
     /**
      * Access last item, only call if count() != 0
      */
-    const T& back() const {
-        return *(const T*)fAllocator.back();
-    }
+    const T& back() const { return *(const T*)fAllocator.back(); }
 
     /**
      * Iterates through the allocator. This is faster than using operator[] when walking linearly
@@ -323,7 +316,7 @@ public:
          * Gets the current iterator value. Call next() at least once before calling. Don't call
          * after next() returns false.
          */
-        T* get() const { return (T*) fImpl.get(); }
+        T* get() const { return (T*)fImpl.get(); }
 
         /**
          * Convenience operators. Same rules for calling apply as get().
@@ -338,16 +331,12 @@ public:
     /**
      * Access item by index.
      */
-    T& operator[] (int i) {
-        return *(T*)(fAllocator[i]);
-    }
+    T& operator[](int i) { return *(T*)(fAllocator[i]); }
 
     /**
      * Access item by index.
      */
-    const T& operator[] (int i) const {
-        return *(const T*)(fAllocator[i]);
-    }
+    const T& operator[](int i) const { return *(const T*)(fAllocator[i]); }
 
 protected:
     /*
@@ -357,9 +346,7 @@ protected:
      *                          Must be at least size(T)*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    void setInitialBlock(void* initialBlock) {
-        fAllocator.setInitialBlock(initialBlock);
-    }
+    void setInitialBlock(void* initialBlock) { fAllocator.setInitialBlock(initialBlock); }
 
 private:
     friend void* operator new<T>(size_t, GrTAllocator*);
@@ -368,31 +355,31 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-template <int N, typename T> class GrSTAllocator : public GrTAllocator<T> {
+template <int N, typename T>
+class GrSTAllocator : public GrTAllocator<T> {
 private:
     typedef GrTAllocator<T> INHERITED;
 
 public:
-    GrSTAllocator() : INHERITED(N) {
-        this->setInitialBlock(fStorage.get());
-    }
+    GrSTAllocator() : INHERITED(N) { this->setInitialBlock(fStorage.get()); }
 
 private:
     SkAlignedSTStorage<N, T> fStorage;
 };
 
-template <typename T> void* operator new(size_t size, GrTAllocator<T>* allocator) {
+template <typename T>
+void* operator new(size_t size, GrTAllocator<T>* allocator) {
     return allocator->fAllocator.push_back();
 }
 
 // Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
 // to match the op new silences warnings about missing op delete when a constructor throws an
 // exception.
-template <typename T> void operator delete(void*, GrTAllocator<T>*) {
+template <typename T>
+void operator delete(void*, GrTAllocator<T>*) {
     SK_ABORT("Invalid Operation");
 }
 
-#define GrNEW_APPEND_TO_ALLOCATOR(allocator_ptr, type_name, args) \
-    new (allocator_ptr) type_name args
+#define GrNEW_APPEND_TO_ALLOCATOR(allocator_ptr, type_name, args) new (allocator_ptr) type_name args
 
 #endif

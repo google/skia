@@ -26,11 +26,9 @@ struct SkRect;
  */
 class GrAnalyticRectBatch {
 public:
-    static GrDrawOp* CreateAnalyticRectBatch(GrColor color,
-                                             const SkMatrix& viewMatrix,
-                                             const SkRect& rect,
-                                             const SkRect& croppedRect,
+    static GrDrawOp* CreateAnalyticRectBatch(GrColor color, const SkMatrix& viewMatrix,
+                                             const SkRect& rect, const SkRect& croppedRect,
                                              const SkRect& bounds);
 };
 
-#endif // GrAnalyticRectBatch_DEFINED
+#endif  // GrAnalyticRectBatch_DEFINED

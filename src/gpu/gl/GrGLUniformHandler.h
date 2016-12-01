@@ -25,6 +25,7 @@ public:
     const char* getUniformCStr(UniformHandle u) const override {
         return this->getUniformVariable(u).c_str();
     }
+
 private:
     explicit GrGLUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
@@ -32,12 +33,9 @@ private:
         , fSamplers(kUniformsPerBlock)
         , fImageStorages(kUniformsPerBlock) {}
 
-    UniformHandle internalAddUniformArray(uint32_t visibility,
-                                          GrSLType type,
-                                          GrSLPrecision precision,
-                                          const char* name,
-                                          bool mangleName,
-                                          int arrayCount,
+    UniformHandle internalAddUniformArray(uint32_t visibility, GrSLType type,
+                                          GrSLPrecision precision, const char* name,
+                                          bool mangleName, int arrayCount,
                                           const char** outName) override;
 
     SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
@@ -72,10 +70,10 @@ private:
     typedef GrGLProgramDataManager::UniformInfo UniformInfo;
     typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
+    UniformInfoArray fUniforms;
+    UniformInfoArray fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
-    UniformInfoArray    fImageStorages;
+    UniformInfoArray fImageStorages;
 
     friend class GrGLProgramBuilder;
 

@@ -33,7 +33,7 @@ public:
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkDescriptorPool: %d, type %d (%d refs)\n", fDescPool, fType, 
+        SkDebugf("GrVkDescriptorPool: %d, type %d (%d refs)\n", fDescPool, fType,
                  this->getRefCnt());
     }
 #endif
@@ -41,9 +41,9 @@ public:
 private:
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkDescriptorType     fType;
-    uint32_t             fCount;
-    VkDescriptorPool     fDescPool;
+    VkDescriptorType fType;
+    uint32_t fCount;
+    VkDescriptorPool fDescPool;
 
     typedef GrVkResource INHERITED;
 };

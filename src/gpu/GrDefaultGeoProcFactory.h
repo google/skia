@@ -17,120 +17,114 @@
  * interfere with batching due to updating the drawstate.
  */
 namespace GrDefaultGeoProcFactory {
-    // Structs for adding vertex attributes
-    struct PositionAttr {
-        SkPoint fPosition;
+// Structs for adding vertex attributes
+struct PositionAttr {
+    SkPoint fPosition;
+};
+
+struct PositionCoverageAttr {
+    SkPoint fPosition;
+    float fCoverage;
+};
+
+struct PositionColorAttr {
+    SkPoint fPosition;
+    SkColor fColor;
+};
+
+struct PositionColorCoverageAttr {
+    SkPoint fPosition;
+    SkColor fColor;
+    float fCoverage;
+};
+
+struct PositionLocalCoordAttr {
+    SkPoint fPosition;
+    SkPoint fLocalCoord;
+};
+
+struct PositionLocalCoordCoverageAttr {
+    SkPoint fPosition;
+    SkPoint fLocalCoord;
+    float fCoverage;
+};
+
+struct PositionColorLocalCoordAttr {
+    SkPoint fPosition;
+    GrColor fColor;
+    SkPoint fLocalCoord;
+};
+
+struct PositionColorLocalCoordCoverage {
+    SkPoint fPosition;
+    GrColor fColor;
+    SkPoint fLocalCoord;
+    float fCoverage;
+};
+
+struct Color {
+    enum Type {
+        kNone_Type,
+        kUniform_Type,
+        kAttribute_Type,
     };
+    Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
+    Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
+        SkASSERT(type != kUniform_Type);
 
-    struct PositionCoverageAttr {
-        SkPoint fPosition;
-        float   fCoverage;
-    };
-
-    struct PositionColorAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-    };
-
-    struct PositionColorCoverageAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-        float   fCoverage;
-    };
-
-    struct PositionLocalCoordAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionLocalCoordCoverageAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
-    struct PositionColorLocalCoordAttr {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionColorLocalCoordCoverage {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
-    struct Color {
-        enum Type {
-            kNone_Type,
-            kUniform_Type,
-            kAttribute_Type,
-        };
-        Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
-        Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
-            SkASSERT(type != kUniform_Type);
-
-            // TODO This is temporary
-            if (kAttribute_Type == type) {
-                fColor = GrColor_WHITE;
-            }
+        // TODO This is temporary
+        if (kAttribute_Type == type) {
+            fColor = GrColor_WHITE;
         }
+    }
 
-        Type fType;
-        GrColor fColor;
+    Type fType;
+    GrColor fColor;
+};
+
+struct Coverage {
+    enum Type {
+        kNone_Type,
+        kSolid_Type,
+        kUniform_Type,
+        kAttribute_Type,
     };
+    Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
+    Coverage(Type type) : fType(type), fCoverage(0xff) { SkASSERT(type != kUniform_Type); }
 
-    struct Coverage {
-        enum Type {
-            kNone_Type,
-            kSolid_Type,
-            kUniform_Type,
-            kAttribute_Type,
-        };
-        Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
-        Coverage(Type type) : fType(type), fCoverage(0xff) {
-            SkASSERT(type != kUniform_Type);
-        }
+    Type fType;
+    uint8_t fCoverage;
+};
 
-        Type fType;
-        uint8_t fCoverage;
+struct LocalCoords {
+    enum Type {
+        kUnused_Type,
+        kUsePosition_Type,
+        kHasExplicit_Type,
+        kHasTransformed_Type,
     };
+    LocalCoords(Type type) : fType(type), fMatrix(nullptr) {}
+    LocalCoords(Type type, const SkMatrix* matrix) : fType(type), fMatrix(matrix) {
+        SkASSERT(kUnused_Type != type);
+    }
+    bool hasLocalMatrix() const { return nullptr != fMatrix; }
 
-    struct LocalCoords {
-        enum Type {
-            kUnused_Type,
-            kUsePosition_Type,
-            kHasExplicit_Type,
-            kHasTransformed_Type,
-        };
-        LocalCoords(Type type) : fType(type), fMatrix(nullptr) {}
-        LocalCoords(Type type, const SkMatrix* matrix) : fType(type), fMatrix(matrix) {
-            SkASSERT(kUnused_Type != type);
-        }
-        bool hasLocalMatrix() const { return nullptr != fMatrix; }
+    Type fType;
+    const SkMatrix* fMatrix;
+};
 
-        Type fType;
-        const SkMatrix* fMatrix;
-    };
+sk_sp<GrGeometryProcessor> Make(const Color&, const Coverage&, const LocalCoords&,
+                                const SkMatrix& viewMatrix);
 
-    sk_sp<GrGeometryProcessor> Make(const Color&,
-                                    const Coverage&,
-                                    const LocalCoords&,
-                                    const SkMatrix& viewMatrix);
+/*
+ * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
+ * attribute. The view matrix must still be provided to compute correctly transformed
+ * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
+ */
+sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const Color&, const Coverage&, const LocalCoords&,
+                                              const SkMatrix& viewMatrix);
 
-    /*
-     * Use this factory to create a GrGeometryProcessor that expects a device space vertex position
-     * attribute. The view matrix must still be provided to compute correctly transformed
-     * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
-     */
-    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const Color&,
-                                                  const Coverage&,
-                                                  const LocalCoords&,
-                                                  const SkMatrix& viewMatrix);
-
-    inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
+inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };
 
 #endif

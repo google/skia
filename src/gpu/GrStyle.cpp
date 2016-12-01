@@ -8,7 +8,7 @@
 #include "GrStyle.h"
 #include "SkDashPathPriv.h"
 
-int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
+int GrStyle::KeySize(const GrStyle& style, Apply apply, uint32_t flags) {
     GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(SkScalar));
     int size = 0;
     if (style.isDashed()) {
@@ -30,7 +30,7 @@ int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     return size;
 }
 
-void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScalar scale,
+void GrStyle::WriteKey(uint32_t* key, const GrStyle& style, Apply apply, SkScalar scale,
                        uint32_t flags) {
     SkASSERT(key);
     SkASSERT(KeySize(style, apply) >= 0);
@@ -52,7 +52,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
         int32_t count = style.dashIntervalCnt();
         // Dash count should always be even.
         SkASSERT(0 == (count & 0x1));
-        const SkScalar *intervals = style.dashIntervals();
+        const SkScalar* intervals = style.dashIntervals();
         int intervalByteCnt = count * sizeof(SkScalar);
         memcpy(&key[i], intervals, intervalByteCnt);
         i += count;
@@ -91,9 +91,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
             }
         }
 
-        key[i++] = style.strokeRec().getStyle() |
-                   join << kJoinShift |
-                   cap << kCapShift;
+        key[i++] = style.strokeRec().getStyle() | join << kJoinShift | cap << kCapShift;
 
         memcpy(&key[i++], &miter, sizeof(miter));
 
@@ -140,10 +138,9 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
         SkScalar initialLength;
         int initialIndex;
         SkScalar intervalLength;
-        SkDashPath::CalcDashParameters(phase, intervals, intervalCnt, &initialLength,
-                                       &initialIndex, &intervalLength);
-        if (!SkDashPath::InternalFilter(dst, src, strokeRec,
-                                        nullptr, intervals, intervalCnt,
+        SkDashPath::CalcDashParameters(phase, intervals, intervalCnt, &initialLength, &initialIndex,
+                                       &intervalLength);
+        if (!SkDashPath::InternalFilter(dst, src, strokeRec, nullptr, intervals, intervalCnt,
                                         initialLength, initialIndex, intervalLength,
                                         SkDashPath::StrokeRecApplication::kDisallow)) {
             return false;
@@ -155,8 +152,8 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
     return true;
 }
 
-bool GrStyle::applyPathEffectToPath(SkPath *dst, SkStrokeRec *remainingStroke,
-                                    const SkPath &src, SkScalar resScale) const {
+bool GrStyle::applyPathEffectToPath(SkPath* dst, SkStrokeRec* remainingStroke, const SkPath& src,
+                                    SkScalar resScale) const {
     SkASSERT(dst);
     SkStrokeRec strokeRec = fStrokeRec;
     strokeRec.setResScale(resScale);
@@ -192,8 +189,8 @@ bool GrStyle::applyToPath(SkPath* dst, SkStrokeRec::InitStyle* style, const SkPa
         SkASSERT(SkStrokeRec::kFill_Style == strokeRec.getStyle() ||
                  SkStrokeRec::kHairline_Style == strokeRec.getStyle());
         *style = strokeRec.getStyle() == SkStrokeRec::kFill_Style
-                 ? SkStrokeRec::kFill_InitStyle
-                 : SkStrokeRec::kHairline_InitStyle;
+                         ? SkStrokeRec::kFill_InitStyle
+                         : SkStrokeRec::kHairline_InitStyle;
     }
     return true;
 }

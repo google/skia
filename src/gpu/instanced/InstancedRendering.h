@@ -8,12 +8,12 @@
 #ifndef gr_instanced_InstancedRendering_DEFINED
 #define gr_instanced_InstancedRendering_DEFINED
 
+#include "../private/GrInstancedPipelineInfo.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
 #include "batches/GrDrawOp.h"
 #include "instanced/InstancedRenderingTypes.h"
-#include "../private/GrInstancedPipelineInfo.h"
 
 class GrResourceProvider;
 
@@ -81,10 +81,7 @@ public:
      */
     void endFlush();
 
-    enum class ResetType : bool {
-        kDestroy,
-        kAbandon
-    };
+    enum class ResetType : bool { kDestroy, kAbandon };
 
     /**
      * Resets all GPU resources, including those that are held long term. They will be lazily
@@ -102,30 +99,28 @@ protected:
 
         SkString dumpInfo() const override {
             SkString string;
-            string.printf("AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
-                          "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
-                          "GeomChanges: %d\n",
-                          (int)fInfo.fAntialiasMode,
-                          fInfo.fShapeTypes,
-                          fInfo.fInnerShapeTypes,
-                          fInfo.fHasPerspective,
-                          fInfo.fNonSquare,
-                          fPixelLoad,
-                          fIsTracked,
-                          fNumDraws,
-                          fNumChangesInGeometry);
+            string.printf(
+                    "AA: %d, ShapeTypes: 0x%02x, IShapeTypes: 0x%02x, Persp %d, "
+                    "NonSquare: %d, PLoad: %0.2f, Tracked: %d, NumDraws: %d, "
+                    "GeomChanges: %d\n",
+                    (int)fInfo.fAntialiasMode, fInfo.fShapeTypes, fInfo.fInnerShapeTypes,
+                    fInfo.fHasPerspective, fInfo.fNonSquare, fPixelLoad, fIsTracked, fNumDraws,
+                    fNumChangesInGeometry);
             string.append(DumpPipelineInfo(*this->pipeline()));
             string.append(INHERITED::dumpInfo());
             return string;
         }
 
         struct Draw {
-            Instance     fInstance;
-            IndexRange   fGeometry;
-            Draw*        fNext;
+            Instance fInstance;
+            IndexRange fGeometry;
+            Draw* fNext;
         };
 
-        Draw& getSingleDraw() const { SkASSERT(fHeadDraw && !fHeadDraw->fNext); return *fHeadDraw; }
+        Draw& getSingleDraw() const {
+            SkASSERT(fHeadDraw && !fHeadDraw->fNext);
+            return *fHeadDraw;
+        }
         Instance& getSingleInstance() const { return this->getSingleDraw().fInstance; }
 
         void appendRRectParams(const SkRRect&);
@@ -146,15 +141,15 @@ protected:
         void onPrepare(GrBatchFlushState*) override {}
         void onDraw(GrBatchFlushState*, const SkRect& bounds) override;
 
-        InstancedRendering* const         fInstancedRendering;
-        BatchInfo                         fInfo;
-        SkScalar                          fPixelLoad;
-        SkSTArray<5, ParamsTexel, true>   fParams;
-        bool                              fIsTracked;
-        int                               fNumDraws;
-        int                               fNumChangesInGeometry;
-        Draw*                             fHeadDraw;
-        Draw*                             fTailDraw;
+        InstancedRendering* const fInstancedRendering;
+        BatchInfo fInfo;
+        SkScalar fPixelLoad;
+        SkSTArray<5, ParamsTexel, true> fParams;
+        bool fIsTracked;
+        int fNumDraws;
+        int fNumChangesInGeometry;
+        Draw* fHeadDraw;
+        Draw* fTailDraw;
 
         typedef GrDrawOp INHERITED;
 
@@ -166,8 +161,14 @@ protected:
     InstancedRendering(GrGpu* gpu);
 
     const BatchList& trackedBatches() const { return fTrackedBatches; }
-    const GrBuffer* vertexBuffer() const { SkASSERT(fVertexBuffer); return fVertexBuffer.get(); }
-    const GrBuffer* indexBuffer() const { SkASSERT(fIndexBuffer); return fIndexBuffer.get(); }
+    const GrBuffer* vertexBuffer() const {
+        SkASSERT(fVertexBuffer);
+        return fVertexBuffer.get();
+    }
+    const GrBuffer* indexBuffer() const {
+        SkASSERT(fIndexBuffer);
+        return fIndexBuffer.get();
+    }
 
     virtual void onBeginFlush(GrResourceProvider*) = 0;
     virtual void onDraw(const GrPipeline&, const InstanceProcessor&, const Batch*) = 0;
@@ -175,10 +176,7 @@ protected:
     virtual void onResetGpuResources(ResetType) = 0;
 
 private:
-    enum class State : bool {
-        kRecordingDraws,
-        kFlushing
-    };
+    enum class State : bool { kRecordingDraws, kFlushing };
 
     Batch* SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
                                              const SkMatrix& viewMatrix, GrColor,
@@ -190,16 +188,15 @@ private:
 
     virtual Batch* createBatch() = 0;
 
-    const sk_sp<GrGpu>                   fGpu;
-    State                                fState;
-    GrObjectMemoryPool<Batch::Draw>      fDrawPool;
-    SkSTArray<1024, ParamsTexel, true>   fParams;
-    BatchList                            fTrackedBatches;
-    sk_sp<const GrBuffer>                fVertexBuffer;
-    sk_sp<const GrBuffer>                fIndexBuffer;
-    sk_sp<GrBuffer>                      fParamsBuffer;
+    const sk_sp<GrGpu> fGpu;
+    State fState;
+    GrObjectMemoryPool<Batch::Draw> fDrawPool;
+    SkSTArray<1024, ParamsTexel, true> fParams;
+    BatchList fTrackedBatches;
+    sk_sp<const GrBuffer> fVertexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    sk_sp<GrBuffer> fParamsBuffer;
 };
-
 }
 
 #endif

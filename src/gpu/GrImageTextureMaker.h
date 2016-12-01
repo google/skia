@@ -34,10 +34,10 @@ protected:
     sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) override;
 
 private:
-    SkImageCacherator*      fCacher;
-    const SkImage*          fClient;
-    GrUniqueKey             fOriginalKey;
-    SkImage::CachingHint    fCachingHint;
+    SkImageCacherator* fCacher;
+    const SkImage* fClient;
+    GrUniqueKey fOriginalKey;
+    SkImage::CachingHint fCachingHint;
 
     typedef GrTextureMaker INHERITED;
 };

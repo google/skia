@@ -7,9 +7,9 @@
 
 #include "GrVkResourceProvider.h"
 
-#include "GrVkGpu.h"
 #include "GrProcessor.h"
-#include "GrRenderTargetPriv.h" // TODO: remove once refPipelineState gets passed stencil settings.
+#include "GrRenderTargetPriv.h"  // TODO: remove once refPipelineState gets passed stencil settings.
+#include "GrVkGpu.h"
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
 #include "SkOpts.h"
@@ -22,16 +22,13 @@ static const bool c_DisplayVkPipelineCache{false};
 #endif
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {
-
     Entry() : fPipelineState(nullptr) {}
 
     static const GrVkPipelineState::Desc& GetKey(const Entry* entry) {
         return entry->fPipelineState->getDesc();
     }
 
-    static uint32_t Hash(const GrVkPipelineState::Desc& key) {
-        return key.getChecksum();
-    }
+    static uint32_t Hash(const GrVkPipelineState::Desc& key) { return key.getChecksum(); }
 
     sk_sp<GrVkPipelineState> fPipelineState;
 
@@ -46,34 +43,32 @@ GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
     , fTotalRequests(0)
     , fCacheMisses(0)
 #endif
-{}
+{
+}
 
 GrVkResourceProvider::PipelineStateCache::~PipelineStateCache() {
     SkASSERT(0 == fCount);
-    // dump stats
+// dump stats
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     if (c_DisplayVkPipelineCache) {
         SkDebugf("--- Pipeline State Cache ---\n");
         SkDebugf("Total requests: %d\n", fTotalRequests);
         SkDebugf("Cache misses: %d\n", fCacheMisses);
-        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
-                 100.f * fCacheMisses / fTotalRequests :
-                 0.f);
+        SkDebugf("Cache miss %%: %f\n",
+                 (fTotalRequests > 0) ? 100.f * fCacheMisses / fTotalRequests : 0.f);
         SkDebugf("---------------------\n");
     }
 #endif
 }
 
 void GrVkResourceProvider::PipelineStateCache::reset() {
-    fHashTable.foreach([](Entry** entry) {
-        delete *entry;
-    });
+    fHashTable.foreach ([](Entry** entry) { delete *entry; });
     fHashTable.reset();
     fCount = 0;
 }
 
 void GrVkResourceProvider::PipelineStateCache::abandon() {
-    fHashTable.foreach([](Entry** entry) {
+    fHashTable.foreach ([](Entry** entry) {
         SkASSERT((*entry)->fPipelineState.get());
         (*entry)->fPipelineState->abandonGPUResources();
     });
@@ -82,7 +77,7 @@ void GrVkResourceProvider::PipelineStateCache::abandon() {
 }
 
 void GrVkResourceProvider::PipelineStateCache::release() {
-    fHashTable.foreach([this](Entry** entry) {
+    fHashTable.foreach ([this](Entry** entry) {
         SkASSERT((*entry)->fPipelineState.get());
         (*entry)->fPipelineState->freeGPUResources(fGpu);
     });
@@ -91,10 +86,8 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 }
 
 sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineState(
-                                                               const GrPipeline& pipeline,
-                                                               const GrPrimitiveProcessor& primProc,
-                                                               GrPrimitiveType primitiveType,
-                                                               const GrVkRenderPass& renderPass) {
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+        GrPrimitiveType primitiveType, const GrVkRenderPass& renderPass) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -109,8 +102,8 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, stencil,
-                                        primitiveType, *fGpu->caps()->shaderCaps())) {
+    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, stencil, primitiveType,
+                                        *fGpu->caps()->shaderCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
@@ -125,14 +118,8 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
-        sk_sp<GrVkPipelineState> pipelineState(
-            GrVkPipelineStateBuilder::CreatePipelineState(fGpu,
-                                                          pipeline,
-                                                          stencil,
-                                                          primProc,
-                                                          primitiveType,
-                                                          desc,
-                                                          renderPass));
+        sk_sp<GrVkPipelineState> pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
+                fGpu, pipeline, stencil, primProc, primitiveType, desc, renderPass));
         if (nullptr == pipelineState) {
             return nullptr;
         }

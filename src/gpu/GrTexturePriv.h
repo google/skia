@@ -17,21 +17,15 @@
     implemented privately in GrTexture with a inline public method here). */
 class GrTexturePriv {
 public:
-    void setFlag(GrSurfaceFlags flags) {
-        fTexture->fDesc.fFlags = fTexture->fDesc.fFlags | flags;
-    }
+    void setFlag(GrSurfaceFlags flags) { fTexture->fDesc.fFlags = fTexture->fDesc.fFlags | flags; }
 
     void resetFlag(GrSurfaceFlags flags) {
         fTexture->fDesc.fFlags = fTexture->fDesc.fFlags & ~flags;
     }
 
-    bool isSetFlag(GrSurfaceFlags flags) const {
-        return 0 != (fTexture->fDesc.fFlags & flags);
-    }
+    bool isSetFlag(GrSurfaceFlags flags) const { return 0 != (fTexture->fDesc.fFlags & flags); }
 
-    void dirtyMipMaps(bool mipMapsDirty) {
-        fTexture->dirtyMipMaps(mipMapsDirty);
-    }
+    void dirtyMipMaps(bool mipMapsDirty) { fTexture->dirtyMipMaps(mipMapsDirty); }
 
     bool mipMapsAreDirty() const {
         return GrTexture::kValid_MipMapsStatus != fTexture->fMipMapsStatus;
@@ -41,13 +35,9 @@ public:
         return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
     }
 
-    void setMaxMipMapLevel(int maxMipMapLevel) const {
-        fTexture->fMaxMipMapLevel = maxMipMapLevel;
-    }
+    void setMaxMipMapLevel(int maxMipMapLevel) const { fTexture->fMaxMipMapLevel = maxMipMapLevel; }
 
-    int maxMipMapLevel() const {
-        return fTexture->fMaxMipMapLevel;
-    }
+    int maxMipMapLevel() const { return fTexture->fMaxMipMapLevel; }
 
     GrSLType imageStorageType() const {
         if (GrPixelConfigIsSint(fTexture->config())) {
@@ -70,9 +60,9 @@ public:
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 
 private:
-    GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
-    GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) { }
-    GrTexturePriv& operator=(const GrTexturePriv&); // unimpl
+    GrTexturePriv(GrTexture* texture) : fTexture(texture) {}
+    GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) {}
+    GrTexturePriv& operator=(const GrTexturePriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrTexturePriv* operator&() const;
@@ -80,12 +70,12 @@ private:
 
     GrTexture* fTexture;
 
-    friend class GrTexture; // to construct/copy this type.
+    friend class GrTexture;  // to construct/copy this type.
 };
 
 inline GrTexturePriv GrTexture::texturePriv() { return GrTexturePriv(this); }
 
-inline const GrTexturePriv GrTexture::texturePriv () const {
+inline const GrTexturePriv GrTexture::texturePriv() const {
     return GrTexturePriv(const_cast<GrTexture*>(this));
 }
 

@@ -54,8 +54,8 @@ public:
         return GrDrawOpUploadToken(fLastFlushedToken.fSequenceNumber + 1);
     }
 
-    void* makeVertexSpace(size_t vertexSize, int vertexCount,
-                          const GrBuffer** buffer, int* startVertex);
+    void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer** buffer,
+                          int* startVertex);
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex);
 
     /** This is called after each batch has a chance to prepare its draws and before the draws
@@ -72,10 +72,9 @@ public:
     }
 
     void doUpload(GrDrawOp::DeferredUploadFn& upload) {
-        GrDrawOp::WritePixelsFn wp = [this] (GrSurface* surface,
-                int left, int top, int width, int height,
-                GrPixelConfig config, const void* buffer,
-                size_t rowBytes) -> bool {
+        GrDrawOp::WritePixelsFn wp = [this](GrSurface* surface, int left, int top, int width,
+                                            int height, GrPixelConfig config, const void* buffer,
+                                            size_t rowBytes) -> bool {
             return this->fGpu->writePixels(surface, left, top, width, height, config, buffer,
                                            rowBytes);
         };
@@ -97,21 +96,20 @@ public:
     }
 
 private:
+    GrGpu* fGpu;
 
-    GrGpu*                                      fGpu;
+    GrResourceProvider* fResourceProvider;
 
-    GrResourceProvider*                         fResourceProvider;
+    GrGpuCommandBuffer* fCommandBuffer;
 
-    GrGpuCommandBuffer*                         fCommandBuffer;
+    GrVertexBufferAllocPool fVertexPool;
+    GrIndexBufferAllocPool fIndexPool;
 
-    GrVertexBufferAllocPool                     fVertexPool;
-    GrIndexBufferAllocPool                      fIndexPool;
+    SkSTArray<4, GrDrawOp::DeferredUploadFn> fAsapUploads;
 
-    SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
+    GrDrawOpUploadToken fLastIssuedToken;
 
-    GrDrawOpUploadToken                         fLastIssuedToken;
-
-    GrDrawOpUploadToken                         fLastFlushedToken;
+    GrDrawOpUploadToken fLastFlushedToken;
 };
 
 /**
@@ -135,7 +133,7 @@ private:
  * level is not complete and isn't useful. We should push it down to GrVertexBatch until it
  * is required at the GrDrawOp level.
  */
- 
+
 /**
  * GrDrawOp instances use this object to allocate space for their geometry and to issue the draws
  * that render their batch.
@@ -176,8 +174,8 @@ protected:
     GrBatchFlushState* state() { return fState; }
 
 private:
-    GrBatchFlushState*  fState;
-    GrDrawOp*           fBatch;
+    GrBatchFlushState* fState;
+    GrDrawOp* fBatch;
 };
 
 /** Extension of GrDrawOp::Target for use by GrVertexBatch. Adds the ability to create vertex
@@ -188,8 +186,8 @@ public:
 
     void draw(const GrGeometryProcessor* gp, const GrMesh& mesh);
 
-    void* makeVertexSpace(size_t vertexSize, int vertexCount,
-                          const GrBuffer** buffer, int* startVertex) {
+    void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer** buffer,
+                          int* startVertex) {
         return this->state()->makeVertexSpace(vertexSize, vertexCount, buffer, startVertex);
     }
 

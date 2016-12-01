@@ -25,20 +25,17 @@ class GrPlot;
     - failed to get metrics
  */
 struct GrGlyph {
-    enum MaskStyle {
-        kCoverage_MaskStyle,
-        kDistance_MaskStyle
-    };
+    enum MaskStyle { kCoverage_MaskStyle, kDistance_MaskStyle };
 
     typedef uint32_t PackedID;
 
     GrBatchAtlas::AtlasID fID;
-    SkPath*               fPath;
-    PackedID              fPackedID;
-    GrMaskFormat          fMaskFormat;
-    GrIRect16             fBounds;
-    SkIPoint16            fAtlasLocation;
-    bool                  fTooLargeForAtlas;
+    SkPath* fPath;
+    PackedID fPackedID;
+    GrMaskFormat fMaskFormat;
+    GrIRect16 fBounds;
+    SkIPoint16 fAtlasLocation;
+    bool fTooLargeForAtlas;
 
     void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
         fID = GrBatchAtlas::kInvalidAtlasID;
@@ -76,29 +73,19 @@ struct GrGlyph {
         return (dfFlag << 20) | (x << 18) | (y << 16) | glyphID;
     }
 
-    static inline SkFixed UnpackFixedX(PackedID packed) {
-        return ((packed >> 18) & 3) << 14;
-    }
+    static inline SkFixed UnpackFixedX(PackedID packed) { return ((packed >> 18) & 3) << 14; }
 
-    static inline SkFixed UnpackFixedY(PackedID packed) {
-        return ((packed >> 16) & 3) << 14;
-    }
+    static inline SkFixed UnpackFixedY(PackedID packed) { return ((packed >> 16) & 3) << 14; }
 
     static inline MaskStyle UnpackMaskStyle(PackedID packed) {
         return ((packed >> 20) & 1) ? kDistance_MaskStyle : kCoverage_MaskStyle;
     }
 
-    static inline uint16_t UnpackID(PackedID packed) {
-        return (uint16_t)packed;
-    }
+    static inline uint16_t UnpackID(PackedID packed) { return (uint16_t)packed; }
 
-    static inline const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) {
-        return glyph.fPackedID;
-    }
+    static inline const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) { return glyph.fPackedID; }
 
-    static inline uint32_t Hash(GrGlyph::PackedID key) {
-        return SkChecksum::Mix(key);
-    }
+    static inline uint32_t Hash(GrGlyph::PackedID key) { return SkChecksum::Mix(key); }
 };
 
 #endif

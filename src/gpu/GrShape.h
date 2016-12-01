@@ -12,8 +12,8 @@
 #include "SkPath.h"
 #include "SkPathPriv.h"
 #include "SkRRect.h"
-#include "SkTemplates.h"
 #include "SkTLazy.h"
+#include "SkTemplates.h"
 
 /**
  * Represents a geometric shape (rrect or path) and the GrStyle that it should be rendered with.
@@ -51,13 +51,12 @@ public:
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRRect& rrect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
-        fRRectData.fStart = DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(),
-                                                         &fRRectData.fDir);
+        fRRectData.fStart =
+                DefaultRRectDirAndStartIndex(rrect, style.hasPathEffect(), &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
@@ -81,13 +80,12 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRect& rect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
-        fRRectData.fStart = DefaultRectDirAndStartIndex(rect, style.hasPathEffect(),
-                                                        &fRRectData.fDir);
+        fRRectData.fStart =
+                DefaultRectDirAndStartIndex(rect, style.hasPathEffect(), &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
@@ -96,23 +94,21 @@ public:
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const SkPaint& paint)
-        : fStyle(paint) {
+    GrShape(const SkRRect& rrect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
-        fRRectData.fStart = DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(),
-                                                         &fRRectData.fDir);
+        fRRectData.fStart =
+                DefaultRRectDirAndStartIndex(rrect, fStyle.hasPathEffect(), &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const SkPaint& paint)
-        : fStyle(paint) {
+    GrShape(const SkRect& rect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
-        fRRectData.fStart = DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(),
-                                                        &fRRectData.fDir);
+        fRRectData.fStart =
+                DefaultRectDirAndStartIndex(rect, fStyle.hasPathEffect(), &fRRectData.fDir);
         this->attemptToSimplifyRRect();
     }
 
@@ -239,7 +235,7 @@ public:
                 // whether the path is either filled or closed. Convex paths may only have one
                 // contour hence isLastContourClosed() is a sufficient for a convex path.
                 return (this->style().isSimpleFill() || this->path().isLastContourClosed()) &&
-                        this->path().isConvex();
+                       this->path().isConvex();
         }
         return false;
     }
@@ -272,8 +268,8 @@ public:
      * can be thought of as "inverseFilledAfterStyling()".
      */
     bool mayBeInverseFilledAfterStyling() const {
-         // An arbitrary path effect can produce an arbitrary output path, which may be inverse
-         // filled.
+        // An arbitrary path effect can produce an arbitrary output path, which may be inverse
+        // filled.
         if (this->style().hasNonDashPathEffect()) {
             return true;
         }
@@ -439,25 +435,25 @@ private:
         return kPathRRectStartIdx;
     }
 
-    Type                        fType;
+    Type fType;
     union {
         struct {
-            SkRRect                     fRRect;
-            SkPath::Direction           fDir;
-            unsigned                    fStart;
-            bool                        fInverted;
+            SkRRect fRRect;
+            SkPath::Direction fDir;
+            unsigned fStart;
+            bool fInverted;
         } fRRectData;
         struct {
-            SkPath                      fPath;
+            SkPath fPath;
             // Gen ID of the original path (fPath may be modified)
-            int32_t                     fGenID;
+            int32_t fGenID;
         } fPathData;
         struct {
-            SkPoint                     fPts[2];
-            bool                        fInverted;
+            SkPoint fPts[2];
+            bool fInverted;
         } fLineData;
     };
-    GrStyle                     fStyle;
-    SkAutoSTArray<8, uint32_t>  fInheritedKey;
+    GrStyle fStyle;
+    SkAutoSTArray<8, uint32_t> fInheritedKey;
 };
 #endif

@@ -22,26 +22,23 @@ class GrDrawVerticesBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
 
-
-    GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiveType,
-                        const SkMatrix& viewMatrix,
-                        const SkPoint* positions, int vertexCount,
-                        const uint16_t* indices, int indexCount,
-                        const GrColor* colors, const SkPoint* localCoords, const SkRect& bounds);
+    GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
+                        const SkPoint* positions, int vertexCount, const uint16_t* indices,
+                        int indexCount, const GrColor* colors, const SkPoint* localCoords,
+                        const SkRect& bounds);
 
     const char* name() const override { return "DrawVerticesBatch"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("PrimType: %d, VarColor: %d, VCount: %d, ICount: %d\n",
-                       fPrimitiveType, fVariableColor, fVertexCount, fIndexCount);
+        string.appendf("PrimType: %d, VarColor: %d, VCount: %d, ICount: %d\n", fPrimitiveType,
+                       fVariableColor, fVertexCount, fIndexCount);
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override;
 
 private:
@@ -58,19 +55,19 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Mesh {
-        GrColor fColor; // Only used if there are no per-vertex colors
+        GrColor fColor;  // Only used if there are no per-vertex colors
         SkTDArray<SkPoint> fPositions;
         SkTDArray<uint16_t> fIndices;
         SkTDArray<GrColor> fColors;
         SkTDArray<SkPoint> fLocalCoords;
     };
 
-    GrPrimitiveType     fPrimitiveType;
-    SkMatrix            fViewMatrix;
-    bool                fVariableColor;
-    int                 fVertexCount;
-    int                 fIndexCount;
-    bool                fCoverageIgnored; // comes from initBatchTracker.
+    GrPrimitiveType fPrimitiveType;
+    SkMatrix fViewMatrix;
+    bool fVariableColor;
+    int fVertexCount;
+    int fIndexCount;
+    bool fCoverageIgnored;  // comes from initBatchTracker.
 
     SkSTArray<1, Mesh, true> fMeshes;
 

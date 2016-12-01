@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
+#include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 
 #include <GLFW/glfw3.h>

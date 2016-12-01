@@ -18,10 +18,11 @@
  */
 class SK_API GrVkExtensions {
 public:
-    GrVkExtensions() : fInstanceExtensionStrings(new SkTArray<SkString>)
-                     , fDeviceExtensionStrings(new SkTArray<SkString>)
-                     , fInstanceLayerStrings(new SkTArray<SkString>)
-                     , fDeviceLayerStrings(new SkTArray<SkString>) {}
+    GrVkExtensions()
+        : fInstanceExtensionStrings(new SkTArray<SkString>)
+        , fDeviceExtensionStrings(new SkTArray<SkString>)
+        , fInstanceLayerStrings(new SkTArray<SkString>)
+        , fDeviceLayerStrings(new SkTArray<SkString>) {}
 
     bool initInstance(uint32_t specVersion);
     bool initDevice(uint32_t specVersion, VkInstance, VkPhysicalDevice);
@@ -37,10 +38,10 @@ public:
     void print(const char* sep = "\n") const;
 
 private:
-    std::unique_ptr<SkTArray<SkString>>  fInstanceExtensionStrings;
-    std::unique_ptr<SkTArray<SkString>>  fDeviceExtensionStrings;
-    std::unique_ptr<SkTArray<SkString>>  fInstanceLayerStrings;
-    std::unique_ptr<SkTArray<SkString>>  fDeviceLayerStrings;
+    std::unique_ptr<SkTArray<SkString>> fInstanceExtensionStrings;
+    std::unique_ptr<SkTArray<SkString>> fDeviceExtensionStrings;
+    std::unique_ptr<SkTArray<SkString>> fInstanceLayerStrings;
+    std::unique_ptr<SkTArray<SkString>> fDeviceLayerStrings;
 };
 
 #endif

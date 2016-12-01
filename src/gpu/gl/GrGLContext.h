@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrGLContext_DEFINED
 #define GrGLContext_DEFINED
 
-#include "gl/GrGLExtensions.h"
-#include "gl/GrGLInterface.h"
 #include "GrGLCaps.h"
 #include "GrGLUtil.h"
+#include "gl/GrGLExtensions.h"
+#include "gl/GrGLInterface.h"
 
 struct GrContextOptions;
 namespace SkSL {
-    class Compiler;
+class Compiler;
 }
 
 /**
@@ -36,9 +35,7 @@ public:
     GrGLDriverVersion driverVersion() const { return fDriverVersion; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps.get(); }
-    bool hasExtension(const char* ext) const {
-        return fInterface->hasExtension(ext);
-    }
+    bool hasExtension(const char* ext) const { return fInterface->hasExtension(ext); }
 
     const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
 
@@ -46,26 +43,26 @@ public:
 
 protected:
     struct ConstructorArgs {
-        const GrGLInterface*                fInterface;
-        GrGLVersion                         fGLVersion;
-        GrGLSLGeneration                    fGLSLGeneration;
-        GrGLVendor                          fVendor;
-        GrGLRenderer                        fRenderer;
-        GrGLDriver                          fDriver;
-        GrGLDriverVersion                   fDriverVersion;
-        const  GrContextOptions*            fContextOptions;
+        const GrGLInterface* fInterface;
+        GrGLVersion fGLVersion;
+        GrGLSLGeneration fGLSLGeneration;
+        GrGLVendor fVendor;
+        GrGLRenderer fRenderer;
+        GrGLDriver fDriver;
+        GrGLDriverVersion fDriverVersion;
+        const GrContextOptions* fContextOptions;
     };
 
     GrGLContextInfo(const ConstructorArgs& args);
 
     sk_sp<const GrGLInterface> fInterface;
-    GrGLVersion                fGLVersion;
-    GrGLSLGeneration           fGLSLGeneration;
-    GrGLVendor                 fVendor;
-    GrGLRenderer               fRenderer;
-    GrGLDriver                 fDriver;
-    GrGLDriverVersion          fDriverVersion;
-    sk_sp<GrGLCaps>            fGLCaps;
+    GrGLVersion fGLVersion;
+    GrGLSLGeneration fGLSLGeneration;
+    GrGLVendor fVendor;
+    GrGLRenderer fRenderer;
+    GrGLDriver fDriver;
+    GrGLDriverVersion fDriverVersion;
+    sk_sp<GrGLCaps> fGLCaps;
 };
 
 /**
@@ -86,9 +83,7 @@ public:
     ~GrGLContext() override;
 
 private:
-    GrGLContext(const ConstructorArgs& args) 
-    : INHERITED(args)
-    , fCompiler(nullptr) {}
+    GrGLContext(const ConstructorArgs& args) : INHERITED(args), fCompiler(nullptr) {}
 
     mutable SkSL::Compiler* fCompiler;
 

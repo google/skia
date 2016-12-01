@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrDrawPathBatch.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilPathBatch.h"
 #include "GrStyle.h"
@@ -31,8 +30,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resour
 }
 
 GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider* resourceProvider)
-    : fResourceProvider(resourceProvider) {
-}
+    : fResourceProvider(resourceProvider) {}
 
 bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
@@ -47,7 +45,7 @@ bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     if (args.fAntiAlias) {
         return args.fIsStencilBufferMSAA;
     } else {
-        return true; // doesn't do per-path AA, relies on the target having MSAA
+        return true;  // doesn't do per-path AA, relies on the target having MSAA
     }
 }
 
@@ -57,8 +55,7 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& 
     GrPath::ComputeKey(shape, &key, &isVolatile);
     sk_sp<GrPath> path;
     if (!isVolatile) {
-        path.reset(
-            static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
+        path.reset(static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
     }
     if (!path) {
         SkPath skPath;
@@ -83,8 +80,8 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(!args.fIsAA || args.fRenderTargetContext->isStencilBufferMultisampled());
 
     sk_sp<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
-    args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fIsAA,
-                                                  *args.fViewMatrix, p.get());
+    args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fIsAA, *args.fViewMatrix,
+                                                  p.get());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -96,15 +93,12 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     const SkMatrix& viewMatrix = *args.fViewMatrix;
 
-
     sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
 
     if (args.fShape->inverseFilled()) {
         SkMatrix invert = SkMatrix::I();
-        SkRect bounds =
-            SkRect::MakeLTRB(0, 0,
-                             SkIntToScalar(args.fRenderTargetContext->width()),
-                             SkIntToScalar(args.fRenderTargetContext->height()));
+        SkRect bounds = SkRect::MakeLTRB(0, 0, SkIntToScalar(args.fRenderTargetContext->width()),
+                                         SkIntToScalar(args.fRenderTargetContext->height()));
         SkMatrix vmi;
         // mapRect through persp matrix may not be correct
         if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
@@ -120,9 +114,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        sk_sp<GrDrawOp> coverBatch(
-                GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
-                                                    nullptr, &invert));
+        sk_sp<GrDrawOp> coverBatch(GrRectBatchFactory::CreateNonAAFill(
+                args.fPaint->getColor(), viewM, bounds, nullptr, &invert));
 
         // fake inverse with a stencil and cover
         args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
@@ -130,38 +123,31 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
-                GrUserStencilSettings::StaticInit<
-                    0x0000,
-                    // We know our rect will hit pixels outside the clip and the user bits will
-                    // be 0 outside the clip. So we can't just fill where the user bits are 0. We
-                    // also need to check that the clip bit is set.
-                    GrUserStencilTest::kEqualIfInClip,
-                    0xffff,
-                    GrUserStencilOp::kKeep,
-                    GrUserStencilOp::kZero,
-                    0xffff>()
-            );
+                    GrUserStencilSettings::StaticInit<
+                            0x0000,
+                            // We know our rect will hit pixels outside the clip and the user bits
+                            // will
+                            // be 0 outside the clip. So we can't just fill where the user bits are
+                            // 0. We
+                            // also need to check that the clip bit is set.
+                            GrUserStencilTest::kEqualIfInClip, 0xffff, GrUserStencilOp::kKeep,
+                            GrUserStencilOp::kZero, 0xffff>());
 
-            GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                              args.fPaint->isAntiAlias() &&
-                                              !args.fRenderTargetContext->hasMixedSamples());
+            GrPipelineBuilder pipelineBuilder(
+                    *args.fPaint,
+                    args.fPaint->isAntiAlias() && !args.fRenderTargetContext->hasMixedSamples());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
             args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch.get());
         }
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
-            GrUserStencilSettings::StaticInit<
-                0x0000,
-                GrUserStencilTest::kNotEqual,
-                0xffff,
-                GrUserStencilOp::kZero,
-                GrUserStencilOp::kKeep,
-                0xffff>()
-        );
+                GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                                  GrUserStencilOp::kZero, GrUserStencilOp::kKeep,
+                                                  0xffff>());
 
-        sk_sp<GrDrawOp> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
-                                                      path.get()));
+        sk_sp<GrDrawOp> batch(
+                GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(), path.get()));
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);

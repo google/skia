@@ -16,10 +16,7 @@
 namespace gr_instanced {
 
 InstancedRendering::InstancedRendering(GrGpu* gpu)
-    : fGpu(SkRef(gpu)),
-      fState(State::kRecordingDraws),
-      fDrawPool(1024, 1024) {
-}
+    : fGpu(SkRef(gpu)), fState(State::kRecordingDraws), fDrawPool(1024, 1024) {}
 
 GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
                                          GrColor color, bool antialias,
@@ -36,11 +33,10 @@ GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& vie
 }
 
 GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, const SkMatrix& localMatrix,
-                                         bool antialias, const GrInstancedPipelineInfo& info,
-                                         bool* useHWAA) {
+                                         GrColor color, const SkMatrix& localMatrix, bool antialias,
+                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
     if (localMatrix.hasPerspective()) {
-        return nullptr; // Perspective is not yet supported in the local matrix.
+        return nullptr;  // Perspective is not yet supported in the local matrix.
     }
     if (Batch* batch = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, antialias,
                                          info, useHWAA)) {
@@ -78,7 +74,7 @@ GrDrawOp* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& 
                                            bool antialias, const GrInstancedPipelineInfo& info,
                                            bool* useHWAA) {
     if (inner.getType() > SkRRect::kSimple_Type) {
-       return nullptr; // Complex inner round rects are not yet supported.
+        return nullptr;  // Complex inner round rects are not yet supported.
     }
     if (SkRRect::kEmpty_Type == inner.getType()) {
         return this->recordRRect(outer, viewMatrix, color, antialias, info, useHWAA);
@@ -122,10 +118,10 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
     Batch::HasAABloat aaBloat = (antialiasMode == AntialiasMode::kCoverage)
-                                ? Batch::HasAABloat::kYes
-                                : Batch::HasAABloat::kNo;
-    Batch::IsZeroArea zeroArea = (bounds.isEmpty()) ? Batch::IsZeroArea::kYes
-                                                    : Batch::IsZeroArea::kNo;
+                                        ? Batch::HasAABloat::kYes
+                                        : Batch::HasAABloat::kNo;
+    Batch::IsZeroArea zeroArea =
+            (bounds.isEmpty()) ? Batch::IsZeroArea::kYes : Batch::IsZeroArea::kNo;
 
     // The instanced shape renderer draws rectangles of [-1, -1, +1, +1], so we find the matrix that
     // will map this rectangle to the same device coordinates as "viewMatrix * bounds".
@@ -137,13 +133,13 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
         float* m = instance.fShapeMatrix2x3;
         m[0] = viewMatrix.getScaleX() * sx;
         m[1] = viewMatrix.getSkewX() * sy;
-        m[2] = viewMatrix.getTranslateX() +
-               viewMatrix.getScaleX() * tx + viewMatrix.getSkewX() * ty;
+        m[2] = viewMatrix.getTranslateX() + viewMatrix.getScaleX() * tx +
+               viewMatrix.getSkewX() * ty;
 
         m[3] = viewMatrix.getSkewY() * sx;
         m[4] = viewMatrix.getScaleY() * sy;
-        m[5] = viewMatrix.getTranslateY() +
-               viewMatrix.getSkewY() * tx + viewMatrix.getScaleY() * ty;
+        m[5] = viewMatrix.getTranslateY() + viewMatrix.getSkewY() * tx +
+               viewMatrix.getScaleY() * ty;
 
         // Since 'm' is a 2x3 matrix that maps the rect [-1, +1] into the shape's device-space quad,
         // it's quite simple to find the bounding rectangle:
@@ -158,9 +154,10 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
 
         // TODO: Is this worth the CPU overhead?
         batch->fInfo.fNonSquare =
-            fabsf(devBoundsHalfHeight - devBoundsHalfWidth) > 0.5f || // Early out.
-            fabs(m[0] * m[3] + m[1] * m[4]) > 1e-3f || // Skew?
-            fabs(m[0] * m[0] + m[1] * m[1] - m[3] * m[3] - m[4] * m[4]) > 1e-2f; // Diff. lengths?
+                fabsf(devBoundsHalfHeight - devBoundsHalfWidth) > 0.5f ||  // Early out.
+                fabs(m[0] * m[3] + m[1] * m[4]) > 1e-3f ||                 // Skew?
+                fabs(m[0] * m[0] + m[1] * m[1] - m[3] * m[3] - m[4] * m[4]) >
+                        1e-2f;  // Diff. lengths?
     } else {
         SkMatrix shapeMatrix(viewMatrix);
         shapeMatrix.preTranslate(tx, ty);
@@ -186,7 +183,7 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
 
     instance.fColor = color;
 
-    const float* rectAsFloats = localRect.asScalars(); // Ensure SkScalar == float.
+    const float* rectAsFloats = localRect.asScalars();  // Ensure SkScalar == float.
     memcpy(&instance.fLocalRect, rectAsFloats, 4 * sizeof(float));
 
     batch->fPixelLoad = batch->bounds().height() * batch->bounds().width();
@@ -236,11 +233,11 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
 }
 
 InstancedRendering::Batch::Batch(uint32_t classID, InstancedRendering* ir)
-    : INHERITED(classID),
-      fInstancedRendering(ir),
-      fIsTracked(false),
-      fNumDraws(1),
-      fNumChangesInGeometry(0) {
+    : INHERITED(classID)
+    , fInstancedRendering(ir)
+    , fIsTracked(false)
+    , fNumDraws(1)
+    , fNumChangesInGeometry(0) {
     fHeadDraw = fTailDraw = fInstancedRendering->fDrawPool.allocate();
 #ifdef SK_DEBUG
     fHeadDraw->fGeometry = {-1, 0};
@@ -304,14 +301,15 @@ void InstancedRendering::Batch::appendRRectParams(const SkRRect& rrect) {
                                     radiiBL.y() * twoOverH, radiiBR.y() * twoOverH);
             return;
         }
-        default: return;
+        default:
+            return;
     }
 }
 
 void InstancedRendering::Batch::appendParamsTexel(const SkScalar* vals, int count) {
     SkASSERT(!fIsTracked);
     SkASSERT(count <= 4 && count >= 0);
-    const float* valsAsFloats = vals; // Ensure SkScalar == float.
+    const float* valsAsFloats = vals;  // Ensure SkScalar == float.
     memcpy(&fParams.push_back(), valsAsFloats, count * sizeof(float));
     fInfo.fHasParams = true;
 }
@@ -335,14 +333,14 @@ void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScal
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Batch::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                            GrInitInvariantOutput* coverage,
-                                                            GrBatchToXPOverrides* overrides) const {
+void InstancedRendering::Batch::computePipelineOptimizations(
+        GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
+        GrBatchToXPOverrides* overrides) const {
     color->setKnownFourComponents(this->getSingleInstance().fColor);
 
     if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
-        (AntialiasMode::kNone == fInfo.fAntialiasMode &&
-         !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
+        (AntialiasMode::kNone == fInfo.fAntialiasMode && !fInfo.isSimpleRects() &&
+         fInfo.fCannotDiscard)) {
         coverage->setUnknownSingleComponent();
     } else {
         coverage->setKnownSingleComponent(255);
@@ -350,7 +348,7 @@ void InstancedRendering::Batch::computePipelineOptimizations(GrInitInvariantOutp
 }
 
 void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
-    Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
+    Draw& draw = this->getSingleDraw();  // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
     SkASSERT(!fIsTracked);
@@ -358,14 +356,15 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     if (kRect_ShapeFlag == fInfo.fShapeTypes) {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRect(fInfo.fAntialiasMode);
     } else if (kOval_ShapeFlag == fInfo.fShapeTypes) {
-        draw.fGeometry = InstanceProcessor::GetIndexRangeForOval(fInfo.fAntialiasMode,
-                                                                 this->bounds());
+        draw.fGeometry =
+                InstanceProcessor::GetIndexRangeForOval(fInfo.fAntialiasMode, this->bounds());
     } else {
         draw.fGeometry = InstanceProcessor::GetIndexRangeForRRect(fInfo.fAntialiasMode);
     }
 
     if (!fParams.empty()) {
-        SkASSERT(fInstancedRendering->fParams.count() < (int)kParamsIdx_InfoMask); // TODO: cleaner.
+        SkASSERT(fInstancedRendering->fParams.count() <
+                 (int)kParamsIdx_InfoMask);  // TODO: cleaner.
         this->getSingleInstance().fInfo |= fInstancedRendering->fParams.count();
         fInstancedRendering->fParams.push_back_n(fParams.count(), fParams.begin());
     }
@@ -389,8 +388,8 @@ bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& c
     SkASSERT(that->fTailDraw);
 
     if (!BatchInfo::CanCombine(fInfo, that->fInfo) ||
-        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(),
-                                *that->pipeline(), that->bounds(), caps)) {
+        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                that->bounds(), caps)) {
         return false;
     }
 
@@ -442,18 +441,18 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     }
 
     if (!fIndexBuffer) {
-      fIndexBuffer.reset(InstanceProcessor::FindOrCreateIndex8Buffer(fGpu.get()));
+        fIndexBuffer.reset(InstanceProcessor::FindOrCreateIndex8Buffer(fGpu.get()));
         if (!fIndexBuffer) {
             return;
         }
     }
 
     if (!fParams.empty()) {
-        fParamsBuffer.reset(rp->createBuffer(fParams.count() * sizeof(ParamsTexel),
-                                             kTexel_GrBufferType, kDynamic_GrAccessPattern,
-                                             GrResourceProvider::kNoPendingIO_Flag |
-                                             GrResourceProvider::kRequireGpuMemory_Flag,
-                                             fParams.begin()));
+        fParamsBuffer.reset(rp->createBuffer(
+                fParams.count() * sizeof(ParamsTexel), kTexel_GrBufferType,
+                kDynamic_GrAccessPattern,
+                GrResourceProvider::kNoPendingIO_Flag | GrResourceProvider::kRequireGpuMemory_Flag,
+                fParams.begin()));
         if (!fParamsBuffer) {
             return;
         }
@@ -492,5 +491,4 @@ void InstancedRendering::resetGpuResources(ResetType resetType) {
     fParamsBuffer.reset();
     this->onResetGpuResources(resetType);
 }
-
 }

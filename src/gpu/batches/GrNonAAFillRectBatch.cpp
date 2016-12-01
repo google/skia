@@ -11,8 +11,8 @@
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrResourceProvider.h"
 #include "GrQuad.h"
+#include "GrResourceProvider.h"
 #include "GrVertexBatch.h"
 
 #include "SkMatrixPriv.h"
@@ -37,16 +37,11 @@ static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage) {
     return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
 }
 
-static void tesselate(intptr_t vertices,
-                      size_t vertexStride,
-                      GrColor color,
-                      const SkMatrix* viewMatrix,
-                      const SkRect& rect,
-                      const GrQuad* localQuad) {
+static void tesselate(intptr_t vertices, size_t vertexStride, GrColor color,
+                      const SkMatrix* viewMatrix, const SkRect& rect, const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    positions->setRectFan(rect.fLeft, rect.fTop,
-                          rect.fRight, rect.fBottom, vertexStride);
+    positions->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
     if (viewMatrix) {
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerInstance);
@@ -57,8 +52,8 @@ static void tesselate(intptr_t vertices,
     if (localQuad) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
         for (int i = 0; i < kVertsPerInstance; i++) {
-            SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset +
-                              i * vertexStride);
+            SkPoint* coords =
+                    reinterpret_cast<SkPoint*>(vertices + kLocalOffset + i * vertexStride);
             *coords = localQuad->point(i);
         }
     }
@@ -67,7 +62,7 @@ static void tesselate(intptr_t vertices,
     GrColor* vertColor = reinterpret_cast<GrColor*>(vertices + kColorOffset);
     for (int j = 0; j < 4; ++j) {
         *vertColor = color;
-        vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+        vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
     }
 }
 
@@ -77,9 +72,8 @@ public:
 
     NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                        const SkRect* localRect, const SkMatrix* localMatrix)
-            : INHERITED(ClassID()) {
-        SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix ||
-                                                  !localMatrix->hasPerspective()));
+        : INHERITED(ClassID()) {
+        SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;
         info.fViewMatrix = viewMatrix;
@@ -103,17 +97,16 @@ public:
         str.appendf("# batched: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& info = fRects[i];
-            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, info.fColor,
-                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
+                        info.fRect.fBottom);
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fRects[0].fColor);
@@ -142,17 +135,17 @@ private:
 
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+        void* vertices =
+                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+                            kVertsPerInstance, kIndicesPerInstance, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerInstance * vertexStride;
+            intptr_t verts =
+                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerInstance * vertexStride;
             tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
@@ -192,14 +185,10 @@ private:
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect* localRect,
-                 const SkMatrix* localMatrix) {
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                 const SkRect* localRect, const SkMatrix* localMatrix) {
     return new NonAAFillRectBatch(color, viewMatrix, rect, localRect, localMatrix);
 }
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -30,11 +30,11 @@ public:
     virtual bool drawBatches(GrBatchFlushState* flushState) = 0;
 
     virtual void makeClosed() {
-        // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
-        // ever one GrOpLists and all calls will be funnelled into it.
+// We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
+// ever one GrOpLists and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
         this->setFlag(kClosed_Flag);
-#endif    
+#endif
     }
 
     // TODO: it seems a bit odd that GrOpList has nothing to clear on reset
@@ -59,9 +59,7 @@ public:
     /*
      * Does this opList depend on 'dependedOn'?
      */
-    bool dependsOn(GrOpList* dependedOn) const {
-        return fDependencies.find(dependedOn) >= 0;
-    }
+    bool dependsOn(GrOpList* dependedOn) const { return fDependencies.find(dependedOn) >= 0; }
 
     /*
      * Safely cast this GrOpList to a GrTextureOpList (if possible).
@@ -78,27 +76,20 @@ public:
      */
     SkDEBUGCODE(virtual void dump() const;)
 
-private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+            private : friend class GrDrawingManager;  // for resetFlag & TopoSortTraits
 
     enum Flags {
-        kClosed_Flag    = 0x01,   //!< This GrOpList can't accept any more batches
+        kClosed_Flag = 0x01,  //!< This GrOpList can't accept any more batches
 
-        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+        kWasOutput_Flag = 0x02,  //!< Flag for topological sorting
+        kTempMark_Flag = 0x04,   //!< Flag for topological sorting
     };
 
-    void setFlag(uint32_t flag) {
-        fFlags |= flag;
-    }
+    void setFlag(uint32_t flag) { fFlags |= flag; }
 
-    void resetFlag(uint32_t flag) {
-        fFlags &= ~flag;
-    }
+    void resetFlag(uint32_t flag) { fFlags &= ~flag; }
 
-    bool isSetFlag(uint32_t flag) const {
-        return SkToBool(fFlags & flag);
-    }
+    bool isSetFlag(uint32_t flag) const { return SkToBool(fFlags & flag); }
 
     struct TopoSortTraits {
         static void Output(GrOpList* dt, int /* index */) {
@@ -107,34 +98,25 @@ private:
         static bool WasOutput(const GrOpList* dt) {
             return dt->isSetFlag(GrOpList::kWasOutput_Flag);
         }
-        static void SetTempMark(GrOpList* dt) {
-            dt->setFlag(GrOpList::kTempMark_Flag);
-        }
-        static void ResetTempMark(GrOpList* dt) {
-            dt->resetFlag(GrOpList::kTempMark_Flag);
-        }
+        static void SetTempMark(GrOpList* dt) { dt->setFlag(GrOpList::kTempMark_Flag); }
+        static void ResetTempMark(GrOpList* dt) { dt->resetFlag(GrOpList::kTempMark_Flag); }
         static bool IsTempMarked(const GrOpList* dt) {
             return dt->isSetFlag(GrOpList::kTempMark_Flag);
         }
-        static int NumDependencies(const GrOpList* dt) {
-            return dt->fDependencies.count();
-        }
-        static GrOpList* Dependency(GrOpList* dt, int index) {
-            return dt->fDependencies[index];
-        }
+        static int NumDependencies(const GrOpList* dt) { return dt->fDependencies.count(); }
+        static GrOpList* Dependency(GrOpList* dt, int index) { return dt->fDependencies[index]; }
     };
 
     void addDependency(GrOpList* dependedOn);
 
-    SkDEBUGCODE(int                                 fDebugID;)
-    uint32_t                                        fFlags;
-    GrSurfaceProxy*                                 fTarget;
+    SkDEBUGCODE(int fDebugID;) uint32_t fFlags;
+    GrSurfaceProxy* fTarget;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*>                            fDependencies;
+    SkTDArray<GrOpList*> fDependencies;
 
 protected:
-    GrAuditTrail*                                   fAuditTrail;
+    GrAuditTrail* fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };

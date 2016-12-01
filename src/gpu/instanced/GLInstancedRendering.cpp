@@ -42,10 +42,10 @@ GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCa
 }
 
 GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu)
-    : INHERITED(gpu),
-      fVertexArrayID(0),
-      fGLDrawCmdsInfo(0),
-      fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
+    : INHERITED(gpu)
+    , fVertexArrayID(0)
+    , fGLDrawCmdsInfo(0)
+    , fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
     SkASSERT(GrCaps::InstancedSupport::kNone != this->gpu()->caps()->instancedSupport());
 }
 
@@ -56,13 +56,9 @@ GLInstancedRendering::~GLInstancedRendering() {
     }
 }
 
-inline GrGLGpu* GLInstancedRendering::glGpu() const {
-    return static_cast<GrGLGpu*>(this->gpu());
-}
+inline GrGLGpu* GLInstancedRendering::glGpu() const { return static_cast<GrGLGpu*>(this->gpu()); }
 
-InstancedRendering::Batch* GLInstancedRendering::createBatch() {
-    return new GLBatch(this);
-}
+InstancedRendering::Batch* GLInstancedRendering::createBatch() { return new GLBatch(this); }
 
 void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
     // Count what there is to draw.
@@ -99,32 +95,29 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
         this->glGpu()->bindBuffer(kVertex_GrBufferType, this->vertexBuffer());
         GL_CALL(EnableVertexAttribArray((int)Attrib::kShapeCoords));
         GL_CALL(VertexAttribPointer((int)Attrib::kShapeCoords, 2, GR_GL_FLOAT, GR_GL_FALSE,
-                                    sizeof(ShapeVertex), (void*) offsetof(ShapeVertex, fX)));
+                                    sizeof(ShapeVertex), (void*)offsetof(ShapeVertex, fX)));
         GL_CALL(EnableVertexAttribArray((int)Attrib::kVertexAttrs));
         GL_CALL(VertexAttribIPointer((int)Attrib::kVertexAttrs, 1, GR_GL_INT, sizeof(ShapeVertex),
-                                     (void*) offsetof(ShapeVertex, fAttrs)));
+                                     (void*)offsetof(ShapeVertex, fAttrs)));
 
         SkASSERT(fInstanceAttribsBufferUniqueId.isInvalid());
     }
 
     // Create and map instance and draw-indirect buffers.
     SkASSERT(!fInstanceBuffer);
-    fInstanceBuffer.reset(
-        rp->createBuffer(sizeof(Instance) * numGLInstances, kVertex_GrBufferType,
-                         kDynamic_GrAccessPattern,
-                         GrResourceProvider::kNoPendingIO_Flag |
-                         GrResourceProvider::kRequireGpuMemory_Flag));
+    fInstanceBuffer.reset(rp->createBuffer(
+            sizeof(Instance) * numGLInstances, kVertex_GrBufferType, kDynamic_GrAccessPattern,
+            GrResourceProvider::kNoPendingIO_Flag | GrResourceProvider::kRequireGpuMemory_Flag));
     if (!fInstanceBuffer) {
         return;
     }
 
     SkASSERT(!fDrawIndirectBuffer);
     if (this->glGpu()->glCaps().drawIndirectSupport()) {
-        fDrawIndirectBuffer.reset(
-            rp->createBuffer(sizeof(GrGLDrawElementsIndirectCommand) * numGLDrawCmds,
-                             kDrawIndirect_GrBufferType, kDynamic_GrAccessPattern,
-                             GrResourceProvider::kNoPendingIO_Flag |
-                             GrResourceProvider::kRequireGpuMemory_Flag));
+        fDrawIndirectBuffer.reset(rp->createBuffer(
+                sizeof(GrGLDrawElementsIndirectCommand) * numGLDrawCmds, kDrawIndirect_GrBufferType,
+                kDynamic_GrAccessPattern, GrResourceProvider::kNoPendingIO_Flag |
+                                                  GrResourceProvider::kRequireGpuMemory_Flag));
         if (!fDrawIndirectBuffer) {
             return;
         }
@@ -202,7 +195,7 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
 void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProcessor& instProc,
                                   const Batch* baseBatch) {
     if (!fDrawIndirectBuffer && !fGLDrawCmdsInfo) {
-        return; // beginFlush was not successful.
+        return;  // beginFlush was not successful.
     }
     if (!this->glGpu()->flushGLState(pipeline, instProc, false)) {
         return;
@@ -234,7 +227,7 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
         int glCmdsIdx = batch->fGLDrawCmdsIdx;
         this->flushInstanceAttribs(batch->fEmulatedBaseInstance);
         GL_CALL(MultiDrawElementsIndirect(GR_GL_TRIANGLES, GR_GL_UNSIGNED_BYTE,
-                                          (GrGLDrawElementsIndirectCommand*) nullptr + glCmdsIdx,
+                                          (GrGLDrawElementsIndirectCommand*)nullptr + glCmdsIdx,
                                           numCommands, 0));
         return;
     }
@@ -245,13 +238,12 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
         this->flushInstanceAttribs(emulatedBaseInstance);
         if (fDrawIndirectBuffer) {
             GL_CALL(DrawElementsIndirect(GR_GL_TRIANGLES, GR_GL_UNSIGNED_BYTE,
-                                         (GrGLDrawElementsIndirectCommand*) nullptr + glCmdIdx));
+                                         (GrGLDrawElementsIndirectCommand*)nullptr + glCmdIdx));
         } else {
             const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
-            GL_CALL(DrawElementsInstanced(GR_GL_TRIANGLES, cmdInfo.fGeometry.fCount,
-                                          GR_GL_UNSIGNED_BYTE,
-                                          (GrGLubyte*) nullptr + cmdInfo.fGeometry.fStart,
-                                          cmdInfo.fInstanceCount));
+            GL_CALL(DrawElementsInstanced(
+                    GR_GL_TRIANGLES, cmdInfo.fGeometry.fCount, GR_GL_UNSIGNED_BYTE,
+                    (GrGLubyte*)nullptr + cmdInfo.fGeometry.fStart, cmdInfo.fInstanceCount));
         }
         if (!glCaps.baseInstanceSupport()) {
             const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
@@ -267,7 +259,7 @@ void GLInstancedRendering::flushInstanceAttribs(int baseInstance) {
     SkASSERT(fInstanceBuffer);
     if (fInstanceAttribsBufferUniqueId != fInstanceBuffer->uniqueID() ||
         fInstanceAttribsBaseInstance != baseInstance) {
-        Instance* offsetInBuffer = (Instance*) nullptr + baseInstance;
+        Instance* offsetInBuffer = (Instance*)nullptr + baseInstance;
 
         this->glGpu()->bindBuffer(kVertex_GrBufferType, fInstanceBuffer.get());
 
@@ -320,5 +312,4 @@ void GLInstancedRendering::onResetGpuResources(ResetType resetType) {
     fDrawIndirectBuffer.reset();
     fInstanceAttribsBufferUniqueId.makeInvalid();
 }
-
 }

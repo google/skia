@@ -22,7 +22,7 @@ public:
     static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
         sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
         if (!batch->fRenderTarget) {
-            return nullptr; // The clip did not contain any pixels within the render target.
+            return nullptr;  // The clip did not contain any pixels within the render target.
         }
         return batch;
     }
@@ -41,7 +41,7 @@ public:
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
         string.appendf("], Color: 0x%08x, RT: %d", fColor,
-                                                   fRenderTarget.get()->uniqueID().asUInt());
+                       fRenderTarget.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -50,9 +50,7 @@ public:
 
 private:
     GrClearBatch(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt)
-        : INHERITED(ClassID())
-        , fClip(clip)
-        , fColor(color) {
+        : INHERITED(ClassID()), fClip(clip), fColor(color) {
         SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
         if (fClip.scissorEnabled()) {
             // Don't let scissors extend outside the RT. This may improve batching.
@@ -90,9 +88,8 @@ private:
 
     bool contains(const GrClearBatch* that) const {
         // The constructor ensures that scissor gets disabled on any clip that fills the entire RT.
-        return !fClip.scissorEnabled() ||
-               (that->fClip.scissorEnabled() &&
-                fClip.scissorRect().contains(that->fClip.scissorRect()));
+        return !fClip.scissorEnabled() || (that->fClip.scissorEnabled() &&
+                                           fClip.scissorRect().contains(that->fClip.scissorRect()));
     }
 
     void onPrepare(GrBatchFlushState*) override {}
@@ -101,9 +98,9 @@ private:
         state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
     }
 
-    GrFixedClip                                             fClip;
-    GrColor                                                 fColor;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    GrFixedClip fClip;
+    GrColor fColor;
+    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
 
     typedef GrOp INHERITED;
 };

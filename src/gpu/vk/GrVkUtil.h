@@ -19,11 +19,11 @@ class GrVkGpu;
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X;
 // same as GR_VK_CALL but checks for success
 #ifdef SK_DEBUG
-#define GR_VK_CALL_ERRCHECK(IFACE, X) \
+#define GR_VK_CALL_ERRCHECK(IFACE, X)                          \
     VkResult SK_MACRO_APPEND_LINE(ret) = GR_VK_CALL(IFACE, X); \
     SkASSERT(VK_SUCCESS == SK_MACRO_APPEND_LINE(ret));
 #else
-#define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X);
+#define GR_VK_CALL_ERRCHECK(IFACE, X) (void)GR_VK_CALL(IFACE, X);
 #endif
 
 /**
@@ -44,10 +44,8 @@ bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat);
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
-                             VkShaderStageFlagBits stage,
-                             VkShaderModule* shaderModule,
+bool GrCompileVkShaderModule(const GrVkGpu* gpu, const char* shaderString,
+                             VkShaderStageFlagBits stage, VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo);
 
 #endif

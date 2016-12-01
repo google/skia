@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "GrYUVProvider.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "GrYUVProvider.h"
 #include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
 
@@ -28,8 +28,8 @@ public:
 
 private:
     // we only use one or the other of these
-    sk_sp<SkCachedData>  fCachedData;
-    SkAutoMalloc         fStorage;
+    sk_sp<SkCachedData> fCachedData;
+    SkAutoMalloc fStorage;
 };
 }
 
@@ -81,8 +81,7 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     return true;
 }
 
-sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
-                                             const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx, const GrSurfaceDesc& desc,
                                              bool useCache) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
@@ -95,11 +94,11 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
     sk_sp<GrTexture> yuvTextures[3];
     for (int i = 0; i < 3; i++) {
-        yuvDesc.fWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
+        yuvDesc.fWidth = yuvInfo.fSizeInfo.fSizes[i].fWidth;
         yuvDesc.fHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
         // TODO: why do we need this check?
         bool needsExactTexture =
-                (yuvDesc.fWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
+                (yuvDesc.fWidth != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
                 (yuvDesc.fHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         if (needsExactTexture) {
             yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, SkBudgeted::kYes));
@@ -109,24 +108,22 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
         if (!yuvTextures[i] ||
             !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight, yuvDesc.fConfig,
                                          planes[i], yuvInfo.fSizeInfo.fWidthBytes[i])) {
-                return nullptr;
-            }
+            return nullptr;
+        }
     }
 
     // We never want to perform color-space conversion during the decode
-    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeRenderTargetContext(
-                                                                          SkBackingFit::kExact,
-                                                                          desc.fWidth, desc.fHeight,
-                                                                          desc.fConfig, nullptr,
-                                                                          desc.fSampleCnt));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            ctx->makeRenderTargetContext(SkBackingFit::kExact, desc.fWidth, desc.fHeight,
+                                         desc.fConfig, nullptr, desc.fSampleCnt));
     if (!renderTargetContext) {
         return nullptr;
     }
 
     GrPaint paint;
-    sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
-        GrYUVEffect::MakeYUVToRGB(yuvTextures[0].get(), yuvTextures[1].get(), yuvTextures[2].get(),
-                                  yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
+    sk_sp<GrFragmentProcessor> yuvToRgbProcessor(GrYUVEffect::MakeYUVToRGB(
+            yuvTextures[0].get(), yuvTextures[1].get(), yuvTextures[2].get(),
+            yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already
@@ -145,7 +142,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
-            yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
+                                     yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
     renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
 

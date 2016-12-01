@@ -12,15 +12,11 @@
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {
-        matrix.get(SkMatrix::kMScaleX),
-        matrix.get(SkMatrix::kMSkewY),
-        matrix.get(SkMatrix::kMPersp0),
-        matrix.get(SkMatrix::kMSkewX),
-        matrix.get(SkMatrix::kMScaleY),
-        matrix.get(SkMatrix::kMPersp1),
-        matrix.get(SkMatrix::kMTransX),
-        matrix.get(SkMatrix::kMTransY),
-        matrix.get(SkMatrix::kMPersp2),
+            matrix.get(SkMatrix::kMScaleX), matrix.get(SkMatrix::kMSkewY),
+            matrix.get(SkMatrix::kMPersp0), matrix.get(SkMatrix::kMSkewX),
+            matrix.get(SkMatrix::kMScaleY), matrix.get(SkMatrix::kMPersp1),
+            matrix.get(SkMatrix::kMTransX), matrix.get(SkMatrix::kMTransY),
+            matrix.get(SkMatrix::kMPersp2),
     };
     this->setMatrix3f(u, mt);
 }

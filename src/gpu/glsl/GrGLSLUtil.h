@@ -14,6 +14,7 @@ class SkMatrix;
  * Helper for converting SkMatrix to a column-major float array. We assume that all GLSL backends
  * use a column major representation for matrices.
  */
-template<int MatrixSize> void GrGLSLGetMatrix(float* dest, const SkMatrix& src);
+template <int MatrixSize>
+void GrGLSLGetMatrix(float* dest, const SkMatrix& src);
 
 #endif

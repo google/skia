@@ -14,7 +14,6 @@
 class GrVkGpu;
 
 class GrVkTransferBuffer : public GrBuffer, public GrVkBuffer {
-
 public:
     static GrVkTransferBuffer* Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type);
 

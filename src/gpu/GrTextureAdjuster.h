@@ -27,13 +27,10 @@ public:
                                        SkIPoint* outOffset);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
+            const SkMatrix& textureMatrix, const SkRect& constraintRect, FilterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic, SkColorSpace* dstColorSpace,
+            SkDestinationSurfaceColorMode) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
@@ -52,13 +49,13 @@ protected:
     const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
 
 private:
-    SkTLazy<SkIRect>    fContentArea;
-    GrTexture*          fOriginal;
-    SkAlphaType         fAlphaType;
-    SkColorSpace*       fColorSpace;
-    uint32_t            fUniqueID;
+    SkTLazy<SkIRect> fContentArea;
+    GrTexture* fOriginal;
+    SkAlphaType fAlphaType;
+    SkColorSpace* fColorSpace;
+    uint32_t fUniqueID;
 
-    GrTexture* refCopy(const CopyParams &copyParams);
+    GrTexture* refCopy(const CopyParams& copyParams);
 
     typedef GrTextureProducer INHERITED;
 };

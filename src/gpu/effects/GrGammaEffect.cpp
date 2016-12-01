@@ -30,23 +30,19 @@ public:
 
         SkString srgbFuncName;
         static const GrShaderVar gSrgbArgs[] = {
-            GrShaderVar("x", kFloat_GrSLType),
+                GrShaderVar("x", kFloat_GrSLType),
         };
         switch (ge.mode()) {
             case GrGammaEffect::Mode::kLinearToSRGB:
-                fragBuilder->emitFunction(kFloat_GrSLType,
-                                          "linear_to_srgb",
-                                          SK_ARRAY_COUNT(gSrgbArgs),
-                                          gSrgbArgs,
+                fragBuilder->emitFunction(kFloat_GrSLType, "linear_to_srgb",
+                                          SK_ARRAY_COUNT(gSrgbArgs), gSrgbArgs,
                                           "return (x <= 0.0031308) ? (x * 12.92) "
                                           ": (1.055 * pow(x, 0.416666667) - 0.055);",
                                           &srgbFuncName);
                 break;
             case GrGammaEffect::Mode::kSRGBToLinear:
-                fragBuilder->emitFunction(kFloat_GrSLType,
-                                          "srgb_to_linear",
-                                          SK_ARRAY_COUNT(gSrgbArgs),
-                                          gSrgbArgs,
+                fragBuilder->emitFunction(kFloat_GrSLType, "srgb_to_linear",
+                                          SK_ARRAY_COUNT(gSrgbArgs), gSrgbArgs,
                                           "return (x <= 0.04045) ? (x / 12.92) "
                                           ": pow((x + 0.055) / 1.055, 2.4);",
                                           &srgbFuncName);
@@ -60,16 +56,13 @@ public:
         }
 
         if (GrGammaEffect::Mode::kExponential == ge.mode()) {
-            fragBuilder->codeAppendf("%s = vec4(pow(%s.rgb, vec3(%s)), %s.a);",
-                                     args.fOutputColor, args.fInputColor, gammaUniName,
-                                     args.fInputColor);
+            fragBuilder->codeAppendf("%s = vec4(pow(%s.rgb, vec3(%s)), %s.a);", args.fOutputColor,
+                                     args.fInputColor, gammaUniName, args.fInputColor);
         } else {
             fragBuilder->codeAppendf("%s = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
-                                     args.fOutputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     srgbFuncName.c_str(), args.fInputColor,
-                                     args.fInputColor);
+                                     args.fOutputColor, srgbFuncName.c_str(), args.fInputColor,
+                                     srgbFuncName.c_str(), args.fInputColor, srgbFuncName.c_str(),
+                                     args.fInputColor, args.fInputColor);
         }
     }
 
@@ -95,17 +88,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGammaEffect::GrGammaEffect(Mode mode, SkScalar gamma)
-    : fMode(mode)
-    , fGamma(gamma) {
+GrGammaEffect::GrGammaEffect(Mode mode, SkScalar gamma) : fMode(mode), fGamma(gamma) {
     this->initClassID<GrGammaEffect>();
 }
 
 bool GrGammaEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrGammaEffect& other = s.cast<GrGammaEffect>();
-    return
-        other.fMode == fMode &&
-        (fMode != Mode::kExponential || other.fGamma == fGamma);
+    return other.fMode == fMode && (fMode != Mode::kExponential || other.fGamma == fGamma);
 }
 
 void GrGammaEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {

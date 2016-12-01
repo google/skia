@@ -26,12 +26,10 @@ class GrVkDescriptorSetManager {
 public:
     GR_DEFINE_RESOURCE_HANDLE_CLASS(Handle);
 
-    GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorType,
+    GrVkDescriptorSetManager(GrVkGpu* gpu, VkDescriptorType,
                              const GrVkUniformHandler* handler = nullptr);
 
-    GrVkDescriptorSetManager(GrVkGpu* gpu,
-                             VkDescriptorType,
+    GrVkDescriptorSetManager(GrVkGpu* gpu, VkDescriptorType,
                              const SkTArray<uint32_t>& visibilities);
 
     ~GrVkDescriptorSetManager() {}
@@ -46,8 +44,7 @@ public:
     void recycleDescriptorSet(const GrVkDescriptorSet*);
 
     bool isCompatible(VkDescriptorType type, const GrVkUniformHandler*) const;
-    bool isCompatible(VkDescriptorType type,
-                      const SkTArray<uint32_t>& visibilities) const;
+    bool isCompatible(VkDescriptorType type, const SkTArray<uint32_t>& visibilities) const;
 
 private:
     struct DescriptorPoolManager {
@@ -55,7 +52,6 @@ private:
                               const GrVkUniformHandler* handler = nullptr);
         DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
                               const SkTArray<uint32_t>& visibilities);
-
 
         ~DescriptorPoolManager() {
             SkASSERT(!fDescLayout);
@@ -67,18 +63,18 @@ private:
         void freeGPUResources(const GrVkGpu* gpu);
         void abandonGPUResources();
 
-        VkDescriptorSetLayout  fDescLayout;
-        VkDescriptorType       fDescType;
-        uint32_t               fDescCountPerSet;
-        uint32_t               fMaxDescriptors;
-        uint32_t               fCurrentDescriptorCount;
-        GrVkDescriptorPool*    fPool;
+        VkDescriptorSetLayout fDescLayout;
+        VkDescriptorType fDescType;
+        uint32_t fDescCountPerSet;
+        uint32_t fMaxDescriptors;
+        uint32_t fCurrentDescriptorCount;
+        GrVkDescriptorPool* fPool;
 
     private:
         enum {
             kUniformDescPerSet = 2,
             kMaxDescriptors = 1024,
-            kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
+            kStartNumDescriptors = 16,  // must be less than kMaxUniformDescriptors
         };
 
         void init(GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler* uniformHandler,
@@ -87,9 +83,9 @@ private:
         void getNewPool(GrVkGpu* gpu);
     };
 
-    DescriptorPoolManager                    fPoolManager;
+    DescriptorPoolManager fPoolManager;
     SkTArray<const GrVkDescriptorSet*, true> fFreeSets;
-    SkSTArray<4, uint32_t>                   fBindingVisibilities;
+    SkSTArray<4, uint32_t> fBindingVisibilities;
 };
 
 #endif

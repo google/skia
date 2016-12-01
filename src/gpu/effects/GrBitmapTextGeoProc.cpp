@@ -36,8 +36,7 @@ public:
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s;", v.vsOut(),
-                                 cte.inTextureCoords()->fName);
+        vertBuilder->codeAppendf("%s = %s;", v.vsOut(), cte.inTextureCoords()->fName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
@@ -54,21 +53,15 @@ public:
         this->setupPosition(vertBuilder, gpArgs, cte.inPosition()->fName);
 
         // emit transforms
-        this->emitTransforms(vertBuilder,
-                             varyingHandler,
-                             uniformHandler,
-                             gpArgs->fPositionVar,
-                             cte.inPosition()->fName,
-                             cte.localMatrix(),
+        this->emitTransforms(vertBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
+                             cte.inPosition()->fName, cte.localMatrix(),
                              args.fFPCoordTransformHandler);
 
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
             if (!cte.colorIgnored()) {
                 fragBuilder->codeAppendf("%s = ", args.fOutputColor);
-                fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                            args.fTexSamplers[0],
-                                                            v.fsIn(),
-                                                            kVec2f_GrSLType);
+                fragBuilder->appendTextureLookupAndModulate(args.fOutputColor, args.fTexSamplers[0],
+                                                            v.fsIn(), kVec2f_GrSLType);
                 fragBuilder->codeAppend(";");
                 fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
             }
@@ -78,9 +71,9 @@ public:
             fragBuilder->codeAppend(";");
             if (cte.maskFormat() == kA565_GrMaskFormat) {
                 // set alpha to be max of rgb coverage
-                fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);",
+                fragBuilder->codeAppendf("%s.a = max(max(%s.r, %s.g), %s.b);", args.fOutputCoverage,
                                          args.fOutputCoverage, args.fOutputCoverage,
-                                         args.fOutputCoverage, args.fOutputCoverage);
+                                         args.fOutputCoverage);
             }
         }
     }
@@ -97,8 +90,7 @@ public:
         this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
     }
 
-    static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrShaderCaps&,
+    static inline void GenKey(const GrGeometryProcessor& proc, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
         uint32_t key = 0;
@@ -136,12 +128,11 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType);
 
-    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
-                          kA565_GrMaskFormat == fMaskFormat;
+    bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat || kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
         fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     }
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -163,18 +154,16 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
+            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+            kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+            kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
     GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
                                                              : GrSamplerParams::kNone_FilterMode);
 
-    GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
+    GrMaskFormat format = kARGB_GrMaskFormat;  // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {
         case 0:
             format = kA8_GrMaskFormat;

@@ -40,8 +40,7 @@ public:
         , fStrokeWidth(strokeWidth)
         , fStyle(style)
         , fJoin(join)
-        , fMiterLimit(miterLimit) {
-    }
+        , fMiterLimit(miterLimit) {}
 
     SkPoint::Side side() const { return fSide; }
 
@@ -116,9 +115,9 @@ private:
     private:
         struct PointData {
             SkPoint fPt;
-            int     fOriginatingIdx;
-            int     fOrigEdgeId;
-            bool    fNeedsToBeNew;
+            int fOriginatingIdx;
+            int fOrigEdgeId;
+            bool fNeedsToBeNew;
         };
 
         SkTDArray<struct PointData> fPts;
@@ -143,7 +142,7 @@ private:
         void makeOriginalRing() {
             for (int i = 0; i < fPts.count(); ++i) {
                 fPts[i].fOrigEdgeId = fPts[i].fIndex;
-            }            
+            }
         }
 
         // init should be called after all the indices have been added (via addIdx)
@@ -156,9 +155,9 @@ private:
         int origEdgeID(int index) const { return fPts[index].fOrigEdgeId; }
         void setOrigEdgeId(int index, int id) { fPts[index].fOrigEdgeId = id; }
 
-    #if GR_AA_CONVEX_TESSELLATOR_VIZ
+#if GR_AA_CONVEX_TESSELLATOR_VIZ
         void draw(SkCanvas* canvas, const GrAAConvexTessellator& tess) const;
-    #endif
+#endif
 
     private:
         void computeNormals(const GrAAConvexTessellator& result);
@@ -166,11 +165,11 @@ private:
 
         SkDEBUGCODE(bool isConvex(const GrAAConvexTessellator& tess) const;)
 
-        struct PointData {
+                struct PointData {
             SkPoint fNorm;
             SkPoint fBisector;
-            int     fIndex;
-            int     fOrigEdgeId;
+            int fIndex;
+            int fOrigEdgeId;
         };
 
         SkTDArray<PointData> fPts;
@@ -209,9 +208,8 @@ private:
 
     SkScalar computeDepthFromEdge(int edgeIdx, const SkPoint& p) const;
 
-    bool computePtAlongBisector(int startIdx, const SkPoint& bisector,
-                                int edgeIdx, SkScalar desiredDepth,
-                                SkPoint* result) const;
+    bool computePtAlongBisector(int startIdx, const SkPoint& bisector, int edgeIdx,
+                                SkScalar desiredDepth, SkPoint* result) const;
 
     void lineTo(const SkPoint& p, CurveState curve);
 
@@ -241,51 +239,50 @@ private:
     bool createInsetRings(Ring& previousRing, SkScalar initialDepth, SkScalar initialCoverage,
                           SkScalar targetDepth, SkScalar targetCoverage, Ring** finalRing);
 
-    bool createInsetRing(const Ring& lastRing, Ring* nextRing,
-                         SkScalar initialDepth, SkScalar initialCoverage, SkScalar targetDepth,
-                         SkScalar targetCoverage, bool forceNew);
+    bool createInsetRing(const Ring& lastRing, Ring* nextRing, SkScalar initialDepth,
+                         SkScalar initialCoverage, SkScalar targetDepth, SkScalar targetCoverage,
+                         bool forceNew);
 
     void validate() const;
 
     // fPts, fCoverages, fMovable & fCurveState should always have the same # of elements
-    SkTDArray<SkPoint>    fPts;
-    SkTDArray<SkScalar>   fCoverages;
+    SkTDArray<SkPoint> fPts;
+    SkTDArray<SkScalar> fCoverages;
     // movable points are those that can be slid further along their bisector
-    SkTDArray<bool>       fMovable;
+    SkTDArray<bool> fMovable;
     // Tracks whether a given point is interior to a curve. Such points are
     // assumed to have shallow curvature.
     SkTDArray<CurveState> fCurveState;
 
     // The outward facing normals for the original polygon
-    SkTDArray<SkVector>   fNorms;
+    SkTDArray<SkVector> fNorms;
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
-    SkTDArray<SkVector>   fBisectors;
+    SkTDArray<SkVector> fBisectors;
 
-    SkPoint::Side         fSide;    // winding of the original polygon
+    SkPoint::Side fSide;  // winding of the original polygon
 
     // The triangulation of the points
-    SkTDArray<int>        fIndices;
+    SkTDArray<int> fIndices;
 
-    Ring                  fInitialRing;
+    Ring fInitialRing;
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
     // When visualizing save all the rings
-    SkTDArray<Ring*>      fRings;
+    SkTDArray<Ring*> fRings;
 #else
-    Ring                  fRings[2];
+    Ring fRings[2];
 #endif
-    CandidateVerts        fCandidateVerts;
+    CandidateVerts fCandidateVerts;
 
     // the stroke width is only used for stroke or stroke-and-fill styles
-    SkScalar              fStrokeWidth;
-    SkStrokeRec::Style    fStyle;
+    SkScalar fStrokeWidth;
+    SkStrokeRec::Style fStyle;
 
-    SkPaint::Join         fJoin;
+    SkPaint::Join fJoin;
 
-    SkScalar              fMiterLimit;
+    SkScalar fMiterLimit;
 
-    SkTDArray<SkPoint>    fPointBuffer;
+    SkTDArray<SkPoint> fPointBuffer;
 };
-
 
 #endif

@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrRenderTarget.h"
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
@@ -19,10 +18,7 @@
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flags,
                                GrStencilAttachment* stencil)
-    : INHERITED(gpu, desc)
-    , fStencilAttachment(stencil)
-    , fMultisampleSpecsID(0)
-    , fFlags(flags) {
+    : INHERITED(gpu, desc), fStencilAttachment(stencil), fMultisampleSpecsID(0), fFlags(flags) {
     SkASSERT(!(fFlags & Flags::kMixedSampled) || fDesc.fSampleCnt > 0);
     SkASSERT(!(fFlags & Flags::kWindowRectsSupport) || gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect.setLargestInverted();
@@ -36,7 +32,7 @@ void GrRenderTarget::discard() {
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(this), nullptr));
+            context->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(this), nullptr));
     if (!renderTargetContext) {
         return;
     }
@@ -105,9 +101,9 @@ int GrRenderTargetPriv::numStencilBits() const {
     return this->getStencilAttachment()->bits();
 }
 
-const GrGpu::MultisampleSpecs&
-GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
-    SkASSERT(fRenderTarget == pipeline.getRenderTarget()); // TODO: remove RT from pipeline.
+const GrGpu::MultisampleSpecs& GrRenderTargetPriv::getMultisampleSpecs(
+        const GrPipeline& pipeline) const {
+    SkASSERT(fRenderTarget == pipeline.getRenderTarget());  // TODO: remove RT from pipeline.
     GrGpu* gpu = fRenderTarget->getGpu();
     if (auto id = fRenderTarget->fMultisampleSpecsID) {
         SkASSERT(gpu->queryMultisampleSpecs(pipeline).fUniqueID == id);
@@ -117,4 +113,3 @@ GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
     fRenderTarget->fMultisampleSpecsID = specs.fUniqueID;
     return specs;
 }
-

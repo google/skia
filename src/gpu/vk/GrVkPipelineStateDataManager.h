@@ -19,8 +19,7 @@ class GrVkPipelineStateDataManager : public GrGLSLProgramDataManager {
 public:
     typedef GrVkUniformHandler::UniformInfoArray UniformInfoArray;
 
-    GrVkPipelineStateDataManager(const UniformInfoArray&,
-                                 uint32_t vertexUniformSize,
+    GrVkPipelineStateDataManager(const UniformInfoArray&, uint32_t vertexUniformSize,
                                  uint32_t fragmentUniformSize);
 
     void set1i(UniformHandle, int32_t) const override;
@@ -51,21 +50,18 @@ public:
     // Returns true if either the vertex or fragment buffer needed to generate a new underlying
     // VkBuffer object in order upload data. If true is returned, this is a signal to the caller
     // that they will need to update the descriptor set that is using these buffers.
-    bool uploadUniformBuffers(GrVkGpu* gpu,
-                              GrVkUniformBuffer* vertexBuffer,
+    bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* vertexBuffer,
                               GrVkUniformBuffer* fragmentBuffer) const;
+
 private:
     struct Uniform {
         uint32_t fBinding;
         uint32_t fOffset;
-        SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
-        );
+        SkDEBUGCODE(GrSLType fType; int fArrayCount;);
     };
 
-    template<int N> inline void setMatrices(UniformHandle, int arrayCount,
-                                            const float matrices[]) const;
+    template <int N>
+    inline void setMatrices(UniformHandle, int arrayCount, const float matrices[]) const;
 
     void* getBufferPtrAndMarkDirty(const Uniform& uni) const;
 
@@ -76,8 +72,8 @@ private:
 
     mutable SkAutoMalloc fVertexUniformData;
     mutable SkAutoMalloc fFragmentUniformData;
-    mutable bool         fVertexUniformsDirty;
-    mutable bool         fFragmentUniformsDirty;
+    mutable bool fVertexUniformsDirty;
+    mutable bool fFragmentUniformsDirty;
 };
 
 #endif

@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "gl/GrGLAssembleInterface.h"
 #include "GrGLUtil.h"
 
-#define GET_PROC(F) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
+#define GET_PROC(F) functions->f##F = (GrGL##F##Proc)get(ctx, "gl" #F)
+#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Proc)get(ctx, "gl" #F #S)
+#define GET_PROC_LOCAL(F) GrGL##F##Proc F = (GrGL##F##Proc)get(ctx, "gl" #F)
 
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
+#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Proc)get(ctx, "egl" #F #S)
 
 const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
@@ -38,11 +37,11 @@ const GrGLInterface* GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
 
 static void get_egl_query_and_display(GrEGLQueryStringProc* queryString, GrEGLDisplay* display,
                                       void* ctx, GrGLGetProc get) {
-    *queryString = (GrEGLQueryStringProc) get(ctx, "eglQueryString");
+    *queryString = (GrEGLQueryStringProc)get(ctx, "eglQueryString");
     *display = GR_EGL_NO_DISPLAY;
     if (*queryString) {
         GrEGLGetCurrentDisplayProc getCurrentDisplay =
-            (GrEGLGetCurrentDisplayProc) get(ctx, "eglGetCurrentDisplay");
+                (GrEGLGetCurrentDisplayProc)get(ctx, "eglGetCurrentDisplay");
         if (getCurrentDisplay) {
             *display = getCurrentDisplay();
         } else {
@@ -61,10 +60,10 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         return nullptr;
     }
 
-    const char* versionString = (const char*) GetString(GR_GL_VERSION);
+    const char* versionString = (const char*)GetString(GR_GL_VERSION);
     GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
-    if (glVer < GR_GL_VER(1,5) || GR_GL_INVALID_VER == glVer) {
+    if (glVer < GR_GL_VER(1, 5) || GR_GL_INVALID_VER == glVer) {
         // We must have array and element_array buffer objects.
         return nullptr;
     }
@@ -85,7 +84,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(AttachShader);
     GET_PROC(BindAttribLocation);
     GET_PROC(BindBuffer);
-    if (glVer >= GR_GL_VER(3,0)) {
+    if (glVer >= GR_GL_VER(3, 0)) {
         GET_PROC(BindFragDataLocation);
     }
     GET_PROC(BeginQuery);
@@ -97,15 +96,13 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(BlendBarrier, NV);
     }
 
-    if (glVer >= GR_GL_VER(1,4) ||
-        extensions.has("GL_ARB_imaging")) {
+    if (glVer >= GR_GL_VER(1, 4) || extensions.has("GL_ARB_imaging")) {
         GET_PROC(BlendColor);
     } else if (extensions.has("GL_EXT_blend_color")) {
         GET_PROC_SUFFIX(BlendColor, EXT);
     }
 
-    if (glVer >= GR_GL_VER(1,4) ||
-        extensions.has("GL_ARB_imaging")) {
+    if (glVer >= GR_GL_VER(1, 4) || extensions.has("GL_ARB_imaging")) {
         GET_PROC(BlendEquation);
     } else if (extensions.has("GL_EXT_blend_subtract")) {
         GET_PROC_SUFFIX(BlendEquation, EXT);
@@ -138,17 +135,17 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(DrawBuffers);
     GET_PROC(DrawElements);
 
-    if (glVer >= GR_GL_VER(3,1) || extensions.has("GL_ARB_draw_instanced") ||
+    if (glVer >= GR_GL_VER(3, 1) || extensions.has("GL_ARB_draw_instanced") ||
         extensions.has("GL_EXT_draw_instanced")) {
         GET_PROC(DrawArraysInstanced);
         GET_PROC(DrawElementsInstanced);
     }
 
-    if (glVer >= GR_GL_VER(4,0) || extensions.has("GL_ARB_draw_indirect")) {
+    if (glVer >= GR_GL_VER(4, 0) || extensions.has("GL_ARB_draw_indirect")) {
         GET_PROC(DrawArraysIndirect);
         GET_PROC(DrawElementsIndirect);
     }
-    if (glVer >= GR_GL_VER(2,0)) {
+    if (glVer >= GR_GL_VER(2, 0)) {
         GET_PROC(DrawRangeElements);
     }
     GET_PROC(Enable);
@@ -162,12 +159,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
-    if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_texture_multisample")) {
+    if (glVer >= GR_GL_VER(3, 2) || extensions.has("GL_ARB_texture_multisample")) {
         GET_PROC(GetMultisamplefv);
     }
     GET_PROC(GetQueryObjectiv);
     GET_PROC(GetQueryObjectuiv);
-    if (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
+    if (glVer >= GR_GL_VER(3, 3) || extensions.has("GL_ARB_timer_query")) {
         GET_PROC(GetQueryObjecti64v);
         GET_PROC(GetQueryObjectui64v);
         GET_PROC(QueryCounter);
@@ -192,7 +189,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(LinkProgram);
     GET_PROC(MapBuffer);
 
-    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_multi_draw_indirect")) {
+    if (glVer >= GR_GL_VER(4, 3) || extensions.has("GL_ARB_multi_draw_indirect")) {
         GET_PROC(MultiDrawArraysIndirect);
         GET_PROC(MultiDrawElementsIndirect);
     }
@@ -211,22 +208,22 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(StencilMaskSeparate);
     GET_PROC(StencilOp);
     GET_PROC(StencilOpSeparate);
-    if (glVer >= GR_GL_VER(3,1)) {
+    if (glVer >= GR_GL_VER(3, 1)) {
         GET_PROC(TexBuffer);
     }
-    if (glVer >= GR_GL_VER(4,3)) {
+    if (glVer >= GR_GL_VER(4, 3)) {
         GET_PROC(TexBufferRange);
     }
     GET_PROC(TexImage2D);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);
-    if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
+    if (glVer >= GR_GL_VER(4, 2) || extensions.has("GL_ARB_texture_storage")) {
         GET_PROC(TexStorage2D);
     } else if (extensions.has("GL_EXT_texture_storage")) {
         GET_PROC_SUFFIX(TexStorage2D, EXT);
     }
     GET_PROC(TexSubImage2D);
-    if (glVer >= GR_GL_VER(4,5) || extensions.has("GL_ARB_texture_barrier")) {
+    if (glVer >= GR_GL_VER(4, 5) || extensions.has("GL_ARB_texture_barrier")) {
         GET_PROC(TextureBarrier);
     } else if (extensions.has("GL_NV_texture_barrier")) {
         GET_PROC_SUFFIX(TextureBarrier, NV);
@@ -257,11 +254,11 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(VertexAttrib3fv);
     GET_PROC(VertexAttrib4fv);
 
-    if (glVer >= GR_GL_VER(3,2) || extensions.has("GL_ARB_instanced_arrays")) {
+    if (glVer >= GR_GL_VER(3, 2) || extensions.has("GL_ARB_instanced_arrays")) {
         GET_PROC(VertexAttribDivisor);
     }
 
-    if (glVer >= GR_GL_VER(3,0)) {
+    if (glVer >= GR_GL_VER(3, 0)) {
         GET_PROC(VertexAttribIPointer);
     }
 
@@ -269,7 +266,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(Viewport);
     GET_PROC(BindFragDataLocationIndexed);
 
-    if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {
+    if (glVer >= GR_GL_VER(3, 0) || extensions.has("GL_ARB_vertex_array_object")) {
         // no ARB suffix for GL_ARB_vertex_array_object
         GET_PROC(BindVertexArray);
         GET_PROC(GenVertexArrays);
@@ -280,14 +277,14 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(DeleteVertexArrays, APPLE);
     }
 
-    if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_map_buffer_range")) {
+    if (glVer >= GR_GL_VER(3, 0) || extensions.has("GL_ARB_map_buffer_range")) {
         GET_PROC(MapBufferRange);
         GET_PROC(FlushMappedBufferRange);
     }
 
     // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
     // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-    if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
+    if (glVer >= GR_GL_VER(3, 0) || extensions.has("GL_ARB_framebuffer_object")) {
         GET_PROC(GenFramebuffers);
         GET_PROC(GetFramebufferAttachmentParameteriv);
         GET_PROC(GetRenderbufferParameteriv);
@@ -362,7 +359,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(PopGroupMarker, EXT);
     }
 
-    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_invalidate_subdata")) {
+    if (glVer >= GR_GL_VER(4, 3) || extensions.has("GL_ARB_invalidate_subdata")) {
         GET_PROC(InvalidateBufferData);
         GET_PROC(InvalidateBufferSubData);
         GET_PROC(InvalidateFramebuffer);
@@ -371,7 +368,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(InvalidateTexSubImage);
     }
 
-    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_program_interface_query")) {
+    if (glVer >= GR_GL_VER(4, 3) || extensions.has("GL_ARB_program_interface_query")) {
         GET_PROC(GetProgramResourceLocation);
     }
 
@@ -409,7 +406,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(GetTextureParameteriv, EXT);
         GET_PROC_SUFFIX(GetTextureLevelParameterfv, EXT);
         GET_PROC_SUFFIX(GetTextureLevelParameteriv, EXT);
-        if (glVer >= GR_GL_VER(1,2)) {
+        if (glVer >= GR_GL_VER(1, 2)) {
             GET_PROC_SUFFIX(TextureImage3D, EXT);
             GET_PROC_SUFFIX(TextureSubImage3D, EXT);
             GET_PROC_SUFFIX(CopyTextureSubImage3D, EXT);
@@ -421,7 +418,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(CompressedTextureSubImage1D, EXT);
             GET_PROC_SUFFIX(GetCompressedTextureImage, EXT);
         }
-        if (glVer >= GR_GL_VER(1,5)) {
+        if (glVer >= GR_GL_VER(1, 5)) {
             GET_PROC_SUFFIX(NamedBufferData, EXT);
             GET_PROC_SUFFIX(NamedBufferSubData, EXT);
             GET_PROC_SUFFIX(MapNamedBuffer, EXT);
@@ -430,7 +427,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(GetNamedBufferPointerv, EXT);
             GET_PROC_SUFFIX(GetNamedBufferSubData, EXT);
         }
-        if (glVer >= GR_GL_VER(2,0)) {
+        if (glVer >= GR_GL_VER(2, 0)) {
             GET_PROC_SUFFIX(ProgramUniform1f, EXT);
             GET_PROC_SUFFIX(ProgramUniform2f, EXT);
             GET_PROC_SUFFIX(ProgramUniform3f, EXT);
@@ -451,7 +448,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(ProgramUniformMatrix3fv, EXT);
             GET_PROC_SUFFIX(ProgramUniformMatrix4fv, EXT);
         }
-        if (glVer >= GR_GL_VER(2,1)) {
+        if (glVer >= GR_GL_VER(2, 1)) {
             GET_PROC_SUFFIX(ProgramUniformMatrix2x3fv, EXT);
             GET_PROC_SUFFIX(ProgramUniformMatrix3x2fv, EXT);
             GET_PROC_SUFFIX(ProgramUniformMatrix2x4fv, EXT);
@@ -459,7 +456,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(ProgramUniformMatrix3x4fv, EXT);
             GET_PROC_SUFFIX(ProgramUniformMatrix4x3fv, EXT);
         }
-        if (glVer >= GR_GL_VER(3,0)) {
+        if (glVer >= GR_GL_VER(3, 0)) {
             GET_PROC_SUFFIX(NamedRenderbufferStorage, EXT);
             GET_PROC_SUFFIX(GetNamedRenderbufferParameteriv, EXT);
             GET_PROC_SUFFIX(NamedRenderbufferStorageMultisample, EXT);
@@ -497,12 +494,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
             GET_PROC_SUFFIX(MapNamedBufferRange, EXT);
             GET_PROC_SUFFIX(FlushMappedNamedBufferRange, EXT);
         }
-        if (glVer >= GR_GL_VER(3,1)) {
+        if (glVer >= GR_GL_VER(3, 1)) {
             GET_PROC_SUFFIX(TextureBuffer, EXT);
         }
     }
 
-    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_KHR_debug")) {
+    if (glVer >= GR_GL_VER(4, 3) || extensions.has("GL_KHR_debug")) {
         // KHR_debug defines these methods to have no suffix in an OpenGL (not ES) context.
         GET_PROC(DebugMessageControl);
         GET_PROC(DebugMessageInsert);
@@ -555,7 +552,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
     GrGLVersion version = GrGLGetVersionFromString(verStr);
 
-    if (version < GR_GL_VER(2,0)) {
+    if (version < GR_GL_VER(2, 0)) {
         return nullptr;
     }
 
@@ -580,7 +577,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(BindTexture);
     GET_PROC_SUFFIX(BindVertexArray, OES);
 
-    if (version >= GR_GL_VER(3,0) && extensions.has("GL_EXT_blend_func_extended")) {
+    if (version >= GR_GL_VER(3, 0) && extensions.has("GL_EXT_blend_func_extended")) {
         GET_PROC_SUFFIX(BindFragDataLocation, EXT);
         GET_PROC_SUFFIX(BindFragDataLocationIndexed, EXT);
     }
@@ -617,7 +614,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(DisableVertexAttribArray);
     GET_PROC(DrawArrays);
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(DrawArraysInstanced);
         GET_PROC(DrawElementsInstanced);
     } else if (extensions.has("GL_EXT_draw_instanced")) {
@@ -625,13 +622,13 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC_SUFFIX(DrawElementsInstanced, EXT);
     }
 
-    if (version >= GR_GL_VER(3,1)) {
+    if (version >= GR_GL_VER(3, 1)) {
         GET_PROC(DrawArraysIndirect);
         GET_PROC(DrawElementsIndirect);
     }
 
     GET_PROC(DrawElements);
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(DrawRangeElements);
     }
     GET_PROC(Enable);
@@ -647,7 +644,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
 
-    if (version >= GR_GL_VER(3,1)) {
+    if (version >= GR_GL_VER(3, 1)) {
         GET_PROC(GetMultisamplefv);
     }
 
@@ -684,7 +681,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(StencilOp);
     GET_PROC(StencilOpSeparate);
 
-    if (version >= GR_GL_VER(3,2)) {
+    if (version >= GR_GL_VER(3, 2)) {
         GET_PROC(TexBuffer);
         GET_PROC(TexBufferRange);
     } else if (extensions.has("GL_OES_texture_buffer")) {
@@ -700,7 +697,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(TexParameteriv);
     GET_PROC(TexSubImage2D);
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(TexStorage2D);
     } else {
         GET_PROC_SUFFIX(TexStorage2D, EXT);
@@ -736,13 +733,13 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(VertexAttrib3fv);
     GET_PROC(VertexAttrib4fv);
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(VertexAttribDivisor);
     } else if (extensions.has("GL_EXT_instanced_arrays")) {
         GET_PROC_SUFFIX(VertexAttribDivisor, EXT);
     }
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(VertexAttribIPointer);
     }
 
@@ -756,7 +753,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(FramebufferRenderbuffer);
     GET_PROC(FramebufferTexture2D);
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(RenderbufferStorageMultisample);
         GET_PROC(BlitFramebuffer);
     } else if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
@@ -780,12 +777,18 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
         GET_PROC_SUFFIX(FramebufferTexture2DMultisample, EXT);
-        functions->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleEXT");
+        functions->fRenderbufferStorageMultisampleES2EXT =
+                (GrGLRenderbufferStorageMultisampleProc)get(ctx,
+                                                            "glRenderbufferStorageMultisampleEXT");
     } else if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
         GET_PROC_SUFFIX(FramebufferTexture2DMultisample, IMG);
-        functions->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleIMG");
+        functions->fRenderbufferStorageMultisampleES2EXT =
+                (GrGLRenderbufferStorageMultisampleProc)get(ctx,
+                                                            "glRenderbufferStorageMultisampleIMG");
     } else if (extensions.has("GL_APPLE_framebuffer_multisample")) {
-        functions->fRenderbufferStorageMultisampleES2APPLE = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleAPPLE");
+        functions->fRenderbufferStorageMultisampleES2APPLE =
+                (GrGLRenderbufferStorageMultisampleProc)get(
+                        ctx, "glRenderbufferStorageMultisampleAPPLE");
         GET_PROC_SUFFIX(ResolveMultisampleFramebuffer, APPLE);
     }
 
@@ -798,7 +801,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC_SUFFIX(MapBuffer, OES);
     GET_PROC_SUFFIX(UnmapBuffer, OES);
 
-    if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(MapBufferRange);
         GET_PROC(FlushMappedBufferRange);
     } else if (extensions.has("GL_EXT_map_buffer_range")) {
@@ -812,8 +815,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(PopGroupMarker);
         // The below check is here because a device has been found that has the extension string but
         // returns nullptr from the eglGetProcAddress for the functions
-        if (nullptr == functions->fInsertEventMarker ||
-            nullptr == functions->fPushGroupMarker ||
+        if (nullptr == functions->fInsertEventMarker || nullptr == functions->fPushGroupMarker ||
             nullptr == functions->fPopGroupMarker) {
             extensions.remove("GL_EXT_debug_marker");
         }
@@ -826,7 +828,7 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(InvalidateTexImage);
     GET_PROC(InvalidateTexSubImage);
 
-    if (version >= GR_GL_VER(3,1)) {
+    if (version >= GR_GL_VER(3, 1)) {
         GET_PROC(GetProgramResourceLocation);
     }
 

@@ -28,10 +28,10 @@ public:
         , fInputColorIsUsed(true)
         , fInputColor(0) {}
 
-    void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
+    void calcWithInitialValues(const GrFragmentProcessor* const*, int cnt, GrColor startColor,
                                GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
     void initUsingInvariantOutput(GrInitInvariantOutput invOutput);
-    void completeCalculations(const GrFragmentProcessor * const processors[], int cnt);
+    void completeCalculations(const GrFragmentProcessor* const processors[], int cnt);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
@@ -41,14 +41,13 @@ public:
     // TODO: Once texture pixel configs quaries are updated, we no longer need this function.
     // For now this function will correctly tell us if we are using LCD text or not and should only
     // be called when looking at the coverage output.
-    bool isFourChannelOutput() const { return !fInOut.isSingleComponent() &&
-                                               fInOut.isLCDCoverage(); }
+    bool isFourChannelOutput() const {
+        return !fInOut.isSingleComponent() && fInOut.isLCDCoverage();
+    }
 
     GrColor color() const { return fInOut.color(); }
 
-    GrColorComponentFlags validFlags() const {
-        return fInOut.validFlags();
-    }
+    GrColorComponentFlags validFlags() const { return fInOut.validFlags(); }
 
     /**
      * Returns the index of the first effective color processor. If an intermediate processor

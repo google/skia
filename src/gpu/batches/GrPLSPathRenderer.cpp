@@ -7,40 +7,39 @@
 
 #include "GrPLSPathRenderer.h"
 
+#include "GrBatchFlushState.h"
+#include "GrBatchTest.h"
+#include "GrCaps.h"
+#include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
+#include "GrInvariantOutput.h"
+#include "GrPLSGeometryProcessor.h"
+#include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
+#include "GrProcessor.h"
+#include "GrStyle.h"
+#include "GrTessellator.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTSort.h"
 #include "SkTraceEvent.h"
-#include "GrBatchFlushState.h"
-#include "GrBatchTest.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrPLSGeometryProcessor.h"
-#include "GrInvariantOutput.h"
-#include "GrPathUtils.h"
-#include "GrProcessor.h"
-#include "GrPipelineBuilder.h"
-#include "GrStyle.h"
-#include "GrTessellator.h"
 #include "batches/GrVertexBatch.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
 
-GrPLSPathRenderer::GrPLSPathRenderer() {
-}
+GrPLSPathRenderer::GrPLSPathRenderer() {}
 
 struct PLSVertex {
-    SkPoint  fPos;
+    SkPoint fPos;
     // for triangles, these are the three triangle vertices
     // for quads, vert1 is the texture UV coords, and vert2 and vert3 are the line segment
     // comprising the flat edge of the quad
-    SkPoint  fVert1;
-    SkPoint  fVert2;
-    SkPoint  fVert3;
+    SkPoint fVert1;
+    SkPoint fVert2;
+    SkPoint fVert3;
     int fWinding;
 };
 typedef SkTArray<PLSVertex, true> PLSVertices;
@@ -56,8 +55,7 @@ static const float kBloatLimit = 640000.0f;
 
 #define kQuadNumVertices 5
 static void add_quad(SkPoint pts[3], PLSVertices& vertices) {
-    SkPoint normal = SkPoint::Make(pts[0].fY - pts[2].fY,
-                                   pts[2].fX - pts[0].fX);
+    SkPoint normal = SkPoint::Make(pts[0].fY - pts[2].fY, pts[2].fX - pts[0].fX);
     normal.setLength(kBloatSize);
     SkScalar cross = (pts[1] - pts[0]).cross(pts[2] - pts[0]);
     if (cross < 0) {
@@ -74,8 +72,7 @@ static void add_quad(SkPoint pts[3], PLSVertices& vertices) {
         if (cross > 0.0) {
             quad[i].fVert2 = pts[0];
             quad[i].fVert3 = pts[2];
-        }
-        else {
+        } else {
             quad[i].fVert2 = pts[2];
             quad[i].fVert3 = pts[0];
         }
@@ -204,7 +201,8 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
             case SkPath::kDone_Verb:
                 done = true;
                 break;
-            default: SkASSERT(false);
+            default:
+                SkASSERT(false);
         }
     }
     SkASSERT(quadPoints.count() % 3 == 0);
@@ -229,26 +227,25 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
             SkASSERT(windingVertices[i + 1].fWinding == winding);
             SkASSERT(windingVertices[i + 2].fWinding == winding);
             SkScalar cross = (p2 - p1).cross(p3 - p1);
-            SkPoint bloated[3] = { p1, p2, p3 };
+            SkPoint bloated[3] = {p1, p2, p3};
             if (cross < 0.0f) {
                 SkTSwap(p1, p3);
             }
             if (bloat_tri(bloated)) {
-                triVertices.push_back({ bloated[0], p1, p2, p3, winding });
-                triVertices.push_back({ bloated[1], p1, p2, p3, winding });
-                triVertices.push_back({ bloated[2], p1, p2, p3, winding });
-            }
-            else {
+                triVertices.push_back({bloated[0], p1, p2, p3, winding});
+                triVertices.push_back({bloated[1], p1, p2, p3, winding});
+                triVertices.push_back({bloated[2], p1, p2, p3, winding});
+            } else {
                 SkScalar minX = SkTMin(p1.fX, SkTMin(p2.fX, p3.fX)) - 1.0f;
                 SkScalar minY = SkTMin(p1.fY, SkTMin(p2.fY, p3.fY)) - 1.0f;
                 SkScalar maxX = SkTMax(p1.fX, SkTMax(p2.fX, p3.fX)) + 1.0f;
                 SkScalar maxY = SkTMax(p1.fY, SkTMax(p2.fY, p3.fY)) + 1.0f;
-                triVertices.push_back({ { minX, minY }, p1, p2, p3, winding });
-                triVertices.push_back({ { maxX, minY }, p1, p2, p3, winding });
-                triVertices.push_back({ { minX, maxY }, p1, p2, p3, winding });
-                triVertices.push_back({ { maxX, minY }, p1, p2, p3, winding });
-                triVertices.push_back({ { maxX, maxY }, p1, p2, p3, winding });
-                triVertices.push_back({ { minX, maxY }, p1, p2, p3, winding });
+                triVertices.push_back({{minX, minY}, p1, p2, p3, winding});
+                triVertices.push_back({{maxX, minY}, p1, p2, p3, winding});
+                triVertices.push_back({{minX, maxY}, p1, p2, p3, winding});
+                triVertices.push_back({{maxX, minY}, p1, p2, p3, winding});
+                triVertices.push_back({{maxX, maxY}, p1, p2, p3, winding});
+                triVertices.push_back({{minX, maxY}, p1, p2, p3, winding});
             }
         }
         delete[] windingVertices;
@@ -258,9 +255,7 @@ static bool get_geometry(const SkPath& path, const SkMatrix& m, PLSVertices& tri
 
 class PLSAATriangleEffect : public GrPLSGeometryProcessor {
 public:
-
-    static GrPLSGeometryProcessor* Create(const SkMatrix& localMatrix,
-                                          bool usesLocalCoords) {
+    static GrPLSGeometryProcessor* Create(const SkMatrix& localMatrix, bool usesLocalCoords) {
         return new PLSAATriangleEffect(localMatrix, usesLocalCoords);
     }
 
@@ -292,44 +287,37 @@ public:
 
             GrGLSLVertToFrag v1(kVec2f_GrSLType);
             varyingHandler->addVarying("Vertex1", &v1, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);",
-                                   v1.vsOut(),
-                                   te.inVertex1()->fName,
+            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", v1.vsOut(), te.inVertex1()->fName,
                                    te.inVertex1()->fName);
 
             GrGLSLVertToFrag v2(kVec2f_GrSLType);
             varyingHandler->addVarying("Vertex2", &v2, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);",
-                                   v2.vsOut(),
-                                   te.inVertex2()->fName,
+            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", v2.vsOut(), te.inVertex2()->fName,
                                    te.inVertex2()->fName);
 
             GrGLSLVertToFrag v3(kVec2f_GrSLType);
             varyingHandler->addVarying("Vertex3", &v3, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);",
-                                   v3.vsOut(),
-                                   te.inVertex3()->fName,
+            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", v3.vsOut(), te.inVertex3()->fName,
                                    te.inVertex3()->fName);
 
             GrGLSLVertToFrag delta1(kVec2f_GrSLType);
             varyingHandler->addVarying("delta1", &delta1, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;",
-                                   delta1.vsOut(), v1.vsOut(), v2.vsOut(), v2.vsOut(), v1.vsOut());
+            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;", delta1.vsOut(),
+                                   v1.vsOut(), v2.vsOut(), v2.vsOut(), v1.vsOut());
 
             GrGLSLVertToFrag delta2(kVec2f_GrSLType);
             varyingHandler->addVarying("delta2", &delta2, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;",
-                                   delta2.vsOut(), v2.vsOut(), v3.vsOut(), v3.vsOut(), v2.vsOut());
+            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;", delta2.vsOut(),
+                                   v2.vsOut(), v3.vsOut(), v3.vsOut(), v2.vsOut());
 
             GrGLSLVertToFrag delta3(kVec2f_GrSLType);
             varyingHandler->addVarying("delta3", &delta3, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;",
-                                   delta3.vsOut(), v3.vsOut(), v1.vsOut(), v1.vsOut(), v3.vsOut());
+            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;", delta3.vsOut(),
+                                   v3.vsOut(), v1.vsOut(), v1.vsOut(), v3.vsOut());
 
             GrGLSLVertToFrag windings(kInt_GrSLType);
             varyingHandler->addFlatVarying("windings", &windings, kLow_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = %s;",
-                                   windings.vsOut(), te.inWindings()->fName);
+            vsBuilder->codeAppendf("%s = %s;", windings.vsOut(), te.inWindings()->fName);
 
             // emit transforms
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
@@ -338,7 +326,7 @@ public:
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
-                           GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
+                    GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             fsBuilder->declAppendf(GR_GL_PLS_PATH_DATA_DECL);
             // Compute four subsamples, each shifted a quarter pixel along x and y from
             // gl_FragCoord. The oriented box positioning of the subsamples is of course not
@@ -380,8 +368,7 @@ public:
             fsBuilder->codeAppendf("pls.windings[3] += (dmax <= 0.0) ? %s : 0;", windings.fsIn());
         }
 
-        static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+        static inline void GenKey(const GrGeometryProcessor& gp, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSAATriangleEffect& te = gp.cast<PLSAATriangleEffect>();
             uint32_t key = 0;
@@ -400,7 +387,7 @@ public:
     };
 
     virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
+                                     GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -410,19 +397,18 @@ public:
 
 private:
     PLSAATriangleEffect(const SkMatrix& localMatrix, bool usesLocalCoords)
-        : fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
+        : fLocalMatrix(localMatrix), fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<PLSAATriangleEffect>();
         fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                              kHigh_GrSLPrecision);
-        fInVertex1 = &this->addVertexAttrib("inVertex1", kVec2f_GrVertexAttribType,
-                                            kHigh_GrSLPrecision);
-        fInVertex2 = &this->addVertexAttrib("inVertex2", kVec2f_GrVertexAttribType,
-                                            kHigh_GrSLPrecision);
-        fInVertex3 = &this->addVertexAttrib("inVertex3", kVec2f_GrVertexAttribType,
-                                            kHigh_GrSLPrecision);
-        fInWindings = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
-                                             kLow_GrSLPrecision);
+        fInVertex1 =
+                &this->addVertexAttrib("inVertex1", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInVertex2 =
+                &this->addVertexAttrib("inVertex2", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInVertex3 =
+                &this->addVertexAttrib("inVertex3", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fInWindings =
+                &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType, kLow_GrSLPrecision);
         this->setWillReadFragmentPosition();
     }
 
@@ -431,8 +417,8 @@ private:
     const Attribute* fInVertex2;
     const Attribute* fInVertex3;
     const Attribute* fInWindings;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -453,9 +439,7 @@ private:
 
 class PLSQuadEdgeEffect : public GrPLSGeometryProcessor {
 public:
-
-    static GrPLSGeometryProcessor* Create(const SkMatrix& localMatrix,
-                                          bool usesLocalCoords) {
+    static GrPLSGeometryProcessor* Create(const SkMatrix& localMatrix, bool usesLocalCoords) {
         return new PLSQuadEdgeEffect(localMatrix, usesLocalCoords);
     }
 
@@ -490,24 +474,22 @@ public:
 
             GrGLSLVertToFrag ep1(kVec2f_GrSLType);
             varyingHandler->addVarying("endpoint1", &ep1, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", ep1.vsOut(),
-                                  qe.inEndpoint1()->fName, qe.inEndpoint1()->fName);
+            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", ep1.vsOut(), qe.inEndpoint1()->fName,
+                                   qe.inEndpoint1()->fName);
 
             GrGLSLVertToFrag ep2(kVec2f_GrSLType);
             varyingHandler->addVarying("endpoint2", &ep2, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", ep2.vsOut(),
-                                  qe.inEndpoint2()->fName, qe.inEndpoint2()->fName);
+            vsBuilder->codeAppendf("%s = vec2(%s.x, %s.y);", ep2.vsOut(), qe.inEndpoint2()->fName,
+                                   qe.inEndpoint2()->fName);
 
             GrGLSLVertToFrag delta(kVec2f_GrSLType);
             varyingHandler->addVarying("delta", &delta, kHigh_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;",
-                                   delta.vsOut(), ep1.vsOut(), ep2.vsOut(), ep2.vsOut(),
-                                   ep1.vsOut());
+            vsBuilder->codeAppendf("%s = vec2(%s.x - %s.x, %s.y - %s.y) * 0.5;", delta.vsOut(),
+                                   ep1.vsOut(), ep2.vsOut(), ep2.vsOut(), ep1.vsOut());
 
             GrGLSLVertToFrag windings(kInt_GrSLType);
             varyingHandler->addFlatVarying("windings", &windings, kLow_GrSLPrecision);
-            vsBuilder->codeAppendf("%s = %s;",
-                                   windings.vsOut(), qe.inWindings()->fName);
+            vsBuilder->codeAppendf("%s = %s;", windings.vsOut(), qe.inWindings()->fName);
 
             // Setup position
             this->setupPosition(vsBuilder, gpArgs, qe.inPosition()->fName);
@@ -519,19 +501,19 @@ public:
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
-                           GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
+                    GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             static const int QUAD_ARGS = 2;
             GrShaderVar inQuadArgs[QUAD_ARGS] = {
-                GrShaderVar("dot", kFloat_GrSLType, 0, kHigh_GrSLPrecision),
-                GrShaderVar("uv", kVec2f_GrSLType, 0, kHigh_GrSLPrecision)
-            };
+                    GrShaderVar("dot", kFloat_GrSLType, 0, kHigh_GrSLPrecision),
+                    GrShaderVar("uv", kVec2f_GrSLType, 0, kHigh_GrSLPrecision)};
             SkString inQuadName;
 
-            const char* inQuadCode = "if (uv.x * uv.x <= uv.y) {"
-                                     "return dot >= 0.0;"
-                                     "} else {"
-                                     "return false;"
-                                     "}";
+            const char* inQuadCode =
+                    "if (uv.x * uv.x <= uv.y) {"
+                    "return dot >= 0.0;"
+                    "} else {"
+                    "return false;"
+                    "}";
             fsBuilder->emitFunction(kBool_GrSLType, "in_quad", QUAD_ARGS, inQuadArgs, inQuadCode,
                                     &inQuadName);
             fsBuilder->declAppendf(GR_GL_PLS_PATH_DATA_DECL);
@@ -540,8 +522,7 @@ public:
             fsBuilder->codeAppendf("highp vec2 uvdY = dFdy(%s);", uv.fsIn());
             fsBuilder->codeAppend("highp vec2 uvIncX = uvdX * 0.45 + uvdY * -0.1;");
             fsBuilder->codeAppend("highp vec2 uvIncY = uvdX * 0.1 + uvdY * 0.55;");
-            fsBuilder->codeAppendf("highp vec2 uv = %s.xy - uvdX * 0.35 - uvdY * 0.25;",
-                                   uv.fsIn());
+            fsBuilder->codeAppendf("highp vec2 uv = %s.xy - uvdX * 0.35 - uvdY * 0.25;", uv.fsIn());
             fsBuilder->codeAppendf("highp vec2 firstSample = %s.xy - vec2(0.25);",
                                    fsBuilder->fragmentPosition());
             fsBuilder->codeAppendf("highp float d = dot(%s, (firstSample - %s).yx) * 2.0;",
@@ -562,8 +543,7 @@ public:
                                    windings.fsIn());
         }
 
-        static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+        static inline void GenKey(const GrGeometryProcessor& gp, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSQuadEdgeEffect& qee = gp.cast<PLSQuadEdgeEffect>();
             uint32_t key = 0;
@@ -572,7 +552,7 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                             FPCoordTransformIter&& transformIter) override {
+                     FPCoordTransformIter&& transformIter) override {
             this->setTransformDataHelper(gp.cast<PLSQuadEdgeEffect>().fLocalMatrix, pdman,
                                          &transformIter);
         }
@@ -582,7 +562,7 @@ public:
     };
 
     virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
+                                     GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -592,8 +572,7 @@ public:
 
 private:
     PLSQuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords)
-        : fLocalMatrix(localMatrix)
-        , fUsesLocalCoords(usesLocalCoords) {
+        : fLocalMatrix(localMatrix), fUsesLocalCoords(usesLocalCoords) {
         this->initClassID<PLSQuadEdgeEffect>();
         fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                              kHigh_GrSLPrecision);
@@ -602,8 +581,8 @@ private:
                                               kHigh_GrSLPrecision);
         fInEndpoint2 = &this->addVertexAttrib("inEndpoint2", kVec2f_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-        fInWindings  = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
-                                              kLow_GrSLPrecision);
+        fInWindings =
+                &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType, kLow_GrSLPrecision);
         this->setWillReadFragmentPosition();
     }
 
@@ -612,8 +591,8 @@ private:
     const Attribute* fInEndpoint1;
     const Attribute* fInEndpoint2;
     const Attribute* fInWindings;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -622,7 +601,6 @@ private:
 
 class PLSFinishEffect : public GrGeometryProcessor {
 public:
-
     static GrGeometryProcessor* Create(GrColor color, bool useEvenOdd, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
         return new PLSFinishEffect(color, useEvenOdd, localMatrix, usesLocalCoords);
@@ -642,9 +620,7 @@ public:
         return GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState;
     }
 
-    const char* getDestColorOverride() const override {
-        return GR_GL_PLS_DSTCOLOR_NAME;
-    }
+    const char* getDestColorOverride() const override { return GR_GL_PLS_DSTCOLOR_NAME; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -656,9 +632,8 @@ public:
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
-            fUseEvenOdd = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kFloat_GrSLType, kLow_GrSLPrecision,
-                                                    "useEvenOdd");
+            fUseEvenOdd = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+                                                     kLow_GrSLPrecision, "useEvenOdd");
             const char* useEvenOdd = uniformHandler->getUniformCStr(fUseEvenOdd);
 
             varyingHandler->emitAttributes(fe);
@@ -669,7 +644,7 @@ public:
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
-                           GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
+                    GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             fsBuilder->declAppendf(GR_GL_PLS_PATH_DATA_DECL);
             fsBuilder->codeAppend("float coverage;");
             fsBuilder->codeAppendf("if (%s != 0.0) {", useEvenOdd);
@@ -691,8 +666,7 @@ public:
             fsBuilder->codeAppendf("%s = vec4(1.0, 0.0, 1.0, 1.0);", args.fOutputColor);
         }
 
-        static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps&,
+        static inline void GenKey(const GrGeometryProcessor& gp, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSFinishEffect& fe = gp.cast<PLSFinishEffect>();
             uint32_t key = 0;
@@ -722,7 +696,7 @@ public:
     };
 
     virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
-                                   GrProcessorKeyBuilder* b) const override {
+                                     GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -743,10 +717,10 @@ private:
     }
 
     const Attribute* fInPosition;
-    GrColor          fColor;
-    bool             fUseEvenOdd;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesLocalCoords;
+    GrColor fColor;
+    bool fUseEvenOdd;
+    SkMatrix fLocalMatrix;
+    bool fUsesLocalCoords;
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -759,18 +733,15 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPath path;
     args.fShape->asPath(&path);
     return args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
-            args.fShape->style().isSimpleFill() && !path.isInverseFillType() &&
-            path.getFillType() == SkPath::FillType::kWinding_FillType;
+           args.fShape->style().isSimpleFill() && !path.isInverseFillType() &&
+           path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
 class PLSPathBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
     PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
-            : INHERITED(ClassID())
-            , fColor(color)
-            , fPath(path)
-            , fViewMatrix(viewMatrix) {
+        : INHERITED(ClassID()), fColor(color), fPath(path), fViewMatrix(viewMatrix) {
         // compute bounds
         this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
                                    IsZeroArea::kNo);
@@ -786,8 +757,7 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fColor);
@@ -807,7 +777,6 @@ public:
     }
 
     void onPrepareDraws(Target* target) const override {
-
         SkMatrix invert;
         if (fUsesLocalCoords && !fViewMatrix.invert(&invert)) {
             SkDebugf("Could not invert viewmatrix\n");
@@ -886,12 +855,9 @@ public:
             target->draw(quadProcessor.get(), mesh);
         }
 
-        sk_sp<GrGeometryProcessor> finishProcessor(
-                PLSFinishEffect::Create(fColor,
-                                        pathPtr->getFillType() ==
-                                                            SkPath::FillType::kEvenOdd_FillType,
-                                        invert,
-                                        fUsesLocalCoords));
+        sk_sp<GrGeometryProcessor> finishProcessor(PLSFinishEffect::Create(
+                fColor, pathPtr->getFillType() == SkPath::FillType::kEvenOdd_FillType, invert,
+                fUsesLocalCoords));
         const GrBuffer* rectVertexBuffer;
         size_t finishStride = finishProcessor->getVertexStride();
         int firstRectVertex;
@@ -902,22 +868,19 @@ public:
             SkDebugf("Could not allocate vertices\n");
             return;
         }
-        rectVerts[0] = { bounds.fLeft, bounds.fTop };
-        rectVerts[1] = { bounds.fLeft, bounds.fBottom };
-        rectVerts[2] = { bounds.fRight, bounds.fBottom };
-        rectVerts[3] = { bounds.fLeft, bounds.fTop };
-        rectVerts[4] = { bounds.fRight, bounds.fTop };
-        rectVerts[5] = { bounds.fRight, bounds.fBottom };
+        rectVerts[0] = {bounds.fLeft, bounds.fTop};
+        rectVerts[1] = {bounds.fLeft, bounds.fBottom};
+        rectVerts[2] = {bounds.fRight, bounds.fBottom};
+        rectVerts[3] = {bounds.fLeft, bounds.fTop};
+        rectVerts[4] = {bounds.fRight, bounds.fTop};
+        rectVerts[5] = {bounds.fRight, bounds.fBottom};
 
-        mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex,
-                  kRectVertexCount);
+        mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex, kRectVertexCount);
         target->draw(finishProcessor.get(), mesh);
     }
 
 private:
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        return false;
-    }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     bool fUsesLocalCoords;
 
@@ -927,12 +890,10 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-SkDEBUGCODE(bool inPLSDraw = false;)
-bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
+SkDEBUGCODE(bool inPLSDraw = false;) bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(!inPLSDraw);
-    SkDEBUGCODE(inPLSDraw = true;)
-    SkPath path;
+    SkDEBUGCODE(inPLSDraw = true;) SkPath path;
     args.fShape->asPath(&path);
 
     sk_sp<GrDrawOp> batch(new PLSPathBatch(args.fPaint->getColor(), path, *args.fViewMatrix));
@@ -943,9 +904,7 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
-    SkDEBUGCODE(inPLSDraw = false;)
-    return true;
-
+    SkDEBUGCODE(inPLSDraw = false;) return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

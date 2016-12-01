@@ -19,23 +19,17 @@ class GrTextureProvider;
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
     GrSoftwarePathRenderer(GrTextureProvider* texProvider, bool allowCaching)
-            : fTexProvider(texProvider)
-            , fAllowCaching(allowCaching) {}
+        : fTexProvider(texProvider), fAllowCaching(allowCaching) {}
+
 private:
-    static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
-                              const GrPaint& paint,
-                              const GrUserStencilSettings& userStencilSettings,
-                              const GrClip& clip,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
+    static void DrawNonAARect(GrRenderTargetContext* renderTargetContext, const GrPaint& paint,
+                              const GrUserStencilSettings& userStencilSettings, const GrClip& clip,
+                              const SkMatrix& viewMatrix, const SkRect& rect,
                               const SkMatrix& localMatrix);
-    static void DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
-                                  const GrPaint& paint,
+    static void DrawAroundInvPath(GrRenderTargetContext* renderTargetContext, const GrPaint& paint,
                                   const GrUserStencilSettings& userStencilSettings,
-                                  const GrClip& clip,
-                                  const SkMatrix& viewMatrix,
-                                  const SkIRect& devClipBounds,
-                                  const SkIRect& devPathBounds);
+                                  const GrClip& clip, const SkMatrix& viewMatrix,
+                                  const SkIRect& devClipBounds, const SkIRect& devPathBounds);
 
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -46,8 +40,8 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
 private:
-    GrTextureProvider*     fTexProvider;
-    bool                   fAllowCaching;
+    GrTextureProvider* fTexProvider;
+    bool fAllowCaching;
 
     typedef GrPathRenderer INHERITED;
 };

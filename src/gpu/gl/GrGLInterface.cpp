@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLExtensions.h"
 #include "gl/GrGLUtil.h"
@@ -60,9 +59,7 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     return newInterface;
 }
 
-GrGLInterface::GrGLInterface() {
-    fStandard = kNone_GrGLStandard;
-}
+GrGLInterface::GrGLInterface() { fStandard = kNone_GrGLStandard; }
 
 GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
     SkASSERT(interface);
@@ -75,17 +72,18 @@ GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
 }
 
 #ifdef SK_DEBUG
-    static int kIsDebug = 1;
+static int kIsDebug = 1;
 #else
-    static int kIsDebug = 0;
+static int kIsDebug = 0;
 #endif
 
-#define RETURN_FALSE_INTERFACE                                                                   \
-    if (kIsDebug) { SkDebugf("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); } \
+#define RETURN_FALSE_INTERFACE                                                     \
+    if (kIsDebug) {                                                                \
+        SkDebugf("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); \
+    }                                                                              \
     return false;
 
 bool GrGLInterface::validate() const {
-
     if (kNone_GrGLStandard == fStandard) {
         RETURN_FALSE_INTERFACE
     }
@@ -95,104 +93,60 @@ bool GrGLInterface::validate() const {
     }
 
     // functions that are always required
-    if (nullptr == fFunctions.fActiveTexture ||
-        nullptr == fFunctions.fAttachShader ||
-        nullptr == fFunctions.fBindAttribLocation ||
-        nullptr == fFunctions.fBindBuffer ||
+    if (nullptr == fFunctions.fActiveTexture || nullptr == fFunctions.fAttachShader ||
+        nullptr == fFunctions.fBindAttribLocation || nullptr == fFunctions.fBindBuffer ||
         nullptr == fFunctions.fBindTexture ||
-        nullptr == fFunctions.fBlendColor ||      // -> GL >= 1.4 or extension, ES >= 2.0
-        nullptr == fFunctions.fBlendEquation ||   // -> GL >= 1.4 or extension, ES >= 2.0
-        nullptr == fFunctions.fBlendFunc ||
-        nullptr == fFunctions.fBufferData ||
-        nullptr == fFunctions.fBufferSubData ||
-        nullptr == fFunctions.fClear ||
-        nullptr == fFunctions.fClearColor ||
-        nullptr == fFunctions.fClearStencil ||
-        nullptr == fFunctions.fColorMask ||
-        nullptr == fFunctions.fCompileShader ||
-        nullptr == fFunctions.fCopyTexSubImage2D ||
-        nullptr == fFunctions.fCreateProgram ||
-        nullptr == fFunctions.fCreateShader ||
-        nullptr == fFunctions.fCullFace ||
-        nullptr == fFunctions.fDeleteBuffers ||
-        nullptr == fFunctions.fDeleteProgram ||
-        nullptr == fFunctions.fDeleteShader ||
-        nullptr == fFunctions.fDeleteTextures ||
-        nullptr == fFunctions.fDepthMask ||
-        nullptr == fFunctions.fDisable ||
-        nullptr == fFunctions.fDisableVertexAttribArray ||
-        nullptr == fFunctions.fDrawArrays ||
-        nullptr == fFunctions.fDrawElements ||
-        nullptr == fFunctions.fEnable ||
-        nullptr == fFunctions.fEnableVertexAttribArray ||
-        nullptr == fFunctions.fFrontFace ||
-        nullptr == fFunctions.fGenBuffers ||
-        nullptr == fFunctions.fGenTextures ||
-        nullptr == fFunctions.fGetBufferParameteriv ||
-        nullptr == fFunctions.fGenerateMipmap ||
-        nullptr == fFunctions.fGetError ||
-        nullptr == fFunctions.fGetIntegerv ||
-        nullptr == fFunctions.fGetProgramInfoLog ||
-        nullptr == fFunctions.fGetProgramiv ||
-        nullptr == fFunctions.fGetShaderInfoLog ||
-        nullptr == fFunctions.fGetShaderiv ||
-        nullptr == fFunctions.fGetString ||
-        nullptr == fFunctions.fGetUniformLocation ||
-#if 0 //  Not included in Chrome yet
+        nullptr == fFunctions.fBlendColor ||     // -> GL >= 1.4 or extension, ES >= 2.0
+        nullptr == fFunctions.fBlendEquation ||  // -> GL >= 1.4 or extension, ES >= 2.0
+        nullptr == fFunctions.fBlendFunc || nullptr == fFunctions.fBufferData ||
+        nullptr == fFunctions.fBufferSubData || nullptr == fFunctions.fClear ||
+        nullptr == fFunctions.fClearColor || nullptr == fFunctions.fClearStencil ||
+        nullptr == fFunctions.fColorMask || nullptr == fFunctions.fCompileShader ||
+        nullptr == fFunctions.fCopyTexSubImage2D || nullptr == fFunctions.fCreateProgram ||
+        nullptr == fFunctions.fCreateShader || nullptr == fFunctions.fCullFace ||
+        nullptr == fFunctions.fDeleteBuffers || nullptr == fFunctions.fDeleteProgram ||
+        nullptr == fFunctions.fDeleteShader || nullptr == fFunctions.fDeleteTextures ||
+        nullptr == fFunctions.fDepthMask || nullptr == fFunctions.fDisable ||
+        nullptr == fFunctions.fDisableVertexAttribArray || nullptr == fFunctions.fDrawArrays ||
+        nullptr == fFunctions.fDrawElements || nullptr == fFunctions.fEnable ||
+        nullptr == fFunctions.fEnableVertexAttribArray || nullptr == fFunctions.fFrontFace ||
+        nullptr == fFunctions.fGenBuffers || nullptr == fFunctions.fGenTextures ||
+        nullptr == fFunctions.fGetBufferParameteriv || nullptr == fFunctions.fGenerateMipmap ||
+        nullptr == fFunctions.fGetError || nullptr == fFunctions.fGetIntegerv ||
+        nullptr == fFunctions.fGetProgramInfoLog || nullptr == fFunctions.fGetProgramiv ||
+        nullptr == fFunctions.fGetShaderInfoLog || nullptr == fFunctions.fGetShaderiv ||
+        nullptr == fFunctions.fGetString || nullptr == fFunctions.fGetUniformLocation ||
+#if 0  //  Not included in Chrome yet
         nullptr == fFunctions.fIsTexture ||
 #endif
-        nullptr == fFunctions.fLinkProgram ||
-        nullptr == fFunctions.fLineWidth ||
-        nullptr == fFunctions.fPixelStorei ||
-        nullptr == fFunctions.fReadPixels ||
-        nullptr == fFunctions.fScissor ||
-        nullptr == fFunctions.fShaderSource ||
-        nullptr == fFunctions.fStencilFunc ||
-        nullptr == fFunctions.fStencilMask ||
-        nullptr == fFunctions.fStencilOp ||
-        nullptr == fFunctions.fTexImage2D ||
-        nullptr == fFunctions.fTexParameteri ||
-        nullptr == fFunctions.fTexParameteriv ||
-        nullptr == fFunctions.fTexSubImage2D ||
-        nullptr == fFunctions.fUniform1f ||
-        nullptr == fFunctions.fUniform1i ||
-        nullptr == fFunctions.fUniform1fv ||
-        nullptr == fFunctions.fUniform1iv ||
-        nullptr == fFunctions.fUniform2f ||
-        nullptr == fFunctions.fUniform2i ||
-        nullptr == fFunctions.fUniform2fv ||
-        nullptr == fFunctions.fUniform2iv ||
-        nullptr == fFunctions.fUniform3f ||
-        nullptr == fFunctions.fUniform3i ||
-        nullptr == fFunctions.fUniform3fv ||
-        nullptr == fFunctions.fUniform3iv ||
-        nullptr == fFunctions.fUniform4f ||
-        nullptr == fFunctions.fUniform4i ||
-        nullptr == fFunctions.fUniform4fv ||
-        nullptr == fFunctions.fUniform4iv ||
-        nullptr == fFunctions.fUniformMatrix2fv ||
-        nullptr == fFunctions.fUniformMatrix3fv ||
-        nullptr == fFunctions.fUniformMatrix4fv ||
-        nullptr == fFunctions.fUseProgram ||
-        nullptr == fFunctions.fVertexAttrib1f ||
-        nullptr == fFunctions.fVertexAttrib2fv ||
-        nullptr == fFunctions.fVertexAttrib3fv ||
-        nullptr == fFunctions.fVertexAttrib4fv ||
-        nullptr == fFunctions.fVertexAttribPointer ||
-        nullptr == fFunctions.fViewport ||
-        nullptr == fFunctions.fBindFramebuffer ||
-        nullptr == fFunctions.fBindRenderbuffer ||
-        nullptr == fFunctions.fCheckFramebufferStatus ||
-        nullptr == fFunctions.fDeleteFramebuffers ||
-        nullptr == fFunctions.fDeleteRenderbuffers ||
-        nullptr == fFunctions.fFinish ||
-        nullptr == fFunctions.fFlush ||
+        nullptr == fFunctions.fLinkProgram || nullptr == fFunctions.fLineWidth ||
+        nullptr == fFunctions.fPixelStorei || nullptr == fFunctions.fReadPixels ||
+        nullptr == fFunctions.fScissor || nullptr == fFunctions.fShaderSource ||
+        nullptr == fFunctions.fStencilFunc || nullptr == fFunctions.fStencilMask ||
+        nullptr == fFunctions.fStencilOp || nullptr == fFunctions.fTexImage2D ||
+        nullptr == fFunctions.fTexParameteri || nullptr == fFunctions.fTexParameteriv ||
+        nullptr == fFunctions.fTexSubImage2D || nullptr == fFunctions.fUniform1f ||
+        nullptr == fFunctions.fUniform1i || nullptr == fFunctions.fUniform1fv ||
+        nullptr == fFunctions.fUniform1iv || nullptr == fFunctions.fUniform2f ||
+        nullptr == fFunctions.fUniform2i || nullptr == fFunctions.fUniform2fv ||
+        nullptr == fFunctions.fUniform2iv || nullptr == fFunctions.fUniform3f ||
+        nullptr == fFunctions.fUniform3i || nullptr == fFunctions.fUniform3fv ||
+        nullptr == fFunctions.fUniform3iv || nullptr == fFunctions.fUniform4f ||
+        nullptr == fFunctions.fUniform4i || nullptr == fFunctions.fUniform4fv ||
+        nullptr == fFunctions.fUniform4iv || nullptr == fFunctions.fUniformMatrix2fv ||
+        nullptr == fFunctions.fUniformMatrix3fv || nullptr == fFunctions.fUniformMatrix4fv ||
+        nullptr == fFunctions.fUseProgram || nullptr == fFunctions.fVertexAttrib1f ||
+        nullptr == fFunctions.fVertexAttrib2fv || nullptr == fFunctions.fVertexAttrib3fv ||
+        nullptr == fFunctions.fVertexAttrib4fv || nullptr == fFunctions.fVertexAttribPointer ||
+        nullptr == fFunctions.fViewport || nullptr == fFunctions.fBindFramebuffer ||
+        nullptr == fFunctions.fBindRenderbuffer || nullptr == fFunctions.fCheckFramebufferStatus ||
+        nullptr == fFunctions.fDeleteFramebuffers || nullptr == fFunctions.fDeleteRenderbuffers ||
+        nullptr == fFunctions.fFinish || nullptr == fFunctions.fFlush ||
         nullptr == fFunctions.fFramebufferRenderbuffer ||
         nullptr == fFunctions.fFramebufferTexture2D ||
         nullptr == fFunctions.fGetFramebufferAttachmentParameteriv ||
         nullptr == fFunctions.fGetRenderbufferParameteriv ||
-        nullptr == fFunctions.fGenFramebuffers ||
-        nullptr == fFunctions.fGenRenderbuffers ||
+        nullptr == fFunctions.fGenFramebuffers || nullptr == fFunctions.fGenRenderbuffers ||
         nullptr == fFunctions.fRenderbufferStorage) {
         RETURN_FALSE_INTERFACE
     }
@@ -216,43 +170,38 @@ bool GrGLInterface::validate() const {
             RETURN_FALSE_INTERFACE
         }
     } else if (kGL_GrGLStandard == fStandard) {
-
-        if (glVer >= GR_GL_VER(2,0)) {
+        if (glVer >= GR_GL_VER(2, 0)) {
             if (nullptr == fFunctions.fStencilFuncSeparate ||
                 nullptr == fFunctions.fStencilMaskSeparate ||
                 nullptr == fFunctions.fStencilOpSeparate) {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(3,0) && nullptr == fFunctions.fBindFragDataLocation) {
+        if (glVer >= GR_GL_VER(3, 0) && nullptr == fFunctions.fBindFragDataLocation) {
             RETURN_FALSE_INTERFACE
         }
-        if (glVer >= GR_GL_VER(2,0) || fExtensions.has("GL_ARB_draw_buffers")) {
+        if (glVer >= GR_GL_VER(2, 0) || fExtensions.has("GL_ARB_draw_buffers")) {
             if (nullptr == fFunctions.fDrawBuffers) {
                 RETURN_FALSE_INTERFACE
             }
         }
 
-        if (glVer >= GR_GL_VER(1,5) || fExtensions.has("GL_ARB_occlusion_query")) {
-            if (nullptr == fFunctions.fGenQueries ||
-                nullptr == fFunctions.fDeleteQueries ||
-                nullptr == fFunctions.fBeginQuery ||
-                nullptr == fFunctions.fEndQuery ||
-                nullptr == fFunctions.fGetQueryiv ||
-                nullptr == fFunctions.fGetQueryObjectiv ||
+        if (glVer >= GR_GL_VER(1, 5) || fExtensions.has("GL_ARB_occlusion_query")) {
+            if (nullptr == fFunctions.fGenQueries || nullptr == fFunctions.fDeleteQueries ||
+                nullptr == fFunctions.fBeginQuery || nullptr == fFunctions.fEndQuery ||
+                nullptr == fFunctions.fGetQueryiv || nullptr == fFunctions.fGetQueryObjectiv ||
                 nullptr == fFunctions.fGetQueryObjectuiv) {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(3,3) ||
-            fExtensions.has("GL_ARB_timer_query") ||
+        if (glVer >= GR_GL_VER(3, 3) || fExtensions.has("GL_ARB_timer_query") ||
             fExtensions.has("GL_EXT_timer_query")) {
             if (nullptr == fFunctions.fGetQueryObjecti64v ||
                 nullptr == fFunctions.fGetQueryObjectui64v) {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_timer_query")) {
+        if (glVer >= GR_GL_VER(3, 3) || fExtensions.has("GL_ARB_timer_query")) {
             if (nullptr == fFunctions.fQueryCounter) {
                 RETURN_FALSE_INTERFACE
             }
@@ -260,8 +209,7 @@ bool GrGLInterface::validate() const {
     }
 
     // optional function on desktop before 1.3
-    if (kGL_GrGLStandard != fStandard ||
-        (glVer >= GR_GL_VER(1,3)) ||
+    if (kGL_GrGLStandard != fStandard || (glVer >= GR_GL_VER(1, 3)) ||
         fExtensions.has("GL_ARB_texture_compression")) {
         if (nullptr == fFunctions.fCompressedTexImage2D
 #if 0
@@ -274,8 +222,7 @@ bool GrGLInterface::validate() const {
 
     // part of desktop GL, but not ES
     if (kGL_GrGLStandard == fStandard &&
-        (nullptr == fFunctions.fGetTexLevelParameteriv ||
-         nullptr == fFunctions.fDrawBuffer ||
+        (nullptr == fFunctions.fGetTexLevelParameteriv || nullptr == fFunctions.fDrawBuffer ||
          nullptr == fFunctions.fReadBuffer)) {
         RETURN_FALSE_INTERFACE
     }
@@ -283,14 +230,13 @@ bool GrGLInterface::validate() const {
     // GL_EXT_texture_storage is part of desktop 4.2
     // There is a desktop ARB extension and an ES+desktop EXT extension
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(4,2) ||
-            fExtensions.has("GL_ARB_texture_storage") ||
+        if (glVer >= GR_GL_VER(4, 2) || fExtensions.has("GL_ARB_texture_storage") ||
             fExtensions.has("GL_EXT_texture_storage")) {
             if (nullptr == fFunctions.fTexStorage2D) {
                 RETURN_FALSE_INTERFACE
             }
         }
-    } else if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_texture_storage")) {
+    } else if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_EXT_texture_storage")) {
         if (nullptr == fFunctions.fTexStorage2D) {
             RETURN_FALSE_INTERFACE
         }
@@ -298,8 +244,7 @@ bool GrGLInterface::validate() const {
 
     // glTextureBarrier is part of desktop 4.5. There are also ARB and NV extensions.
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(4,5) ||
-            fExtensions.has("GL_ARB_texture_barrier") ||
+        if (glVer >= GR_GL_VER(4, 5) || fExtensions.has("GL_ARB_texture_barrier") ||
             fExtensions.has("GL_NV_texture_barrier")) {
             if (nullptr == fFunctions.fTextureBarrier) {
                 RETURN_FALSE_INTERFACE
@@ -327,7 +272,7 @@ bool GrGLInterface::validate() const {
     // FBO MSAA
     if (kGL_GrGLStandard == fStandard) {
         // GL 3.0 and the ARB extension have multisample + blit
-        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_ARB_framebuffer_object")) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_ARB_framebuffer_object")) {
             if (nullptr == fFunctions.fRenderbufferStorageMultisample ||
                 nullptr == fFunctions.fBlitFramebuffer) {
                 RETURN_FALSE_INTERFACE
@@ -343,7 +288,7 @@ bool GrGLInterface::validate() const {
             }
         }
     } else {
-        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_CHROMIUM_framebuffer_multisample")) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (nullptr == fFunctions.fRenderbufferStorageMultisample ||
                 nullptr == fFunctions.fBlitFramebuffer) {
                 RETURN_FALSE_INTERFACE
@@ -377,28 +322,26 @@ bool GrGLInterface::validate() const {
     // buffer mapping was part of original VBO extension
     // which we require.
     if (kGL_GrGLStandard == fStandard || fExtensions.has("GL_OES_mapbuffer")) {
-        if (nullptr == fFunctions.fMapBuffer ||
-            nullptr == fFunctions.fUnmapBuffer) {
+        if (nullptr == fFunctions.fMapBuffer || nullptr == fFunctions.fUnmapBuffer) {
             RETURN_FALSE_INTERFACE
         }
     }
 
     // Dual source blending
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended")) {
+        if (glVer >= GR_GL_VER(3, 3) || fExtensions.has("GL_ARB_blend_func_extended")) {
             if (nullptr == fFunctions.fBindFragDataLocationIndexed) {
                 RETURN_FALSE_INTERFACE
             }
         }
     } else {
-        if (glVer >= GR_GL_VER(3,0) && fExtensions.has("GL_EXT_blend_func_extended")) {
+        if (glVer >= GR_GL_VER(3, 0) && fExtensions.has("GL_EXT_blend_func_extended")) {
             if (nullptr == fFunctions.fBindFragDataLocation ||
                 nullptr == fFunctions.fBindFragDataLocationIndexed) {
                 RETURN_FALSE_INTERFACE
             }
         }
     }
-
 
     // glGetStringi was added in version 3.0 of both desktop and ES.
     if (glVer >= GR_GL_VER(3, 0)) {
@@ -415,21 +358,20 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,1)) {
+        if (glVer >= GR_GL_VER(3, 1)) {
             if (nullptr == fFunctions.fTexBuffer) {
                 RETURN_FALSE_INTERFACE;
             }
         }
-        if (glVer >= GR_GL_VER(4,3)) {
+        if (glVer >= GR_GL_VER(4, 3)) {
             if (nullptr == fFunctions.fTexBufferRange) {
                 RETURN_FALSE_INTERFACE;
             }
         }
     } else {
-        if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_OES_texture_buffer") ||
+        if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_OES_texture_buffer") ||
             fExtensions.has("GL_EXT_texture_buffer")) {
-            if (nullptr == fFunctions.fTexBuffer ||
-                nullptr == fFunctions.fTexBufferRange) {
+            if (nullptr == fFunctions.fTexBuffer || nullptr == fFunctions.fTexBufferRange) {
                 RETURN_FALSE_INTERFACE;
             }
         }
@@ -444,7 +386,7 @@ bool GrGLInterface::validate() const {
             }
         }
     } else {
-        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_OES_vertex_array_object")) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_OES_vertex_array_object")) {
             if (nullptr == fFunctions.fBindVertexArray ||
                 nullptr == fFunctions.fDeleteVertexArrays ||
                 nullptr == fFunctions.fGenVertexArrays) {
@@ -454,14 +396,13 @@ bool GrGLInterface::validate() const {
     }
 
     if (fExtensions.has("GL_EXT_debug_marker")) {
-        if (nullptr == fFunctions.fInsertEventMarker ||
-            nullptr == fFunctions.fPushGroupMarker ||
+        if (nullptr == fFunctions.fInsertEventMarker || nullptr == fFunctions.fPushGroupMarker ||
             nullptr == fFunctions.fPopGroupMarker) {
             RETURN_FALSE_INTERFACE
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4, 3)) ||
         fExtensions.has("GL_ARB_invalidate_subdata")) {
         if (nullptr == fFunctions.fInvalidateBufferData ||
             nullptr == fFunctions.fInvalidateBufferSubData ||
@@ -471,7 +412,7 @@ bool GrGLInterface::validate() const {
             nullptr == fFunctions.fInvalidateTexSubImage) {
             RETURN_FALSE_INTERFACE;
         }
-    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 0)) {
         // ES 3.0 adds the framebuffer functions but not the others.
         if (nullptr == fFunctions.fInvalidateFramebuffer ||
             nullptr == fFunctions.fInvalidateSubFramebuffer) {
@@ -480,8 +421,7 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_CHROMIUM_map_sub")) {
-        if (nullptr == fFunctions.fMapBufferSubData ||
-            nullptr == fFunctions.fMapTexSubImage2D ||
+        if (nullptr == fFunctions.fMapBufferSubData || nullptr == fFunctions.fMapTexSubImage2D ||
             nullptr == fFunctions.fUnmapBufferSubData ||
             nullptr == fFunctions.fUnmapTexSubImage2D) {
             RETURN_FALSE_INTERFACE;
@@ -489,7 +429,7 @@ bool GrGLInterface::validate() const {
     }
 
     // These functions are added to the 3.0 version of both GLES and GL.
-    if (glVer >= GR_GL_VER(3,0) ||
+    if (glVer >= GR_GL_VER(3, 0) ||
         (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_map_buffer_range")) ||
         (kGL_GrGLStandard == fStandard && fExtensions.has("GL_ARB_map_buffer_range"))) {
         if (nullptr == fFunctions.fMapBufferRange ||
@@ -499,22 +439,22 @@ bool GrGLInterface::validate() const {
     }
 
     if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+         (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 1))) {
         if (NULL == fFunctions.fGetMultisamplefv) {
             RETURN_FALSE_INTERFACE
         }
     }
 
     if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
+         (glVer >= GR_GL_VER(4, 3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 1))) {
         if (nullptr == fFunctions.fGetProgramResourceLocation) {
             RETURN_FALSE_INTERFACE
         }
     }
 
-    if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
+    if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4, 1) ||
         fExtensions.has("GL_ARB_ES2_compatibility")) {
         if (nullptr == fFunctions.fGetShaderPrecisionFormat) {
             RETURN_FALSE_INTERFACE
@@ -522,21 +462,15 @@ bool GrGLInterface::validate() const {
     }
 
     if (fExtensions.has("GL_NV_path_rendering") || fExtensions.has("GL_CHROMIUM_path_rendering")) {
-        if (nullptr == fFunctions.fMatrixLoadf ||
-            nullptr == fFunctions.fMatrixLoadIdentity ||
-            nullptr == fFunctions.fPathCommands ||
-            nullptr == fFunctions.fPathParameteri ||
-            nullptr == fFunctions.fPathParameterf ||
-            nullptr == fFunctions.fGenPaths ||
-            nullptr == fFunctions.fDeletePaths ||
-            nullptr == fFunctions.fIsPath ||
-            nullptr == fFunctions.fPathStencilFunc ||
-            nullptr == fFunctions.fStencilFillPath ||
+        if (nullptr == fFunctions.fMatrixLoadf || nullptr == fFunctions.fMatrixLoadIdentity ||
+            nullptr == fFunctions.fPathCommands || nullptr == fFunctions.fPathParameteri ||
+            nullptr == fFunctions.fPathParameterf || nullptr == fFunctions.fGenPaths ||
+            nullptr == fFunctions.fDeletePaths || nullptr == fFunctions.fIsPath ||
+            nullptr == fFunctions.fPathStencilFunc || nullptr == fFunctions.fStencilFillPath ||
             nullptr == fFunctions.fStencilStrokePath ||
             nullptr == fFunctions.fStencilFillPathInstanced ||
             nullptr == fFunctions.fStencilStrokePathInstanced ||
-            nullptr == fFunctions.fCoverFillPath ||
-            nullptr == fFunctions.fCoverStrokePath ||
+            nullptr == fFunctions.fCoverFillPath || nullptr == fFunctions.fCoverStrokePath ||
             nullptr == fFunctions.fCoverFillPathInstanced ||
             nullptr == fFunctions.fCoverStrokePathInstanced
 #if 0
@@ -574,15 +508,15 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,1) ||
-            fExtensions.has("GL_EXT_draw_instanced") || fExtensions.has("GL_ARB_draw_instanced")) {
+        if (glVer >= GR_GL_VER(3, 1) || fExtensions.has("GL_EXT_draw_instanced") ||
+            fExtensions.has("GL_ARB_draw_instanced")) {
             if (nullptr == fFunctions.fDrawArraysInstanced ||
                 nullptr == fFunctions.fDrawElementsInstanced) {
                 RETURN_FALSE_INTERFACE
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_EXT_draw_instanced")) {
             if (nullptr == fFunctions.fDrawArraysInstanced ||
                 nullptr == fFunctions.fDrawElementsInstanced) {
                 RETURN_FALSE_INTERFACE
@@ -591,13 +525,13 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_instanced_arrays")) {
+        if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_instanced_arrays")) {
             if (nullptr == fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_EXT_instanced_arrays")) {
             if (nullptr == fFunctions.fVertexAttribDivisor) {
                 RETURN_FALSE_INTERFACE
             }
@@ -605,16 +539,15 @@ bool GrGLInterface::validate() const {
     }
 
     if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,0) || fExtensions.has("GL_ARB_draw_indirect"))) ||
-        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
-        if (NULL == fFunctions.fDrawArraysIndirect ||
-            NULL == fFunctions.fDrawElementsIndirect) {
+         (glVer >= GR_GL_VER(4, 0) || fExtensions.has("GL_ARB_draw_indirect"))) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 1))) {
+        if (NULL == fFunctions.fDrawArraysIndirect || NULL == fFunctions.fDrawElementsIndirect) {
             RETURN_FALSE_INTERFACE
         }
     }
 
     if ((kGL_GrGLStandard == fStandard &&
-         (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_multi_draw_indirect"))) ||
+         (glVer >= GR_GL_VER(4, 3) || fExtensions.has("GL_ARB_multi_draw_indirect"))) ||
         (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_multi_draw_indirect"))) {
         if (NULL == fFunctions.fMultiDrawArraysIndirect ||
             NULL == fFunctions.fMultiDrawElementsIndirect) {
@@ -632,8 +565,7 @@ bool GrGLInterface::validate() const {
             nullptr == fFunctions.fMakeImageHandleNonResident ||
             nullptr == fFunctions.fIsTextureHandleResident ||
             nullptr == fFunctions.fIsImageHandleResident ||
-            nullptr == fFunctions.fUniformHandleui64 ||
-            nullptr == fFunctions.fUniformHandleui64v ||
+            nullptr == fFunctions.fUniformHandleui64 || nullptr == fFunctions.fUniformHandleui64v ||
             nullptr == fFunctions.fProgramUniformHandleui64 ||
             nullptr == fFunctions.fProgramUniformHandleui64v) {
             RETURN_FALSE_INTERFACE
@@ -641,14 +573,10 @@ bool GrGLInterface::validate() const {
     }
 
     if (kGL_GrGLStandard == fStandard && fExtensions.has("GL_EXT_direct_state_access")) {
-        if (nullptr == fFunctions.fTextureParameteri ||
-            nullptr == fFunctions.fTextureParameteriv ||
-            nullptr == fFunctions.fTextureParameterf ||
-            nullptr == fFunctions.fTextureParameterfv ||
-            nullptr == fFunctions.fTextureImage1D ||
-            nullptr == fFunctions.fTextureImage2D ||
-            nullptr == fFunctions.fTextureSubImage1D ||
-            nullptr == fFunctions.fTextureSubImage2D ||
+        if (nullptr == fFunctions.fTextureParameteri || nullptr == fFunctions.fTextureParameteriv ||
+            nullptr == fFunctions.fTextureParameterf || nullptr == fFunctions.fTextureParameterfv ||
+            nullptr == fFunctions.fTextureImage1D || nullptr == fFunctions.fTextureImage2D ||
+            nullptr == fFunctions.fTextureSubImage1D || nullptr == fFunctions.fTextureSubImage2D ||
             nullptr == fFunctions.fCopyTextureImage1D ||
             nullptr == fFunctions.fCopyTextureImage2D ||
             nullptr == fFunctions.fCopyTextureSubImage1D ||
@@ -660,9 +588,8 @@ bool GrGLInterface::validate() const {
             nullptr == fFunctions.fGetTextureLevelParameteriv) {
             RETURN_FALSE_INTERFACE
         }
-        if (glVer >= GR_GL_VER(1,2)) {
-            if (nullptr == fFunctions.fTextureImage3D ||
-                nullptr == fFunctions.fTextureSubImage3D ||
+        if (glVer >= GR_GL_VER(1, 2)) {
+            if (nullptr == fFunctions.fTextureImage3D || nullptr == fFunctions.fTextureSubImage3D ||
                 nullptr == fFunctions.fCopyTextureSubImage3D ||
                 nullptr == fFunctions.fCompressedTextureImage3D ||
                 nullptr == fFunctions.fCompressedTextureImage2D ||
@@ -674,18 +601,17 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(1,5)) {
+        if (glVer >= GR_GL_VER(1, 5)) {
             if (nullptr == fFunctions.fNamedBufferData ||
                 nullptr == fFunctions.fNamedBufferSubData ||
-                nullptr == fFunctions.fMapNamedBuffer ||
-                nullptr == fFunctions.fUnmapNamedBuffer ||
+                nullptr == fFunctions.fMapNamedBuffer || nullptr == fFunctions.fUnmapNamedBuffer ||
                 nullptr == fFunctions.fGetNamedBufferParameteriv ||
                 nullptr == fFunctions.fGetNamedBufferPointerv ||
                 nullptr == fFunctions.fGetNamedBufferSubData) {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(2,0)) {
+        if (glVer >= GR_GL_VER(2, 0)) {
             if (nullptr == fFunctions.fProgramUniform1f ||
                 nullptr == fFunctions.fProgramUniform2f ||
                 nullptr == fFunctions.fProgramUniform3f ||
@@ -708,7 +634,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(2,1)) {
+        if (glVer >= GR_GL_VER(2, 1)) {
             if (nullptr == fFunctions.fProgramUniformMatrix2x3fv ||
                 nullptr == fFunctions.fProgramUniformMatrix3x2fv ||
                 nullptr == fFunctions.fProgramUniformMatrix2x4fv ||
@@ -718,7 +644,7 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(3,0)) {
+        if (glVer >= GR_GL_VER(3, 0)) {
             if (nullptr == fFunctions.fNamedRenderbufferStorage ||
                 nullptr == fFunctions.fGetNamedRenderbufferParameteriv ||
                 nullptr == fFunctions.fNamedRenderbufferStorageMultisample ||
@@ -758,22 +684,20 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (glVer >= GR_GL_VER(3,1)) {
+        if (glVer >= GR_GL_VER(3, 1)) {
             if (nullptr == fFunctions.fTextureBuffer) {
                 RETURN_FALSE_INTERFACE;
             }
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4, 3)) ||
         fExtensions.has("GL_KHR_debug")) {
         if (nullptr == fFunctions.fDebugMessageControl ||
             nullptr == fFunctions.fDebugMessageInsert ||
             nullptr == fFunctions.fDebugMessageCallback ||
-            nullptr == fFunctions.fGetDebugMessageLog ||
-            nullptr == fFunctions.fPushDebugGroup ||
-            nullptr == fFunctions.fPopDebugGroup ||
-            nullptr == fFunctions.fObjectLabel) {
+            nullptr == fFunctions.fGetDebugMessageLog || nullptr == fFunctions.fPushDebugGroup ||
+            nullptr == fFunctions.fPopDebugGroup || nullptr == fFunctions.fObjectLabel) {
             RETURN_FALSE_INTERFACE
         }
     }
@@ -784,7 +708,7 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,0)) ||
+    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4, 0)) ||
         fExtensions.has("GL_ARB_sample_shading")) {
         if (nullptr == fFunctions.fMinSampleShading) {
             RETURN_FALSE_INTERFACE
@@ -797,16 +721,14 @@ bool GrGLInterface::validate() const {
 
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
-            if (nullptr == fFunctions.fFenceSync ||
-                nullptr == fFunctions.fClientWaitSync ||
+            if (nullptr == fFunctions.fFenceSync || nullptr == fFunctions.fClientWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
                 RETURN_FALSE_INTERFACE
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0)) {
-            if (nullptr == fFunctions.fFenceSync ||
-                nullptr == fFunctions.fClientWaitSync ||
+            if (nullptr == fFunctions.fFenceSync || nullptr == fFunctions.fClientWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
                 RETURN_FALSE_INTERFACE
             }
@@ -814,37 +736,34 @@ bool GrGLInterface::validate() const {
     }
 
     if (fExtensions.has("EGL_KHR_image") || fExtensions.has("EGL_KHR_image_base")) {
-        if (nullptr == fFunctions.fEGLCreateImage ||
-            nullptr == fFunctions.fEGLDestroyImage) {
+        if (nullptr == fFunctions.fEGLCreateImage || nullptr == fFunctions.fEGLDestroyImage) {
             RETURN_FALSE_INTERFACE
         }
     }
 
-    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(2,0)) {
+    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(2, 0)) {
         if (nullptr == fFunctions.fDrawRangeElements) {
             RETURN_FALSE_INTERFACE;
         }
-    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 0)) {
         if (nullptr == fFunctions.fDrawRangeElements) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
     if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_shader_image_load_store")) {
-            if (nullptr == fFunctions.fBindImageTexture ||
-                nullptr == fFunctions.fMemoryBarrier) {
+        if (glVer >= GR_GL_VER(4, 2) || fExtensions.has("GL_ARB_shader_image_load_store")) {
+            if (nullptr == fFunctions.fBindImageTexture || nullptr == fFunctions.fMemoryBarrier) {
                 RETURN_FALSE_INTERFACE;
             }
         }
-        if (glVer >= GR_GL_VER(4,5) || fExtensions.has("GL_ARB_ES3_1_compatibility")) {
+        if (glVer >= GR_GL_VER(4, 5) || fExtensions.has("GL_ARB_ES3_1_compatibility")) {
             if (nullptr == fFunctions.fMemoryBarrierByRegion) {
                 RETURN_FALSE_INTERFACE;
             }
         }
-    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1)) {
-        if (nullptr == fFunctions.fBindImageTexture ||
-            nullptr == fFunctions.fMemoryBarrier ||
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3, 1)) {
+        if (nullptr == fFunctions.fBindImageTexture || nullptr == fFunctions.fMemoryBarrier ||
             nullptr == fFunctions.fMemoryBarrierByRegion) {
             RETURN_FALSE_INTERFACE;
         }

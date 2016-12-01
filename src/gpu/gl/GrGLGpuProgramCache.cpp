@@ -7,13 +7,13 @@
 
 #include "GrGLGpu.h"
 
-#include "builders/GrGLProgramBuilder.h"
+#include "GrGLPathRendering.h"
 #include "GrProcessor.h"
 #include "GrProgramDesc.h"
-#include "GrGLPathRendering.h"
+#include "SkTSearch.h"
+#include "builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "SkTSearch.h"
 
 #ifdef PROGRAM_CACHE_STATS
 // Display program cache usage
@@ -23,20 +23,19 @@ static const bool c_DisplayCache{false};
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
 struct GrGLGpu::ProgramCache::Entry {
-
     Entry() : fProgram(nullptr), fLRUStamp(0) {}
 
-    sk_sp<GrGLProgram>   fProgram;
-    unsigned int         fLRUStamp;
+    sk_sp<GrGLProgram> fProgram;
+    unsigned int fLRUStamp;
 };
 
 struct GrGLGpu::ProgramCache::ProgDescLess {
-    bool operator() (const GrProgramDesc& desc, const Entry* entry) {
+    bool operator()(const GrProgramDesc& desc, const Entry* entry) {
         SkASSERT(entry->fProgram.get());
         return GrProgramDesc::Less(desc, entry->fProgram->getDesc());
     }
 
-    bool operator() (const Entry* entry, const GrProgramDesc& desc) {
+    bool operator()(const Entry* entry, const GrProgramDesc& desc) {
         SkASSERT(entry->fProgram.get());
         return GrProgramDesc::Less(entry->fProgram->getDesc(), desc);
     }
@@ -58,18 +57,17 @@ GrGLGpu::ProgramCache::ProgramCache(GrGLGpu* gpu)
 }
 
 GrGLGpu::ProgramCache::~ProgramCache() {
-    for (int i = 0; i < fCount; ++i){
+    for (int i = 0; i < fCount; ++i) {
         delete fEntries[i];
     }
-    // dump stats
+// dump stats
 #ifdef PROGRAM_CACHE_STATS
     if (c_DisplayCache) {
         SkDebugf("--- Program Cache ---\n");
         SkDebugf("Total requests: %d\n", fTotalRequests);
         SkDebugf("Cache misses: %d\n", fCacheMisses);
-        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ?
-                                            100.f * fCacheMisses / fTotalRequests :
-                                            0.f);
+        SkDebugf("Cache miss %%: %f\n",
+                 (fTotalRequests > 0) ? 100.f * fCacheMisses / fTotalRequests : 0.f);
         int cacheHits = fTotalRequests - fCacheMisses;
         SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
         SkDebugf("---------------------\n");
@@ -104,8 +102,7 @@ int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
     return SkTSearch(fEntries, fCount, desc, sizeof(Entry*), less);
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
-                                               const GrPipeline& pipeline,
+GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu, const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
                                                bool isPoints) {
 #ifdef PROGRAM_CACHE_STATS
@@ -127,7 +124,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
     if (kHashBits <= 8) {
         hashIdx ^= hashIdx >> 8;
     }
-    hashIdx &=((1 << kHashBits) - 1);
+    hashIdx &= ((1 << kHashBits) - 1);
     Entry* hashedEntry = fHashTable[hashIdx];
     if (hashedEntry && hashedEntry->fProgram->getDesc() == desc) {
         SkASSERT(hashedEntry->fProgram);
@@ -146,7 +143,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
     }
 
     if (nullptr == entry) {
-        // We have a cache miss
+// We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif

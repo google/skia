@@ -8,12 +8,11 @@
 #include "GrRectanizer_pow2.h"
 
 bool GrRectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
-    if ((unsigned)width > (unsigned)this->width() ||
-        (unsigned)height > (unsigned)this->height()) {
+    if ((unsigned)width > (unsigned)this->width() || (unsigned)height > (unsigned)this->height()) {
         return false;
     }
 
-    int32_t area = width * height; // computed here since height will be modified
+    int32_t area = width * height;  // computed here since height will be modified
 
     height = GrNextPow2(height);
     if (height < kMIN_HEIGHT_POW2) {
@@ -54,6 +53,6 @@ bool GrRectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // factory is now in GrRectanizer_skyline.cpp
-//GrRectanizer* GrRectanizer::Factory(int width, int height) {
+// GrRectanizer* GrRectanizer::Factory(int width, int height) {
 //    return new GrRectanizerPow2  (width, height);
 //}

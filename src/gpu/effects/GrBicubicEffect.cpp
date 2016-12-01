@@ -6,22 +6,21 @@
  */
 
 #include "GrBicubicEffect.h"
+#include "../private/GrGLSL.h"
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "../private/GrGLSL.h"
 
 #define DS(x) SkDoubleToScalar(x)
 
 const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
-    DS( 1.0 / 18.0), DS(-9.0 / 18.0), DS( 15.0 / 18.0), DS( -7.0 / 18.0),
-    DS(16.0 / 18.0), DS( 0.0 / 18.0), DS(-36.0 / 18.0), DS( 21.0 / 18.0),
-    DS( 1.0 / 18.0), DS( 9.0 / 18.0), DS( 27.0 / 18.0), DS(-21.0 / 18.0),
-    DS( 0.0 / 18.0), DS( 0.0 / 18.0), DS( -6.0 / 18.0), DS(  7.0 / 18.0),
+        DS(1.0 / 18.0),  DS(-9.0 / 18.0), DS(15.0 / 18.0),  DS(-7.0 / 18.0),
+        DS(16.0 / 18.0), DS(0.0 / 18.0),  DS(-36.0 / 18.0), DS(21.0 / 18.0),
+        DS(1.0 / 18.0),  DS(9.0 / 18.0),  DS(27.0 / 18.0),  DS(-21.0 / 18.0),
+        DS(0.0 / 18.0),  DS(0.0 / 18.0),  DS(-6.0 / 18.0),  DS(7.0 / 18.0),
 };
-
 
 class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
@@ -40,10 +39,10 @@ protected:
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    UniformHandle               fCoefficientsUni;
-    UniformHandle               fImageIncrementUni;
-    UniformHandle               fColorSpaceXformUni;
-    GrTextureDomain::GLDomain   fDomain;
+    UniformHandle fCoefficientsUni;
+    UniformHandle fImageIncrementUni;
+    UniformHandle fColorSpaceXformUni;
+    GrTextureDomain::GLDomain fDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
@@ -52,12 +51,10 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fCoefficientsUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                  kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                                  "Coefficients");
-    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                                    "ImageIncrement");
+    fCoefficientsUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
+                                                  kDefault_GrSLPrecision, "Coefficients");
+    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kVec2f_GrSLType,
+                                                    kDefault_GrSLPrecision, "ImageIncrement");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
     const char* coeff = uniformHandler->getUniformCStr(fCoefficientsUni);
@@ -68,18 +65,16 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     SkString cubicBlendName;
 
     static const GrShaderVar gCubicBlendArgs[] = {
-        GrShaderVar("coefficients",  kMat44f_GrSLType),
-        GrShaderVar("t",             kFloat_GrSLType),
-        GrShaderVar("c0",            kVec4f_GrSLType),
-        GrShaderVar("c1",            kVec4f_GrSLType),
-        GrShaderVar("c2",            kVec4f_GrSLType),
-        GrShaderVar("c3",            kVec4f_GrSLType),
+            GrShaderVar("coefficients", kMat44f_GrSLType),
+            GrShaderVar("t", kFloat_GrSLType),
+            GrShaderVar("c0", kVec4f_GrSLType),
+            GrShaderVar("c1", kVec4f_GrSLType),
+            GrShaderVar("c2", kVec4f_GrSLType),
+            GrShaderVar("c3", kVec4f_GrSLType),
     };
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-    fragBuilder->emitFunction(kVec4f_GrSLType,
-                              "cubicBlend",
-                              SK_ARRAY_COUNT(gCubicBlendArgs),
+    fragBuilder->emitFunction(kVec4f_GrSLType, "cubicBlend", SK_ARRAY_COUNT(gCubicBlendArgs),
                               gCubicBlendArgs,
                               "\tvec4 ts = vec4(1.0, t, t * t, t * t * t);\n"
                               "\tvec4 c = coefficients * ts;\n"
@@ -100,17 +95,14 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             coord.printf("coord + %s * vec2(%d, %d)", imgInc, x - 1, y - 1);
             SkString sampleVar;
             sampleVar.printf("rowColors[%d]", x);
-            fDomain.sampleTexture(fragBuilder,
-                                  args.fUniformHandler,
-                                  args.fShaderCaps,
-                                  bicubicEffect.domain(),
-                                  sampleVar.c_str(),
-                                  coord,
+            fDomain.sampleTexture(fragBuilder, args.fUniformHandler, args.fShaderCaps,
+                                  bicubicEffect.domain(), sampleVar.c_str(), coord,
                                   args.fTexSamplers[0]);
         }
         fragBuilder->codeAppendf(
-            "\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n",
-            y, cubicBlendName.c_str(), coeff);
+                "\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], "
+                "rowColors[3]);\n",
+                y, cubicBlendName.c_str(), coeff);
     }
     SkString bicubicColor;
     bicubicColor.printf("%s(%s, f.y, s0, s1, s2, s3)", cubicBlendName.c_str(), coeff);
@@ -119,9 +111,9 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &colorSpaceHelper);
         bicubicColor.swap(xformedColor);
     }
-    fragBuilder->codeAppendf("\t%s = %s;\n",
-                             args.fOutputColor, (GrGLSLExpr4(bicubicColor.c_str()) *
-                                                 GrGLSLExpr4(args.fInputColor)).c_str());
+    fragBuilder->codeAppendf(
+            "\t%s = %s;\n", args.fOutputColor,
+            (GrGLSLExpr4(bicubicColor.c_str()) * GrGLSLExpr4(args.fInputColor)).c_str());
 }
 
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -148,48 +140,42 @@ static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float 
     }
 }
 
-GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
-                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkScalar coefficients[16],
-                                 const SkMatrix &matrix,
+GrBicubicEffect::GrBicubicEffect(GrTexture* texture, sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                 const SkScalar coefficients[16], const SkMatrix& matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, nullptr, matrix,
-              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
-  , fDomain(GrTextureDomain::IgnoredDomain())
-  , fColorSpaceXform(std::move(colorSpaceXform)) {
+    : INHERITED(texture, nullptr, matrix,
+                GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
+    , fDomain(GrTextureDomain::IgnoredDomain())
+    , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->initClassID<GrBicubicEffect>();
     convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
-GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
-                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkScalar coefficients[16],
-                                 const SkMatrix &matrix,
+GrBicubicEffect::GrBicubicEffect(GrTexture* texture, sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                 const SkScalar coefficients[16], const SkMatrix& matrix,
                                  const SkRect& domain)
-  : INHERITED(texture, nullptr, matrix,
-              GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-  , fDomain(domain, GrTextureDomain::kClamp_Mode)
-  , fColorSpaceXform(std::move(colorSpaceXform)) {
+    : INHERITED(texture, nullptr, matrix,
+                GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
+    , fDomain(domain, GrTextureDomain::kClamp_Mode)
+    , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->initClassID<GrBicubicEffect>();
     convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
-GrBicubicEffect::~GrBicubicEffect() {
-}
+GrBicubicEffect::~GrBicubicEffect() {}
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
+GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const {
     return new GrGLBicubicEffect;
 }
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
-    return !memcmp(fCoefficients, s.coefficients(), 16) &&
-           fDomain == s.fDomain;
+    return !memcmp(fCoefficients, s.coefficients(), 16) && fDomain == s.fDomain;
 }
 
 void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -200,8 +186,8 @@ void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
 sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                          GrProcessorUnitTest::kAlphaTextureIdx;
+    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
+                                        : GrProcessorUnitTest::kAlphaTextureIdx;
     SkScalar coefficients[16];
     for (int i = 0; i < 16; i++) {
         coefficients[i] = d->fRandom->nextSScalar1();

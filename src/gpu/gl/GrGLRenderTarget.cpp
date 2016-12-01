@@ -18,20 +18,15 @@
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 // Constructor for wrapped render targets.
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
-                                   const GrSurfaceDesc& desc,
-                                   const IDDesc& idDesc,
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc), stencil) {
+    : GrSurface(gpu, desc), INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc), stencil) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
-                                   const IDDesc& idDesc)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc)) {
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+    : GrSurface(gpu, desc), INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc)) {
     this->init(desc, idDesc);
 }
 
@@ -39,7 +34,7 @@ inline GrRenderTarget::Flags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCa
                                                             const IDDesc& idDesc) {
     Flags flags = Flags::kNone;
     if (idDesc.fIsMixedSampled) {
-        SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
+        SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID);  // FBO 0 can't be mixed sampled.
         flags |= Flags::kMixedSampled;
     }
     if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
@@ -49,23 +44,21 @@ inline GrRenderTarget::Flags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCa
 }
 
 void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
-    fRTFBOID                = idDesc.fRTFBOID;
-    fTexFBOID               = idDesc.fTexFBOID;
-    fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
-    fRTFBOOwnership         = idDesc.fRTFBOOwnership;
+    fRTFBOID = idDesc.fRTFBOID;
+    fTexFBOID = idDesc.fTexFBOID;
+    fMSColorRenderbufferID = idDesc.fMSColorRenderbufferID;
+    fRTFBOOwnership = idDesc.fRTFBOOwnership;
 
-    fViewport.fLeft   = 0;
+    fViewport.fLeft = 0;
     fViewport.fBottom = 0;
-    fViewport.fWidth  = desc.fWidth;
+    fViewport.fWidth = desc.fWidth;
     fViewport.fHeight = desc.fHeight;
 
     fNumSamplesOwnedPerPixel = this->totalSamples();
 }
 
-sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
-                                                      const GrSurfaceDesc& desc,
-                                                      const IDDesc& idDesc,
-                                                      int stencilBits) {
+sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                                      const IDDesc& idDesc, int stencilBits) {
     GrGLStencilAttachment* sb = nullptr;
     if (stencilBits) {
         GrGLStencilAttachment::IDDesc sbDesc;
@@ -75,8 +68,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         format.fStencilBits = stencilBits;
         format.fTotalBits = stencilBits;
         // Owndership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
-                                       desc.fSampleCnt, format);
+        sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight, desc.fSampleCnt,
+                                       format);
     }
     return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, idDesc, sb));
 }
@@ -90,11 +83,9 @@ bool GrGLRenderTarget::completeStencilAttachment() {
     const GrGLInterface* interface = gpu->glInterface();
     GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (nullptr == stencil) {
-        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                      GR_GL_STENCIL_ATTACHMENT,
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, 0));
-        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                      GR_GL_DEPTH_ATTACHMENT,
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, 0));
 #ifdef SK_DEBUG
         if (kChromium_GrGLDriver != gpu->glContext().driver()) {
@@ -113,16 +104,13 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         gpu->invalidateBoundRenderTarget();
         gpu->stats()->incRenderTargetBinds();
         GR_GL_CALL(interface, BindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID()));
-        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                      GR_GL_STENCIL_ATTACHMENT,
+        GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
         if (glStencil->format().fPacked) {
-            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                          GR_GL_DEPTH_ATTACHMENT,
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
                                                           GR_GL_RENDERBUFFER, rb));
         } else {
-            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                          GR_GL_DEPTH_ATTACHMENT,
+            GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
                                                           GR_GL_RENDERBUFFER, 0));
         }
 
@@ -151,16 +139,16 @@ void GrGLRenderTarget::onRelease() {
             GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
-    fMSColorRenderbufferID  = 0;
+    fRTFBOID = 0;
+    fTexFBOID = 0;
+    fMSColorRenderbufferID = 0;
     INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
-    fMSColorRenderbufferID  = 0;
+    fRTFBOID = 0;
+    fTexFBOID = 0;
+    fMSColorRenderbufferID = 0;
     INHERITED::onAbandon();
 }
 
@@ -217,12 +205,12 @@ int GrGLRenderTarget::msaaSamples() const {
 }
 
 int GrGLRenderTarget::totalSamples() const {
-  int total_samples = this->msaaSamples();
+    int total_samples = this->msaaSamples();
 
-  if (fTexFBOID != kUnresolvableFBOID) {
-      // If we own the resolve buffer then that is one more sample per pixel.
-      total_samples += 1;
-  }
+    if (fTexFBOID != kUnresolvableFBOID) {
+        // If we own the resolve buffer then that is one more sample per pixel.
+        total_samples += 1;
+    }
 
-  return total_samples;
+    return total_samples;
 }

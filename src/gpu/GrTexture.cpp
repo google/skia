@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
+#include "GrTexture.h"
 #include "GrCaps.h"
+#include "GrContext.h"
 #include "GrGpu.h"
-#include "GrResourceKey.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
-#include "GrTexture.h"
+#include "GrResourceKey.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkMath.h"
@@ -107,6 +107,6 @@ void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* k
     GrScratchKey::Builder builder(key, kType, 3);
     builder[0] = desc.fWidth;
     builder[1] = desc.fHeight;
-    builder[2] = desc.fConfig | (desc.fIsMipMapped << 5) | (desc.fSampleCnt << 6) | (flags << 14)
-                 | (origin << 24);
+    builder[2] = desc.fConfig | (desc.fIsMipMapped << 5) | (desc.fSampleCnt << 6) | (flags << 14) |
+                 (origin << 24);
 }

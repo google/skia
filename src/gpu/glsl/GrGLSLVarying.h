@@ -18,10 +18,12 @@ class GrGLSLProgramBuilder;
 
 class GrGLSLVarying {
 public:
-    bool vsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kVertToGeo_Varying == fVarying; }
-    bool fsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kGeoToFrag_Varying == fVarying; }
+    bool vsVarying() const {
+        return kVertToFrag_Varying == fVarying || kVertToGeo_Varying == fVarying;
+    }
+    bool fsVarying() const {
+        return kVertToFrag_Varying == fVarying || kGeoToFrag_Varying == fVarying;
+    }
     const char* vsOut() const { return fVsOut; }
     const char* gsIn() const { return fGsIn; }
     const char* gsOut() const { return fGsOut; }
@@ -36,8 +38,12 @@ protected:
     };
 
     GrGLSLVarying(GrSLType type, Varying varying)
-        : fVarying(varying), fType(type), fVsOut(nullptr), fGsIn(nullptr), fGsOut(nullptr),
-          fFsIn(nullptr) {}
+        : fVarying(varying)
+        , fType(type)
+        , fVsOut(nullptr)
+        , fGsIn(nullptr)
+        , fGsOut(nullptr)
+        , fFsIn(nullptr) {}
 
     Varying fVarying;
 
@@ -52,18 +58,15 @@ private:
 };
 
 struct GrGLSLVertToFrag : public GrGLSLVarying {
-    GrGLSLVertToFrag(GrSLType type)
-        : GrGLSLVarying(type, kVertToFrag_Varying) {}
+    GrGLSLVertToFrag(GrSLType type) : GrGLSLVarying(type, kVertToFrag_Varying) {}
 };
 
 struct GrGLSLVertToGeo : public GrGLSLVarying {
-    GrGLSLVertToGeo(GrSLType type)
-        : GrGLSLVarying(type, kVertToGeo_Varying) {}
+    GrGLSLVertToGeo(GrSLType type) : GrGLSLVarying(type, kVertToGeo_Varying) {}
 };
 
 struct GrGLSLGeoToFrag : public GrGLSLVarying {
-    GrGLSLGeoToFrag(GrSLType type)
-        : GrGLSLVarying(type, kGeoToFrag_Varying) {}
+    GrGLSLGeoToFrag(GrSLType type) : GrGLSLVarying(type, kGeoToFrag_Varying) {}
 };
 
 static const int kVaryingsPerBlock = 8;
@@ -99,10 +102,9 @@ public:
      * addPassThroughAttribute.
      * TODO convert most uses of addVarying to addPassThroughAttribute
      */
-    void addVarying(const char* name,
-                    GrGLSLVarying* varying,
+    void addVarying(const char* name, GrGLSLVarying* varying,
                     GrSLPrecision precision = kDefault_GrSLPrecision) {
-        SkASSERT(GrSLTypeIsFloatType(varying->type())); // Integers must use addFlatVarying.
+        SkASSERT(GrSLTypeIsFloatType(varying->type()));  // Integers must use addFlatVarying.
         this->internalAddVarying(name, varying, precision, false /*flat*/);
     }
 
@@ -112,8 +114,7 @@ public:
      * Flat interpolation is not always supported and the user must check the caps before using.
      * TODO: Some platforms can change the provoking vertex. Should we be resetting this knob?
      */
-    void addFlatVarying(const char* name,
-                        GrGLSLVarying* varying,
+    void addFlatVarying(const char* name, GrGLSLVarying* varying,
                         GrSLPrecision precision = kDefault_GrSLPrecision) {
         this->internalAddVarying(name, varying, precision, true /*flat*/);
     }
@@ -143,25 +144,25 @@ public:
 
 protected:
     struct VaryingInfo {
-        GrSLType         fType;
-        GrSLPrecision    fPrecision;
-        bool             fIsFlat;
-        SkString         fVsOut;
-        SkString         fGsOut;
-        GrShaderFlags    fVisibility;
+        GrSLType fType;
+        GrSLPrecision fPrecision;
+        bool fIsFlat;
+        SkString fVsOut;
+        SkString fGsOut;
+        GrShaderFlags fVisibility;
     };
 
     typedef GrTAllocator<VaryingInfo> VaryingList;
     typedef GrTAllocator<GrShaderVar> VarArray;
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
 
-    VaryingList    fVaryings;
-    VarArray       fVertexInputs;
-    VarArray       fVertexOutputs;
-    VarArray       fGeomInputs;
-    VarArray       fGeomOutputs;
-    VarArray       fFragInputs;
-    VarArray       fFragOutputs;
+    VaryingList fVaryings;
+    VarArray fVertexInputs;
+    VarArray fVertexOutputs;
+    VarArray fGeomInputs;
+    VarArray fGeomOutputs;
+    VarArray fFragInputs;
+    VarArray fFragOutputs;
 
     // This is not owned by the class
     GrGLSLProgramBuilder* fProgramBuilder;

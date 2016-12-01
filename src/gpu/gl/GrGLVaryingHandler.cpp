@@ -10,17 +10,13 @@
 #include "gl/GrGLGpu.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 
-
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(
-                                                                       const char* name,
-                                                                       GrGLSLVertToFrag* v,
-                                                                       GrSLPrecision fsPrecision) {
+        const char* name, GrGLSLVertToFrag* v, GrSLPrecision fsPrecision) {
 #ifdef SK_DEBUG
-    GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
+    GrGLProgramBuilder* glPB = (GrGLProgramBuilder*)fProgramBuilder;
     // This call is not used for non-NVPR backends.
     SkASSERT(glPB->gpu()->glCaps().shaderCaps()->pathRenderingSupport() &&
-             glPB->fPrimProc.isPathRendering() &&
-             !glPB->fPrimProc.willUseGeoShader() &&
+             glPB->fPrimProc.isPathRendering() && !glPB->fPrimProc.willUseGeoShader() &&
              glPB->fPrimProc.numAttribs() == 0);
 #endif
     this->addVarying(name, v, fsPrecision);

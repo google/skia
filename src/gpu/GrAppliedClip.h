@@ -20,9 +20,7 @@ class GrFragmentProcessor;
 class GrAppliedClip : public SkNoncopyable {
 public:
     GrAppliedClip(const SkRect& drawBounds)
-        : fHasStencilClip(false)
-        , fClippedDrawBounds(drawBounds) {
-    }
+        : fHasStencilClip(false), fClippedDrawBounds(drawBounds) {}
 
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
@@ -64,11 +62,11 @@ public:
     const SkRect& clippedDrawBounds() const { return fClippedDrawBounds; }
 
 private:
-    GrScissorState             fScissorState;
-    GrWindowRectsState         fWindowRectsState;
+    GrScissorState fScissorState;
+    GrWindowRectsState fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    bool                       fHasStencilClip;
-    SkRect                     fClippedDrawBounds;
+    bool fHasStencilClip;
+    SkRect fClippedDrawBounds;
     typedef SkNoncopyable INHERITED;
 };
 

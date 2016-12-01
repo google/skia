@@ -8,9 +8,9 @@
 #ifndef GrRenderTargetContextPriv_DEFINED
 #define GrRenderTargetContextPriv_DEFINED
 
+#include "GrPathRendering.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
-#include "GrPathRendering.h"
 
 class GrFixedClip;
 class GrPath;
@@ -27,8 +27,7 @@ public:
 
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
-    void setLastClip(int32_t clipStackGenID,
-                     const SkIRect& clipSpaceRect,
+    void setLastClip(int32_t clipStackGenID, const SkIRect& clipSpaceRect,
                      const SkIPoint clipOrigin) {
         GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
         opList->fLastClipStackGenID = clipStackGenID;
@@ -38,8 +37,7 @@ public:
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
-    bool mustRenderClip(int32_t clipStackGenID,
-                        const SkIRect& clipSpaceRect,
+    bool mustRenderClip(int32_t clipStackGenID, const SkIRect& clipSpaceRect,
                         const SkIPoint& clipOrigin) const {
         GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
         return opList->fLastClipStackGenID != clipStackGenID ||
@@ -51,32 +49,16 @@ public:
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
-    void stencilRect(const GrClip& clip,
-                     const GrUserStencilSettings* ss,
-                     bool useHWAA,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect);
+    void stencilRect(const GrClip& clip, const GrUserStencilSettings* ss, bool useHWAA,
+                     const SkMatrix& viewMatrix, const SkRect& rect);
 
-    void stencilPath(const GrClip&,
-                     bool useHWAA,
-                     const SkMatrix& viewMatrix,
-                     const GrPath*);
+    void stencilPath(const GrClip&, bool useHWAA, const SkMatrix& viewMatrix, const GrPath*);
 
-    bool drawAndStencilRect(const GrClip&,
-                            const GrUserStencilSettings*,
-                            SkRegion::Op op,
-                            bool invert,
-                            bool doAA,
-                            const SkMatrix& viewMatrix,
-                            const SkRect&);
+    bool drawAndStencilRect(const GrClip&, const GrUserStencilSettings*, SkRegion::Op op,
+                            bool invert, bool doAA, const SkMatrix& viewMatrix, const SkRect&);
 
-    bool drawAndStencilPath(const GrClip&,
-                            const GrUserStencilSettings*,
-                            SkRegion::Op op,
-                            bool invert,
-                            bool doAA,
-                            const SkMatrix& viewMatrix,
-                            const SkPath&);
+    bool drawAndStencilPath(const GrClip&, const GrUserStencilSettings*, SkRegion::Op op,
+                            bool invert, bool doAA, const SkMatrix& viewMatrix, const SkPath&);
 
     SkBudgeted isBudgeted() const;
 
@@ -90,16 +72,14 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    void testingOnly_drawBatch(const GrPaint&,
-                               GrDrawOp* batch,
-                               const GrUserStencilSettings* = nullptr,
-                               bool snapToCenters = false);
+    void testingOnly_drawBatch(const GrPaint&, GrDrawOp* batch,
+                               const GrUserStencilSettings* = nullptr, bool snapToCenters = false);
 
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
         : fRenderTargetContext(renderTargetContext) {}
-    GrRenderTargetContextPriv(const GrRenderTargetPriv&) {} // unimpl
-    GrRenderTargetContextPriv& operator=(const GrRenderTargetPriv&); // unimpl
+    GrRenderTargetContextPriv(const GrRenderTargetPriv&) {}           // unimpl
+    GrRenderTargetContextPriv& operator=(const GrRenderTargetPriv&);  // unimpl
 
     // No taking addresses of this type.
     const GrRenderTargetContextPriv* operator&() const;
@@ -107,7 +87,7 @@ private:
 
     GrRenderTargetContext* fRenderTargetContext;
 
-    friend class GrRenderTargetContext; // to construct/copy this type.
+    friend class GrRenderTargetContext;  // to construct/copy this type.
 };
 
 inline GrRenderTargetContextPriv GrRenderTargetContext::priv() {

@@ -23,32 +23,25 @@ public:
     GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE) {}
 
     struct LoadStoreOps {
-        VkAttachmentLoadOp  fLoadOp;
+        VkAttachmentLoadOp fLoadOp;
         VkAttachmentStoreOp fStoreOp;
 
         LoadStoreOps(VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp)
-            : fLoadOp(loadOp)
-            , fStoreOp(storeOp) {}
+            : fLoadOp(loadOp), fStoreOp(storeOp) {}
 
         bool operator==(const LoadStoreOps& right) const {
             return fLoadOp == right.fLoadOp && fStoreOp == right.fStoreOp;
         }
 
-        bool operator!=(const LoadStoreOps& right) const {
-            return !(*this == right);
-        }
+        bool operator!=(const LoadStoreOps& right) const { return !(*this == right); }
     };
 
     void initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& target);
-    void init(const GrVkGpu* gpu,
-              const GrVkRenderTarget& target,
-              const LoadStoreOps& colorOp,
+    void init(const GrVkGpu* gpu, const GrVkRenderTarget& target, const LoadStoreOps& colorOp,
               const LoadStoreOps& stencilOp);
 
-    void init(const GrVkGpu* gpu,
-              const GrVkRenderPass& compatibleRenderPass,
-              const LoadStoreOps& colorOp,
-              const LoadStoreOps& stencilOp);
+    void init(const GrVkGpu* gpu, const GrVkRenderPass& compatibleRenderPass,
+              const LoadStoreOps& colorOp, const LoadStoreOps& stencilOp);
 
     struct AttachmentsDescriptor {
         struct AttachmentDesc {
@@ -61,20 +54,17 @@ public:
                 , fSamples(0)
                 , fLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD, VK_ATTACHMENT_STORE_OP_STORE) {}
             bool operator==(const AttachmentDesc& right) const {
-                return (fFormat == right.fFormat &&
-                        fSamples == right.fSamples &&
+                return (fFormat == right.fFormat && fSamples == right.fSamples &&
                         fLoadStoreOps == right.fLoadStoreOps);
             }
-            bool operator!=(const AttachmentDesc& right) const {
-                return !(*this == right);
-            }
+            bool operator!=(const AttachmentDesc& right) const { return !(*this == right); }
             bool isCompatible(const AttachmentDesc& desc) const {
                 return (fFormat == desc.fFormat && fSamples == desc.fSamples);
             }
         };
         AttachmentDesc fColor;
         AttachmentDesc fStencil;
-        uint32_t       fAttachmentCount;
+        uint32_t fAttachmentCount;
     };
 
     enum AttachmentFlags {
@@ -95,8 +85,7 @@ public:
     // TODO: Figure out if load clear values should be passed into this function or should be stored
     // on the GrVkRenderPass at create time since we'll know at that point if we want to do a load
     // clear.
-    void getBeginInfo(const GrVkRenderTarget& target,
-                      VkRenderPassBeginInfo* beginInfo,
+    void getBeginInfo(const GrVkRenderTarget& target, VkRenderPassBeginInfo* beginInfo,
                       VkSubpassContents* contents) const;
 
     // Returns whether or not the structure of a RenderTarget matches that of the VkRenderPass in
@@ -107,8 +96,7 @@ public:
 
     bool isCompatible(const GrVkRenderPass& renderPass) const;
 
-    bool equalLoadStoreOps(const LoadStoreOps& colorOps,
-                           const LoadStoreOps& stencilOps) const;
+    bool equalLoadStoreOps(const LoadStoreOps& colorOps, const LoadStoreOps& stencilOps) const;
 
     VkRenderPass vkRenderPass() const { return fRenderPass; }
 
@@ -125,18 +113,16 @@ public:
 private:
     GrVkRenderPass(const GrVkRenderPass&);
 
-    void init(const GrVkGpu* gpu,
-              const LoadStoreOps& colorOps,
-              const LoadStoreOps& stencilOps);
+    void init(const GrVkGpu* gpu, const LoadStoreOps& colorOps, const LoadStoreOps& stencilOps);
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkRenderPass          fRenderPass;
-    AttachmentFlags       fAttachmentFlags;
+    VkRenderPass fRenderPass;
+    AttachmentFlags fAttachmentFlags;
     AttachmentsDescriptor fAttachmentsDescriptor;
-    VkExtent2D            fGranularity;
+    VkExtent2D fGranularity;
 
     typedef GrVkResource INHERITED;
 };

@@ -21,8 +21,7 @@ class GrTestBatch : public GrVertexBatch {
 public:
     virtual const char* name() const override = 0;
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fColor);
@@ -39,8 +38,7 @@ public:
 
 protected:
     GrTestBatch(uint32_t classID, const SkRect& bounds, GrColor color)
-        : INHERITED(classID)
-        , fColor(color) {
+        : INHERITED(classID), fColor(color) {
         // Choose some conservative values for aa bloat and zero area.
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
     }
@@ -57,7 +55,7 @@ protected:
 private:
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    GrColor       fColor;
+    GrColor fColor;
     Optimizations fOptimizations;
 
     typedef GrVertexBatch INHERITED;

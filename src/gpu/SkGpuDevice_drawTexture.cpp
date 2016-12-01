@@ -30,18 +30,18 @@ static const SkScalar kColorBleedTolerance = 0.001f;
 
 static bool has_aligned_samples(const SkRect& srcRect, const SkRect& transformedRect) {
     // detect pixel disalignment
-    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) - transformedRect.left()) < kColorBleedTolerance &&
-        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top())  - transformedRect.top())  < kColorBleedTolerance &&
-        SkScalarAbs(transformedRect.width()  - srcRect.width())  < kColorBleedTolerance &&
+    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) - transformedRect.left()) <
+                kColorBleedTolerance &&
+        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) - transformedRect.top()) <
+                kColorBleedTolerance &&
+        SkScalarAbs(transformedRect.width() - srcRect.width()) < kColorBleedTolerance &&
         SkScalarAbs(transformedRect.height() - srcRect.height()) < kColorBleedTolerance) {
         return true;
     }
     return false;
 }
 
-static bool may_color_bleed(const SkRect& srcRect,
-                            const SkRect& transformedRect,
-                            const SkMatrix& m,
+static bool may_color_bleed(const SkRect& srcRect, const SkRect& transformedRect, const SkMatrix& m,
                             bool isMSAA) {
     // Only gets called if has_aligned_samples returned false.
     // So we can assume that sampling is axis aligned but not texel aligned.
@@ -68,10 +68,8 @@ static bool may_color_bleed(const SkRect& srcRect,
     return inner != outer;
 }
 
-static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
-                                         const SkRect& srcRect,
-                                         const SkMatrix& srcRectToDeviceSpace,
-                                         bool isMSAA) {
+static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer, const SkRect& srcRect,
+                                         const SkMatrix& srcRectToDeviceSpace, bool isMSAA) {
     if (srcRectToDeviceSpace.rectStaysRect()) {
         // sampling is axis-aligned
         SkRect transformedRect;
@@ -87,12 +85,9 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
-                                      const SkRect* srcRect,
-                                      const SkRect* dstRect,
-                                      SkCanvas::SrcRectConstraint constraint,
-                                      const SkMatrix& viewMatrix,
-                                      const GrClip& clip,
+void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer, const SkRect* srcRect,
+                                      const SkRect* dstRect, SkCanvas::SrcRectConstraint constraint,
+                                      const SkMatrix& viewMatrix, const GrClip& clip,
                                       const SkPaint& paint) {
     // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
     SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
@@ -144,13 +139,11 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                                   srcToDstMatrix, clip, paint);
 }
 
-void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
-                                          const SkRect& clippedSrcRect,
+void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer, const SkRect& clippedSrcRect,
                                           const SkRect& clippedDstRect,
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
-                                          const SkMatrix& srcToDstMatrix,
-                                          const GrClip& clip,
+                                          const SkMatrix& srcToDstMatrix, const GrClip& clip,
                                           const SkPaint& paint) {
     // Specifying the texture coords as local coordinates is an attempt to enable more batching
     // by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture FP. In
@@ -163,9 +156,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool canUseTextureCoordsAsLocalCoords = !use_shader(producer->isAlphaOnly(), paint) && !mf;
 
     bool doBicubic;
-    GrSamplerParams::FilterMode fm =
-        GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix, srcToDstMatrix,
-                                        &doBicubic);
+    GrSamplerParams::FilterMode fm = GrSkFilterQualityToGrFilterMode(
+            paint.getFilterQuality(), viewMatrix, srcToDstMatrix, &doBicubic);
     const GrSamplerParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
 
     GrTextureProducer::FilterConstraint constraintMode;
@@ -202,8 +194,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         textureMatrix = &tempMatrix;
     }
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
-        *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        fRenderTargetContext->getColorSpace(), fRenderTargetContext->colorMode()));
+            *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
+            fRenderTargetContext->getColorSpace(), fRenderTargetContext->colorMode()));
     if (!fp) {
         return;
     }
@@ -231,13 +223,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         viewMatrix.mapRectScaleTranslate(&devClippedDstRect, clippedDstRect);
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        if (mf->directFilterRRectMaskGPU(fContext.get(),
-                                         fRenderTargetContext.get(),
-                                         &grPaint,
-                                         clip,
-                                         viewMatrix,
-                                         rec,
-                                         SkRRect::MakeRect(clippedDstRect),
+        if (mf->directFilterRRectMaskGPU(fContext.get(), fRenderTargetContext.get(), &grPaint, clip,
+                                         viewMatrix, rec, SkRRect::MakeRect(clippedDstRect),
                                          SkRRect::MakeRect(devClippedDstRect))) {
             return;
         }

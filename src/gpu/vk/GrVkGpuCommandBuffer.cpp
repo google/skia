@@ -52,13 +52,11 @@ void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
     }
 }
 
-GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
-                                           const LoadAndStoreInfo& colorInfo,
+GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu, const LoadAndStoreInfo& colorInfo,
                                            const LoadAndStoreInfo& stencilInfo)
     : fGpu(gpu)
     , fRenderTarget(nullptr)
-    , fClearColor(GrColor4f::FromGrColor(colorInfo.fClearColor)){
-
+    , fClearColor(GrColor4f::FromGrColor(colorInfo.fClearColor)) {
     get_vk_load_store_ops(colorInfo, &fVkColorLoadOp, &fVkColorStoreOp);
 
     get_vk_load_store_ops(stencilInfo, &fVkStencilLoadOp, &fVkStencilStoreOp);
@@ -79,13 +77,11 @@ void GrVkGpuCommandBuffer::init(GrVkRenderTarget* target) {
 
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle = target->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
-        cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                     vkColorOps,
-                                                                     vkStencilOps);
+        cbInfo.fRenderPass =
+                fGpu->resourceProvider().findRenderPass(rpHandle, vkColorOps, vkStencilOps);
     } else {
-        cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*target,
-                                                                     vkColorOps,
-                                                                     vkStencilOps);
+        cbInfo.fRenderPass =
+                fGpu->resourceProvider().findRenderPass(*target, vkColorOps, vkStencilOps);
     }
 
     cbInfo.fColorClearValue.color.float32[0] = fClearColor.fRGBA[0];
@@ -100,7 +96,6 @@ void GrVkGpuCommandBuffer::init(GrVkRenderTarget* target) {
     cbInfo.fCommandBuffer = fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer();
     cbInfo.fCommandBuffer->begin(fGpu, target->framebuffer(), cbInfo.fRenderPass);
 }
-
 
 GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
@@ -125,25 +120,21 @@ void GrVkGpuCommandBuffer::onSubmit() {
     }
     // Change layout of our render target so it can be used as the color attachment. Currently
     // we don't attach the resolve to the framebuffer so no need to change its layout.
-    GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage()
-                                                        : fRenderTarget;
+    GrVkImage* targetImage =
+            fRenderTarget->msaaImage() ? fRenderTarget->msaaImage() : fRenderTarget;
 
     // Change layout of our render target so it can be used as the color attachment
-    targetImage->setImageLayout(fGpu,
-                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    targetImage->setImageLayout(fGpu, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                 VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                false);
+                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, false);
 
     // If we are using a stencil attachment we also need to update its layout
     if (GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment()) {
         GrVkStencilAttachment* vkStencil = (GrVkStencilAttachment*)stencil;
-        vkStencil->setImageLayout(fGpu,
-                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        vkStencil->setImageLayout(fGpu, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                   VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
-                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-                                  false);
+                                          VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, false);
     }
 
     for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
@@ -154,11 +145,11 @@ void GrVkGpuCommandBuffer::onSubmit() {
             iuInfo.fFlushState->doUpload(iuInfo.fUpload);
         }
 
-        // TODO: We can't add this optimization yet since many things create a scratch texture which
-        // adds the discard immediately, but then don't draw to it right away. This causes the
-        // discard to be ignored and we get yelled at for loading uninitialized data. However, once
-        // MDP lands, the discard will get reordered with the rest of the draw commands and we can
-        // re-enable this.
+// TODO: We can't add this optimization yet since many things create a scratch texture which
+// adds the discard immediately, but then don't draw to it right away. This causes the
+// discard to be ignored and we get yelled at for loading uninitialized data. However, once
+// MDP lands, the discard will get reordered with the rest of the draw commands and we can
+// re-enable this.
 #if 0
         if (cbInfo.fIsEmpty && !cbInfo.fStartsWithClear) {
             // We have sumbitted no actual draw commands to the command buffer and we are not using
@@ -166,8 +157,7 @@ void GrVkGpuCommandBuffer::onSubmit() {
             continue;
         }
 #endif
-        if (cbInfo.fBounds.intersect(0, 0,
-                                     SkIntToScalar(fRenderTarget->width()),
+        if (cbInfo.fBounds.intersect(0, 0, SkIntToScalar(fRenderTarget->width()),
                                      SkIntToScalar(fRenderTarget->height()))) {
             SkIRect iBounds;
             cbInfo.fBounds.roundOut(&iBounds);
@@ -196,14 +186,12 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
         const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
 
         const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            fRenderTarget->compatibleRenderPassHandle();
+                fRenderTarget->compatibleRenderPassHandle();
         if (rpHandle.isValid()) {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
+            cbInfo.fRenderPass =
+                    fGpu->resourceProvider().findRenderPass(rpHandle, vkColorOps, vkStencilOps);
         } else {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget,
-                                                                         vkColorOps,
+            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget, vkColorOps,
                                                                          vkStencilOps);
         }
 
@@ -252,12 +240,12 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedC
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
-                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom, scissor.fRight,
+                       fRenderTarget->height() - scissor.fTop);
     }
 
-    clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
-    clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
+    clearRect.rect.offset = {vkRect.fLeft, vkRect.fTop};
+    clearRect.rect.extent = {(uint32_t)vkRect.width(), (uint32_t)vkRect.height()};
 
     clearRect.baseArrayLayer = 0;
     clearRect.layerCount = 1;
@@ -267,7 +255,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedC
 
     VkClearAttachment attachment;
     attachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
-    attachment.colorAttachment = 0; // this value shouldn't matter
+    attachment.colorAttachment = 0;  // this value shouldn't matter
     attachment.clearValue.depthStencil = vkStencilColor;
 
     cbInfo.fCommandBuffer->clearAttachments(fGpu, 1, &attachment, 1, &clearRect);
@@ -306,14 +294,12 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, 
         const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
 
         const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            fRenderTarget->compatibleRenderPassHandle();
+                fRenderTarget->compatibleRenderPassHandle();
         if (rpHandle.isValid()) {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                         vkColorOps,
-                                                                         vkStencilOps);
+            cbInfo.fRenderPass =
+                    fGpu->resourceProvider().findRenderPass(rpHandle, vkColorOps, vkStencilOps);
         } else {
-            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget,
-                                                                         vkColorOps,
+            cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget, vkColorOps,
                                                                          vkStencilOps);
         }
 
@@ -338,11 +324,11 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, 
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
-                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom, scissor.fRight,
+                       fRenderTarget->height() - scissor.fTop);
     }
-    clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
-    clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
+    clearRect.rect.offset = {vkRect.fLeft, vkRect.fTop};
+    clearRect.rect.extent = {(uint32_t)vkRect.width(), (uint32_t)vkRect.height()};
     clearRect.baseArrayLayer = 0;
     clearRect.layerCount = 1;
 
@@ -380,13 +366,11 @@ void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
             fRenderTarget->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
-        cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
-                                                                     vkColorOps,
-                                                                     vkStencilOps);
+        cbInfo.fRenderPass =
+                fGpu->resourceProvider().findRenderPass(rpHandle, vkColorOps, vkStencilOps);
     } else {
-        cbInfo.fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget,
-                                                                     vkColorOps,
-                                                                     vkStencilOps);
+        cbInfo.fRenderPass =
+                fGpu->resourceProvider().findRenderPass(*fRenderTarget, vkColorOps, vkStencilOps);
     }
 
     cbInfo.fCommandBuffer = fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer();
@@ -436,16 +420,13 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
 }
 
 sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
-                                                               const GrPipeline& pipeline,
-                                                               const GrPrimitiveProcessor& primProc,
-                                                               GrPrimitiveType primitiveType) {
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+        GrPrimitiveType primitiveType) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdBuffer];
 
     sk_sp<GrVkPipelineState> pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline,
-                                                                     primProc,
-                                                                     primitiveType,
-                                                                     *cbInfo.fRenderPass);
+            fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
+                    pipeline, primProc, primitiveType, *cbInfo.fRenderPass);
     if (!pipelineState) {
         return pipelineState;
     }
@@ -483,19 +464,14 @@ static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
         // TODO: If we ever decide to create the secondary command buffers ahead of time before we
         // are actually going to submit them, we will need to track the sampled images and delay
         // adding the layout change/barrier until we are ready to submit.
-        vkTexture->setImageLayout(gpu,
-                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                  VK_ACCESS_SHADER_READ_BIT,
-                                  VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+        vkTexture->setImageLayout(gpu, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                  VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                   false);
     }
 }
 
-void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
-                                  const GrPrimitiveProcessor& primProc,
-                                  const GrMesh* meshes,
-                                  int meshCount,
-                                  const SkRect& bounds) {
+void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
+                                  const GrMesh* meshes, int meshCount, const SkRect& bounds) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.getRenderTarget());
     if (!fRenderTarget) {
         this->init(target);
@@ -516,9 +492,8 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     prepare_sampled_images(pipeline.getXferProcessor(), fGpu);
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
-                                                                    primProc,
-                                                                    primitiveType);
+    sk_sp<GrVkPipelineState> pipelineState =
+            this->prepareDrawState(pipeline, primProc, primitiveType);
     if (!pipelineState) {
         return;
     }
@@ -535,9 +510,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                 pipelineState->freeTempResources(fGpu);
                 SkDEBUGCODE(pipelineState = nullptr);
                 primitiveType = nonIdxMesh->primitiveType();
-                pipelineState = this->prepareDrawState(pipeline,
-                                                       primProc,
-                                                       primitiveType);
+                pipelineState = this->prepareDrawState(pipeline, primProc, primitiveType);
                 if (!pipelineState) {
                     return;
                 }
@@ -546,18 +519,12 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
             this->bindGeometry(primProc, *nonIdxMesh);
 
             if (nonIdxMesh->isIndexed()) {
-                cbInfo.fCommandBuffer->drawIndexed(fGpu,
-                                                   nonIdxMesh->indexCount(),
-                                                   1,
+                cbInfo.fCommandBuffer->drawIndexed(fGpu, nonIdxMesh->indexCount(), 1,
                                                    nonIdxMesh->startIndex(),
-                                                   nonIdxMesh->startVertex(),
-                                                   0);
+                                                   nonIdxMesh->startVertex(), 0);
             } else {
-                cbInfo.fCommandBuffer->draw(fGpu,
-                                            nonIdxMesh->vertexCount(),
-                                            1,
-                                            nonIdxMesh->startVertex(),
-                                            0);
+                cbInfo.fCommandBuffer->draw(fGpu, nonIdxMesh->vertexCount(), 1,
+                                            nonIdxMesh->startVertex(), 0);
             }
             cbInfo.fIsEmpty = false;
 
@@ -573,4 +540,3 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     // pipelineState sits in a cache for a while.
     pipelineState->freeTempResources(fGpu);
 }
-

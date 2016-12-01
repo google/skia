@@ -133,14 +133,13 @@ void GrAuditTrail::fullReset() {
     fBatchList.reset();
     fIDLookup.reset();
     // free all client batches
-    fClientIDLookup.foreach([](const int&, Batches** batches) { delete *batches; });
+    fClientIDLookup.foreach ([](const int&, Batches** batches) { delete *batches; });
     fClientIDLookup.reset();
-    fBatchPool.reset(); // must be last, frees all of the memory
+    fBatchPool.reset();  // must be last, frees all of the memory
 }
 
 template <typename T>
-void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& array,
-                                 bool addComma) {
+void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& array, bool addComma) {
     if (array.count()) {
         if (addComma) {
             json->appendf(",");
@@ -189,6 +188,7 @@ public:
         }
         return fPrettyJson;
     }
+
 private:
     void appendChar(char appendee) {
         if (fCommaException && ',' != appendee) {

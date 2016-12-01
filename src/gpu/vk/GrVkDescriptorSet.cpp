@@ -11,24 +11,16 @@
 #include "GrVkGpu.h"
 #include "GrVkResourceProvider.h"
 
-GrVkDescriptorSet::GrVkDescriptorSet(VkDescriptorSet descSet,
-                                     GrVkDescriptorPool* pool,
+GrVkDescriptorSet::GrVkDescriptorSet(VkDescriptorSet descSet, GrVkDescriptorPool* pool,
                                      GrVkDescriptorSetManager::Handle handle)
-    : fDescSet(descSet)
-    , fPool(pool)
-    , fHandle(handle) {
+    : fDescSet(descSet), fPool(pool), fHandle(handle) {
     fPool->ref();
 }
 
-void GrVkDescriptorSet::freeGPUData(const GrVkGpu* gpu) const {
-    fPool->unref(gpu);
-}
+void GrVkDescriptorSet::freeGPUData(const GrVkGpu* gpu) const { fPool->unref(gpu); }
 
 void GrVkDescriptorSet::onRecycle(GrVkGpu* gpu) const {
     gpu->resourceProvider().recycleDescriptorSet(this, fHandle);
 }
 
-void GrVkDescriptorSet::abandonSubResources() const {
-    fPool->unrefAndAbandon();
-}
-
+void GrVkDescriptorSet::abandonSubResources() const { fPool->unrefAndAbandon(); }

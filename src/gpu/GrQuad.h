@@ -8,9 +8,9 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "SkPoint.h"
 #include "SkMatrix.h"
 #include "SkMatrixPriv.h"
+#include "SkPoint.h"
 
 /**
  * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral
@@ -19,21 +19,15 @@ class GrQuad {
 public:
     GrQuad() {}
 
-    GrQuad(const GrQuad& that) {
-        *this = that;
-    }
+    GrQuad(const GrQuad& that) { *this = that; }
 
-    explicit GrQuad(const SkRect& rect) {
-        this->set(rect);
-    }
+    explicit GrQuad(const SkRect& rect) { this->set(rect); }
 
     void set(const SkRect& rect) {
         fPoints->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
     }
 
-    void map(const SkMatrix& matrix) {
-        matrix.mapPoints(fPoints, kNumPoints);
-    }
+    void map(const SkMatrix& matrix) { matrix.mapPoints(fPoints, kNumPoints); }
 
     void setFromMappedRect(const SkRect& rect, const SkMatrix& matrix) {
         SkMatrixPriv::SetMappedRectFan(matrix, rect, fPoints);
@@ -44,13 +38,9 @@ public:
         return *this;
     }
 
-    SkPoint* points() {
-        return fPoints;
-    }
+    SkPoint* points() { return fPoints; }
 
-    const SkPoint* points() const {
-        return fPoints;
-    }
+    const SkPoint* points() const { return fPoints; }
 
     const SkPoint& point(int i) const {
         SkASSERT(i < kNumPoints);

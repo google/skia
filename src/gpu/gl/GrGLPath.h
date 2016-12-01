@@ -22,22 +22,18 @@ class GrStyle;
 
 class GrGLPath : public GrPath {
 public:
-    static bool InitPathObjectPathDataCheckingDegenerates(GrGLGpu*,
-                                                          GrGLuint pathID,
-                                                          const SkPath&);
-    static void InitPathObjectPathData(GrGLGpu*,
-                                       GrGLuint pathID,
-                                       const SkPath&);
+    static bool InitPathObjectPathDataCheckingDegenerates(GrGLGpu*, GrGLuint pathID, const SkPath&);
+    static void InitPathObjectPathData(GrGLGpu*, GrGLuint pathID, const SkPath&);
     static void InitPathObjectStroke(GrGLGpu*, GrGLuint pathID, const SkStrokeRec&);
 
     static void InitPathObjectEmptyPath(GrGLGpu*, GrGLuint pathID);
-
 
     GrGLPath(GrGLGpu*, const SkPath&, const GrStyle&);
     GrGLuint pathID() const { return fPathID; }
 
     bool shouldStroke() const { return fShouldStroke; }
     bool shouldFill() const { return fShouldFill; }
+
 protected:
     void onRelease() override;
     void onAbandon() override;

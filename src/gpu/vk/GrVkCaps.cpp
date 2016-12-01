@@ -9,8 +9,8 @@
 
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkInterface.h"
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkInterface.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)
@@ -23,27 +23,27 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     /**************************************************************************
     * GrDrawTargetCaps fields
     **************************************************************************/
-    fMipMapSupport = true;   // always available in Vulkan
-    fSRGBSupport = true;   // always available in Vulkan
+    fMipMapSupport = true;           // always available in Vulkan
+    fSRGBSupport = true;             // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fTwoSidedStencilSupport = true;  // always available in Vulkan
-    fStencilWrapOpsSupport = true; // always available in Vulkan
+    fStencilWrapOpsSupport = true;   // always available in Vulkan
     fDiscardRenderTargetSupport = true;
-    fReuseScratchTextures = true; //TODO: figure this out
-    fGpuTracingSupport = false; //TODO: figure this out
-    fCompressedTexSubImageSupport = false; //TODO: figure this out
-    fOversizedStencilSupport = false; //TODO: figure this out
+    fReuseScratchTextures = true;           // TODO: figure this out
+    fGpuTracingSupport = false;             // TODO: figure this out
+    fCompressedTexSubImageSupport = false;  // TODO: figure this out
+    fOversizedStencilSupport = false;       // TODO: figure this out
 
     fUseDrawInsteadOfClear = false;
-    fFenceSyncSupport = true;   // always available in Vulkan
+    fFenceSyncSupport = true;  // always available in Vulkan
 
-    fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
-    fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
+    fMapBufferFlags = kNone_MapFlags;  // TODO: figure this out
+    fBufferMapThreshold = SK_MaxS32;   // TODO: figure this out
 
-    fMaxRenderTargetSize = 4096; // minimum required by spec
-    fMaxTextureSize = 4096; // minimum required by spec
-    fMaxColorSampleCount = 4; // minimum required by spec
-    fMaxStencilSampleCount = 4; // minimum required by spec
+    fMaxRenderTargetSize = 4096;  // minimum required by spec
+    fMaxTextureSize = 4096;       // minimum required by spec
+    fMaxColorSampleCount = 4;     // minimum required by spec
+    fMaxStencilSampleCount = 4;   // minimum required by spec
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -52,7 +52,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags) {
-
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
@@ -140,7 +139,6 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     GrShaderCaps* shaderCaps = fShaderCaps.get();
     shaderCaps->fVersionDeclString = "#version 330\n";
 
-
     // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
@@ -189,20 +187,18 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     }
     shaderCaps->initSamplerPrecisionTable();
 
-    shaderCaps->fMaxVertexSamplers =
-    shaderCaps->fMaxGeometrySamplers =
-    shaderCaps->fMaxFragmentSamplers = SkTMin(
-                                       SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
-                                              properties.limits.maxPerStageDescriptorSamplers),
-                                              (uint32_t)INT_MAX);
-    shaderCaps->fMaxCombinedSamplers = SkTMin(
-                                       SkTMin(properties.limits.maxDescriptorSetSampledImages,
-                                              properties.limits.maxDescriptorSetSamplers),
-                                              (uint32_t)INT_MAX);
+    shaderCaps->fMaxVertexSamplers = shaderCaps->fMaxGeometrySamplers =
+            shaderCaps->fMaxFragmentSamplers =
+                    SkTMin(SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
+                                  properties.limits.maxPerStageDescriptorSamplers),
+                           (uint32_t)INT_MAX);
+    shaderCaps->fMaxCombinedSamplers =
+            SkTMin(SkTMin(properties.limits.maxDescriptorSetSampledImages,
+                          properties.limits.maxDescriptorSetSamplers),
+                   (uint32_t)INT_MAX);
 }
 
-bool stencil_format_supported(const GrVkInterface* interface,
-                              VkPhysicalDevice physDev,
+bool stencil_format_supported(const GrVkInterface* interface, VkPhysicalDevice physDev,
                               VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
@@ -216,10 +212,10 @@ void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevic
     // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT. VK_FORMAT_D32_SFLOAT_S8_UINT
     // can optionally have 24 unused bits at the end so we assume the total bits is 64.
     static const StencilFormat
-                  // internal Format             stencil bits      total bits        packed?
-        gS8    = { VK_FORMAT_S8_UINT,            8,                 8,               false },
-        gD24S8 = { VK_FORMAT_D24_UNORM_S8_UINT,  8,                32,               true },
-        gD32S8 = { VK_FORMAT_D32_SFLOAT_S8_UINT, 8,                64,               true };
+            // internal Format             stencil bits      total bits        packed?
+            gS8 = {VK_FORMAT_S8_UINT, 8, 8, false},
+            gD24S8 = {VK_FORMAT_D24_UNORM_S8_UINT, 8, 32, true},
+            gD32S8 = {VK_FORMAT_D32_SFLOAT_S8_UINT, 8, 64, true};
 
     if (stencil_format_supported(interface, physDev, VK_FORMAT_S8_UINT)) {
         fPreferedStencilFormat = gS8;
@@ -259,8 +255,7 @@ void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_
     }
 }
 
-void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
-                                VkPhysicalDevice physDev,
+void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface, VkPhysicalDevice physDev,
                                 VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));

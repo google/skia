@@ -11,11 +11,8 @@
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail) 
-    : fFlags(0)
-    , fTarget(surfaceProxy)
-    , fAuditTrail(auditTrail) {
-
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+    : fFlags(0), fTarget(surfaceProxy), fAuditTrail(auditTrail) {
     surfaceProxy->setLastOpList(this);
 
 #ifdef SK_DEBUG

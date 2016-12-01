@@ -21,8 +21,8 @@ public:
     static GrVkTexture* CreateNewTexture(GrVkGpu*, SkBudgeted budgeted, const GrSurfaceDesc&,
                                          const GrVkImage::ImageDesc&);
 
-    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
-                                                 GrWrapOwnership, const GrVkImageInfo*);
+    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&, GrWrapOwnership,
+                                                 const GrVkImageInfo*);
 
     ~GrVkTexture() override;
 
@@ -45,13 +45,13 @@ protected:
 
 private:
     enum Wrapped { kWrapped };
-    GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                const GrVkImageInfo&, const GrVkImageView* imageView);
-    GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
-                const GrVkImageInfo&, const GrVkImageView* imageView, GrVkImage::Wrapped wrapped);
+    GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,
+                const GrVkImageView* imageView);
+    GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&, const GrVkImageInfo&,
+                const GrVkImageView* imageView, GrVkImage::Wrapped wrapped);
 
-    const GrVkImageView*     fTextureView;
-    const GrVkImageView*     fLinearTextureView;
+    const GrVkImageView* fTextureView;
+    const GrVkImageView* fLinearTextureView;
 
     typedef GrTexture INHERITED;
 };

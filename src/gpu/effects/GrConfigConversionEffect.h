@@ -39,21 +39,18 @@ public:
     const char* name() const override { return "Config Conversion"; }
 
     const GrSwizzle& swizzle() const { return fSwizzle; }
-    PMConversion  pmConversion() const { return fPMConversion; }
+    PMConversion pmConversion() const { return fPMConversion; }
 
     // This function determines whether it is possible to choose PM->UPM and UPM->PM conversions
     // for which in any PM->UPM->PM->UPM sequence the two UPM values are the same. This means that
     // if pixels are read back to a UPM buffer, written back to PM to the GPU, and read back again
     // both reads will produce the same result. This test is quite expensive and should not be run
     // multiple times for a given context.
-    static void TestForPreservingPMConversions(GrContext* context,
-                                               PMConversion* PMToUPMRule,
+    static void TestForPreservingPMConversions(GrContext* context, PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
 
 private:
-    GrConfigConversionEffect(GrTexture*,
-                             const GrSwizzle&,
-                             PMConversion pmConversion,
+    GrConfigConversionEffect(GrTexture*, const GrSwizzle&, PMConversion pmConversion,
                              const SkMatrix& matrix);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -64,8 +61,8 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    GrSwizzle       fSwizzle;
-    PMConversion    fPMConversion;
+    GrSwizzle fSwizzle;
+    PMConversion fPMConversion;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

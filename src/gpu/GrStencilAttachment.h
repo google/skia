@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrStencilAttachment_DEFINED
 #define GrStencilAttachment_DEFINED
 
@@ -17,8 +16,6 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
-
-
     virtual ~GrStencilAttachment() {
         // TODO: allow SB to be purged and detach itself from rts
     }
@@ -35,15 +32,9 @@ public:
 
 protected:
     GrStencilAttachment(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
-        : GrGpuResource(gpu)
-        , fWidth(width)
-        , fHeight(height)
-        , fBits(bits)
-        , fSampleCnt(sampleCnt) {
-    }
+        : GrGpuResource(gpu), fWidth(width), fHeight(height), fBits(bits), fSampleCnt(sampleCnt) {}
 
 private:
-
     int fWidth;
     int fHeight;
     int fBits;

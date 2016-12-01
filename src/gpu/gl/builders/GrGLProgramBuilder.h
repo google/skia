@@ -30,10 +30,8 @@ public:
      * to be used.
      * @return true if generation was successful.
      */
-    static GrGLProgram* CreateProgram(const GrPipeline&,
-                                      const GrPrimitiveProcessor&,
-                                      const GrProgramDesc&,
-                                      GrGLGpu*);
+    static GrGLProgram* CreateProgram(const GrPipeline&, const GrPrimitiveProcessor&,
+                                      const GrProgramDesc&, GrGLGpu*);
 
     const GrCaps* caps() const override;
 
@@ -43,9 +41,7 @@ private:
     GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
                        const GrProgramDesc&);
 
-    bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
-                                 GrGLuint programId,
-                                 GrGLenum type,
+    bool compileAndAttachShaders(GrGLSLShaderBuilder& shader, GrGLuint programId, GrGLenum type,
                                  SkTDArray<GrGLuint>* shaderIds);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
@@ -61,10 +57,9 @@ private:
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
-
-    GrGLGpu*              fGpu;
-    GrGLVaryingHandler    fVaryingHandler;
-    GrGLUniformHandler    fUniformHandler;
+    GrGLGpu* fGpu;
+    GrGLVaryingHandler fVaryingHandler;
+    GrGLUniformHandler fUniformHandler;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

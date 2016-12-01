@@ -27,8 +27,7 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 }
 
 const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* pattern,
-                                                               int patternSize,
-                                                               int reps,
+                                                               int patternSize, int reps,
                                                                int vertCount,
                                                                const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
@@ -39,7 +38,7 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
     if (!buffer) {
         return nullptr;
     }
-    uint16_t* data = (uint16_t*) buffer->map();
+    uint16_t* data = (uint16_t*)buffer->map();
     bool useTempData = (nullptr == data);
     if (useTempData) {
         data = new uint16_t[reps * patternSize];
@@ -48,7 +47,7 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
         int baseIdx = i * patternSize;
         uint16_t baseVert = (uint16_t)(i * vertCount);
         for (int j = 0; j < patternSize; ++j) {
-            data[baseIdx+j] = baseVert + pattern[j];
+            data[baseIdx + j] = baseVert + pattern[j];
         }
     }
     if (useTempData) {
@@ -65,9 +64,9 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
 }
 
 const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
-    static const int kMaxQuads = 1 << 12; // max possible: (1 << 14) - 1;
+    static const int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
-    static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
+    static const uint16_t kPattern[] = {0, 1, 2, 0, 2, 3};
 
     return this->createInstancedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
@@ -85,9 +84,7 @@ GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen
 
 GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
                                               const SkScalerContextEffects& effects,
-                                              const SkDescriptor* desc,
-                                              const GrStyle& style) {
-
+                                              const SkDescriptor* desc, const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);
 }
@@ -103,8 +100,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     }
     if (!(flags & kRequireGpuMemory_Flag) &&
         this->gpu()->caps()->preferClientSideDynamicBuffers() &&
-        GrBufferTypeIsVertexOrIndex(intendedType) &&
-        kDynamic_GrAccessPattern == accessPattern) {
+        GrBufferTypeIsVertexOrIndex(intendedType) && kDynamic_GrAccessPattern == accessPattern) {
         return GrBuffer::CreateCPUBacked(this->gpu(), size, intendedType, data);
     }
 
@@ -121,7 +117,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
         scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
     }
     GrBuffer* buffer = static_cast<GrBuffer*>(
-        this->cache()->findAndRefScratchResource(key, allocSize, scratchFlags));
+            this->cache()->findAndRefScratchResource(key, allocSize, scratchFlags));
     if (!buffer) {
         buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
         if (!buffer) {
@@ -131,13 +127,13 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     if (data) {
         buffer->updateData(data, size);
     }
-    SkASSERT(!buffer->isCPUBacked()); // We should only cache real VBOs.
+    SkASSERT(!buffer->isCPUBacked());  // We should only cache real VBOs.
     return buffer;
 }
 
-std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config,
-                                                            int width, int height,
-                                                            int numPlotsX, int numPlotsY,
+std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config, int width,
+                                                            int height, int numPlotsX,
+                                                            int numPlotsY,
                                                             GrBatchAtlas::EvictionFunc func,
                                                             void* data) {
     GrSurfaceDesc desc;
@@ -179,8 +175,8 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
         bool newStencil = false;
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
                                                                rt->numStencilSamples(), &sbKey);
-        GrStencilAttachment* stencil = static_cast<GrStencilAttachment*>(
-            this->findAndRefResourceByUniqueKey(sbKey));
+        GrStencilAttachment* stencil =
+                static_cast<GrStencilAttachment*>(this->findAndRefResourceByUniqueKey(sbKey));
         if (!stencil) {
             // Need to try and create a new stencil
             stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
@@ -207,8 +203,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTextureDesc& desc)
-{
+        const GrBackendTextureDesc& desc) {
     if (this->isAbandoned()) {
         return nullptr;
     }

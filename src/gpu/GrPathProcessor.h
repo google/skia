@@ -16,8 +16,7 @@
  */
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
-    static GrPathProcessor* Create(GrColor color,
-                                   const GrXPOverridesForBatch& overrides,
+    static GrPathProcessor* Create(GrColor color, const GrXPOverridesForBatch& overrides,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
         return new GrPathProcessor(color, overrides, viewMatrix, localMatrix);

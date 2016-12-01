@@ -65,12 +65,12 @@ public:
      * If the resource has a scratch key, the key will be removed. Since scratch keys are installed
      * at resource creation time, this means the resource will never again be used as scratch.
      */
-    void removeScratchKey() const { fResource->removeScratchKey();  }
+    void removeScratchKey() const { fResource->removeScratchKey(); }
 
 protected:
-    ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
+    ResourcePriv(GrGpuResource* resource) : fResource(resource) {}
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}
-    ResourcePriv& operator=(const CacheAccess&); // unimpl
+    ResourcePriv& operator=(const CacheAccess&);  // unimpl
 
     // No taking addresses of this type.
     const ResourcePriv* operator&() const;
@@ -78,7 +78,7 @@ protected:
 
     GrGpuResource* fResource;
 
-    friend class GrGpuResource; // to construct/copy this type.
+    friend class GrGpuResource;  // to construct/copy this type.
 };
 
 inline GrGpuResource::ResourcePriv GrGpuResource::resourcePriv() { return ResourcePriv(this); }

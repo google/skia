@@ -13,20 +13,19 @@
 #include "SkTSearch.h"
 
 #ifdef SK_DEBUG
-    #define VALIDATE this->validate()
+#define VALIDATE this->validate()
 #else
-    #define VALIDATE
+#define VALIDATE
 #endif
 
-class GrTextureStripAtlas::Hash : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry,
-                                                        GrTextureStripAtlas::Desc> {};
+class GrTextureStripAtlas::Hash
+        : public SkTDynamicHash<GrTextureStripAtlas::AtlasEntry, GrTextureStripAtlas::Desc> {};
 
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
 GrTextureStripAtlas::Hash* GrTextureStripAtlas::gAtlasCache = nullptr;
 
 GrTextureStripAtlas::Hash* GrTextureStripAtlas::GetCache() {
-
     if (nullptr == gAtlasCache) {
         gAtlasCache = new Hash;
     }
@@ -136,7 +135,6 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         // If we are writing into a row that already held bitmap data, we need to remove the
         // reference to that genID which is stored in our sorted table of key values.
         if (oldKey != kEmptyAtlasRowKey) {
-
             // Find the entry in the list; if it's before the index where we plan on adding the new
             // entry, we decrement since it will shift elements ahead of it back by one.
             int oldIndex = this->searchByKey(oldKey);
@@ -156,11 +154,9 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
 
         // Pass in the kDontFlush flag, since we know we're writing to a part of this texture
         // that is not currently in use
-        fTexture->writePixels(0,  rowNumber * fDesc.fRowHeight,
-                              fDesc.fWidth, fDesc.fRowHeight,
+        fTexture->writePixels(0, rowNumber * fDesc.fRowHeight, fDesc.fWidth, fDesc.fRowHeight,
                               SkImageInfo2GrPixelConfig(data.info(), *this->getContext()->caps()),
-                              data.getPixels(),
-                              data.rowBytes(),
+                              data.getPixels(), data.rowBytes(),
                               GrContext::kDontFlush_PixelOpsFlag);
     }
 
@@ -281,16 +277,12 @@ void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
 int GrTextureStripAtlas::searchByKey(uint32_t key) {
     AtlasRow target;
     target.fKey = key;
-    return SkTSearch<const AtlasRow,
-                     GrTextureStripAtlas::KeyLess>((const AtlasRow**)fKeyTable.begin(),
-                                                   fKeyTable.count(),
-                                                   &target,
-                                                   sizeof(AtlasRow*));
+    return SkTSearch<const AtlasRow, GrTextureStripAtlas::KeyLess>(
+            (const AtlasRow**)fKeyTable.begin(), fKeyTable.count(), &target, sizeof(AtlasRow*));
 }
 
 #ifdef SK_DEBUG
 void GrTextureStripAtlas::validate() {
-
     // Our key table should be sorted
     uint32_t prev = 1 > fKeyTable.count() ? 0 : fKeyTable[0]->fKey;
     for (int i = 1; i < fKeyTable.count(); ++i) {
@@ -302,7 +294,7 @@ void GrTextureStripAtlas::validate() {
     int lruCount = 0;
     // Validate LRU pointers, and count LRU entries
     SkASSERT(nullptr == fLRUFront || nullptr == fLRUFront->fPrev);
-    SkASSERT(nullptr == fLRUBack  || nullptr == fLRUBack->fNext);
+    SkASSERT(nullptr == fLRUBack || nullptr == fLRUBack->fNext);
     for (AtlasRow* r = fLRUFront; r != nullptr; r = r->fNext) {
         if (nullptr == r->fNext) {
             SkASSERT(r == fLRUBack);

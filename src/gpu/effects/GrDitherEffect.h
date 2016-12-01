@@ -15,10 +15,10 @@
 class GrFragmentProcessor;
 
 namespace GrDitherEffect {
-    /**
-     * Creates an effect that dithers the resulting color to an RGBA8 framebuffer
-     */
-    sk_sp<GrFragmentProcessor> Make();
+/**
+ * Creates an effect that dithers the resulting color to an RGBA8 framebuffer
+ */
+sk_sp<GrFragmentProcessor> Make();
 };
 
 #endif

@@ -27,7 +27,10 @@ public:
      * If hasIBounds() is true, this is the bounding box within which the clip elements are valid.
      * The caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
      */
-    const SkIRect& ibounds() const { SkASSERT(fHasIBounds); return fIBounds; }
+    const SkIRect& ibounds() const {
+        SkASSERT(fHasIBounds);
+        return fIBounds;
+    }
     int left() const { return this->ibounds().left(); }
     int top() const { return this->ibounds().top(); }
     int width() const { return this->ibounds().width(); }
@@ -56,17 +59,17 @@ public:
      * If elements() are nonempty, uniquely identifies the list of elements within ibounds().
      * Otherwise undefined.
      */
-    int32_t elementsGenID() const { SkASSERT(!fElements.isEmpty()); return fElementsGenID; }
+    int32_t elementsGenID() const {
+        SkASSERT(!fElements.isEmpty());
+        return fElementsGenID;
+    }
 
     /**
      * Indicates whether antialiasing is required to process any of the clip elements.
      */
     bool requiresAA() const { return fRequiresAA; }
 
-    enum class InitialState : bool {
-        kAllIn,
-        kAllOut
-    };
+    enum class InitialState : bool { kAllIn, kAllOut };
 
     InitialState initialState() const { return fInitialState; }
 
@@ -79,13 +82,13 @@ private:
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
     bool intersectIBounds(const SkIRect&);
 
-    SkIRect              fIBounds;
-    bool                 fHasIBounds;
-    GrWindowRectangles   fWindowRects;
-    ElementList          fElements;
-    int32_t              fElementsGenID;
-    bool                 fRequiresAA;
-    InitialState         fInitialState;
+    SkIRect fIBounds;
+    bool fHasIBounds;
+    GrWindowRectangles fWindowRects;
+    ElementList fElements;
+    int32_t fElementsGenID;
+    bool fRequiresAA;
+    InitialState fInitialState;
 };
 
 #endif

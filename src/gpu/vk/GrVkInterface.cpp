@@ -9,17 +9,15 @@
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkUtil.h"
 
-GrVkInterface::GrVkInterface() {
-}
+GrVkInterface::GrVkInterface() {}
 
-#define GET_PROC_GLOBAL(F) functions->f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(NULL, "vk" #F)
-#define GET_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
-#define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
-#define GET_DEV_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
+#define GET_PROC_GLOBAL(F) functions->f##F = (PFN_vk##F)vkGetInstanceProcAddr(NULL, "vk" #F)
+#define GET_PROC(F) functions->f##F = (PFN_vk##F)vkGetInstanceProcAddr(instance, "vk" #F)
+#define GET_PROC_LOCAL(inst, F) PFN_vk##F F = (PFN_vk##F)vkGetInstanceProcAddr(inst, "vk" #F)
+#define GET_DEV_PROC(F) functions->f##F = (PFN_vk##F)vkGetDeviceProcAddr(device, "vk" #F)
 
 const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
                                          uint32_t extensionFlags) {
-
     GrVkInterface* interface = new GrVkInterface();
     GrVkInterface::Functions* functions = &interface->fFunctions;
 
@@ -169,152 +167,95 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
 }
 
 #ifdef SK_DEBUG
-    static int kIsDebug = 1;
+static int kIsDebug = 1;
 #else
-    static int kIsDebug = 0;
+static int kIsDebug = 0;
 #endif
 
-#define RETURN_FALSE_INTERFACE                                                                   \
-    if (kIsDebug) { SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); } \
+#define RETURN_FALSE_INTERFACE                                                     \
+    if (kIsDebug) {                                                                \
+        SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); \
+    }                                                                              \
     return false;
 
 bool GrVkInterface::validate(uint32_t extensionFlags) const {
     // functions that are always required
-    if (NULL == fFunctions.fCreateInstance ||
-        NULL == fFunctions.fDestroyInstance ||
+    if (NULL == fFunctions.fCreateInstance || NULL == fFunctions.fDestroyInstance ||
         NULL == fFunctions.fEnumeratePhysicalDevices ||
         NULL == fFunctions.fGetPhysicalDeviceFeatures ||
         NULL == fFunctions.fGetPhysicalDeviceFormatProperties ||
         NULL == fFunctions.fGetPhysicalDeviceImageFormatProperties ||
         NULL == fFunctions.fGetPhysicalDeviceProperties ||
         NULL == fFunctions.fGetPhysicalDeviceQueueFamilyProperties ||
-        NULL == fFunctions.fGetPhysicalDeviceMemoryProperties ||
-        NULL == fFunctions.fCreateDevice ||
+        NULL == fFunctions.fGetPhysicalDeviceMemoryProperties || NULL == fFunctions.fCreateDevice ||
         NULL == fFunctions.fDestroyDevice ||
         NULL == fFunctions.fEnumerateInstanceExtensionProperties ||
         NULL == fFunctions.fEnumerateDeviceExtensionProperties ||
         NULL == fFunctions.fEnumerateInstanceLayerProperties ||
-        NULL == fFunctions.fEnumerateDeviceLayerProperties ||
-        NULL == fFunctions.fGetDeviceQueue ||
-        NULL == fFunctions.fQueueSubmit ||
-        NULL == fFunctions.fQueueWaitIdle ||
-        NULL == fFunctions.fDeviceWaitIdle ||
-        NULL == fFunctions.fAllocateMemory ||
-        NULL == fFunctions.fFreeMemory ||
-        NULL == fFunctions.fMapMemory ||
-        NULL == fFunctions.fUnmapMemory ||
-        NULL == fFunctions.fFlushMappedMemoryRanges ||
+        NULL == fFunctions.fEnumerateDeviceLayerProperties || NULL == fFunctions.fGetDeviceQueue ||
+        NULL == fFunctions.fQueueSubmit || NULL == fFunctions.fQueueWaitIdle ||
+        NULL == fFunctions.fDeviceWaitIdle || NULL == fFunctions.fAllocateMemory ||
+        NULL == fFunctions.fFreeMemory || NULL == fFunctions.fMapMemory ||
+        NULL == fFunctions.fUnmapMemory || NULL == fFunctions.fFlushMappedMemoryRanges ||
         NULL == fFunctions.fInvalidateMappedMemoryRanges ||
-        NULL == fFunctions.fGetDeviceMemoryCommitment ||
-        NULL == fFunctions.fBindBufferMemory ||
-        NULL == fFunctions.fBindImageMemory ||
-        NULL == fFunctions.fGetBufferMemoryRequirements ||
+        NULL == fFunctions.fGetDeviceMemoryCommitment || NULL == fFunctions.fBindBufferMemory ||
+        NULL == fFunctions.fBindImageMemory || NULL == fFunctions.fGetBufferMemoryRequirements ||
         NULL == fFunctions.fGetImageMemoryRequirements ||
         NULL == fFunctions.fGetImageSparseMemoryRequirements ||
         NULL == fFunctions.fGetPhysicalDeviceSparseImageFormatProperties ||
-        NULL == fFunctions.fQueueBindSparse ||
-        NULL == fFunctions.fCreateFence ||
-        NULL == fFunctions.fDestroyFence ||
-        NULL == fFunctions.fResetFences ||
-        NULL == fFunctions.fGetFenceStatus ||
-        NULL == fFunctions.fWaitForFences ||
-        NULL == fFunctions.fCreateSemaphore ||
-        NULL == fFunctions.fDestroySemaphore ||
-        NULL == fFunctions.fCreateEvent ||
-        NULL == fFunctions.fDestroyEvent ||
-        NULL == fFunctions.fGetEventStatus ||
-        NULL == fFunctions.fSetEvent ||
-        NULL == fFunctions.fResetEvent ||
-        NULL == fFunctions.fCreateQueryPool ||
-        NULL == fFunctions.fDestroyQueryPool ||
-        NULL == fFunctions.fGetQueryPoolResults ||
-        NULL == fFunctions.fCreateBuffer ||
-        NULL == fFunctions.fDestroyBuffer ||
-        NULL == fFunctions.fCreateBufferView ||
-        NULL == fFunctions.fDestroyBufferView ||
-        NULL == fFunctions.fCreateImage ||
-        NULL == fFunctions.fDestroyImage ||
-        NULL == fFunctions.fGetImageSubresourceLayout ||
-        NULL == fFunctions.fCreateImageView ||
-        NULL == fFunctions.fDestroyImageView ||
-        NULL == fFunctions.fCreateShaderModule ||
-        NULL == fFunctions.fDestroyShaderModule ||
-        NULL == fFunctions.fCreatePipelineCache ||
-        NULL == fFunctions.fDestroyPipelineCache ||
-        NULL == fFunctions.fGetPipelineCacheData ||
-        NULL == fFunctions.fMergePipelineCaches ||
-        NULL == fFunctions.fCreateGraphicsPipelines ||
-        NULL == fFunctions.fCreateComputePipelines ||
-        NULL == fFunctions.fDestroyPipeline ||
-        NULL == fFunctions.fCreatePipelineLayout ||
-        NULL == fFunctions.fDestroyPipelineLayout ||
-        NULL == fFunctions.fCreateSampler ||
-        NULL == fFunctions.fDestroySampler ||
+        NULL == fFunctions.fQueueBindSparse || NULL == fFunctions.fCreateFence ||
+        NULL == fFunctions.fDestroyFence || NULL == fFunctions.fResetFences ||
+        NULL == fFunctions.fGetFenceStatus || NULL == fFunctions.fWaitForFences ||
+        NULL == fFunctions.fCreateSemaphore || NULL == fFunctions.fDestroySemaphore ||
+        NULL == fFunctions.fCreateEvent || NULL == fFunctions.fDestroyEvent ||
+        NULL == fFunctions.fGetEventStatus || NULL == fFunctions.fSetEvent ||
+        NULL == fFunctions.fResetEvent || NULL == fFunctions.fCreateQueryPool ||
+        NULL == fFunctions.fDestroyQueryPool || NULL == fFunctions.fGetQueryPoolResults ||
+        NULL == fFunctions.fCreateBuffer || NULL == fFunctions.fDestroyBuffer ||
+        NULL == fFunctions.fCreateBufferView || NULL == fFunctions.fDestroyBufferView ||
+        NULL == fFunctions.fCreateImage || NULL == fFunctions.fDestroyImage ||
+        NULL == fFunctions.fGetImageSubresourceLayout || NULL == fFunctions.fCreateImageView ||
+        NULL == fFunctions.fDestroyImageView || NULL == fFunctions.fCreateShaderModule ||
+        NULL == fFunctions.fDestroyShaderModule || NULL == fFunctions.fCreatePipelineCache ||
+        NULL == fFunctions.fDestroyPipelineCache || NULL == fFunctions.fGetPipelineCacheData ||
+        NULL == fFunctions.fMergePipelineCaches || NULL == fFunctions.fCreateGraphicsPipelines ||
+        NULL == fFunctions.fCreateComputePipelines || NULL == fFunctions.fDestroyPipeline ||
+        NULL == fFunctions.fCreatePipelineLayout || NULL == fFunctions.fDestroyPipelineLayout ||
+        NULL == fFunctions.fCreateSampler || NULL == fFunctions.fDestroySampler ||
         NULL == fFunctions.fCreateDescriptorSetLayout ||
         NULL == fFunctions.fDestroyDescriptorSetLayout ||
-        NULL == fFunctions.fCreateDescriptorPool ||
-        NULL == fFunctions.fDestroyDescriptorPool ||
-        NULL == fFunctions.fResetDescriptorPool ||
-        NULL == fFunctions.fAllocateDescriptorSets ||
-        NULL == fFunctions.fFreeDescriptorSets ||
-        NULL == fFunctions.fUpdateDescriptorSets ||
-        NULL == fFunctions.fCreateFramebuffer ||
-        NULL == fFunctions.fDestroyFramebuffer ||
-        NULL == fFunctions.fCreateRenderPass ||
-        NULL == fFunctions.fDestroyRenderPass ||
-        NULL == fFunctions.fGetRenderAreaGranularity ||
-        NULL == fFunctions.fCreateCommandPool ||
-        NULL == fFunctions.fDestroyCommandPool ||
-        NULL == fFunctions.fResetCommandPool ||
-        NULL == fFunctions.fAllocateCommandBuffers ||
-        NULL == fFunctions.fFreeCommandBuffers ||
-        NULL == fFunctions.fBeginCommandBuffer ||
-        NULL == fFunctions.fEndCommandBuffer ||
-        NULL == fFunctions.fResetCommandBuffer ||
-        NULL == fFunctions.fCmdBindPipeline ||
-        NULL == fFunctions.fCmdSetViewport ||
-        NULL == fFunctions.fCmdSetScissor ||
-        NULL == fFunctions.fCmdSetLineWidth ||
-        NULL == fFunctions.fCmdSetDepthBias ||
-        NULL == fFunctions.fCmdSetBlendConstants ||
-        NULL == fFunctions.fCmdSetDepthBounds ||
+        NULL == fFunctions.fCreateDescriptorPool || NULL == fFunctions.fDestroyDescriptorPool ||
+        NULL == fFunctions.fResetDescriptorPool || NULL == fFunctions.fAllocateDescriptorSets ||
+        NULL == fFunctions.fFreeDescriptorSets || NULL == fFunctions.fUpdateDescriptorSets ||
+        NULL == fFunctions.fCreateFramebuffer || NULL == fFunctions.fDestroyFramebuffer ||
+        NULL == fFunctions.fCreateRenderPass || NULL == fFunctions.fDestroyRenderPass ||
+        NULL == fFunctions.fGetRenderAreaGranularity || NULL == fFunctions.fCreateCommandPool ||
+        NULL == fFunctions.fDestroyCommandPool || NULL == fFunctions.fResetCommandPool ||
+        NULL == fFunctions.fAllocateCommandBuffers || NULL == fFunctions.fFreeCommandBuffers ||
+        NULL == fFunctions.fBeginCommandBuffer || NULL == fFunctions.fEndCommandBuffer ||
+        NULL == fFunctions.fResetCommandBuffer || NULL == fFunctions.fCmdBindPipeline ||
+        NULL == fFunctions.fCmdSetViewport || NULL == fFunctions.fCmdSetScissor ||
+        NULL == fFunctions.fCmdSetLineWidth || NULL == fFunctions.fCmdSetDepthBias ||
+        NULL == fFunctions.fCmdSetBlendConstants || NULL == fFunctions.fCmdSetDepthBounds ||
         NULL == fFunctions.fCmdSetStencilCompareMask ||
-        NULL == fFunctions.fCmdSetStencilWriteMask ||
-        NULL == fFunctions.fCmdSetStencilReference ||
-        NULL == fFunctions.fCmdBindDescriptorSets ||
-        NULL == fFunctions.fCmdBindIndexBuffer ||
-        NULL == fFunctions.fCmdBindVertexBuffers ||
-        NULL == fFunctions.fCmdDraw ||
-        NULL == fFunctions.fCmdDrawIndexed ||
-        NULL == fFunctions.fCmdDrawIndirect ||
-        NULL == fFunctions.fCmdDrawIndexedIndirect ||
-        NULL == fFunctions.fCmdDispatch ||
-        NULL == fFunctions.fCmdDispatchIndirect ||
-        NULL == fFunctions.fCmdCopyBuffer ||
-        NULL == fFunctions.fCmdCopyImage ||
-        NULL == fFunctions.fCmdBlitImage ||
-        NULL == fFunctions.fCmdCopyBufferToImage ||
-        NULL == fFunctions.fCmdCopyImageToBuffer ||
-        NULL == fFunctions.fCmdUpdateBuffer ||
-        NULL == fFunctions.fCmdFillBuffer ||
-        NULL == fFunctions.fCmdClearColorImage ||
-        NULL == fFunctions.fCmdClearDepthStencilImage ||
-        NULL == fFunctions.fCmdClearAttachments ||
-        NULL == fFunctions.fCmdResolveImage ||
-        NULL == fFunctions.fCmdSetEvent ||
-        NULL == fFunctions.fCmdResetEvent ||
-        NULL == fFunctions.fCmdWaitEvents ||
-        NULL == fFunctions.fCmdPipelineBarrier ||
-        NULL == fFunctions.fCmdBeginQuery ||
-        NULL == fFunctions.fCmdEndQuery ||
-        NULL == fFunctions.fCmdResetQueryPool ||
-        NULL == fFunctions.fCmdWriteTimestamp ||
-        NULL == fFunctions.fCmdCopyQueryPoolResults ||
-        NULL == fFunctions.fCmdPushConstants ||
-        NULL == fFunctions.fCmdBeginRenderPass ||
-        NULL == fFunctions.fCmdNextSubpass ||
-        NULL == fFunctions.fCmdEndRenderPass ||
-        NULL == fFunctions.fCmdExecuteCommands) {
+        NULL == fFunctions.fCmdSetStencilWriteMask || NULL == fFunctions.fCmdSetStencilReference ||
+        NULL == fFunctions.fCmdBindDescriptorSets || NULL == fFunctions.fCmdBindIndexBuffer ||
+        NULL == fFunctions.fCmdBindVertexBuffers || NULL == fFunctions.fCmdDraw ||
+        NULL == fFunctions.fCmdDrawIndexed || NULL == fFunctions.fCmdDrawIndirect ||
+        NULL == fFunctions.fCmdDrawIndexedIndirect || NULL == fFunctions.fCmdDispatch ||
+        NULL == fFunctions.fCmdDispatchIndirect || NULL == fFunctions.fCmdCopyBuffer ||
+        NULL == fFunctions.fCmdCopyImage || NULL == fFunctions.fCmdBlitImage ||
+        NULL == fFunctions.fCmdCopyBufferToImage || NULL == fFunctions.fCmdCopyImageToBuffer ||
+        NULL == fFunctions.fCmdUpdateBuffer || NULL == fFunctions.fCmdFillBuffer ||
+        NULL == fFunctions.fCmdClearColorImage || NULL == fFunctions.fCmdClearDepthStencilImage ||
+        NULL == fFunctions.fCmdClearAttachments || NULL == fFunctions.fCmdResolveImage ||
+        NULL == fFunctions.fCmdSetEvent || NULL == fFunctions.fCmdResetEvent ||
+        NULL == fFunctions.fCmdWaitEvents || NULL == fFunctions.fCmdPipelineBarrier ||
+        NULL == fFunctions.fCmdBeginQuery || NULL == fFunctions.fCmdEndQuery ||
+        NULL == fFunctions.fCmdResetQueryPool || NULL == fFunctions.fCmdWriteTimestamp ||
+        NULL == fFunctions.fCmdCopyQueryPoolResults || NULL == fFunctions.fCmdPushConstants ||
+        NULL == fFunctions.fCmdBeginRenderPass || NULL == fFunctions.fCmdNextSubpass ||
+        NULL == fFunctions.fCmdEndRenderPass || NULL == fFunctions.fCmdExecuteCommands) {
         RETURN_FALSE_INTERFACE
     }
 
@@ -327,4 +268,3 @@ bool GrVkInterface::validate(uint32_t extensionFlags) const {
     }
     return true;
 }
-

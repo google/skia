@@ -5,20 +5,14 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrStencilSettings.h"
 
 #include "GrProcessor.h"
 
 constexpr const GrUserStencilSettings gUnused(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kAlwaysIfInClip,
-        0xffff,
-        GrUserStencilOp::kKeep,
-        GrUserStencilOp::kKeep,
-        0x0000>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kAlwaysIfInClip, 0xffff,
+                                          GrUserStencilOp::kKeep, GrUserStencilOp::kKeep,
+                                          0x0000>());
 
 GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fFrontFlags[0] & gUnused.fBackFlags[0]));
 
@@ -71,13 +65,13 @@ bool GrStencilSettings::operator==(const GrStencilSettings& that) const {
     if ((kInvalid_PrivateFlag | kDisabled_StencilFlag) & (fFlags | that.fFlags)) {
         // At least one is invalid and/or disabled.
         if (kInvalid_PrivateFlag & (fFlags | that.fFlags)) {
-            return false; // We never allow invalid stencils to be equal.
+            return false;  // We never allow invalid stencils to be equal.
         }
         // They're only equal if both are disabled.
         return kDisabled_StencilFlag & (fFlags & that.fFlags);
     }
     if (kSingleSided_StencilFlag & (fFlags & that.fFlags)) {
-        return 0 == memcmp(&fFront, &that.fFront, sizeof(Face)); // Both are single sided.
+        return 0 == memcmp(&fFront, &that.fFront, sizeof(Face));  // Both are single sided.
     } else {
         return 0 == memcmp(&fFront, &that.fFront, 2 * sizeof(Face));
         GR_STATIC_ASSERT(sizeof(Face) ==
@@ -100,22 +94,17 @@ bool GrStencilSettings::operator==(const GrStencilSettings& that) const {
 }
 
 static constexpr GrStencilTest gUserStencilTestToRaw[kGrUserStencilTestCount] = {
-    // Tests that respect the clip.
-    GrStencilTest::kAlways,  // kAlwaysIfInClip (This is only for when there is not a stencil clip).
-    GrStencilTest::kEqual,   // kEqualIfInClip.
-    GrStencilTest::kLess,    // kLessIfInClip.
-    GrStencilTest::kLEqual,  // kLEqualIfInClip.
+        // Tests that respect the clip.
+        GrStencilTest::kAlways,  // kAlwaysIfInClip (This is only for when there is not a stencil
+                                 // clip).
+        GrStencilTest::kEqual,   // kEqualIfInClip.
+        GrStencilTest::kLess,    // kLessIfInClip.
+        GrStencilTest::kLEqual,  // kLEqualIfInClip.
 
-    // Tests that ignore the clip.
-    GrStencilTest::kAlways,
-    GrStencilTest::kNever,
-    GrStencilTest::kGreater,
-    GrStencilTest::kGEqual,
-    GrStencilTest::kLess,
-    GrStencilTest::kLEqual,
-    GrStencilTest::kEqual,
-    GrStencilTest::kNotEqual
-};
+        // Tests that ignore the clip.
+        GrStencilTest::kAlways, GrStencilTest::kNever, GrStencilTest::kGreater,
+        GrStencilTest::kGEqual, GrStencilTest::kLess, GrStencilTest::kLEqual, GrStencilTest::kEqual,
+        GrStencilTest::kNotEqual};
 
 GR_STATIC_ASSERT(0 == (int)GrUserStencilTest::kAlwaysIfInClip);
 GR_STATIC_ASSERT(1 == (int)GrUserStencilTest::kEqualIfInClip);
@@ -131,25 +120,22 @@ GR_STATIC_ASSERT(10 == (int)GrUserStencilTest::kEqual);
 GR_STATIC_ASSERT(11 == (int)GrUserStencilTest::kNotEqual);
 
 static constexpr GrStencilOp gUserStencilOpToRaw[kGrUserStencilOpCount] = {
-    GrStencilOp::kKeep,
+        GrStencilOp::kKeep,
 
-    // Ops that only modify user bits.
-    GrStencilOp::kZero,
-    GrStencilOp::kReplace,
-    GrStencilOp::kInvert,
-    GrStencilOp::kIncWrap,
-    GrStencilOp::kDecWrap,
-    GrStencilOp::kIncClamp,  // kIncMaybeClamp.
-    GrStencilOp::kDecClamp,  // kDecMaybeClamp.
+        // Ops that only modify user bits.
+        GrStencilOp::kZero, GrStencilOp::kReplace, GrStencilOp::kInvert, GrStencilOp::kIncWrap,
+        GrStencilOp::kDecWrap,
+        GrStencilOp::kIncClamp,  // kIncMaybeClamp.
+        GrStencilOp::kDecClamp,  // kDecMaybeClamp.
 
-    // Ops that only modify the clip bit.
-    GrStencilOp::kZero,      // kZeroClipBit.
-    GrStencilOp::kReplace,   // kSetClipBit.
-    GrStencilOp::kInvert,    // kInvertClipBit.
+        // Ops that only modify the clip bit.
+        GrStencilOp::kZero,     // kZeroClipBit.
+        GrStencilOp::kReplace,  // kSetClipBit.
+        GrStencilOp::kInvert,   // kInvertClipBit.
 
-    // Ops that modify clip and user bits.
-    GrStencilOp::kReplace,   // kSetClipAndReplaceUserBits.
-    GrStencilOp::kZero       // kZeroClipAndUserBits.
+        // Ops that modify clip and user bits.
+        GrStencilOp::kReplace,  // kSetClipAndReplaceUserBits.
+        GrStencilOp::kZero      // kZeroClipAndUserBits.
 };
 
 GR_STATIC_ASSERT(0 == (int)GrUserStencilOp::kKeep);
@@ -176,17 +162,19 @@ void GrStencilSettings::Face::reset(const GrUserStencilSettings::Face& user, boo
     int userMask = clipBit - 1;
 
     GrUserStencilOp maxOp = SkTMax(user.fPassOp, user.fFailOp);
-    SkDEBUGCODE(GrUserStencilOp otherOp = SkTMin(user.fPassOp, user.fFailOp);)
-    if (maxOp <= kLastUserOnlyStencilOp) {
+    SkDEBUGCODE(GrUserStencilOp otherOp =
+                        SkTMin(user.fPassOp, user.fFailOp);) if (maxOp <= kLastUserOnlyStencilOp) {
         // Ops that only modify user bits.
         fWriteMask = user.fWriteMask & userMask;
         SkASSERT(otherOp <= kLastUserOnlyStencilOp);
-    } else if (maxOp <= kLastClipOnlyStencilOp) {
+    }
+    else if (maxOp <= kLastClipOnlyStencilOp) {
         // Ops that only modify the clip bit.
         fWriteMask = clipBit;
         SkASSERT(GrUserStencilOp::kKeep == otherOp ||
                  (otherOp > kLastUserOnlyStencilOp && otherOp <= kLastClipOnlyStencilOp));
-    } else {
+    }
+    else {
         // Ops that modify both clip and user bits.
         fWriteMask = clipBit | (user.fWriteMask & userMask);
         SkASSERT(GrUserStencilOp::kKeep == otherOp || otherOp > kLastClipOnlyStencilOp);
@@ -225,145 +213,94 @@ void GrStencilSettings::Face::setDisabled() {
 ///////
 // Replace
 static constexpr GrUserStencilSettings gUserToClipReplace(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kNotEqual,
-        0xffff,
-        GrUserStencilOp::kSetClipAndReplaceUserBits,
-        GrUserStencilOp::kZeroClipAndUserBits,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                          GrUserStencilOp::kSetClipAndReplaceUserBits,
+                                          GrUserStencilOp::kZeroClipAndUserBits, 0xffff>());
 
 static constexpr GrUserStencilSettings gInvUserToClipReplace(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kSetClipAndReplaceUserBits,
-        GrUserStencilOp::kZeroClipAndUserBits,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kEqual, 0xffff,
+                                          GrUserStencilOp::kSetClipAndReplaceUserBits,
+                                          GrUserStencilOp::kZeroClipAndUserBits, 0xffff>());
 
 ///////
 // Intersect
 static constexpr GrUserStencilSettings gUserToClipIsect(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kLessIfInClip, // "0 < userBits" is equivalent to "0 != userBits".
-        0xffff,
-        GrUserStencilOp::kSetClipAndReplaceUserBits,
-        GrUserStencilOp::kZeroClipAndUserBits,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000,
+                                          GrUserStencilTest::kLessIfInClip,  // "0 < userBits" is
+                                                                             // equivalent to "0 !=
+                                                                             // userBits".
+                                          0xffff, GrUserStencilOp::kSetClipAndReplaceUserBits,
+                                          GrUserStencilOp::kZeroClipAndUserBits, 0xffff>());
 
 ///////
 // Difference
 static constexpr GrUserStencilSettings gUserToClipDiff(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqualIfInClip,
-        0xffff,
-        GrUserStencilOp::kSetClipAndReplaceUserBits,
-        GrUserStencilOp::kZeroClipAndUserBits,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kEqualIfInClip, 0xffff,
+                                          GrUserStencilOp::kSetClipAndReplaceUserBits,
+                                          GrUserStencilOp::kZeroClipAndUserBits, 0xffff>());
 
 ///////
 // Union
 static constexpr GrUserStencilSettings gUserToClipUnion(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kNotEqual,
-        0xffff,
-        GrUserStencilOp::kSetClipAndReplaceUserBits,
-        GrUserStencilOp::kKeep,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                          GrUserStencilOp::kSetClipAndReplaceUserBits,
+                                          GrUserStencilOp::kKeep, 0xffff>());
 
-static constexpr GrUserStencilSettings gInvUserToClipUnionPass0( // Does not zero user bits.
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kSetClipBit,
-        GrUserStencilOp::kKeep,
-        0x0000>()
-);
+static constexpr GrUserStencilSettings gInvUserToClipUnionPass0(  // Does not zero user bits.
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kEqual, 0xffff,
+                                          GrUserStencilOp::kSetClipBit, GrUserStencilOp::kKeep,
+                                          0x0000>());
 
 ///////
 // Xor
-static constexpr GrUserStencilSettings gUserToClipXorPass0( // Does not zero user bits.
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kNotEqual,
-        0xffff,
-        GrUserStencilOp::kInvertClipBit,
-        GrUserStencilOp::kKeep,
-        0x0000>()
-);
+static constexpr GrUserStencilSettings gUserToClipXorPass0(  // Does not zero user bits.
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                          GrUserStencilOp::kInvertClipBit, GrUserStencilOp::kKeep,
+                                          0x0000>());
 
-static constexpr GrUserStencilSettings gInvUserToClipXorPass0( // Does not zero user bits.
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kInvertClipBit,
-        GrUserStencilOp::kKeep,
-        0x0000>()
-);
+static constexpr GrUserStencilSettings gInvUserToClipXorPass0(  // Does not zero user bits.
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kEqual, 0xffff,
+                                          GrUserStencilOp::kInvertClipBit, GrUserStencilOp::kKeep,
+                                          0x0000>());
 
 ///////
 // Reverse Diff
-static constexpr GrUserStencilSettings gUserToClipRDiffPass0( // Does not zero user bits.
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kNotEqual,
-        0xffff,
-        GrUserStencilOp::kInvertClipBit,
-        GrUserStencilOp::kZeroClipBit,
-        0x0000>()
-);
+static constexpr GrUserStencilSettings gUserToClipRDiffPass0(  // Does not zero user bits.
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                          GrUserStencilOp::kInvertClipBit,
+                                          GrUserStencilOp::kZeroClipBit, 0x0000>());
 
-static constexpr GrUserStencilSettings gInvUserToClipRDiffPass0( // Does not zero user bits.
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kInvertClipBit,
-        GrUserStencilOp::kZeroClipBit,
-        0x0000>()
-);
+static constexpr GrUserStencilSettings gInvUserToClipRDiffPass0(  // Does not zero user bits.
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kEqual, 0xffff,
+                                          GrUserStencilOp::kInvertClipBit,
+                                          GrUserStencilOp::kZeroClipBit, 0x0000>());
 
 ///////
 // Second pass to clear user bits (only needed sometimes)
 static constexpr GrUserStencilSettings gZeroUserBits(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kNotEqual,
-        0xffff,
-        GrUserStencilOp::kZero,
-        GrUserStencilOp::kKeep,
-        0xffff>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kNotEqual, 0xffff,
+                                          GrUserStencilOp::kZero, GrUserStencilOp::kKeep,
+                                          0xffff>());
 
 static constexpr const GrUserStencilSettings* gUserToClipTable[2][1 + SkRegion::kLastOp][3] = {
-    {  /* Normal fill. */
-        {&gUserToClipDiff,           nullptr,         nullptr},  // kDifference_Op.
-        {&gUserToClipIsect,          nullptr,         nullptr},  // kIntersect_Op.
-        {&gUserToClipUnion,          nullptr,         nullptr},  // kUnion_Op.
-        {&gUserToClipXorPass0,       &gZeroUserBits,  nullptr},  // kXOR_Op.
-        {&gUserToClipRDiffPass0,     &gZeroUserBits,  nullptr},  // kReverseDifference_Op.
-        {&gUserToClipReplace,        nullptr,         nullptr}   // kReplace_Op.
+        {
+                /* Normal fill. */
+                {&gUserToClipDiff, nullptr, nullptr},               // kDifference_Op.
+                {&gUserToClipIsect, nullptr, nullptr},              // kIntersect_Op.
+                {&gUserToClipUnion, nullptr, nullptr},              // kUnion_Op.
+                {&gUserToClipXorPass0, &gZeroUserBits, nullptr},    // kXOR_Op.
+                {&gUserToClipRDiffPass0, &gZeroUserBits, nullptr},  // kReverseDifference_Op.
+                {&gUserToClipReplace, nullptr, nullptr}             // kReplace_Op.
 
-    }, /* Inverse fill. */ {
-        {&gUserToClipIsect,          nullptr,         nullptr},  // ~diff (aka isect).
-        {&gUserToClipDiff,           nullptr,         nullptr},  // ~isect (aka diff).
-        {&gInvUserToClipUnionPass0,  &gZeroUserBits,  nullptr},  // ~union.
-        {&gInvUserToClipXorPass0,    &gZeroUserBits,  nullptr},  // ~xor.
-        {&gInvUserToClipRDiffPass0,  &gZeroUserBits,  nullptr},  // ~reverse diff.
-        {&gInvUserToClipReplace,     nullptr,         nullptr}   // ~replace.
-    }
-};
+        },
+        /* Inverse fill. */ {
+                {&gUserToClipIsect, nullptr, nullptr},                 // ~diff (aka isect).
+                {&gUserToClipDiff, nullptr, nullptr},                  // ~isect (aka diff).
+                {&gInvUserToClipUnionPass0, &gZeroUserBits, nullptr},  // ~union.
+                {&gInvUserToClipXorPass0, &gZeroUserBits, nullptr},    // ~xor.
+                {&gInvUserToClipRDiffPass0, &gZeroUserBits, nullptr},  // ~reverse diff.
+                {&gInvUserToClipReplace, nullptr, nullptr}             // ~replace.
+        }};
 
 GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
 GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
@@ -382,52 +319,32 @@ GR_STATIC_ASSERT(5 == SkRegion::kReplace_Op);
 // this one only works if used right after stencil clip was cleared.
 // Our clip mask creation code doesn't allow midstream replace ops.
 static constexpr GrUserStencilSettings gReplaceClip(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kAlways,
-        0xffff,
-        GrUserStencilOp::kSetClipBit,
-        GrUserStencilOp::kSetClipBit,
-        0x0000>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kAlways, 0xffff,
+                                          GrUserStencilOp::kSetClipBit,
+                                          GrUserStencilOp::kSetClipBit, 0x0000>());
 
 static constexpr GrUserStencilSettings gUnionClip(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kAlwaysIfInClip,
-        0xffff,
-        GrUserStencilOp::kKeep,
-        GrUserStencilOp::kSetClipBit,
-        0x0000>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kAlwaysIfInClip, 0xffff,
+                                          GrUserStencilOp::kKeep, GrUserStencilOp::kSetClipBit,
+                                          0x0000>());
 
 static constexpr GrUserStencilSettings gXorClip(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kAlways,
-        0xffff,
-        GrUserStencilOp::kInvertClipBit,
-        GrUserStencilOp::kInvertClipBit,
-        0x0000>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kAlways, 0xffff,
+                                          GrUserStencilOp::kInvertClipBit,
+                                          GrUserStencilOp::kInvertClipBit, 0x0000>());
 
 static constexpr GrUserStencilSettings gDiffClip(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kAlwaysIfInClip,
-        0xffff,
-        GrUserStencilOp::kZeroClipBit,
-        GrUserStencilOp::kKeep,
-        0x0000>()
-);
+        GrUserStencilSettings::StaticInit<0x0000, GrUserStencilTest::kAlwaysIfInClip, 0xffff,
+                                          GrUserStencilOp::kZeroClipBit, GrUserStencilOp::kKeep,
+                                          0x0000>());
 
 static constexpr const GrUserStencilSettings* gDirectDrawTable[1 + SkRegion::kLastOp][2] = {
-    {&gDiffClip,     nullptr},  // kDifference_Op.
-    {nullptr,        nullptr},  // kIntersect_Op.
-    {&gUnionClip,    nullptr},  // kUnion_Op.
-    {&gXorClip,      nullptr},  // kXOR_Op.
-    {nullptr,        nullptr},  // kReverseDifference_Op.
-    {&gReplaceClip,  nullptr}   // kReplace_Op.
+        {&gDiffClip, nullptr},    // kDifference_Op.
+        {nullptr, nullptr},       // kIntersect_Op.
+        {&gUnionClip, nullptr},   // kUnion_Op.
+        {&gXorClip, nullptr},     // kXOR_Op.
+        {nullptr, nullptr},       // kReverseDifference_Op.
+        {&gReplaceClip, nullptr}  // kReplace_Op.
 };
 
 GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
@@ -442,7 +359,7 @@ GrUserStencilSettings const* const* GrStencilSettings::GetClipPasses(SkRegion::O
                                                                      bool invertedFill,
                                                                      bool* drawDirectToClip) {
     SkASSERT((unsigned)op <= SkRegion::kLastOp);
-    if (canBeDirect && !invertedFill) { // TODO: inverse fill + intersect op can be direct.
+    if (canBeDirect && !invertedFill) {  // TODO: inverse fill + intersect op can be direct.
         GrUserStencilSettings const* const* directPass = gDirectDrawTable[op];
         if (directPass[0]) {
             *drawDirectToClip = true;

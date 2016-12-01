@@ -8,9 +8,9 @@
 #include "GrMemoryPool.h"
 
 #ifdef SK_DEBUG
-    #define VALIDATE this->validate()
+#define VALIDATE this->validate()
 #else
-    #define VALIDATE
+#define VALIDATE
 #endif
 
 constexpr size_t GrMemoryPool::kSmallestMinAllocSize;
@@ -119,22 +119,21 @@ void GrMemoryPool::release(void* p) {
 
 GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
     blockSize = SkTMax<size_t>(blockSize, kHeaderSize);
-    BlockHeader* block =
-        reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
+    BlockHeader* block = reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
     // we assume malloc gives us aligned memory
     SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
     SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
     block->fLiveCount = 0;
     block->fFreeSize = blockSize - kHeaderSize;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
-    block->fPrevPtr = 0; // gcc warns on assigning nullptr to an intptr_t.
+    block->fPrevPtr = 0;  // gcc warns on assigning nullptr to an intptr_t.
     block->fSize = blockSize;
     return block;
 }
 
 void GrMemoryPool::DeleteBlock(BlockHeader* block) {
     SkASSERT(kAssignedMarker == block->fBlockSentinal);
-    SkDEBUGCODE(block->fBlockSentinal = kFreedMarker); // FWIW
+    SkDEBUGCODE(block->fBlockSentinal = kFreedMarker);  // FWIW
     sk_free(block);
 }
 
@@ -167,7 +166,7 @@ void GrMemoryPool::validate() {
             SkASSERT(totalSize == block->fSize);
         }
         if (!block->fLiveCount) {
-            SkASSERT(ptrOffset ==  kHeaderSize);
+            SkASSERT(ptrOffset == kHeaderSize);
             SkASSERT(userStart == block->fCurrPtr);
         } else {
             AllocHeader* allocData = reinterpret_cast<AllocHeader*>(userStart);

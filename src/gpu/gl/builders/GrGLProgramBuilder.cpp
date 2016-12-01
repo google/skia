@@ -29,8 +29,7 @@
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
-                                               const GrProgramDesc& desc,
-                                               GrGLGpu* gpu) {
+                                               const GrProgramDesc& desc, GrGLGpu* gpu) {
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
@@ -52,32 +51,22 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
 
 /////////////////////////////////////////////////////////////////////////////
 
-GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
-                                       const GrPipeline& pipeline,
+GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu, const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        const GrProgramDesc& desc)
     : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)
-    , fUniformHandler(this) {
-}
+    , fUniformHandler(this) {}
 
-const GrCaps* GrGLProgramBuilder::caps() const {
-    return fGpu->caps();
-}
+const GrCaps* GrGLProgramBuilder::caps() const { return fGpu->caps(); }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
-                                                 GrGLuint programId,
-                                                 GrGLenum type,
-                                                 SkTDArray<GrGLuint>* shaderIds) {
+bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader, GrGLuint programId,
+                                                 GrGLenum type, SkTDArray<GrGLuint>* shaderIds) {
     GrGLGpu* gpu = this->gpu();
-    GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
-                                                   programId,
-                                                   type,
-                                                   shader.fCompilerStrings.begin(),
-                                                   shader.fCompilerStringLengths.begin(),
-                                                   shader.fCompilerStrings.count(),
-                                                   gpu->stats());
+    GrGLuint shaderId = GrGLCompileAndAttachShader(
+            gpu->glContext(), programId, type, shader.fCompilerStrings.begin(),
+            shader.fCompilerStringLengths.begin(), shader.fCompilerStrings.count(), gpu->stats());
 
     if (!shaderId) {
         return false;
@@ -155,8 +144,8 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
                                      GrGLSLFragmentShaderBuilder::DeclaredColorOutputName()));
     }
     if (fFS.hasSecondaryOutput() && caps.shaderCaps()->mustDeclareFragmentShaderOutput()) {
-        GL_CALL(BindFragDataLocationIndexed(programID, 0, 1,
-                                  GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
+        GL_CALL(BindFragDataLocationIndexed(
+                programID, 0, 1, GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
     }
 
     // handle NVPR separable varyings
@@ -166,8 +155,8 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
     }
     int count = fVaryingHandler.fPathProcVaryingInfos.count();
     for (int i = 0; i < count; ++i) {
-        GL_CALL(BindFragmentInputLocation(programID, i,
-                                       fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
+        GL_CALL(BindFragmentInputLocation(
+                programID, i, fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
         fVaryingHandler.fPathProcVaryingInfos[i].fLocation = i;
     }
 }
@@ -178,15 +167,12 @@ bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID) {
     if (!linked) {
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
+        SkAutoMalloc log(sizeof(char) * (infoLen + 1));  // outside if for debugger
         if (infoLen > 0) {
             // retrieve length even though we don't need it to workaround
             // bug in chrome cmd buffer param validation.
             GrGLsizei length = GR_GL_INIT_ZERO;
-            GL_CALL(GetProgramInfoLog(programID,
-                                      infoLen+1,
-                                      &length,
-                                      (char*)log.get()));
+            GL_CALL(GetProgramInfoLog(programID, infoLen + 1, &length, (char*)log.get()));
             SkDebugf("%s", (char*)log.get());
         }
         SkDEBUGFAIL("Error linking program");
@@ -208,9 +194,8 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
     for (int i = 0; i < count; ++i) {
         GrGLint location;
         GL_CALL_RET(location, GetProgramResourceLocation(
-                                       programID,
-                                       GR_GL_FRAGMENT_INPUT,
-                                       fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
+                                      programID, GR_GL_FRAGMENT_INPUT,
+                                      fVaryingHandler.fPathProcVaryingInfos[i].fVariable.c_str()));
         fVaryingHandler.fPathProcVaryingInfos[i].fLocation = location;
     }
 }
@@ -222,20 +207,13 @@ void GrGLProgramBuilder::cleanupProgram(GrGLuint programID, const SkTDArray<GrGL
 }
 void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
     for (int i = 0; i < shaderIDs.count(); ++i) {
-      GL_CALL(DeleteShader(shaderIDs[i]));
+        GL_CALL(DeleteShader(shaderIDs[i]));
     }
 }
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return new GrGLProgram(fGpu,
-                           this->desc(),
-                           fUniformHandles,
-                           programID,
-                           fUniformHandler.fUniforms,
-                           fUniformHandler.fSamplers,
-                           fUniformHandler.fImageStorages,
-                           fVaryingHandler.fPathProcVaryingInfos,
-                           fGeometryProcessor,
-                           fXferProcessor,
-                           fFragmentProcessors);
+    return new GrGLProgram(fGpu, this->desc(), fUniformHandles, programID,
+                           fUniformHandler.fUniforms, fUniformHandler.fSamplers,
+                           fUniformHandler.fImageStorages, fVaryingHandler.fPathProcVaryingInfos,
+                           fGeometryProcessor, fXferProcessor, fFragmentProcessors);
 }

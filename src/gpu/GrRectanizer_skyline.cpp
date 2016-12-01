@@ -9,8 +9,7 @@
 #include "SkPoint.h"
 
 bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
-    if ((unsigned)width > (unsigned)this->width() ||
-        (unsigned)height > (unsigned)this->height()) {
+    if ((unsigned)width > (unsigned)this->width() || (unsigned)height > (unsigned)this->height()) {
         return false;
     }
 
@@ -38,7 +37,7 @@ bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
         loc->fX = bestX;
         loc->fY = bestY;
 
-        fAreaSoFar += width*height;
+        fAreaSoFar += width * height;
         return true;
     }
 
@@ -81,12 +80,12 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
     SkASSERT(newSegment.fY <= this->height());
 
     // delete width of the new skyline segment from following ones
-    for (int i = skylineIndex+1; i < fSkyline.count(); ++i) {
+    for (int i = skylineIndex + 1; i < fSkyline.count(); ++i) {
         // The new segment subsumes all or part of fSkyline[i]
-        SkASSERT(fSkyline[i-1].fX <= fSkyline[i].fX);
+        SkASSERT(fSkyline[i - 1].fX <= fSkyline[i].fX);
 
-        if (fSkyline[i].fX < fSkyline[i-1].fX + fSkyline[i-1].fWidth) {
-            int shrink = fSkyline[i-1].fX + fSkyline[i-1].fWidth - fSkyline[i].fX;
+        if (fSkyline[i].fX < fSkyline[i - 1].fX + fSkyline[i - 1].fWidth) {
+            int shrink = fSkyline[i - 1].fX + fSkyline[i - 1].fWidth - fSkyline[i].fX;
 
             fSkyline[i].fX += shrink;
             fSkyline[i].fWidth -= shrink;
@@ -105,10 +104,10 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
     }
 
     // merge fSkylines
-    for (int i = 0; i < fSkyline.count()-1; ++i) {
-        if (fSkyline[i].fY == fSkyline[i+1].fY) {
-            fSkyline[i].fWidth += fSkyline[i+1].fWidth;
-            fSkyline.remove(i+1);
+    for (int i = 0; i < fSkyline.count() - 1; ++i) {
+        if (fSkyline[i].fY == fSkyline[i + 1].fY) {
+            fSkyline[i].fWidth += fSkyline[i + 1].fWidth;
+            fSkyline.remove(i + 1);
             --i;
         }
     }

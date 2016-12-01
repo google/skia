@@ -235,7 +235,7 @@ bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat) {
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples) {
     switch (samples) {
-        case 0: // fall through
+        case 0:  // fall through
         case 1:
             *vkSamples = VK_SAMPLE_COUNT_1_BIT;
             return true;
@@ -280,10 +280,8 @@ shaderc_shader_kind vk_shader_stage_to_shaderc_kind(VkShaderStageFlagBits stage)
 }
 #endif
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
-                             VkShaderStageFlagBits stage,
-                             VkShaderModule* shaderModule,
+bool GrCompileVkShaderModule(const GrVkGpu* gpu, const char* shaderString,
+                             VkShaderStageFlagBits stage, VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo) {
     VkShaderModuleCreateInfo moduleCreateInfo;
     memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
@@ -301,11 +299,9 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
         moduleCreateInfo.codeSize = strlen(shaderString);
         moduleCreateInfo.pCode = (const uint32_t*)shaderString;
     } else {
-
 #if USE_SKSL
         bool result = gpu->shaderCompiler()->toSPIRV(vk_shader_stage_to_skiasl_kind(stage),
-                                                     SkString(shaderString),
-                                                     &code);
+                                                     SkString(shaderString), &code);
         if (!result) {
             SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
             return false;
@@ -318,13 +314,8 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
         shaderc_compile_options_t options = shaderc_compile_options_initialize();
 
         shaderc_shader_kind shadercStage = vk_shader_stage_to_shaderc_kind(stage);
-        result = shaderc_compile_into_spv(compiler,
-                                          shaderString,
-                                          strlen(shaderString),
-                                          shadercStage,
-                                          "shader",
-                                          "main",
-                                          options);
+        result = shaderc_compile_into_spv(compiler, shaderString, strlen(shaderString),
+                                          shadercStage, "shader", "main", options);
         shaderc_compile_options_release(options);
 #ifdef SK_DEBUG
         if (shaderc_result_get_num_errors(result)) {
@@ -332,17 +323,16 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
             SkDebugf("%s\n", shaderc_result_get_error_message(result));
             return false;
         }
-#endif // SK_DEBUG
+#endif  // SK_DEBUG
 
         moduleCreateInfo.codeSize = shaderc_result_get_length(result);
         moduleCreateInfo.pCode = (const uint32_t*)shaderc_result_get_bytes(result);
-#endif // USE_SKSL
+#endif  // USE_SKSL
     }
 
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
-                                                                     &moduleCreateInfo,
-                                                                     nullptr,
-                                                                     shaderModule));
+    VkResult err =
+            GR_VK_CALL(gpu->vkInterface(),
+                       CreateShaderModule(gpu->device(), &moduleCreateInfo, nullptr, shaderModule));
 
     if (!gpu->vkCaps().canUseGLSLForShaderModule()) {
 #if !USE_SKSL

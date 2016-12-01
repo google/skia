@@ -23,8 +23,8 @@ GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
     , fColorSpace(cs)
     , fUniqueID(uniqueID) {
     SkASSERT(SkIRect::MakeWH(original->width(), original->height()).contains(contentArea));
-    if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
-        contentArea.fRight < original->width() || contentArea.fBottom < original->height()) {
+    if (contentArea.fLeft > 0 || contentArea.fTop > 0 || contentArea.fRight < original->width() ||
+        contentArea.fBottom < original->height()) {
         fContentArea.set(contentArea);
     }
 }
@@ -101,14 +101,10 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
 }
 
 sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
-                                        const SkMatrix& origTextureMatrix,
-                                        const SkRect& origConstraintRect,
-                                        FilterConstraint filterConstraint,
-                                        bool coordsLimitedToConstraintRect,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace,
-                                        SkDestinationSurfaceColorMode colorMode) {
-
+        const SkMatrix& origTextureMatrix, const SkRect& origConstraintRect,
+        FilterConstraint filterConstraint, bool coordsLimitedToConstraintRect,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic, SkColorSpace* dstColorSpace,
+        SkDestinationSurfaceColorMode colorMode) {
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
     // Convert the constraintRect to be relative to the texture rather than the content area so
@@ -136,11 +132,9 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         contentArea = nullptr;
     }
 
-    DomainMode domainMode =
-        DetermineDomainMode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            texture->width(), texture->height(),
-                            contentArea, filterOrNullForBicubic,
-                            &domain);
+    DomainMode domainMode = DetermineDomainMode(
+            *constraintRect, filterConstraint, coordsLimitedToConstraintRect, texture->width(),
+            texture->height(), contentArea, filterOrNullForBicubic, &domain);
     if (kTightCopy_DomainMode == domainMode) {
         // TODO: Copy the texture and adjust the texture matrix (both parts need to consider
         // non-int constraint rect)
@@ -150,17 +144,15 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         SkASSERT(filterOrNullForBicubic &&
                  GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic);
         static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
-        domainMode =
-            DetermineDomainMode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                                texture->width(), texture->height(),
-                                contentArea, &kBilerp, &domain);
+        domainMode = DetermineDomainMode(*constraintRect, filterConstraint,
+                                         coordsLimitedToConstraintRect, texture->width(),
+                                         texture->height(), contentArea, &kBilerp, &domain);
         SkASSERT(kTightCopy_DomainMode != domainMode);
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     textureMatrix.postIDiv(texture->width(), texture->height());
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
-                                                                       dstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace, dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
                                                      textureMatrix, domainMode, domain,
                                                      filterOrNullForBicubic);

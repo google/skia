@@ -62,26 +62,20 @@ public:
     static const SkRect MakeTexelDomain(const GrTexture* texture, const SkIRect& texelRect) {
         SkScalar wInv = SK_Scalar1 / texture->width();
         SkScalar hInv = SK_Scalar1 / texture->height();
-        SkRect result = {
-            texelRect.fLeft * wInv,
-            texelRect.fTop * hInv,
-            texelRect.fRight * wInv,
-            texelRect.fBottom * hInv
-        };
+        SkRect result = {texelRect.fLeft * wInv, texelRect.fTop * hInv, texelRect.fRight * wInv,
+                         texelRect.fBottom * hInv};
         return result;
     }
 
-    static const SkRect MakeTexelDomainForMode(const GrTexture* texture, const SkIRect& texelRect, Mode mode) {
+    static const SkRect MakeTexelDomainForMode(const GrTexture* texture, const SkIRect& texelRect,
+                                               Mode mode) {
         // For Clamp mode, inset by half a texel.
         SkScalar wInv = SK_Scalar1 / texture->width();
         SkScalar hInv = SK_Scalar1 / texture->height();
         SkScalar inset = (mode == kClamp_Mode && !texelRect.isEmpty()) ? SK_ScalarHalf : 0;
-        return SkRect::MakeLTRB(
-            (texelRect.fLeft + inset) * wInv,
-            (texelRect.fTop + inset) * hInv,
-            (texelRect.fRight - inset) * wInv,
-            (texelRect.fBottom - inset) * hInv
-        );
+        return SkRect::MakeLTRB((texelRect.fLeft + inset) * wInv, (texelRect.fTop + inset) * hInv,
+                                (texelRect.fRight - inset) * wInv,
+                                (texelRect.fBottom - inset) * hInv);
     }
 
     bool operator==(const GrTextureDomain& that) const {
@@ -100,7 +94,7 @@ public:
             for (int i = 0; i < kPrevDomainCount; i++) {
                 fPrevDomain[i] = SK_FloatNaN;
             }
-            SkDEBUGCODE(fMode = (Mode) -1;)
+            SkDEBUGCODE(fMode = (Mode)-1;)
         }
 
         /**
@@ -113,12 +107,9 @@ public:
          * @param inModulateColor   if non-nullptr the sampled color will be modulated with this
          *                          expression before being written to outColor.
          */
-        void sampleTexture(GrGLSLShaderBuilder* builder,
-                           GrGLSLUniformHandler* uniformHandler,
-                           const GrShaderCaps* shaderCaps,
-                           const GrTextureDomain& textureDomain,
-                           const char* outColor,
-                           const SkString& inCoords,
+        void sampleTexture(GrGLSLShaderBuilder* builder, GrGLSLUniformHandler* uniformHandler,
+                           const GrShaderCaps* shaderCaps, const GrTextureDomain& textureDomain,
+                           const char* outColor, const SkString& inCoords,
                            GrGLSLFragmentProcessor::SamplerHandle sampler,
                            const char* inModulateColor = nullptr);
 
@@ -131,7 +122,7 @@ public:
                      GrSurfaceOrigin textureOrigin);
 
         enum {
-            kDomainKeyBits = 2, // See DomainKey().
+            kDomainKeyBits = 2,  // See DomainKey().
         };
 
         /**
@@ -145,16 +136,15 @@ public:
 
     private:
         static const int kPrevDomainCount = 4;
-        SkDEBUGCODE(Mode                        fMode;)
-        GrGLSLProgramDataManager::UniformHandle fDomainUni;
-        SkString                                fDomainName;
-        float                                   fPrevDomain[kPrevDomainCount];
+        SkDEBUGCODE(Mode fMode;) GrGLSLProgramDataManager::UniformHandle fDomainUni;
+        SkString fDomainName;
+        float fPrevDomain[kPrevDomainCount];
     };
 
 protected:
-    Mode    fMode;
-    SkRect  fDomain;
-    int     fIndex;
+    Mode fMode;
+    SkRect fDomain;
+    int fIndex;
 
     typedef GrSingleTextureEffect INHERITED;
 };
@@ -163,22 +153,18 @@ protected:
  * A basic texture effect that uses GrTextureDomain.
  */
 class GrTextureDomainEffect : public GrSingleTextureEffect {
-
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture*,
-                                           sk_sp<GrColorSpaceXform>,
-                                           const SkMatrix&,
-                                           const SkRect& domain,
-                                           GrTextureDomain::Mode,
+    static sk_sp<GrFragmentProcessor> Make(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                                           const SkRect& domain, GrTextureDomain::Mode,
                                            GrSamplerParams::FilterMode filterMode);
 
     const char* name() const override { return "TextureDomain"; }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
-                    fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
-                    fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom);
+        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]", fTextureDomain.domain().fLeft,
+                    fTextureDomain.domain().fTop, fTextureDomain.domain().fRight,
+                    fTextureDomain.domain().fBottom);
         str.append(INHERITED::dumpInfo());
         return str;
     }
@@ -186,12 +172,8 @@ public:
 private:
     GrTextureDomain fTextureDomain;
 
-    GrTextureDomainEffect(GrTexture*,
-                          sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
-                          const SkRect& domain,
-                          GrTextureDomain::Mode,
-                          GrSamplerParams::FilterMode);
+    GrTextureDomainEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                          const SkRect& domain, GrTextureDomain::Mode, GrSamplerParams::FilterMode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

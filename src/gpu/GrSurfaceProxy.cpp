@@ -19,10 +19,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     , fDesc(fTarget->desc())
     , fFit(fit)
     , fBudgeted(fTarget->resourcePriv().isBudgeted())
-    , fUniqueID(fTarget->uniqueID()) // Note: converting from unique resource ID to a proxy ID!
+    , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
     , fGpuMemorySize(kInvalidGpuMemorySize)
-    , fLastOpList(nullptr) {
-}
+    , fLastOpList(nullptr) {}
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     if (fLastOpList) {
@@ -49,14 +48,14 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
 
 #ifdef SK_DEBUG
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
-        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
 #endif
 
     return fTarget;
 }
 
-int GrSurfaceProxy::worstCaseWidth() const { 
+int GrSurfaceProxy::worstCaseWidth() const {
     if (fTarget) {
         return fTarget->width();
     }
@@ -68,7 +67,7 @@ int GrSurfaceProxy::worstCaseWidth() const {
     return GrNextPow2(fDesc.fWidth);
 }
 
-int GrSurfaceProxy::worstCaseHeight() const { 
+int GrSurfaceProxy::worstCaseHeight() const {
     if (fTarget) {
         return fTarget->height();
     }
@@ -82,7 +81,7 @@ int GrSurfaceProxy::worstCaseHeight() const {
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     if (fLastOpList) {
-        // The non-MDB world never closes so we can't check this condition
+// The non-MDB world never closes so we can't check this condition
 #ifdef ENABLE_MDB
         SkASSERT(fLastOpList->isClosed());
 #endif
@@ -115,10 +114,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
     }
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
-                                                   const GrSurfaceDesc& desc,
-                                                   SkBackingFit fit,
-                                                   SkBudgeted budgeted) {
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps, const GrSurfaceDesc& desc,
+                                                   SkBackingFit fit, SkBudgeted budgeted) {
     if (kRenderTarget_GrSurfaceFlag & desc.fFlags) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
@@ -130,10 +127,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    GrTextureProvider* texProvider,
-                                                   const GrSurfaceDesc& desc,
-                                                   SkBudgeted budgeted,
-                                                   const void* srcData,
-                                                   size_t rowBytes) {
+                                                   const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                   const void* srcData, size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
         sk_sp<GrSurface> surf(texProvider->createTexture(desc, budgeted, srcData, rowBytes));

@@ -15,13 +15,8 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->glGpu()->glInterface(), R, X)
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
-                                                                            uint32_t visibility,
-                                                                            GrSLType type,
-                                                                            GrSLPrecision precision,
-                                                                            const char* name,
-                                                                            bool mangleName,
-                                                                            int arrayCount,
-                                                                            const char** outName) {
+        uint32_t visibility, GrSLType type, GrSLPrecision precision, const char* name,
+        bool mangleName, int arrayCount, const char** outName) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisMask & visibility));
@@ -54,8 +49,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visibility,
-                                                                   GrSwizzle swizzle,
-                                                                   GrSLType type,
+                                                                   GrSwizzle swizzle, GrSLType type,
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
@@ -162,14 +156,14 @@ void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps&
         }
         for (int i = 0; i < fImageStorages.count(); ++i) {
             GrGLint location;
-            GL_CALL_RET(location, GetUniformLocation(programID,
-                                                     fImageStorages[i].fVariable.c_str()));
+            GL_CALL_RET(location,
+                        GetUniformLocation(programID, fImageStorages[i].fVariable.c_str()));
             fImageStorages[i].fLocation = location;
         }
     }
 }
 
 const GrGLGpu* GrGLUniformHandler::glGpu() const {
-    GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
+    GrGLProgramBuilder* glPB = (GrGLProgramBuilder*)fProgramBuilder;
     return glPB->gpu();
 }

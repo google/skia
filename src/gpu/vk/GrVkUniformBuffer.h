@@ -13,22 +13,16 @@
 class GrVkGpu;
 
 class GrVkUniformBuffer : public GrVkBuffer {
-
 public:
     static GrVkUniformBuffer* Create(GrVkGpu* gpu, size_t size);
     static const GrVkResource* CreateResource(GrVkGpu* gpu, size_t size);
     static const size_t kStandardSize = 256;
 
-    void* map(GrVkGpu* gpu) {
-        return this->vkMap(gpu);
-    }
-    void unmap(GrVkGpu* gpu) {
-        this->vkUnmap(gpu);
-    }
+    void* map(GrVkGpu* gpu) { return this->vkMap(gpu); }
+    void unmap(GrVkGpu* gpu) { this->vkUnmap(gpu); }
     // The output variable createdNewBuffer must be set to true if a new VkBuffer is created in
     // order to upload the data
-    bool updateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
-                    bool* createdNewBuffer) {
+    bool updateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes, bool* createdNewBuffer) {
         return this->vkUpdateData(gpu, src, srcSizeInBytes, createdNewBuffer);
     }
     void release(const GrVkGpu* gpu) { this->vkRelease(gpu); }
@@ -37,8 +31,7 @@ public:
 private:
     class Resource : public GrVkBuffer::Resource {
     public:
-        Resource(VkBuffer buf, const GrVkAlloc& alloc)
-            : INHERITED(buf, alloc, kUniform_Type) {}
+        Resource(VkBuffer buf, const GrVkAlloc& alloc) : INHERITED(buf, alloc, kUniform_Type) {}
 
         void onRecycle(GrVkGpu* gpu) const override;
 

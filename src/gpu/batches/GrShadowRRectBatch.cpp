@@ -20,24 +20,15 @@
 
 // In the case of a normal fill, we draw geometry for the circle as an octagon.
 static const uint16_t gFillCircleIndices[] = {
-    // enter the octagon
-    0, 1, 8, 1, 2, 8,
-    2, 3, 8, 3, 4, 8,
-    4, 5, 8, 5, 6, 8,
-    6, 7, 8, 7, 0, 8,
+        // enter the octagon
+        0, 1, 8, 1, 2, 8, 2, 3, 8, 3, 4, 8, 4, 5, 8, 5, 6, 8, 6, 7, 8, 7, 0, 8,
 };
 
 // For stroked circles, we use two nested octagons.
 static const uint16_t gStrokeCircleIndices[] = {
-    // enter the octagon
-    0, 1, 9, 0, 9, 8,
-    1, 2, 10, 1, 10, 9,
-    2, 3, 11, 2, 11, 10,
-    3, 4, 12, 3, 12, 11,
-    4, 5, 13, 4, 13, 12,
-    5, 6, 14, 5, 14, 13,
-    6, 7, 15, 6, 15, 14,
-    7, 0, 8, 7, 8, 15,
+        // enter the octagon
+        0, 1, 9,  0, 9,  8,  1, 2, 10, 1, 10, 9,  2, 3, 11, 2, 11, 10, 3, 4, 12, 3, 12, 11,
+        4, 5, 13, 4, 13, 12, 5, 6, 14, 5, 14, 13, 6, 7, 15, 6, 15, 14, 7, 0, 8,  7, 8,  15,
 };
 
 static const int kIndicesPerFillCircle = SK_ARRAY_COUNT(gFillCircleIndices);
@@ -76,8 +67,8 @@ public:
         radius = viewMatrix.mapRadius(radius);
         SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
 
-        bool isStrokeOnly = SkStrokeRec::kStroke_Style == recStyle ||
-                            SkStrokeRec::kHairline_Style == recStyle;
+        bool isStrokeOnly =
+                SkStrokeRec::kStroke_Style == recStyle || SkStrokeRec::kHairline_Style == recStyle;
         bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == recStyle;
 
         SkScalar innerRadius = -SK_ScalarHalf;
@@ -110,21 +101,15 @@ public:
         SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                                             center.fX + outerRadius, center.fY + outerRadius);
 
-        batch->fGeoData.emplace_back(Geometry{
-            color,
-            outerRadius,
-            innerRadius,
-            blurRadius,
-            devBounds,
-            stroked
-        });
+        batch->fGeoData.emplace_back(
+                Geometry{color, outerRadius, innerRadius, blurRadius, devBounds, stroked});
 
         // Use the original radius and stroke radius for the bounds so that it does not include the
         // AA bloat.
         radius += halfWidth;
-        batch->setBounds({ center.fX - radius, center.fY - radius,
-                         center.fX + radius, center.fY + radius },
-                         HasAABloat::kNo, IsZeroArea::kNo);
+        batch->setBounds(
+                {center.fX - radius, center.fY - radius, center.fX + radius, center.fY + radius},
+                HasAABloat::kNo, IsZeroArea::kNo);
         batch->fVertCount = circle_type_to_vert_count(stroked);
         batch->fIndexCount = circle_type_to_index_count(stroked);
         return batch;
@@ -135,21 +120,19 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
-            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                           "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
-                           fGeoData[i].fColor,
-                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
-                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
-                           fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius,
-                           fGeoData[i].fBlurRadius);
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                    "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
+                    fGeoData[i].fColor, fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                    fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                    fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
@@ -176,9 +159,9 @@ private:
         sk_sp<GrGeometryProcessor> gp(GrRRectShadowGeoProc::Make(localMatrix));
 
         struct CircleVertex {
-            SkPoint  fPos;
-            GrColor  fColor;
-            SkPoint  fOffset;
+            SkPoint fPos;
+            GrColor fColor;
+            SkPoint fOffset;
             SkScalar fOuterRadius;
             SkScalar fBlurRadius;
         };
@@ -189,8 +172,8 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        char* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount,
-                                                        &vertexBuffer, &firstVertex);
+        char* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount, &vertexBuffer,
+                                                        &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -225,54 +208,54 @@ private:
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
-            
+
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
-            SkScalar halfWidth = 0.5f*bounds.width();
+            SkScalar halfWidth = 0.5f * bounds.width();
             SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
 
-            ov0->fPos = center + SkPoint::Make(-octOffset*halfWidth, -halfWidth);
+            ov0->fPos = center + SkPoint::Make(-octOffset * halfWidth, -halfWidth);
             ov0->fColor = color;
             ov0->fOffset = SkPoint::Make(-octOffset, -1);
             ov0->fOuterRadius = outerRadius;
             ov0->fBlurRadius = blurRadius;
 
-            ov1->fPos = center + SkPoint::Make(octOffset*halfWidth, -halfWidth);
+            ov1->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
             ov1->fColor = color;
             ov1->fOffset = SkPoint::Make(octOffset, -1);
             ov1->fOuterRadius = outerRadius;
             ov1->fBlurRadius = blurRadius;
 
-            ov2->fPos = center + SkPoint::Make(halfWidth, -octOffset*halfWidth);
+            ov2->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
             ov2->fColor = color;
             ov2->fOffset = SkPoint::Make(1, -octOffset);
             ov2->fOuterRadius = outerRadius;
             ov2->fBlurRadius = blurRadius;
 
-            ov3->fPos = center + SkPoint::Make(halfWidth, octOffset*halfWidth);
+            ov3->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
             ov3->fColor = color;
             ov3->fOffset = SkPoint::Make(1, octOffset);
             ov3->fOuterRadius = outerRadius;
             ov3->fBlurRadius = blurRadius;
 
-            ov4->fPos = center + SkPoint::Make(octOffset*halfWidth, halfWidth);
+            ov4->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
             ov4->fColor = color;
             ov4->fOffset = SkPoint::Make(octOffset, 1);
             ov4->fOuterRadius = outerRadius;
             ov4->fBlurRadius = blurRadius;
 
-            ov5->fPos = center + SkPoint::Make(-octOffset*halfWidth, halfWidth);
+            ov5->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
             ov5->fColor = color;
             ov5->fOffset = SkPoint::Make(-octOffset, 1);
             ov5->fOuterRadius = outerRadius;
             ov5->fBlurRadius = blurRadius;
 
-            ov6->fPos = center + SkPoint::Make(-halfWidth, octOffset*halfWidth);
+            ov6->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
             ov6->fColor = color;
             ov6->fOffset = SkPoint::Make(-1, octOffset);
             ov6->fOuterRadius = outerRadius;
             ov6->fBlurRadius = blurRadius;
 
-            ov7->fPos = center + SkPoint::Make(-halfWidth, -octOffset*halfWidth);
+            ov7->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
             ov7->fColor = color;
             ov7->fOffset = SkPoint::Make(-1, -octOffset);
             ov7->fOuterRadius = outerRadius;
@@ -294,51 +277,51 @@ private:
                 SkScalar s = 0.382683432f;
                 SkScalar r = geom.fInnerRadius;
 
-                iv0->fPos = center + SkPoint::Make(-s*r, -c*r);
+                iv0->fPos = center + SkPoint::Make(-s * r, -c * r);
                 iv0->fColor = color;
-                iv0->fOffset = SkPoint::Make(-s*innerRadius, -c*innerRadius);
+                iv0->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
                 iv0->fOuterRadius = outerRadius;
                 iv0->fBlurRadius = blurRadius;
 
-                iv1->fPos = center + SkPoint::Make(s*r, -c*r);
+                iv1->fPos = center + SkPoint::Make(s * r, -c * r);
                 iv1->fColor = color;
-                iv1->fOffset = SkPoint::Make(s*innerRadius, -c*innerRadius);
+                iv1->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
                 iv1->fOuterRadius = outerRadius;
                 iv1->fBlurRadius = blurRadius;
 
-                iv2->fPos = center + SkPoint::Make(c*r, -s*r);
+                iv2->fPos = center + SkPoint::Make(c * r, -s * r);
                 iv2->fColor = color;
-                iv2->fOffset = SkPoint::Make(c*innerRadius, -s*innerRadius);
+                iv2->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
                 iv2->fOuterRadius = outerRadius;
                 iv2->fBlurRadius = blurRadius;
 
-                iv3->fPos = center + SkPoint::Make(c*r, s*r);
+                iv3->fPos = center + SkPoint::Make(c * r, s * r);
                 iv3->fColor = color;
-                iv3->fOffset = SkPoint::Make(c*innerRadius, s*innerRadius);
+                iv3->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
                 iv3->fOuterRadius = outerRadius;
                 iv3->fBlurRadius = blurRadius;
 
-                iv4->fPos = center + SkPoint::Make(s*r, c*r);
+                iv4->fPos = center + SkPoint::Make(s * r, c * r);
                 iv4->fColor = color;
-                iv4->fOffset = SkPoint::Make(s*innerRadius, c*innerRadius);
+                iv4->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
                 iv4->fOuterRadius = outerRadius;
                 iv4->fBlurRadius = blurRadius;
 
-                iv5->fPos = center + SkPoint::Make(-s*r, c*r);
+                iv5->fPos = center + SkPoint::Make(-s * r, c * r);
                 iv5->fColor = color;
-                iv5->fOffset = SkPoint::Make(-s*innerRadius, c*innerRadius);
+                iv5->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
                 iv5->fOuterRadius = outerRadius;
                 iv5->fBlurRadius = blurRadius;
 
-                iv6->fPos = center + SkPoint::Make(-c*r, s*r);
+                iv6->fPos = center + SkPoint::Make(-c * r, s * r);
                 iv6->fColor = color;
-                iv6->fOffset = SkPoint::Make(-c*innerRadius, s*innerRadius);
+                iv6->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
                 iv6->fOuterRadius = outerRadius;
                 iv6->fBlurRadius = blurRadius;
 
-                iv7->fPos = center + SkPoint::Make(-c*r, -s*r);
+                iv7->fPos = center + SkPoint::Make(-c * r, -s * r);
                 iv7->fColor = color;
-                iv7->fOffset = SkPoint::Make(-c*innerRadius, -s*innerRadius);
+                iv7->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
                 iv7->fOuterRadius = outerRadius;
                 iv7->fBlurRadius = blurRadius;
             } else {
@@ -358,7 +341,7 @@ private:
             }
 
             currStartVertex += circle_type_to_vert_count(geom.fStroked);
-            vertices += circle_type_to_vert_count(geom.fStroked)*vertexStride;
+            vertices += circle_type_to_vert_count(geom.fStroked) * vertexStride;
         }
 
         GrMesh mesh;
@@ -386,18 +369,18 @@ private:
     }
 
     struct Geometry {
-        GrColor  fColor;
+        GrColor fColor;
         SkScalar fOuterRadius;
         SkScalar fInnerRadius;
         SkScalar fBlurRadius;
-        SkRect   fDevBounds;
-        bool     fStroked;
+        SkRect fDevBounds;
+        bool fStroked;
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
-    SkMatrix                     fViewMatrixIfUsingLocalCoords;
-    int                          fVertCount;
-    int                          fIndexCount;
+    SkMatrix fViewMatrixIfUsingLocalCoords;
+    int fVertCount;
+    int fIndexCount;
 
     typedef GrVertexBatch INHERITED;
 };
@@ -430,24 +413,16 @@ private:
 // (either a point or a horizontal or vertical line).
 
 static const uint16_t gOverstrokeRRectIndices[] = {
-    // corners
-    0, 1, 5, 0, 5, 4,
-    2, 3, 7, 2, 7, 6,
-    8, 9, 13, 8, 13, 12,
-    10, 11, 15, 10, 15, 14,
+        // corners
+        0, 1, 5, 0, 5, 4, 2, 3, 7, 2, 7, 6, 8, 9, 13, 8, 13, 12, 10, 11, 15, 10, 15, 14,
 
-    // edges
-    1, 2, 6, 1, 6, 5,
-    4, 5, 9, 4, 9, 8,
-    6, 7, 11, 6, 11, 10,
-    9, 10, 14, 9, 14, 13,
+        // edges
+        1, 2, 6, 1, 6, 5, 4, 5, 9, 4, 9, 8, 6, 7, 11, 6, 11, 10, 9, 10, 14, 9, 14, 13,
 
-    // overstroke quads
-    // we place this at the end so that we can skip these indices when rendering as stroked
-    16, 17, 19, 16, 19, 18,
-    19, 17, 23, 19, 23, 21,
-    21, 23, 22, 21, 22, 20,
-    22, 16, 18, 22, 18, 20,
+        // overstroke quads
+        // we place this at the end so that we can skip these indices when rendering as stroked
+        16, 17, 19, 16, 19, 18, 19, 17, 23, 19, 23, 21, 21, 23, 22, 21, 22, 20, 22, 16, 18, 22, 18,
+        20,
 };
 // standard stroke indices start at the same place, but will skip the overstroke "ring"
 static const uint16_t* gStrokeRRectIndices = gOverstrokeRRectIndices;
@@ -467,9 +442,7 @@ enum RRectType {
 
 static int rrect_type_to_vert_count(RRectType type) {
     static const int kTypeToVertCount[] = {
-        kVertsPerOverstrokeRRect,
-        kVertsPerStrokeRRect,
-        kVertsPerOverstrokeRRect,
+            kVertsPerOverstrokeRRect, kVertsPerStrokeRRect, kVertsPerOverstrokeRRect,
     };
 
     return kTypeToVertCount[type];
@@ -477,9 +450,7 @@ static int rrect_type_to_vert_count(RRectType type) {
 
 static int rrect_type_to_index_count(RRectType type) {
     static const int kTypeToIndexCount[] = {
-        kIndicesPerOverstrokeRRect,
-        kIndicesPerStrokeRRect,
-        kIndicesPerOverstrokeRRect,
+            kIndicesPerOverstrokeRRect, kIndicesPerStrokeRRect, kIndicesPerOverstrokeRRect,
     };
 
     return kTypeToIndexCount[type];
@@ -487,9 +458,7 @@ static int rrect_type_to_index_count(RRectType type) {
 
 static const uint16_t* rrect_type_to_indices(RRectType type) {
     static const uint16_t* kTypeToIndices[] = {
-        gOverstrokeRRectIndices,
-        gStrokeRRectIndices,
-        gOverstrokeRRectIndices,
+            gOverstrokeRRectIndices, gStrokeRRectIndices, gOverstrokeRRectIndices,
     };
 
     return kTypeToIndices[type];
@@ -510,11 +479,10 @@ public:
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
-    ShadowCircularRRectBatch(GrColor color, const SkMatrix& viewMatrix,
-                             const SkRect& devRect, float devRadius, float blurRadius,
-                             float devStrokeWidth, bool strokeOnly)
-        : INHERITED(ClassID())
-        , fViewMatrixIfUsingLocalCoords(viewMatrix) {
+    ShadowCircularRRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
+                             float devRadius, float blurRadius, float devStrokeWidth,
+                             bool strokeOnly)
+        : INHERITED(ClassID()), fViewMatrixIfUsingLocalCoords(viewMatrix) {
         SkRect bounds = devRect;
         SkASSERT(!(devStrokeWidth <= 0 && strokeOnly));
         SkScalar innerRadius = 0.0f;
@@ -533,8 +501,7 @@ public:
                 devStrokeWidth += 0.25f;
                 // If stroke is greater than width or height, this is still a fill
                 // Otherwise we compute stroke params
-                if (devStrokeWidth <= devRect.width() &&
-                    devStrokeWidth <= devRect.height()) {
+                if (devStrokeWidth <= devRect.width() && devStrokeWidth <= devRect.height()) {
                     innerRadius = devRadius - halfWidth;
                     type = (innerRadius >= 0) ? kStroke_RRectType : kOverstroke_RRectType;
                 }
@@ -567,21 +534,19 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
-            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
-                           "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
-                           fGeoData[i].fColor,
-                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
-                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
-                           fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius,
-                           fGeoData[i].fBlurRadius);
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                    "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
+                    fGeoData[i].fColor, fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                    fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                    fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fGeoData[0].fColor);
@@ -598,16 +563,16 @@ private:
     }
 
     struct CircleVertex {
-        SkPoint  fPos;
-        GrColor  fColor;
-        SkPoint  fOffset;
+        SkPoint fPos;
+        GrColor fColor;
+        SkPoint fOffset;
         SkScalar fOuterRadius;
         SkScalar fBlurRadius;
     };
 
-    static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds,
-                                      SkScalar smInset, SkScalar bigInset, SkScalar xOffset,
-                                      SkScalar outerRadius, GrColor color, SkScalar blurRadius) {
+    static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds, SkScalar smInset,
+                                      SkScalar bigInset, SkScalar xOffset, SkScalar outerRadius,
+                                      GrColor color, SkScalar blurRadius) {
         SkASSERT(smInset < bigInset);
 
         // TL
@@ -712,14 +677,10 @@ private:
 
             const SkRect& bounds = args.fDevBounds;
 
-            SkScalar yCoords[4] = {
-                bounds.fTop,
-                bounds.fTop + outerRadius,
-                bounds.fBottom - outerRadius,
-                bounds.fBottom
-            };
+            SkScalar yCoords[4] = {bounds.fTop, bounds.fTop + outerRadius,
+                                   bounds.fBottom - outerRadius, bounds.fBottom};
 
-            SkScalar yOuterRadii[4] = { -1, 0, 0, 1 };
+            SkScalar yOuterRadii[4] = {-1, 0, 0, 1};
             // The inner radius in the vertex data must be specified in normalized space.
             // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
             SkScalar blurRadius = args.fBlurRadius;
@@ -768,8 +729,8 @@ private:
                 // geometry to the outer edge
                 SkScalar maxOffset = -args.fInnerRadius / overstrokeOuterRadius;
 
-                FillInOverstrokeVerts(&verts, bounds, outerRadius, overstrokeOuterRadius,
-                                      maxOffset, overstrokeOuterRadius, color, blurRadius);
+                FillInOverstrokeVerts(&verts, bounds, outerRadius, overstrokeOuterRadius, maxOffset,
+                                      overstrokeOuterRadius, color, blurRadius);
             }
 
             if (kFill_RRectType == args.fType) {
@@ -777,8 +738,8 @@ private:
 
                 SkScalar xOffset = 1.0f - outerRadius / halfMinDim;
 
-                FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim,
-                                      xOffset, halfMinDim, color, blurRadius);
+                FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim, xOffset, halfMinDim,
+                                      color, blurRadius);
             }
 
             const uint16_t* primIndices = rrect_type_to_indices(args.fType);
@@ -815,7 +776,7 @@ private:
     }
 
     struct Geometry {
-        GrColor  fColor;
+        GrColor fColor;
         SkScalar fOuterRadius;
         SkScalar fInnerRadius;
         SkScalar fBlurRadius;
@@ -824,33 +785,29 @@ private:
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
-    SkMatrix                     fViewMatrixIfUsingLocalCoords;
-    int                          fVertCount;
-    int                          fIndexCount;
+    SkMatrix fViewMatrixIfUsingLocalCoords;
+    int fVertCount;
+    int fIndexCount;
 
     typedef GrVertexBatch INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GrDrawOp* create_shadow_circle_batch(GrColor color,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& oval,
-                                            SkScalar blurRadius,
+static GrDrawOp* create_shadow_circle_batch(GrColor color, const SkMatrix& viewMatrix,
+                                            const SkRect& oval, SkScalar blurRadius,
                                             const SkStrokeRec& stroke,
                                             const GrShaderCaps* shaderCaps) {
     // we can only draw circles
     SkScalar width = oval.width();
     SkASSERT(SkScalarNearlyEqual(width, oval.height()) && viewMatrix.isSimilarity());
-    SkPoint center = { oval.centerX(), oval.centerY() };
-    return ShadowCircleBatch::Create(color, viewMatrix, center, width / 2.f,
-                                     blurRadius, GrStyle(stroke, nullptr));
+    SkPoint center = {oval.centerX(), oval.centerY()};
+    return ShadowCircleBatch::Create(color, viewMatrix, center, width / 2.f, blurRadius,
+                                     GrStyle(stroke, nullptr));
 }
 
-static GrDrawOp* create_shadow_rrect_batch(GrColor color,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRRect& rrect,
-                                           SkScalar blurRadius,
+static GrDrawOp* create_shadow_rrect_batch(GrColor color, const SkMatrix& viewMatrix,
+                                           const SkRRect& rrect, SkScalar blurRadius,
                                            const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
@@ -872,21 +829,21 @@ static GrDrawOp* create_shadow_rrect_batch(GrColor color,
     SkStrokeRec::Style style = stroke.getStyle();
 
     // Do (potentially) anisotropic mapping of stroke. Use -1s to indicate fill-only draws.
-    SkVector scaledStroke = { -1, -1 };
+    SkVector scaledStroke = {-1, -1};
     SkScalar strokeWidth = stroke.getWidth();
 
-    bool isStrokeOnly = SkStrokeRec::kStroke_Style == style ||
-                        SkStrokeRec::kHairline_Style == style;
+    bool isStrokeOnly =
+            SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style;
     bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == style;
 
     if (hasStroke) {
         if (SkStrokeRec::kHairline_Style == style) {
             scaledStroke.set(1, 1);
         } else {
-            scaledStroke.fX = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMScaleX] +
-                                                       viewMatrix[SkMatrix::kMSkewY]));
-            scaledStroke.fY = SkScalarAbs(strokeWidth*(viewMatrix[SkMatrix::kMSkewX] +
-                                                       viewMatrix[SkMatrix::kMScaleY]));
+            scaledStroke.fX = SkScalarAbs(
+                    strokeWidth * (viewMatrix[SkMatrix::kMScaleX] + viewMatrix[SkMatrix::kMSkewY]));
+            scaledStroke.fY = SkScalarAbs(
+                    strokeWidth * (viewMatrix[SkMatrix::kMSkewX] + viewMatrix[SkMatrix::kMScaleY]));
         }
 
         // we don't handle anisotropic strokes
@@ -904,19 +861,16 @@ static GrDrawOp* create_shadow_rrect_batch(GrColor color,
         return nullptr;
     }
 
-    return new ShadowCircularRRectBatch(color, viewMatrix, bounds, xRadius,
-                                        blurRadius, scaledStroke.fX, isStrokeOnly);
+    return new ShadowCircularRRectBatch(color, viewMatrix, bounds, xRadius, blurRadius,
+                                        scaledStroke.fX, isStrokeOnly);
 }
 
-GrDrawOp* CreateShadowRRectBatch(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRRect& rrect,
-                                 const SkScalar blurRadius,
-                                 const SkStrokeRec& stroke,
+GrDrawOp* CreateShadowRRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRRect& rrect,
+                                 const SkScalar blurRadius, const SkStrokeRec& stroke,
                                  const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
-        return create_shadow_circle_batch(color, viewMatrix, rrect.getBounds(),
-                                          blurRadius, stroke, shaderCaps);
+        return create_shadow_circle_batch(color, viewMatrix, rrect.getBounds(), blurRadius, stroke,
+                                          shaderCaps);
     }
 
     if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
@@ -942,12 +896,12 @@ DRAW_BATCH_TEST_DEFINE(ShadowCircleBatch) {
         viewMatrix.postScale(scale, scale);
         GrColor color = GrRandomColor(random);
         SkRect circle = GrTest::TestSquare(random);
-        SkPoint center = { circle.centerX(), circle.centerY() };
+        SkPoint center = {circle.centerX(), circle.centerY()};
         SkScalar radius = circle.width() / 2.f;
         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
         SkScalar blurRadius = random->nextSScalar1() * 72.f;
-        GrDrawOp* batch = ShadowCircleBatch::Create(color, viewMatrix, center, radius,
-                                                    blurRadius, GrStyle(stroke, nullptr));
+        GrDrawOp* batch = ShadowCircleBatch::Create(color, viewMatrix, center, radius, blurRadius,
+                                                    GrStyle(stroke, nullptr));
         if (batch) {
             return batch;
         }
@@ -959,8 +913,8 @@ DRAW_BATCH_TEST_DEFINE(ShadowRRectBatch) {
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
     SkScalar blurRadius = random->nextSScalar1() * 72.f;
-    return create_shadow_rrect_batch(color, viewMatrix, rrect,
-                                     blurRadius, GrTest::TestStrokeRec(random));
+    return create_shadow_rrect_batch(color, viewMatrix, rrect, blurRadius,
+                                     GrTest::TestStrokeRec(random));
 }
 
 #endif

@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrNonAtomicRef.h"
-#include "gl/GrGLInterface.h"
+#include <type_traits>
 #include "GrGLTestInterface.h"
+#include "GrNonAtomicRef.h"
 #include "SkMutex.h"
 #include "SkTDArray.h"
-#include <type_traits>
+#include "gl/GrGLInterface.h"
 
 // added to suppress 'no previous prototype' warning and because this code is duplicated in
 // SkNullGLContext.cpp
@@ -29,12 +28,13 @@ private:
 };
 
 // This class maintains a sparsely populated array of object pointers.
-template<typename T> class TGLObjectManager {
-   static_assert(std::is_convertible<T*, GLObject*>::value, "T must be a subclass of GLObject");
+template <typename T>
+class TGLObjectManager {
+    static_assert(std::is_convertible<T*, GLObject*>::value, "T must be a subclass of GLObject");
 
 public:
     TGLObjectManager() : fFreeListHead(kFreeListEnd) {
-        *fGLObjects.append() = nullptr; // 0 is not a valid GL object id.
+        *fGLObjects.append() = nullptr;  // 0 is not a valid GL object id.
     }
 
     ~TGLObjectManager() {
@@ -91,8 +91,8 @@ private:
     static const intptr_t kFreeListEnd = -1;
     // Index of the first entry of fGLObjects in the free list. Free slots in fGLObjects are indices
     // to the next free slot. The last free slot has a value of kFreeListEnd.
-    intptr_t        fFreeListHead;
-    SkTDArray<T*>   fGLObjects;
+    intptr_t fFreeListHead;
+    SkTDArray<T*> fGLObjects;
 };
 
 class Buffer : public GLObject {
@@ -110,16 +110,16 @@ public:
         fDataPtr = new char[size];
     }
 
-    GrGLchar* dataPtr()          { return fDataPtr; }
-    GrGLsizeiptr size() const    { return fSize; }
+    GrGLchar* dataPtr() { return fDataPtr; }
+    GrGLsizeiptr size() const { return fSize; }
 
-    void setMapped(bool mapped)  { fMapped = mapped; }
-    bool mapped() const          { return fMapped; }
+    void setMapped(bool mapped) { fMapped = mapped; }
+    bool mapped() const { return fMapped; }
 
 private:
-    GrGLchar*    fDataPtr;
-    GrGLsizeiptr fSize;         // size in bytes
-    bool         fMapped;
+    GrGLchar* fDataPtr;
+    GrGLsizeiptr fSize;  // size in bytes
+    bool fMapped;
 
     typedef GLObject INHERITED;
 };
@@ -199,11 +199,7 @@ public:
     }
 
 private:
-    enum AttachmentPoint {
-        kStencil,
-        kDepth,
-        kColor
-    };
+    enum AttachmentPoint { kStencil, kDepth, kColor };
     constexpr int static kNumAttachmentPoints = 1 + (int)AttachmentPoint::kColor;
 
     sk_sp<const FramebufferAttachment> fAttachments[kNumAttachmentPoints];
@@ -239,9 +235,7 @@ public:
         this->init(kGL_GrGLStandard);
     }
 
-    GrGLenum checkFramebufferStatus(GrGLenum target) override {
-        return GR_GL_FRAMEBUFFER_COMPLETE;
-    }
+    GrGLenum checkFramebufferStatus(GrGLenum target) override { return GR_GL_FRAMEBUFFER_COMPLETE; }
 
     GrGLvoid genBuffers(GrGLsizei n, GrGLuint* ids) override {
         for (int i = 0; i < n; ++i) {
@@ -255,24 +249,20 @@ public:
         GrGLuint id = fBoundBuffers[GetBufferIndex(target)];
         if (id > 0) {
             Buffer* buffer = fBufferManager.lookUp(id);
-            buffer->allocate(size, (const GrGLchar*) data);
+            buffer->allocate(size, (const GrGLchar*)data);
         }
     }
 
-    GrGLuint createProgram() override {
-        return ++fCurrProgramID;
-    }
+    GrGLuint createProgram() override { return ++fCurrProgramID; }
 
-    GrGLuint createShader(GrGLenum type) override {
-        return ++fCurrShaderID;
-    }
+    GrGLuint createShader(GrGLenum type) override { return ++fCurrShaderID; }
 
     GrGLvoid bindBuffer(GrGLenum target, GrGLuint buffer) override {
         fBoundBuffers[GetBufferIndex(target)] = buffer;
     }
 
-   // deleting a bound buffer has the side effect of binding 0
-   GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
+    // deleting a bound buffer has the side effect of binding 0
+    GrGLvoid deleteBuffers(GrGLsizei n, const GrGLuint* ids) override {
         // First potentially unbind the buffers.
         for (int buffIdx = 0; buffIdx < kNumBufferTargets; ++buffIdx) {
             if (!fBoundBuffers[buffIdx]) {
@@ -295,7 +285,7 @@ public:
         }
     }
 
-    GrGLvoid genFramebuffers(GrGLsizei n, GrGLuint *framebuffers) override {
+    GrGLvoid genFramebuffers(GrGLsizei n, GrGLuint* framebuffers) override {
         for (int i = 0; i < n; ++i) {
             Framebuffer* framebuffer = fFramebufferManager.create();
             framebuffers[i] = framebuffer->id();
@@ -329,9 +319,9 @@ public:
         }
     }
 
-    GrGLvoid genQueries(GrGLsizei n, GrGLuint *ids) override { this->genGenericIds(n, ids); }
+    GrGLvoid genQueries(GrGLsizei n, GrGLuint* ids) override { this->genGenericIds(n, ids); }
 
-    GrGLvoid genRenderbuffers(GrGLsizei n, GrGLuint *renderbuffers) override {
+    GrGLvoid genRenderbuffers(GrGLsizei n, GrGLuint* renderbuffers) override {
         for (int i = 0; i < n; ++i) {
             Renderbuffer* renderbuffer = fRenderbufferManager.create();
             renderbuffers[i] = renderbuffer->id();
@@ -415,7 +405,7 @@ public:
         SK_ABORT("Not implemented");
     }
 
-    GrGLvoid genTextures(GrGLsizei n, GrGLuint *textures) override {
+    GrGLvoid genTextures(GrGLsizei n, GrGLuint* textures) override {
         this->genGenericIds(n, textures);
     }
 
@@ -451,7 +441,7 @@ public:
         SK_ABORT("Not implemented");
     }
 
-    GrGLvoid genVertexArrays(GrGLsizei n, GrGLuint *arrays) override {
+    GrGLvoid genVertexArrays(GrGLsizei n, GrGLuint* arrays) override {
         this->genGenericIds(n, arrays);
     }
 
@@ -522,7 +512,8 @@ public:
                 break;
             case GR_GL_NUM_EXTENSIONS: {
                 GrGLint i = 0;
-                while (fExtensions[i++]);
+                while (fExtensions[i++])
+                    ;
                 *params = i;
                 break;
             }
@@ -544,7 +535,7 @@ public:
         val[0] = val[1] = 0.5f;
     }
 
-    GrGLvoid getQueryiv(GrGLenum GLtarget, GrGLenum pname, GrGLint *params) override {
+    GrGLvoid getQueryiv(GrGLenum GLtarget, GrGLenum pname, GrGLint* params) override {
         switch (pname) {
             case GR_GL_CURRENT_QUERY:
                 *params = 0;
@@ -557,19 +548,19 @@ public:
         }
     }
 
-    GrGLvoid getQueryObjecti64v(GrGLuint id, GrGLenum pname, GrGLint64 *params) override {
+    GrGLvoid getQueryObjecti64v(GrGLuint id, GrGLenum pname, GrGLint64* params) override {
         this->queryResult(id, pname, params);
     }
 
-    GrGLvoid getQueryObjectiv(GrGLuint id, GrGLenum pname, GrGLint *params) override {
+    GrGLvoid getQueryObjectiv(GrGLuint id, GrGLenum pname, GrGLint* params) override {
         this->queryResult(id, pname, params);
     }
 
-    GrGLvoid getQueryObjectui64v(GrGLuint id, GrGLenum pname, GrGLuint64 *params) override {
+    GrGLvoid getQueryObjectui64v(GrGLuint id, GrGLenum pname, GrGLuint64* params) override {
         this->queryResult(id, pname, params);
     }
 
-    GrGLvoid getQueryObjectuiv(GrGLuint id, GrGLenum pname, GrGLuint *params) override {
+    GrGLvoid getQueryObjectuiv(GrGLuint id, GrGLenum pname, GrGLuint* params) override {
         this->queryResult(id, pname, params);
     }
 
@@ -606,7 +597,7 @@ public:
                 GrGLint count;
                 this->getIntegerv(GR_GL_NUM_EXTENSIONS, &count);
                 if ((GrGLint)i <= count) {
-                    return (const GrGLubyte*) fExtensions[i];
+                    return (const GrGLubyte*)fExtensions[i];
                 } else {
                     return nullptr;
                 }
@@ -644,7 +635,7 @@ public:
         }
 
         SkASSERT(false);
-        return nullptr;            // no buffer bound to target
+        return nullptr;  // no buffer bound to target
     }
 
     GrGLboolean unmapBuffer(GrGLenum target) override {
@@ -657,7 +648,7 @@ public:
         }
 
         GrAlwaysAssert(false);
-        return GR_GL_FALSE; // GR_GL_INVALID_OPERATION;
+        return GR_GL_FALSE;  // GR_GL_INVALID_OPERATION;
     }
 
     GrGLvoid getBufferParameteriv(GrGLenum target, GrGLenum pname, GrGLint* params) override {
@@ -671,7 +662,8 @@ public:
                         *params = GR_GL_TRUE;
                     }
                 }
-                break; }
+                break;
+            }
             default:
                 SkFAIL("Unexpected pname to GetBufferParamateriv");
                 break;
@@ -679,39 +671,43 @@ public:
     }
 
     // NV_path_rendering
-    GrGLuint genPaths(GrGLsizei range) override {
-        return ++fCurrPathID;
-    }
-
+    GrGLuint genPaths(GrGLsizei range) override { return ++fCurrPathID; }
 
 private:
     inline int static GetBufferIndex(GrGLenum glTarget) {
         switch (glTarget) {
-            default:                           SkFAIL("Unexpected GL target to GetBufferIndex");
-            case GR_GL_ARRAY_BUFFER:           return 0;
-            case GR_GL_ELEMENT_ARRAY_BUFFER:   return 1;
-            case GR_GL_TEXTURE_BUFFER:         return 2;
-            case GR_GL_DRAW_INDIRECT_BUFFER:   return 3;
-            case GR_GL_PIXEL_PACK_BUFFER:      return 4;
-            case GR_GL_PIXEL_UNPACK_BUFFER:    return 5;
+            default:
+                SkFAIL("Unexpected GL target to GetBufferIndex");
+            case GR_GL_ARRAY_BUFFER:
+                return 0;
+            case GR_GL_ELEMENT_ARRAY_BUFFER:
+                return 1;
+            case GR_GL_TEXTURE_BUFFER:
+                return 2;
+            case GR_GL_DRAW_INDIRECT_BUFFER:
+                return 3;
+            case GR_GL_PIXEL_PACK_BUFFER:
+                return 4;
+            case GR_GL_PIXEL_UNPACK_BUFFER:
+                return 5;
         }
     }
     constexpr int static kNumBufferTargets = 6;
 
-    TGLObjectManager<Buffer>         fBufferManager;
-    GrGLuint                         fBoundBuffers[kNumBufferTargets];
-    TGLObjectManager<Framebuffer>    fFramebufferManager;
-    GrGLuint                         fCurrDrawFramebuffer;
-    GrGLuint                         fCurrReadFramebuffer;
-    TGLObjectManager<Renderbuffer>   fRenderbufferManager;
-    GrGLuint                         fCurrRenderbuffer;
-    GrGLuint                         fCurrProgramID;
-    GrGLuint                         fCurrShaderID;
-    GrGLuint                         fCurrGenericID;
-    GrGLuint                         fCurrUniformLocation;
-    GrGLuint                         fCurrPathID;
-    sk_sp<const Texture>             fSingleTextureObject;
-    SkTArray<const char*>            fExtensions;
+    TGLObjectManager<Buffer> fBufferManager;
+    GrGLuint fBoundBuffers[kNumBufferTargets];
+    TGLObjectManager<Framebuffer> fFramebufferManager;
+    GrGLuint fCurrDrawFramebuffer;
+    GrGLuint fCurrReadFramebuffer;
+    TGLObjectManager<Renderbuffer> fRenderbufferManager;
+    GrGLuint fCurrRenderbuffer;
+    GrGLuint fCurrProgramID;
+    GrGLuint fCurrShaderID;
+    GrGLuint fCurrGenericID;
+    GrGLuint fCurrUniformLocation;
+    GrGLuint fCurrPathID;
+    sk_sp<const Texture> fSingleTextureObject;
+    SkTArray<const char*> fExtensions;
 
     // the OpenGLES 2.0 spec says this must be >= 128
     static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -764,7 +760,7 @@ private:
             }
         }
         gMutex.release();
-        return (const GrGLubyte*) gExtString.c_str();
+        return (const GrGLubyte*)gExtString.c_str();
     }
 
     GrGLvoid genGenericIds(GrGLsizei n, GrGLuint* ids) {
@@ -773,8 +769,7 @@ private:
         }
     }
 
-    GrGLvoid getInfoLog(GrGLuint object, GrGLsizei bufsize, GrGLsizei* length,
-                        char* infolog) {
+    GrGLvoid getInfoLog(GrGLuint object, GrGLsizei bufsize, GrGLsizei* length, char* infolog) {
         if (length) {
             *length = 0;
         }
@@ -783,7 +778,7 @@ private:
         }
     }
 
-    GrGLvoid getShaderOrProgramiv(GrGLuint object,  GrGLenum pname, GrGLint* params) {
+    GrGLvoid getShaderOrProgramiv(GrGLuint object, GrGLenum pname, GrGLint* params) {
         switch (pname) {
             case GR_GL_LINK_STATUS:  // fallthru
             case GR_GL_COMPILE_STATUS:
@@ -792,7 +787,7 @@ private:
             case GR_GL_INFO_LOG_LENGTH:
                 *params = 0;
                 break;
-                // we don't expect any other pnames
+            // we don't expect any other pnames
             default:
                 SkFAIL("Unexpected pname to GetProgramiv");
                 break;
@@ -800,7 +795,7 @@ private:
     }
 
     template <typename T>
-    void queryResult(GrGLenum GLtarget, GrGLenum pname, T *params) {
+    void queryResult(GrGLenum GLtarget, GrGLenum pname, T* params) {
         switch (pname) {
             case GR_GL_QUERY_RESULT_AVAILABLE:
                 *params = GR_GL_TRUE;
@@ -819,4 +814,6 @@ private:
 
 }  // anonymous namespace
 
-const GrGLInterface* GrGLCreateNullInterface(bool enableNVPR) { return new NullInterface(enableNVPR); }
+const GrGLInterface* GrGLCreateNullInterface(bool enableNVPR) {
+    return new NullInterface(enableNVPR);
+}

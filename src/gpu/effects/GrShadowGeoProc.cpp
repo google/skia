@@ -36,33 +36,27 @@ public:
         this->setupPosition(vertBuilder, gpArgs, rsgp.inPosition()->fName);
 
         // emit transforms
-        this->emitTransforms(vertBuilder,
-                             varyingHandler,
-                             uniformHandler,
-                             gpArgs->fPositionVar,
-                             rsgp.inPosition()->fName,
-                             rsgp.localMatrix(),
+        this->emitTransforms(vertBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
+                             rsgp.inPosition()->fName, rsgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("float d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float distance = shadowParams.z * (1.0 - d);");
 
         fragBuilder->codeAppend("float radius = shadowParams.w;");
-        
+
         fragBuilder->codeAppend("float factor = 1.0 - clamp(distance/radius, 0.0, 1.0);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = vec4(factor);",
-                                 args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = vec4(factor);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
                  FPCoordTransformIter&& transformIter) override {
-        this->setTransformDataHelper(proc.cast<GrRRectShadowGeoProc>().localMatrix(),
-                                     pdman, &transformIter);
+        this->setTransformDataHelper(proc.cast<GrRRectShadowGeoProc>().localMatrix(), pdman,
+                                     &transformIter);
     }
 
-    static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrShaderCaps&,
+    static inline void GenKey(const GrGeometryProcessor& gp, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrRRectShadowGeoProc& rsgp = gp.cast<GrRRectShadowGeoProc>();
         uint16_t key;
@@ -78,10 +72,9 @@ private:
 
 GrRRectShadowGeoProc::GrRRectShadowGeoProc(const SkMatrix& localMatrix)
     : fLocalMatrix(localMatrix) {
-
     this->initClassID<GrRRectShadowGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
+    fInPosition =
+            &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec4f_GrVertexAttribType);
 }

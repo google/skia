@@ -5,17 +5,21 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrShaderVar.h"
 #include "GrShaderCaps.h"
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {
-        case GrShaderVar::kNone_TypeModifier: return "";
-        case GrShaderVar::kIn_TypeModifier: return "in";
-        case GrShaderVar::kInOut_TypeModifier: return "inout";
-        case GrShaderVar::kOut_TypeModifier: return "out";
-        case GrShaderVar::kUniform_TypeModifier: return "uniform";
+        case GrShaderVar::kNone_TypeModifier:
+            return "";
+        case GrShaderVar::kIn_TypeModifier:
+            return "in";
+        case GrShaderVar::kInOut_TypeModifier:
+            return "inout";
+        case GrShaderVar::kOut_TypeModifier:
+            return "out";
+        case GrShaderVar::kUniform_TypeModifier:
+            return "uniform";
     }
     SkFAIL("Unknown shader variable type modifier.");
     return "";
@@ -98,19 +102,13 @@ void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) cons
     }
     if (this->isArray()) {
         if (this->isUnsizedArray()) {
-            out->appendf("%s %s[]",
-                         GrGLSLTypeString(effectiveType),
-                         this->getName().c_str());
+            out->appendf("%s %s[]", GrGLSLTypeString(effectiveType), this->getName().c_str());
         } else {
             SkASSERT(this->getArrayCount() > 0);
-            out->appendf("%s %s[%d]",
-                         GrGLSLTypeString(effectiveType),
-                         this->getName().c_str(),
+            out->appendf("%s %s[%d]", GrGLSLTypeString(effectiveType), this->getName().c_str(),
                          this->getArrayCount());
         }
     } else {
-        out->appendf("%s %s",
-                     GrGLSLTypeString(effectiveType),
-                     this->getName().c_str());
+        out->appendf("%s %s", GrGLSLTypeString(effectiveType), this->getName().c_str());
     }
 }

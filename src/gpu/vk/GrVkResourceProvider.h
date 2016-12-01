@@ -43,18 +43,14 @@ public:
     // Set up any initial vk objects
     void init();
 
-    GrVkPipeline* createPipeline(const GrPipeline& pipeline,
-                                 const GrStencilSettings& stencil,
+    GrVkPipeline* createPipeline(const GrPipeline& pipeline, const GrStencilSettings& stencil,
                                  const GrPrimitiveProcessor& primProc,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                 int shaderStageCount,
-                                 GrPrimitiveType primitiveType,
-                                 const GrVkRenderPass& renderPass,
-                                 VkPipelineLayout layout);
+                                 int shaderStageCount, GrPrimitiveType primitiveType,
+                                 const GrVkRenderPass& renderPass, VkPipelineLayout layout);
 
     GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
-                                               VkPipelineShaderStageCreateInfo*,
-                                               VkPipelineLayout);
+                                               VkPipelineShaderStageCreateInfo*, VkPipelineLayout);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -130,7 +126,6 @@ public:
     // the caller.
     const GrVkDescriptorSet* getSamplerDescriptorSet(const GrVkDescriptorSetManager::Handle&);
 
-
     // Signals that the descriptor set passed it, which is compatible with the passed in handle,
     // can be reused by the next allocation request.
     void recycleDescriptorSet(const GrVkDescriptorSet* descSet,
@@ -169,8 +164,7 @@ private:
 
         void abandon();
         void release();
-        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&,
-                                                  const GrPrimitiveProcessor&,
+        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&, const GrPrimitiveProcessor&,
                                                   GrPrimitiveType,
                                                   const GrVkRenderPass& renderPass);
 
@@ -185,15 +179,15 @@ private:
 
         void reset();
 
-        int                         fCount;
+        int fCount;
         SkTHashTable<Entry*, const GrVkPipelineState::Desc&, Entry> fHashTable;
         SkTInternalLList<Entry> fLRUList;
 
-        GrVkGpu*                    fGpu;
+        GrVkGpu* fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
-        int                         fTotalRequests;
-        int                         fCacheMisses;
+        int fTotalRequests;
+        int fCacheMisses;
 #endif
     };
 
@@ -222,7 +216,7 @@ private:
 
     private:
         SkSTArray<4, GrVkRenderPass*> fRenderPasses;
-        int                           fLastReturnedIndex;
+        int fLastReturnedIndex;
     };
 
     GrVkGpu* fGpu;

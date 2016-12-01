@@ -36,7 +36,7 @@ class GrVkGpu;
 
 class GrVkResource : SkNoncopyable {
 public:
-    // Simple refCount tracing, to ensure that everything ref'ed is unref'ed.
+// Simple refCount tracing, to ensure that everything ref'ed is unref'ed.
 #ifdef SK_TRACE_VK_RESOURCES
     struct Hash {
         uint32_t operator()(const GrVkResource* const& r) const {
@@ -48,9 +48,7 @@ public:
     class Trace {
     public:
         ~Trace() {
-            fHashSet.foreach([](const GrVkResource* r) {
-                r->dumpInfo();
-            });
+            fHashSet.foreach ([](const GrVkResource* r) { r->dumpInfo(); });
             SkASSERT(0 == fHashSet.count());
         }
         void add(const GrVkResource* r) { fHashSet.add(r); }
@@ -59,7 +57,7 @@ public:
     private:
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
     };
-    static Trace  fTrace;
+    static Trace fTrace;
 
     static uint32_t fKeyCounter;
 #endif
@@ -78,7 +76,7 @@ public:
     virtual ~GrVkResource() {
 #ifdef SK_DEBUG
         SkASSERTF(fRefCnt == 1, "fRefCnt was %d", fRefCnt);
-        fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
+        fRefCnt = 0;  // illegal value, to catch us if we reuse after delete
 #endif
     }
 
@@ -136,9 +134,7 @@ public:
     }
 
 #ifdef SK_DEBUG
-    void validate() const {
-        SkASSERT(fRefCnt > 0);
-    }
+    void validate() const { SkASSERT(fRefCnt > 0); }
 #endif
 
 #ifdef SK_TRACE_VK_RESOURCES

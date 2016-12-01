@@ -30,8 +30,7 @@ public:
     };
 
     GrVkImage(const GrVkImageInfo& info, Wrapped wrapped)
-        : fInfo(info)
-        , fIsBorrowed(kBorrowed_Wrapped == wrapped) {
+        : fInfo(info), fIsBorrowed(kBorrowed_Wrapped == wrapped) {
         if (kBorrowed_Wrapped == wrapped) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
         } else {
@@ -45,28 +44,23 @@ public:
     VkFormat imageFormat() const { return fInfo.fFormat; }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const Resource* resource() const { return fResource; }
-    bool isLinearTiled() const {
-        return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);
-    }
+    bool isLinearTiled() const { return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling); }
 
     VkImageLayout currentLayout() const { return fInfo.fImageLayout; }
 
-    void setImageLayout(const GrVkGpu* gpu,
-                        VkImageLayout newLayout,
-                        VkAccessFlags dstAccessMask,
-                        VkPipelineStageFlags dstStageMask,
-                        bool byRegion);
+    void setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout, VkAccessFlags dstAccessMask,
+                        VkPipelineStageFlags dstStageMask, bool byRegion);
 
     struct ImageDesc {
-        VkImageType         fImageType;
-        VkFormat            fFormat;
-        uint32_t            fWidth;
-        uint32_t            fHeight;
-        uint32_t            fLevels;
-        uint32_t            fSamples;
-        VkImageTiling       fImageTiling;
-        VkImageUsageFlags   fUsageFlags;
-        VkFlags             fMemProps;
+        VkImageType fImageType;
+        VkFormat fFormat;
+        uint32_t fWidth;
+        uint32_t fHeight;
+        uint32_t fLevels;
+        uint32_t fSamples;
+        VkImageTiling fImageTiling;
+        VkImageUsageFlags fUsageFlags;
+        VkFlags fMemProps;
 
         ImageDesc()
             : fImageType(VK_IMAGE_TYPE_2D)
@@ -90,15 +84,13 @@ protected:
 
     void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
 
-    GrVkImageInfo   fInfo;
-    bool            fIsBorrowed;
+    GrVkImageInfo fInfo;
+    bool fIsBorrowed;
 
 private:
     class Resource : public GrVkResource {
     public:
-        Resource()
-            : INHERITED()
-            , fImage(VK_NULL_HANDLE) {
+        Resource() : INHERITED(), fImage(VK_NULL_HANDLE) {
             fAlloc.fMemory = VK_NULL_HANDLE;
             fAlloc.fOffset = 0;
         }
@@ -116,9 +108,9 @@ private:
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
 
-        VkImage        fImage;
-        GrVkAlloc      fAlloc;
-        VkImageTiling  fImageTiling;
+        VkImage fImage;
+        GrVkAlloc fAlloc;
+        VkImageTiling fImageTiling;
 
         typedef GrVkResource INHERITED;
     };
@@ -127,8 +119,8 @@ private:
     class BorrowedResource : public Resource {
     public:
         BorrowedResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
-            : Resource(image, alloc, tiling) {
-        }
+            : Resource(image, alloc, tiling) {}
+
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
     };

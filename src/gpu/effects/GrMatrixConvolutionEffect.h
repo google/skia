@@ -8,8 +8,8 @@
 #ifndef GrMatrixConvolutionEffect_DEFINED
 #define GrMatrixConvolutionEffect_DEFINED
 
-#include "GrSingleTextureEffect.h"
 #include "GrInvariantOutput.h"
+#include "GrSingleTextureEffect.h"
 #include "GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
@@ -18,29 +18,21 @@
 
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
-                                           const SkIRect& bounds,
-                                           const SkISize& kernelSize,
-                                           const SkScalar* kernel,
-                                           SkScalar gain,
-                                           SkScalar bias,
+    static sk_sp<GrFragmentProcessor> Make(GrTexture* texture, const SkIRect& bounds,
+                                           const SkISize& kernelSize, const SkScalar* kernel,
+                                           SkScalar gain, SkScalar bias,
                                            const SkIPoint& kernelOffset,
-                                           GrTextureDomain::Mode tileMode,
-                                           bool convolveAlpha) {
+                                           GrTextureDomain::Mode tileMode, bool convolveAlpha) {
         return sk_sp<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
-                                          kernelOffset, tileMode, convolveAlpha));
+                new GrMatrixConvolutionEffect(texture, bounds, kernelSize, kernel, gain, bias,
+                                              kernelOffset, tileMode, convolveAlpha));
     }
 
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* texture,
-                                                   const SkIRect& bounds,
-                                                   const SkISize& kernelSize,
-                                                   SkScalar gain,
-                                                   SkScalar bias,
-                                                   const SkIPoint& kernelOffset,
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* texture, const SkIRect& bounds,
+                                                   const SkISize& kernelSize, SkScalar gain,
+                                                   SkScalar bias, const SkIPoint& kernelOffset,
                                                    GrTextureDomain::Mode tileMode,
-                                                   bool convolveAlpha,
-                                                   SkScalar sigmaX,
+                                                   bool convolveAlpha, SkScalar sigmaX,
                                                    SkScalar sigmaY);
 
     const SkIRect& bounds() const { return fBounds; }
@@ -55,14 +47,9 @@ public:
     const char* name() const override { return "MatrixConvolution"; }
 
 private:
-    GrMatrixConvolutionEffect(GrTexture*,
-                              const SkIRect& bounds,
-                              const SkISize& kernelSize,
-                              const SkScalar* kernel,
-                              SkScalar gain,
-                              SkScalar bias,
-                              const SkIPoint& kernelOffset,
-                              GrTextureDomain::Mode tileMode,
+    GrMatrixConvolutionEffect(GrTexture*, const SkIRect& bounds, const SkISize& kernelSize,
+                              const SkScalar* kernel, SkScalar gain, SkScalar bias,
+                              const SkIPoint& kernelOffset, GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -76,13 +63,13 @@ private:
         inout->mulByUnknownFourComponents();
     }
 
-    SkIRect         fBounds;
-    SkISize         fKernelSize;
-    float           fKernel[MAX_KERNEL_SIZE];
-    float           fGain;
-    float           fBias;
-    float           fKernelOffset[2];
-    bool            fConvolveAlpha;
+    SkIRect fBounds;
+    SkISize fKernelSize;
+    float fKernel[MAX_KERNEL_SIZE];
+    float fGain;
+    float fBias;
+    float fKernelOffset[2];
+    bool fConvolveAlpha;
     GrTextureDomain fDomain;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

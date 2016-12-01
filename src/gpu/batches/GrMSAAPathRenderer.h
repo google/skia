@@ -21,12 +21,8 @@ private:
 
     void onStencilPath(const StencilPathArgs&) override;
 
-    bool internalDrawPath(GrRenderTargetContext*,
-                          const GrPaint&,
-                          const GrUserStencilSettings&,
-                          const GrClip&,
-                          const SkMatrix& viewMatrix,
-                          const GrShape&,
+    bool internalDrawPath(GrRenderTargetContext*, const GrPaint&, const GrUserStencilSettings&,
+                          const GrClip&, const SkMatrix& viewMatrix, const GrShape&,
                           bool stencilOnly);
 
     typedef GrPathRenderer INHERITED;

@@ -24,15 +24,11 @@ class GrVkRenderPass;
 
 class GrVkPipeline : public GrVkResource {
 public:
-    static GrVkPipeline* Create(GrVkGpu* gpu,
-                                const GrPipeline& pipeline,
-                                const GrStencilSettings&,
+    static GrVkPipeline* Create(GrVkGpu* gpu, const GrPipeline& pipeline, const GrStencilSettings&,
                                 const GrPrimitiveProcessor& primProc,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
-                                int shaderStageCount,
-                                GrPrimitiveType primitiveType,
-                                const GrVkRenderPass& renderPass,
-                                VkPipelineLayout layout,
+                                int shaderStageCount, GrPrimitiveType primitiveType,
+                                const GrVkRenderPass& renderPass, VkPipelineLayout layout,
                                 VkPipelineCache cache);
 
     VkPipeline pipeline() const { return fPipeline; }
@@ -48,7 +44,7 @@ public:
 protected:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}
 
-    VkPipeline  fPipeline;
+    VkPipeline fPipeline;
 
 private:
     void freeGPUData(const GrVkGpu* gpu) const override;

@@ -28,10 +28,7 @@ public:
         , fPipelineLayout(VK_NULL_HANDLE)
         , fUniformBuffer(nullptr) {}
 
-    bool copySurfaceAsDraw(GrVkGpu* gpu,
-                           GrSurface* dst,
-                           GrSurface* src,
-                           const SkIRect& srcRect,
+    bool copySurfaceAsDraw(GrVkGpu* gpu, GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
     void destroyResources(GrVkGpu* gpu);

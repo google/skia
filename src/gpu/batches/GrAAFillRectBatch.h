@@ -16,25 +16,16 @@ class GrOp;
 struct SkRect;
 
 namespace GrAAFillRectBatch {
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                  const SkRect& devRect);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
                  const SkRect& rect);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
-                 const SkRect& rect,
-                 const SkRect& devRect);
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                 const SkRect& rect, const SkRect& devRect);
 
-GrDrawOp* CreateWithLocalRect(GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
+GrDrawOp* CreateWithLocalRect(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                               const SkRect& localRect);
 };
 

@@ -17,8 +17,7 @@ class GrVkGpu;
 
 class GrVkDescriptorSet : public GrVkRecycledResource {
 public:
-    GrVkDescriptorSet(VkDescriptorSet descSet,
-                      GrVkDescriptorPool* pool,
+    GrVkDescriptorSet(VkDescriptorSet descSet, GrVkDescriptorPool* pool,
                       GrVkDescriptorSetManager::Handle handle);
 
     ~GrVkDescriptorSet() override {}
@@ -36,9 +35,9 @@ private:
     void abandonSubResources() const override;
     void onRecycle(GrVkGpu* gpu) const override;
 
-    VkDescriptorSet                          fDescSet;
+    VkDescriptorSet fDescSet;
     SkDEBUGCODE(mutable) GrVkDescriptorPool* fPool;
-    GrVkDescriptorSetManager::Handle         fHandle;
+    GrVkDescriptorSetManager::Handle fHandle;
 };
 
 #endif

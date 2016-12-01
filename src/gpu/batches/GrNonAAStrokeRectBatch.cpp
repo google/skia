@@ -7,8 +7,8 @@
 
 #include "GrNonAAStrokeRectBatch.h"
 
-#include "GrBatchTest.h"
 #include "GrBatchFlushState.h"
+#include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrVertexBatch.h"
@@ -23,7 +23,7 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
     const SkScalar rad = SkScalarHalf(width);
     // TODO we should be able to enable this assert, but we'd have to filter these draws
     // this is a bug
-    //SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
+    // SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
     verts[1].set(rect.fLeft - rad, rect.fTop - rad);
@@ -53,17 +53,16 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                       "StrokeWidth: %.2f\n",
-                       fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                       fStrokeWidth);
+        string.appendf(
+                "Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                "StrokeWidth: %.2f\n",
+                fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fStrokeWidth);
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
+    void computePipelineOptimizations(GrInitInvariantOutput* color, GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fColor);
@@ -93,14 +92,12 @@ public:
             // We want to be consistent with how we snap non-aa lines. To match what we do in
             // GrGLSLVertexShaderBuilder, we first floor all the vertex values and then add half a
             // pixel to force us to pixel centers.
-            bounds.set(SkScalarFloorToScalar(bounds.fLeft),
-                       SkScalarFloorToScalar(bounds.fTop),
-                       SkScalarFloorToScalar(bounds.fRight),
-                       SkScalarFloorToScalar(bounds.fBottom));
+            bounds.set(SkScalarFloorToScalar(bounds.fLeft), SkScalarFloorToScalar(bounds.fTop),
+                       SkScalarFloorToScalar(bounds.fRight), SkScalarFloorToScalar(bounds.fBottom));
             bounds.offset(0.5f, 0.5f);
             batch->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         } else {
-            batch->setTransformedBounds(bounds, batch->fViewMatrix, HasAABloat ::kNo,
+            batch->setTransformedBounds(bounds, batch->fViewMatrix, HasAABloat::kNo,
                                         IsZeroArea::kNo);
         }
         return batch;
@@ -116,8 +113,8 @@ private:
             Color color(fColor);
             Coverage coverage(fOverrides.readsCoverage() ? Coverage::kSolid_Type
                                                          : Coverage::kNone_Type);
-            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                                    LocalCoords::kUnused_Type);
+            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type
+                                                                  : LocalCoords::kUnused_Type);
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
 
@@ -133,8 +130,8 @@ private:
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
-                                              &firstVertex);
+        void* verts =
+                target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -183,20 +180,15 @@ private:
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;
 
-
     typedef GrVertexBatch INHERITED;
 };
 
 namespace GrNonAAStrokeRectBatch {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec& stroke,
-                 bool snapToPixelCenters) {
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                 const SkStrokeRec& stroke, bool snapToPixelCenters) {
     return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
-
 }
 
 #ifdef GR_TEST_UTILS

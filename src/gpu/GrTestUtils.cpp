@@ -16,8 +16,7 @@
 
 #ifdef GR_TEST_UTILS
 
-static const SkMatrix& test_matrix(SkRandom* random,
-                                   bool includeNonPerspective,
+static const SkMatrix& test_matrix(SkRandom* random, bool includeNonPerspective,
                                    bool includePerspective) {
     static SkMatrix gMatrices[5];
     static const int kPerspectiveCount = 1;
@@ -200,23 +199,23 @@ const SkPath& TestPathConvex(SkRandom* random) {
         // narrow rect
         gPath[0].moveTo(-1.5f, -50.0f);
         gPath[0].lineTo(-1.5f, -50.0f);
-        gPath[0].lineTo( 1.5f, -50.0f);
-        gPath[0].lineTo( 1.5f,  50.0f);
-        gPath[0].lineTo(-1.5f,  50.0f);
+        gPath[0].lineTo(1.5f, -50.0f);
+        gPath[0].lineTo(1.5f, 50.0f);
+        gPath[0].lineTo(-1.5f, 50.0f);
         // degenerate
         gPath[1].moveTo(-0.025f, -0.025f);
         gPath[1].lineTo(-0.025f, -0.025f);
-        gPath[1].lineTo( 0.025f, -0.025f);
-        gPath[1].lineTo( 0.025f,  0.025f);
-        gPath[1].lineTo(-0.025f,  0.025f);
+        gPath[1].lineTo(0.025f, -0.025f);
+        gPath[1].lineTo(0.025f, 0.025f);
+        gPath[1].lineTo(-0.025f, 0.025f);
         // clipped triangle
         gPath[2].moveTo(-10.0f, -50.0f);
         gPath[2].lineTo(-10.0f, -50.0f);
-        gPath[2].lineTo( 10.0f, -50.0f);
-        gPath[2].lineTo( 50.0f,  31.0f);
-        gPath[2].lineTo( 40.0f,  50.0f);
-        gPath[2].lineTo(-40.0f,  50.0f);
-        gPath[2].lineTo(-50.0f,  31.0f);
+        gPath[2].lineTo(10.0f, -50.0f);
+        gPath[2].lineTo(50.0f, 31.0f);
+        gPath[2].lineTo(40.0f, 50.0f);
+        gPath[2].lineTo(-40.0f, 50.0f);
+        gPath[2].lineTo(-50.0f, 31.0f);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
             SkASSERT(SkPath::kConvex_Convexity == gPath[i].getConvexity());
@@ -256,8 +255,7 @@ void TestStyle(SkRandom* random, GrStyle* style) {
         std::unique_ptr<SkScalar[]> intervals(new SkScalar[cnt]);
         SkScalar sum = 0;
         for (int i = 0; i < cnt; i++) {
-            intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
-                                                   SkDoubleToScalar(10.0));
+            intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01), SkDoubleToScalar(10.0));
             sum += intervals[i];
         }
         SkScalar phase = random->nextRangeScalar(0, sum);
@@ -270,12 +268,12 @@ TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkS
     fCount = count;
     fIntervals.reset(count);
     memcpy(fIntervals.get(), intervals, count * sizeof(SkScalar));
-    SkDashPath::CalcDashParameters(phase, intervals, count, &fInitialDashLength,
-                                   &fInitialDashIndex, &fIntervalLength, &fPhase);
+    SkDashPath::CalcDashParameters(phase, intervals, count, &fInitialDashLength, &fInitialDashIndex,
+                                   &fIntervalLength, &fPhase);
 }
 
-    bool TestDashPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                                     const SkRect* cullRect) const {
+bool TestDashPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                                    const SkRect* cullRect) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
                                       fInitialDashLength, fInitialDashIndex, fIntervalLength);
 }
@@ -332,8 +330,8 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fArgs.fFilterQuality = kNone_SkFilterQuality;
     fArgs.fDstColorSpace = fColorSpaceStorage.get();
     fArgs.fColorMode = SkToBool(fArgs.fDstColorSpace)
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
+                               ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+                               : SkDestinationSurfaceColorMode::kLegacy;
 }
 
 }  // namespace GrTest

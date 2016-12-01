@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "GrShaderCaps.h"
 #include "glsl/GrGLSLVarying.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
@@ -33,10 +33,8 @@ void GrGLSLVaryingHandler::writePassThroughAttribute(const GrGeometryProcessor::
     fProgramBuilder->fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 
-void GrGLSLVaryingHandler::internalAddVarying(const char* name,
-                                              GrGLSLVarying* varying,
-                                              GrSLPrecision precision,
-                                              bool flat) {
+void GrGLSLVaryingHandler::internalAddVarying(const char* name, GrGLSLVarying* varying,
+                                              GrSLPrecision precision, bool flat) {
     bool willUseGeoShader = fProgramBuilder->primitiveProcessor().willUseGeoShader();
     VaryingInfo& v = fVaryings.push_back();
 
@@ -66,10 +64,8 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
     int vaCount = gp.numAttribs();
     for (int i = 0; i < vaCount; i++) {
         const GrGeometryProcessor::Attribute& attr = gp.getAttrib(i);
-        this->addAttribute(GrShaderVar(attr.fName,
-                                       GrVertexAttribTypeToSLType(attr.fType),
-                                       GrShaderVar::kIn_TypeModifier,
-                                       GrShaderVar::kNonArray,
+        this->addAttribute(GrShaderVar(attr.fName, GrVertexAttribTypeToSLType(attr.fType),
+                                       GrShaderVar::kIn_TypeModifier, GrShaderVar::kNonArray,
                                        attr.fPrecision));
     }
 }

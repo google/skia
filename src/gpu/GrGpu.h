@@ -8,16 +8,16 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
+#include <map>
+#include "GrAllocator.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
-#include "GrAllocator.h"
 #include "GrTextureProducer.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"
 #include "SkTArray.h"
-#include <map>
 
 class GrBatchTracker;
 class GrBuffer;
@@ -39,7 +39,9 @@ class GrStencilSettings;
 class GrSurface;
 class GrTexture;
 
-namespace gr_instanced { class InstancedRendering; }
+namespace gr_instanced {
+class InstancedRendering;
+}
 
 class GrGpu : public SkRefCnt {
 public:
@@ -63,7 +65,7 @@ public:
      */
     const GrCaps* caps() const { return fCaps.get(); }
 
-    GrPathRendering* pathRendering() { return fPathRendering.get();  }
+    GrPathRendering* pathRendering() { return fPathRendering.get(); }
 
     enum class DisconnectType {
         // No cleanup should be attempted, immediately cease making backend API calls
@@ -115,7 +117,7 @@ public:
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* level0Data,
                              size_t rowBytes) {
         SkASSERT(level0Data);
-        GrMipLevel level = { level0Data, rowBytes };
+        GrMipLevel level = {level0Data, rowBytes};
         SkSTArray<1, GrMipLevel> array;
         array.push_back() = level;
         return this->createTexture(desc, budgeted, array);
@@ -129,7 +131,8 @@ public:
     /**
      * Implements GrTextureProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,GrWrapOwnership);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                  GrWrapOwnership);
 
     /**
      * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
@@ -165,17 +168,17 @@ public:
         /** If the GrGpu is requesting that the caller do a draw to an intermediate surface then
             this is descriptor for the temp surface. The draw should always be a rect with
             dst 0,0,w,h. */
-        GrSurfaceDesc   fTempSurfaceDesc;
+        GrSurfaceDesc fTempSurfaceDesc;
         /** Indicates whether there is a performance advantage to using an exact match texture
             (in terms of width and height) for the intermediate texture instead of approximate. */
-        SkBackingFit    fTempSurfaceFit;
+        SkBackingFit fTempSurfaceFit;
         /** Swizzle to apply during the draw. This is used to compensate for either feature or
             performance limitations in the underlying 3D API. */
-        GrSwizzle       fSwizzle;
+        GrSwizzle fSwizzle;
         /** The config that should be used to read from the temp surface after the draw. This may be
             different than the original read config in order to compensate for swizzling. The
             read data will effectively be in the original read config. */
-        GrPixelConfig   fReadConfig;
+        GrPixelConfig fReadConfig;
     };
 
     /** Describes why an intermediate draw must/should be performed before readPixels. */
@@ -217,14 +220,14 @@ public:
             that to the dst then this is the descriptor for the intermediate surface. The caller
             should upload the pixels such that the upper left pixel of the upload rect is at 0,0 in
             the intermediate surface.*/
-        GrSurfaceDesc   fTempSurfaceDesc;
+        GrSurfaceDesc fTempSurfaceDesc;
         /** Swizzle to apply during the draw. This is used to compensate for either feature or
             performance limitations in the underlying 3D API. */
-        GrSwizzle       fSwizzle;
+        GrSwizzle fSwizzle;
         /** The config that should be specified when uploading the *original* data to the temp
             surface before the draw. This may be different than the original src data config in
             order to compensate for swizzling that will occur when drawing. */
-        GrPixelConfig   fWriteConfig;
+        GrPixelConfig fWriteConfig;
     };
 
     /**
@@ -233,8 +236,8 @@ public:
      * that would allow a successful transfer of the src pixels to the dst. The passed width,
      * height, and rowBytes, must be non-zero and already reflect clipping to the dst bounds.
      */
-    bool getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
-                            GrPixelConfig srcConfig, DrawPreference*, WritePixelTempDrawInfo*);
+    bool getWritePixelsInfo(GrSurface* dstSurface, int width, int height, GrPixelConfig srcConfig,
+                            DrawPreference*, WritePixelTempDrawInfo*);
 
     /**
      * Reads a rectangle of pixels from a render target.
@@ -255,8 +258,7 @@ public:
      *              because of a unsupported pixel config or because no render
      *              target is currently set.
      */
-    bool readPixels(GrSurface* surface,
-                    int left, int top, int width, int height,
+    bool readPixels(GrSurface* surface, int left, int top, int width, int height,
                     GrPixelConfig config, void* buffer, size_t rowBytes);
 
     /**
@@ -270,10 +272,8 @@ public:
      * @param config        the pixel config of the source buffer
      * @param texels        array of mipmap levels containing texture data
      */
-    bool writePixels(GrSurface* surface,
-                     int left, int top, int width, int height,
-                     GrPixelConfig config,
-                     const SkTArray<GrMipLevel>& texels);
+    bool writePixels(GrSurface* surface, int left, int top, int width, int height,
+                     GrPixelConfig config, const SkTArray<GrMipLevel>& texels);
 
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
@@ -283,10 +283,8 @@ public:
      * @param rowBytes number of bytes between consecutive rows. Zero
      *                 means rows are tightly packed.
      */
-    bool writePixels(GrSurface* surface,
-                     int left, int top, int width, int height,
-                     GrPixelConfig config, const void* buffer,
-                     size_t rowBytes);
+    bool writePixels(GrSurface* surface, int left, int top, int width, int height,
+                     GrPixelConfig config, const void* buffer, size_t rowBytes);
 
     /**
      * Updates the pixels in a rectangle of a surface using a buffer
@@ -302,10 +300,9 @@ public:
      * @param rowBytes         number of bytes between consecutive rows. Zero
      *                         means rows are tightly packed.
      */
-    bool transferPixels(GrSurface* surface,
-                        int left, int top, int width, int height,
-                        GrPixelConfig config, GrBuffer* transferBuffer,
-                        size_t offset, size_t rowBytes, GrFence* fence);
+    bool transferPixels(GrSurface* surface, int left, int top, int width, int height,
+                        GrPixelConfig config, GrBuffer* transferBuffer, size_t offset,
+                        size_t rowBytes, GrFence* fence);
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
@@ -334,25 +331,23 @@ public:
     // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
     // src/dst bounds and non-empty.
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
+    bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
     struct MultisampleSpecs {
         MultisampleSpecs(uint8_t uniqueID, int effectiveSampleCnt, const SkPoint* locations)
-            : fUniqueID(uniqueID),
-              fEffectiveSampleCnt(effectiveSampleCnt),
-              fSampleLocations(locations) {}
+            : fUniqueID(uniqueID)
+            , fEffectiveSampleCnt(effectiveSampleCnt)
+            , fSampleLocations(locations) {}
 
         // Nonzero ID that uniquely identifies these multisample specs.
-        uint8_t          fUniqueID;
+        uint8_t fUniqueID;
         // The actual number of samples the GPU will run. NOTE: this value can be greater than the
         // the render target's sample count.
-        int              fEffectiveSampleCnt;
+        int fEffectiveSampleCnt;
         // If sample locations are supported, points to the subpixel locations at which the GPU will
         // sample. Pixel center is at (.5, .5), and (0, 0) indicates the top left corner.
-        const SkPoint*   fSampleLocations;
+        const SkPoint* fSampleLocations;
     };
 
     // Finds a render target's multisample specs. The pipeline is only needed in case we need to
@@ -419,6 +414,7 @@ public:
         void dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values);
         int numDraws() const { return fNumDraws; }
         int numFailedDraws() const { return fNumFailedDraws; }
+
     private:
         int fRenderTargetBinds;
         int fShaderCompilations;
@@ -455,15 +451,13 @@ public:
     /** If ownership of the backend texture has been transferred pass true for abandonTexture. This
         will do any necessary cleanup of the handle without freeing the texture in the backend
         API. */
-    virtual void deleteTestingOnlyBackendTexture(GrBackendObject,
-                                                 bool abandonTexture = false) = 0;
+    virtual void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture = false) = 0;
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
     virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                        int width,
-                                                                        int height) = 0;
+                                                                        int width, int height) = 0;
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
 
@@ -474,7 +468,7 @@ public:
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
     // texture provider from a non-texture src (cpu-backed image, ...).
     bool makeCopyForTextureParams(int width, int height, const GrSamplerParams&,
-                                 GrTextureProducer::CopyParams*) const;
+                                  GrTextureProducer::CopyParams*) const;
 
     // Like the above but this variation should be called when the caller is not creating the
     // original texture but rather was handed the original texture. It adds additional checks
@@ -515,10 +509,10 @@ protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget
     void didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels = 1) const;
 
-    Stats                            fStats;
+    Stats fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
-    sk_sp<const GrCaps>              fCaps;
+    sk_sp<const GrCaps> fCaps;
 
     typedef SkTArray<SkPoint, true> SamplePattern;
 
@@ -533,24 +527,25 @@ private:
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture/CompressedTexture are called.
-    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                                       SkBudgeted budgeted,
+    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                        const SkTArray<GrMipLevel>& texels) = 0;
-    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                                 SkBudgeted budgeted,
+    virtual GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                  const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
                                                             GrWrapOwnership) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&)=0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(
+            const GrBackendTextureDesc&) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
 
     virtual bool onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams&,
-                                            GrTextureProducer::CopyParams*) const { return false; }
+                                            GrTextureProducer::CopyParams*) const {
+        return false;
+    }
 
     virtual bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight,
                                      size_t rowBytes, GrPixelConfig readConfig, DrawPreference*,
@@ -560,32 +555,23 @@ private:
                                       WritePixelTempDrawInfo*) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
-    virtual bool onReadPixels(GrSurface*,
-                              int left, int top,
-                              int width, int height,
-                              GrPixelConfig,
-                              void* buffer,
-                              size_t rowBytes) = 0;
+    virtual bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrPixelConfig,
+                              void* buffer, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
-    virtual bool onWritePixels(GrSurface*,
-                               int left, int top, int width, int height,
-                               GrPixelConfig config,
-                               const SkTArray<GrMipLevel>& texels) = 0;
+    virtual bool onWritePixels(GrSurface*, int left, int top, int width, int height,
+                               GrPixelConfig config, const SkTArray<GrMipLevel>& texels) = 0;
 
     // overridden by backend-specific derived class to perform the surface write
-    virtual bool onTransferPixels(GrSurface*,
-                                  int left, int top, int width, int height,
-                                  GrPixelConfig config, GrBuffer* transferBuffer,
-                                  size_t offset, size_t rowBytes) = 0;
+    virtual bool onTransferPixels(GrSurface*, int left, int top, int width, int height,
+                                  GrPixelConfig config, GrBuffer* transferBuffer, size_t offset,
+                                  size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
 
     // overridden by backend specific derived class to perform the copy surface
-    virtual bool onCopySurface(GrSurface* dst,
-                               GrSurface* src,
-                               const SkIRect& srcRect,
+    virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
 
     // overridden by backend specific derived class to perform the multisample queries
@@ -604,12 +590,12 @@ private:
 
     typedef std::map<SamplePattern, uint8_t, SamplePatternComparator> MultisampleSpecsIdMap;
 
-    ResetTimestamp                         fResetTimestamp;
-    uint32_t                               fResetBits;
-    MultisampleSpecsIdMap                  fMultisampleSpecsIdMap;
-    SkSTArray<1, MultisampleSpecs, true>   fMultisampleSpecs;
+    ResetTimestamp fResetTimestamp;
+    uint32_t fResetBits;
+    MultisampleSpecsIdMap fMultisampleSpecsIdMap;
+    SkSTArray<1, MultisampleSpecs, true> fMultisampleSpecs;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
-    GrContext*                             fContext;
+    GrContext* fContext;
 
     friend class GrPathRendering;
     friend class gr_instanced::InstancedRendering;
