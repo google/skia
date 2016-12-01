@@ -40,6 +40,24 @@
       "revId": "d76db0ce6c0c5cecdb52991d4f413c63b57e87be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_60b81bac",
+        "filename": "experimental/svg/model/SkSVGPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-01T18:36:31Z",
+      "side": 1,
+      "message": "Updated to mutate the path in onDraw() instead.",
+      "parentUuid": "2d6e6f0e_9da164df",
+      "revId": "d76db0ce6c0c5cecdb52991d4f413c63b57e87be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
