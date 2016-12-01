@@ -1,5 +1,0 @@
-The contents of this directory are directly copied from the Android NDK to 
-avoid the need to have a dependency on the NDK directly.
-
-NDK_REVISION: 10c (October 2014)
-NDK_FILE_LOCAtION: ($NDK)/sources/android/native_app_glue

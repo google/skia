@@ -3,17 +3,15 @@
 # android_gdbserver: Pushes gdbserver. Starts debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 APP_NAME=${APP_ARGS[0]}
-PORT=5039
 
-BUILD_DIR="${SKIA_OUT}/${BUILDTYPE}"
-TARGET_LIBRARY="${BUILD_DIR}/lib/lib${APP_NAME}.so"
-if [ ! -f "$TARGET_LIBRARY" ]
+TARGET_EXE="${SKIA_OUT}/${APP_NAME}"
+if [ ! -f "$TARGET_EXE" ]
 then
-  echo "Unable to find the ${APP_NAME} library at ${TARGET_LIBRARY}."
+  echo "Unable to find ${TARGET_EXE}."
   exit 1
 fi
 
@@ -22,8 +20,9 @@ GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
 
 echo "Copying symbol files"
-if [[ $ANDROID_ARCH == *64* ]]; then
+if [[ $IS_64_BIT == "true" ]]; then
   SYSTEM_LIBRARY_PATH=/system/lib64
+  echo "64 bit!"
 else
   SYSTEM_LIBRARY_PATH=/system/lib
 fi
@@ -55,17 +54,11 @@ else
 fi
 
 echo "Pushing app..."
-for file in \
-    "${BUILD_DIR}/skia_launcher" \
-    "${BUILD_DIR}/lib/libskia_android.so" \
-    "${BUILD_DIR}/lib/lib${APP_NAME}.so" \
-    ; do
-    cp "$file" $GDB_TMP_DIR
-    adb_push_if_needed "$file" /data/local/tmp
-done
+cp "$TARGET_EXE" $GDB_TMP_DIR
+adb_push_if_needed "${TARGET_EXE}" /data/local/tmp
 
 echo "Pushing gdbserver..."
-adb_push_if_needed $ANDROID_TOOLCHAIN/gdbserver /data/local/tmp
+adb_push_if_needed $GDBSERVER_DIR/gdbserver/gdbserver /data/local/tmp
 
 echo "Setting up port forward"
 $ADB forward "tcp:5039" "tcp:5039"
@@ -79,4 +72,4 @@ set -e
 
 # Starting up gdbserver in android shell
 echo "Starting gdbserver with command: ${APP_ARGS[@]}"
-$ADB shell LD_LIBRARY_PATH=/data/local/tmp:\$LD_LIBRARY_PATH /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${APP_ARGS[@]} &
+$ADB shell /data/local/tmp/gdbserver :5039 /data/local/tmp/${APP_ARGS[@]} &

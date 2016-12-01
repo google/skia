@@ -4,23 +4,17 @@
 # output, and kills the app if interrupted.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SKIP_TOOLCHAIN_SETUP="true"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-if [ ! -f "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" ];
+if [ ! -f "${SKIA_OUT}/${APP_ARGS[0]}" ];
 then
-  echo "Unable to find $BUILDTYPE ${APP_ARGS[0]} library"
+  echo "Unable to find ${APP_ARGS[0]} executable"
   exit 1
 fi
 
 verbose "pushing binaries onto the device..."
-adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/skia_launcher" /data/local/tmp
-if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
-    # Does not exist for builds with static skia.
-    adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" /data/local/tmp
-fi
-adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/${APP_ARGS[0]}" /data/local/tmp
 if [[ -n $RESOURCE_PATH ]]; then
   verbose "pushing resources onto the device..."
   adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
@@ -32,8 +26,7 @@ if [ $LOGCAT ]; then
 fi
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 CMD_FILENAME=".skia_cmd_tmp_$(date +%s%N)"
-echo "LD_LIBRARY_PATH=/data/local/tmp:$LD_LIBRARY_PATH \
-     /data/local/tmp/skia_launcher ${APP_ARGS[*]}; \
+echo "/data/local/tmp/${APP_ARGS[*]}; \
      echo \$? > ${STATUS_FILENAME}" > ${CMD_FILENAME}
 chmod +x ${CMD_FILENAME}
 verbose "======== To reproduce this run: ========"
