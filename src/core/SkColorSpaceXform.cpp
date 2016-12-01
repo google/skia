@@ -15,6 +15,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 
@@ -1353,11 +1354,14 @@ bool SkColorSpaceXform_Pipeline::onApply(ColorFormat dstColorFormat, void* dst,
 
     if (kNone_ColorSpaceMatch == fCSM) {
         pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
-    }
 
-    if (kRGBA_8888_ColorFormat == dstColorFormat || kBGRA_8888_ColorFormat == dstColorFormat) {
-        pipeline.append(SkRasterPipeline::clamp_0);
-        pipeline.append(SkRasterPipeline::clamp_1);
+        if (kRGBA_8888_ColorFormat == dstColorFormat || kBGRA_8888_ColorFormat == dstColorFormat) {
+            bool need_clamp_0, need_clamp_1;
+            analyze_3x4_matrix(fSrcToDst, &need_clamp_0, &need_clamp_1);
+
+            if (need_clamp_0) { pipeline.append(SkRasterPipeline::clamp_0); }
+            if (need_clamp_1) { pipeline.append(SkRasterPipeline::clamp_1); }
+        }
     }
 
     if (kPremul_SkAlphaType == alphaType) {
