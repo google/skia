@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_9dc5e4f7",
+        "filename": "include/utils/SkNoDrawCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-01T17:51:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_2be061b1",
+      "revId": "38a5e14fcdc5389f1aa555e59a9c085b3114f594",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_ab237119",
         "filename": "include/utils/SkNoSaveLayerCanvas.h",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 18,
         "endChar": 33
       },
+      "revId": "38a5e14fcdc5389f1aa555e59a9c085b3114f594",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_1dd9d4dd",
+        "filename": "include/utils/SkNoSaveLayerCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-01T17:51:24Z",
+      "side": 1,
+      "message": "AFAICT, no.  At least not in Chromium.\n\nI\u0027m planning to remove it, and convert all internal non-drawing canvases in follow-up cls.",
+      "parentUuid": "f01d104e_ab237119",
       "revId": "38a5e14fcdc5389f1aa555e59a9c085b3114f594",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
