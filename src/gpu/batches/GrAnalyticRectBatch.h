@@ -10,7 +10,7 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class SkMatrix;
 struct SkRect;
 
@@ -26,7 +26,7 @@ struct SkRect;
  */
 class GrAnalyticRectBatch {
 public:
-    static GrDrawBatch* CreateAnalyticRectBatch(GrColor color,
+    static GrDrawOp* CreateAnalyticRectBatch(GrColor color,
                                                 const SkMatrix& viewMatrix,
                                                 const SkRect& rect,
                                                 const SkRect& croppedRect,

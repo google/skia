@@ -12,14 +12,14 @@
 
 #include "SkTypes.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 struct SkRect;
 class SkStrokeRec;
 class SkMatrix;
 
 namespace GrNonAAStrokeRectBatch {
 
-GrDrawBatch* Create(GrColor color,
+GrDrawOp* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkStrokeRec&,

@@ -39,7 +39,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    sk_sp<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawOp> batch(GrDashingEffect::CreateDashLineBatch(args.fPaint->getColor(),
                                                                   *args.fViewMatrix,
                                                                   pts,
                                                                   aaMode,

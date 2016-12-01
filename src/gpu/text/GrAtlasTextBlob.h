@@ -264,7 +264,7 @@ public:
      * SkAutoGlyphCache is passed to multiple calls of regenInBatch then it can save the cost of
      * multiple detach/attach operations of SkGlyphCache.
      */
-    void regenInBatch(GrDrawBatch::Target* target, GrBatchFontCache* fontCache,
+    void regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
                       GrBlobRegenHelper *helper, int run, int subRun, SkAutoGlyphCache*,
                       size_t vertexStride, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                       GrColor color, void** vertices, size_t* byteCount, int* glyphCount);
@@ -279,7 +279,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    GrDrawBatch* test_createBatch(int glyphCount, int run, int subRun,
+    GrDrawOp* test_createBatch(int glyphCount, int run, int subRun,
                                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                   const SkPaint& skPaint, const SkSurfaceProps& props,
                                   const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -496,7 +496,7 @@ private:
     };
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInBatch(GrDrawBatch::Target* target,
+    void regenInBatch(GrDrawOp::Target* target,
                       GrBatchFontCache* fontCache,
                       GrBlobRegenHelper* helper,
                       Run* run, Run::SubRunInfo* info,
@@ -505,7 +505,7 @@ private:
                       GrColor color, SkScalar transX,
                       SkScalar transY) const;
 
-    inline GrDrawBatch* createBatch(const Run::SubRunInfo& info,
+    inline GrDrawOp* createBatch(const Run::SubRunInfo& info,
                                     int glyphCount, int run, int subRun,
                                     const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                     GrColor color,

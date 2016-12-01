@@ -18,7 +18,7 @@
 #include "../private/GrRenderTargetProxy.h"
 
 class GrClip;
-class GrDrawBatch;
+class GrDrawOp;
 class GrDrawingManager;
 class GrFixedClip;
 class GrPipelineBuilder;
@@ -451,7 +451,7 @@ private:
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
     // the GrOpList.
-    void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawBatch* batch);
+    void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawOp* batch);
 
     GrRenderTargetOpList* getOpList();
 

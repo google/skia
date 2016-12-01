@@ -13,7 +13,7 @@
 
 namespace GrRectBatchFactory {
 
-GrDrawBatch* CreateAAFillNestedRects(GrColor color,
+GrDrawOp* CreateAAFillNestedRects(GrColor color,
                                      const SkMatrix& viewMatrix,
                                      const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());

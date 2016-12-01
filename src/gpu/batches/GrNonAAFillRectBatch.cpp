@@ -191,7 +191,7 @@ private:
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawBatch* Create(GrColor color,
+GrDrawOp* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkRect* localRect,

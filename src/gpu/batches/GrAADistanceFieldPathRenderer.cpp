@@ -407,7 +407,7 @@ private:
         return true;
     }
 
-    void writePathVertices(GrDrawBatch::Target* target,
+    void writePathVertices(GrDrawOp::Target* target,
                            GrBatchAtlas* atlas,
                            intptr_t offset,
                            GrColor color,
@@ -530,7 +530,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    sk_sp<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawOp> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
                                                           *args.fShape,
                                                           args.fAntiAlias, *args.fViewMatrix,
                                                           fAtlas.get(), &fShapeCache, &fShapeList,

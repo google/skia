@@ -941,7 +941,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
     }
 }
 
-static GrDrawBatch* create_hairline_batch(GrColor color,
+static GrDrawOp* create_hairline_batch(GrColor color,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const GrStyle& style,
@@ -967,7 +967,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    sk_sp<GrDrawBatch> batch(create_hairline_batch(args.fPaint->getColor(),
+    sk_sp<GrDrawOp> batch(create_hairline_batch(args.fPaint->getColor(),
                                                    *args.fViewMatrix, path,
                                                    args.fShape->style(), devClipBounds));
 

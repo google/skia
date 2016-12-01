@@ -63,7 +63,7 @@ class ShadowCircleBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
                                SkScalar radius, SkScalar blurRadius, const GrStyle& style) {
         SkASSERT(viewMatrix.isSimilarity());
         const SkStrokeRec& stroke = style.strokeRec();
@@ -831,7 +831,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GrDrawBatch* create_shadow_circle_batch(GrColor color,
+static GrDrawOp* create_shadow_circle_batch(GrColor color,
                                                const SkMatrix& viewMatrix,
                                                const SkRect& oval,
                                                SkScalar blurRadius,
@@ -845,7 +845,7 @@ static GrDrawBatch* create_shadow_circle_batch(GrColor color,
                                      blurRadius, GrStyle(stroke, nullptr));
 }
 
-static GrDrawBatch* create_shadow_rrect_batch(GrColor color,
+static GrDrawOp* create_shadow_rrect_batch(GrColor color,
                                               const SkMatrix& viewMatrix,
                                               const SkRRect& rrect,
                                               SkScalar blurRadius,
@@ -906,7 +906,7 @@ static GrDrawBatch* create_shadow_rrect_batch(GrColor color,
                                         blurRadius, scaledStroke.fX, isStrokeOnly);
 }
 
-GrDrawBatch* CreateShadowRRectBatch(GrColor color,
+GrDrawOp* CreateShadowRRectBatch(GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRRect& rrect,
                                     const SkScalar blurRadius,
@@ -944,7 +944,7 @@ DRAW_BATCH_TEST_DEFINE(ShadowCircleBatch) {
         SkScalar radius = circle.width() / 2.f;
         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
         SkScalar blurRadius = random->nextSScalar1() * 72.f;
-        GrDrawBatch* batch = ShadowCircleBatch::Create(color, viewMatrix, center, radius,
+        GrDrawOp* batch = ShadowCircleBatch::Create(color, viewMatrix, center, radius,
                                                        blurRadius, GrStyle(stroke, nullptr));
         if (batch) {
             return batch;

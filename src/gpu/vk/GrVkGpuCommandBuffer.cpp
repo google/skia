@@ -401,7 +401,7 @@ void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
 }
 
 void GrVkGpuCommandBuffer::inlineUpload(GrBatchFlushState* state,
-                                        GrDrawBatch::DeferredUploadFn& upload) {
+                                        GrDrawOp::DeferredUploadFn& upload) {
     if (!fCommandBufferInfos[fCurrentCmdBuffer].fIsEmpty) {
         this->addAdditionalCommandBuffer();
     }

@@ -387,7 +387,7 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-GrDrawBatch* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,
+GrDrawOp* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,
                                                           const SkMatrix& viewMatrix,
                                                           const SkRect& rect,
                                                           const SkRect& croppedRect,

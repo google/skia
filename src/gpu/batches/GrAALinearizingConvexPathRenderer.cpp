@@ -343,7 +343,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    sk_sp<GrDrawBatch> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawOp> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
                                                              *args.fViewMatrix,
                                                              path, strokeWidth,
                                                              stroke.getStyle(),

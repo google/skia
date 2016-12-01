@@ -607,7 +607,7 @@ public:
         SkScalar fSweepAngleRadians;
         bool fUseCenter;
     };
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
                                SkScalar radius, const GrStyle& style,
                                const ArcParams* arcParams = nullptr) {
         SkASSERT(circle_stays_circle(viewMatrix));
@@ -1150,7 +1150,7 @@ private:
 class EllipseBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
                                const SkStrokeRec& stroke) {
         SkASSERT(viewMatrix.rectStaysRect());
 
@@ -1363,7 +1363,7 @@ class DIEllipseBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawBatch* Create(GrColor color,
+    static GrDrawOp* Create(GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRect& ellipse,
                                const SkStrokeRec& stroke) {
@@ -2045,7 +2045,7 @@ public:
 
     // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
                                float devXRadius, float devYRadius, SkVector devStrokeWidths,
                                bool strokeOnly) {
         SkASSERT(devXRadius > 0.5);
@@ -2251,7 +2251,7 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-static GrDrawBatch* create_rrect_batch(GrColor color,
+static GrDrawOp* create_rrect_batch(GrColor color,
                                        bool needsDistance,
                                        const SkMatrix& viewMatrix,
                                        const SkRRect& rrect,
@@ -2323,7 +2323,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
     }
 }
 
-GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
+GrDrawOp* GrOvalRenderer::CreateRRectBatch(GrColor color,
                                               bool needsDistance,
                                               const SkMatrix& viewMatrix,
                                               const SkRRect& rrect,
@@ -2342,7 +2342,7 @@ GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
+GrDrawOp* GrOvalRenderer::CreateOvalBatch(GrColor color,
                                              const SkMatrix& viewMatrix,
                                              const SkRect& oval,
                                              const SkStrokeRec& stroke,
@@ -2370,7 +2370,7 @@ GrDrawBatch* GrOvalRenderer::CreateOvalBatch(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawBatch* GrOvalRenderer::CreateArcBatch(GrColor color,
+GrDrawOp* GrOvalRenderer::CreateArcBatch(GrColor color,
                                             const SkMatrix& viewMatrix,
                                             const SkRect& oval,
                                             SkScalar startAngle, SkScalar sweepAngle,
@@ -2422,7 +2422,7 @@ DRAW_BATCH_TEST_DEFINE(CircleBatch) {
             arcParamsTmp.fUseCenter = random->nextBool();
             arcParams = &arcParamsTmp;
         }
-        GrDrawBatch* batch = CircleBatch::Create(color, viewMatrix, center, radius,
+        GrDrawOp* batch = CircleBatch::Create(color, viewMatrix, center, radius,
                                                  GrStyle(stroke, nullptr), arcParams);
         if (batch) {
             return batch;

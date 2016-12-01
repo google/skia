@@ -11,7 +11,7 @@
 #include "GrColor.h"
 #include "SkCanvas.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class SkBitmap;
 class SkLatticeIter;
 class SkMatrix;
@@ -19,7 +19,7 @@ struct SkIRect;
 struct SkRect;
 
 namespace GrNinePatch {
-GrDrawBatch* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
+GrDrawOp* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
                          std::unique_ptr<SkLatticeIter> iter, const SkRect& dst);
 };
 

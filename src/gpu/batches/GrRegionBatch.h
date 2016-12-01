@@ -10,13 +10,13 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class SkMatrix;
 class SkRegion;
 
 namespace GrRegionBatch {
 
-GrDrawBatch* Create(GrColor color,
+GrDrawOp* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRegion& region);
 

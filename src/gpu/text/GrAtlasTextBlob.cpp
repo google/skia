@@ -254,7 +254,7 @@ bool GrAtlasTextBlob::mustRegenerate(const SkPaint& paint,
     return false;
 }
 
-inline GrDrawBatch* GrAtlasTextBlob::createBatch(
+inline GrDrawOp* GrAtlasTextBlob::createBatch(
                                               const Run::SubRunInfo& info,
                                               int glyphCount, int run, int subRun,
                                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
@@ -318,7 +318,7 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
 
         GrColor color = grPaint.getColor();
 
-        sk_sp<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
+        sk_sp<GrDrawOp> batch(this->createBatch(info, glyphCount, run,
                                                    subRun, viewMatrix, x, y, color,
                                                    skPaint, props,
                                                    distanceAdjustTable,
@@ -460,7 +460,7 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
     this->flushBigGlyphs(context, rtc, clip, skPaint, viewMatrix, x, y, clipBounds);
 }
 
-GrDrawBatch* GrAtlasTextBlob::test_createBatch(
+GrDrawOp* GrAtlasTextBlob::test_createBatch(
                                               int glyphCount, int run, int subRun,
                                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                               GrColor color,

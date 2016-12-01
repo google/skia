@@ -164,7 +164,7 @@ class TessellatingPathBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawBatch* Create(const GrColor& color,
+    static GrDrawOp* Create(const GrColor& color,
                                const GrShape& shape,
                                const SkMatrix& viewMatrix,
                                SkIRect devClipBounds,
@@ -356,7 +356,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->worstCaseWidth(),
                                       args.fRenderTargetContext->worstCaseHeight(),
                                       &clipBoundsI);
-    sk_sp<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
+    sk_sp<GrDrawOp> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
                                                            *args.fShape,
                                                            *args.fViewMatrix,
                                                            clipBoundsI,

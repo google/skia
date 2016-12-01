@@ -132,7 +132,7 @@ public:
         fMiterStroke = true;
     }
 
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                                const SkStrokeRec& stroke) {
         bool isMiter;
         if (!allowed_stroke(stroke, &isMiter)) {
@@ -577,14 +577,14 @@ void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
 
 namespace GrAAStrokeRectBatch {
 
-GrDrawBatch* CreateFillBetweenRects(GrColor color,
+GrDrawOp* CreateFillBetweenRects(GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& devOutside,
                                     const SkRect& devInside) {
     return new AAStrokeRectBatch(color, viewMatrix, devOutside, devInside);
 }
 
-GrDrawBatch* Create(GrColor color,
+GrDrawOp* Create(GrColor color,
                     const SkMatrix& viewMatrix,
                     const SkRect& rect,
                     const SkStrokeRec& stroke) {

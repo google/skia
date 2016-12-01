@@ -67,7 +67,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
+    sk_sp<GrDrawOp> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
                                                                  viewMatrix, rect,
                                                                  nullptr, &localMatrix));
 

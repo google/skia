@@ -233,7 +233,7 @@ private:
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawBatch* CreateWithPerspective(GrColor color,
+GrDrawOp* CreateWithPerspective(GrColor color,
                                    const SkMatrix& viewMatrix,
                                    const SkRect& rect,
                                    const SkRect* localRect,

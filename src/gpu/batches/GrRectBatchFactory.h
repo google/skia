@@ -26,7 +26,7 @@ class SkStrokeRec;
  */
 namespace GrRectBatchFactory {
 
-inline GrDrawBatch* CreateNonAAFill(GrColor color,
+inline GrDrawOp* CreateNonAAFill(GrColor color,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& rect,
                                     const SkRect* localRect,
@@ -39,7 +39,7 @@ inline GrDrawBatch* CreateNonAAFill(GrColor color,
     }
 }
 
-inline GrDrawBatch* CreateAAFill(const GrPaint& paint,
+inline GrDrawOp* CreateAAFill(const GrPaint& paint,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
                                  const SkRect& croppedRect,
@@ -52,7 +52,7 @@ inline GrDrawBatch* CreateAAFill(const GrPaint& paint,
     }
 }
 
-inline GrDrawBatch* CreateAAFill(GrColor color,
+inline GrDrawOp* CreateAAFill(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix,
                                  const SkRect& rect,
@@ -60,7 +60,7 @@ inline GrDrawBatch* CreateAAFill(GrColor color,
     return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-inline GrDrawBatch* CreateNonAAStroke(GrColor color,
+inline GrDrawOp* CreateNonAAStroke(GrColor color,
                                       const SkMatrix& viewMatrix,
                                       const SkRect& rect,
                                       const SkStrokeRec& strokeRec,
@@ -68,7 +68,7 @@ inline GrDrawBatch* CreateNonAAStroke(GrColor color,
     return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
 }
 
-inline GrDrawBatch* CreateAAStroke(GrColor color,
+inline GrDrawOp* CreateAAStroke(GrColor color,
                                    const SkMatrix& viewMatrix,
                                    const SkRect& rect,
                                    const SkStrokeRec& stroke) {
@@ -76,7 +76,7 @@ inline GrDrawBatch* CreateAAStroke(GrColor color,
 }
 
 // First rect is outer; second rect is inner
-GrDrawBatch* CreateAAFillNestedRects(GrColor,
+GrDrawOp* CreateAAFillNestedRects(GrColor,
                                      const SkMatrix& viewMatrix,
                                      const SkRect rects[2]);
 
