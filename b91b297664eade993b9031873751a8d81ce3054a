@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_701bd059",
+        "filename": "src/core/SkColorSpaceXformPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:31:12Z",
+      "side": 1,
+      "message": "I know that we disallow 0, but I\u0027m not sure that we disallow 1 in all cases - probably need to handle that here.  Shouldn\u0027t be too hard though (probably can just memset (or skmemset_32))?",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "b91b297664eade993b9031873751a8d81ce3054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
