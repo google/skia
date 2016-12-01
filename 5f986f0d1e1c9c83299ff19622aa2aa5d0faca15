@@ -22,6 +22,24 @@
       "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_8b00fdb5",
+        "filename": "src/gpu/.clang-format",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T17:34:24Z",
+      "side": 1,
+      "message": "ha, yes. These trailers were actually created by clang-format -dump-config",
+      "parentUuid": "2d6e6f0e_8b43dd10",
+      "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
