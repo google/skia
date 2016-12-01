@@ -115,7 +115,7 @@ static inline SkColorSpaceTransferFn invert_parametric(const SkColorSpaceTransfe
     // which can be re-written as: x = [1/e]y + [-f/e]
     //
     // and now both can be expressed in terms of the same parametric form as the
-    // original - parameters are enclosed in square barckets.
+    // original - parameters are enclosed in square brackets.
 
     // find inverse for linear segment (if possible)
     float e, f;
@@ -145,17 +145,6 @@ static inline SkColorSpaceTransferFn invert_parametric(const SkColorSpaceTransfe
     }
     const float d = fn.fE * fn.fD + fn.fF;
     return {g, a, b, c, d, e, f};
-}
-
-static std::vector<float> build_inverse_table(const float* inTable, int inTableSize) {
-    static constexpr int kInvTableSize = 256;
-    std::vector<float> outTable(kInvTableSize);
-    for (int i = 0; i < kInvTableSize; ++i) {
-        const float x = ((float) i) * (1.f / ((float) (kInvTableSize - 1)));
-        const float y = inverse_interp_lut(x, inTable, inTableSize);
-        outTable[i] = y;
-    }
-    return outTable;
 }
 
 SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
@@ -272,8 +261,10 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         for (int channel = 0; channel < 3; ++channel) {
             const SkGammas& gammas = *dstSpace->gammas();
             if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
-                std::vector<float> storage = build_inverse_table(gammas.table(channel),
-                                                                 gammas.data(channel).fTable.fSize);
+                static constexpr int kInvTableSize = 256;
+                std::vector<float> storage(kInvTableSize);
+                invert_table_gamma(storage.data(), nullptr, storage.size(), gammas.table(channel),
+                                  gammas.data(channel).fTable.fSize);
                 SkTableTransferFn table = {
                         storage.data(),
                         (int) storage.size(),

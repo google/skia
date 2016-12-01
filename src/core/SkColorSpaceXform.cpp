@@ -112,15 +112,6 @@ static void build_table_linear_from_gamma(float* outTable, const float* inTable,
     }
 }
 
-static inline float clamp_0_1(float v) {
-    if (v >= 1.0f) {
-        return 1.0f;
-    } else if (v >= 0.0f) {
-        return v;
-    } else {
-        return 0.0f;
-    }
-}
 
 static void build_table_linear_from_gamma(float* outTable, float g, float a, float b, float c,
                                           float d, float e, float f) {
@@ -137,20 +128,6 @@ static void build_table_linear_from_gamma(float* outTable, float g, float a, flo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Expand range from 0-1 to 0-255, then convert.
-static uint8_t clamp_normalized_float_to_byte(float v) {
-    // The ordering of the logic is a little strange here in order
-    // to make sure we convert NaNs to 0.
-    v = v * 255.0f;
-    if (v >= 254.5f) {
-        return 255;
-    } else if (v >= 0.5f) {
-        return (uint8_t) (v + 0.5f);
-    } else {
-        return 0;
-    }
-}
-
 static const int kDstGammaTableSize = SkColorSpaceXform_Base::kDstGammaTableSize;
 
 static void build_table_linear_to_gamma(uint8_t* outTable, float exponent) {
@@ -164,11 +141,7 @@ static void build_table_linear_to_gamma(uint8_t* outTable, float exponent) {
 
 static void build_table_linear_to_gamma(uint8_t* outTable, const float* inTable,
                                         int inTableSize) {
-    for (int i = 0; i < kDstGammaTableSize; i++) {
-        float x = ((float) i) * (1.0f / ((float) (kDstGammaTableSize - 1)));
-        float y = inverse_interp_lut(x, inTable, inTableSize);
-        outTable[i] = clamp_normalized_float_to_byte(y);
-    }
+    invert_table_gamma(nullptr, outTable, kDstGammaTableSize, inTable, inTableSize);
 }
 
 static float inverse_parametric(float x, float g, float a, float b, float c, float d, float e,

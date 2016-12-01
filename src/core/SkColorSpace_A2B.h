@@ -85,8 +85,13 @@ public:
             , fGammas(std::move(gammas))
             , fMatrix(SkMatrix44::kUninitialized_Constructor)
             , fInputChannels(fGammas->channels())
-            , fOutputChannels(fGammas->channels())
-        {}
+            , fOutputChannels(fGammas->channels()) {
+            for (int i = 0; i < fGammas->channels(); ++i) {
+                if (SkGammas::Type::kTable_Type == fGammas->type(i)) {
+                    SkASSERT(fGammas->data(i).fTable.fSize >= 2);
+                }
+            }
+        }
 
         explicit Element(sk_sp<SkColorLookUpTable> colorLUT)
             : fType(Type::kCLUT)
