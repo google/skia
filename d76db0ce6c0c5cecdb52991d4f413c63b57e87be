@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_3d48107c",
+        "filename": "experimental/svg/model/SkSVGPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-01T18:05:29Z",
+      "side": 1,
+      "message": "so we might have to make a copy for each (re)draw? Perhaps this method shouldn\u0027t be const?",
+      "range": {
+        "startLine": 40,
+        "startChar": 50,
+        "endLine": 40,
+        "endChar": 55
+      },
+      "revId": "d76db0ce6c0c5cecdb52991d4f413c63b57e87be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
