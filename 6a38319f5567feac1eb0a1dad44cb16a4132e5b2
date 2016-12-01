@@ -34,6 +34,24 @@
       "revId": "6a38319f5567feac1eb0a1dad44cb16a4132e5b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_ee7e5782",
+        "filename": "src/images/SkImageEncoderPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T14:35:33Z",
+      "side": 1,
+      "message": "You\u0027re kidding right?  This is not why we have code reviews.  It\u0027s nice Brian caught this for you, but you\u0027d have gotten compile errors right away without his help.",
+      "parentUuid": "f01d104e_ee6737fa",
+      "revId": "6a38319f5567feac1eb0a1dad44cb16a4132e5b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
