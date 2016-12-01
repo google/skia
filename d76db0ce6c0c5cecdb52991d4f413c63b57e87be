@@ -22,6 +22,24 @@
       "revId": "d76db0ce6c0c5cecdb52991d4f413c63b57e87be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_9da164df",
+        "filename": "experimental/svg/model/SkSVGPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-01T18:13:57Z",
+      "side": 1,
+      "message": "We might, but only if an inherited fill-rule is different from the local SkPath fill.  If the fill-rule is not inherited, but specified on the element itself, then the optimization above should avoid this copy.\n\nI\u0027m not opposed to the non-const API tweak, but it seems a bit hacky because drawing should be const, and changing the SkSVGShape interface only because there\u0027s some SkPath API friction here doesn\u0027t make a lot of sense for the other subclasses.  Maybe the local SkPath should be mutable instead?",
+      "parentUuid": "2d6e6f0e_3d48107c",
+      "revId": "d76db0ce6c0c5cecdb52991d4f413c63b57e87be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
