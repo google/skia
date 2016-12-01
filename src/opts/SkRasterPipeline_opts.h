@@ -641,6 +641,17 @@ STAGE(matrix_2x3) {
     r = R;
     g = G;
 }
+STAGE(matrix_3x3) {
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[3], b*m[6])),
+         G = fma(r,m[1], fma(g,m[4], b*m[7])),
+         B = fma(r,m[2], fma(g,m[5], b*m[8]));
+    r = R;
+    g = G;
+    b = B;
+}
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 

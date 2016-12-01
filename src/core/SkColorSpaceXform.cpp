@@ -1353,7 +1353,11 @@ bool SkColorSpaceXform_Pipeline::onApply(ColorFormat dstColorFormat, void* dst,
     }
 
     if (kNone_ColorSpaceMatch == fCSM) {
-        pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
+        if (fSrcToDst[9] || fSrcToDst[10] || fSrcToDst[11]) {
+            pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
+        } else {
+            pipeline.append(SkRasterPipeline::matrix_3x3, fSrcToDst);
+        }
 
         if (kRGBA_8888_ColorFormat == dstColorFormat || kBGRA_8888_ColorFormat == dstColorFormat) {
             bool need_clamp_0, need_clamp_1;
