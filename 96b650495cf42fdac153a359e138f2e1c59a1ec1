@@ -22,6 +22,24 @@
       "revId": "96b650495cf42fdac153a359e138f2e1c59a1ec1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_91f66b6d",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T21:39:59Z",
+      "side": 1,
+      "message": "Yeah, makes sense.  Done.",
+      "parentUuid": "2d6e6f0e_d11e23d7",
+      "revId": "96b650495cf42fdac153a359e138f2e1c59a1ec1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
