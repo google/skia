@@ -253,6 +253,10 @@ bool SkColorSpace::gammaIsLinear() const {
     return as_CSB(this)->onGammaIsLinear();
 }
 
+bool SkColorSpace::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
+    return as_CSB(this)->onIsNumericalTransferFn(coeffs);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
