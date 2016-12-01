@@ -22,6 +22,24 @@
       "revId": "b62eff6773885ebf3d915f3626835c27fbc3b2d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d0f2a4b8",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-01T15:11:05Z",
+      "side": 1,
+      "message": "I did kReplace_Op, because that was only HWUI use case, but it is easy to make it for all operations that can grow the clip. Should I do it?\n\n1. Yes. In HWUI use case each frame can be drawn with a different dirty rectangle on the same canvas. \n2. Yes.  In Android eglSwapBuffersWithDamageKHR is taking the damaged rectangle with integers.  The damage rectangle is calculated with floats and then converted to integers with roundOut. SkRasterClip has a integer clip already implemented with the size of the top layer, but SkClipStack works with floats only. Should I change setBoundRect to take SkIRect?\n3. In HWUI use case it is not removed, but I assumed one may want to remove it. Removal is supported through setting an empty rect -\u003e I\u0027ll update the doc to spell it.",
+      "parentUuid": "f01d104e_2ba30150",
+      "revId": "b62eff6773885ebf3d915f3626835c27fbc3b2d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
