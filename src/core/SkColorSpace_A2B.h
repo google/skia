@@ -80,8 +80,13 @@ public:
         explicit Element(sk_sp<SkGammas> gammas)
             : fType(Type::kGammas)
             , fGammas(std::move(gammas))
-            , fMatrix(SkMatrix44::kUninitialized_Constructor)  
-        {}
+            , fMatrix(SkMatrix44::kUninitialized_Constructor) {
+            for (int i = 0; i < 3; ++i) {
+                if (SkGammas::Type::kTable_Type == fGammas->type(i)) {
+                    SkASSERT(fGammas->data(i).fTable.fSize >= 2);
+                }
+            }
+        }
 
         explicit Element(sk_sp<SkColorLookUpTable> colorLUT)
             : fType(Type::kCLUT)
