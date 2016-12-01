@@ -20,8 +20,8 @@
 #include "SkGeometry.h"
 #include "SkTLList.h"
 
+#include "batches/GrMeshDrawOp.h"
 #include "batches/GrTestBatch.h"
-#include "batches/GrVertexBatch.h"
 
 #include "effects/GrConvexPolyEffect.h"
 
