@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_78144b6d",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-02T17:23:20Z",
+      "side": 1,
+      "message": "will fix here and other places I missed \"this\"",
+      "parentUuid": "ede617fe_4519a0a1",
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_e511cc77",
         "filename": "src/core/SkClipStack.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-02T17:05:47Z",
       "side": 1,
       "message": "Can we pass false instead of doAA? Don\u0027t we know its integer aligned?",
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_78fd6bfb",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-02T17:23:20Z",
+      "side": 1,
+      "message": "fBoundRect is integer aligned. I\u0027ll pass false instead of doAA here and below in clipPath.",
+      "parentUuid": "ede617fe_e511cc77",
       "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
