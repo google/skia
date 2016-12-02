@@ -2623,7 +2623,7 @@
     "Build-Ubuntu-GCC-x86_64-Release-Shared": {
       "dimensions": [
         "gpu:none",
-        "os:Ubuntu",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "extra_args": [
