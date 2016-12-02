@@ -57,7 +57,7 @@ void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMC
         ( sk_linear_to_srgb(c4x.r) <<  0
         | sk_linear_to_srgb(c4x.g) <<  8
         | sk_linear_to_srgb(c4x.b) << 16
-        | Sk4f_round(255.0f*c4x.a) << 24).store(dst);
+        | SkNf_round(255.0f*c4x.a) << 24).store(dst);
 
         c4x.r += dc4x.r;
         c4x.g += dc4x.g;
