@@ -8,11 +8,11 @@
 #ifndef SkLiteRecorder_DEFINED
 #define SkLiteRecorder_DEFINED
 
-#include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
 
 class SkLiteDL;
 
-class SkLiteRecorder final : public SkCanvas {
+class SkLiteRecorder final : public SkNoDrawCanvas {
 public:
     SkLiteRecorder();
     void reset(SkLiteDL*);
@@ -90,6 +90,8 @@ public:
 #endif
 
 private:
+    typedef SkNoDrawCanvas INHERITED;
+
     SkLiteDL* fDL;
 };
 

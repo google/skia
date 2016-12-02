@@ -208,7 +208,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPipeCanvas::SkPipeCanvas(const SkRect& cull, SkPipeDeduper* deduper, SkWStream* stream)
-    : INHERITED(cull.roundOut(), SkCanvas::kConservativeRasterClip_InitFlag)
+    : INHERITED(cull.roundOut())
     , fDeduper(deduper)
     , fStream(stream)
 {}

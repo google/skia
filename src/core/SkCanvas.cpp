@@ -3373,6 +3373,9 @@ SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
 SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
     : INHERITED(SkIRect::MakeWH(width, height), kConservativeRasterClip_InitFlag) {}
 
+SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
+    : INHERITED(bounds, kConservativeRasterClip_InitFlag) {}
+
 SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     (void)this->INHERITED::getSaveLayerStrategy(rec);
     return kNoLayer_SaveLayerStrategy;

@@ -8,9 +8,9 @@
 #ifndef SkPipeCanvas_DEFINED
 #define SkPipeCanvas_DEFINED
 
-#include "SkCanvas.h"
 #include "SkDeduper.h"
 #include "SkImage.h"
+#include "SkNoDrawCanvas.h"
 #include "SkPipe.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
@@ -89,7 +89,7 @@ private:
 };
 
 
-class SkPipeCanvas : public SkCanvas {
+class SkPipeCanvas : public SkNoDrawCanvas {
 public:
     SkPipeCanvas(const SkRect& cull, SkPipeDeduper*, SkWStream*);
     ~SkPipeCanvas() override;
@@ -165,7 +165,7 @@ private:
 
     friend class SkPipeWriter;
 
-    typedef SkCanvas INHERITED;
+    typedef SkNoDrawCanvas INHERITED;
 };
 
 

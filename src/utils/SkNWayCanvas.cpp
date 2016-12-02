@@ -6,8 +6,7 @@
  */
 #include "SkNWayCanvas.h"
 
-SkNWayCanvas::SkNWayCanvas(int width, int height)
-        : INHERITED(SkIRect::MakeWH(width, height), SkCanvas::kConservativeRasterClip_InitFlag) {}
+SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}
 
 SkNWayCanvas::~SkNWayCanvas() {
     this->removeAll();

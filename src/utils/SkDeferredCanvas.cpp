@@ -45,7 +45,7 @@ void SkDeferredCanvas::Rec::setConcat(const SkMatrix& m) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas)
-    : SkCanvas({0,0,1,1}, SkCanvas::kConservativeRasterClip_InitFlag) {
+    : INHERITED(1, 1) {
     this->reset(canvas);
 }
 

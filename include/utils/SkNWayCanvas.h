@@ -10,9 +10,9 @@
 #define SkNWayCanvas_DEFINED
 
 #include "../private/SkTDArray.h"
-#include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
 
-class SK_API SkNWayCanvas : public SkCanvas {
+class SK_API SkNWayCanvas : public SkNoDrawCanvas {
 public:
     SkNWayCanvas(int width, int height);
     virtual ~SkNWayCanvas();
@@ -87,7 +87,7 @@ protected:
     class Iter;
 
 private:
-    typedef SkCanvas INHERITED;
+    typedef SkNoDrawCanvas INHERITED;
 };
 
 
