@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "ede617fe_ff107b03",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-02T02:49:53Z",
+      "side": 1,
+      "message": "This is dumb, but SkNx_fma takes (const T\u0026, const T\u0026, constT\u0026), which means you can\u0027t write float literals.  It\u0027s SkNx_fma(SkNf(255.0f), ..., SkNf(0.5f)) or SkNf_fma(255.0f, ..., 0.5f).",
+      "parentUuid": "ede617fe_9f13f720",
+      "revId": "707db893954b9f01cf74ec8f72f7d880928ea702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_7f2f0b50",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 546,
         "endChar": 59
       },
+      "revId": "707db893954b9f01cf74ec8f72f7d880928ea702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_1fdfe729",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-02T02:49:53Z",
+      "side": 1,
+      "message": "Not sure.  I\u0027ll check that and some other things (like doing the float -\u003e int conversion manually) next.",
+      "parentUuid": "ede617fe_7f2f0b50",
       "revId": "707db893954b9f01cf74ec8f72f7d880928ea702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
