@@ -547,11 +547,18 @@ STAGE(load_8888_d) {
     from_8888(load(tail, ptr), &dr, &dg, &db, &da);
 }
 STAGE(store_8888) {
+    auto byte = [](const SkNf& x, int ix) {
+        // Here's a neat trick: 0x47000000 == 32768.0f, and 0x470000ff == 32768.0f + (255/256.0f).
+        auto v = SkNf_fma(255/256.0f, x, 32768.0f);
+        switch (ix) {
+            case 0: return SkNi::Load(&v) & 0xff;  // R
+            case 3: return SkNi::Load(&v) << 24;   // A
+        }
+        return (SkNi::Load(&v) & 0xff) << (8*ix);  // B or G
+    };
+
     auto ptr = *(uint32_t**)ctx + x;
-    store(tail, ( SkNf_round(255.0f, r) << 0
-                | SkNf_round(255.0f, g) << 8
-                | SkNf_round(255.0f, b) << 16
-                | SkNf_round(255.0f, a) << 24 ), (int*)ptr);
+    store(tail, byte(r,0)|byte(g,1)|byte(b,2)|byte(a,3), (int*)ptr);
 }
 
 STAGE(load_tables) {
