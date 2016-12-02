@@ -81,6 +81,24 @@
       "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_2d98d35f",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-02T16:52:49Z",
+      "side": 1,
+      "message": "on second thought we won\u0027t be doing 2 intersects for clipPath unless the new clip is bigger than the bounds (this is a way to escape infinite recursion as well). I\u0027m not sure how expensive is to check if a clip shape (rect, path or rrect) falls entirely within the bounds rectangle.",
+      "parentUuid": "2d6e6f0e_0d8fd74b",
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
