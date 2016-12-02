@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_b8c1fd22",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-02T21:04:21Z",
+      "side": 1,
+      "message": "what is our answer if alpha \u003e 1 ?",
+      "range": {
+        "startLine": 630,
+        "startChar": 27,
+        "endLine": 630,
+        "endChar": 28
+      },
+      "revId": "a221eaae88253cfd7e102f3d57bb880aab805b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
