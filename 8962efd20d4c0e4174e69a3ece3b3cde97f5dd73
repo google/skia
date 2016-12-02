@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede617fe_1fc44752",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:01:29Z",
+      "side": 1,
+      "message": "Seems like it\u0027s fine to check this is a loop just like below.  It would detect the \"two values\" case without much work and also catch more general cases.\n\nSorry I missed this the first time.",
+      "range": {
+        "startLine": 861,
+        "startChar": 8,
+        "endLine": 861,
+        "endChar": 73
+      },
+      "revId": "8962efd20d4c0e4174e69a3ece3b3cde97f5dd73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_9fb777d9",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:01:29Z",
+      "side": 1,
+      "message": "I had to look up to remember why this was here... probably moot if you make the above change.\n\nThis might read nicely as:\n\nif\n  for\n    if\n      return false\nelse\n  for\n    if\n      return false\n\nreturn true",
+      "range": {
+        "startLine": 874,
+        "startChar": 4,
+        "endLine": 874,
+        "endChar": 17
+      },
+      "revId": "8962efd20d4c0e4174e69a3ece3b3cde97f5dd73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
