@@ -16,6 +16,167 @@
       "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_1f49a731",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "Maybe nicer to just wrap this statement with SkDEBUGCODE()?",
+      "range": {
+        "startLine": 790,
+        "startChar": 8,
+        "endLine": 790,
+        "endChar": 32
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_3f4e633a",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "This is correct in terms of Skia style, but I think I would prefer it if you just say \"\u003d false\" in the class definition.  What do you think Leon?",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 15
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_7f48eb2a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "nit: SkJpegCodec* codec (or just SkCodec*)",
+      "range": {
+        "startLine": 258,
+        "startChar": 8,
+        "endLine": 258,
+        "endChar": 26
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_bf06f3cc",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "Alternatively, you could change this to return SkColorSpace::MakeNamed(kSRGB).\n\nThen in the function below you could always setUnsupportedICC() if the colorspace is nullptr (no need for an out variable).  This would have the added effect (bonus?) of catching other failed attempts to specify SkColorSpaces.",
+      "range": {
+        "startLine": 417,
+        "startChar": 4,
+        "endLine": 417,
+        "endChar": 19
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_bf399394",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "What about?\n\nbool unsupportedICC \u003d false;\nif (WebPDemux...) {\n  colorSpace \u003d MakeICC(...)\n  unsupportedICC \u003d !colorSpace;",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 5
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_bfefd3cc",
+        "filename": "tools/get_images_from_skps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "nit: Maybe make the wording/parentheses of this comment consistent with the one above it?",
+      "range": {
+        "startLine": 31,
+        "startChar": 47,
+        "endLine": 31,
+        "endChar": 72
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_7fde2b2b",
+        "filename": "tools/get_images_from_skps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:55:57Z",
+      "side": 1,
+      "message": "testICCSupported?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
