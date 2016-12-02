@@ -778,7 +778,7 @@ protected:
 
     virtual std::vector<FrameInfo> onGetFrameInfo() {
         // empty vector - this is not animated.
-        return {};
+        return std::vector<FrameInfo>{};
     }
 
     virtual int onGetRepetitionCount() {
