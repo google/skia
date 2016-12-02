@@ -87,6 +87,24 @@
       "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_6593fceb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-12-02T16:35:05Z",
+      "side": 1,
+      "message": "Removed the special case, thanks!",
+      "parentUuid": "ede617fe_7f446bb8",
+      "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
