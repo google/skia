@@ -22,6 +22,24 @@
       "revId": "024f96d8776a0bb4b7d5a2eaceb93ded751c4587",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_e21d422b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-02T13:29:52Z",
+      "side": 1,
+      "message": "Duh, yes.  Fixed.",
+      "parentUuid": "2d6e6f0e_ca430510",
+      "revId": "024f96d8776a0bb4b7d5a2eaceb93ded751c4587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
