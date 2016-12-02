@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_6d576be9",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-02T16:38:11Z",
+      "side": 1,
+      "message": "I\u0027ll change the API to take a pointer. A new SkRasterClip is created on SkCanvas::save and popped from a stack on SkCanvas::restore. Having a pointer makes it easier for all of them to have the save value as the parent SkCanvas.  If I copy the rect, then I would need to reset the bounds in \"SkCanvas::restore\"(bounds may have changed while SkRasterClip was not current). This problem does not exist for SkClipStack, because there is just one such object per SkCanvas.",
+      "parentUuid": "2d6e6f0e_ada6a3f2",
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_6d112b3b",
         "filename": "src/core/SkRasterClip.h",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 141,
         "endChar": 40
       },
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_0d8fd74b",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-02T16:38:11Z",
+      "side": 1,
+      "message": "Currently Android is replacing the clip with the same rect that is passed to SkCanvas::setBoundRect. I\u0027m afraid that enforcing always the bounds (even for intersect and diff) will make things slower. Currently \"replaceop\" for clipPath is adding an additional \"intersect\". If we apply the same rule than we multiply the interesect ops x2.",
+      "parentUuid": "2d6e6f0e_6d112b3b",
       "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
