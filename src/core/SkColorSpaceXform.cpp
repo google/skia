@@ -19,7 +19,7 @@
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 
-#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_UNIX)
+#if 0
 static constexpr bool kUseRasterPipeline = true;
 #else
 static constexpr bool kUseRasterPipeline = false;
