@@ -2,6 +2,144 @@
   "comments": [
     {
       "key": {
+        "uuid": "ede617fe_628db213",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "This seems fine for now, but I wonder if we might ever want to:\n(1) Leave the xform input as single channel gray.\nor\n(2) Leave the output as single channel.  In general, does it make sense to have a kGray buffer that is tagged as sRGB?",
+      "range": {
+        "startLine": 533,
+        "startChar": 12,
+        "endLine": 535,
+        "endChar": 42
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_ff979b30",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "I\u0027d be interested to understand this a little better.  Let\u0027s talk offline.",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 260,
+        "endChar": 32
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_51d053b7",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "Is this check necessary?  Or should we not do this and just go ahead if we have a grayTRC?",
+      "range": {
+        "startLine": 1531,
+        "startChar": 0,
+        "endLine": 1533,
+        "endChar": 9
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_1161bb17",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1554,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "Not required, but this seems a bit familiar.  Any way we can do a better job of sharing code?",
+      "range": {
+        "startLine": 1549,
+        "startChar": 0,
+        "endLine": 1554,
+        "endChar": 37
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d1dbc3d5",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 1558,
+        "startChar": 70,
+        "endLine": 1558,
+        "endChar": 74
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_b193a7ea",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T03:17:26Z",
+      "side": 1,
+      "message": "Is it valid for Gray profiles to use the Lab connection space?",
+      "range": {
+        "startLine": 1558,
+        "startChar": 42,
+        "endLine": 1558,
+        "endChar": 69
+      },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_76cd85c2",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
