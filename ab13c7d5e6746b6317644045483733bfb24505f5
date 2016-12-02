@@ -39,6 +39,24 @@
       "revId": "ab13c7d5e6746b6317644045483733bfb24505f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_c5077081",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T16:57:25Z",
+      "side": 0,
+      "message": "Yeah. I\u0027m pretty sure I intended to delete it when I did the CMYK change. The 1st channel is already loaded into data/params/type, and since after the CMYK change we don\u0027t have the 3 channels there\u0027s just now a loop there. We\u0027re in the case when all 3 tags are equal. I\u0027m actually not sure why it was there in the first place, but perhaps I\u0027m missing something.",
+      "parentUuid": "2d6e6f0e_31c037e8",
+      "revId": "ab13c7d5e6746b6317644045483733bfb24505f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

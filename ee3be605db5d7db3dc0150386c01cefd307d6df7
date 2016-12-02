@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_8d14876e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T16:57:25Z",
+      "side": 1,
+      "message": "Actually, similarly to the 3-component matrix-based (ie XZYTRC) profiles where it says the A2B tags may be included, it says the same thing for monochrome (ie gray, kTRC) profiles. So maybe we should ignore it.\n\nWith the A2B before XYZ refactor it would be getting hit anyway. I\u0027ll just remove this. If the A2B tags aren\u0027t nicely defined the monochrome they won\u0027t successfully parse anyway. This would mean that I can\u0027t use InputColorFormat \u003d\u003d kGray to insert the whitepoint adjustment though, but I could just put an additional check for there being only 1 input channel, if the A2B tags happen to use the CLUT to do whitepoint adjustment.",
+      "parentUuid": "2d6e6f0e_51d053b7",
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_1161bb17",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 5
@@ -88,6 +106,24 @@
         "endLine": 1554,
         "endChar": 37
       },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_6d964b9e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1554,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T16:57:25Z",
+      "side": 1,
+      "message": "You could probably share this code with the all-channels-same case of XYZTRC. Maybe allocate_uniform_gammas(channels, Data, Type, Tag).",
+      "parentUuid": "2d6e6f0e_1161bb17",
       "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -134,6 +170,42 @@
         "endLine": 1558,
         "endChar": 69
       },
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_cd8b1f6f",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T16:57:25Z",
+      "side": 1,
+      "message": "Right, I forgot about that PCSLAB \u003d\u003e n-component LUT-based profile, and that gray profiles are a 3rd separate kind of profile.\n\nI wonder, should they even be in the A2B ColorSpace then? At least if the swizzler still copies the gray channel to all 3 colour channels (is it the same to all 3?), then you could probably just specify the whitepoint adjustment as a matrix, then duplicate the  gray TRC into 3 channels. You\u0027d be taking the XYZ xform instead of the A2B xform, but would also be evaluating the TRC 3 times as much, and removing the possibility of only passing in the red(gray) buffer and having a special load_gray stage that does 8bit grayscale buffers and stores them in r.",
+      "parentUuid": "2d6e6f0e_b193a7ea",
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_cd1e7f8a",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T16:57:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2d6e6f0e_d1dbc3d5",
       "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
