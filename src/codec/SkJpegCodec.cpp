@@ -237,6 +237,9 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
                 case JCS_YCCK:
                     inputColorFormat = SkColorSpace_Base::InputColorFormat::kCMYK;
                     break;
+                case JCS_GRAYSCALE:
+                    inputColorFormat = SkColorSpace_Base::InputColorFormat::kGray;
+                    break;
                 default:
                     break;
             }

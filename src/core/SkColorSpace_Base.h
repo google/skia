@@ -176,7 +176,8 @@ public:
 
     enum class InputColorFormat {
         kRGB,
-        kCMYK
+        kCMYK,
+        kGray
     };
 
     static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len,

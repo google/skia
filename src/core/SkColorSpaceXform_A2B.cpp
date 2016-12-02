@@ -14,10 +14,11 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkMakeUnique.h"
 #include "SkNx.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
 
-#include "SkRasterPipeline_opts.h"
+#include <algorithm>
 
 #define AI SK_ALWAYS_INLINE
 
@@ -170,6 +171,9 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
             this->addTransferFns({1.f, 0.f, 0.f, 0.f, 1.f, -1.f, 1.f}, 4);
             break;
+        case SkColorSpace_Base::InputColorFormat::kGray:
+            currentChannels = 1;
+            break;
         default:
             SkASSERT(false);
     }
@@ -236,13 +240,28 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         }
     }
 
-    SkASSERT(3 == currentChannels);
+    // take care of monochrome ICC profiles (but not A2B with gray input color space!)
+    if (1 == currentChannels) {
+        // Gray color spaces must multiply their channel by the PCS whitepoint to convert to
+        // the PCS however, PCSLAB profiles must be n-component LUT-based ones, which
+        // need to have 3 (to match PCS) output channels, not 1
+        SkASSERT(SkColorSpace_Base::InputColorFormat::kGray == srcSpace->inputColorFormat());
+        SkASSERT(SkColorSpace_A2B::PCS::kXYZ == srcSpace->pcs());
+        constexpr float PCSXYZWhitePoint[3] = {0.9642f, 1.f, 0.8249f};
+        fMatrices.push_front(std::vector<float>(12, 0.f));
+        std::copy_n(PCSXYZWhitePoint, 3, fMatrices.front().begin());
+        fElementsPipeline.append(SkRasterPipeline::matrix_3x4, fMatrices.front().data());
+        currentChannels = 3;
+    }
 
     // Lab PCS -> XYZ PCS
     if (SkColorSpace_A2B::PCS::kLAB == srcSpace->pcs()) {
         SkCSXformPrintf("Lab -> XYZ element added\n");
         fElementsPipeline.append(SkRasterPipeline::lab_to_xyz);
     }
+
+    // we should now be in XYZ PCS
+    SkASSERT(3 == currentChannels);
 
     // and XYZ PCS -> output color space xforms
     if (!dstSpace->fromXYZD50()->isIdentity()) {
