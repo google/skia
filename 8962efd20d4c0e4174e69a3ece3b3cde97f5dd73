@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_6d4beba1",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T15:47:26Z",
+      "side": 1,
+      "message": "What I had originally was just one loop with just different initialization of x if it\u0027s 8 or 16 bits. I see no reason as to why they would encode a linear gammas as something other than 2 values, as that is what the ICC specs say it should be (because LERPing). With the lut8 type they have no choice as the size is fixed to 256. None of the images I had in both the lut16Type or the AtoBType had linear gamma except for when they just used 2 values, out of the test images + those 1789 sksps.",
+      "parentUuid": "ede617fe_1fc44752",
+      "revId": "8962efd20d4c0e4174e69a3ece3b3cde97f5dd73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_9fb777d9",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 3
