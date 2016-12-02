@@ -9,8 +9,8 @@
 #define SkRecorder_DEFINED
 
 #include "SkBigPicture.h"
-#include "SkCanvas.h"
 #include "SkMiniRecorder.h"
+#include "SkNoDrawCanvas.h"
 #include "SkRecord.h"
 #include "SkRecords.h"
 #include "SkTDArray.h"
@@ -36,7 +36,7 @@ private:
 
 // SkRecorder provides an SkCanvas interface for recording into an SkRecord.
 
-class SkRecorder : public SkCanvas {
+class SkRecorder final : public SkNoDrawCanvas {
 public:
     // Does not take ownership of the SkRecord.
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
