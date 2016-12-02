@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede617fe_9f13f720",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:16:17Z",
+      "side": 1,
+      "message": "Why do you need to wrap SkNx_fma with SkNf_fma?",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 89
+      },
+      "revId": "707db893954b9f01cf74ec8f72f7d880928ea702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_7f2f0b50",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-02T02:16:17Z",
+      "side": 1,
+      "message": "Remind me why we can\u0027t just round?  Is this faster than mul and round?",
+      "range": {
+        "startLine": 546,
+        "startChar": 18,
+        "endLine": 546,
+        "endChar": 59
+      },
+      "revId": "707db893954b9f01cf74ec8f72f7d880928ea702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
