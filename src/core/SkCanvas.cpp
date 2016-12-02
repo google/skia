@@ -1061,6 +1061,7 @@ void SkCanvas::internalSave() {
     fMCRec = newTop;
 
     fClipStack->save();
+    fMCRec->fRasterClip.setBoundRect(&fBoundRect);
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
@@ -1535,6 +1536,12 @@ void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle
                            isAA);
     fDeviceCMDirty = true;
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+}
+
+void SkCanvas::setBoundRect(const SkIRect& rect) {
+    fBoundRect = rect;
+    fClipStack->setBoundRect(rect);
+    fMCRec->fRasterClip.setBoundRect(&fBoundRect);
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {

@@ -185,8 +185,10 @@ bool SkRasterClip::setPath(const SkPath& path, const SkRegion& clip, bool doAA) 
     return this->updateCacheAndReturnNonEmpty();
 }
 
-bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRect& bounds,
+bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRect& devBounds,
                       SkRegion::Op op, bool doAA) {
+    SkIRect bounds(devBounds);
+    this->applyBounds(op, bounds);
     if (fForceConservativeRects) {
         return this->op(rrect.getBounds(), matrix, bounds, op, doAA);
     }
@@ -197,9 +199,11 @@ bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRec
     return this->op(path, matrix, bounds, op, doAA);
 }
 
-bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect& bounds,
+bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect& devBounds,
                       SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
+    SkIRect bounds(devBounds);
+    this->applyBounds(op, bounds);
 
     if (fForceConservativeRects) {
         SkIRect ir;
@@ -321,9 +325,11 @@ static bool nearly_integral(SkScalar x) {
     return x - SkScalarFloorToScalar(x) < domain;
 }
 
-bool SkRasterClip::op(const SkRect& localRect, const SkMatrix& matrix, const SkIRect& bounds,
+bool SkRasterClip::op(const SkRect& localRect, const SkMatrix& matrix, const SkIRect& devBounds,
                       SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
+    SkIRect bounds(devBounds);
+    this->applyBounds(op, bounds);
     SkRect devRect;
 
     if (fForceConservativeRects) {
