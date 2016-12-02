@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_adc7c333",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-02T14:40:48Z",
+      "side": 1,
+      "message": "That sounds fine to me. I believe reed@ encouraged me to do that for a case where we want to make sure all the constructors do the same thing. Since we have to surround with #ifdefs, it will make things a lot cleaner here, so I support it.",
+      "parentUuid": "ede617fe_3f4e633a",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_7f48eb2a",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 2
