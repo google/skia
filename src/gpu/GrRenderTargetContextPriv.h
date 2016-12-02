@@ -51,6 +51,16 @@ public:
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
+    /*
+     * Some portions of the code, which use approximate-match rendertargets (i.e., ImageFilters), 
+     * rely on clears that are issued outside of the content region to still have an effect. 
+     * For example, when sampling a decimated blurred image back up to full size, the GaussianBlur
+     * code draws 1-pixel rects along the left and bottom edges to be able to use bilerp for 
+     * upsampling
+(although it really sound like we want to clamp there).
+     */
+    void absClear(const SkIRect& rect, const GrColor color);
+
     void stencilRect(const GrClip& clip,
                      const GrUserStencilSettings* ss,
                      bool useHWAA,

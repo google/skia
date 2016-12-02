@@ -44,6 +44,26 @@ void GrRenderTarget::discard() {
     renderTargetContext->discard();
 }
 
+#include "SkMathPriv.h"
+#include "GrRenderTargetContextPriv.h"
+
+void GrRenderTarget::clear() {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (!context) {
+        return;
+    }
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(this), nullptr));
+    if (!renderTargetContext) {
+        return;
+    }
+
+
+    renderTargetContext->priv().absClear(SkIRect::MakeWH(this->width(), this->height()), 0xFFFFFFFF);
+}
+
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
         if (rect) {

@@ -89,6 +89,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped(const GrCaps& caps, GrTextureProvider*
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
+#if 0
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
@@ -201,5 +202,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         }
     }
 }
+#endif
 
 #endif

@@ -34,7 +34,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fCompressedTexSubImageSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
 
-    fUseDrawInsteadOfClear = false;
+    fUseDrawInsteadOfClear = true;
     fFenceSyncSupport = true;   // always available in Vulkan
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out

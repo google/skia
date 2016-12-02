@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
+#include "GrRenderTargetContextPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
@@ -92,6 +93,8 @@ static bool sw_draw_with_mask_filter(GrRenderTargetContext* renderTargetContext,
     return draw_mask(renderTargetContext, clipData, viewMatrix, dstM.fBounds, grp, texture.get());
 }
 
+#include "SkMathPriv.h"
+
 // Create a mask of 'devPath' and place the result in 'mask'.
 static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
                                              const SkIRect& maskRect,
@@ -111,7 +114,9 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
         return nullptr;
     }
 
-    rtContext->clear(nullptr, 0x0, true);
+    SkIRect r = SkIRect::MakeWH(GrNextPow2(maskRect.width()), GrNextPow2(maskRect.height()));
+
+    rtContext->priv().absClear(r, 0x0); // big one !
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -141,8 +146,8 @@ static void draw_path_with_mask_filter(GrContext* context,
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
-    clip.getConservativeBounds(renderTargetContext->worstCaseWidth(),
-                               renderTargetContext->worstCaseHeight(),
+    clip.getConservativeBounds(renderTargetContext->width(),
+                               renderTargetContext->height(),
                                &clipBounds);
     SkTLazy<SkPath> tmpPath;
     SkStrokeRec::InitStyle fillOrHairline;
