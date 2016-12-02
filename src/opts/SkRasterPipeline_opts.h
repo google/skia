@@ -227,12 +227,27 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     }
 #endif
 
+SI SkNf SkNf_fma(const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); }
+
+SI SkNi SkNf_round(const SkNf& x, const SkNf& scale) {
+    // Every time I try, _mm_cvtps_epi32 benches as slower than using FMA and _mm_cvttps_epi32.  :/
+    return SkNx_cast<int>(SkNf_fma(x,scale, 0.5f));
+}
+
+SI SkNf SkNf_from_byte(const SkNi& x) {
+    // Same trick as in store_8888: 0x470000BB == 32768.0f + BB/256.0f for all bytes BB.
+    auto v = 0x47000000 | x;
+    // Read this as (pun_float(v) - 32768.0f) * (256/255.0f), redistributed to be an FMA.
+    return SkNf_fma(SkNf::Load(&v), 256/255.0f, -32768*256/255.0f);
+}
+SI SkNf SkNf_from_byte(const SkNu& x) { return SkNf_from_byte(SkNi::Load(&x)); }
+SI SkNf SkNf_from_byte(const SkNb& x) { return SkNf_from_byte(SkNx_cast<int>(x)); }
+
 SI void from_8888(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
-    auto to_float = [](const SkNu& v) { return SkNx_cast<float>(SkNi::Load(&v)); };
-    *r = (1/255.0f)*to_float((_8888 >>  0) & 0xff);
-    *g = (1/255.0f)*to_float((_8888 >>  8) & 0xff);
-    *b = (1/255.0f)*to_float((_8888 >> 16) & 0xff);
-    *a = (1/255.0f)*to_float( _8888 >> 24        );
+    *r = SkNf_from_byte((_8888      ) & 0xff);
+    *g = SkNf_from_byte((_8888 >>  8) & 0xff);
+    *b = SkNf_from_byte((_8888 >> 16) & 0xff);
+    *a = SkNf_from_byte((_8888 >> 24)       );
 }
 SI void from_4444(const SkNh& _4444, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     auto _32_bit = SkNx_cast<int>(_4444);
@@ -248,13 +263,6 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     *r = SkNx_cast<float>(_32_bit & SK_R16_MASK_IN_PLACE) * (1.0f / SK_R16_MASK_IN_PLACE);
     *g = SkNx_cast<float>(_32_bit & SK_G16_MASK_IN_PLACE) * (1.0f / SK_G16_MASK_IN_PLACE);
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
-}
-
-SI SkNf SkNf_fma(const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); }
-
-SI SkNi SkNf_round(const SkNf& x, const SkNf& scale) {
-    // Every time I try, _mm_cvtps_epi32 benches as slower than using FMA and _mm_cvttps_epi32.  :/
-    return SkNx_cast<int>(SkNf_fma(x,scale, 0.5f));
 }
 
 STAGE(trace) {
@@ -386,7 +394,7 @@ STAGE(scale_1_float) {
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    SkNf c = SkNx_cast<float>(load(tail, ptr)) * (1/255.0f);
+    SkNf c = SkNf_from_byte(load(tail, ptr));
     r = r*c;
     g = g*c;
     b = b*c;
@@ -411,7 +419,7 @@ STAGE(lerp_1_float) {
 STAGE(lerp_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    SkNf c = SkNx_cast<float>(load(tail, ptr)) * (1/255.0f);
+    SkNf c = SkNf_from_byte(load(tail, ptr));
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
@@ -570,7 +578,7 @@ STAGE(load_tables) {
     r = gather(tail, loadCtx->fR, to_int((rgba >>  0) & 0xff));
     g = gather(tail, loadCtx->fG, to_int((rgba >>  8) & 0xff));
     b = gather(tail, loadCtx->fB, to_int((rgba >> 16) & 0xff));
-    a = (1/255.0f) * SkNx_cast<float>(to_int(rgba >> 24));
+    a = SkNf_from_byte(rgba >> 24);
 }
 
 STAGE(store_tables) {
@@ -863,7 +871,7 @@ STAGE(gather_a8) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     r = g = b = 0.0f;
-    a = SkNx_cast<float>(gather(tail, p, offset)) * (1/255.0f);
+    a = SkNf_from_byte(gather(tail, p, offset));
 }
 STAGE(gather_i8) {
     auto sc = (const SkImageShaderContext*)ctx;
@@ -877,7 +885,7 @@ STAGE(gather_g8) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    r = g = b = SkNx_cast<float>(gather(tail, p, offset)) * (1/255.0f);
+    r = g = b = SkNf_from_byte(gather(tail, p, offset));
     a = 1.0f;
 }
 STAGE(gather_565) {
