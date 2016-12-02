@@ -252,6 +252,11 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
 
 SI SkNf SkNf_fma(const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); }
 
+SI SkNi SkNf_round(const SkNf& x, const SkNf& scale) {
+    // Every time I try, _mm_cvtps_epi32 benches as slower than using FMA and _mm_cvttps_epi32.  :/
+    return SkNx_cast<int>(SkNf_fma(x,scale, 0.5f));
+}
+
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
 }
@@ -437,9 +442,9 @@ STAGE(load_565_d) {
 }
 STAGE(store_565) {
     auto ptr = *(uint16_t**)ctx + x;
-    store(tail, SkNx_cast<uint16_t>( SkNx_cast<int>(r*SK_R16_MASK + 0.5f) << SK_R16_SHIFT
-                                   | SkNx_cast<int>(g*SK_G16_MASK + 0.5f) << SK_G16_SHIFT
-                                   | SkNx_cast<int>(b*SK_B16_MASK + 0.5f) << SK_B16_SHIFT), ptr);
+    store(tail, SkNx_cast<uint16_t>( SkNf_round(r, SK_R16_MASK) << SK_R16_SHIFT
+                                   | SkNf_round(g, SK_G16_MASK) << SK_G16_SHIFT
+                                   | SkNf_round(b, SK_B16_MASK) << SK_B16_SHIFT), ptr);
 }
 
 
@@ -543,10 +548,10 @@ STAGE(load_8888_d) {
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
-    store(tail, ( SkNx_cast<int>(SkNf_fma(255.0f, r, 0.5f)) << 0
-                | SkNx_cast<int>(SkNf_fma(255.0f, g, 0.5f)) << 8
-                | SkNx_cast<int>(SkNf_fma(255.0f, b, 0.5f)) << 16
-                | SkNx_cast<int>(SkNf_fma(255.0f, a, 0.5f)) << 24 ), (int*)ptr);
+    store(tail, ( SkNf_round(255.0f, r) << 0
+                | SkNf_round(255.0f, g) << 8
+                | SkNf_round(255.0f, b) << 16
+                | SkNf_round(255.0f, a) << 24 ), (int*)ptr);
 }
 
 STAGE(load_tables) {
@@ -566,14 +571,14 @@ STAGE(store_tables) {
     auto ptr = storeCtx->fDst + x;
 
     float scale = storeCtx->fCount - 1;
-    SkNi ri = SkNx_cast<int>(scale * r + 0.5f);
-    SkNi gi = SkNx_cast<int>(scale * g + 0.5f);
-    SkNi bi = SkNx_cast<int>(scale * b + 0.5f);
+    SkNi ri = SkNf_round(scale, r);
+    SkNi gi = SkNf_round(scale, g);
+    SkNi bi = SkNf_round(scale, b);
 
     store(tail, ( SkNx_cast<int>(gather(tail, storeCtx->fR, ri)) << 0
                 | SkNx_cast<int>(gather(tail, storeCtx->fG, gi)) << 8
                 | SkNx_cast<int>(gather(tail, storeCtx->fB, bi)) << 16
-                | SkNx_cast<int>(255.0f * a + 0.5f)              << 24), (int*)ptr);
+                | SkNf_round(255.0f, a)                          << 24), (int*)ptr);
 }
 
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
