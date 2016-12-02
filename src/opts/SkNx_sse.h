@@ -653,6 +653,10 @@ public:
         return _mm_packus_epi32(lo, hi);
     }
 
+    AI static Sk8i SkNf_round(const Sk8f& x) {
+        return _mm256_cvtps_epi32(x.fVec);
+    }
+
 #endif
 
 template<> AI /*static*/ Sk4f SkNx_cast<float, int32_t>(const Sk4i& src) {
@@ -749,7 +753,7 @@ template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) {
     return src.fVec;
 }
 
-AI static Sk4i Sk4f_round(const Sk4f& x) {
+AI static Sk4i SkNf_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }
 
