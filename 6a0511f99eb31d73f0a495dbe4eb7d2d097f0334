@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_ada6a3f2",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-02T16:21:35Z",
+      "side": 1,
+      "message": "Not sure we shouldn\u0027t just copy the rect, but if you want to just point at canvas\u0027 copy, then the API should take a pointer to make that clear.",
+      "range": {
+        "startLine": 97,
+        "startChar": 9,
+        "endLine": 97,
+        "endChar": 21
+      },
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_6d112b3b",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-02T16:21:35Z",
+      "side": 1,
+      "message": "Is this Android\u0027s desired behavior, that we *don\u0027t* enforce the bounds if the caller asks for Intersect or Diff? I wonder if we can simplify this to *always* enforce it (assuming its non-empty)...?",
+      "range": {
+        "startLine": 141,
+        "startChar": 32,
+        "endLine": 141,
+        "endChar": 40
+      },
+      "revId": "6a0511f99eb31d73f0a495dbe4eb7d2d097f0334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
