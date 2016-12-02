@@ -22,6 +22,24 @@
       "revId": "a221eaae88253cfd7e102f3d57bb880aab805b75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_d8b16de1",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-02T21:09:40Z",
+      "side": 1,
+      "message": "If that\u0027s a legal value, then will this work?  Or do I need to do the comparison in floating-point space?\n\n    if (row[4 * x + 3] \u003c SK_Half1) { return false; }",
+      "parentUuid": "4df2c3e7_b8c1fd22",
+      "revId": "a221eaae88253cfd7e102f3d57bb880aab805b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
