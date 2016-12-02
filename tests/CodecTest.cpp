@@ -648,6 +648,9 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "empty_images/zero-height.wbmp");
     // This image is an ico with an embedded mask-bmp.  This is illegal.
     test_invalid(r, "invalid_images/mask-bmp-ico.ico");
+#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
+    test_invalid(r, "empty_images/zero_height.tiff");
+#endif
 }
 
 static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
