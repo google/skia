@@ -150,6 +150,10 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
             if (rt && fGpu->caps()->discardRenderTargetSupport()) {
                 rt->discard();
             }
+
+            if (rt) {
+                rt->clear();
+            }
             return surface->asTexture();
         }
     }

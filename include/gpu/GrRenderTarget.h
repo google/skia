@@ -92,6 +92,8 @@ public:
      */
     void discard();
 
+    void clear();
+
     // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
     // 0 in GL), or be unresolvable because the client didn't give us the
     // resolve destination.
