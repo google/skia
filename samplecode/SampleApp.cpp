@@ -59,6 +59,7 @@ class GrContext;
 enum OutputColorSpace {
     kLegacy_OutputColorSpace,
     kSRGB_OutputColorSpace,
+    kNarrow_OutputColorSpace,
     kMonitor_OutputColorSpace,
 };
 
@@ -70,6 +71,7 @@ const struct {
     { kN32_SkColorType,      kLegacy_OutputColorSpace,  "L32" },
     { kN32_SkColorType,      kSRGB_OutputColorSpace,    "S32" },
     { kRGBA_F16_SkColorType, kSRGB_OutputColorSpace,    "F16" },
+    { kRGBA_F16_SkColorType, kNarrow_OutputColorSpace,  "F16 Narrow" },
     { kRGBA_F16_SkColorType, kMonitor_OutputColorSpace, "F16 Device" },
 };
 
@@ -327,7 +329,8 @@ public:
             fActualColorBits > 24) {
             // We made/have an off-screen surface. Get the contents as an SkImage:
             SkImageInfo offscreenInfo = win->info();
-            if (kMonitor_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace) {
+            if (kMonitor_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace ||
+                kNarrow_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace) {
                 // This is a big hack. We want our final output to be color "correct". If we snap
                 // an image in the gamut of the monitor, and then render to FBO0 (which we've tagged
                 // as sRGB), then we end up doing round-trip gamut conversion, and still seeing the
@@ -909,6 +912,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                   gConfig[1].fName,
                                   gConfig[2].fName,
                                   gConfig[3].fName,
+                                  gConfig[4].fName,
                                   nullptr);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'C');
 
@@ -1658,6 +1662,21 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         switch (gConfig[selected].fColorSpace) {
             case kSRGB_OutputColorSpace:
                 colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+                break;
+            case kNarrow_OutputColorSpace:
+                {
+                    // NarrowGamut RGB (an artifically smaller than sRGB gamut)
+                    SkColorSpacePrimaries primaries ={
+                        0.54f, 0.33f,     // Rx, Ry
+                        0.33f, 0.50f,     // Gx, Gy
+                        0.25f, 0.20f,     // Bx, By
+                        0.3127f, 0.3290f, // Wx, Wy
+                    };
+                    SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
+                    primaries.toXYZD50(&narrowGamutRGBMatrix);
+                    colorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                       narrowGamutRGBMatrix);
+                }
                 break;
             case kMonitor_OutputColorSpace:
                 colorSpace = getMonitorColorSpace();
