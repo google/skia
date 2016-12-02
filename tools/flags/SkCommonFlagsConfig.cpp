@@ -185,8 +185,19 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     if (useInstanced) {
         fContextOptions |= ContextOptions::kUseInstanced;
     }
+    // Subtle logic: If the config has a color space attached, we're going to be rendering to sRGB,
+    // so we need that capability. In addition, to get the widest test coverage, we DO NOT require
+    // that we can disable sRGB decode. (That's for rendering sRGB sources to legacy surfaces).
+    //
+    // If the config doesn't have a color space attached, we're going to be rendering in legacy
+    // mode. In that case, we can't allow a context to be created that has sRGB support without
+    // the ability to disable sRGB decode. Otherwise, all of our sRGB source resources will be
+    // treated as sRGB textures, but we will be unable to prevent the decode, causing them to be
+    // too dark.
     if (fColorSpace) {
         fContextOptions |= ContextOptions::kRequireSRGBSupport;
+    } else {
+        fContextOptions |= ContextOptions::kRequireSRGBDecodeDisableSupport;
     }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
