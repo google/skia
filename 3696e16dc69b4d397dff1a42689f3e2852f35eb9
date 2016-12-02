@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "ede617fe_a507c43a",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "ede617fe_1f49a731",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_3f4e633a",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 2
@@ -83,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "2dcaef6e_9c8cedc7",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "Cool. I originally wanted to do \u003d false here for that reason, but didn\u0027t since you said it was against Skia style guidelines to do that when I did it somewhere in September.",
+      "parentUuid": "2d6e6f0e_adc7c333",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_7f48eb2a",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 2
@@ -100,6 +136,24 @@
         "endLine": 258,
         "endChar": 26
       },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0daa8b9b_dd972b27",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "SkCodec doesn\u0027t work. You can\u0027t access protected members of another (or any from a static derived method) instance via the base class, so I had to make sure this was an SkJpegCodec instead of a SkCodec.\n\nI would\u0027ve loved to be able to avoid the codec temporary variable altogether and just assign to codecOut. I could\u0027ve casted *codecOut, but that is also kind of gross.",
+      "parentUuid": "ede617fe_7f48eb2a",
       "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -129,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "6db867f6_d86e0d6d",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "It looks like PNG has some weird sRGB spec outside of ICC profiles on line 354. Then there\u0027s also that gamma info tag too on line 400. Unless you think the tool should not catch images with failed-to-parse ICC profiles that also happened to have those other PNG things (as back-ups or something)? Or am I missing something and a PNG can only have 1 of these things?",
+      "parentUuid": "ede617fe_bf06f3cc",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_bf399394",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 2
@@ -146,6 +218,24 @@
         "endLine": 72,
         "endChar": 5
       },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_b8735957",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ede617fe_bf399394",
       "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -192,6 +282,24 @@
         "endLine": 32,
         "endChar": 40
       },
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_383813e5",
+        "filename": "tools/get_images_from_skps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-02T17:43:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ede617fe_7fde2b2b",
       "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
