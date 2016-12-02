@@ -148,23 +148,23 @@ var (
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
-		"Perf-Win-MSVC-GCE-CPU-AVX2-x86-Debug",
-		"Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug",
-		"Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
-		"Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release",
-		"Perf-Win-MSVC-Golo-GPU-GT610-x86_64-Release",
-		"Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
-		"Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-		"Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
-		"Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
-		"Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
-		"Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-		"Perf-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
-		"Perf-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
 		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
 		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
 		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
+		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
+		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
+		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
+		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
+		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
+		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
+		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
 		"Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
 		"Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
 		"Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
@@ -233,24 +233,24 @@ var (
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86-Debug",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86-Release",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Release",
-		"Test-Win-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
-		"Test-Win-MSVC-Golo-GPU-GT610-x86_64-Release",
-		"Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
-		"Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-		"Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
-		"Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
-		"Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
-		"Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-		"Test-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
-		"Test-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
 		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
 		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
+		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
+		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
+		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
+		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
+		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
+		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
 		"Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
 		"Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
 		"Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
@@ -320,12 +320,18 @@ func swarmDimensions(parts map[string]string) []string {
 		"pool": POOL_SKIA,
 	}
 	if os, ok := parts["os"]; ok {
-		d["os"] = os
+		d["os"] = map[string]string{
+			"Android": "Android",
+			"Mac":     "Mac-10.11",
+			"Ubuntu":  "Ubuntu-14.04",
+			"Win":     "Windows-2008ServerR2-SP1",
+			"Win10":   "Windows-10-10586",
+			"Win2k8":  "Windows-2008ServerR2-SP1",
+			"Win8":    "Windows-8.1-SP0",
+			"iOS":     "iOS-9.3.1",
+		}[os]
 	} else {
 		d["os"] = DEFAULT_OS
-	}
-	if strings.Contains(d["os"], "Win") {
-		d["os"] = "Windows"
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		if strings.Contains(parts["os"], "Android") {
@@ -353,9 +359,6 @@ func swarmDimensions(parts map[string]string) []string {
 			d["device"] = map[string]string{
 				"iPadMini4": "iPad5,1",
 			}[parts["model"]]
-			// TODO(borenet): Replace this hack with something
-			// better.
-			d["os"] = "iOS-9.3.1"
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			d["cpu"] = map[string]string{
