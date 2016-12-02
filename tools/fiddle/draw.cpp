@@ -13,7 +13,7 @@
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/color_wheel.png";
-    return DrawOptions(256, 256, true, true, true, true, true, true, path);
+    return DrawOptions(256, 256, true, true, true, true, true, false, path);
 }
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
