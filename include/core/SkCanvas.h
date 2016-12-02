@@ -518,6 +518,15 @@ public:
     }
 
     /**
+     * Sets the max clip rectangle, which can be set by clipRect,
+     * clipRRect and clipPath. The max clip affects only future ops (it is not
+     * retroactive).
+     * @param rect   The maximum allowed clip in device coordinates.
+     *               Empty rect means max clip is not enforced.
+     */
+    void setBoundRect(const SkIRect& rect);
+
+    /**
      *  Modify the current clip with the specified SkRRect.
      *  @param rrect The rrect to combine with the current clip
      *  @param op The region op to apply to the current clip
@@ -1589,7 +1598,7 @@ private:
     enum {
         kMCRecSize      = 128,  // most recent measurement
         kMCRecCount     = 32,   // common depth for save/restores
-        kDeviceCMSize   = 176,  // most recent measurement
+        kDeviceCMSize   = 184,  // most recent measurement
     };
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
     intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
@@ -1609,6 +1618,7 @@ private:
     friend class SkSurface_Gpu;
 
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
+    SkIRect fBoundRect = SkIRect::MakeEmpty();
     void updateDeviceCMCache();
 
     void doSave();
