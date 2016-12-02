@@ -224,10 +224,7 @@ public:
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
-  
-    int worstCaseWidth() const;
-    int worstCaseHeight() const;
-
+ 
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */

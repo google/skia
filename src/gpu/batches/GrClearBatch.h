@@ -27,6 +27,11 @@ public:
         return batch;
     }
 
+    static sk_sp<GrClearBatch> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt) {
+        sk_sp<GrClearBatch> batch(new GrClearBatch(rect, color, rt));
+        return batch;
+    }
+
     const char* name() const override { return "Clear"; }
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
@@ -66,6 +71,14 @@ private:
         this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
                         HasAABloat::kNo, IsZeroArea::kNo);
         fRenderTarget.reset(rt);
+    }
+
+    GrClearBatch(const SkIRect& rect, GrColor color, GrRenderTarget* rt)
+        : INHERITED(ClassID())
+        , fClip(GrFixedClip(rect))
+        , fColor(color)
+        , fRenderTarget(rt) {
+        this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
