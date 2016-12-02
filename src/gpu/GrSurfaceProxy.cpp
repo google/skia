@@ -12,8 +12,6 @@
 #include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
-#include "SkMathPriv.h"
-
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     : INHERITED(std::move(surface))
     , fDesc(fTarget->desc())
@@ -54,30 +52,6 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
 #endif
 
     return fTarget;
-}
-
-int GrSurfaceProxy::worstCaseWidth() const { 
-    if (fTarget) {
-        return fTarget->width();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fDesc.fWidth;
-    }
-
-    return GrNextPow2(fDesc.fWidth);
-}
-
-int GrSurfaceProxy::worstCaseHeight() const { 
-    if (fTarget) {
-        return fTarget->height();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fDesc.fHeight;
-    }
-
-    return GrNextPow2(fDesc.fHeight);
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {

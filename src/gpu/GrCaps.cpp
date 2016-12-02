@@ -27,12 +27,12 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMultisampleDisableSupport = false;
     fUsesMixedSamples = false;
     fPreferClientSideDynamicBuffers = false;
-    fFullClearIsFree = false;
+    fFullClearIsFree = true;
     fMustClearUploadedBufferData = false;
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
 
-    fUseDrawInsteadOfClear = false;
+    fUseDrawInsteadOfClear = true;
 
     fInstancedSupport = InstancedSupport::kNone;
 

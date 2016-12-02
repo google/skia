@@ -234,10 +234,13 @@ GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
     return fRenderTargetContext.get();
 }
 
+#include "SkMathPriv.h"
+
 void SkGpuDevice::clearAll() {
     ASSERT_SINGLE_OWNER
     GrColor color = 0;
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
+//    SkIRect rect = SkIRect::MakeWH(GrNextPow2(this->width()), GrNextPow2(this->height()));
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fRenderTargetContext->clear(&rect, color, true);
 }
@@ -1801,7 +1804,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
                                                             : SkBackingFit::kExact;
 
-    sk_sp<GrRenderTargetContext> rtc(fContext->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(fContext->makeDeferredRenderTargetContext(
                                                    fit,
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
                                                    fRenderTargetContext->config(), 

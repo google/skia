@@ -53,6 +53,16 @@ public:
 
     GrRenderTarget::Flags testingOnly_getFlags() const;
 
+    int w2() const {
+        if (fTarget) { return fTarget->width(); }
+        return this->width();
+    }
+
+    int h2() const {
+        if (fTarget) { return fTarget->height(); }
+        return this->height();
+    }
+
 protected:
     friend class GrSurfaceProxy;  // for ctors
 
