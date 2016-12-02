@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
+#include "GrRenderTargetContextPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
@@ -18,6 +19,7 @@
 #include "SkDraw.h"
 #include "SkGrPriv.h"
 #include "SkMaskFilter.h"
+#include "SkMathPriv.h"
 #include "SkPaint.h"
 #include "SkTLazy.h"
 
@@ -111,7 +113,9 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
         return nullptr;
     }
 
-    rtContext->clear(nullptr, 0x0, true);
+    SkIRect r = SkIRect::MakeWH(GrNextPow2(maskRect.width()), GrNextPow2(maskRect.height()));
+
+    rtContext->priv().absClear(r, 0x0);
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -141,8 +145,8 @@ static void draw_path_with_mask_filter(GrContext* context,
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
-    clip.getConservativeBounds(renderTargetContext->worstCaseWidth(),
-                               renderTargetContext->worstCaseHeight(),
+    clip.getConservativeBounds(renderTargetContext->width(),
+                               renderTargetContext->height(),
                                &clipBounds);
     SkTLazy<SkPath> tmpPath;
     SkStrokeRec::InitStyle fillOrHairline;

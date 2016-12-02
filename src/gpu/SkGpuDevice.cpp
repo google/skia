@@ -28,6 +28,7 @@
 #include "SkImageFilterCache.h"
 #include "SkLatticeIter.h"
 #include "SkMaskFilter.h"
+#include "SkMathPriv.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -236,10 +237,13 @@ GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
 
 void SkGpuDevice::clearAll() {
     ASSERT_SINGLE_OWNER
-    GrColor color = 0;
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
-    SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fRenderTargetContext->clear(&rect, color, true);
+
+    // TODO: this can probably be converted to a simple content-rect-respecting clear 
+    // if more care is taken to distinquish between the content rect and the backing-
+    // RenderTarget/RenderTargetProxy's size.
+    SkIRect rect = SkIRect::MakeWH(GrNextPow2(this->width()), GrNextPow2(this->height()));
+    fRenderTargetContext->priv().absClear(rect, 0x0);
 }
 
 void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
