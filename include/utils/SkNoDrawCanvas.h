@@ -10,6 +10,8 @@
 
 #include "SkCanvas.h"
 
+struct SkIRect;
+
 // SkNoDrawCanvas is a helper for SkCanvas subclasses which do not need to
 // actually rasterize (e.g., analysis of the draw calls).
 //
@@ -21,6 +23,9 @@
 class SK_API SkNoDrawCanvas : public SkCanvas {
 public:
     SkNoDrawCanvas(int width, int height);
+
+    // TODO: investigate the users of this ctor.
+    SkNoDrawCanvas(const SkIRect&);
 
 protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;

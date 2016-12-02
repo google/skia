@@ -10,9 +10,9 @@
 #define SkDeferredCanvas_DEFINED
 
 #include "../private/SkTDArray.h"
-#include "SkCanvas.h"
+#include "SkNoDrawCanvas.h"
 
-class SK_API SkDeferredCanvas : public SkCanvas {
+class SK_API SkDeferredCanvas : public SkNoDrawCanvas {
 public:
     SkDeferredCanvas(SkCanvas* = nullptr);
     ~SkDeferredCanvas() override;
@@ -149,7 +149,7 @@ private:
 
     void internal_flush_translate(SkScalar* x, SkScalar* y, const SkRect* boundsOrNull);
 
-    typedef SkCanvas INHERITED;
+    typedef SkNoDrawCanvas INHERITED;
 };
 
 

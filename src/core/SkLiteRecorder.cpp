@@ -10,7 +10,7 @@
 #include "SkSurface.h"
 
 SkLiteRecorder::SkLiteRecorder()
-    : SkCanvas({0,0,1,1}, SkCanvas::kConservativeRasterClip_InitFlag)
+    : INHERITED(1, 1)
     , fDL(nullptr) {}
 
 void SkLiteRecorder::reset(SkLiteDL* dl) {
@@ -25,7 +25,7 @@ sk_sp<SkSurface> SkLiteRecorder::onNewSurface(const SkImageInfo&, const SkSurfac
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 SkDrawFilter* SkLiteRecorder::setDrawFilter(SkDrawFilter* df) {
     fDL->setDrawFilter(df);
-    return SkCanvas::setDrawFilter(df);
+    return this->INHERITED::setDrawFilter(df);
 }
 #endif
 
@@ -42,19 +42,19 @@ void SkLiteRecorder::didTranslate(SkScalar dx, SkScalar dy) { fDL->translate(dx,
 
 void SkLiteRecorder::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle style) {
     fDL->clipRect(rect, op, style==kSoft_ClipEdgeStyle);
-    SkCanvas::onClipRect(rect, op, style);
+    this->INHERITED::onClipRect(rect, op, style);
 }
 void SkLiteRecorder::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle style) {
     fDL->clipRRect(rrect, op, style==kSoft_ClipEdgeStyle);
-    SkCanvas::onClipRRect(rrect, op, style);
+    this->INHERITED::onClipRRect(rrect, op, style);
 }
 void SkLiteRecorder::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle style) {
     fDL->clipPath(path, op, style==kSoft_ClipEdgeStyle);
-    SkCanvas::onClipPath(path, op, style);
+    this->INHERITED::onClipPath(path, op, style);
 }
 void SkLiteRecorder::onClipRegion(const SkRegion& region, ClipOp op) {
     fDL->clipRegion(region, op);
-    SkCanvas::onClipRegion(region, op);
+    this->INHERITED::onClipRegion(region, op);
 }
 
 void SkLiteRecorder::onDrawPaint(const SkPaint& paint) {
