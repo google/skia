@@ -86,6 +86,7 @@ var (
 		"Build-Win-MSVC-x86_64-Release-GN",
 		"Build-Win-MSVC-x86_64-Release-Vulkan",
 		"Housekeeper-Nightly-RecreateSKPs_Canary",
+		"Housekeeper-PerCommit",
 		"Housekeeper-PerCommit-InfraTests",
 		"Housekeeper-Weekly-RecreateSKPs",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
@@ -510,7 +511,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dependencies: []string{compileTaskName},
 		Dimensions:   LINUX_GCE_DIMENSIONS,
 		ExtraArgs: []string{
@@ -755,7 +756,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Housekeeper.
-	if parts["role"] == "Housekeeper-PerCommit" {
+	if name == "Housekeeper-PerCommit" {
 		deps = append(deps, housekeeper(b, name, compileTaskName))
 	}
 
