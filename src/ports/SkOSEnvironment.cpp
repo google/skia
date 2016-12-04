@@ -10,7 +10,9 @@
 #include <stdlib.h>
 
 void sk_setenv(const char* key, const char* value) {
-#ifdef SK_BUILD_FOR_WIN32
+#ifdef SK_BUILD_FOR_WINRT
+    // not supported at all on WinRT
+#elif defined (SK_BUILD_FOR_WIN32)
     _putenv_s(key, value);
 #else
     setenv(key, value, 1);

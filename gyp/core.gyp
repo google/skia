@@ -18,8 +18,10 @@
 
       'include_dirs': [
         '../include/c',
+        '../include/codec',
         '../include/config',
         '../include/core',
+        '../include/effects',
         '../include/pathops',
         '../include/ports',
         '../include/private',

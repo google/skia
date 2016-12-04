@@ -11,6 +11,20 @@
 #include "SkMutex.h"
 #include "SkTLS.h"
 
+#ifdef SK_BUILD_FOR_WINRT
+
+VOID NTAPI onTLSCallback(IN PVOID lpFlsData) {
+    if (lpFlsData != nullptr) {
+        SkTLS::Destructor(lpFlsData);
+    }
+}
+
+#define TlsAlloc() FlsAlloc(onTLSCallback);
+#define TlsGetValue(dwFlsIndex) FlsGetValue(dwFlsIndex);
+#define TlsSetValue(dwFlsIndex, lpFlsData) FlsSetValue(dwFlsIndex, lpFlsData);
+
+#endif//defined SK_BUILD_FOR_WINRT
+
 static bool gOnce = false;
 static DWORD gTlsIndex;
 SK_DECLARE_STATIC_MUTEX(gMutex);
@@ -34,6 +48,8 @@ void SkTLS::PlatformSetSpecific(void* ptr) {
     SkASSERT(gOnce);
     (void)TlsSetValue(gTlsIndex, ptr);
 }
+
+#ifndef SK_BUILD_FOR_WINRT
 
 // Call TLS destructors on thread exit. Code based on Chromium's
 // base/threading/thread_local_storage_win.cc
@@ -76,5 +92,7 @@ PIMAGE_TLS_CALLBACK skia_tls_callback = onTLSCallback;
 
 #endif
 }
+
+#endif//not defined(SK_BUILD_FOR_WINRT)
 
 #endif//defined(SK_BUILD_FOR_WIN32)
