@@ -201,6 +201,24 @@
     },
     {
       "key": {
+        "uuid": "6db867f6_5e8c2554",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-04T21:27:02Z",
+      "side": 1,
+      "message": "We will catch those...  We actually return MakeICC(), so the return value will be nullptr if we can\u0027t parse the profile.\n\nYou could argue that this behavior is strange...  Maybe we should keep looking for other color space tags after failing to parse the ICC profiles?  But there\u0027s not need to address that in this CL.",
+      "parentUuid": "6db867f6_d86e0d6d",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ede617fe_bf399394",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 2
