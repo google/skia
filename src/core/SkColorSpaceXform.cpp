@@ -630,9 +630,9 @@ static AI void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
 
 static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da, bool kClamp) {
     if (kClamp) {
-        dr = Sk4f::Max(dr, 1.0f);
-        dg = Sk4f::Max(dg, 1.0f);
-        db = Sk4f::Max(db, 1.0f);
+        dr = Sk4f::Min(dr, 1.0f);
+        dg = Sk4f::Min(dg, 1.0f);
+        db = Sk4f::Min(db, 1.0f);
     }
 
     dr = da * dr;
@@ -642,7 +642,7 @@ static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da, bool kC
 
 static AI void premultiply_1(const Sk4f& a, Sk4f& rgba, bool kClamp) {
     if (kClamp) {
-        rgba = Sk4f::Max(rgba, 1.0f);
+        rgba = Sk4f::Min(rgba, 1.0f);
     }
 
     rgba = a * rgba;
