@@ -75,6 +75,24 @@
       "revId": "ab13c7d5e6746b6317644045483733bfb24505f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_fe1f7926",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-04T21:55:16Z",
+      "side": 0,
+      "message": "Yeah I looked back and confirmed that this was added incidentally in https://skia-review.googlesource.com/c/5444/.  Let\u0027s delete.",
+      "parentUuid": "2d6e6f0e_78456bb6",
+      "revId": "ab13c7d5e6746b6317644045483733bfb24505f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
