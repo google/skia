@@ -268,8 +268,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return true;
     }
 
-    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->worstCaseWidth(),
-                                       renderTargetContext->worstCaseHeight());
+    SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(),
+                                       renderTargetContext->height());
     if (!devBounds.intersect(out->clippedDrawBounds())) {
         return false;
     }
@@ -299,8 +299,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
 
 #ifdef SK_DEBUG
     SkASSERT(reducedClip.hasIBounds());
-    SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->worstCaseWidth(),
-                                        renderTargetContext->worstCaseHeight());
+    SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
+                                        renderTargetContext->height());
     SkIRect clipIBounds = reducedClip.ibounds().makeOffset(-fOrigin.x(), -fOrigin.y());
     SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
 #endif
