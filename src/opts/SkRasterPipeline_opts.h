@@ -854,6 +854,12 @@ STAGE(accumulate) {
     da = SkNf_fma(scale, a, da);
 }
 
+// Coefficients for Mitchell filter at t in [0,1], at offsets -1.5, -0.5, +0.5, +1.5.  TODO: fma
+SI SkNf  far_lo(const SkNf& t) { return  0/18.0f + 0/18.0f*t -  6/18.0f*t*t +  7/18.0f*t*t*t; }
+SI SkNf near_lo(const SkNf& t) { return  1/18.0f + 9/18.0f*t + 27/18.0f*t*t - 21/18.0f*t*t*t; }
+SI SkNf near_hi(const SkNf& t) { return 16/18.0f + 0/18.0f*t - 36/18.0f*t*t + 21/18.0f*t*t*t; }
+SI SkNf  far_hi(const SkNf& t) { return  1/18.0f - 9/18.0f*t + 15/18.0f*t*t +  7/18.0f*t*t*t; }
+
 template <typename T>
 SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     auto sc = (const SkImageShaderContext*)ctx;
