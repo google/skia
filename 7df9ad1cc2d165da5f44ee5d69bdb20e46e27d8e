@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_91e96ffc",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-05T15:32:24Z",
+      "side": 1,
+      "message": "do you not have to update the rasterclip in restore?",
+      "range": {
+        "startLine": 1064,
+        "startChar": 12,
+        "endLine": 1064,
+        "endChar": 23
+      },
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_11521ffa",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-05T15:32:24Z",
+      "side": 1,
+      "message": "this name doesn\u0027t match the setter. Perhaps something like applyClipRestriction(...) ?",
+      "range": {
+        "startLine": 140,
+        "startChar": 16,
+        "endLine": 140,
+        "endChar": 27
+      },
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_b160f3b8",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-05T15:32:24Z",
+      "side": 1,
+      "message": "this breaks our normal convention, that arguments that get modified are passed by ptr, not reference.",
+      "range": {
+        "startLine": 140,
+        "startChar": 45,
+        "endLine": 140,
+        "endChar": 52
+      },
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_31e0830b",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-05T15:32:24Z",
+      "side": 1,
+      "message": "nit: might eval the op first, since it doesn\u0027t involve reading memory (checking if fBoundsRect is null)",
+      "range": {
+        "startLine": 141,
+        "startChar": 32,
+        "endLine": 141,
+        "endChar": 40
+      },
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
