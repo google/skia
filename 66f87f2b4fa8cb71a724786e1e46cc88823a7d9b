@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_ec8c6219",
+        "filename": "src/core/SkSpecialSurface.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-05T16:49:15Z",
+      "side": 1,
+      "message": "I believe this was pre-existing buggy behavior that the new testing regime just revealed.",
+      "revId": "66f87f2b4fa8cb71a724786e1e46cc88823a7d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
