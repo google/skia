@@ -1423,17 +1423,17 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
-        ContextInfo ctxInfo = factory->getContextInfo(contextType);
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
-            continue;
-        }
-        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on,
+        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
         if (contextType == GrContextFactory::kGL_ContextType ||
             contextType == GrContextFactory::kGLES_ContextType) {
             if (contextType != GrContextFactory::kNativeGL_ContextType) {
                 continue;
             }
+        }
+        ContextInfo ctxInfo = factory->getContextInfo(contextType);
+        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+            continue;
         }
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
