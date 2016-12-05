@@ -16,6 +16,23 @@
       "revId": "66f87f2b4fa8cb71a724786e1e46cc88823a7d9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_0c4b26a3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-05T17:33:08Z",
+      "side": 1,
+      "message": "Do we need this because layers are filter inputs?",
+      "revId": "66f87f2b4fa8cb71a724786e1e46cc88823a7d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
