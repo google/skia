@@ -71,7 +71,8 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     }
     paint.setShader(std::move(shader));
     const SkShader::ContextRec rec(paint, *mat, nullptr,
-                                   SkBlitter::PreferredShaderDest(pmsrc.info()));
+                                   SkBlitter::PreferredShaderDest(pmsrc.info()),
+                                   canvas->imageInfo().colorSpace());
     SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
 
     SkShader::Context* ctx = paint.getShader()->createContext(rec, storage);
