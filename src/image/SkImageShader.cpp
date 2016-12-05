@@ -361,7 +361,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
 
-    } else {
+    } else if (quality == kLow_SkFilterQuality) {
         p->append(SkRasterPipeline::top_left, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
@@ -379,6 +379,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         p->append(SkRasterPipeline::accumulate, ctx);
 
         p->append(SkRasterPipeline::move_dst_src);
+    } else {
+
     }
 
     auto effective_color_type = [](SkColorType ct) {

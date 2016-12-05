@@ -86,6 +86,10 @@
     M(gather_a8) M(gather_g8) M(gather_i8)                       \
     M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
     M(top_left) M(top_right) M(bottom_left) M(bottom_right)      \
+    M(fl_fl) M(fl_nl) M(fl_nh) M(fl_fh)                          \
+    M(nl_fl) M(nl_nl) M(nl_nh) M(nl_fh)                          \
+    M(nh_fl) M(nh_nl) M(nh_nh) M(nh_fh)                          \
+    M(fh_fl) M(fh_nl) M(fh_nh) M(fh_fh)                          \
     M(accumulate)
 
 class SkRasterPipeline {
