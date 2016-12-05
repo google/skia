@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "4df2c3e7_51c2e742",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-05T16:33:30Z",
+      "side": 1,
+      "message": "Good point. Does that mean this call us unneeded, since the copy-constructor (line 1060) should have already correctly set it?",
+      "parentUuid": "4df2c3e7_5189c742",
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df2c3e7_11521ffa",
         "filename": "src/core/SkRasterClip.h",
         "patchSetId": 4
