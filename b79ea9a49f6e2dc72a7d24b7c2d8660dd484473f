@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db867f6_6c086391",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-05T20:12:26Z",
+      "side": 1,
+      "message": "We wanted NaN \u003d\u003e 0, right? Will this do that for the SIMD-instruction-set-specific versions of min/max? I just looked at the SkNx one which boils down to \u003c and \u003e.",
+      "revId": "b79ea9a49f6e2dc72a7d24b7c2d8660dd484473f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
