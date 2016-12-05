@@ -38,6 +38,8 @@ public:
      * which is unmodified by this function and clipping which will be enabled.
      */
     GrPipelineBuilder(const GrPaint&, bool useHWAA = false);
+    GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
+            : GrPipelineBuilder(paint, GrAAType::kHW == aaType) {}
 
     virtual ~GrPipelineBuilder();
 
