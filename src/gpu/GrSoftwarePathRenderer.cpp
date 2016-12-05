@@ -71,10 +71,11 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                                               viewMatrix, rect,
                                                               nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
-    pipelineBuilder.setUserStencil(&userStencilSettings);
+    // WHAT?
+//    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+//    pipelineBuilder.setUserStencil(&userStencilSettings);
 
-    renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+//    renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
@@ -135,7 +136,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
-                    args.fShape->hasUnstyledKey() && args.fAntiAlias;
+                    args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
 
     if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),
                                    args.fRenderTargetContext->height(),
@@ -200,11 +201,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
-         GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
-                                                     : GrSWMaskHelper::TextureType::kApproximateFit;
-         texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
-                                                              *boundsForMask, args.fAntiAlias,
-                                                              type, args.fViewMatrix));
+ //        GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
+   //                                                  : GrSWMaskHelper::TextureType::kApproximateFit;
+//         texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
+//                                                              *boundsForMask, args.fAntiAlias,
+//                                                              type, args.fViewMatrix));
          if (!texture) {
              return false;
          }
@@ -212,13 +213,13 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
              texture->resourcePriv().setUniqueKey(maskKey);
          }
     }
-
+#if 0
     GrSWMaskHelper::DrawToTargetWithShapeMask(texture.get(), args.fRenderTargetContext,
                                               *args.fPaint, *args.fUserStencilSettings,
                                               *args.fClip, *args.fViewMatrix,
                                               SkIPoint {boundsForMask->fLeft, boundsForMask->fTop},
                                               *boundsForMask);
-
+#endif
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, *args.fPaint, *args.fUserStencilSettings,
                           *args.fClip,

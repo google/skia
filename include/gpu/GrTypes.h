@@ -14,6 +14,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+enum class GrAA { kYes, kNo };
+enum class GrAAType { kNone, kCoverage, kHW };
+static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; };
+
 /**
  * Defines overloaded bitwise operators to make it easier to use an enum as a
  * bitfield.

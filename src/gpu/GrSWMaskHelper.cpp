@@ -38,12 +38,11 @@ static SkBlendMode op_to_mode(SkRegion::Op op) {
 /**
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op,
-                              bool antiAlias, uint8_t alpha) {
+void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op, GrAA aa, uint8_t alpha) {
     SkPaint paint;
 
     paint.setBlendMode(op_to_mode(op));
-    paint.setAntiAlias(antiAlias);
+    paint.setAntiAlias(aa == GrAA::kYes);
     paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
     fDraw.drawRect(rect, paint);
@@ -52,12 +51,11 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::drawShape(const GrShape& shape, SkRegion::Op op, bool antiAlias,
-                               uint8_t alpha) {
+void GrSWMaskHelper::drawShape(const GrShape& shape, SkRegion::Op op, GrAA aa, uint8_t alpha) {
     SkPaint paint;
     paint.setPathEffect(sk_ref_sp(shape.style().pathEffect()));
     shape.style().strokeRec().applyToPaint(&paint);
-    paint.setAntiAlias(antiAlias);
+    paint.setAntiAlias(GrAA::kYes == aa);
 
     SkPath path;
     shape.asPath(&path);
@@ -141,7 +139,7 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
 GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider,
                                                   const GrShape& shape,
                                                   const SkIRect& resultBounds,
-                                                  bool antiAlias,
+                                                  GrAA aa,
                                                   TextureType textureType,
                                                   const SkMatrix* matrix) {
     GrSWMaskHelper helper(texProvider);
@@ -150,7 +148,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
         return nullptr;
     }
 
-    helper.drawShape(shape, SkRegion::kReplace_Op, antiAlias, 0xFF);
+    helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
 
     GrTexture* texture(helper.createTexture(textureType));
     if (!texture) {
@@ -165,6 +163,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                GrRenderTargetContext* renderTargetContext,
                                                const GrPaint& paint,
+                                               GrAA aa,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
@@ -185,7 +184,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                             SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+    bool hwAA = (GrAA::kYes == aa) && renderTargetContext->isUnifiedMultisampled();
+    GrPipelineBuilder pipelineBuilder(paint, hwAA);
     pipelineBuilder.setUserStencil(&userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(

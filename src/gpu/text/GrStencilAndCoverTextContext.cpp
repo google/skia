@@ -224,10 +224,8 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrRenderTarg
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {
-        // The run's "font" overrides the anti-aliasing of the passed in paint!
-        paint.setAntiAlias(run->isAntiAlias());
-        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y,
-                  clipBounds, fFallbackTextContext, skPaint);
+        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y, clipBounds,
+                  fFallbackTextContext, skPaint);
         run->releaseGlyphCache();
     }
 }
@@ -605,8 +603,11 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  const SkIRect& clipBounds,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
+    // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
+    GrAA aa = this->isAntiAlias();
+
     SkASSERT(fInstanceData);
-    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || !grPaint.isAntiAlias());
+    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || aa == GrAA::kNo);
 
     if (fInstanceData->count()) {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -641,7 +642,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          fInstanceData.get(), bounds));
 
         GrPipelineBuilder pipelineBuilder(grPaint);
-        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
+        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, aa == GrAA::kYes);
         pipelineBuilder.setUserStencil(&kCoverPass);
 
         renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
