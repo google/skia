@@ -16,6 +16,24 @@
       "revId": "b79ea9a49f6e2dc72a7d24b7c2d8660dd484473f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_9ddf3ec4",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-05T20:24:20Z",
+      "side": 1,
+      "message": "Yes we did.  I believe that this will work.  SkNx  should match the behavior of the SIMD instructions.  If you match the following form, I\u0027m sure it will work.\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/core/SkSRGB.h?q\u003dSkSRGB.h+file:%5Esrc/third_party/skia/\u0026sq\u003dpackage:chromium\u0026l\u003d29",
+      "parentUuid": "6db867f6_6c086391",
+      "revId": "b79ea9a49f6e2dc72a7d24b7c2d8660dd484473f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
