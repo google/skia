@@ -22,6 +22,24 @@
       "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_bd2d62c0",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-05T20:26:15Z",
+      "side": 1,
+      "message": "I\u0027d go  with inline, and SkNf::Max(0, SkNf::Min(x, 1)) (looks like 0 \u003c\u003d x \u003c\u003d 1) unless we need to worry about NaN.",
+      "parentUuid": "4df2c3e7_5d643628",
+      "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
