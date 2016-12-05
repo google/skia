@@ -695,7 +695,6 @@ STAGE(matrix_perspective) {
     g = G * Z.invert();
 }
 
-
 SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
     float result[N];   // Unconstrained powf() doesn't vectorize well...
     for (int i = 0; i < N; i++) {
@@ -703,7 +702,9 @@ SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
         result[i] = (s <= p.fD) ? p.fE * s + p.fF
                                 : powf(s * p.fA + p.fB, p.fG) + p.fC;
     }
-    return SkNf::Load(result);
+    // Clamp the output to [0, 1].
+    // Max(NaN, 0) = 0, but Max(0, NaN) = NaN, so we want this exact order to ensure NaN => 0
+    return SkNf::Min(SkNf::Max(SkNf::Load(result), 0.0f), 1.0f);
 }
 STAGE(parametric_r) { r = parametric(r, *(const SkColorSpaceTransferFn*)ctx); }
 STAGE(parametric_g) { g = parametric(g, *(const SkColorSpaceTransferFn*)ctx); }
@@ -715,6 +716,7 @@ SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     for (int i = 0; i < N; i++) {
         result[i] = interp_lut(v[i], table.fData, table.fSize);
     }
+    // no need to clamp - tables are by-design [0,1] -> [0,1]
     return SkNf::Load(result);
 }
 STAGE(table_r) { r = table(r, *(const SkTableTransferFn*)ctx); }

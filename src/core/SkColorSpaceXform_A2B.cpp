@@ -189,9 +189,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                                     debugGammaNamed[(int)e.gammaNamed()]);
                     SkColorSpaceTransferFn fn = gammanamed_to_parametric(e.gammaNamed());
                     this->addTransferFns(fn, currentChannels);
-
-                    fElementsPipeline.append(SkRasterPipeline::clamp_0);
-                    fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 }
                 break;
             case SkColorSpace_A2B::Element::Type::kGammas: {
@@ -219,9 +216,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 if (gammaNeedsRef) {
                     fGammaRefs.push_back(sk_ref_sp(&gammas));
                 }
-
-                fElementsPipeline.append(SkRasterPipeline::clamp_0);
-                fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kCLUT:
@@ -273,8 +267,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             SkColorSpaceTransferFn fn =
                     invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()));
             this->addTransferFns(fn, 3);
-            fElementsPipeline.append(SkRasterPipeline::clamp_0);
-            fElementsPipeline.append(SkRasterPipeline::clamp_1);
         }
     } else {
         for (int channel = 0; channel < 3; ++channel) {
@@ -296,9 +288,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 this->addTransferFn(fn, channel);
             }
         }
-
-        fElementsPipeline.append(SkRasterPipeline::clamp_0);
-        fElementsPipeline.append(SkRasterPipeline::clamp_1);
     }
 }
 
