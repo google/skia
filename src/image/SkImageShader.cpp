@@ -358,25 +358,47 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     };
 
+    auto sample = [&](SkRasterPipeline::StockStage x, SkRasterPipeline::StockStage y) {
+        p->append(x, ctx);
+        p->append(y, ctx);
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
+    };
+
     if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
 
+    } else if (quality == kLow_SkFilterQuality) {
+        p->append(SkRasterPipeline::save_xy, ctx);
+
+        sample(SkRasterPipeline::linear_x_lo, SkRasterPipeline::linear_y_lo);
+        sample(SkRasterPipeline::linear_x_hi, SkRasterPipeline::linear_y_lo);
+        sample(SkRasterPipeline::linear_x_lo, SkRasterPipeline::linear_y_hi);
+        sample(SkRasterPipeline::linear_x_hi, SkRasterPipeline::linear_y_hi);
+
+        p->append(SkRasterPipeline::move_dst_src);
     } else {
-        p->append(SkRasterPipeline::top_left, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
+        p->append(SkRasterPipeline::save_xy, ctx);
 
-        p->append(SkRasterPipeline::top_right, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
+        sample(SkRasterPipeline::cubic_x_far_lo,  SkRasterPipeline::cubic_y_far_lo);
+        sample(SkRasterPipeline::cubic_x_near_lo, SkRasterPipeline::cubic_y_far_lo);
+        sample(SkRasterPipeline::cubic_x_near_hi, SkRasterPipeline::cubic_y_far_lo);
+        sample(SkRasterPipeline::cubic_x_far_hi,  SkRasterPipeline::cubic_y_far_lo);
 
-        p->append(SkRasterPipeline::bottom_left, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
+        sample(SkRasterPipeline::cubic_x_far_lo,  SkRasterPipeline::cubic_y_near_lo);
+        sample(SkRasterPipeline::cubic_x_near_lo, SkRasterPipeline::cubic_y_near_lo);
+        sample(SkRasterPipeline::cubic_x_near_hi, SkRasterPipeline::cubic_y_near_lo);
+        sample(SkRasterPipeline::cubic_x_far_hi,  SkRasterPipeline::cubic_y_near_lo);
 
-        p->append(SkRasterPipeline::bottom_right, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
+        sample(SkRasterPipeline::cubic_x_far_lo,  SkRasterPipeline::cubic_y_near_hi);
+        sample(SkRasterPipeline::cubic_x_near_lo, SkRasterPipeline::cubic_y_near_hi);
+        sample(SkRasterPipeline::cubic_x_near_hi, SkRasterPipeline::cubic_y_near_hi);
+        sample(SkRasterPipeline::cubic_x_far_hi,  SkRasterPipeline::cubic_y_near_hi);
+
+        sample(SkRasterPipeline::cubic_x_far_lo,  SkRasterPipeline::cubic_y_far_hi);
+        sample(SkRasterPipeline::cubic_x_near_lo, SkRasterPipeline::cubic_y_far_hi);
+        sample(SkRasterPipeline::cubic_x_near_hi, SkRasterPipeline::cubic_y_far_hi);
+        sample(SkRasterPipeline::cubic_x_far_hi,  SkRasterPipeline::cubic_y_far_hi);
 
         p->append(SkRasterPipeline::move_dst_src);
     }

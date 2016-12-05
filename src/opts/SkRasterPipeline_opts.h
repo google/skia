@@ -801,53 +801,114 @@ STAGE( clamp_y) { g = clamp (g, *(const int*)ctx); }
 STAGE(repeat_y) { g = repeat(g, *(const int*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const int*)ctx); }
 
-STAGE(top_left) {
+STAGE(save_xy) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r.store(sc->x);
     g.store(sc->y);
 
-    r -= 0.5f;
-    g -= 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
-};
-STAGE(top_right) {
-    auto sc = (SkImageShaderContext*)ctx;
-
-    r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) - 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * (1.0f - fy)).store(sc->scale);
-};
-STAGE(bottom_left) {
+    auto fx = (r + 0.5f) - (r + 0.5f).floor(),
+         fy = (g + 0.5f) - (g + 0.5f).floor();
+    fx.store(sc->fx);
+    fy.store(sc->fy);
+}
+STAGE(linear_x_lo) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) - 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * fy).store(sc->scale);
-};
-STAGE(bottom_right) {
+    auto fx = SkNf::Load(sc->fx);
+    (1.0f - fx).store(sc->scalex);
+}
+STAGE(linear_x_hi) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    (fx).store(sc->scalex);
+}
+STAGE(linear_y_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * fy).store(sc->scale);
-};
+    g = SkNf::Load(sc->y) - 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (1.0f - fy).store(sc->scaley);
+}
+STAGE(linear_y_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) + 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (fy).store(sc->scaley);
+}
+
+// Coefficients for Mitchell filter at t in [0,1], at offsets +0.5 and +1.5.  TODO: fma
+//SI SkNf  far(const SkNf& t) { return  0/18.0f + 0/18.0f*t -  6/18.0f*t*t +  7/18.0f*t*t*t; }
+//SI SkNf near(const SkNf& t) { return  1/18.0f + 9/18.0f*t + 27/18.0f*t*t - 21/18.0f*t*t*t; }
+SI SkNf near(const SkNf& t) { return 16/18.0f + 0/18.0f*t - 36/18.0f*t*t + 21/18.0f*t*t*t; }
+SI SkNf  far(const SkNf& t) { return  1/18.0f - 9/18.0f*t + 15/18.0f*t*t -  7/18.0f*t*t*t; }
+
+STAGE(cubic_x_far_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) - 1.5f;
+    auto fx = SkNf::Load(sc->fx);
+    far(1.0f - fx).store(sc->scalex);
+}
+STAGE(cubic_x_near_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) - 0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    near(1.0f - fx).store(sc->scalex);
+}
+STAGE(cubic_x_near_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) + 0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    near(fx).store(sc->scalex);
+}
+STAGE(cubic_x_far_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) + 1.5f;
+    auto fx = SkNf::Load(sc->fx);
+    far(fx).store(sc->scalex);
+}
+
+STAGE(cubic_y_far_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) - 1.5f;
+    auto fy = SkNf::Load(sc->fy);
+    far(1.0f - fy).store(sc->scaley);
+}
+STAGE(cubic_y_near_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) - 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    near(1.0f - fy).store(sc->scaley);
+}
+STAGE(cubic_y_near_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) + 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    near(fy).store(sc->scaley);
+}
+STAGE(cubic_y_far_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) + 1.5f;
+    auto fy = SkNf::Load(sc->fy);
+    far(fy).store(sc->scaley);
+}
+
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
-    auto scale = SkNf::Load(sc->scale);
+    auto scale = SkNf::Load(sc->scalex) * SkNf::Load(sc->scaley);
     dr = SkNf_fma(scale, r, dr);
     dg = SkNf_fma(scale, g, dg);
     db = SkNf_fma(scale, b, db);

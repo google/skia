@@ -130,6 +130,12 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         return false; // only use HQ when upsampling
     }
 
+    if (fColorMode == SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware) {
+        // The shader can handle high quality itself.
+        fQuality = kHigh_SkFilterQuality;
+        return false;
+    }
+
     const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
     const int dstH = SkScalarRoundToScalar(provider.height() / invScaleY);
     const SkBitmapCacheDesc desc = provider.makeCacheDesc(dstW, dstH);

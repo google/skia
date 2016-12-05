@@ -54,44 +54,47 @@
 // TODO: There may be a better place to stuff tail, e.g. in the bottom alignment bits of
 // the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
-#define SK_RASTER_PIPELINE_STAGES(M)                             \
-    M(trace) M(registers)                                        \
-    M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)      \
-    M(clamp_0) M(clamp_a) M(clamp_1)                             \
-    M(unpremul) M(premul)                                        \
-    M(set_rgb)                                                   \
-    M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
-    M(to_2dot2)                                                  \
-    M(constant_color) M(store_f32)                               \
-    M(load_565)  M(load_565_d)  M(store_565)                     \
-    M(load_f16)  M(load_f16_d)  M(store_f16)                     \
-    M(load_8888) M(load_8888_d) M(store_8888)                    \
-    M(load_tables) M(store_tables)                               \
-    M(scale_u8) M(scale_1_float)                                 \
-    M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
-    M(dstatop) M(dstin) M(dstout) M(dstover)                     \
-    M(srcatop) M(srcin) M(srcout) M(srcover)                     \
-    M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
-    M(colorburn) M(colordodge) M(darken) M(difference)           \
-    M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
-    M(luminance_to_alpha)                                        \
-    M(matrix_2x3) M(matrix_3x4) M(matrix_4x5)                    \
-    M(matrix_perspective)                                        \
-    M(parametric_r) M(parametric_g) M(parametric_b)              \
-    M(parametric_a)                                              \
-    M(table_r) M(table_g) M(table_b) M(table_a)                  \
-    M(color_lookup_table) M(lab_to_xyz)                          \
-    M(clamp_x) M(mirror_x) M(repeat_x)                           \
-    M(clamp_y) M(mirror_y) M(repeat_y)                           \
-    M(gather_a8) M(gather_g8) M(gather_i8)                       \
-    M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
-    M(top_left) M(top_right) M(bottom_left) M(bottom_right)      \
-    M(accumulate)
+#define SK_RASTER_PIPELINE_STAGES(M)                                          \
+    M(trace) M(registers)                                                     \
+    M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)                   \
+    M(clamp_0) M(clamp_a) M(clamp_1)                                          \
+    M(unpremul) M(premul)                                                     \
+    M(set_rgb)                                                                \
+    M(from_srgb) M(from_srgb_d) M(to_srgb)                                    \
+    M(to_2dot2)                                                               \
+    M(constant_color) M(store_f32)                                            \
+    M(load_565)  M(load_565_d)  M(store_565)                                  \
+    M(load_f16)  M(load_f16_d)  M(store_f16)                                  \
+    M(load_8888) M(load_8888_d) M(store_8888)                                 \
+    M(load_tables) M(store_tables)                                            \
+    M(scale_u8) M(scale_1_float)                                              \
+    M(lerp_u8) M(lerp_565) M(lerp_1_float)                                    \
+    M(dstatop) M(dstin) M(dstout) M(dstover)                                  \
+    M(srcatop) M(srcin) M(srcout) M(srcover)                                  \
+    M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)               \
+    M(colorburn) M(colordodge) M(darken) M(difference)                        \
+    M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight)              \
+    M(luminance_to_alpha)                                                     \
+    M(matrix_2x3) M(matrix_3x4) M(matrix_4x5)                                 \
+    M(matrix_perspective)                                                     \
+    M(parametric_r) M(parametric_g) M(parametric_b)                           \
+    M(parametric_a)                                                           \
+    M(table_r) M(table_g) M(table_b) M(table_a)                               \
+    M(color_lookup_table) M(lab_to_xyz)                                       \
+    M(clamp_x) M(mirror_x) M(repeat_x)                                        \
+    M(clamp_y) M(mirror_y) M(repeat_y)                                        \
+    M(gather_a8) M(gather_g8) M(gather_i8)                                    \
+    M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)                 \
+    M(linear_x_lo) M(linear_x_hi) M(linear_y_lo) M(linear_y_hi)               \
+    M(cubic_x_far_lo) M(cubic_x_near_lo) M(cubic_x_near_hi) M(cubic_x_far_hi) \
+    M(cubic_y_far_lo) M(cubic_y_near_lo) M(cubic_y_near_hi) M(cubic_y_far_hi) \
+    M(save_xy) M(accumulate)
 
 class SkRasterPipeline {
 public:
     // No pipeline may be more than kMaxStages long.
-    static const int kMaxStages = 48;
+    // TODO: probably time to switch to a vector...
+    static const int kMaxStages = 128;
 
     SkRasterPipeline();
 
