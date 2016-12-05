@@ -44,10 +44,47 @@ public:
     virtual bool allowExtendedTest() const;
     virtual bool verbose() const;
     virtual void* stats() const { return nullptr; }
+
+    void reportFailedWithContext(const skiatest::Failure& f) {
+        SkString fullMessage = f.message;
+        if (!fContextStack.empty()) {
+            fullMessage.append(" [");
+            for (int i = 0; i < fContextStack.count(); ++i) {
+                if (i > 0) {
+                    fullMessage.append(", ");
+                }
+                fullMessage.append(fContextStack[i]);
+            }
+            fullMessage.append("]");
+        }
+        this->reportFailed(skiatest::Failure(f.fileName, f.lineNo, f.condition, fullMessage));
+    }
+    void push(const SkString& message) {
+        fContextStack.push_back(message);
+    }
+    void pop() {
+        fContextStack.pop_back();
+    }
+
+private:
+    SkTArray<SkString> fContextStack;
 };
 
 #define REPORT_FAILURE(reporter, cond, message) \
-    reporter->reportFailed(skiatest::Failure(__FILE__, __LINE__, cond, message))
+    reporter->reportFailedWithContext(skiatest::Failure(__FILE__, __LINE__, cond, message))
+
+class ReporterContext : SkNoncopyable {
+public:
+    ReporterContext(Reporter* reporter, const SkString& message) : fReporter(reporter) {
+        fReporter->push(message);
+    }
+    ~ReporterContext() {
+        fReporter->pop();
+    }
+
+private:
+    Reporter* fReporter;
+};
 
 typedef void (*TestProc)(skiatest::Reporter*, sk_gpu_test::GrContextFactory*);
 
