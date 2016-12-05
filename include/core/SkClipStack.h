@@ -356,6 +356,9 @@ public:
     void clipPath(const SkPath&, const SkMatrix& matrix, SkCanvas::ClipOp, bool doAA);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
+    void setDeviceClipRestriction(const SkIRect& rect) {
+        fClipRestrictionRect = SkRect::MakeFromIRect(rect);
+    }
 
     /**
      * isWideOpen returns true if the clip state corresponds to the infinite
@@ -497,6 +500,7 @@ private:
     // clipDevRect and clipDevPath call. 0 is reserved to indicate an
     // invalid ID.
     static int32_t     gGenID;
+    SkRect fClipRestrictionRect = SkRect::MakeEmpty();
 
     bool internalQuickContains(const SkRect& devRect) const;
     bool internalQuickContains(const SkRRect& devRRect) const;
@@ -510,6 +514,10 @@ private:
      * Restore the stack back to the specified save count.
      */
     void restoreTo(int saveCount);
+
+    inline bool hasClipRestriction(SkCanvas::ClipOp op) {
+        return op >= SkCanvas::kUnion_Op && !fClipRestrictionRect.isEmpty();
+    }
 
     /**
      * Return the next unique generation ID.
