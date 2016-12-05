@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "4df2c3e7_ddc14622",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-05T20:04:09Z",
+      "side": 1,
+      "message": "Let\u0027s do all of them.  I\u0027m not happy that the sRGB check is not more robust, but it\u0027s that way because:\n(1) Actually calculating the value on the sRGB curve is slow...  Slow compared to this for sure.\n(2) Some of the sRGB curve approximations are so bad that we can\u0027t even catch them using a single, smart check.  But I don\u0027t think anyone is dumb enough to approximate linear this badly though.\n\nAt one point I almost added a fallback check for sRGB (doing the math), but I couldn\u0027t find a profile that actually needed it.",
+      "parentUuid": "6db867f6_8c7e171b",
+      "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db867f6_01c41051",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 4
