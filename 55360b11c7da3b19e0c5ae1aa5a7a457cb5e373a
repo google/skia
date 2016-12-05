@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_d17137c0",
+        "filename": "samplecode/SampleCode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-05T14:35:10Z",
+      "side": 0,
+      "message": "This wasn\u0027t needed.",
+      "revId": "55360b11c7da3b19e0c5ae1aa5a7a457cb5e373a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
