@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "6db867f6_8c7e171b",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-05T19:24:20Z",
+      "side": 1,
+      "message": "If you want. I had just done that as I figured it was okay given how few we use to recognize sRGB... althogh that /10 was supposed to be /32, I forgot to change that back after changing it to see if that 4096 gamma was linear or not.",
+      "parentUuid": "4df2c3e7_a250a37d",
+      "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db867f6_01c41051",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 4
