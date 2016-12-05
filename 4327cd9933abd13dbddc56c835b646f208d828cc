@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db867f6_01c41051",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-05T19:07:52Z",
+      "side": 1,
+      "message": "This accuracy should be fine. At most it\u0027ll recognize y \u003d x^1.04 or so as linear. The one that failed the 0-255 range but passed 0-1 range like this was definitely linear.\n\nHere is the breakdown of the images now (in the format [#Elements] - Linear? x #times encountered):\nCMYK:\nSame across channels:\n    2 unique gammas:\n        [4096] - Linear x 14\n        [2] - Linear x 196\nDifferent per channel:\n    210\n\nLab:\nSame across channels:\n    4 unique gammas:\n        [4096] - Linear x 14\n        [256] - Not Linear x 14\n        [256] - Not Linear x 7\n        [2] - Linear x 7\nDifferent per channel:\n    0\n\nI think it\u0027s doing each parse 7 times (no idea why 7 and not 3, since 3 targets.)\n\nIt\u0027s kind of interesting that every single input gamma for CMYK is not the same per-channel, and then every single output one is linear. The second not so much, but that the first varies per-channel instead of all just being srgb/2.2/etc.",
+      "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
