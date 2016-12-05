@@ -19,12 +19,6 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
-enum ScratchTextureFlags {
-    kExact_ScratchTextureFlag           = 0x1,
-    kNoPendingIO_ScratchTextureFlag     = 0x2,
-    kNoCreate_ScratchTextureFlag        = 0x4,
-};
-
 GrTextureProvider::GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* singleOwner)
     : fCache(cache)
     , fGpu(gpu)
