@@ -59,13 +59,17 @@ def main(target_dir, gitcookies):
     with git_utils.GitLocalConfig(config_dict):
       with git_utils.GitBranch(branch_name='update_skp_version',
                                commit_msg=COMMIT_MSG,
-                               commit_queue=True):
-        upload_script = os.path.join(
-            os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
-        subprocess.check_call(['python', upload_script, '-t', target_dir])
-        subprocess.check_call(['go', 'run', gen_tasks])
-        subprocess.check_call([
-            'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
+                               commit_queue=False):
+        with open(os.path.join(os.getcwd(), 'whitespace.txt'), 'a') as f:
+          f.write('testing')
+        import time
+        time.sleep(30*60)
+        # upload_script = os.path.join(
+        #     os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
+        # subprocess.check_call(['python', upload_script, '-t', target_dir])
+        # subprocess.check_call(['go', 'run', gen_tasks])
+        # subprocess.check_call([
+        #     'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
 
 
 if '__main__' == __name__:
