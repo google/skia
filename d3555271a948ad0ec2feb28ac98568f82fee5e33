@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_5d643628",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-05T20:24:20Z",
+      "side": 1,
+      "message": "I think I prefer this to be inlined.  Or maybe refactored further to share with the actual clamp_0 and clamp_1 stages.  Mike, what do you think?",
+      "range": {
+        "startLine": 698,
+        "startChar": 0,
+        "endLine": 698,
+        "endChar": 33
+      },
+      "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
