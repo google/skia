@@ -10,9 +10,6 @@
 
 #if SK_SUPPORT_GPU
 #   include "GrContext.h"
-#   if SK_ANGLE
-#       include "gl/angle/GLTestContext_angle.h"
-#   endif
 #else
 class GrContext;
 #endif

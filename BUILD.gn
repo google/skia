@@ -146,6 +146,9 @@ config("skia_private") {
       libs += [ "vulkan" ]
     }
   }
+  if (skia_use_angle) {
+    defines += [ "SK_ANGLE" ]
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
@@ -806,7 +809,6 @@ if (skia_enable_tools) {
       }
 
       if (skia_use_angle) {
-        public_defines += [ "SK_ANGLE" ]
         deps += [ "//third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
       }
@@ -956,6 +958,7 @@ if (skia_enable_tools) {
       "src/views/SkViewPriv.cpp",
     ]
     libs = []
+    deps = []
     if (!is_android) {
       sources += [ "src/views/SkWindow.cpp" ]
     }
@@ -979,6 +982,9 @@ if (skia_enable_tools) {
       ]
     } else if (is_win) {
       sources += [ "src/views/win/SkOSWindow_win.cpp" ]
+    }
+    if (skia_use_angle) {
+      deps += [ "//third_party/angle2" ]
     }
   }
 
