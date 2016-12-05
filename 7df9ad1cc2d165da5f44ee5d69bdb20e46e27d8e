@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "4df2c3e7_5189c742",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-05T16:26:32Z",
+      "side": 1,
+      "message": "All raster clips point to the same SkCanvas::fBoundRect rectangle and get any changes immediately. Only if we were making a rect copy, we would have had to update in restore.",
+      "parentUuid": "4df2c3e7_91e96ffc",
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df2c3e7_11521ffa",
         "filename": "src/core/SkRasterClip.h",
         "patchSetId": 4
@@ -71,6 +89,42 @@
     },
     {
       "key": {
+        "uuid": "4df2c3e7_b10473c8",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-05T16:26:32Z",
+      "side": 1,
+      "message": "fixed the argument to be a ptr.",
+      "parentUuid": "4df2c3e7_b160f3b8",
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_d142570d",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-05T16:26:32Z",
+      "side": 1,
+      "message": "agree. changed the function name and also the variable name to contain \"ClipRestriction\" instead of \"Bounds\"",
+      "parentUuid": "4df2c3e7_11521ffa",
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df2c3e7_31e0830b",
         "filename": "src/core/SkRasterClip.h",
         "patchSetId": 4
@@ -88,6 +142,24 @@
         "endLine": 141,
         "endChar": 40
       },
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_11dfbf29",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-05T16:26:32Z",
+      "side": 1,
+      "message": "changed the order as suggested",
+      "parentUuid": "4df2c3e7_31e0830b",
       "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
