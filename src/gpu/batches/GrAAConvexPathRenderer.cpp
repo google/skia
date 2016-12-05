@@ -672,7 +672,7 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return (args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
+    return (args.fShaderCaps->shaderDerivativeSupport() && (GrAAType::kCoverage == args.fAAType) &&
             args.fShape->style().isSimpleFill() && !args.fShape->inverseFilled() &&
             args.fShape->knownToBeConvex());
 }
