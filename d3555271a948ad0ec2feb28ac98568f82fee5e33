@@ -40,6 +40,24 @@
       "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_9d085e4b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-05T20:27:27Z",
+      "side": 1,
+      "message": "Ah, I see, we do care about NaN.  Still think this makes sense inline.",
+      "parentUuid": "4df2c3e7_bd2d62c0",
+      "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
