@@ -157,7 +157,7 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::Cont
     SkPaint* overridePaint = new (paintStorage) SkPaint(*(rec.fPaint));
     overridePaint->setAlpha(0xFF);
     SkShader::ContextRec overrideRec(*overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
-                                     rec.fPreferredDstType);
+                                     rec.fPreferredDstType, rec.fDstColorSpace);
 
     void* mapContextStorage = (char*) paintStorage + sizeof(SkPaint);
     SkShader::Context* context = fMapShader->createContext(overrideRec, mapContextStorage);
