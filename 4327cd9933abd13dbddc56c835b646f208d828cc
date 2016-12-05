@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4df2c3e7_a250a37d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-05T19:16:18Z",
+      "side": 1,
+      "message": "Can we just loop over all of them?",
+      "range": {
+        "startLine": 865,
+        "startChar": 4,
+        "endLine": 865,
+        "endChar": 55
+      },
+      "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db867f6_01c41051",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 4
@@ -13,6 +36,24 @@
       "writtenOn": "2016-12-05T19:07:52Z",
       "side": 1,
       "message": "This accuracy should be fine. At most it\u0027ll recognize y \u003d x^1.04 or so as linear. The one that failed the 0-255 range but passed 0-1 range like this was definitely linear.\n\nHere is the breakdown of the images now (in the format [#Elements] - Linear? x #times encountered):\nCMYK:\nSame across channels:\n    2 unique gammas:\n        [4096] - Linear x 14\n        [2] - Linear x 196\nDifferent per channel:\n    210\n\nLab:\nSame across channels:\n    4 unique gammas:\n        [4096] - Linear x 14\n        [256] - Not Linear x 14\n        [256] - Not Linear x 7\n        [2] - Linear x 7\nDifferent per channel:\n    0\n\nI think it\u0027s doing each parse 7 times (no idea why 7 and not 3, since 3 targets.)\n\nIt\u0027s kind of interesting that every single input gamma for CMYK is not the same per-channel, and then every single output one is linear. The second not so much, but that the first varies per-channel instead of all just being srgb/2.2/etc.",
+      "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df2c3e7_42021772",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-05T19:16:18Z",
+      "side": 1,
+      "message": "\u003e This accuracy should be fine. At most it\u0027ll recognize y \u003d x^1.04 or so as linear. The one that failed the 0-255 range but passed 0-1 range like this was definitely linear.\n\u003e \n\u003e Here is the breakdown of the images now (in the format [#Elements] - Linear? x #times encountered):\n\u003e CMYK:\n\u003e Same across channels:\n\u003e     2 unique gammas:\n\u003e         [4096] - Linear x 14\n\u003e         [2] - Linear x 196\n\u003e Different per channel:\n\u003e     210\n\u003e \n\u003e Lab:\n\u003e Same across channels:\n\u003e     4 unique gammas:\n\u003e         [4096] - Linear x 14\n\u003e         [256] - Not Linear x 14\n\u003e         [256] - Not Linear x 7\n\u003e         [2] - Linear x 7\n\u003e Different per channel:\n\u003e     0\n\u003e \n\nCool, good to know.  But yeah, we should divide all the counts by 7.\n\n\u003e I think it\u0027s doing each parse 7 times (no idea why 7 and not 3, since 3 targets.)\n\u003e \n\nThis is expected, we will call ColorCodecSrc::size() for srgb, f16, hp, and baseline modes (4x) when setting up the tests.  The baseline mode test then aborts early on srgb config, but the other three run (3x).\n\n\u003e It\u0027s kind of interesting that every single input gamma for CMYK is not the same per-channel, and then every single output one is linear. The second not so much, but that the first varies per-channel instead of all just being srgb/2.2/etc.\n\nYeah that is interesting.  Wonder if it is a property of CMYK... would be cool to have some intuition on this.",
+      "parentUuid": "6db867f6_01c41051",
       "revId": "4327cd9933abd13dbddc56c835b646f208d828cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
