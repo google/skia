@@ -58,6 +58,24 @@
       "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_8c8df7c3",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-05T20:39:23Z",
+      "side": 1,
+      "message": "Done. I just had it not inline since I was gonna use it for the table, the after I wrote it remembered it wasn\u0027t needed there. Also reordered the min/max just for consistency, but it looks like NaN would get clamped to 0 either way if it follows SkNx.",
+      "parentUuid": "4df2c3e7_9d085e4b",
+      "revId": "d3555271a948ad0ec2feb28ac98568f82fee5e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
