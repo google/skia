@@ -13,7 +13,6 @@ import urllib2
 
 import git_utils
 
-CHROMIUM_SKIA = 'https://chromium.googlesource.com/skia.git'
 SKIA_COMMITTER_EMAIL = 'update-skps@skia.org'
 SKIA_COMMITTER_NAME = 'UpdateSKPs'
 COMMIT_MSG = '''Update SKP version
@@ -27,11 +26,7 @@ SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 
 def main(target_dir, gitcookies):
-  with git_utils.NewGitCheckout(repository=CHROMIUM_SKIA):
-    if CHROMIUM_SKIA in subprocess.check_output(['git', 'remote', '-v']):
-      subprocess.check_call(['git', 'remote', 'set-url', 'origin', SKIA_REPO,
-                             CHROMIUM_SKIA])
-
+  with git_utils.NewGitCheckout(repository=SKIA_REPO):
     # Download CIPD.
     cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
                              'linux64', 'cipd.sha1')
@@ -59,13 +54,18 @@ def main(target_dir, gitcookies):
     with git_utils.GitLocalConfig(config_dict):
       with git_utils.GitBranch(branch_name='update_skp_version',
                                commit_msg=COMMIT_MSG,
-                               commit_queue=True):
-        upload_script = os.path.join(
-            os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
-        subprocess.check_call(['python', upload_script, '-t', target_dir])
-        subprocess.check_call(['go', 'run', gen_tasks])
-        subprocess.check_call([
-            'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
+                               commit_queue=False):
+        with open(os.path.join(os.getcwd(), 'whitespace.txt'), 'a') as f:
+          f.write('testing')
+        print 'Waiting...'
+        import time
+        time.sleep(30*60)
+        # upload_script = os.path.join(
+        #     os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
+        # subprocess.check_call(['python', upload_script, '-t', target_dir])
+        # subprocess.check_call(['go', 'run', gen_tasks])
+        # subprocess.check_call([
+        #     'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
 
 
 if '__main__' == __name__:

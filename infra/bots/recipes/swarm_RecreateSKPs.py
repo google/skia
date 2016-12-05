@@ -91,15 +91,15 @@ def RunSteps(api):
   # Call GN.
   platform = 'linux64'  # This bot only runs on linux; don't bother checking.
   gn = src_dir.join('buildtools', platform, 'gn')
-  api.step('GN',
-           [gn, 'gen', out_dir],
-           env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
-                'GYP_GENERATORS': 'ninja'},
-           cwd=src_dir)
+  # api.step('GN',
+  #          [gn, 'gen', out_dir],
+  #          env={'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1',
+  #               'GYP_GENERATORS': 'ninja'},
+  #          cwd=src_dir)
   # Build Chrome.
-  api.step('Build Chrome',
-           ['ninja', '-C', out_dir, 'chrome'],
-           cwd=src_dir)
+  # api.step('Build Chrome',
+  #          ['ninja', '-C', out_dir, 'chrome'],
+  #          cwd=src_dir)
 
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
@@ -120,10 +120,10 @@ def RunSteps(api):
          '--target_dir', output_dir]
   if 'Canary' not in api.properties['buildername']:
     cmd.append('--upload_to_partner_bucket')
-  api.step('Recreate SKPs',
-           cmd=cmd,
-           cwd=api.vars.skia_dir,
-           env=env)
+  # api.step('Recreate SKPs',
+  #          cmd=cmd,
+  #          cwd=api.vars.skia_dir,
+  #          env=env)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
