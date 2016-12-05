@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df2c3e7_b1d23315",
+        "filename": "tests/Test.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-05T16:31:49Z",
+      "side": 1,
+      "message": "Can this just replace reportFailed?",
+      "revId": "171f739935b7a8573f349e26c05c271876569923",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
