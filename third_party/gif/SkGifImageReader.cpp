@@ -360,7 +360,7 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool SkGIFFrameContext::decode(SkGifCodec* client, const SkGIFColorMap& globalMap, bool* frameComplete)
+bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 {
     *frameComplete = false;
     if (!m_lzwContext) {
@@ -369,7 +369,7 @@ bool SkGIFFrameContext::decode(SkGifCodec* client, const SkGIFColorMap& globalMa
             return true;
 
         m_lzwContext.reset(new SkGIFLZWContext(client, this));
-        if (!m_lzwContext->prepareToDecode(globalMap)) {
+        if (!m_lzwContext->prepareToDecode()) {
             m_lzwContext.reset();
             return false;
         }
@@ -402,7 +402,7 @@ bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 {
     SkGIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
-    return currentFrame->decode(m_client, m_globalColorMap, frameComplete);
+    return currentFrame->decode(m_client, frameComplete);
 }
 
 // Parse incoming GIF data stream into internal data structures.
@@ -901,7 +901,7 @@ void SkGifImageReader::addFrameIfNecessary()
 }
 
 // FIXME: Move this method to close to doLZW().
-bool SkGIFLZWContext::prepareToDecode(const SkGIFColorMap& globalMap)
+bool SkGIFLZWContext::prepareToDecode()
 {
     SkASSERT(m_frameContext->isDataSizeDefined() && m_frameContext->isHeaderDefined());
 

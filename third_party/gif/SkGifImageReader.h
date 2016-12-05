@@ -108,7 +108,7 @@ public:
         , m_frameContext(frameContext)
     { }
 
-    bool prepareToDecode(const SkGIFColorMap& globalMap);
+    bool prepareToDecode();
     bool outputRow(const unsigned char* rowBegin);
     bool doLZW(const unsigned char* block, size_t bytesInBlock);
     bool hasRemainingRows() { return SkToBool(rowsRemaining); }
@@ -206,7 +206,7 @@ public:
         m_lzwBlocks.push_back(SkData::MakeWithCopy(data, size));
     }
 
-    bool decode(SkGifCodec* client, const SkGIFColorMap& globalMap, bool* frameDecoded);
+    bool decode(SkGifCodec* client, bool* frameDecoded);
 
     int frameId() const { return m_frameId; }
     void setRect(unsigned x, unsigned y, unsigned width, unsigned height)
