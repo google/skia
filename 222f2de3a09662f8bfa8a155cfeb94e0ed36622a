@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db867f6_e1491cd2",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-05T14:40:24Z",
+      "side": 1,
+      "message": "Does this CL still work if you move this clause to :skia_private below?\n\nThings defined here are defined in Skia, its test tools, and in client code that uses Skia, while defines in :skia_private apply only to Skia and its test tools.",
+      "revId": "222f2de3a09662f8bfa8a155cfeb94e0ed36622a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
