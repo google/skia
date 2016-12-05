@@ -114,7 +114,7 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
-        rtContext->drawRect(clip, grPaint, inMatrix, rect);
+        rtContext->drawRect(clip, grPaint, GrAA::kNo, inMatrix, rect);
         iter.next();
     }
 
