@@ -362,19 +362,25 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         append_tiling_and_gather();
 
     } else {
-        p->append(SkRasterPipeline::top_left, ctx);
+        p->append(SkRasterPipeline::save_xy, ctx);
+
+        p->append(SkRasterPipeline::linear_x_lo, ctx);
+        p->append(SkRasterPipeline::linear_y_lo, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
 
-        p->append(SkRasterPipeline::top_right, ctx);
+        p->append(SkRasterPipeline::linear_x_hi, ctx);
+        p->append(SkRasterPipeline::linear_y_lo, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
 
-        p->append(SkRasterPipeline::bottom_left, ctx);
+        p->append(SkRasterPipeline::linear_x_lo, ctx);
+        p->append(SkRasterPipeline::linear_y_hi, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
 
-        p->append(SkRasterPipeline::bottom_right, ctx);
+        p->append(SkRasterPipeline::linear_x_hi, ctx);
+        p->append(SkRasterPipeline::linear_y_hi, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
 

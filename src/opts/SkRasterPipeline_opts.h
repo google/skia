@@ -801,53 +801,49 @@ STAGE( clamp_y) { g = clamp (g, *(const int*)ctx); }
 STAGE(repeat_y) { g = repeat(g, *(const int*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const int*)ctx); }
 
-STAGE(top_left) {
+STAGE(save_xy) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r.store(sc->x);
     g.store(sc->y);
 
-    r -= 0.5f;
-    g -= 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
-};
-STAGE(top_right) {
-    auto sc = (SkImageShaderContext*)ctx;
-
-    r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) - 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * (1.0f - fy)).store(sc->scale);
-};
-STAGE(bottom_left) {
+    auto fx = (r + 0.5f) - (r + 0.5f).floor(),
+         fy = (g + 0.5f) - (g + 0.5f).floor();
+    fx.store(sc->fx);
+    fy.store(sc->fy);
+}
+STAGE(linear_x_lo) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) - 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * fy).store(sc->scale);
-};
-STAGE(bottom_right) {
+    auto fx = SkNf::Load(sc->fx);
+    (1.0f - fx).store(sc->scalex);
+}
+STAGE(linear_x_hi) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    (fx).store(sc->scalex);
+}
+STAGE(linear_y_lo) {
+    auto sc = (SkImageShaderContext*)ctx;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * fy).store(sc->scale);
-};
+    g = SkNf::Load(sc->y) - 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (1.0f - fy).store(sc->scaley);
+}
+STAGE(linear_y_hi) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    g = SkNf::Load(sc->y) + 0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (fy).store(sc->scaley);
+}
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
-    auto scale = SkNf::Load(sc->scale);
+    auto scale = SkNf::Load(sc->scalex) * SkNf::Load(sc->scaley);
     dr = SkNf_fma(scale, r, dr);
     dg = SkNf_fma(scale, g, dg);
     db = SkNf_fma(scale, b, db);
