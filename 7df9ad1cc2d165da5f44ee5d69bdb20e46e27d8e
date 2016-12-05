@@ -61,6 +61,24 @@
     },
     {
       "key": {
+        "uuid": "4df2c3e7_fd188aa0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-05T20:27:15Z",
+      "side": 1,
+      "message": "good catch.  I removed that line and also modified SkRasterClip copy ctor to actually copy fClipRestrictionRect pointer",
+      "parentUuid": "4df2c3e7_51c2e742",
+      "revId": "7df9ad1cc2d165da5f44ee5d69bdb20e46e27d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df2c3e7_11521ffa",
         "filename": "src/core/SkRasterClip.h",
         "patchSetId": 4
