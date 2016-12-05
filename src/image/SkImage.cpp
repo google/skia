@@ -420,10 +420,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*) const {
-    return nullptr;
-}
-
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     return sk_ref_sp(const_cast<SkImage*>(this));
 }
