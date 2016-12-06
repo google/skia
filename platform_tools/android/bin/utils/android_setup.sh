@@ -85,7 +85,7 @@ fi
 setup_device() {
   DEFINES="ndk=\"${ANDROID_NDK_ROOT}\" is_debug=${IS_DEBUG}"
 
-  if [ $SKIA_VULKAN == "true" ]; then
+  if [ "$SKIA_VULKAN" == "true" ]; then
     DEFINES="${DEFINES} ndk_api=24"
   fi
 
@@ -103,7 +103,7 @@ setup_device() {
   fi
 
   case $TARGET_DEVICE in
-    arm_v7 | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
+    arm | arm_v7 | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
       DEFINES="${DEFINES} target_cpu=\"arm\""
       GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-arm"
       IS_64_BIT=false
@@ -123,13 +123,13 @@ setup_device() {
       GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-x86_64"
       IS_64_BIT=true
       ;;
-    mips)
+    mips | mipsel)
       DEFINES="${DEFINES} target_cpu=\"mipsel\""
       GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips"
       IS_64_BIT=false
       #DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ;;
-    mips64)
+    mips64 | mips64el)
       DEFINES="${DEFINES} target_cpu=\"mips64el\""
       GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips64"
       IS_64_BIT=true

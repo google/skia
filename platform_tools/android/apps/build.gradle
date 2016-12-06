@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.2.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -19,12 +19,12 @@ allprojects {
     }
 }
 
-def setupSkiaLibraryBuild(project, appVariants, buildCmd, requireCMake = false) {
+def setupSkiaLibraryBuild(project, appVariants, buildCmd) {
     appVariants.all{ variant ->
         def buildNativeLib = project.task("${variant.name}_SkiaNativeLib", type:Exec) {
             workingDir '../../../..' // top-level skia directory
             commandLine constructBuildCommand(variant, buildCmd).split()
-            environment PATH: getPathWithDeps(requireCMake)
+            environment PATH: getPathWithDeps()
             environment ANDROID_SDK_ROOT: getSDKPath()
         }
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
@@ -63,7 +63,7 @@ def getSDKPath() {
     return path
 }
 
-def getPathWithDeps(requireCMake = false) {
+def getPathWithDeps() {
     String path = System.getenv("PATH")
     if (!path.contains("depot_tools")) {
         path += ":" + getLocalProperties().getProperty('depot_tools.dir', null)
@@ -72,16 +72,6 @@ def getPathWithDeps(requireCMake = false) {
     if (!path.contains("depot_tools")) {
         throw GradleScriptException("Depot Tools not found! Please update your path to include" +
                                     " depot_tools or define depot_tools.dir in gradle.properties")
-    }
-
-    if (requireCMake) {
-        String cmakePath = getSDKPath() + "/cmake/bin"
-        if (!file(cmakePath).exists()) {
-            logger.warn("cmake not found! Please install the android SDK version of cmake.");
-        }
-        if (!path.contains(cmakePath)) {
-            path = cmakePath + ":" + path
-        }
     }
 
     return path
@@ -93,23 +83,23 @@ def constructBuildCommand(variant, buildTarget) {
     if (variant.name.startsWith("arm64")) {
         deviceType = "arm64"
     } else if (variant.name.startsWith("arm")) {
-        deviceType = "arm_v7_neon"
+        deviceType = "arm"
     } else if (variant.name.startsWith("x86_64")) {
-        deviceType = "x86_64"
+        deviceType = "x64"
     } else if (variant.name.startsWith("x86")) {
-        deviceType = "x86"
-    } else if (variant.name.startsWith("mips")) {
-        deviceType = "mips"
-    } else if (variant.name.startsWith("mips64")) {
-        deviceType = "mips64"
+        deviceType = "x64"
+    } else if (variant.name.startsWith("mipsel")) {
+        deviceType = "mipsel"
+    } else if (variant.name.startsWith("mips64el")) {
+        deviceType = "mips64el"
     }
 
     if (deviceType != null) {
         cmdLine += " -d " + deviceType
     }
 
-    if (variant.name.endsWith("Release")) {
-        cmdLine += " --release"
+    if (variant.name.endsWith("Debug")) {
+        cmdLine += " --debug"
     }
 
     if (variant.name.indexOf("vulkan") != -1) {

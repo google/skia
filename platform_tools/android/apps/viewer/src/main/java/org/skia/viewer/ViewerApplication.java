@@ -15,7 +15,6 @@ public class ViewerApplication extends Application {
     private String mStateJsonStr, mTitle;
 
     static {
-        System.loadLibrary("skia_android");
         System.loadLibrary("viewer");
     }
 

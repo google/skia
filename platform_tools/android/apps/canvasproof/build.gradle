@@ -18,6 +18,6 @@ android {
     }
     sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
     sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { arm {}; arm64 {}; x86 {}; x86_64 {}; mips {}; mips64 {}; }
+    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; mipsel {}; mips64el {}; }
     setupSkiaLibraryBuild(project, applicationVariants, "CopyCanvasProofDeps")
 }
