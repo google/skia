@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_7beeff42",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-06T16:14:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6db867f6_52a1b477",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db867f6_92a74c8f",
         "filename": "BUILD.gn",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-06T15:32:58Z",
       "side": 1,
       "message": "Do these need to be two separate steps?  Can\u0027t we have android_build_app.py move libviewer.so itself?",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_b26a5026",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-06T16:14:35Z",
+      "side": 1,
+      "message": "Yes. This allows people to have Android Studio trigger native builds and have the contents copied into the correct directory so that they can use the IDE to build and deploy the app.",
+      "parentUuid": "6db867f6_92a74c8f",
       "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_9bc74ba5",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-06T16:14:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6db867f6_72a4b889",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db867f6_329e403e",
         "filename": "platform_tools/android/apps/build.gradle",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-06T15:32:58Z",
       "side": 1,
       "message": "Are you translating to GN target_cpu here?\n\nIf so, this is \"arm\", and \"x86_64\" is \"x64\", mips is \"mipsel\", and mips64 is \"mips64el\".",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_5be9c3f8",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-06T16:14:35Z",
+      "side": 1,
+      "message": "It is intended to map to the -d option of android setup that accepts either GN target_cpu or Android product flavors.  I\u0027ve went ahead and updated the product flavors in the next patch to match GN.",
+      "parentUuid": "6db867f6_329e403e",
       "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
