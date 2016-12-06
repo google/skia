@@ -522,25 +522,62 @@ find_backward(const SkLinearGradient::LinearGradientContext::Rec rec[], float ti
     return rec;
 }
 
-template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x) {
+// As an optimization, we can apply the dither bias before interpolation -- but only when
+// operating in premul space (apply_alpha == false).  When apply_alpha == true, we must
+// defer the bias application until after premul.
+//
+// The following two helpers encapsulate this logic: pre_bias is called before interpolation,
+// and effects the bias when apply_alpha == false, while post_bias is called after premul and
+// effects the bias for the apply_alpha == true case.
+
+template <bool apply_alpha>
+Sk4f pre_bias(const Sk4f& x, const Sk4f& bias) {
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_PREMUL
+    return x + bias;
+#else
+    return apply_alpha ? x : x + bias;
+#endif
+}
+
+template <bool apply_alpha>
+Sk4f post_bias(const Sk4f& x, const Sk4f& bias) {
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_PREMUL
+    return x;
+#else
+    return apply_alpha ? x + bias : x;
+#endif
+}
+
+template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x, const Sk4f& bias) {
     SkPMColor c;
+
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_PREMUL
     SkNx_cast<uint8_t>(x).store(&c);
     if (apply_alpha) {
         c = SkPreMultiplyARGB(SkGetPackedA32(c), SkGetPackedR32(c),
                               SkGetPackedG32(c), SkGetPackedB32(c));
     }
+#else
+    Sk4f c4f255 = x;
+    if (apply_alpha) {
+        const float scale = x[SkPM4f::A] * (1 / 255.f);
+        c4f255 *= Sk4f(scale, scale, scale, 1);
+    }
+    SkNx_cast<uint8_t>(post_bias<apply_alpha>(c4f255, bias)).store(&c);
+#endif
     return c;
 }
 
 template <bool apply_alpha> void fill(SkPMColor dst[], int count,
-                                      const Sk4f& c4, const Sk4f& c4other) {
-    sk_memset32_dither(dst, trunc_from_255<apply_alpha>(c4),
-                       trunc_from_255<apply_alpha>(c4other), count);
+                                      const Sk4f& c4, const Sk4f& bias0, const Sk4f& bias1) {
+    const SkPMColor c0 = trunc_from_255<apply_alpha>(pre_bias<apply_alpha>(c4, bias0), bias0);
+    const SkPMColor c1 = trunc_from_255<apply_alpha>(pre_bias<apply_alpha>(c4, bias1), bias1);
+    sk_memset32_dither(dst, c0, c1, count);
 }
 
 template <bool apply_alpha> void fill(SkPMColor dst[], int count, const Sk4f& c4) {
     // Assumes that c4 does not need to be dithered.
-    sk_memset32(dst, trunc_from_255<apply_alpha>(c4), count);
+    sk_memset32(dst, trunc_from_255<apply_alpha>(c4, 0), count);
 }
 
 /*
@@ -570,8 +607,8 @@ template <bool apply_alpha> void ramp(SkPMColor dstC[], int n, const Sk4f& c, co
                                       const Sk4f& dither0, const Sk4f& dither1) {
     Sk4f dc2 = dc + dc;
     Sk4f dc4 = dc2 + dc2;
-    Sk4f cd0 = c + dither0;
-    Sk4f cd1 = c + dc + dither1;
+    Sk4f cd0 = pre_bias<apply_alpha>(c     , dither0);
+    Sk4f cd1 = pre_bias<apply_alpha>(c + dc, dither1);
     Sk4f cd2 = cd0 + dc2;
     Sk4f cd3 = cd1 + dc2;
     while (n >= 4) {
@@ -579,10 +616,10 @@ template <bool apply_alpha> void ramp(SkPMColor dstC[], int n, const Sk4f& c, co
             Sk4f_ToBytes((uint8_t*)dstC, cd0, cd1, cd2, cd3);
             dstC += 4;
         } else {
-            *dstC++ = trunc_from_255<apply_alpha>(cd0);
-            *dstC++ = trunc_from_255<apply_alpha>(cd1);
-            *dstC++ = trunc_from_255<apply_alpha>(cd2);
-            *dstC++ = trunc_from_255<apply_alpha>(cd3);
+            *dstC++ = trunc_from_255<apply_alpha>(cd0, dither0);
+            *dstC++ = trunc_from_255<apply_alpha>(cd1, dither1);
+            *dstC++ = trunc_from_255<apply_alpha>(cd2, dither0);
+            *dstC++ = trunc_from_255<apply_alpha>(cd3, dither1);
         }
         cd0 = cd0 + dc4;
         cd1 = cd1 + dc4;
@@ -591,12 +628,12 @@ template <bool apply_alpha> void ramp(SkPMColor dstC[], int n, const Sk4f& c, co
         n -= 4;
     }
     if (n & 2) {
-        *dstC++ = trunc_from_255<apply_alpha>(cd0);
-        *dstC++ = trunc_from_255<apply_alpha>(cd1);
+        *dstC++ = trunc_from_255<apply_alpha>(cd0, dither0);
+        *dstC++ = trunc_from_255<apply_alpha>(cd1, dither1);
         cd0 = cd0 + dc2;
     }
     if (n & 1) {
-        *dstC++ = trunc_from_255<apply_alpha>(cd0);
+        *dstC++ = trunc_from_255<apply_alpha>(cd0, dither0);
     }
 }
 
@@ -742,9 +779,9 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
         const float pinFx = SkTPin(fx, 0.0f, 1.0f);
         Sk4f c = lerp_color(pinFx, find_forward(fRecs.begin(), pinFx));
         if (fApplyAlphaAfterInterp) {
-            fill<true>(dstC, count, c + dither0, c + dither1);
+            fill<true>(dstC, count, c, dither0, dither1);
         } else {
-            fill<false>(dstC, count, c + dither0, c + dither1);
+            fill<false>(dstC, count, c, dither0, dither1);
         }
         return;
     }
