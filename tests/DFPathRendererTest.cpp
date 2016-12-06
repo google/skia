@@ -53,7 +53,7 @@ static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrP
     args.fResourceProvider = rp;
     args.fViewMatrix = &matrix;
     args.fShape = &shape;
-    args.fAntiAlias = true;
+    args.fAAType = GrAAType::kCoverage;
     args.fGammaCorrect = false;
     pr->drawPath(args);
 }
