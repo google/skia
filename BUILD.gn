@@ -1299,8 +1299,8 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (skia_enable_gpu && (is_linux || is_win || is_mac)) {
-    executable("viewer") {
+  if (skia_enable_gpu && (is_android || is_linux || is_win || is_mac)) {
+    source_set("viewer_sources") {
       sources = [
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImageSlide.cpp",
@@ -1376,6 +1376,62 @@ if (skia_enable_tools) {
         deps += [ "//third_party/libsdl" ]
       }
       testonly = true
+    }
+
+    if (is_android) {
+      shared_library("libviewer") {
+        deps = [
+          ":viewer_sources",
+        ]
+        testonly = true
+      }
+      action("libviewer_copy") {
+        script = "platform_tools/android/bin/utils/android_copy_lib.py"
+        args = [
+          "-d",
+          rebase_path(root_out_dir, "platform_tools/android/bin/utils"),
+          "-t",
+          target_cpu,
+          "viewer",
+        ]
+        deps = [
+          ":libviewer",
+        ]
+        sources = [
+          "$root_out_dir/libviewer.so",
+        ]
+        outputs = [
+          "$root_out_dir/." + target_cpu + "_libviewer.so",
+        ]
+        testonly = true
+      }
+      action("viewer") {
+        script = "platform_tools/android/bin/utils/android_build_app.py"
+        args = [
+          "-o",
+          rebase_path(root_out_dir, "platform_tools/android/bin/utils"),
+          "-t",
+          target_cpu,
+          "viewer",
+        ]
+        deps = [
+          ":libviewer_copy",
+        ]
+        sources = [
+          "platform_tools/android/apps/viewer",
+        ]
+        outputs = [
+          "$root_out_dir/viewer.apk",
+        ]
+        testonly = true
+      }
+    } else {
+      executable("viewer") {
+        deps = [
+          ":viewer_sources",
+        ]
+        testonly = true
+      }
     }
   }
 

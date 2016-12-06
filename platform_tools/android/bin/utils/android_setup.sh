@@ -85,7 +85,7 @@ fi
 setup_device() {
   DEFINES="ndk=\"${ANDROID_NDK_ROOT}\" is_debug=${IS_DEBUG}"
 
-  if [ $SKIA_VULKAN == "true" ]; then
+  if [ "$SKIA_VULKAN" == "true" ]; then
     DEFINES="${DEFINES} ndk_api=24"
   fi
 
