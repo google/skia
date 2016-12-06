@@ -28,6 +28,8 @@ struct SkImageShaderContext {
     float         matrix[9];
     float         x[8];
     float         y[8];
+    float         fx[8];
+    float         fy[8];
     float         scale[8];
 };
 
