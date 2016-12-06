@@ -293,8 +293,11 @@ static const GrPrimitiveType gPointMode2PrimitiveType[] = {
     kLineStrip_GrPrimitiveType
 };
 
+static inline bool is_int(float x) { return x == (float) sk_float_round2int(x); }
+
 // suppress antialiasing on axis-aligned integer-coordinate lines
-static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[]) {
+static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
+                               const SkMatrix& matrix) {
     if (mode == SkCanvas::PointMode::kPoints_PointMode) {
         return false;
     }
@@ -305,11 +308,16 @@ static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkP
         // currently) means that the line will turn into a two-pixel-wide blur. While obviously a
         // more complete fix is possible down the road, for the time being we accept the error on
         // the two end pixels as being the lesser of two evils.
+        if (!matrix.isScaleTranslate()) {
+            return true;
+        }
         if (pts[0].fX == pts[1].fX) {
-            return ((int) pts[0].fX) != pts[0].fX;
+            SkScalar x = matrix.getScaleX() * pts[0].fX + matrix.getTranslateX();
+            return !is_int(x);
         }
         if (pts[0].fY == pts[1].fY) {
-            return ((int) pts[0].fY) != pts[0].fY;
+            SkScalar y = matrix.getScaleY() * pts[0].fY + matrix.getTranslateY();
+            return !is_int(y);
         }
     }
     return true;
@@ -348,7 +356,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
     if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
-        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
+        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts, *draw.fMatrix))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
