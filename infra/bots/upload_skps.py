@@ -13,7 +13,6 @@ import urllib2
 
 import git_utils
 
-CHROMIUM_SKIA = 'https://chromium.googlesource.com/skia.git'
 SKIA_COMMITTER_EMAIL = 'update-skps@skia.org'
 SKIA_COMMITTER_NAME = 'UpdateSKPs'
 COMMIT_MSG = '''Update SKP version
@@ -27,11 +26,7 @@ SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 
 def main(target_dir, gitcookies):
-  with git_utils.NewGitCheckout(repository=CHROMIUM_SKIA):
-    if CHROMIUM_SKIA in subprocess.check_output(['git', 'remote', '-v']):
-      subprocess.check_call(['git', 'remote', 'set-url', 'origin', SKIA_REPO,
-                             CHROMIUM_SKIA])
-
+  with git_utils.NewGitCheckout(repository=SKIA_REPO):
     # Download CIPD.
     cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
                              'linux64', 'cipd.sha1')
