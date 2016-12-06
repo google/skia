@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_afabe123",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T19:55:57Z",
+      "side": 1,
+      "message": "If you wanna get fancy, do it like:\n\nif (malloc !\u003d \"\") {\n   cflags \u003d [ ... ]\n   libs \u003d [ malloc ]\n}\n\nletting us use tcmalloc with --args\u003d\u0027malloc\u003d\"tcmalloc\"\u0027, but also jemalloc, etc.",
+      "revId": "1a59ab6fbd9e377b99dc3abb685a0ca373fad7a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_0f61b54d",
         "filename": "gn/BUILD.gn",
         "patchSetId": 1
