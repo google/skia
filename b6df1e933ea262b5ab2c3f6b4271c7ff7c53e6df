@@ -175,6 +175,24 @@
       "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_b22db0c0",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T16:50:52Z",
+      "side": 1,
+      "message": "Right, so this is exactly the sort of misunderstanding learning to use GN will clear up.  You only have to call gn gen once per directory.  No one should need a script to call gn gen.",
+      "parentUuid": "cd4b13fc_7e1fcdd3",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
