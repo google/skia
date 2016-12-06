@@ -11,35 +11,27 @@
 SkRasterPipeline::SkRasterPipeline() {}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-#ifdef SK_DEBUG
-    if (fNum == (int)SK_ARRAY_COUNT(fStages)) {
-        this->dump();
-    }
-#endif
-    SkASSERT(fNum < (int)SK_ARRAY_COUNT(fStages));
-    fStages[fNum++] = { stage, ctx };
+    fStages.push_back({stage, ctx});
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
-    for (int i = 0; i < src.fNum; i++) {
-        const Stage& s = src.fStages[i];
-        this->append(s.stage, s.ctx);
-    }
+    fStages.insert(fStages.end(),
+                   src.fStages.begin(), src.fStages.end());
 }
 
 void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
-    SkOpts::run_pipeline(x,y,n, fStages, fNum);
+    SkOpts::run_pipeline(x,y,n, fStages.data(), SkToInt(fStages.size()));
 }
 
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
-    return SkOpts::compile_pipeline(fStages, fNum);
+    return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages\n", fNum);
-    for (int i = 0; i < fNum; i++) {
+    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
+    for (auto&& st : fStages) {
         const char* name = "";
-        switch (fStages[i].stage) {
+        switch (st.stage) {
         #define M(x) case x: name = #x; break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M

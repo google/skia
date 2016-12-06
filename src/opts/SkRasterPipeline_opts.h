@@ -944,7 +944,7 @@ SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
 
 namespace {
     struct Compiled {
-        Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
+        Compiled(const SkRasterPipeline::Stage* stages, int nstages) : fStages(nstages) {
             if (nstages == 0) {
                 return;
             }
@@ -965,18 +965,18 @@ namespace {
                 _1 = SkNf(1);
 
             while (n >= N) {
-                fStart(fStages, x*N, X,Y,_1,_0, _0,_0,_0,_0);
+                fStart(fStages.data(), x*N, X,Y,_1,_0, _0,_0,_0,_0);
                 X += (float)N;
                 x += N;
                 n -= N;
             }
             if (n) {
-                fStart(fStages, x*N+n, X,Y,_1,_0, _0,_0,_0,_0);
+                fStart(fStages.data(), x*N+n, X,Y,_1,_0, _0,_0,_0,_0);
             }
         }
 
         Fn fStart = just_return;
-        Stage fStages[SkRasterPipeline::kMaxStages];
+        std::vector<Stage> fStages;
     };
 }
 
