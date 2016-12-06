@@ -47,6 +47,9 @@ public:
     // Record a single test metric.
     virtual void metric(const char name[], double ms) {}
 
+    // Record a list of test metrics.
+    virtual void metrics(const char name[], const SkTArray<double>& array) {}
+
     // Flush to storage now please.
     virtual void flush() {}
 };
@@ -113,6 +116,16 @@ public:
         }
         SkASSERT(fConfig);
         (*fConfig)[name] = ms;
+    }
+    void metrics(const char name[], const SkTArray<double>& array) override {
+        SkASSERT(fConfig);
+        Json::Value value = Json::Value(Json::arrayValue);
+        value.resize(array.count());
+        for (int i = 0; i < array.count(); i++) {
+            // Don't care about nan-ness.
+            value[i] = array[i];
+        }
+        (*fConfig)[name] = std::move(value);
     }
 
     // Flush to storage now please.
