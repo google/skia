@@ -293,23 +293,28 @@ static const GrPrimitiveType gPointMode2PrimitiveType[] = {
     kLineStrip_GrPrimitiveType
 };
 
+static inline bool is_int(float x) { return x == (float) sk_float_round2int(x); }
+
 // suppress antialiasing on axis-aligned integer-coordinate lines
-static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[]) {
+static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
+                               const SkMatrix& matrix) {
     if (mode == SkCanvas::PointMode::kPoints_PointMode) {
         return false;
     }
     if (count == 2) {
-        // We do not antialias as long as the primary axis of the line is integer-aligned, even if
-        // the other coordinates are not. This does mean the two end pixels of the line will be
-        // sharp even when they shouldn't be, but turning antialiasing on (as things stand
-        // currently) means that the line will turn into a two-pixel-wide blur. While obviously a
-        // more complete fix is possible down the road, for the time being we accept the error on
-        // the two end pixels as being the lesser of two evils.
+        // We do not antialias horizontal or vertical lines along pixel centers, even when the ends
+        // of the line do not fully cover the first and last pixel of the line, which is slightly
+        // wrong.
+        if (!matrix.isScaleTranslate()) {
+            return true;
+        }
         if (pts[0].fX == pts[1].fX) {
-            return ((int) pts[0].fX) != pts[0].fX;
+            SkScalar x = matrix.getScaleX() * pts[0].fX + matrix.getTranslateX();
+            return !is_int(x + 0.5f);
         }
         if (pts[0].fY == pts[1].fY) {
-            return ((int) pts[0].fY) != pts[0].fY;
+            SkScalar y = matrix.getScaleY() * pts[0].fY + matrix.getTranslateY();
+            return !is_int(y + 0.5f);
         }
     }
     return true;
@@ -348,7 +353,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
     if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
-        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
+        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts, *draw.fMatrix))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
