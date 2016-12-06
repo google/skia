@@ -13,6 +13,8 @@ declare_args() {
   ndk = ""
   ndk_api = 21
   sanitize = ""
+  use_tcmalloc = false
+  tcmalloc_lib = ""
 }
 declare_args() {
   is_debug = !is_official_build
@@ -121,6 +123,9 @@ if (!is_debug) {
 }
 if (!is_official_build) {
   default_configs += [ "//gn:debug_symbols" ]
+}
+if (use_tcmalloc) {
+  default_configs += [ "//gn:tcmalloc" ]
 }
 default_configs += [ "//gn:extra_flags" ]
 

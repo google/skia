@@ -242,6 +242,19 @@ config("default") {
   }
 }
 
+config("tcmalloc") {
+  if (!is_win) {
+    cflags = [
+      "-fno-builtin-malloc",
+      "-fno-builtin-calloc",
+      "-fno-builtin-realloc",
+      "-fno-builtin-free",
+    ]
+    libs = [ "tcmalloc" ]
+    lib_dirs = [ "$tcmalloc_lib" ]
+  }
+}
+
 config("no_exceptions") {
   # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
   if (!is_win) {
