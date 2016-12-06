@@ -256,6 +256,8 @@ private:
             } else {
                 desiredDimension = kLargeMIP;
             }
+            // HACKHACK
+            desiredDimension = maxDim;
 
             // check to see if path is cached
             ShapeData::Key key(args.fShape, desiredDimension);
@@ -268,6 +270,9 @@ private:
                     delete shapeData;
                 }
                 SkScalar scale = desiredDimension/maxDim;
+                // HACKHACK
+                scale = SK_Scalar1;
+
                 shapeData = new ShapeData;
                 if (!this->addPathToAtlas(target,
                                           &flushInfo,
@@ -311,7 +316,7 @@ private:
         scaledBounds.fTop *= scale;
         scaledBounds.fRight *= scale;
         scaledBounds.fBottom *= scale;
-        // move the origin to an integer boundary (gives better results)
+        // move the origin to an integer boundary (gives better devBounds fit)
         SkScalar dx = SkScalarFraction(scaledBounds.fLeft);
         SkScalar dy = SkScalarFraction(scaledBounds.fTop);
         scaledBounds.offset(-dx, -dy);
@@ -320,18 +325,18 @@ private:
         scaledBounds.roundOut(&devPathBounds);
         // pad to allow room for antialiasing
         const int intPad = SkScalarCeilToInt(kAntiAliasPad);
-        // pre-move origin (after outset, will be 0,0)
+        // place devBounds at origin
         int width = devPathBounds.width();
         int height = devPathBounds.height();
-        devPathBounds.fLeft = intPad;
-        devPathBounds.fTop = intPad;
-        devPathBounds.fRight = intPad + width;
-        devPathBounds.fBottom = intPad + height;
-        devPathBounds.outset(intPad, intPad);
+        devPathBounds.fLeft = 0;
+        devPathBounds.fTop = 0;
+        devPathBounds.fRight = 2*intPad + width;
+        devPathBounds.fBottom = 2*intPad + height;
 
         // draw path to bitmap
         SkMatrix drawMatrix;
-        drawMatrix.setTranslate(-bounds.left(), -bounds.top());
+        drawMatrix.setTranslate(-SkScalarFloorToInt(bounds.left()),
+                                -SkScalarFloorToInt(bounds.top()));
         drawMatrix.postScale(scale, scale);
         drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
 
@@ -389,19 +394,34 @@ private:
         shapeData->fKey.set(shape, dimension);
         shapeData->fScale = scale;
         shapeData->fID = id;
+//        // change the scaled rect to match the size of the inset distance field
+//        scaledBounds.fRight = scaledBounds.fLeft +
+//            SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldInset);
+//        scaledBounds.fBottom = scaledBounds.fTop +
+//            SkIntToScalar(devPathBounds.height() - 2*SK_DistanceFieldInset);
+//        // shift the origin to the correct place relative to the distance field
+//        // need to also restore the fractional translation
+//        scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
+//                            -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
+//        shapeData->fBounds = scaledBounds;
+//        // origin we render from is inset from distance field edge
+//        atlasLocation.fX += SK_DistanceFieldInset;
+//        atlasLocation.fY += SK_DistanceFieldInset;
+//        shapeData->fAtlasLocation = atlasLocation;
+
         // change the scaled rect to match the size of the inset distance field
         scaledBounds.fRight = scaledBounds.fLeft +
-            SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldInset);
+            SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldPad - 2*kAntiAliasPad);
         scaledBounds.fBottom = scaledBounds.fTop +
-            SkIntToScalar(devPathBounds.height() - 2*SK_DistanceFieldInset);
+            SkIntToScalar(devPathBounds.height() - 2*SK_DistanceFieldPad - 2*kAntiAliasPad);
         // shift the origin to the correct place relative to the distance field
         // need to also restore the fractional translation
-        scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
-                            -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
+//        scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
+//                            -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
         shapeData->fBounds = scaledBounds;
         // origin we render from is inset from distance field edge
-        atlasLocation.fX += SK_DistanceFieldInset;
-        atlasLocation.fY += SK_DistanceFieldInset;
+        atlasLocation.fX += SK_DistanceFieldPad + kAntiAliasPad;
+        atlasLocation.fY += SK_DistanceFieldPad + kAntiAliasPad;
         shapeData->fAtlasLocation = atlasLocation;
 
         fShapeCache->add(shapeData);
@@ -437,6 +457,7 @@ private:
         // vertex positions
         // TODO make the vertex attributes a struct
         SkRect r = SkRect::MakeXYWH(dx, dy, width, height);
+        r.outset(kAntiAliasPad, kAntiAliasPad);
         positions->setRectFan(r.left(), r.top(), r.right(), r.bottom(), vertexStride);
 
         // colors
@@ -450,10 +471,11 @@ private:
 
         // vertex texture coords
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        textureCoords->setRectFan(tx / texture->width(),
-                                  ty / texture->height(),
-                                  (tx + shapeData->fBounds.width()) / texture->width(),
-                                  (ty + shapeData->fBounds.height())  / texture->height(),
+        SkScalar scaledPad = shapeData->fScale * kAntiAliasPad;
+        textureCoords->setRectFan((tx - scaledPad) / texture->width(),
+                                  (ty - scaledPad) / texture->height(),
+                                  (tx + shapeData->fBounds.width() + scaledPad)/texture->width(),
+                                  (ty + shapeData->fBounds.height() + scaledPad)/texture->height(),
                                   vertexStride);
     }
 

@@ -50,6 +50,26 @@ static SkScalar make_oval(SkPath* path) {
     return SkIntToScalar(30);
 }
 
+static SkScalar make_shortsawtooth(SkPath* path) {
+    SkScalar x = SkIntToScalar(20);
+    SkScalar y = SkIntToScalar(20);
+    const SkScalar x0 = x;
+    const SkScalar dx = SK_Scalar1 * 5;
+    const SkScalar dy = SK_Scalar1 * 10;
+
+    path->moveTo(x, y);
+    for (int i = 0; i < 3; i++) {
+        x += dx;
+        path->lineTo(x, y - dy);
+        x += dx;
+        path->lineTo(x, y + dy);
+    }
+    path->lineTo(x, y + (2 * dy));
+    path->lineTo(x0, y + (2 * dy));
+    path->close();
+    return SkIntToScalar(40);
+}
+
 static SkScalar make_sawtooth(SkPath* path) {
     SkScalar x = SkIntToScalar(20);
     SkScalar y = SkIntToScalar(20);
@@ -68,6 +88,15 @@ static SkScalar make_sawtooth(SkPath* path) {
     path->lineTo(x0, y + (2 * dy));
     path->close();
     return SkIntToScalar(30);
+}
+
+static SkScalar make_house(SkPath* path) {
+    path->moveTo(21, 23);
+    path->lineTo(21, 11.534f);
+    path->lineTo(22.327f, 12.741f);
+    path->lineTo(22.327f, 12.741f);
+    path->close();
+    return SkIntToScalar(40);
 }
 
 static SkScalar make_star(SkPath* path, int n) {
@@ -111,6 +140,8 @@ constexpr MakePathProc gProcs[] = {
     make_star_5,
     make_star_13,
     make_line,
+    make_shortsawtooth,
+    make_house,
 };
 
 #define N   SK_ARRAY_COUNT(gProcs)
