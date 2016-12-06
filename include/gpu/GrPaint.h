@@ -58,12 +58,6 @@ public:
     GrColor getColor() const { return fColor.toGrColor(); }
 
     /**
-     * Should primitives be anti-aliased or not. Defaults to false.
-     */
-    void setAntiAlias(bool aa) { fAntiAlias = aa; }
-    bool isAntiAlias() const { return fAntiAlias; }
-
-    /**
      * Should shader output conversion from linear to sRGB be disabled.
      * Only relevant if the destination is sRGB. Defaults to false.
      */
@@ -146,7 +140,6 @@ public:
     }
 
     GrPaint& operator=(const GrPaint& paint) {
-        fAntiAlias = paint.fAntiAlias;
         fDisableOutputConversionToSRGB = paint.fDisableOutputConversionToSRGB;
         fAllowSRGBInputs = paint.fAllowSRGBInputs;
         fUsesDistanceVectorField = paint.fUsesDistanceVectorField;
@@ -185,7 +178,6 @@ private:
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
     SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
 
-    bool                                      fAntiAlias;
     bool                                      fDisableOutputConversionToSRGB;
     bool                                      fAllowSRGBInputs;
     bool                                      fUsesDistanceVectorField;
