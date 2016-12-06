@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_af3e811c",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T19:52:46Z",
+      "side": 1,
+      "message": "Unless you\u0027re planning on later selectively disabling this, you should just be able to fold it into :default.  That oughta keep the change in this file rather than having to span into BUILDCONFIG.",
+      "revId": "1a59ab6fbd9e377b99dc3abb685a0ca373fad7a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_0f61b54d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T19:52:46Z",
+      "side": 1,
+      "message": "Seems best to leave to extra_ldflags and -L if needed, which seems unlikely.  It\u0027s ordinarily in /usr/lib, right?",
+      "revId": "1a59ab6fbd9e377b99dc3abb685a0ca373fad7a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
