@@ -12,6 +12,7 @@
 #include "SkTArray.h"
 #include "SkTypes.h"
 #include <functional>
+#include <vector>
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -90,9 +91,6 @@
 
 class SkRasterPipeline {
 public:
-    // No pipeline may be more than kMaxStages long.
-    static const int kMaxStages = 48;
-
     SkRasterPipeline();
 
     enum StockStage {
@@ -120,8 +118,7 @@ public:
     };
 
 private:
-    int   fNum   = 0;
-    Stage fStages[kMaxStages];
+    std::vector<Stage> fStages;
 };
 
 #endif//SkRasterPipeline_DEFINED
