@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db867f6_52a1b477",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T15:32:58Z",
+      "side": 1,
+      "message": "Don\u0027t think you need to mix target_cpu into the name, unless it\u0027s required by Android.  There\u0027s only one target_cpu per GN directory.",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_92a74c8f",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T15:32:58Z",
+      "side": 1,
+      "message": "Do these need to be two separate steps?  Can\u0027t we have android_build_app.py move libviewer.so itself?",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_72a4b889",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T15:32:58Z",
+      "side": 1,
+      "message": "Let\u0027s put these scripts in gn/ with the rest of the scripts GN runs.",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_329e403e",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T15:32:58Z",
+      "side": 1,
+      "message": "Are you translating to GN target_cpu here?\n\nIf so, this is \"arm\", and \"x86_64\" is \"x64\", mips is \"mipsel\", and mips64 is \"mips64el\".",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
