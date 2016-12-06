@@ -281,6 +281,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
     auto quality = paint.getFilterQuality();
 
+#if 0
     auto mode = (dst == nullptr) ? SkDestinationSurfaceColorMode::kLegacy
                                  : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     SkBitmapProvider provider(fImage.get(), mode);
@@ -295,6 +296,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     const SkPixmap& pm = state->pixmap();
     matrix  = state->invMatrix();
     quality = state->quality();
+#endif
+    SkPixmap pm;
+    if (!fImage->peekPixels(&pm)) {
+        return false;
+    }
     auto info = pm.info();
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
@@ -317,7 +323,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
 
     auto ctx = scratch->make<SkImageShaderContext>();
-    ctx->state   = std::move(state);  // Extend lifetime to match the pipeline's.
+    //ctx->state   = std::move(state);  // Extend lifetime to match the pipeline's.
     ctx->pixels  = pm.addr();
     ctx->ctable  = pm.ctable();
     ctx->color4f = SkColor4f_from_SkColor(paint.getColor(), dst);
@@ -358,20 +364,47 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     };
 
-    auto sample = [&](SkRasterPipeline::StockStage sampler) {
-        p->append(sampler, ctx);
+    auto sample = [&](SkRasterPipeline::StockStage x, SkRasterPipeline::StockStage y) {
+        p->append(x, ctx);
+        p->append(y, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
     };
 
     if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
+    } else if (false && quality == kLow_SkFilterQuality) {
+        p->append(SkRasterPipeline::save_xy, ctx);
+
+        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_ny);
+        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_ny);
+        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_py);
+        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_py);
+
+        p->append(SkRasterPipeline::move_dst_src);
     } else {
         p->append(SkRasterPipeline::save_xy, ctx);
-        sample(SkRasterPipeline::bilinear_nn);
-        sample(SkRasterPipeline::bilinear_np);
-        sample(SkRasterPipeline::bilinear_pn);
-        sample(SkRasterPipeline::bilinear_pp);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n3y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n1y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p1y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p3y);
+
         p->append(SkRasterPipeline::move_dst_src);
     }
 
