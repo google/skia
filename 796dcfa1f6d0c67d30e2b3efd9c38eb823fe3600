@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_fbfa0f9b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-06T16:14:34Z",
+      "side": 1,
+      "message": "Remind the reader why these are the filter values.",
+      "range": {
+        "startLine": 824,
+        "startChar": 20,
+        "endLine": 824,
+        "endChar": 21
+      },
+      "revId": "796dcfa1f6d0c67d30e2b3efd9c38eb823fe3600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
