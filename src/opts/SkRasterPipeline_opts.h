@@ -812,31 +812,67 @@ STAGE(save_xy) {
     fract(g + 0.5f).store(sc->fy);
 }
 
-template <int X, int Y>
-SI void bilinear(void* ctx, SkNf* x, SkNf* y) {
+template <int Scale>
+SI void bilinear_x(void* ctx, SkNf* x) {
     auto sc = (SkImageShaderContext*)ctx;
 
-    // Bilinear interpolation considers the 4 physical pixels at
-    // each corner of a logical pixel centered at (sc->x, sc->y).
-    *x = SkNf::Load(sc->x) + X*0.5f;
-    *y = SkNf::Load(sc->y) + Y*0.5f;
-
-    // Each corner pixel contributes color in direct proportion to its overlap.
-    auto fx = SkNf::Load(sc->fx),
-         fy = SkNf::Load(sc->fy);
-    auto overlap = (X > 0 ? fx : (1.0f - fx))
-                 * (Y > 0 ? fy : (1.0f - fy));
-    overlap.store(sc->scale);
+    *x = SkNf::Load(sc->x) + Scale*0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    (Scale > 0 ? fx : (1.0f - fx)).store(sc->scalex);
 }
-STAGE(bilinear_nn) { bilinear<-1,-1>(ctx, &r, &g); }
-STAGE(bilinear_pn) { bilinear<+1,-1>(ctx, &r, &g); }
-STAGE(bilinear_np) { bilinear<-1,+1>(ctx, &r, &g); }
-STAGE(bilinear_pp) { bilinear<+1,+1>(ctx, &r, &g); }
+template <int Scale>
+SI void bilinear_y(void* ctx, SkNf* y) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *y = SkNf::Load(sc->y) + Scale*0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (Scale > 0 ? fy : (1.0f - fy)).store(sc->scaley);
+}
+STAGE(bilinear_nx) { bilinear_x<-1>(ctx, &r); }
+STAGE(bilinear_px) { bilinear_x<+1>(ctx, &r); }
+STAGE(bilinear_ny) { bilinear_y<-1>(ctx, &g); }
+STAGE(bilinear_py) { bilinear_y<+1>(ctx, &g); }
+
+
+SI SkNf near(const SkNf& t) { return 16/18.0f + 0/18.0f*t - 36/18.0f*t*t + 21/18.0f*t*t*t; }
+SI SkNf  far(const SkNf& t) { return  1/18.0f - 9/18.0f*t + 15/18.0f*t*t -  7/18.0f*t*t*t; }
+
+template <int Scale>
+SI void bicubic_x(void* ctx, SkNf* x) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *x = SkNf::Load(sc->x) + Scale*0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    if (Scale == -3) {  far(       fx).store(sc->scalex); }
+    if (Scale == -1) { near(       fx).store(sc->scalex); }
+    if (Scale == +1) { near(1.0f - fx).store(sc->scalex); }
+    if (Scale == +3) {  far(1.0f - fx).store(sc->scalex); }
+}
+template <int Scale>
+SI void bicubic_y(void* ctx, SkNf* y) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *y = SkNf::Load(sc->y) + Scale*0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    if (Scale == -3) {  far(       fy).store(sc->scaley); }
+    if (Scale == -1) { near(       fy).store(sc->scaley); }
+    if (Scale == +1) { near(1.0f - fy).store(sc->scaley); }
+    if (Scale == +3) {  far(1.0f - fy).store(sc->scaley); }
+}
+STAGE(bicubic_n3x) { bicubic_x<-3>(ctx, &r); }
+STAGE(bicubic_n1x) { bicubic_x<-1>(ctx, &r); }
+STAGE(bicubic_p1x) { bicubic_x<+1>(ctx, &r); }
+STAGE(bicubic_p3x) { bicubic_x<+3>(ctx, &r); }
+
+STAGE(bicubic_n3y) { bicubic_y<-3>(ctx, &g); }
+STAGE(bicubic_n1y) { bicubic_y<-1>(ctx, &g); }
+STAGE(bicubic_p1y) { bicubic_y<+1>(ctx, &g); }
+STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }
 
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
-    auto scale = SkNf::Load(sc->scale);
+    auto scale = SkNf::Load(sc->scalex) * SkNf::Load(sc->scaley);
     dr = SkNf_fma(scale, r, dr);
     dg = SkNf_fma(scale, g, dg);
     db = SkNf_fma(scale, b, db);
