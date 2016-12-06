@@ -67,6 +67,8 @@
     M(load_565)  M(load_565_d)  M(store_565)                     \
     M(load_f16)  M(load_f16_d)  M(store_f16)                     \
     M(load_8888) M(load_8888_d) M(store_8888)                    \
+    M(load_4444)                M(store_4444)                    \
+    M(load_g8)                                                   \
     M(load_tables) M(store_tables)                               \
     M(scale_u8) M(scale_1_float)                                 \
     M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \

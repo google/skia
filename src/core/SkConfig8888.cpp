@@ -58,6 +58,12 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
             pipeline.append(SkRasterPipeline::load_565, &srcRow);
             break;
 #endif
+        case kARGB_4444_SkColorType:
+            pipeline.append(SkRasterPipeline::load_4444, &srcRow);
+            break;
+        case kGray_8_SkColorType:
+            pipeline.append(SkRasterPipeline::load_g8, &srcRow);
+            break;
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::load_f16, &srcRow);
             break;
@@ -86,10 +92,15 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
             pipeline.append(SkRasterPipeline::store_565, &dstRow);
             break;
 #endif
+        case kARGB_4444_SkColorType:
+            pipeline.append(SkRasterPipeline::store_4444, &srcRow);
+            break;
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dstRow);
             break;
         default:
+            // kGray_8_SkColorType  we don't know a well-defined way to convert INTO Gray
+            
             return false;   // dst colortype unsupported
     }
 
