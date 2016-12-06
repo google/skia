@@ -20,7 +20,9 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 }
 
 void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
-    SkOpts::run_pipeline(x,y,n, fStages.data(), SkToInt(fStages.size()));
+    if (!fStages.empty()) {
+        SkOpts::run_pipeline(x,y,n, fStages.data(), SkToInt(fStages.size()));
+    }
 }
 
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
