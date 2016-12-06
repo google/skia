@@ -152,7 +152,6 @@ config("default") {
       "--sysroot=$ndk/platforms/$ndk_platform",
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-      "-pie",
     ]
     lib_dirs = [
       "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
@@ -403,7 +402,9 @@ config("release") {
 }
 
 config("executable") {
-  if (is_mac) {
+  if (is_android) {
+    ldflags = [ "-pie" ]
+  } else if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
     ldflags = [
