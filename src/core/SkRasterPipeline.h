@@ -86,8 +86,8 @@
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
     M(gather_a8) M(gather_g8) M(gather_i8)                       \
     M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
-    M(top_left) M(top_right) M(bottom_left) M(bottom_right)      \
-    M(accumulate)
+    M(bilinear_nn) M(bilinear_pn) M(bilinear_np) M(bilinear_pp)  \
+    M(save_xy) M(accumulate)
 
 class SkRasterPipeline {
 public:

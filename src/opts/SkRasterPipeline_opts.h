@@ -801,47 +801,55 @@ STAGE( clamp_y) { g = clamp (g, *(const int*)ctx); }
 STAGE(repeat_y) { g = repeat(g, *(const int*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const int*)ctx); }
 
-STAGE(top_left) {
+STAGE(save_xy) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r.store(sc->x);
     g.store(sc->y);
 
-    r -= 0.5f;
-    g -= 0.5f;
+    auto fract = [](const SkNf& v) { return v - v.floor(); };
+    fract(r + 0.5f).store(sc->fx);
+    fract(g + 0.5f).store(sc->fy);
+}
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
+STAGE(bilinear_nn) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) - 0.5f;
+    g = SkNf::Load(sc->y) - 0.5f;
+
+    auto fx = SkNf::Load(sc->fx),
+         fy = SkNf::Load(sc->fy);
     ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
 };
-STAGE(top_right) {
+STAGE(bilinear_pn) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
     g = SkNf::Load(sc->y) - 0.5f;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
+    auto fx = SkNf::Load(sc->fx),
+         fy = SkNf::Load(sc->fy);
     (fx * (1.0f - fy)).store(sc->scale);
 };
-STAGE(bottom_left) {
+STAGE(bilinear_np) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) - 0.5f;
     g = SkNf::Load(sc->y) + 0.5f;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
+    auto fx = SkNf::Load(sc->fx),
+         fy = SkNf::Load(sc->fy);
     ((1.0f - fx) * fy).store(sc->scale);
 };
-STAGE(bottom_right) {
+STAGE(bilinear_pp) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
     g = SkNf::Load(sc->y) + 0.5f;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
+    auto fx = SkNf::Load(sc->fx),
+         fy = SkNf::Load(sc->fy);
     (fx * fy).store(sc->scale);
 };
 STAGE(accumulate) {
