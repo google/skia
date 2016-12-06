@@ -1084,11 +1084,16 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawRegion");
 
-    bool isNonTranslate = SkToBool(viewMatrix.getType() & ~(SkMatrix::kTranslate_Mask));
+    bool needsAA = false;
+    if (paint.isAntiAlias()) {
+        // GrRegionBatch performs no antialiasing but is much faster, so here we check the matrix
+        // to see whether aa is really required.
+        needsAA = SkToBool(viewMatrix.getType() & ~(SkMatrix::kTranslate_Mask)) ||
+                  !is_int(viewMatrix.getTranslateX()) ||
+                  !is_int(viewMatrix.getTranslateY());
+    }
     bool complexStyle = !style.isSimpleFill();
-    bool antiAlias = paint.isAntiAlias() && (!is_int(viewMatrix.getTranslateX()) ||
-                                             !is_int(viewMatrix.getTranslateY()));
-    if (isNonTranslate || complexStyle || antiAlias) {
+    if (complexStyle || needsAA) {
         SkPath path;
         region.getBoundaryPath(&path);
         return this->drawPath(clip, paint, viewMatrix, path, style);
