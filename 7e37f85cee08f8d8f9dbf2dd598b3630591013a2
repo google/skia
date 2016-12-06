@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_8a3a9386",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T22:39:05Z",
+      "side": 1,
+      "message": "You don\u0027t want to handle sRGB 4444 or gray 8?",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_8a11331a",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T22:39:05Z",
+      "side": 1,
+      "message": "Probably just TODO?  This should be pretty easy given the dst color space.",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
