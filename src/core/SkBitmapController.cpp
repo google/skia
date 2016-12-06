@@ -40,12 +40,10 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   SkDestinationSurfaceColorMode);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
 
 private:
     SkBitmap                      fResultBitmap;
-    SkDestinationSurfaceColorMode fColorMode;
     sk_sp<const SkMipMap>         fCurrMip;
 
     bool processExternalRequest(const SkBitmapProvider&);
@@ -185,13 +183,13 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     }
 
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), fColorMode));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), provider.colorMode()));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
             if (!provider.asBitmap(&orig)) {
                 return false;
             }
-            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, fColorMode));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, provider.colorMode()));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }
@@ -219,14 +217,11 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     return false;
 }
 
-SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
-                                                         const SkBitmapProvider& provider,
-                                                         const SkMatrix& inv,
-                                                         SkFilterQuality qual,
-                                                         SkDestinationSurfaceColorMode colorMode) {
+SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
+                                                               const SkMatrix& inv,
+                                                               SkFilterQuality qual) {
     fInvMatrix = inv;
     fQuality = qual;
-    fColorMode = colorMode;
 
     bool processed = this->processExternalRequest(provider);
 
@@ -253,6 +248,5 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality,
-                                                             fColorMode);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
 }

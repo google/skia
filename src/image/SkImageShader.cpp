@@ -284,7 +284,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     auto mode = (dst == nullptr) ? SkDestinationSurfaceColorMode::kLegacy
                                  : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     SkBitmapProvider provider(fImage.get(), mode);
-    SkDefaultBitmapController controller(mode);
+    SkDefaultBitmapController controller;
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)
     };
