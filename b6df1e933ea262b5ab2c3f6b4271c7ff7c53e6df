@@ -139,6 +139,24 @@
       "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db867f6_528774a1",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-06T16:39:18Z",
+      "side": 1,
+      "message": "This is the sort of thing I want to not do anymore.  You\u0027re clinging onto old translation layers that don\u0027t need to exist/  I would prefer it if you would just learn to use GN directly.",
+      "parentUuid": "cd4b13fc_5be9c3f8",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
