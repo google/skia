@@ -801,49 +801,38 @@ STAGE( clamp_y) { g = clamp (g, *(const int*)ctx); }
 STAGE(repeat_y) { g = repeat(g, *(const int*)ctx); }
 STAGE(mirror_y) { g = mirror(g, *(const int*)ctx); }
 
-STAGE(top_left) {
+STAGE(save_xy) {
     auto sc = (SkImageShaderContext*)ctx;
 
     r.store(sc->x);
     g.store(sc->y);
 
-    r -= 0.5f;
-    g -= 0.5f;
+    auto fract = [](const SkNf& v) { return v - v.floor(); };
+    fract(r + 0.5f).store(sc->fx);
+    fract(g + 0.5f).store(sc->fy);
+}
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
-};
-STAGE(top_right) {
+template <int X, int Y>
+SI void bilinear(void* ctx, SkNf* x, SkNf* y) {
     auto sc = (SkImageShaderContext*)ctx;
 
-    r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) - 0.5f;
+    // Bilinear interpolation considers the 4 physical pixels at
+    // each corner of a logical pixel centered at (sc->x, sc->y).
+    *x = SkNf::Load(sc->x) + X*0.5f;
+    *y = SkNf::Load(sc->y) + Y*0.5f;
 
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * (1.0f - fy)).store(sc->scale);
-};
-STAGE(bottom_left) {
-    auto sc = (SkImageShaderContext*)ctx;
+    // Each corner pixel contributes color in direct proportion to its overlap.
+    auto fx = SkNf::Load(sc->fx),
+         fy = SkNf::Load(sc->fy);
+    auto overlap = (X > 0 ? fx : (1.0f - fx))
+                 * (Y > 0 ? fy : (1.0f - fy));
+    overlap.store(sc->scale);
+}
+STAGE(bilinear_nn) { bilinear<-1,-1>(ctx, &r, &g); }
+STAGE(bilinear_pn) { bilinear<+1,-1>(ctx, &r, &g); }
+STAGE(bilinear_np) { bilinear<-1,+1>(ctx, &r, &g); }
+STAGE(bilinear_pp) { bilinear<+1,+1>(ctx, &r, &g); }
 
-    r = SkNf::Load(sc->x) - 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    ((1.0f - fx) * fy).store(sc->scale);
-};
-STAGE(bottom_right) {
-    auto sc = (SkImageShaderContext*)ctx;
-
-    r = SkNf::Load(sc->x) + 0.5f;
-    g = SkNf::Load(sc->y) + 0.5f;
-
-    auto fx = r - r.floor(),
-         fy = g - g.floor();
-    (fx * fy).store(sc->scale);
-};
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 

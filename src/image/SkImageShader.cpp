@@ -358,26 +358,20 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     };
 
+    auto sample = [&](SkRasterPipeline::StockStage sampler) {
+        p->append(sampler, ctx);
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
+    };
+
     if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
-
     } else {
-        p->append(SkRasterPipeline::top_left, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
-
-        p->append(SkRasterPipeline::top_right, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
-
-        p->append(SkRasterPipeline::bottom_left, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
-
-        p->append(SkRasterPipeline::bottom_right, ctx);
-        append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, ctx);
-
+        p->append(SkRasterPipeline::save_xy, ctx);
+        sample(SkRasterPipeline::bilinear_nn);
+        sample(SkRasterPipeline::bilinear_np);
+        sample(SkRasterPipeline::bilinear_pn);
+        sample(SkRasterPipeline::bilinear_pp);
         p->append(SkRasterPipeline::move_dst_src);
     }
 
