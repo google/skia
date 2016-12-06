@@ -57,14 +57,11 @@ protected:
 
 class SkDefaultBitmapController : public SkBitmapController {
 public:
-    SkDefaultBitmapController(SkDestinationSurfaceColorMode colorMode) : fColorMode(colorMode) {}
+    SkDefaultBitmapController() {}
 
 protected:
     State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                            void* storage, size_t storageSize) override;
-
-private:
-    const SkDestinationSurfaceColorMode fColorMode;
 };
 
 #endif

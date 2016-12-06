@@ -28,8 +28,7 @@ typedef SkFixed3232    SkFractionalInt;
 class SkPaint;
 
 struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                     SkDestinationSurfaceColorMode);
+    SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy);
     ~SkBitmapProcInfo();
 
     const SkBitmapProvider        fProvider;
@@ -43,7 +42,6 @@ struct SkBitmapProcInfo {
     SkShader::TileMode            fTileModeY;
     SkFilterQuality               fFilterQuality;
     SkMatrix::TypeMask            fInvType;
-    SkDestinationSurfaceColorMode fColorMode;
 
     bool init(const SkMatrix& inverse, const SkPaint&);
 
@@ -56,9 +54,8 @@ private:
 };
 
 struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                      SkDestinationSurfaceColorMode colorMode)
-        : SkBitmapProcInfo(prov, tmx, tmy, colorMode) {}
+    SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy)
+        : SkBitmapProcInfo(prov, tmx, tmy) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
         return this->init(inv, paint) && this->chooseProcs();

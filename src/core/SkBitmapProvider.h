@@ -26,6 +26,7 @@ public:
     int width() const;
     int height() const;
     uint32_t getID() const;
+    SkDestinationSurfaceColorMode colorMode() const { return fColorMode; }
 
     SkImageInfo info() const;
     bool isVolatile() const;
