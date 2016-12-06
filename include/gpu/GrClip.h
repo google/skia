@@ -8,6 +8,7 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
+#include "GrTypes.h"
 #include "SkRect.h"
 #include "SkRRect.h"
 
@@ -45,7 +46,7 @@ public:
      * @return true if the clip is equivalent to a single rrect, false otherwise.
      *
      */
-    virtual bool isRRect(const SkRect& rtBounds, SkRRect* rrect, bool* aa) const = 0;
+    virtual bool isRRect(const SkRect& rtBounds, SkRRect* rrect, GrAA* aa) const = 0;
 
     /**
      * This is the maximum distance that a draw may extend beyond a clip's boundary and still count
@@ -140,7 +141,7 @@ private:
     bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*) const final {
         return true;
     }
-    bool isRRect(const SkRect&, SkRRect*, bool*) const override { return false; }
+    bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }
 };
 
 #endif
