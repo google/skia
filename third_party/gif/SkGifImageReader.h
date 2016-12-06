@@ -325,16 +325,22 @@ public:
     // The method returns false if there is an error.
     bool decode(size_t frameIndex, bool* frameComplete);
 
+    // Cached value of the number of completely parsed frames.
     size_t imagesCount() const
     {
-        if (m_frames.empty())
+        if (m_frames.empty()) {
             return 0;
+        }
 
-        // This avoids counting an empty frame when the file is truncated right after
-        // SkGIFControlExtension but before SkGIFImageHeader.
-        // FIXME: This extra complexity is not necessary and we should just report m_frames.size().
-        return m_frames.back()->isHeaderDefined() ? m_frames.size() : m_frames.size() - 1;
+        // If there is a single frame, report it, even if it is incomplete.
+        if (m_frames.size() == 1) {
+            return 1;
+        }
+
+        // Only count frames that are complete.
+        return m_frames.back()->isComplete() ? m_frames.size() : m_frames.size() - 1;
     }
+
     int loopCount() const {
         if (cLoopCountNotSeen == m_loopCount) {
             return 0;

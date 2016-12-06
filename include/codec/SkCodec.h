@@ -607,6 +607,13 @@ public:
     /**
      *  Return info about the frames in the image.
      *
+     *  Only includes data about frames that are believed to be complete.
+     *  i.e. if a frame is included here, we have e.g. parsed a marker that
+     *  indicates the frame is complete. It is still possible that at
+     *  decode time we will discover that the frame does not have the proper
+     *  data to return kSuccess. An exception - if there is partial data for
+     *  the first frame, this will include the first frame.
+     *
      *  May require reading through the stream to determine info about the
      *  frames (including the count).
      *

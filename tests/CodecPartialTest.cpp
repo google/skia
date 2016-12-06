@@ -209,21 +209,12 @@ DEF_TEST(Codec_partialAnim, r) {
         const SkCodec::Result result = fullCodec->getPixels(info, frame.getPixels(),
                 frame.rowBytes(), &opts, nullptr, nullptr);
 
-        if (result == SkCodec::kIncompleteInput) {
-            frameByteCounts.push_back(stream->getPosition() - lastOffset);
-
-            // We need to distinguish between a partial frame and no more frames.
-            // getFrameInfo lets us do this, since it tells the number of frames
-            // not considering whether they are complete.
-            // FIXME: Should we use a different Result?
-            if (fullCodec->getFrameInfo().size() > i) {
-                // This is a partial frame.
-                frames.push_back(frame);
-            }
-            break;
-        }
-
         if (result != SkCodec::kSuccess) {
+            frameByteCounts.push_back(stream->getPosition() - lastOffset);
+            if (fullCodec->getFrameInfo().size() == i) {
+                break;
+            }
+
             ERRORF(r, "Failed to decode frame %i from %s", i, path);
             return;
         }
@@ -255,16 +246,22 @@ DEF_TEST(Codec_partialAnim, r) {
         opts.fFrameIndex = i;
         SkCodec::Result result = partialCodec->startIncrementalDecode(info,
                 frame.getPixels(), frame.rowBytes(), &opts);
-        if (result != SkCodec::kSuccess) {
+        const bool successfullyStarted = SkCodec::kSuccess == result;
+        if (successfullyStarted) {
+            REPORTER_ASSERT(r, 0 == i);
+            result = partialCodec->incrementalDecode();
+            REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
+        }
+
+        haltingStream->addNewData(secondHalf);
+        if (!successfullyStarted && partialCodec->startIncrementalDecode(info,
+                frame.getPixels(), frame.rowBytes(), &opts) != SkCodec::kSuccess) {
             ERRORF(r, "Failed to start incremental decode for %s on frame %i",
                    path, i);
             return;
         }
 
-        result = partialCodec->incrementalDecode();
-        REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
-        haltingStream->addNewData(secondHalf);
         result = partialCodec->incrementalDecode();
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
