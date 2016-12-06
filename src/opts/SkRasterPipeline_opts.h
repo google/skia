@@ -958,6 +958,12 @@ namespace {
         }
 
         void operator()(size_t x, size_t y, size_t n) {
+            // UBSAN says calling fStages.data() on an empty fStages can create a null
+            // reference.  That seems like a bug in std::vector, but we'll work around it.
+            if (fStages.empty()) {
+                return;
+            }
+
             float dx[] = { 0,1,2,3,4,5,6,7 };
             SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
                  Y = SkNf(y) + 0.5f,
