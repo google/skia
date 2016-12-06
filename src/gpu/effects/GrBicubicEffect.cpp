@@ -15,6 +15,22 @@
 
 #define DS(x) SkDoubleToScalar(x)
 
+/*
+ * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
+ * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
+ * ACM DL: http://dl.acm.org/citation.cfm?id=378514
+ * Free  : http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
+ *
+ * The authors define a family of cubic filters with two free parameters (B and C):
+ *
+ *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)            if |x| < 1
+ * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C)   if 1 <= |x| < 2
+ *            { 0                                                                 otherwise
+ *
+ * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as their
+ * favorite overall spline - this is now commonly known as the Mitchell filter, and is the source
+ * of the specific weights below.
+ */
 const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
     DS( 1.0 / 18.0), DS(-9.0 / 18.0), DS( 15.0 / 18.0), DS( -7.0 / 18.0),
     DS(16.0 / 18.0), DS( 0.0 / 18.0), DS(-36.0 / 18.0), DS( 21.0 / 18.0),
