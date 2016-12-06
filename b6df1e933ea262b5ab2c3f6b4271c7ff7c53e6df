@@ -157,6 +157,24 @@
       "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_7e1fcdd3",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-06T16:46:58Z",
+      "side": 1,
+      "message": "I don\u0027t really care if this calls directly into GN/ninja or not.  I do care about having to put the same logic in two places and the android_ninja script already takes care of both running gn gen and calling ninja.  If I don\u0027t use the script then I need to basically duplicate that logic here.",
+      "parentUuid": "6db867f6_528774a1",
+      "revId": "b6df1e933ea262b5ab2c3f6b4271c7ff7c53e6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
