@@ -697,6 +697,11 @@ component("skia") {
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
+  # Used by gn_to_bp.py to list our public include dirs.
+  source_set("public") {
+    configs += [ ":skia_public" ]
+  }
+
   config("skia.h_config") {
     include_dirs = [ "$target_gen_dir" ]
   }
