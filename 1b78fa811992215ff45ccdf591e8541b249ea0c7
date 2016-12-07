@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d744b42_53853c59",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-07T20:24:25Z",
+      "side": 1,
+      "message": "malloc can now go in this declare_args() (down with the similar cc_wrapper?) which keeps it scoped to this file.  Things in BUILDCONFIG.gn are global.",
+      "revId": "1b78fa811992215ff45ccdf591e8541b249ea0c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_f3954890",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-07T20:24:25Z",
+      "side": 1,
+      "message": "Should be \"$malloc\" can be written more simply, malloc",
+      "revId": "1b78fa811992215ff45ccdf591e8541b249ea0c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
