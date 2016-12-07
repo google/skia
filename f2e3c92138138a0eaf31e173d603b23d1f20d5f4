@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_49b57015",
+        "filename": "tests/BitmapTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T19:27:47Z",
+      "side": 1,
+      "message": "Seems like we could/should test all values, at least for a given component, instead of 10 random ones.",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 20
+      },
+      "revId": "f2e3c92138138a0eaf31e173d603b23d1f20d5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
