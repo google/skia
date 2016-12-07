@@ -7,7 +7,6 @@
 
 #include "GrDashingEffect.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -15,6 +14,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
+#include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGr.h"

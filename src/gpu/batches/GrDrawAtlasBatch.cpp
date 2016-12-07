@@ -6,11 +6,11 @@
  */
 
 #include "GrDrawAtlasBatch.h"
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
+#include "GrOpFlushState.h"
 #include "SkGr.h"
-#include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkRandom.h"
 
 void GrDrawAtlasBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     SkASSERT(fGeoData.count() == 1);

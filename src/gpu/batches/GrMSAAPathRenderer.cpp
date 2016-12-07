@@ -8,11 +8,11 @@
 #include "GrMSAAPathRenderer.h"
 
 #include "GrAuditTrail.h"
-#include "GrBatchFlushState.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFixedClip.h"
 #include "GrMesh.h"
+#include "GrOpFlushState.h"
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
