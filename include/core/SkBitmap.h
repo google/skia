@@ -420,6 +420,14 @@ public:
     SkIPoint pixelRefOrigin() const { return fPixelRefOrigin; }
 
     /**
+     * Assign a pixelref and origin to the bitmap.  (dx,dy) specify the offset
+     * within the pixelref's pixels for the top/left corner of the bitmap. For
+     * a bitmap that encompases the entire pixels of the pixelref, these will
+     * be (0,0).
+     */
+    void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
+
+    /**
      *  Assign a pixelref and origin to the bitmap. Pixelrefs are reference,
      *  so the existing one (if any) will be unref'd and the new one will be
      *  ref'd. (x,y) specify the offset within the pixelref's pixels for the
