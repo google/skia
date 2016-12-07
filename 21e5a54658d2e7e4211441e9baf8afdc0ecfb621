@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_2961044e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-07T19:01:42Z",
+      "side": 1,
+      "message": "I think I should also provide a seed image (or more?) for this? A good place to start is resources/test640x479.gif. We have some more animated images in Google Storage that we can also use. (Where do I put images I want to use as seeds for fuzzing?)",
+      "range": {
+        "startLine": 7,
+        "startChar": 25,
+        "endLine": 7,
+        "endChar": 33
+      },
+      "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_69ccec4a",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-07T19:01:42Z",
+      "side": 1,
+      "message": "This is not an error; most formats will currently return this. Is breaking out of the switch (and then dump_png) and returning 0 the right thing to do here?\n\nWhich brings up another point. I\u0027ve forgotten/don\u0027t know all the details of fuzzing (is there documentation somewhere? I didn\u0027t see on Skia.org), but I think it goes through several iterations? We now have some modes that are not supported by all formats (GIF is the only one to support this, for now, and scanline decoding is being phased out, but is still supported by many formats). Do we need to return a particular value so that the fuzzer does not give up?",
+      "range": {
+        "startLine": 362,
+        "startChar": 16,
+        "endLine": 362,
+        "endChar": 26
+      },
+      "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
