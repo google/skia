@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0d744b42_567e8a1d",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-07T22:06:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd4b13fc_f3654659",
+      "revId": "071b65d29be6142883bf2cc8eef30a82c6dff871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_134472b6",
         "filename": "src/gpu/instanced/InstancedRendering.h",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-07T21:56:56Z",
       "side": 1,
       "message": "Not for this change, but just curious: are you planning to rename onDraw to onExecute (to mirror the OpList API)?",
+      "revId": "071b65d29be6142883bf2cc8eef30a82c6dff871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_b6780e32",
+        "filename": "src/gpu/instanced/InstancedRendering.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-07T22:06:28Z",
+      "side": 1,
+      "message": "Yep",
+      "parentUuid": "cd4b13fc_134472b6",
       "revId": "071b65d29be6142883bf2cc8eef30a82c6dff871",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
