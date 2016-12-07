@@ -248,16 +248,9 @@ private:
             const SkRect& bounds = args.fShape.bounds();
             SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
             SkScalar size = maxScale * maxDim;
-            SkScalar desiredDimension;
-            // For minimizing (or the common case of identity) transforms, we try to
-            // create the DF at the appropriately sized native src-space path resolution.
-            // In the majority of cases this will yield a crisper rendering.
-            if (size <= maxDim && maxDim < kSmallMIP) {
-                desiredDimension = maxDim;
-            } else if (size <= kSmallMIP) {
+            uint32_t desiredDimension;
+            if (size <= kSmallMIP) {
                 desiredDimension = kSmallMIP;
-            } else if (size <= maxDim) {
-                desiredDimension = maxDim;
             } else if (size <= kMediumMIP) {
                 desiredDimension = kMediumMIP;
             } else {
@@ -265,7 +258,7 @@ private:
             }
 
             // check to see if path is cached
-            ShapeData::Key key(args.fShape, SkScalarCeilToInt(desiredDimension));
+            ShapeData::Key key(args.fShape, desiredDimension);
             ShapeData* shapeData = fShapeCache->find(key);
             if (nullptr == shapeData || !atlas->hasID(shapeData->fID)) {
                 // Remove the stale cache entry
@@ -275,7 +268,6 @@ private:
                     delete shapeData;
                 }
                 SkScalar scale = desiredDimension/maxDim;
-
                 shapeData = new ShapeData;
                 if (!this->addPathToAtlas(target,
                                           &flushInfo,
@@ -283,7 +275,7 @@ private:
                                           shapeData,
                                           args.fShape,
                                           args.fAntiAlias,
-                                          SkScalarCeilToInt(desiredDimension),
+                                          desiredDimension,
                                           scale)) {
                     delete shapeData;
                     SkDebugf("Can't rasterize path\n");
@@ -319,25 +311,29 @@ private:
         scaledBounds.fTop *= scale;
         scaledBounds.fRight *= scale;
         scaledBounds.fBottom *= scale;
-        // subtract out integer portion of origin
-        // (SDF created will be placed with fractional offset burnt in)
-        SkScalar dx = SkScalarFloorToInt(scaledBounds.fLeft);
-        SkScalar dy = SkScalarFloorToInt(scaledBounds.fTop);
+        // move the origin to an integer boundary (gives better results)
+        SkScalar dx = SkScalarFraction(scaledBounds.fLeft);
+        SkScalar dy = SkScalarFraction(scaledBounds.fTop);
         scaledBounds.offset(-dx, -dy);
         // get integer boundary
         SkIRect devPathBounds;
         scaledBounds.roundOut(&devPathBounds);
         // pad to allow room for antialiasing
         const int intPad = SkScalarCeilToInt(kAntiAliasPad);
-        // place devBounds at origin
-        int width = devPathBounds.width() + 2*intPad;
-        int height = devPathBounds.height() + 2*intPad;
-        devPathBounds = SkIRect::MakeWH(width, height);
+        // pre-move origin (after outset, will be 0,0)
+        int width = devPathBounds.width();
+        int height = devPathBounds.height();
+        devPathBounds.fLeft = intPad;
+        devPathBounds.fTop = intPad;
+        devPathBounds.fRight = intPad + width;
+        devPathBounds.fBottom = intPad + height;
+        devPathBounds.outset(intPad, intPad);
 
         // draw path to bitmap
         SkMatrix drawMatrix;
-        drawMatrix.setScale(scale, scale);
-        drawMatrix.postTranslate(intPad - dx, intPad - dy);
+        drawMatrix.setTranslate(-bounds.left(), -bounds.top());
+        drawMatrix.postScale(scale, scale);
+        drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
 
         // setup bitmap backing
         SkASSERT(devPathBounds.fLeft == 0);
@@ -382,7 +378,7 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrBatchAtlas::AtlasID id;
-        if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+       if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
             if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
                 return false;
@@ -391,20 +387,22 @@ private:
 
         // add to cache
         shapeData->fKey.set(shape, dimension);
+        shapeData->fScale = scale;
         shapeData->fID = id;
-
-        // set the bounds rect to match the size and placement of the distance field in the atlas
-        shapeData->fBounds.setXYWH(atlasLocation.fX + SK_DistanceFieldPad,
-                                   atlasLocation.fY + SK_DistanceFieldPad,
-                                   width - 2*SK_DistanceFieldPad,
-                                   height - 2*SK_DistanceFieldPad);
-        // we also need to store the transformation from texture space to the original path's space
-        // which is a simple uniform scale and translate
-        shapeData->fScaleToDev = SkScalarInvert(scale);
-        dx -= SK_DistanceFieldPad + kAntiAliasPad;
-        dy -= SK_DistanceFieldPad + kAntiAliasPad;
-        shapeData->fTranslateToDev = SkPoint::Make((-atlasLocation.fX + dx)*shapeData->fScaleToDev,
-                                                   (-atlasLocation.fY + dy)*shapeData->fScaleToDev);
+        // change the scaled rect to match the size of the inset distance field
+        scaledBounds.fRight = scaledBounds.fLeft +
+            SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldInset);
+        scaledBounds.fBottom = scaledBounds.fTop +
+            SkIntToScalar(devPathBounds.height() - 2*SK_DistanceFieldInset);
+        // shift the origin to the correct place relative to the distance field
+        // need to also restore the fractional translation
+        scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
+                            -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
+        shapeData->fBounds = scaledBounds;
+        // origin we render from is inset from distance field edge
+        atlasLocation.fX += SK_DistanceFieldInset;
+        atlasLocation.fY += SK_DistanceFieldInset;
+        shapeData->fAtlasLocation = atlasLocation;
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -428,14 +426,11 @@ private:
         SkScalar width = shapeData->fBounds.width();
         SkScalar height = shapeData->fBounds.height();
 
-        // transform texture bounds to the original path's space
-        SkScalar invScale = shapeData->fScaleToDev;
+        SkScalar invScale = 1.0f / shapeData->fScale;
         dx *= invScale;
         dy *= invScale;
         width *= invScale;
         height *= invScale;
-        dx += shapeData->fTranslateToDev.fX;
-        dy += shapeData->fTranslateToDev.fY;
 
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
@@ -450,12 +445,15 @@ private:
             *colorPtr = color;
         }
 
+        const SkScalar tx = SkIntToScalar(shapeData->fAtlasLocation.fX);
+        const SkScalar ty = SkIntToScalar(shapeData->fAtlasLocation.fY);
+
         // vertex texture coords
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        textureCoords->setRectFan((shapeData->fBounds.fLeft) / texture->width(),
-                                  (shapeData->fBounds.fTop) / texture->height(),
-                                  (shapeData->fBounds.fRight)/texture->width(),
-                                  (shapeData->fBounds.fBottom)/texture->height(),
+        textureCoords->setRectFan(tx / texture->width(),
+                                  ty / texture->height(),
+                                  (tx + shapeData->fBounds.width()) / texture->width(),
+                                  (ty + shapeData->fBounds.height())  / texture->height(),
                                   vertexStride);
     }
 
