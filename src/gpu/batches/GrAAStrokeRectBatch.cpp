@@ -7,8 +7,8 @@
 
 #include "GrAAStrokeRectBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrOpFlushState.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 

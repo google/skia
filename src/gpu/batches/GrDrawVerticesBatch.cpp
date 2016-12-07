@@ -7,9 +7,9 @@
 
 #include "GrDrawVerticesBatch.h"
 
-#include "GrBatchFlushState.h"
-#include "GrInvariantOutput.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrInvariantOutput.h"
+#include "GrOpFlushState.h"
 
 static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
                                                         int* colorOffset,

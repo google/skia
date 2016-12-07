@@ -8,11 +8,11 @@
 #ifndef GrClearStencilClipBatch_DEFINED
 #define GrClearStencilClipBatch_DEFINED
 
-#include "GrBatchFlushState.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
+#include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
 
 class GrClearStencilClipBatch final : public GrOp {
@@ -51,9 +51,9 @@ public:
 private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
-    void onPrepare(GrBatchFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+    void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
         state->commandBuffer()->clearStencilClip(fRenderTarget.get(), fClip, fInsideStencilMask);
     }
 

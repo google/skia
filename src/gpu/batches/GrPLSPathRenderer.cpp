@@ -7,12 +7,12 @@
 
 #include "GrPLSPathRenderer.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrInvariantOutput.h"
+#include "GrOpFlushState.h"
 #include "GrPLSGeometryProcessor.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
