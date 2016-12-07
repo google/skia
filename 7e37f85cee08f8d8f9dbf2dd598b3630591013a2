@@ -69,6 +69,24 @@
       "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_93dac405",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-07T17:31:09Z",
+      "side": 1,
+      "message": "I was thinking convert to luminance, but I guess that\u0027s more smarts than we want in readPixels()?",
+      "parentUuid": "cd4b13fc_58dc5c75",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
