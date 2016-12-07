@@ -11,7 +11,7 @@
 #include "GrColor.h"
 #include "batches/GrDrawOp.h"
 
-class GrBatchFlushState;
+class GrOpFlushState;
 class GrFixedClip;
 class GrGpu;
 class GrMesh;
@@ -73,7 +73,7 @@ public:
               const SkRect& bounds);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
-    virtual void inlineUpload(GrBatchFlushState* state, GrDrawOp::DeferredUploadFn& upload) = 0;
+    virtual void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) = 0;
 
     /**
      * Clear the passed in render target. Ignores the draw state and clip.

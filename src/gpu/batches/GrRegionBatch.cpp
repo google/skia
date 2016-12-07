@@ -7,9 +7,9 @@
 
 #include "GrRegionBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkMatrixPriv.h"
 #include "SkRegion.h"

@@ -7,8 +7,8 @@
 
 #include "GrShadowRRectBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "GrStyle.h"
 

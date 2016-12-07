@@ -7,7 +7,7 @@
 
 #include "GrAtlasTextBatch.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
 #include "SkGlyphCache.h"

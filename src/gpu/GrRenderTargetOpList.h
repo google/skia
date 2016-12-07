@@ -74,8 +74,8 @@ public:
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareOps(GrBatchFlushState* flushState) override;
-    bool executeOps(GrBatchFlushState* flushState) override;
+    void prepareOps(GrOpFlushState* flushState) override;
+    bool executeOps(GrOpFlushState* flushState) override;
 
     /**
      * Gets the capabilities of the draw target.

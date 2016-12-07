@@ -7,9 +7,9 @@
 
 #include "GrVkGpuCommandBuffer.h"
 
-#include "GrBatchFlushState.h"
 #include "GrFixedClip.h"
 #include "GrMesh.h"
+#include "GrOpFlushState.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
@@ -400,8 +400,7 @@ void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
     cbInfo.fCommandBuffer->begin(fGpu, fRenderTarget->framebuffer(), cbInfo.fRenderPass);
 }
 
-void GrVkGpuCommandBuffer::inlineUpload(GrBatchFlushState* state,
-                                        GrDrawOp::DeferredUploadFn& upload) {
+void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) {
     if (!fCommandBufferInfos[fCurrentCmdBuffer].fIsEmpty) {
         this->addAdditionalCommandBuffer();
     }

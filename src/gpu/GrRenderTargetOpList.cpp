@@ -151,7 +151,7 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
     dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
 }
 
-void GrRenderTargetOpList::prepareOps(GrBatchFlushState* flushState) {
+void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
     // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
     // but need to be flushed anyway. Closing such GrOpLists here will mean new
@@ -173,7 +173,7 @@ void GrRenderTargetOpList::prepareOps(GrBatchFlushState* flushState) {
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
-bool GrRenderTargetOpList::executeOps(GrBatchFlushState* flushState) {
+bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }

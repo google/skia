@@ -15,7 +15,7 @@
 
 #include "SkTLList.h"
 
-class GrBatchFlushState;
+class GrOpFlushState;
 
 /**
  * Base class for mesh-drawing GrDrawOps.
@@ -63,8 +63,8 @@ protected:
     };
 
 private:
-    void onPrepare(GrBatchFlushState* state) final;
-    void onDraw(GrBatchFlushState* state, const SkRect& bounds) final;
+    void onPrepare(GrOpFlushState* state) final;
+    void onDraw(GrOpFlushState* state, const SkRect& bounds) final;
 
     virtual void onPrepareDraws(Target*) const = 0;
 

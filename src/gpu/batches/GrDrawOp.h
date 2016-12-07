@@ -37,7 +37,7 @@ public:
 private:
     GrDrawOpUploadToken();
     explicit GrDrawOpUploadToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
-    friend class GrBatchFlushState;
+    friend class GrOpFlushState;
     uint64_t fSequenceNumber;
 };
 

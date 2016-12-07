@@ -7,7 +7,7 @@
 
 #include "GrAtlasTextBlob.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrTextUtils.h"
 
 #include "SkDistanceFieldGen.h"

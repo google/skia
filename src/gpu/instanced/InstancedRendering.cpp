@@ -7,8 +7,8 @@
 
 #include "InstancedRendering.h"
 
-#include "GrBatchFlushState.h"
 #include "GrCaps.h"
+#include "GrOpFlushState.h"
 #include "GrPipeline.h"
 #include "GrResourceProvider.h"
 #include "instanced/InstanceProcessor.h"
@@ -462,7 +462,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Batch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void InstancedRendering::Batch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 

@@ -33,7 +33,7 @@ public:
 
     void discard(GrRenderTarget*) override;
 
-    void inlineUpload(GrBatchFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
 
 private:
     // Performs lazy initialization on the first operation seen by the command buffer.
@@ -64,11 +64,10 @@ private:
     void addAdditionalCommandBuffer();
 
     struct InlineUploadInfo {
-        InlineUploadInfo(GrBatchFlushState* state, const GrDrawOp::DeferredUploadFn& upload)
-                : fFlushState(state)
-                , fUpload(upload) {}
+        InlineUploadInfo(GrOpFlushState* state, const GrDrawOp::DeferredUploadFn& upload)
+            : fFlushState(state), fUpload(upload) {}
 
-        GrBatchFlushState*            fFlushState;
+        GrOpFlushState* fFlushState;
         GrDrawOp::DeferredUploadFn fUpload;
     };
 

@@ -8,9 +8,9 @@
 #ifndef GrStencilPathBatch_DEFINED
 #define GrStencilPathBatch_DEFINED
 
-#include "GrBatchFlushState.h"
 #include "GrGpu.h"
 #include "GrOp.h"
+#include "GrOpFlushState.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
@@ -66,9 +66,9 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
-    void onPrepare(GrBatchFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override {
+    void onDraw(GrOpFlushState* state, const SkRect& bounds) override {
         GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix,
                                               &fScissor, &fStencil);
         state->gpu()->pathRendering()->stencilPath(args, fPath.get());

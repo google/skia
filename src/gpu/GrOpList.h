@@ -14,7 +14,7 @@
 //#define ENABLE_MDB 1
 
 class GrAuditTrail;
-class GrBatchFlushState;
+class GrOpFlushState;
 class GrRenderTargetOpList;
 class GrSurface;
 class GrSurfaceProxy;
@@ -26,8 +26,8 @@ public:
     ~GrOpList() override;
 
     // These two methods are invoked as flush time
-    virtual void prepareOps(GrBatchFlushState* flushState) = 0;
-    virtual bool executeOps(GrBatchFlushState* flushState) = 0;
+    virtual void prepareOps(GrOpFlushState* flushState) = 0;
+    virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
     virtual void makeClosed() {
         // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only

@@ -7,10 +7,10 @@
 
 #include "GrOvalRenderer.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
+#include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"

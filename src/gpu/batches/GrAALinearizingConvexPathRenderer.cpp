@@ -8,12 +8,12 @@
 #include "GrAALinearizingConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
+#include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"

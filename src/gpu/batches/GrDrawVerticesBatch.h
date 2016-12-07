@@ -15,7 +15,7 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class GrBatchFlushState;
+class GrOpFlushState;
 struct GrInitInvariantOutput;
 
 class GrDrawVerticesBatch : public GrMeshDrawOp {

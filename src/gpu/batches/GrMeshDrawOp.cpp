@@ -6,13 +6,13 @@
  */
 
 #include "GrMeshDrawOp.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
     : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
 
-void GrMeshDrawOp::onPrepare(GrBatchFlushState* state) {
+void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);
     this->onPrepareDraws(&target);
 }
@@ -59,7 +59,7 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
                                  quadsToDraw);
 }
 
-void GrMeshDrawOp::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void GrMeshDrawOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 
@@ -86,24 +86,24 @@ void GrMeshDrawOp::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
 //////////////////////////////////////////////////////////////////////////////
 
 void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mesh) {
-    GrMeshDrawOp* batch = this->vertexBatch();
-    batch->fMeshes.push_back(mesh);
-    if (!batch->fQueuedDraws.empty()) {
+    GrMeshDrawOp* op = this->meshDrawOp();
+    op->fMeshes.push_back(mesh);
+    if (!op->fQueuedDraws.empty()) {
         // If the last draw shares a geometry processor and there are no intervening uploads,
         // add this mesh to it.
-        GrMeshDrawOp::QueuedDraw& lastDraw = this->vertexBatch()->fQueuedDraws.back();
+        GrMeshDrawOp::QueuedDraw& lastDraw = op->fQueuedDraws.back();
         if (lastDraw.fGeometryProcessor == gp &&
-            (batch->fInlineUploads.empty() ||
-             batch->fInlineUploads.back().fUploadBeforeToken != this->nextDrawToken())) {
+            (op->fInlineUploads.empty() ||
+             op->fInlineUploads.back().fUploadBeforeToken != this->nextDrawToken())) {
             ++lastDraw.fMeshCnt;
             return;
         }
     }
-    GrMeshDrawOp::QueuedDraw& draw = this->vertexBatch()->fQueuedDraws.push_back();
+    GrMeshDrawOp::QueuedDraw& draw = op->fQueuedDraws.push_back();
     GrDrawOpUploadToken token = this->state()->issueDrawToken();
     draw.fGeometryProcessor.reset(gp);
     draw.fMeshCnt = 1;
-    if (batch->fQueuedDraws.count() == 1) {
-        batch->fBaseDrawToken = token;
+    if (op->fQueuedDraws.count() == 1) {
+        op->fBaseDrawToken = token;
     }
 }

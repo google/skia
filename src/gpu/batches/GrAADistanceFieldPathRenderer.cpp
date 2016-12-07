@@ -7,10 +7,10 @@
 
 #include "GrAADistanceFieldPathRenderer.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrContext.h"
+#include "GrOpFlushState.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"

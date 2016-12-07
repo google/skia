@@ -6,7 +6,7 @@
  */
 
 #include "GrBatchAtlas.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrRectanizer.h"
 #include "GrTracing.h"
 

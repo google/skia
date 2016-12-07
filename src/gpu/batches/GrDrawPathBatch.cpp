@@ -13,7 +13,7 @@ static void pre_translate_transform_values(const float* xforms,
                                            GrPathRendering::PathTransformType type, int count,
                                            SkScalar x, SkScalar y, float* dst);
 
-void GrDrawPathBatchBase::onPrepare(GrBatchFlushState*) {
+void GrDrawPathBatchBase::onPrepare(GrOpFlushState*) {
     const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
     fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
                                this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
@@ -27,7 +27,7 @@ SkString GrDrawPathBatch::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void GrDrawPathBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     GrProgramDesc  desc;
 
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
@@ -118,7 +118,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     return true;
 }
 
-void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     const Draw& head = *fDraws.head();
 
     SkMatrix drawMatrix(this->viewMatrix());

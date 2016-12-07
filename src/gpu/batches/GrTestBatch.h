@@ -8,8 +8,8 @@
 #ifndef GrTestBatch_DEFINED
 #define GrTestBatch_DEFINED
 
-#include "GrBatchFlushState.h"
 #include "GrGeometryProcessor.h"
+#include "GrOpFlushState.h"
 
 #include "batches/GrMeshDrawOp.h"
 
