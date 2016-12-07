@@ -571,7 +571,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         } else {
             sk_sp<GrDrawOp> batch(new DefaultPathBatch(paint.getColor(), path, srcSpaceTol,
                                                        newCoverage, viewMatrix, isHairline,
@@ -584,7 +584,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                 pipelineBuilder.setDisableColorXPFactory();
             }
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         }
     }
     return true;

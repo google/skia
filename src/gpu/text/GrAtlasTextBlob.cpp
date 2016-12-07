@@ -326,7 +326,7 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
 
         GrPipelineBuilder pipelineBuilder(grPaint, rtc->mustUseHWAA(grPaint));
 
-        rtc->drawBatch(pipelineBuilder, clip, batch.get());
+        rtc->addDrawOp(pipelineBuilder, clip, batch.get());
     }
 }
 

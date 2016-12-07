@@ -644,7 +644,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
 
-        renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+        renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
     }
 
     if (fFallbackTextBlob) {

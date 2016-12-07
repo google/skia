@@ -370,7 +370,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }
