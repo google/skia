@@ -80,7 +80,7 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     SkASSERT(result);
 
     for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->prepareBatches(&fFlushState);
+        fOpLists[i]->prepareOps(&fFlushState);
     }
 
     // Enable this to print out verbose batching information
@@ -94,7 +94,7 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     fFlushState.preIssueDraws();
 
     for (int i = 0; i < fOpLists.count(); ++i) {
-        if (fOpLists[i]->drawBatches(&fFlushState)) {
+        if (fOpLists[i]->executeOps(&fFlushState)) {
             flushed = true;
         }
     }

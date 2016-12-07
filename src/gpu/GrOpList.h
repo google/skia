@@ -26,8 +26,8 @@ public:
     ~GrOpList() override;
 
     // These two methods are invoked as flush time
-    virtual void prepareBatches(GrBatchFlushState* flushState) = 0;
-    virtual bool drawBatches(GrBatchFlushState* flushState) = 0;
+    virtual void prepareOps(GrBatchFlushState* flushState) = 0;
+    virtual bool executeOps(GrBatchFlushState* flushState) = 0;
 
     virtual void makeClosed() {
         // We only close GrOpLists when MDB is enabled. When MDB is disabled there is only
@@ -82,7 +82,7 @@ private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
 
     enum Flags {
-        kClosed_Flag    = 0x01,   //!< This GrOpList can't accept any more batches
+        kClosed_Flag    = 0x01,   //!< This GrOpList can't accept any more ops
 
         kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
         kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
