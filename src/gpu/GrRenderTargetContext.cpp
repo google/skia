@@ -710,7 +710,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
                                                                      croppedRect,
                                                                      croppedLocalRect));
         GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-        this->drawBatch(pipelineBuilder, clip, batch.get());
+        this->addDrawOp(pipelineBuilder, clip, batch.get());
         return;
     }
 
@@ -1555,12 +1555,12 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrRenderTargetContext::drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
+void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
                                       GrDrawOp* batch) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawBatch");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch);
 }
