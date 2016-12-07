@@ -665,7 +665,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
             pipelineBuilder.setUserStencil(passes[p]);
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         } else {
             sk_sp<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
                                                          viewMatrix, devBounds));
@@ -679,7 +679,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 pipelineBuilder.setDisableColorXPFactory();
             }
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         }
     }
     return true;

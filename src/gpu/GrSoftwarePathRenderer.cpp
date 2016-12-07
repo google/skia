@@ -74,7 +74,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
     GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);
 
-    renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
+    renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,

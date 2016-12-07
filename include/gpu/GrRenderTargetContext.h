@@ -399,26 +399,26 @@ protected:
     SkDEBUGCODE(void validate() const;)
 
 private:
-    friend class GrAtlasTextBlob; // for access to drawBatch
-    friend class GrStencilAndCoverTextContext; // for access to drawBatch
+    friend class GrAtlasTextBlob; // for access to addDrawOp
+    friend class GrStencilAndCoverTextContext; // for access to addDrawOp
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
     friend class GrTestTarget;  // for access to getOpList
-    friend class GrSWMaskHelper;                 // for access to drawBatch
+    friend class GrSWMaskHelper;                 // for access to addDrawOp
 
-    // All the path renderers currently make their own batches
-    friend class GrSoftwarePathRenderer;         // for access to drawBatch
-    friend class GrAAConvexPathRenderer;         // for access to drawBatch
-    friend class GrDashLinePathRenderer;         // for access to drawBatch
-    friend class GrAAHairLinePathRenderer;       // for access to drawBatch
-    friend class GrAALinearizingConvexPathRenderer;  // for access to drawBatch
-    friend class GrAADistanceFieldPathRenderer;  // for access to drawBatch
-    friend class GrDefaultPathRenderer;          // for access to drawBatch
-    friend class GrPLSPathRenderer;              // for access to drawBatch
-    friend class GrMSAAPathRenderer;             // for access to drawBatch
-    friend class GrStencilAndCoverPathRenderer;  // for access to drawBatch
-    friend class GrTessellatingPathRenderer;     // for access to drawBatch
+    // All the path renderers currently make their own ops
+    friend class GrSoftwarePathRenderer;         // for access to addDrawOp
+    friend class GrAAConvexPathRenderer;         // for access to addDrawOp
+    friend class GrDashLinePathRenderer;         // for access to addDrawOp
+    friend class GrAAHairLinePathRenderer;       // for access to addDrawOp
+    friend class GrAALinearizingConvexPathRenderer;  // for access to addDrawOp
+    friend class GrAADistanceFieldPathRenderer;  // for access to addDrawOp
+    friend class GrDefaultPathRenderer;          // for access to addDrawOp
+    friend class GrPLSPathRenderer;              // for access to addDrawOp
+    friend class GrMSAAPathRenderer;             // for access to addDrawOp
+    friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
+    friend class GrTessellatingPathRenderer;     // for access to addDrawOp
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
@@ -449,9 +449,8 @@ private:
                           const SkPath& path,
                           const GrStyle& style);
 
-    // This entry point allows the GrTextContext-derived classes to add their batches to
-    // the GrOpList.
-    void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawOp* batch);
+    // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
+    void addDrawOp(const GrPipelineBuilder&, const GrClip&, GrDrawOp*);
 
     GrRenderTargetOpList* getOpList();
 
