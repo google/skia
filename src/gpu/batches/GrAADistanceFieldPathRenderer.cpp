@@ -145,11 +145,6 @@ public:
 
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-        // There is currently an issue where we may produce 2 pixels worth of AA around the path.
-        // A workaround is to outset the bounds by 1 in device space. (skbug.com/5989)
-        SkRect bounds = this->bounds();
-        bounds.outset(1.f, 1.f);
-        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
@@ -298,7 +293,7 @@ private:
                                     offset,
                                     args.fColor,
                                     vertexStride,
-                                    this->viewMatrix(),
+                                    maxScale,
                                     shapeData);
             offset += kVerticesPerQuad * vertexStride;
             flushInfo.fInstancesToFlush++;
@@ -394,10 +389,10 @@ private:
         shapeData->fID = id;
 
         // set the bounds rect to match the size and placement of the distance field in the atlas
-        shapeData->fBounds.setXYWH(atlasLocation.fX + SK_DistanceFieldPad,
-                                   atlasLocation.fY + SK_DistanceFieldPad,
-                                   width - 2*SK_DistanceFieldPad,
-                                   height - 2*SK_DistanceFieldPad);
+        shapeData->fBounds.setXYWH(atlasLocation.fX + SK_DistanceFieldPad + kAntiAliasPad,
+                                   atlasLocation.fY + SK_DistanceFieldPad + kAntiAliasPad,
+                                   width - 2*SK_DistanceFieldPad - 2*kAntiAliasPad,
+                                   height - 2*SK_DistanceFieldPad - 2*kAntiAliasPad);
         // we also need to store the transformation from texture space to the original path's space
         // which is a simple uniform scale and translate
         shapeData->fScaleToDev = SkScalarInvert(scale);
@@ -419,17 +414,27 @@ private:
                            intptr_t offset,
                            GrColor color,
                            size_t vertexStride,
-                           const SkMatrix& viewMatrix,
+                           SkScalar maxScale,
                            const ShapeData* shapeData) const {
         GrTexture* texture = atlas->getTexture();
 
-        SkScalar dx = shapeData->fBounds.fLeft;
-        SkScalar dy = shapeData->fBounds.fTop;
-        SkScalar width = shapeData->fBounds.width();
-        SkScalar height = shapeData->fBounds.height();
+        SkRect textureBounds = shapeData->fBounds;
+        // we need to constrain our AA pad to be within the SDF inset in
+        // texture space so we don't end up extending into another atlas entry,
+        // but also within 1 pixel in device space so we don't violate our clip contract
+        SkScalar invScale = shapeData->fScaleToDev;
+        SkScalar aaBounds = kAntiAliasPad + SK_DistanceFieldInset;
+        if (aaBounds*invScale*maxScale > SK_Scalar1) {
+            aaBounds = SkScalarInvert(invScale*maxScale);
+        }
+        textureBounds.outset(aaBounds, aaBounds);
+
+        SkScalar dx = textureBounds.fLeft;
+        SkScalar dy = textureBounds.fTop;
+        SkScalar width = textureBounds.width();
+        SkScalar height = textureBounds.height();
 
         // transform texture bounds to the original path's space
-        SkScalar invScale = shapeData->fScaleToDev;
         dx *= invScale;
         dy *= invScale;
         width *= invScale;
@@ -452,10 +457,10 @@ private:
 
         // vertex texture coords
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        textureCoords->setRectFan((shapeData->fBounds.fLeft) / texture->width(),
-                                  (shapeData->fBounds.fTop) / texture->height(),
-                                  (shapeData->fBounds.fRight)/texture->width(),
-                                  (shapeData->fBounds.fBottom)/texture->height(),
+        textureCoords->setRectFan((textureBounds.fLeft) / texture->width(),
+                                  (textureBounds.fTop) / texture->height(),
+                                  (textureBounds.fRight)/texture->width(),
+                                  (textureBounds.fBottom)/texture->height(),
                                   vertexStride);
     }
 

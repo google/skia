@@ -93,6 +93,17 @@ static SkScalar make_house(SkPath* path) {
     path->lineTo(13, 23);
     path->lineTo(21, 23);
     path->close();
+    path->lineTo(9, 16);
+    path->lineTo(9, 21);
+    path->lineTo(5, 21);
+    path->lineTo(5, 9.715f);
+    path->lineTo(12, 3.351f);
+    path->lineTo(19, 9.715f);
+    path->lineTo(19, 21);
+    path->lineTo(15, 21);
+    path->lineTo(15, 16);
+    path->lineTo(9, 16);
+    path->close();
     path->offset(20, 0);
     return SkIntToScalar(30);
 }
