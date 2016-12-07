@@ -105,11 +105,7 @@ public:
         layers = nullptr;
         mcState.clipRectCount = 0;
         mcState.clipRects = nullptr;
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-        originalCanvas = SkRef(canvas);
-#else
         originalCanvas = canvas;
-#endif
     }
 
     ~SkCanvasState_v1() {
@@ -120,10 +116,6 @@ public:
 
         sk_free(mcState.clipRects);
         sk_free(layers);
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
-        originalCanvas->unref();
-#endif
     }
 
     SkMCState mcState;
