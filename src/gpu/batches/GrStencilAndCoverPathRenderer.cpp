@@ -147,7 +147,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                               !args.fRenderTargetContext->hasMixedSamples());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
-            args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch.get());
+            args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, coverBatch.get());
         }
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -170,7 +170,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             pipelineBuilder.enableState(GrPipelineBuilder::kHWAntialias_Flag);
         }
 
-        args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
+        args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
     }
 
     return true;
