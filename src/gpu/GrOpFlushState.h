@@ -15,12 +15,12 @@
 class GrGpuCommandBuffer;
 class GrResourceProvider;
 
-/** Tracks the state across all the GrBatches in a GrOpList flush. */
-class GrBatchFlushState {
+/** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
+class GrOpFlushState {
 public:
-    GrBatchFlushState(GrGpu*, GrResourceProvider*);
+    GrOpFlushState(GrGpu*, GrResourceProvider*);
 
-    ~GrBatchFlushState() { this->reset(); }
+    ~GrOpFlushState() { this->reset(); }
 
     /** Inserts an upload to be executed after all batches in the flush prepared their draws
         but before the draws are executed to the backend 3D API. */
@@ -142,7 +142,7 @@ private:
  */
 class GrDrawOp::Target {
 public:
-    Target(GrBatchFlushState* state, GrDrawOp* batch) : fState(state), fBatch(batch) {}
+    Target(GrOpFlushState* state, GrDrawOp* batch) : fState(state), fBatch(batch) {}
 
     /** Returns the token of the draw that this upload will occur before. */
     GrDrawOpUploadToken addInlineUpload(DeferredUploadFn&& upload) {
@@ -173,10 +173,10 @@ public:
 
 protected:
     GrDrawOp* batch() { return fBatch; }
-    GrBatchFlushState* state() { return fState; }
+    GrOpFlushState* state() { return fState; }
 
 private:
-    GrBatchFlushState*  fState;
+    GrOpFlushState*  fState;
     GrDrawOp*           fBatch;
 };
 
@@ -184,7 +184,7 @@ private:
     draws. */
 class GrMeshDrawOp::Target : public GrDrawOp::Target {
 public:
-    Target(GrBatchFlushState* state, GrMeshDrawOp* batch) : INHERITED(state, batch) {}
+    Target(GrOpFlushState* state, GrMeshDrawOp* batch) : INHERITED(state, batch) {}
 
     void draw(const GrGeometryProcessor* gp, const GrMesh& mesh);
 
