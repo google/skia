@@ -357,8 +357,8 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrTessellatingPathRenderer::onDrawPath");
     SkIRect clipBoundsI;
-    args.fClip->getConservativeBounds(args.fRenderTargetContext->worstCaseWidth(),
-                                      args.fRenderTargetContext->worstCaseHeight(),
+    args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
+                                      args.fRenderTargetContext->height(),
                                       &clipBoundsI);
     sk_sp<GrDrawOp> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
                                                         *args.fShape,

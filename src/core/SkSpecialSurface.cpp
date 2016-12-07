@@ -120,6 +120,8 @@ public:
         : INHERITED(subset, &renderTargetContext->surfaceProps())
         , fRenderTargetContext(std::move(renderTargetContext)) {
 
+        // The blur image filter depends on the pixels outside of the content region
+        // being cleared.
         sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context, fRenderTargetContext, width, height,
                                                      SkGpuDevice::kUninit_InitContents));
         if (!device) {
