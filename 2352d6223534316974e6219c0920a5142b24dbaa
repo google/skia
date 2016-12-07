@@ -45,6 +45,24 @@
       "revId": "2352d6223534316974e6219c0920a5142b24dbaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_703aae89",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-07T15:15:01Z",
+      "side": 1,
+      "message": "Sure, static_assert.  They\u0027re also just like 4 inches away, so it\u0027s hard to get wrong.",
+      "parentUuid": "cd4b13fc_f8cc48c8",
+      "revId": "2352d6223534316974e6219c0920a5142b24dbaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
