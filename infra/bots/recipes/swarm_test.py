@@ -34,6 +34,8 @@ TEST_BUILDERS = {
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
       'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
+      ('Test-Android-Clang-NexusPlayer'
+       '-GPU-PowerVR-x86-Release-GN_Android_Vulkan'),
       'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
@@ -369,6 +371,11 @@ def dm_flags(bot):
     match.extend(['~XfermodeImageFilterCroppedInput',
                   '~GrTextureStripAtlasFlush',
                   '~CopySurface'])
+
+  if 'Vulkan' in bot and 'NexusPlayer' in bot:
+    # skia:6037
+    match.extend(['~hardstop_gradient',
+                  '~gradients_dup_color_stops'])
 
   if blacklisted:
     args.append('--blacklist')
