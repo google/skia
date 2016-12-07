@@ -24,6 +24,8 @@ protected:
 
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
+    void mapToParent(SkPath*) const;
+
 private:
     // FIXME: should be sparse
     SkSVGTransformType fTransform;

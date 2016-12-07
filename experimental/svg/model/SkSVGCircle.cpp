@@ -46,13 +46,32 @@ void SkSVGCircle::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-void SkSVGCircle::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                         const SkPaint& paint, SkPath::FillType) const {
+std::tuple<SkPoint, SkScalar> SkSVGCircle::resolve(const SkSVGLengthContext& lctx) const {
     const auto cx = lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto cy = lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical);
     const auto  r = lctx.resolve(fR , SkSVGLengthContext::LengthType::kOther);
 
+    return std::make_tuple(SkPoint::Make(cx, cy), r);
+}
+void SkSVGCircle::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
+                         const SkPaint& paint, SkPath::FillType) const {
+    SkPoint pos;
+    SkScalar r;
+    std::tie(pos, r) = this->resolve(lctx);
+
     if (r > 0) {
-        canvas->drawCircle(cx, cy, r, paint);
+        canvas->drawCircle(pos.x(), pos.y(), r, paint);
     }
+}
+
+SkPath SkSVGCircle::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPoint pos;
+    SkScalar r;
+    std::tie(pos, r) = this->resolve(ctx.lengthContext());
+
+    SkPath path;
+    path.addCircle(pos.x(), pos.y(), r);
+    this->mapToParent(&path);
+
+    return path;
 }
