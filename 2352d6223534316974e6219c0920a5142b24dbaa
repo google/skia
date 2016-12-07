@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_d8c70ca4",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T14:51:00Z",
+      "side": 1,
+      "message": "bicubic_near ?\n\nWe should start experimenting with ways to make this (growing) file scale better...\n\n- move logical sets into their own header (perhaps included by this master header)\n- make names a bit more descriptive + some dox",
+      "range": {
+        "startLine": 837,
+        "startChar": 8,
+        "endLine": 837,
+        "endChar": 12
+      },
+      "revId": "2352d6223534316974e6219c0920a5142b24dbaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_f8cc48c8",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T14:51:00Z",
+      "side": 1,
+      "message": "Is there a std way to \"catch\" callers that pass in a Scale other than those 4 values (at compile-time)?",
+      "range": {
+        "startLine": 849,
+        "startChar": 8,
+        "endLine": 849,
+        "endChar": 13
+      },
+      "revId": "2352d6223534316974e6219c0920a5142b24dbaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
