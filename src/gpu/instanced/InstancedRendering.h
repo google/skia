@@ -143,8 +143,8 @@ protected:
                                           GrInitInvariantOutput* coverage,
                                           GrBatchToXPOverrides*) const override;
 
-        void onPrepare(GrBatchFlushState*) override {}
-        void onDraw(GrBatchFlushState*, const SkRect& bounds) override;
+        void onPrepare(GrOpFlushState*) override {}
+        void onDraw(GrOpFlushState*, const SkRect& bounds) override;
 
         InstancedRendering* const         fInstancedRendering;
         BatchInfo                         fInfo;

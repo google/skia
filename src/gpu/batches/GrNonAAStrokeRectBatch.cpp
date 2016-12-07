@@ -7,11 +7,11 @@
 
 #include "GrNonAAStrokeRectBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
+#include "GrOpFlushState.h"
 #include "SkRandom.h"
 
 /*  create a triangle strip that strokes the specified rect. There are 8
