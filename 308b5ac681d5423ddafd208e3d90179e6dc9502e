@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_b807a0c9",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-07T16:02:00Z",
+      "side": 1,
+      "message": "missing comma",
+      "revId": "308b5ac681d5423ddafd208e3d90179e6dc9502e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_58145cf6",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-07T16:02:00Z",
+      "side": 1,
+      "message": "return [p.lstrip(\u0027/\u0027).encode(\u0027utf-8\u0027) for p in lst]",
+      "range": {
+        "startLine": 100,
+        "startChar": 23,
+        "endLine": 100,
+        "endChar": 24
+      },
+      "revId": "308b5ac681d5423ddafd208e3d90179e6dc9502e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
