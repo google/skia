@@ -148,10 +148,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     // skbug.com/5048). On GL, we may not have sRGB decode support. In that case, rendering sRGB
     // textures to a legacy surface produces nonsense, so this part of the test is meaningless.
     //
+    // We also skip this part of the test on command buffer (via srgbDecodeDisableAffectsMipmaps),
+    // because that implementation of the extension doesn't ensure that mips respect the setting.
+    //
     // TODO: Once Vulkan supports legacy mip-mapping, we can promote this to GrCaps. Right now,
     // Vulkan has most of the functionality, but not the mip-mapping part that's being tested here.
     GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->getGpu());
-    if (glGpu->glCaps().srgbDecodeDisableSupport()) {
+    if (glGpu->glCaps().srgbDecodeDisableSupport() &&
+        glGpu->glCaps().srgbDecodeDisableAffectsMipmaps()) {
         read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
                               error, "re-render as linear");
     }

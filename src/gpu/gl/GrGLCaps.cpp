@@ -52,6 +52,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fDoManualMipmapping = false;
     fSRGBDecodeDisableSupport = false;
+    fSRGBDecodeDisableAffectsMipmaps = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -609,6 +610,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     fSRGBDecodeDisableSupport = ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode");
+    fSRGBDecodeDisableAffectsMipmaps = fSRGBDecodeDisableSupport &&
+        kChromium_GrGLDriver != ctxInfo.driver();
 
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.

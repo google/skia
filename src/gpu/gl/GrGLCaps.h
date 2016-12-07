@@ -346,6 +346,7 @@ public:
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
     bool srgbDecodeDisableSupport() const { return fSRGBDecodeDisableSupport; }
+    bool srgbDecodeDisableAffectsMipmaps() const { return fSRGBDecodeDisableAffectsMipmaps; }
 
     /**
      * Returns a string containing the caps info.
@@ -424,6 +425,7 @@ private:
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableSupport : 1;
+    bool fSRGBDecodeDisableAffectsMipmaps : 1;
 
     uint32_t fBlitFramebufferFlags;
 
