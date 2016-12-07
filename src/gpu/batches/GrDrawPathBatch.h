@@ -8,7 +8,7 @@
 #ifndef GrDrawPathBatch_DEFINED
 #define GrDrawPathBatch_DEFINED
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrDrawOp.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -50,7 +50,7 @@ private:
         fOverrides = overrides;
     }
 
-    void onPrepare(GrBatchFlushState*) override; // Initializes fStencilPassSettings.
+    void onPrepare(GrOpFlushState*) override; // Initializes fStencilPassSettings.
 
     SkMatrix                                                fViewMatrix;
     GrColor                                                 fColor;
@@ -82,7 +82,7 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
-    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
+    void onDraw(GrOpFlushState* state, const SkRect& bounds) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
@@ -175,7 +175,7 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
+    void onDraw(GrOpFlushState* state, const SkRect& bounds) override;
 
     struct Draw {
         void set(const InstanceData* instanceData, SkScalar x, SkScalar y) {

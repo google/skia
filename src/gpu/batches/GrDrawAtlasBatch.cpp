@@ -6,7 +6,7 @@
  */
 
 #include "GrDrawAtlasBatch.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrBatchTest.h"
 #include "SkGr.h"
 #include "SkRandom.h"

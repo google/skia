@@ -8,7 +8,7 @@
 #ifndef GrCopySurfaceBatch_DEFINED
 #define GrCopySurfaceBatch_DEFINED
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrGpu.h"
 #include "GrOp.h"
 #include "GrRenderTarget.h"
@@ -66,9 +66,9 @@ private:
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
 
-    void onPrepare(GrBatchFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+    void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
         if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
         } else {

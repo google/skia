@@ -7,7 +7,7 @@
 
 #include "GrPLSPathRenderer.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"

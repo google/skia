@@ -10,7 +10,7 @@
 
 #include "GrGpuCommandBuffer.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrGLGpu.h"
 
 class GrGLRenderTarget;
@@ -36,7 +36,7 @@ public:
         SkASSERT(target == fRenderTarget);
     }
 
-    void inlineUpload(GrBatchFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
         state->doUpload(upload);
     }
 

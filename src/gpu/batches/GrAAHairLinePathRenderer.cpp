@@ -7,7 +7,7 @@
 
 #include "GrAAHairLinePathRenderer.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"

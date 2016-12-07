@@ -7,7 +7,7 @@
 
 #include "GrDrawVerticesBatch.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrInvariantOutput.h"
 #include "GrDefaultGeoProcFactory.h"
 

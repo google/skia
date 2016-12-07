@@ -8,7 +8,7 @@
 #ifndef GrDiscardBatch_DEFINED
 #define GrDiscardBatch_DEFINED
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrGpu.h"
 #include "GrOp.h"
 #include "GrRenderTarget.h"
@@ -43,9 +43,9 @@ private:
         return this->renderTargetUniqueID() == that->renderTargetUniqueID();
     }
 
-    void onPrepare(GrBatchFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+    void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
         state->commandBuffer()->discard(fRenderTarget.get());
     }
 

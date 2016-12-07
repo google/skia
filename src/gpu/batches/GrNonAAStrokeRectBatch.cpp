@@ -7,7 +7,7 @@
 
 #include "GrNonAAStrokeRectBatch.h"
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"

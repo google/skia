@@ -8,7 +8,7 @@
 #ifndef GrClearBatch_DEFINED
 #define GrClearBatch_DEFINED
 
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
@@ -95,9 +95,9 @@ private:
                 fClip.scissorRect().contains(that->fClip.scissorRect()));
     }
 
-    void onPrepare(GrBatchFlushState*) override {}
+    void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+    void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
         state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
     }
 

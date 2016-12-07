@@ -9,7 +9,7 @@
 #define GrDrawingManager_DEFINED
 
 #include "text/GrAtlasTextContext.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrPathRendererChain.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
@@ -112,7 +112,7 @@ private:
     GrPathRendererChain*              fPathRendererChain;
     GrSoftwarePathRenderer*           fSoftwarePathRenderer;
 
-    GrBatchFlushState                 fFlushState;
+    GrOpFlushState                 fFlushState;
     bool                              fFlushing;
 
     bool                              fIsImmediateMode;

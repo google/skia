@@ -6,13 +6,13 @@
  */
 
 #include "GrMeshDrawOp.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
     : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
 
-void GrMeshDrawOp::onPrepare(GrBatchFlushState* state) {
+void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);
     this->onPrepareDraws(&target);
 }
@@ -59,7 +59,7 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
                                  quadsToDraw);
 }
 
-void GrMeshDrawOp::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void GrMeshDrawOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 

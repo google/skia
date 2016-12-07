@@ -8,7 +8,7 @@
 #include "GrTessellatingPathRenderer.h"
 
 #include "GrAuditTrail.h"
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrBatchTest.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
