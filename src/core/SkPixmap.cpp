@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
+#include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkHalf.h"
 #include "SkMask.h"
-#include "SkPixmap.h"
-#include "SkUtils.h"
+#include "SkNx.h"
 #include "SkPM4f.h"
+#include "SkPixmap.h"
+#include "SkSurface.h"
+#include "SkUtils.h"
 
 void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
     SkASSERT(pm.addr() != nullptr);
@@ -206,14 +211,18 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
             }
             break;
         }
+        case kRGBA_F16_SkColorType:
+            // The colorspace is unspecified, so assume linear just like getColor().
+            this->erase(SkColor4f{(1 / 255.0f) * r,
+                                  (1 / 255.0f) * g,
+                                  (1 / 255.0f) * b,
+                                  (1 / 255.0f) * a}, &area);
+            break;
         default:
             return false; // no change, so don't call notifyPixelsChanged()
     }
     return true;
 }
-
-#include "SkNx.h"
-#include "SkHalf.h"
 
 bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     SkPixmap pm;
@@ -237,10 +246,6 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     }
     return true;
 }
-
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkSurface.h"
 
 bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst

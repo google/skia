@@ -183,6 +183,7 @@ struct SkColor4f {
     float* vec() { return &fR; }
 
     static SkColor4f Pin(float r, float g, float b, float a);
+    /** Convert to SkColor4f, assuming SkColor is sRGB */
     static SkColor4f FromColor(SkColor);
     static SkColor4f FromColor3f(SkColor3f, float a);
 
