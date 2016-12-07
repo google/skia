@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d744b42_f6e536c2",
+        "filename": "src/gpu/.clang-format",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-07T22:32:58Z",
+      "side": 1,
+      "message": "This is the only non-comment change to this file from here: https://skia-review.googlesource.com/c/5417/\n\nI think we ought to decide whether to bin pack args/params or not, but right now it is a real mix. This reduces the amount of noise in the formatting.",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 38
+      },
+      "revId": "27cad1116e321f57644e635dc1a74ac41e6b4df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
