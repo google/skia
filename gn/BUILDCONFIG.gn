@@ -13,6 +13,7 @@ declare_args() {
   ndk = ""
   ndk_api = 21
   sanitize = ""
+  malloc = ""
 }
 declare_args() {
   is_debug = !is_official_build
