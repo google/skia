@@ -58,7 +58,7 @@ public:
     void makeClosed() override {
         INHERITED::makeClosed();
 
-        fLastFullClearBatch = nullptr;
+        fLastFullClearOp = nullptr;
         this->forwardCombine();
     }
 
@@ -72,19 +72,19 @@ public:
 
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of drawBatches() indicates whether any commands were actually issued to the GPU.
+     * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareBatches(GrBatchFlushState* flushState) override;
-    bool drawBatches(GrBatchFlushState* flushState) override;
+    void prepareOps(GrBatchFlushState* flushState) override;
+    bool executeOps(GrBatchFlushState* flushState) override;
 
     /**
      * Gets the capabilities of the draw target.
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawOp*);
+    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawOp*);
 
-    void addBatch(sk_sp<GrOp>);
+    void addOp(sk_sp<GrOp>);
 
     /**
      * Draws the path into user stencil bits. Upon return, all user stencil values
@@ -132,9 +132,9 @@ public:
 private:
     friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
 
-    // Returns the batch that the input batch was combined with or the input batch if it wasn't
-    // combined.
-    GrOp* recordBatch(GrOp*, const SkRect& clippedBounds);
+    // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
+    // returns the input op.
+    GrOp* recordOp(GrOp*, const SkRect& clippedBounds);
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
@@ -142,26 +142,26 @@ private:
     // a texture copy could not be made.
     void setupDstTexture(GrRenderTarget*,
                          const GrClip&,
-                         const SkRect& batchBounds,
+                         const SkRect& drawOpBounds,
                          GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
-    struct RecordedBatch {
-        sk_sp<GrOp> fBatch;
-        SkRect         fClippedBounds;
+    struct RecordedOp {
+        sk_sp<GrOp> fOp;
+        SkRect fClippedBounds;
     };
-    SkSTArray<256, RecordedBatch, true>             fRecordedBatches;
-    GrClearBatch*                                   fLastFullClearBatch;
+    SkSTArray<256, RecordedOp, true>                fRecordedOps;
+    GrClearBatch*                                   fLastFullClearOp;
     // The context is only in service of the GrClip, remove once it doesn't need this.
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;
     GrResourceProvider*                             fResourceProvider;
 
-    bool                                            fClipBatchToBounds;
-    int                                             fMaxBatchLookback;
-    int                                             fMaxBatchLookahead;
+    bool                                            fClipOpToBounds;
+    int                                             fMaxOpLookback;
+    int                                             fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 

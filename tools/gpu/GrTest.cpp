@@ -261,7 +261,7 @@ void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
     }
 
-    fRenderTargetContext->getOpList()->drawBatch(pipelineBuilder, fRenderTargetContext, GrNoClip(),
+    fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
                                                  batch);
 }
 
