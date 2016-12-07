@@ -900,6 +900,40 @@ public:
         this->drawImageNine(image.get(), center, dst, paint);
     }
 
+    /** This is used by the experimental API below. */
+    struct ImageSetEntry {
+        enum AAFlags {
+            kLeft_AAFlag   = 0x1,
+            kTop_AAFlag    = 0x2,
+            kRight_AAFlag  = 0x4,
+            kBottom_AAFlag = 0x8,
+
+            kAll_AAFlags = kLeft_AAFlag | kTop_AAFlag | kRight_AAFlag | kBottom_AAFlag
+        };
+        SkImage* fImage;
+        SkMatrix fMatrix;
+        uint32_t fAAFlags;
+    };
+
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
+     * surely evolve if this is not removed. It currently offers no performance advantage over
+     * drawing images independently, though may in the future. The antialiasing flags are intended
+     * to allow control over each edge's AA status, to allow perfect seaming for tile sets. The
+     * current implementation only antialiases if all edges are flagged, however.
+     */
+    void experimentalDrawImageSet(ImageSetEntry* imageSet, int cnt, SkBlendMode mode) {
+        SkPaint paint;
+        paint.setBlendMode(mode);
+        for (int i = 0; i < cnt; ++i) {
+            paint.setAntiAlias(imageSet[i].fAAFlags == ImageSetEntry::kAll_AAFlags);
+            this->save();
+            this->concat(imageSet[i].fMatrix);
+            this->drawImage(imageSet[i].fImage, 0, 0, &paint);
+            this->restore();
+        }
+    }
+
     /** Draw the specified bitmap, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix. Note: if the paint
         contains a maskfilter that generates a mask which extends beyond the
