@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_0de0d3ae",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-07T19:59:06Z",
+      "side": 1,
+      "message": "change output to \"ops (%d):\" ? Might be less clear in this case...",
+      "revId": "214de43a6986a023331587509d3feedad510f75d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_edc1e721",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-07T19:59:06Z",
+      "side": 1,
+      "message": "I think \u0027or\u0027 should have stayed in this sentence",
+      "revId": "214de43a6986a023331587509d3feedad510f75d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_cd366b44",
+        "filename": "src/gpu/GrTextureOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-07T19:59:06Z",
+      "side": 1,
+      "message": "ah, but you changed it here, so I\u0027d do it above, too.",
+      "revId": "214de43a6986a023331587509d3feedad510f75d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
