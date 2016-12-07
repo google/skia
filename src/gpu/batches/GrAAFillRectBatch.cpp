@@ -7,10 +7,10 @@
 
 #include "GrAAFillRectBatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
+#include "GrOpFlushState.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"

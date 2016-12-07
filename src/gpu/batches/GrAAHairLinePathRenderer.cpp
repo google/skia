@@ -7,12 +7,12 @@
 
 #include "GrAAHairLinePathRenderer.h"
 
-#include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
