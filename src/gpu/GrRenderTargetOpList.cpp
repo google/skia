@@ -96,18 +96,12 @@ void GrRenderTargetOpList::dump() const {
 }
 #endif
 
-bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuilder,
-                                                   GrRenderTarget* rt,
-                                                   const GrClip& clip,
-                                                   const GrPipelineOptimizations& optimizations,
-                                                   GrXferProcessor::DstTexture* dstTexture,
-                                                   const SkRect& batchBounds) {
+void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
+                                           const GrClip& clip,
+                                           const SkRect& batchBounds,
+                                           GrXferProcessor::DstTexture* dstTexture) {
     SkRect bounds = batchBounds;
     bounds.outset(0.5f, 0.5f);
-
-    if (!pipelineBuilder.willXPNeedDstTexture(*this->caps(), optimizations)) {
-        return true;
-    }
 
     if (this->caps()->textureBarrierSupport()) {
         if (GrTexture* rtTex = rt->asTexture()) {
@@ -115,7 +109,7 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
             // will be responsible to detect this situation and request a texture barrier.
             dstTexture->setTexture(sk_ref_sp(rtTex));
             dstTexture->setOffset(0, 0);
-            return true;
+            return;
         }
     }
 
@@ -127,9 +121,9 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
     if (!copyRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "Missed an early reject. "
-                                   "Bailing on draw from setupDstReadIfNecessary.\n");
+                                   "Bailing on draw from setupDstTexture.\n");
 #endif
-        return false;
+        return;
     }
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
@@ -149,13 +143,12 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
-        return false;
+        return;
     }
     SkIPoint dstPoint = {0, 0};
     this->copySurface(copy.get(), rt, copyRect, dstPoint);
     dstTexture->setTexture(std::move(copy));
     dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
-    return true;
 }
 
 void GrRenderTargetOpList::prepareBatches(GrBatchFlushState* flushState) {
@@ -337,10 +330,12 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
-    if (!this->setupDstReadIfNecessary(pipelineBuilder, renderTargetContext->accessRenderTarget(),
-                                       clip, args.fOpts,
-                                       &args.fDstTexture, batch->bounds())) {
-        return;
+    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fOpts)) {
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, batch->bounds(),
+                              &args.fDstTexture);
+        if (!args.fDstTexture.texture()) {
+            return;
+        }
     }
 
     if (!batch->installPipeline(args)) {

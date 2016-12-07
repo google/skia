@@ -137,15 +137,13 @@ private:
     GrOp* recordBatch(GrOp*, const SkRect& clippedBounds);
     void forwardCombine();
 
-    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
-    // but couldn't be made. Otherwise, returns true.  This method needs to be protected because it
-    // needs to be accessed by GLPrograms to setup a correct drawstate
-    bool setupDstReadIfNecessary(const GrPipelineBuilder&,
-                                 GrRenderTarget*,
-                                 const GrClip&,
-                                 const GrPipelineOptimizations& optimizations,
-                                 GrXferProcessor::DstTexture*,
-                                 const SkRect& batchBounds);
+    // Makes a copy of the dst if it is necessary for the draw and returns the texture that should
+    // be used by GrXferProcessor to access the destination color. If the texture is nullptr then
+    // a texture copy could not be made.
+    void setupDstTexture(GrRenderTarget*,
+                         const GrClip&,
+                         const SkRect& batchBounds,
+                         GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
