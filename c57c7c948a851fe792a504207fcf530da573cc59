@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_3875d0eb",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-07T13:05:42Z",
+      "side": 1,
+      "message": "Do we do this enough to warrant an isIntegerTranslation() method on SkMatrix ? It looks like we do a similar thing in SkImageShader::onAppendStages.",
+      "revId": "c57c7c948a851fe792a504207fcf530da573cc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
