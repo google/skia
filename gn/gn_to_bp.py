@@ -128,15 +128,6 @@ execfile(os.path.join(here, 'android_framework_defines.gni'), builtins, defs)
 
 # This should finish off the defines.
 defines += defs['android_framework_defines']
-defines.extend([
-  'GR_GL_CUSTOM_SETUP_HEADER "gl/GrGLConfig_chrome.h"',
-  'SKIA_DLL',
-  'SK_BUILD_FOR_ANDROID_FRAMEWORK',
-  'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
-  'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
-  'SK_IGNORE_ETC1_SUPPORT',
-  'SK_USE_FREETYPE_EMBOLDEN',
-])
 defines.sort()
 
 # Turns paths from opts.gni into paths relative to external/skia.
