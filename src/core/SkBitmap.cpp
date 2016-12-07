@@ -11,6 +11,7 @@
 #include "SkConfig8888.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
+#include "SkHalf.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
 #include "SkMath.h"
@@ -619,6 +620,18 @@ static bool compute_is_opaque(const SkPixmap& pmap) {
                 if (0xFF != SkGetPackedA32(c)) {
                     return false;
                 }
+            }
+            return true;
+        }
+        case kRGBA_F16_SkColorType: {
+            const SkHalf* row = (const SkHalf*)pmap.addr();
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    if (row[4 * x + 3] < SK_Half1) {
+                        return false;
+                    }
+                }
+                row += pmap.rowBytes() >> 1;
             }
             return true;
         }
