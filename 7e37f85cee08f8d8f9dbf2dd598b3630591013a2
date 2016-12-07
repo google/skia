@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_38acf0d3",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T14:55:18Z",
+      "side": 1,
+      "message": "Didn\u0027t think about either w/ an \"s\" variant. good catch.",
+      "parentUuid": "cd4b13fc_8a3a9386",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_8a11331a",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-06T22:39:05Z",
       "side": 1,
       "message": "Probably just TODO?  This should be pretty easy given the dst color space.",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_58dc5c75",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T14:55:18Z",
+      "side": 1,
+      "message": "I was thinking we just don\u0027t offer this, as it is not really well-defined and so far no known demand. Its something I would move up-stack from here (including the dox).",
+      "parentUuid": "cd4b13fc_8a11331a",
       "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
