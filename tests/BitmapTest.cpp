@@ -7,6 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkMallocPixelRef.h"
+#include "SkRandom.h"
 #include "Test.h"
 
 static void test_peekpixels(skiatest::Reporter* reporter) {
