@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_6da15778",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-07T19:44:29Z",
+      "side": 1,
+      "message": "If we call this once in SkCanvas::init(), do we need to ever call it again, since our \"stack\" always copies the ptr forward to the next (top) element?",
+      "range": {
+        "startLine": 1543,
+        "startChar": 24,
+        "endLine": 1543,
+        "endChar": 48
+      },
+      "revId": "46c81f7411c7a638147eb36e2d4dd9673a281c7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
