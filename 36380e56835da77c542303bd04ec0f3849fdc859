@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d744b42_369e5e3e",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-07T22:14:44Z",
+      "side": 1,
+      "message": "I\u0027m suspect that using GYP may be bit-rotten so I\u0027m not sure we have a way to build viewer on Android at the moment.",
+      "revId": "36380e56835da77c542303bd04ec0f3849fdc859",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
