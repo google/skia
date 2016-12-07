@@ -30,10 +30,9 @@
  * The primitive color computation starts with the color specified by setColor(). This color is the
  * input to the first color stage. Each color stage feeds its output to the next color stage.
  *
- * Fractional pixel coverage follows a similar flow. The coverage is initially the value specified
- * by setCoverage(). This is input to the first coverage stage. Coverage stages are chained
- * together in the same manner as color stages. The output of the last stage is modulated by any
- * fractional coverage produced by anti-aliasing. This last step produces the final coverage, C.
+ * Fractional pixel coverage follows a similar flow. The GrGeometryProcessor (specified elsewhere)
+ * provides the initial coverage which is passed to the first coverage fragment processor, which
+ * feeds its output to next coverage fragment processor.
  *
  * setXPFactory is used to control blending between the output color and dest. It also implements
  * the application of fractional coverage from the coverage pipeline.
@@ -56,12 +55,6 @@ public:
      * Legacy getter, until all code handles 4f directly.
      */
     GrColor getColor() const { return fColor.toGrColor(); }
-
-    /**
-     * Should primitives be anti-aliased or not. Defaults to false.
-     */
-    void setAntiAlias(bool aa) { fAntiAlias = aa; }
-    bool isAntiAlias() const { return fAntiAlias; }
 
     /**
      * Should shader output conversion from linear to sRGB be disabled.
@@ -146,7 +139,6 @@ public:
     }
 
     GrPaint& operator=(const GrPaint& paint) {
-        fAntiAlias = paint.fAntiAlias;
         fDisableOutputConversionToSRGB = paint.fDisableOutputConversionToSRGB;
         fAllowSRGBInputs = paint.fAllowSRGBInputs;
         fUsesDistanceVectorField = paint.fUsesDistanceVectorField;
@@ -185,7 +177,6 @@ private:
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
     SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
 
-    bool                                      fAntiAlias;
     bool                                      fDisableOutputConversionToSRGB;
     bool                                      fAllowSRGBInputs;
     bool                                      fUsesDistanceVectorField;

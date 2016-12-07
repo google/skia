@@ -617,7 +617,7 @@ static void add_line(const SkPoint p[2],
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!args.fAntiAlias) {
+    if (GrAAType::kCoverage != args.fAAType) {
         return false;
     }
 
@@ -981,7 +981,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                 *args.fViewMatrix, path,
                                                 args.fShape->style(), devClipBounds));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
 
