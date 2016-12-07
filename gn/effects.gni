@@ -103,7 +103,6 @@ skia_effects_sources = [
   "$_include/effects/SkDiscretePathEffect.h",
   "$_include/effects/SkDisplacementMapEffect.h",
   "$_include/effects/SkDropShadowImageFilter.h",
-  "$_include/effects/SkEmbossMaskFilter.h",
   "$_include/effects/SkGammaColorFilter.h",
   "$_include/effects/SkGaussianEdgeShader.h",
   "$_include/effects/SkGradientShader.h",
