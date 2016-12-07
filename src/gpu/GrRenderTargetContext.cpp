@@ -274,11 +274,11 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         if (!this->accessRenderTarget()) {
             return;
         }
-        sk_sp<GrOp> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
-        if (!batch) {
+        sk_sp<GrOp> op(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(batch));
+        this->getOpList()->addOp(std::move(op));
     }
 }
 
@@ -420,20 +420,19 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         return true;
     }
 
-    sk_sp<GrDrawOp> batch;
+    sk_sp<GrDrawOp> op;
     bool useHWAA;
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        batch.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
-                                   paint.isAntiAlias(), fInstancedPipelineInfo,
-                                   &useHWAA));
-        if (batch) {
+        op.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), paint.isAntiAlias(),
+                                fInstancedPipelineInfo, &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             if (ss) {
                 pipelineBuilder.setUserStencil(ss);
             }
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return true;
         }
     }
@@ -444,14 +443,14 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
             SkRect devBoundRect;
             viewMatrix.mapRect(&devBoundRect, croppedRect);
 
-            batch.reset(GrRectBatchFactory::CreateAAFill(paint, viewMatrix, rect, croppedRect,
-                                                         devBoundRect));
-            if (batch) {
+            op.reset(GrRectBatchFactory::CreateAAFill(paint, viewMatrix, rect, croppedRect,
+                                                      devBoundRect));
+            if (op) {
                 GrPipelineBuilder pipelineBuilder(paint, useHWAA);
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
                 return true;
             }
         }
@@ -551,13 +550,13 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
         bool useHWAA;
         bool snapToPixelCenters = false;
-        sk_sp<GrDrawOp> batch;
+        sk_sp<GrDrawOp> op;
 
         GrColor color = paint.getColor();
         if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
-                batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, stroke));
+                op.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, stroke));
             }
         } else {
             // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
@@ -565,11 +564,11 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
             // when MSAA is enabled because it can cause ugly artifacts.
             snapToPixelCenters = stroke.getStyle() == SkStrokeRec::kHairline_Style &&
                                  !fRenderTargetProxy->isUnifiedMultisampled();
-            batch.reset(GrRectBatchFactory::CreateNonAAStroke(color, viewMatrix, rect,
-                                                              stroke, snapToPixelCenters));
+            op.reset(GrRectBatchFactory::CreateNonAAStroke(color, viewMatrix, rect,
+                                                           stroke, snapToPixelCenters));
         }
 
-        if (batch) {
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
 
             if (snapToPixelCenters) {
@@ -577,7 +576,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                                          snapToPixelCenters);
             }
 
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -688,12 +687,12 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        sk_sp<GrDrawOp> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
-                                             croppedLocalRect, paint.isAntiAlias(),
-                                             fInstancedPipelineInfo, &useHWAA));
-        if (batch) {
+        sk_sp<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
+                                          croppedLocalRect, paint.isAntiAlias(),
+                                          fInstancedPipelineInfo, &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -705,12 +704,10 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        sk_sp<GrDrawOp> batch(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(),
-                                                                     viewMatrix,
-                                                                     croppedRect,
-                                                                     croppedLocalRect));
+        sk_sp<GrDrawOp> op(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix,
+                                                                  croppedRect, croppedLocalRect));
         GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-        this->drawBatch(pipelineBuilder, clip, batch.get());
+        this->addDrawOp(pipelineBuilder, clip, op.get());
         return;
     }
 
@@ -747,12 +744,11 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        sk_sp<GrDrawOp> batch(ir->recordRect(croppedRect, viewMatrix, paint.getColor(),
-                                             localMatrix, paint.isAntiAlias(),
-                                             fInstancedPipelineInfo, &useHWAA));
-        if (batch) {
+        sk_sp<GrDrawOp> op(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), localMatrix,
+                                          paint.isAntiAlias(), fInstancedPipelineInfo, &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -764,10 +760,10 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        sk_sp<GrDrawOp> batch(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix,
-                                                        localMatrix, croppedRect));
+        sk_sp<GrDrawOp> op(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
+                                                     croppedRect));
         GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
         return;
     }
 
@@ -811,13 +807,12 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     viewMatrix.mapRect(&bounds);
 
-    sk_sp<GrDrawOp> batch(new GrDrawVerticesBatch(paint.getColor(),
-                                                  primitiveType, viewMatrix, positions,
-                                                  vertexCount, indices, indexCount,
-                                                  colors, texCoords, bounds));
+    sk_sp<GrDrawOp> op(new GrDrawVerticesBatch(paint.getColor(), primitiveType, viewMatrix,
+                                               positions, vertexCount, indices, indexCount, colors,
+                                               texCoords, bounds));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -836,11 +831,11 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    sk_sp<GrDrawOp> batch(new GrDrawAtlasBatch(paint.getColor(), viewMatrix, spriteCount,
-                                               xform, texRect, colors));
+    sk_sp<GrDrawOp> op(new GrDrawAtlasBatch(paint.getColor(), viewMatrix, spriteCount, xform,
+                                            texRect, colors));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -862,7 +857,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     const GrClip* clip = &origClip;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // The Android framework frequently clips rrects to themselves where the clip is non-aa and the
-    // draw is aa. Since our lower level clip code works from batch bounds, which are SkRects, it
+    // draw is aa. Since our lower level clip code works from op bounds, which are SkRects, it
     // doesn't detect that the clip can be ignored (modulo antialiasing). The following test
     // attempts to mitigate the stencil clip cost but will only help when the entire clip stack
     // can be ignored. We'd prefer to fix this in the framework by removing the clips calls.
@@ -880,27 +875,26 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
         stroke.isFillStyle()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        sk_sp<GrDrawOp> batch(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
-                                              paint.isAntiAlias(), fInstancedPipelineInfo,
-                                              &useHWAA));
-        if (batch) {
+        sk_sp<GrDrawOp> op(ir->recordRRect(rrect, viewMatrix, paint.getColor(), paint.isAntiAlias(),
+                                           fInstancedPipelineInfo, &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, op.get());
             return;
         }
     }
 
     if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> batch(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
-                                                               paint.usesDistanceVectorField(),
-                                                               viewMatrix,
-                                                               rrect,
-                                                               stroke,
-                                                               shaderCaps));
-        if (batch) {
+        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
+                                                            paint.usesDistanceVectorField(),
+                                                            viewMatrix,
+                                                            rrect,
+                                                            stroke,
+                                                            shaderCaps));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, op.get());
             return;
         }
     }
@@ -937,27 +931,27 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
     //if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
     //    stroke.isFillStyle()) {
     //    InstancedRendering* ir = this->getOpList()->instancedRendering();
-    //    SkAutoTUnref<GrDrawOp> batch(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
-    //                                                 paint.isAntiAlias(), fInstancedPipelineInfo,
-    //                                                 &useHWAA));
-    //    if (batch) {
+    //    SkAutoTUnref<GrDrawOp> op(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
+    //                                              paint.isAntiAlias(), fInstancedPipelineInfo,
+    //                                              &useHWAA));
+    //    if (op) {
     //        GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-    //        this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, batch);
+    //        this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, op);
     //        return;
     //    }
     //}
 
     if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> batch(CreateShadowRRectBatch(paint.getColor(),
-                                                     viewMatrix,
-                                                     rrect,
-                                                     blurRadius,
-                                                     stroke,
-                                                     shaderCaps));
-        if (batch) {
+        sk_sp<GrDrawOp> op(CreateShadowRRectBatch(paint.getColor(),
+                                                  viewMatrix,
+                                                  rrect,
+                                                  blurRadius,
+                                                  stroke,
+                                                  shaderCaps));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -981,12 +975,12 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         bool useHWAA;
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        sk_sp<GrDrawOp> batch(ir->recordDRRect(origOuter, origInner, viewMatrix,
-                                               paintIn.getColor(), paintIn.isAntiAlias(),
-                                               fInstancedPipelineInfo, &useHWAA));
-        if (batch) {
+        sk_sp<GrDrawOp> op(ir->recordDRRect(origOuter, origInner, viewMatrix, paintIn.getColor(),
+                                            paintIn.isAntiAlias(), fInstancedPipelineInfo,
+                                            &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paintIn, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return true;
         }
     }
@@ -1099,9 +1093,9 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         return this->drawPath(clip, paint, viewMatrix, path, style);
     }
 
-    sk_sp<GrDrawOp> batch(GrRegionBatch::Create(paint.getColor(), viewMatrix, region));
+    sk_sp<GrDrawOp> op(GrRegionBatch::Create(paint.getColor(), viewMatrix, region));
     GrPipelineBuilder pipelineBuilder(paint, false);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
@@ -1127,26 +1121,25 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
         stroke.isFillStyle()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        sk_sp<GrDrawOp> batch(ir->recordOval(oval, viewMatrix, paint.getColor(),
-                                             paint.isAntiAlias(), fInstancedPipelineInfo,
-                                             &useHWAA));
-        if (batch) {
+        sk_sp<GrDrawOp> op(ir->recordOval(oval, viewMatrix, paint.getColor(), paint.isAntiAlias(),
+                                          fInstancedPipelineInfo, &useHWAA));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
 
     if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> batch(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
-                                                              viewMatrix,
-                                                              oval,
-                                                              stroke,
-                                                              shaderCaps));
-        if (batch) {
+        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
+                                                           viewMatrix,
+                                                           oval,
+                                                           stroke,
+                                                           shaderCaps));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -1168,17 +1161,17 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     bool useHWAA;
     if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> batch(GrOvalRenderer::CreateArcBatch(paint.getColor(),
-                                                             viewMatrix,
-                                                             oval,
-                                                             startAngle,
-                                                             sweepAngle,
-                                                             useCenter,
-                                                             style,
-                                                             shaderCaps));
-        if (batch) {
+        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateArcBatch(paint.getColor(),
+                                                          viewMatrix,
+                                                          oval,
+                                                          startAngle,
+                                                          sweepAngle,
+                                                          useCenter,
+                                                          style,
+                                                          shaderCaps));
+        if (op) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return;
         }
     }
@@ -1203,12 +1196,11 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    sk_sp<GrDrawOp> batch(GrNinePatch::CreateNonAA(paint.getColor(), viewMatrix,
-                                                   imageWidth, imageHeight,
-                                                   std::move(iter), dst));
+    sk_sp<GrDrawOp> op(GrNinePatch::CreateNonAA(paint.getColor(), viewMatrix, imageWidth,
+                                                imageHeight, std::move(iter), dst));
 
     GrPipelineBuilder pipelineBuilder(paint, this->mustUseHWAA(paint));
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
 }
 
 void GrRenderTargetContext::prepareForExternalIO() {
@@ -1238,14 +1230,13 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
                                                 const GrUserStencilSettings* ss,
                                                 bool useHWAA) {
     SkASSERT(!useHWAA || this->isStencilBufferMultisampled());
-    sk_sp<GrDrawOp> batch(
-            GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect, localRect,
-                                                localMatrix));
+    sk_sp<GrDrawOp> op( GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect,
+                                                            localRect, localMatrix));
     GrPipelineBuilder pipelineBuilder(paint, useHWAA);
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
 }
 
 bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
@@ -1368,11 +1359,11 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             SkRect rects[2];
 
             if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                sk_sp<GrDrawOp> batch(GrRectBatchFactory::CreateAAFillNestedRects(
+                sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateAAFillNestedRects(
                     paint.getColor(), viewMatrix, rects));
-                if (batch) {
+                if (op) {
                     GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-                    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+                    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
                 }
                 return;
             }
@@ -1382,14 +1373,14 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
 
         if (isOval && !path.isInverseFillType()) {
             const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-            sk_sp<GrDrawOp> batch(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
-                                                                  viewMatrix,
-                                                                  ovalRect,
-                                                                  style.strokeRec(),
-                                                                  shaderCaps));
-            if (batch) {
+            sk_sp<GrDrawOp> op(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
+                                                               viewMatrix,
+                                                               ovalRect,
+                                                               style.strokeRec(),
+                                                               shaderCaps));
+            if (op) {
                 GrPipelineBuilder pipelineBuilder(paint, useHWAA);
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch.get());
+                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
                 return;
             }
         }
@@ -1555,12 +1546,12 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     pr->drawPath(args);
 }
 
-void GrRenderTargetContext::drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
-                                      GrDrawOp* batch) {
+void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
+                                      GrDrawOp* op) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawBatch");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, batch);
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op);
 }
