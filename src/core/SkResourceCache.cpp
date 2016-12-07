@@ -189,8 +189,8 @@ bool SkResourceCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap, SkColo
     }
 
     SkImageInfo info = bitmap->info();
-    bitmap->setPixelRef(new SkOneShotDiscardablePixelRef(info, dm, bitmap->rowBytes(),
-                                                         ctable))->unref();
+    bitmap->setPixelRef(
+            sk_make_sp<SkOneShotDiscardablePixelRef>(info, dm, bitmap->rowBytes(), ctable), 0, 0);
     bitmap->lockPixels();
     return bitmap->readyToDraw();
 }
