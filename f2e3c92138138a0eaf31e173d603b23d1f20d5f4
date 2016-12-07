@@ -22,6 +22,24 @@
       "revId": "f2e3c92138138a0eaf31e173d603b23d1f20d5f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_4da7bb5a",
+        "filename": "tests/BitmapTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-07T19:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd4b13fc_49b57015",
+      "revId": "f2e3c92138138a0eaf31e173d603b23d1f20d5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
