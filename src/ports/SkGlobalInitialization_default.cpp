@@ -23,7 +23,7 @@
 #include "SkDiscretePathEffect.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
-#include "SkEmbossMaskFilter.h"
+#include "../../src/effects/SkEmbossMaskFilter.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkGradientShader.h"

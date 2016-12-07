@@ -28,9 +28,11 @@ static void paint_proc1(SkPaint* paint) {
 }
 
 static void paint_proc2(SkPaint* paint) {
+#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
     SkScalar dir[3] = { 1, 1, 1};
     paint->setMaskFilter(
             SkBlurMaskFilter::MakeEmboss(SkBlurMask::ConvertRadiusToSigma(1), dir, 0.1f, 0.05f));
+#endif
 }
 
 static void paint_proc3(SkPaint* paint) {
