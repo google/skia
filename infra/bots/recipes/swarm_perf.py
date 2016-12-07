@@ -30,6 +30,8 @@ TEST_BUILDERS = {
       'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
       'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
+      ('Perf-Android-Clang-NexusPlayer'
+       '-GPU-PowerVR-x86-Release-GN_Android_Vulkan'),
       'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -130,6 +132,10 @@ def nanobench_flags(bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
+
+  if 'Vulkan' in bot and 'NexusPlayer' in bot:
+    # skia:6037
+    match.append('~hardstop')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
