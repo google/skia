@@ -22,6 +22,24 @@
       "revId": "46c81f7411c7a638147eb36e2d4dd9673a281c7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_0d0533c3",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-07T21:03:11Z",
+      "side": 1,
+      "message": "moved to init as suggested. calling this once from  SkCanvas::init is enough indeed. It is better for correctness, because we don\u0027t want clip restriction to be affected by save/restore.",
+      "parentUuid": "cd4b13fc_6da15778",
+      "revId": "46c81f7411c7a638147eb36e2d4dd9673a281c7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
