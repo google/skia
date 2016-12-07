@@ -7,9 +7,9 @@
 
 #include "GrNinePatch.h"
 
-#include "GrBatchFlushState.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"

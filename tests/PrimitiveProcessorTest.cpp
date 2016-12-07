@@ -11,7 +11,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrBatchFlushState.h"
+#include "GrOpFlushState.h"
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
