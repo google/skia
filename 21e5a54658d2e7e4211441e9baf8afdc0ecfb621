@@ -45,6 +45,24 @@
       "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_cd08ab93",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-12-07T19:55:54Z",
+      "side": 1,
+      "message": "fuzzer.skia.org links to https://docs.google.com/document/d/1FZZnfEXzuNcjshveX1R35Lp-96-iLJWibNYZ7_WgZjg/edit which has some useful info (specifically see the diagram on the first page of https://docs.google.com/document/d/1e3ikXO7SwoBsbsi1MF06vydXRlXvYalVORaiUuOXk2Y/edit#)\n\nThe fuzzer takes seed inputs and starts sticking them into fuzz.cpp, mutating them before subsequent iterations.  There is no way to \"confuse\" the fuzzer.  It has Skia instrumented, so it will keep trying mutations and it knows if a new path has been reached.  If it hits this break a lot, it will keep trying things until it gets passed the break.  \n\nSo, yes, if the fuzzer has gotten into an uninteresting state, returning is totally fine.  The return value doesn\u0027t matter to the fuzzer (at the moment).  It only looks for crashes.",
+      "parentUuid": "cd4b13fc_69ccec4a",
+      "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
