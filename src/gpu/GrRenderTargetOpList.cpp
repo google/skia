@@ -50,17 +50,17 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail, const Options& options)
     : INHERITED(rtp, auditTrail)
-    , fLastFullClearBatch(nullptr)
+    , fLastFullClearOp(nullptr)
     , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fLastClipStackGenID(SK_InvalidUniqueID) {
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
-    fClipBatchToBounds = options.fClipBatchToBounds;
-    fMaxBatchLookback = (options.fMaxBatchLookback < 0) ? kDefaultMaxBatchLookback :
+    fClipOpToBounds = options.fClipBatchToBounds;
+    fMaxOpLookback = (options.fMaxBatchLookback < 0) ? kDefaultMaxBatchLookback :
                                                           options.fMaxBatchLookback;
-    fMaxBatchLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
+    fMaxOpLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
                                                            options.fMaxBatchLookahead;
 
     if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
@@ -78,16 +78,16 @@ GrRenderTargetOpList::~GrRenderTargetOpList() {
 void GrRenderTargetOpList::dump() const {
     INHERITED::dump();
 
-    SkDebugf("batches (%d):\n", fRecordedBatches.count());
-    for (int i = 0; i < fRecordedBatches.count(); ++i) {
+    SkDebugf("ops (%d):\n", fRecordedOps.count());
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
         SkDebugf("*******************************\n");
-        if (!fRecordedBatches[i].fBatch) {
+        if (!fRecordedOps[i].fOp) {
             SkDebugf("%d: <combined forward>\n", i);
         } else {
-            SkDebugf("%d: %s\n", i, fRecordedBatches[i].fBatch->name());
-            SkString str = fRecordedBatches[i].fBatch->dumpInfo();
+            SkDebugf("%d: %s\n", i, fRecordedOps[i].fOp->name());
+            SkString str = fRecordedOps[i].fOp->dumpInfo();
             SkDebugf("%s\n", str.c_str());
-            const SkRect& clippedBounds = fRecordedBatches[i].fClippedBounds;
+            const SkRect& clippedBounds = fRecordedOps[i].fClippedBounds;
             SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                      clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
                      clippedBounds.fBottom);
@@ -151,17 +151,17 @@ void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
     dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
 }
 
-void GrRenderTargetOpList::prepareBatches(GrBatchFlushState* flushState) {
+void GrRenderTargetOpList::prepareOps(GrBatchFlushState* flushState) {
     // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
     // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
     // but need to be flushed anyway. Closing such GrOpLists here will mean new
     // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
     this->makeClosed();
 
-    // Loop over the batches that haven't yet generated their geometry
-    for (int i = 0; i < fRecordedBatches.count(); ++i) {
-        if (fRecordedBatches[i].fBatch) {
-            fRecordedBatches[i].fBatch->prepare(flushState);
+    // Loop over the ops that haven't yet been prepared.
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        if (fRecordedOps[i].fOp) {
+            fRecordedOps[i].fOp->prepare(flushState);
         }
     }
 
@@ -172,26 +172,26 @@ void GrRenderTargetOpList::prepareBatches(GrBatchFlushState* flushState) {
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
-// Batches and instantiate them here.
-bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
-    if (0 == fRecordedBatches.count()) {
+// Ops and instantiate them here.
+bool GrRenderTargetOpList::executeOps(GrBatchFlushState* flushState) {
+    if (0 == fRecordedOps.count()) {
         return false;
     }
     // Draw all the generated geometry.
     SkRandom random;
     GrGpuResource::UniqueID currentRTID = GrGpuResource::UniqueID::InvalidID();
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
-    for (int i = 0; i < fRecordedBatches.count(); ++i) {
-        if (!fRecordedBatches[i].fBatch) {
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedBatches[i].fBatch->renderTargetUniqueID() != currentRTID) {
+        if (fRecordedOps[i].fOp->renderTargetUniqueID() != currentRTID) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRTID = fRecordedBatches[i].fBatch->renderTargetUniqueID();
+            currentRTID = fRecordedOps[i].fOp->renderTargetUniqueID();
             if (!currentRTID.isInvalid()) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
@@ -201,7 +201,7 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        fRecordedBatches[i].fBatch->draw(flushState, fRecordedBatches[i].fClippedBounds);
+        fRecordedOps[i].fOp->draw(flushState, fRecordedOps[i].fClippedBounds);
     }
     if (commandBuffer) {
         commandBuffer->end();
@@ -214,8 +214,8 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
 }
 
 void GrRenderTargetOpList::reset() {
-    fLastFullClearBatch = nullptr;
-    fRecordedBatches.reset();
+    fLastFullClearOp = nullptr;
+    fRecordedOps.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
     }
@@ -261,13 +261,13 @@ static void batch_bounds(SkRect* bounds, const GrOp* batch) {
     }
 }
 
-void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
+void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     GrDrawOp* batch) {
+                                     GrDrawOp* op) {
     // Setup clip
     SkRect bounds;
-    batch_bounds(&bounds, batch);
+    batch_bounds(&bounds, op);
     GrAppliedClip appliedClip(bounds);
     if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
@@ -297,21 +297,21 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fPipelineBuilder = &pipelineBuilder;
     args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
-    batch->getPipelineOptimizations(&args.fOpts);
-    if (args.fOpts.fOverrides.fUsePLSDstRead || fClipBatchToBounds) {
+    op->getPipelineOptimizations(&args.fOpts);
+    if (args.fOpts.fOverrides.fUsePLSDstRead || fClipOpToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
         viewport.fWidth = renderTargetContext->width();
         viewport.fHeight = renderTargetContext->height();
         SkIRect ibounds;
-        ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft,
+        ibounds.fLeft = SkTPin(SkScalarFloorToInt(op->bounds().fLeft), viewport.fLeft,
                               viewport.fWidth);
-        ibounds.fTop = SkTPin(SkScalarFloorToInt(batch->bounds().fTop), viewport.fBottom,
+        ibounds.fTop = SkTPin(SkScalarFloorToInt(op->bounds().fTop), viewport.fBottom,
                              viewport.fHeight);
-        ibounds.fRight = SkTPin(SkScalarCeilToInt(batch->bounds().fRight), viewport.fLeft,
+        ibounds.fRight = SkTPin(SkScalarCeilToInt(op->bounds().fRight), viewport.fLeft,
                                viewport.fWidth);
-        ibounds.fBottom = SkTPin(SkScalarCeilToInt(batch->bounds().fBottom), viewport.fBottom,
+        ibounds.fBottom = SkTPin(SkScalarCeilToInt(op->bounds().fBottom), viewport.fBottom,
                                 viewport.fHeight);
         if (!appliedClip.addScissor(ibounds)) {
             return;
@@ -331,22 +331,22 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     }
 
     if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fOpts)) {
-        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, batch->bounds(),
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {
             return;
         }
     }
 
-    if (!batch->installPipeline(args)) {
+    if (!op->installPipeline(args)) {
         return;
     }
 
 #ifdef ENABLE_MDB
     SkASSERT(fSurface);
-    batch->pipeline()->addDependenciesTo(fSurface);
+    op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordBatch(batch, appliedClip.clippedDrawBounds());
+    this->recordOp(op, appliedClip.clippedDrawBounds());
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
@@ -367,7 +367,7 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
     if (!clip.apply(fContext, renderTargetContext, useHWAA, true, &appliedClip)) {
         return;
     }
-    // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
+    // TODO: respect fClipOpToBounds if we ever start computing bounds here.
 
     // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
     // attempt this in a situation that would require coverage AA.
@@ -383,48 +383,46 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
         return;
     }
 
-    GrOp* batch = GrStencilPathBatch::Create(viewMatrix,
-                                             useHWAA,
-                                             path->getFillType(),
-                                             appliedClip.hasStencilClip(),
-                                             stencilAttachment->bits(),
-                                             appliedClip.scissorState(),
-                                             renderTargetContext->accessRenderTarget(),
-                                             path);
-    this->recordBatch(batch, appliedClip.clippedDrawBounds());
-    batch->unref();
+    GrOp* op = GrStencilPathBatch::Create(viewMatrix,
+                                          useHWAA,
+                                          path->getFillType(),
+                                          appliedClip.hasStencilClip(),
+                                          stencilAttachment->bits(),
+                                          appliedClip.scissorState(),
+                                          renderTargetContext->accessRenderTarget(),
+                                          path);
+    this->recordOp(op, appliedClip.clippedDrawBounds());
+    op->unref();
 }
 
-void GrRenderTargetOpList::addBatch(sk_sp<GrOp> batch) {
-    this->recordBatch(batch.get(), batch->bounds());
-}
+void GrRenderTargetOpList::addOp(sk_sp<GrOp> op) { this->recordOp(op.get(), op->bounds()); }
 
 void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color) {
-    // Currently this just inserts or updates the last clear batch. However, once in MDB this can
-    // remove all the previously recorded batches and change the load op to clear with supplied
+    // Currently this just inserts or updates the last clear op. However, once in MDB this can
+    // remove all the previously recorded ops and change the load op to clear with supplied
     // color.
     // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
-    if (fLastFullClearBatch &&
-        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->uniqueID()) {
-        // As currently implemented, fLastFullClearBatch should be the last batch because we would
-        // have cleared it when another batch was recorded.
-        SkASSERT(fRecordedBatches.back().fBatch.get() == fLastFullClearBatch);
-        fLastFullClearBatch->setColor(color);
+    if (fLastFullClearOp &&
+        fLastFullClearOp->renderTargetUniqueID() == renderTarget->uniqueID()) {
+        // As currently implemented, fLastFullClearOp should be the last op because we would
+        // have cleared it when another op was recorded.
+        SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
+        fLastFullClearOp->setColor(color);
         return;
     }
-    sk_sp<GrClearBatch> batch(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
-    if (batch.get() == this->recordBatch(batch.get(), batch->bounds())) {
-        fLastFullClearBatch = batch.get();
+    sk_sp<GrClearBatch> op(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
+    if (op.get() == this->recordOp(op.get(), op->bounds())) {
+        fLastFullClearOp = op.get();
     }
 }
 
 void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
-    // Currently this just inserts a discard batch. However, once in MDB this can remove all the
-    // previously recorded batches and change the load op to discard.
+    // Currently this just inserts a discard op. However, once in MDB this can remove all the
+    // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        GrOp* batch = new GrDiscardBatch(renderTarget);
-        this->recordBatch(batch, batch->bounds());
-        batch->unref();
+        GrOp* op = new GrDiscardBatch(renderTarget);
+        this->recordOp(op, op->bounds());
+        op->unref();
     }
 }
 
@@ -434,16 +432,16 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    GrOp* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
-    if (!batch) {
+    GrOp* op = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    if (!op) {
         return false;
     }
 #ifdef ENABLE_MDB
     this->addDependency(src);
 #endif
 
-    this->recordBatch(batch, batch->bounds());
-    batch->unref();
+    this->recordOp(op, op->bounds());
+    op->unref();
     return true;
 }
 
@@ -461,47 +459,47 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-GrOp* GrRenderTargetOpList::recordBatch(GrOp* batch, const SkRect& clippedBounds) {
-    // A closed GrOpList should never receive new/more batches
+GrOp* GrRenderTargetOpList::recordOp(GrOp* op, const SkRect& clippedBounds) {
+    // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    // Check if there is a Batch Draw we can batch with by linearly searching back until we either
-    // 1) check every draw
+    // Check if there is an op we can combine with by linearly searching back until we either
+    // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch);
+    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, op);
     GrOP_INFO("Re-Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
-               batch->name(),
-               batch->uniqueID(),
-               batch->bounds().fLeft, batch->bounds().fRight,
-               batch->bounds().fTop, batch->bounds().fBottom);
-    GrOP_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
+               op->name(),
+               op->uniqueID(),
+               op->bounds().fLeft, op->bounds().fRight,
+               op->bounds().fTop, op->bounds().fBottom);
+    GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
               clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
               clippedBounds.fBottom);
     GrOP_INFO("\tOutcome:\n");
-    int maxCandidates = SkTMin(fMaxBatchLookback, fRecordedBatches.count());
+    int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
     if (maxCandidates) {
         int i = 0;
         while (true) {
-            GrOp* candidate = fRecordedBatches.fromBack(i).fBatch.get();
+            GrOp* candidate = fRecordedOps.fromBack(i).fOp.get();
             // We cannot continue to search backwards if the render target changes
-            if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
+            if (candidate->renderTargetUniqueID() != op->renderTargetUniqueID()) {
                 GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                           candidate->name(), candidate->uniqueID());
                 break;
             }
-            if (candidate->combineIfPossible(batch, *this->caps())) {
+            if (candidate->combineIfPossible(op, *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, batch);
-                join(&fRecordedBatches.fromBack(i).fClippedBounds,
-                     fRecordedBatches.fromBack(i).fClippedBounds, clippedBounds);
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, op);
+                join(&fRecordedOps.fromBack(i).fClippedBounds,
+                     fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
                 return candidate;
             }
             // Stop going backwards if we would cause a painter's order violation.
-            const SkRect& candidateBounds = fRecordedBatches.fromBack(i).fClippedBounds;
+            const SkRect& candidateBounds = fRecordedOps.fromBack(i).fClippedBounds;
             if (!can_reorder(candidateBounds, clippedBounds)) {
                 GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
@@ -509,52 +507,51 @@ GrOp* GrRenderTargetOpList::recordBatch(GrOp* batch, const SkRect& clippedBounds
             }
             ++i;
             if (i == maxCandidates) {
-                GrOP_INFO("\t\tReached max lookback or beginning of batch array %d\n", i);
+                GrOP_INFO("\t\tReached max lookback or beginning of op array %d\n", i);
                 break;
             }
         }
     } else {
-        GrOP_INFO("\t\tFirstBatch\n");
+        GrOP_INFO("\t\tFirstOp\n");
     }
-    GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
-    fRecordedBatches.emplace_back(RecordedBatch{sk_ref_sp(batch), clippedBounds});
-    fLastFullClearBatch = nullptr;
-    return batch;
+    GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, op);
+    fRecordedOps.emplace_back(RecordedOp{sk_ref_sp(op), clippedBounds});
+    fLastFullClearOp = nullptr;
+    return op;
 }
 
 void GrRenderTargetOpList::forwardCombine() {
-    if (fMaxBatchLookahead <= 0) {
+    if (fMaxOpLookahead <= 0) {
         return;
     }
-    for (int i = 0; i < fRecordedBatches.count() - 2; ++i) {
-        GrOp* batch = fRecordedBatches[i].fBatch.get();
-        const SkRect& batchBounds = fRecordedBatches[i].fClippedBounds;
-        int maxCandidateIdx = SkTMin(i + fMaxBatchLookahead, fRecordedBatches.count() - 1);
+    for (int i = 0; i < fRecordedOps.count() - 2; ++i) {
+        GrOp* op = fRecordedOps[i].fOp.get();
+        const SkRect& opBounds = fRecordedOps[i].fClippedBounds;
+        int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
-            GrOp* candidate = fRecordedBatches[j].fBatch.get();
+            GrOp* candidate = fRecordedOps[j].fOp.get();
             // We cannot continue to search if the render target changes
-            if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
+            if (candidate->renderTargetUniqueID() != op->renderTargetUniqueID()) {
                 GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                           candidate->name(), candidate->uniqueID());
                 break;
             }
             if (j == i +1) {
-                // We assume batch would have combined with candidate when the candidate was added
-                // via backwards combining in recordBatch.
-                SkASSERT(!batch->combineIfPossible(candidate, *this->caps()));
-            } else if (batch->combineIfPossible(candidate, *this->caps())) {
+                // We assume op would have combined with candidate when the candidate was added
+                // via backwards combining in recordOp.
+                SkASSERT(!op->combineIfPossible(candidate, *this->caps()));
+            } else if (op->combineIfPossible(candidate, *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, batch, candidate);
-                fRecordedBatches[j].fBatch = std::move(fRecordedBatches[i].fBatch);
-                join(&fRecordedBatches[j].fClippedBounds, fRecordedBatches[j].fClippedBounds,
-                     batchBounds);
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, op, candidate);
+                fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
+                join(&fRecordedOps[j].fClippedBounds, fRecordedOps[j].fClippedBounds, opBounds);
                 break;
             }
             // Stop going traversing if we would cause a painter's order violation.
-            const SkRect& candidateBounds = fRecordedBatches[j].fClippedBounds;
-            if (!can_reorder(candidateBounds, batchBounds)) {
+            const SkRect& candidateBounds = fRecordedOps[j].fClippedBounds;
+            if (!can_reorder(candidateBounds, opBounds)) {
                 GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
                 break;
@@ -573,7 +570,7 @@ void GrRenderTargetOpList::forwardCombine() {
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
                                             GrRenderTarget* rt) {
-    GrOp* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
-    this->recordBatch(batch, batch->bounds());
-    batch->unref();
+    GrOp* op = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
+    this->recordOp(op, op->bounds());
+    op->unref();
 }

@@ -74,8 +74,8 @@ bool GrTextureContext::copySurface(GrSurface* src, const SkIRect& srcRect,
 
 #ifndef ENABLE_MDB
     GrBatchFlushState flushState(fContext->getGpu(), nullptr);
-    opList->prepareBatches(&flushState);
-    opList->drawBatches(&flushState);
+    opList->prepareOps(&flushState);
+    opList->executeOps(&flushState);
     opList->reset();
 #endif
 
