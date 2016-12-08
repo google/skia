@@ -33,6 +33,24 @@
       "revId": "0984123bc85cecd6660470a43caed64d0755733a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_a708d84a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2016-12-08T03:14:44Z",
+      "side": 1,
+      "message": "so in the fuchsia build this is built with a different gn root, so its hitting our mesa, not yours. This causes a number of other problems with the tools build so its possible that I need to take a very different approach from what im doing here.",
+      "parentUuid": "0d744b42_b6fb2e05",
+      "revId": "0984123bc85cecd6660470a43caed64d0755733a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
