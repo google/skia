@@ -132,7 +132,7 @@ SkImageGeneratorWIC::SkImageGeneratorWIC(const SkImageInfo& info,
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorWIC::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
+SkData* SkImageGeneratorWIC::onRefEncodedData(GrContext* ctx) {
     return SkRef(fData.get());
 }
 
