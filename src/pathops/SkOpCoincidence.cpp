@@ -1314,7 +1314,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         FAIL_IF(!coin->ordered(&ordered));
         while ((next = next->upCast()->next()) != end) {
             FAIL_IF(!next->upCastable());
-            SkAssertResult(next->upCast()->insertCoincidence(oSegment, flipped, ordered));
+            FAIL_IF(!next->upCast()->insertCoincidence(oSegment, flipped, ordered));
         }
         while ((oNext = oNext->upCast()->next()) != oEnd) {
             FAIL_IF(!oNext->upCastable());
