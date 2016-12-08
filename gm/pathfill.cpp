@@ -50,15 +50,15 @@ static SkScalar make_oval(SkPath* path) {
     return SkIntToScalar(30);
 }
 
-static SkScalar make_sawtooth(SkPath* path) {
+static SkScalar make_sawtooth(SkPath* path, int teeth) {
     SkScalar x = SkIntToScalar(20);
     SkScalar y = SkIntToScalar(20);
     const SkScalar x0 = x;
-    const SkScalar dx = SK_Scalar1 * 5;
-    const SkScalar dy = SK_Scalar1 * 10;
+    const SkScalar dx = SkIntToScalar(5);
+    const SkScalar dy = SkIntToScalar(10);
 
     path->moveTo(x, y);
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < teeth; i++) {
         x += dx;
         path->lineTo(x, y - dy);
         x += dx;
@@ -67,6 +67,44 @@ static SkScalar make_sawtooth(SkPath* path) {
     path->lineTo(x, y + (2 * dy));
     path->lineTo(x0, y + (2 * dy));
     path->close();
+    return SkIntToScalar(30);
+}
+
+static SkScalar make_sawtooth_3(SkPath* path) { return make_sawtooth(path, 3); }
+static SkScalar make_sawtooth_32(SkPath* path) { return make_sawtooth(path, 32); }
+
+static SkScalar make_house(SkPath* path) {
+    path->moveTo(21, 23);
+    path->lineTo(21, 11.534f);
+    path->lineTo(22.327f, 12.741f);
+    path->lineTo(23.673f, 11.261f);
+    path->lineTo(12, 0.648f);
+    path->lineTo(8, 4.285f);
+    path->lineTo(8, 2);
+    path->lineTo(4, 2);
+    path->lineTo(4, 7.921f);
+    path->lineTo(0.327f, 11.26f);
+    path->lineTo(1.673f, 12.74f);
+    path->lineTo(3, 11.534f);
+    path->lineTo(3, 23);
+    path->lineTo(11, 23);
+    path->lineTo(11, 18);
+    path->lineTo(13, 18);
+    path->lineTo(13, 23);
+    path->lineTo(21, 23);
+    path->close();
+    path->lineTo(9, 16);
+    path->lineTo(9, 21);
+    path->lineTo(5, 21);
+    path->lineTo(5, 9.715f);
+    path->lineTo(12, 3.351f);
+    path->lineTo(19, 9.715f);
+    path->lineTo(19, 21);
+    path->lineTo(15, 21);
+    path->lineTo(15, 16);
+    path->lineTo(9, 16);
+    path->close();
+    path->offset(20, 0);
     return SkIntToScalar(30);
 }
 
@@ -107,10 +145,12 @@ constexpr MakePathProc gProcs[] = {
     make_triangle,
     make_rect,
     make_oval,
-    make_sawtooth,
+    make_sawtooth_32,
     make_star_5,
     make_star_13,
     make_line,
+    make_house,
+    make_sawtooth_3,
 };
 
 #define N   SK_ARRAY_COUNT(gProcs)
