@@ -29,7 +29,7 @@ GN allows fine-grained settings for developers and special situations.
     gn gen out/Release  --args='is_debug=false'
     gn gen out/Clang    --args='cc="clang" cxx="clang++"'
     gn gen out/Cached   --args='cc_wrapper="ccache"'
-    gn gen out/RTTI     --args='extra_cflags_cc="-frtti"'
+    gn gen out/RTTI     --args='extra_cflags_cc=["-frtti"]'
 
 To see all the arguments available, you can run
 
