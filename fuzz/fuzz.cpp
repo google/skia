@@ -135,8 +135,8 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     float fscale = (float)pow(2.0f, scale);
     SkDebugf("Scaling factor: %f\n", fscale);
 
-    // We have 4 different modes of decoding, just like DM.
-    mode = mode % 4;
+    // We have 5 different modes of decoding.
+    mode = mode % 5;
     SkDebugf("Mode: %d\n", mode);
 
     // This is mostly copied from DMSrcSink's CodecSrc::draw method.
@@ -148,6 +148,11 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     }
 
     SkImageInfo decodeInfo = codec->getInfo();
+    if (4 == mode && decodeInfo.colorType() == kIndex_8_SkColorType) {
+        // 4 means animated. Frames beyond the first cannot be decoded to
+        // index 8.
+        decodeInfo = decodeInfo.makeColorType(kN32_SkColorType);
+    }
 
     SkISize size = codec->getScaledDimensions(fscale);
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
@@ -348,6 +353,40 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 }
                 // translate by the scaled width.
                 left += decodeInfo.width();
+            }
+            SkDebugf("[terminated] Success!\n");
+            break;
+        }
+        case 4: { //kAnimated_Mode
+            std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
+            if (frameInfos.size() == 0) {
+                SkDebugf("[terminated] Not an animated image\n");
+                break;
+            }
+
+            for (size_t i = 0; i < frameInfos.size(); i++) {
+                options.fFrameIndex = i;
+                auto result = codec->startIncrementalDecode(decodeInfo, bitmap.getPixels(),
+                        bitmap.rowBytes(), &options);
+                if (SkCodec::kSuccess != result) {
+                    SkDebugf("[terminated] failed to start incremental decode "
+                             "in frame %d with error %d\n", i, result);
+                    return 15;
+                }
+
+                result = codec->incrementalDecode();
+                if (result == SkCodec::kIncompleteInput) {
+                    SkDebugf("okay\n");
+                    // Frames beyond this one will not decode.
+                    break;
+                }
+                if (result == SkCodec::kSuccess) {
+                    SkDebugf("okay - decoded frame %d\n", i);
+                } else {
+                    SkDebugf("[terminated] incremental decode failed with "
+                             "error %d\n", result);
+                    return 16;
+                }
             }
             SkDebugf("[terminated] Success!\n");
             break;
