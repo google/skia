@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0d744b42_41bd6263",
+        "filename": "experimental/svg/model/SkSVGCircle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-08T14:27:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d744b42_61d5fed3",
+      "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_d68d93c2",
         "filename": "experimental/svg/model/SkSVGContainer.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "0d744b42_01d0bab6",
+        "filename": "experimental/svg/model/SkSVGContainer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-08T14:27:18Z",
+      "side": 1,
+      "message": "Possibly, yes, when we start looking at perf.\n\nThe tricky part is it\u0027s not a single value as it depends on who\u0027s referencing the clip (length context, etc) - so it\u0027ll likely end up being a map.",
+      "parentUuid": "cd4b13fc_d68d93c2",
+      "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_769efff4",
         "filename": "experimental/svg/model/SkSVGLine.h",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-08T13:08:16Z",
       "side": 1,
       "message": "// resolve and return the two endpoints\n\n?",
+      "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_a1c446f9",
+        "filename": "experimental/svg/model/SkSVGLine.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-08T14:27:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd4b13fc_769efff4",
       "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -99,6 +153,24 @@
       "writtenOn": "2016-12-08T13:08:16Z",
       "side": 1,
       "message": "If we\u0027re doing this a lot it seems like caching the inverse might also be useful.",
+      "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_81dcaacf",
+        "filename": "experimental/svg/model/SkSVGTransformableNode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-08T14:27:18Z",
+      "side": 1,
+      "message": "Agreed.  I\u0027m deferring aggressive caching for now, but at some point we\u0027ll need to start looking at it.  Although in this case, if asPath is the only caller and we cache its result at some point, also caching the inverse here might not be necessary.",
+      "parentUuid": "cd4b13fc_f68a0fa9",
       "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
