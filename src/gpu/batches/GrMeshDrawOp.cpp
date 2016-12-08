@@ -10,7 +10,15 @@
 #include "GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
-    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
+    : INHERITED(classID)
+    , fPipelineInstalled(false)
+    , fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
+
+GrMeshDrawOp::~GrMeshDrawOp() {
+    if (fPipelineInstalled) {
+        this->pipeline()->~GrPipeline();
+    }
+}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);
@@ -84,6 +92,25 @@ void GrMeshDrawOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void GrMeshDrawOp::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
+    GrInitInvariantOutput color;
+    GrInitInvariantOutput coverage;
+    this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
+    opt->fColorPOI.initUsingInvariantOutput(color);
+    opt->fCoveragePOI.initUsingInvariantOutput(coverage);
+}
+
+bool GrMeshDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
+    GrXPOverridesForBatch overrides;
+    void* location = fPipelineStorage.get();
+    if (!GrPipeline::CreateAt(location, args, &overrides)) {
+        return false;
+    }
+    fPipelineInstalled = true;
+    this->initBatchTracker(overrides);
+    return true;
+}
 
 void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mesh) {
     GrMeshDrawOp* op = this->meshDrawOp();

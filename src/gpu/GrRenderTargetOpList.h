@@ -34,6 +34,7 @@ class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
 class GrOp;
+class GrMeshDrawOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
 
@@ -82,8 +83,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawOp*);
-
+    void addMeshDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                       GrMeshDrawOp*);
+    void addDrawOp(GrRenderTargetContext*, const GrClip&, GrDrawOp*);
     void addOp(sk_sp<GrOp>);
 
     /**

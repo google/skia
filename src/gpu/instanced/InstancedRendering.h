@@ -111,7 +111,7 @@ protected:
                           fIsTracked,
                           fNumDraws,
                           fNumChangesInGeometry);
-            string.append(DumpPipelineInfo(*this->pipeline()));
+            //string.append(DumpPipelineInfo(*this->pipeline()));
             string.append(INHERITED::dumpInfo());
             return string;
         }
@@ -133,12 +133,14 @@ protected:
     protected:
         Batch(uint32_t classID, InstancedRendering* ir);
 
-        void initBatchTracker(const GrXPOverridesForBatch&) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
+#if 0
+        void initBatchTracker(const GrXPOverridesForBatch&) override;
 
         void computePipelineOptimizations(GrInitInvariantOutput* color,
                                           GrInitInvariantOutput* coverage,
                                           GrBatchToXPOverrides*) const override;
+#endif
 
         void onPrepare(GrOpFlushState*) override {}
         void onDraw(GrOpFlushState*, const SkRect& bounds) override;

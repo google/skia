@@ -334,6 +334,7 @@ void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScal
     fInfo.fHasParams = true;
 }
 
+#if 0
 void InstancedRendering::Batch::computePipelineOptimizations(GrInitInvariantOutput* color,
                                                             GrInitInvariantOutput* coverage,
                                                             GrBatchToXPOverrides* overrides) const {
@@ -380,16 +381,16 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     fInstancedRendering->fTrackedBatches.addToTail(this);
     fIsTracked = true;
 }
-
+#endif
 bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
     Batch* that = static_cast<Batch*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);
     SkASSERT(that->fTailDraw);
 
-    if (!BatchInfo::CanCombine(fInfo, that->fInfo) ||
+    if (!BatchInfo::CanCombine(fInfo, that->fInfo) /*||
         !GrPipeline::CanCombine(*this->pipeline(), this->bounds(),
-                                *that->pipeline(), that->bounds(), caps)) {
+                                *that->pipeline(), that->bounds(), caps)*/) {
         return false;
     }
 
@@ -466,12 +467,12 @@ void InstancedRendering::Batch::onDraw(GrOpFlushState* state, const SkRect& boun
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
     state->gpu()->handleDirtyContext();
-    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
-        state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
-    }
+//    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
+        //state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
+    //}
 
     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
-    fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
+//    fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
 }
 
 void InstancedRendering::endFlush() {

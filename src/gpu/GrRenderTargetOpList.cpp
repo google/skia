@@ -261,10 +261,9 @@ static void batch_bounds(SkRect* bounds, const GrOp* batch) {
     }
 }
 
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const GrClip& clip,
-                                     GrDrawOp* op) {
+void GrRenderTargetOpList::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                         GrRenderTargetContext* renderTargetContext,
+                                         const GrClip& clip, GrMeshDrawOp* op) {
     // Setup clip
     SkRect bounds;
     batch_bounds(&bounds, op);
@@ -346,6 +345,46 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
+    this->recordOp(op, appliedClip.clippedDrawBounds());
+}
+
+void GrRenderTargetOpList::addDrawOp(GrRenderTargetContext* renderTargetContext,
+                                     const GrClip& clip, GrDrawOp* op) {
+    // Setup clip
+    SkRect bounds;
+    batch_bounds(&bounds, op);
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, renderTargetContext, op->aaType() == GrAAType::kHW,
+                    op->hasUserStencilSettings(), &appliedClip)) {
+        return;
+    }
+
+    if (op->hasUserStencilSettings() || appliedClip.hasStencilClip()) {
+        if (!renderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
+        if (!fResourceProvider->attachStencilAttachment(
+                renderTargetContext->accessRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
+    }
+
+    GrXferProcessor::DstTexture dstTexture;
+    if (op->willXPNeedDstTexture(*this->caps())) {
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+                              &dstTexture);
+        if (!dstTexture.texture()) {
+            return;
+        }
+    }
+
+    op->finalize(appliedClip, dstTexture);
+    if (!renderTargetContext->accessRenderTarget()) {
+        return;
+    }
+
     this->recordOp(op, appliedClip.clippedDrawBounds());
 }
 

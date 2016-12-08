@@ -25,6 +25,13 @@ public:
     class Target;
 
     GrMeshDrawOp(uint32_t classID);
+    ~GrMeshDrawOp() override;
+    /**
+     * Fills in a structure informing the XP of overrides to its normal behavior.
+     */
+    void getPipelineOptimizations(GrPipelineOptimizations* override) const;
+
+    bool installPipeline(const GrPipeline::CreateArgs&);
 
 protected:
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
@@ -62,7 +69,22 @@ protected:
         typedef InstancedHelper INHERITED;
     };
 
+    const GrPipeline* pipeline() const {
+        SkASSERT(fPipelineInstalled);
+        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
+    }
+
+    virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
+                                              GrInitInvariantOutput* coverage,
+                                              GrBatchToXPOverrides* overrides) const = 0;
+
 private:
+    /**
+     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
+     * from the GrXferProcessor.
+     */
+    virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
+
     void onPrepare(GrOpFlushState* state) final;
     void onDraw(GrOpFlushState* state, const SkRect& bounds) final;
 
@@ -77,6 +99,9 @@ private:
         int fMeshCnt = 0;
         GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
     };
+
+    SkAlignedSTStorage<1, GrPipeline> fPipelineStorage;
+    bool fPipelineInstalled;
 
     // All draws in all the vertex batches have implicit tokens based on the order they are
     // enqueued globally across all batches. This is the offset of the first entry in fQueuedDraws.

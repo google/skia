@@ -408,11 +408,11 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         op.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), aa,
                                 fInstancedPipelineInfo, &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
-            if (ss) {
-                pipelineBuilder.setUserStencil(ss);
-            }
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+//            GrPipelineBuilder pipelineBuilder(paint, aaType);
+//            if (ss) {
+//                pipelineBuilder.setUserStencil(ss);
+//            }
+//            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
             return true;
         }
     }
@@ -430,7 +430,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+                this->getOpList()->addMeshDrawOp(pipelineBuilder, this, clip, op.get());
                 return true;
             }
         }

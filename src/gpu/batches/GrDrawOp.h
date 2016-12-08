@@ -41,6 +41,8 @@ private:
     uint64_t fSequenceNumber;
 };
 
+class GrAppliedClip;
+
 /**
  * Base class for GrOps that draw. These batches have a GrPipeline installed by GrOpList.
  */
@@ -59,21 +61,16 @@ public:
     GrDrawOp(uint32_t classID);
     ~GrDrawOp() override;
 
-    /**
-     * Fills in a structure informing the XP of overrides to its normal behavior.
-     */
-    void getPipelineOptimizations(GrPipelineOptimizations* override) const;
-
-    bool installPipeline(const GrPipeline::CreateArgs&);
-
     // TODO no GrPrimitiveProcessors yet read fragment position
     bool willReadFragmentPosition() const { return false; }
 
+    virtual GrAAType aaType() const;
+    virtual bool hasUserStencilSettings();
+    virtual bool willXPNeedDstTexture(const GrCaps&) const;
+    virtual bool finalize(const GrAppliedClip&, const GrXferProcessor::DstTexture&) const;
+
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    // This is a bit more exciting than the other call sites since it uses the pipeline
-    GrGpuResource::UniqueID renderTargetUniqueID() const final {
-        return this->pipeline()->getRenderTarget()->uniqueID();
-    }
+    GrGpuResource::UniqueID renderTargetUniqueID() const final { return fRenderTargetUniqueID; }
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
@@ -107,22 +104,6 @@ protected:
         return string;
     }
 
-    const GrPipeline* pipeline() const {
-        SkASSERT(fPipelineInstalled);
-        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
-    }
-
-    virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                              GrInitInvariantOutput* coverage,
-                                              GrBatchToXPOverrides* overrides) const = 0;
-
-private:
-    /**
-     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
-     * from the GrXferProcessor.
-     */
-    virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
-
 protected:
     struct QueuedUpload {
         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
@@ -135,8 +116,7 @@ protected:
     SkTArray<QueuedUpload>                          fInlineUploads;
 
 private:
-    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
-    bool                                            fPipelineInstalled;
+    GrGpuResource::UniqueID                         fRenderTargetUniqueID;
     typedef GrOp INHERITED;
 };
 

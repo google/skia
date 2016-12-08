@@ -19,14 +19,6 @@
 #include "SkTLList.h"
 
 class GrDrawPathBatchBase : public GrDrawOp {
-public:
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
 protected:
     GrDrawPathBatchBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
                         GrPathRendering::FillType fill)
@@ -45,10 +37,18 @@ protected:
     GrPathRendering::FillType fillType() const { return fFillType; }
 
 private:
+#if 0
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         overrides.getOverrideColorIfSet(&fColor);
         fOverrides = overrides;
     }
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        color->setKnownFourComponents(fColor);
+        coverage->setKnownSingleComponent(0xff);
+    }
+#endif
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
 

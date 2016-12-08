@@ -14,15 +14,15 @@ static void pre_translate_transform_values(const float* xforms,
                                            SkScalar x, SkScalar y, float* dst);
 
 void GrDrawPathBatchBase::onPrepare(GrOpFlushState*) {
-    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
-    fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
-                               this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
+//    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
+//    fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
+//                               this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
 }
 
 SkString GrDrawPathBatch::dumpInfo() const {
     SkString string;
     string.printf("PATH: 0x%p", fPath.get());
-    string.append(DumpPipelineInfo(*this->pipeline()));
+    //string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }
@@ -33,8 +33,8 @@ void GrDrawPathBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                             this->overrides(),
                                                             this->viewMatrix()));
-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
-                                            this->stencilPassSettings(), fPath.get());
+  //  state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
+//                                            this->stencilPassSettings(), fPath.get());
 }
 
 SkString GrDrawPathRangeBatch::dumpInfo() const {
@@ -45,7 +45,7 @@ SkString GrDrawPathRangeBatch::dumpInfo() const {
     }
     string.remove(string.size() - 2, 2);
     string.append("]");
-    string.append(DumpPipelineInfo(*this->pipeline()));
+//    string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }
@@ -71,9 +71,9 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
     }
-    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
-        return false;
-    }
+//    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
+//        return false;
+//    }
     switch (fDraws.head()->fInstanceData->transformType()) {
         case GrPathRendering::kNone_PathTransformType:
             if (this->fDraws.head()->fX != that->fDraws.head()->fX ||
@@ -128,7 +128,8 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     SkMatrix localMatrix;
     localMatrix.setScale(fScale, fScale);
     localMatrix.preTranslate(head.fX, head.fY);
-
+    void* ptr = nullptr;
+const GrPipeline& pipeline = *static_cast<const GrPipeline*>(ptr);
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                             this->overrides(),
                                                             drawMatrix,
@@ -136,7 +137,7 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+        state->gpu()->pathRendering()->drawPaths(pipeline,
                                                  *pathProc,
                                                  this->stencilPassSettings(),
                                                  fPathRange.get(),
@@ -165,7 +166,7 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+        state->gpu()->pathRendering()->drawPaths(pipeline,
                                                  *pathProc,
                                                  this->stencilPassSettings(),
                                                  fPathRange.get(),
