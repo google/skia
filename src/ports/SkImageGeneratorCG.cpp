@@ -75,7 +75,7 @@ SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imag
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorCG::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
+SkData* SkImageGeneratorCG::onRefEncodedData(GrContext* ctx) {
     return SkRef(fData.get());
 }
 

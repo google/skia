@@ -116,7 +116,7 @@ bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matr
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-SkData* SkImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
+SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
     return nullptr;
 }
 
