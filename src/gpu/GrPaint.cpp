@@ -13,8 +13,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 GrPaint::GrPaint()
-    : fAntiAlias(false)
-    , fDisableOutputConversionToSRGB(false)
+    : fDisableOutputConversionToSRGB(false)
     , fAllowSRGBInputs(false)
     , fUsesDistanceVectorField(false)
     , fColor(GrColor4f::OpaqueWhite()) {}

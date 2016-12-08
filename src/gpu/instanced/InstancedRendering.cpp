@@ -22,28 +22,27 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
 }
 
 GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, bool antialias,
-                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, antialias, info,
-                             useHWAA);
+                                         GrColor color, GrAA aa,
+                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info, aaType);
 }
 
 GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, const SkRect& localRect, bool antialias,
-                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
-    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, antialias, info,
-                             useHWAA);
+                                         GrColor color, const SkRect& localRect, GrAA aa,
+                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+    return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, aa, info,
+                             aaType);
 }
 
 GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
                                          GrColor color, const SkMatrix& localMatrix,
-                                         bool antialias, const GrInstancedPipelineInfo& info,
-                                         bool* useHWAA) {
+                                         GrAA aa, const GrInstancedPipelineInfo& info,
+                                         GrAAType* aaType) {
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
-    if (Batch* batch = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, antialias,
-                                         info, useHWAA)) {
+    if (Batch* batch = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa,
+                                         info, aaType)) {
         batch->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
         batch->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
                                  localMatrix.getTranslateX());
@@ -56,17 +55,16 @@ GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& vie
 }
 
 GrDrawOp* InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
-                                         GrColor color, bool antialias,
-                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
-    return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, antialias, info,
-                             useHWAA);
+                                         GrColor color, GrAA aa,
+                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+    return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, aa, info, aaType);
 }
 
 GrDrawOp* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
-                                          GrColor color, bool antialias,
-                                          const GrInstancedPipelineInfo& info, bool* useHWAA) {
+                                          GrColor color, GrAA aa,
+                                          const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     if (Batch* batch = this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
-                                         rrect.rect(), antialias, info, useHWAA)) {
+                                         rrect.rect(), aa, info, aaType)) {
         batch->appendRRectParams(rrect);
         return batch;
     }
@@ -75,16 +73,16 @@ GrDrawOp* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& 
 
 GrDrawOp* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
                                            const SkMatrix& viewMatrix, GrColor color,
-                                           bool antialias, const GrInstancedPipelineInfo& info,
-                                           bool* useHWAA) {
+                                           GrAA aa, const GrInstancedPipelineInfo& info,
+                                           GrAAType* aaType) {
     if (inner.getType() > SkRRect::kSimple_Type) {
        return nullptr; // Complex inner round rects are not yet supported.
     }
     if (SkRRect::kEmpty_Type == inner.getType()) {
-        return this->recordRRect(outer, viewMatrix, color, antialias, info, useHWAA);
+        return this->recordRRect(outer, viewMatrix, color, aa, info, aaType);
     }
     if (Batch* batch = this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
-                                         outer.rect(), antialias, info, useHWAA)) {
+                                         outer.rect(), aa, info, aaType)) {
         batch->appendRRectParams(outer);
         ShapeType innerShapeType = GetRRectShapeType(inner);
         batch->fInfo.fInnerShapeTypes |= GetShapeFlag(innerShapeType);
@@ -99,9 +97,9 @@ GrDrawOp* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& 
 InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const SkRect& bounds,
                                                            const SkMatrix& viewMatrix,
                                                            GrColor color, const SkRect& localRect,
-                                                           bool antialias,
+                                                           GrAA aa,
                                                            const GrInstancedPipelineInfo& info,
-                                                           bool* useHWAA) {
+                                                           GrAAType* aaType) {
     SkASSERT(State::kRecordingDraws == fState);
 
     if (info.fIsRenderingToFloat && fGpu->caps()->avoidInstancedDrawsToFPTargets()) {
@@ -109,7 +107,7 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     }
 
     AntialiasMode antialiasMode;
-    if (!this->selectAntialiasMode(viewMatrix, antialias, info, useHWAA, &antialiasMode)) {
+    if (!this->selectAntialiasMode(viewMatrix, aa, info, aaType, &antialiasMode)) {
         return nullptr;
     }
 
@@ -193,27 +191,28 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     return batch;
 }
 
-inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, bool antialias,
+inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa,
                                                     const GrInstancedPipelineInfo& info,
-                                                    bool* useHWAA, AntialiasMode* antialiasMode) {
+                                                    GrAAType* aaType,
+                                                    AntialiasMode* antialiasMode) {
     SkASSERT(!info.fColorDisabled || info.fDrawingShapeToStencil);
     SkASSERT(!info.fIsMixedSampled || info.fIsMultisampled);
     SkASSERT(GrCaps::InstancedSupport::kNone != fGpu->caps()->instancedSupport());
 
     if (!info.fIsMultisampled || fGpu->caps()->multisampleDisableSupport()) {
-        if (!antialias) {
+        if (GrAA::kNo == aa) {
             if (info.fDrawingShapeToStencil && !info.fCanDiscard) {
                 // We can't draw to the stencil buffer without discard (or sample mask if MSAA).
                 return false;
             }
             *antialiasMode = AntialiasMode::kNone;
-            *useHWAA = false;
+            *aaType = GrAAType::kNone;
             return true;
         }
 
         if (info.canUseCoverageAA() && viewMatrix.preservesRightAngles()) {
             *antialiasMode = AntialiasMode::kCoverage;
-            *useHWAA = false;
+            *aaType = GrAAType::kCoverage;
             return true;
         }
     }
@@ -222,12 +221,12 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
         fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMultisampled) {
         if (!info.fIsMixedSampled || info.fColorDisabled) {
             *antialiasMode = AntialiasMode::kMSAA;
-            *useHWAA = true;
+            *aaType = GrAAType::kHW;
             return true;
         }
         if (fGpu->caps()->instancedSupport() >= GrCaps::InstancedSupport::kMixedSampled) {
             *antialiasMode = AntialiasMode::kMixedSamples;
-            *useHWAA = true;
+            *aaType = GrAAType::kHW;
             return true;
         }
     }

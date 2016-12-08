@@ -562,6 +562,7 @@ private:
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
                                           const GrPaint& paint,
+                                          GrAAType aaType,
                                           const GrUserStencilSettings& userStencilSettings,
                                           const GrClip& clip,
                                           const SkMatrix& viewMatrix,
@@ -662,7 +663,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);
 
             renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
@@ -673,12 +674,11 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 return false;
             }
 
-            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
-
             renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         }
     }
@@ -689,7 +689,7 @@ bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // This path renderer only fills and relies on MSAA for antialiasing. Stroked shapes are
     // handled by passing on the original shape and letting the caller compute the stroked shape
     // which will have a fill style.
-    return args.fShape->style().isSimpleFill() && !args.fAntiAlias;
+    return args.fShape->style().isSimpleFill() && (GrAAType::kCoverage != args.fAAType);
 }
 
 bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -704,6 +704,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     return this->internalDrawPath(args.fRenderTargetContext,
                                   *args.fPaint,
+                                  args.fAAType,
                                   *args.fUserStencilSettings,
                                   *args.fClip,
                                   *args.fViewMatrix,
@@ -719,10 +720,10 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Make());
-    paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fRenderTargetContext, paint, GrUserStencilSettings::kUnused,
-                           *args.fClip, *args.fViewMatrix, *args.fShape, true);
+    this->internalDrawPath(args.fRenderTargetContext, paint, args.fAAType,
+                           GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
+                           *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
