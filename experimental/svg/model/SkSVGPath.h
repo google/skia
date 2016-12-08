@@ -24,6 +24,8 @@ protected:
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPath::FillType) const override;
 
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
+
 private:
     SkSVGPath();
 

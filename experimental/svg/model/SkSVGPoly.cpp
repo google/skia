@@ -38,3 +38,12 @@ void SkSVGPoly::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPain
     fPath.setFillType(fillType);
     canvas->drawPath(fPath, paint);
 }
+
+SkPath SkSVGPoly::onAsPath(const SkSVGRenderContext& ctx) const {
+    // the computed fillType follows inheritance rules and needs to be applied at draw time.
+    fPath.setFillType(FillRuleToFillType(*ctx.presentationContext().fInherited.fFillRule.get()));
+
+    SkPath path = fPath;
+    this->mapToParent(&path);
+    return path;
+}

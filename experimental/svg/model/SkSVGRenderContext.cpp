@@ -280,6 +280,10 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
         this->applyOpacity(opacity->value(), flags);
     }
+
+    if (auto* clip = attrs.fClipPath.getMaybeNull()) {
+        this->applyClip(*clip);
+    }
 }
 
 void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
@@ -310,6 +314,26 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
+}
+
+void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
+    if (clip.type() != SkSVGClip::Type::kIRI) {
+        return;
+    }
+
+    const SkSVGNode* clipNode = this->findNodeById(clip.iri());
+    if (!clipNode || clipNode->tag() != SkSVGTag::kClipPath) {
+        return;
+    }
+
+    const SkPath clipPath = clipNode->asPath(*this);
+
+    // Only save if needed
+    if (fCanvas->getSaveCount() == fCanvasSaveCount) {
+        fCanvas->save();
+    }
+
+    fCanvas->clipPath(clipPath, true);
 }
 
 const SkPaint* SkSVGRenderContext::fillPaint() const {

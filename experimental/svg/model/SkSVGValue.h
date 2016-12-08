@@ -17,6 +17,7 @@
 class SkSVGValue : public SkNoncopyable {
 public:
     enum class Type {
+        kClip,
         kColor,
         kFillRule,
         kLength,
@@ -70,6 +71,7 @@ private:
     typedef SkSVGValue INHERITED;
 };
 
+using SkSVGClipValue         = SkSVGWrapperValue<SkSVGClip         , SkSVGValue::Type::kClip     >;
 using SkSVGColorValue        = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor    >;
 using SkSVGFillRuleValue     = SkSVGWrapperValue<SkSVGFillRule     , SkSVGValue::Type::kFillRule >;
 using SkSVGLengthValue       = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength   >;

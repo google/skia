@@ -30,6 +30,11 @@ bool SkSVGNode::asPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
     return this->onPrepareToRender(&localContext) && this->onAsPaint(localContext, paint);
 }
 
+SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
+    SkSVGRenderContext localContext(ctx);
+    return this->onPrepareToRender(&localContext) ? this->onAsPath(localContext) : SkPath();
+}
+
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
@@ -38,6 +43,10 @@ bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
 
 void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     this->onSetAttribute(attr, v);
+}
+
+void SkSVGNode::setClipPath(const SkSVGClip& clip) {
+    fPresentationAttributes.fClipPath.set(clip);
 }
 
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
@@ -73,6 +82,11 @@ void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
 
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
+    case SkSVGAttribute::kClipPath:
+        if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
+            this->setClipPath(*clip);
+        }
+        break;
     case SkSVGAttribute::kFill:
         if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
             this->setFill(*paint);
