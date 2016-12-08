@@ -672,7 +672,7 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return (args.fShaderCaps->shaderDerivativeSupport() && args.fAntiAlias &&
+    return (args.fShaderCaps->shaderDerivativeSupport() && (GrAAType::kCoverage == args.fAAType) &&
             args.fShape->style().isSimpleFill() && !args.fShape->inverseFilled() &&
             args.fShape->knownToBeConvex());
 }
@@ -1002,7 +1002,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrDrawOp> batch(new AAConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix, path));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());

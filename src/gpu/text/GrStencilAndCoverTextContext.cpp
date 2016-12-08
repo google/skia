@@ -224,10 +224,8 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrRenderTarg
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {
-        // The run's "font" overrides the anti-aliasing of the passed in paint!
-        paint.setAntiAlias(run->isAntiAlias());
-        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y,
-                  clipBounds, fFallbackTextContext, skPaint);
+        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y, clipBounds,
+                  fFallbackTextContext, skPaint);
         run->releaseGlyphCache();
     }
 }
@@ -605,8 +603,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  const SkIRect& clipBounds,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
+    GrAA runAA = this->isAntiAlias();
     SkASSERT(fInstanceData);
-    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || !grPaint.isAntiAlias());
+    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || GrAA::kNo == runAA);
 
     if (fInstanceData->count()) {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -640,8 +639,11 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs.get(),
                                          fInstanceData.get(), bounds));
 
-        GrPipelineBuilder pipelineBuilder(grPaint);
-        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
+        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
+        GrAAType aaType = renderTargetContext->isStencilBufferMultisampled() && GrAA::kYes == runAA
+                ? GrAAType::kHW
+                : GrAAType::kNone;
+        GrPipelineBuilder pipelineBuilder(grPaint, aaType);
         pipelineBuilder.setUserStencil(&kCoverPass);
 
         renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());

@@ -14,6 +14,7 @@
 
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetPriv.h"
+#include "GrTypesPriv.h"
 #include "GrPipelineBuilder.h"
 #include "gl/GrGLGpu.h"
 #include "gl/debug/DebugGLTestContext.h"
@@ -90,7 +91,7 @@ public:
 };
 
 static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* storage) {
-    GrPipelineBuilder dummyBuilder;
+    GrPipelineBuilder dummyBuilder(GrPaint(), GrAAType::kNone);
     GrScissorState dummyScissor;
     GrWindowRectsState dummyWindows;
     GrXPOverridesForBatch dummyOverrides;

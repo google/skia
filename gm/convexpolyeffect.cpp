@@ -185,7 +185,8 @@ protected:
 
                 sk_sp<GrDrawOp> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
-                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
+                                                                  batch.get());
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -224,7 +225,8 @@ protected:
 
                 sk_sp<GrDrawOp> batch(new PolyBoundsBatch(rect, 0xff000000));
 
-                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
+                                                                  batch.get());
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

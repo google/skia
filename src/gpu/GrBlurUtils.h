@@ -8,11 +8,13 @@
 #ifndef GrBlurUtils_DEFINED
 #define GrBlurUtils_DEFINED
 
+#include "GrTypes.h"
+
 class GrClip;
 class GrContext;
-class GrRenderTargetContext;
 class GrPaint;
 class GrRenderTarget;
+class GrRenderTargetContext;
 class GrStyle;
 struct SkIRect;
 class SkMaskFilter;
@@ -48,6 +50,7 @@ namespace GrBlurUtils {
                                 const GrClip&,
                                 const SkPath& path,
                                 GrPaint*,
+                                GrAA,
                                 const SkMatrix& viewMatrix,
                                 const SkMaskFilter*,
                                 const GrStyle&,

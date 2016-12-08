@@ -297,7 +297,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     GrFixedClip clip(dstIRect);
-    renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+    renderTargetContext->fillRectToRect(clip, paint, GrAA::kNo, SkMatrix::I(), dstRect, srcRect);
 
     return SkSpecialImage::MakeDeferredFromGpu(context, dstIRect,
                                                kNeedNewImageUniqueID_SpecialImage,

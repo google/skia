@@ -71,9 +71,8 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                                               viewMatrix, rect,
                                                               nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
-
     renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
 }
 
@@ -135,7 +134,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
-                    args.fShape->hasUnstyledKey() && args.fAntiAlias;
+                    args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
 
     if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),
                                    args.fRenderTargetContext->height(),
@@ -193,6 +192,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         builder[3] = SkFloat2Bits(ky);
         builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
+        // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
+        // should always be true, though.
     }
 
     sk_sp<GrTexture> texture;
@@ -200,25 +201,24 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
-         GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
-                                                     : GrSWMaskHelper::TextureType::kApproximateFit;
-         texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
-                                                              *boundsForMask, args.fAntiAlias,
-                                                              type, args.fViewMatrix));
-         if (!texture) {
-             return false;
-         }
-         if (useCache) {
-             texture->resourcePriv().setUniqueKey(maskKey);
-         }
+        GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
+                                                    : GrSWMaskHelper::TextureType::kApproximateFit;
+        GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
+        texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
+                                                             *boundsForMask, aa,
+                                                             type, args.fViewMatrix));
+        if (!texture) {
+            return false;
+        }
+        if (useCache) {
+            texture->resourcePriv().setUniqueKey(maskKey);
+        }
     }
-
     GrSWMaskHelper::DrawToTargetWithShapeMask(texture.get(), args.fRenderTargetContext,
                                               *args.fPaint, *args.fUserStencilSettings,
                                               *args.fClip, *args.fViewMatrix,
                                               SkIPoint {boundsForMask->fLeft, boundsForMask->fTop},
                                               *boundsForMask);
-
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, *args.fPaint, *args.fUserStencilSettings,
                           *args.fClip,
