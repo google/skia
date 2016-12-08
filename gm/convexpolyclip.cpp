@@ -173,7 +173,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    clip->setOnCanvas(canvas, SkCanvas::kIntersect_Op, SkToBool(aa));
+                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->drawBitmap(fBmp, 0, 0);
                     canvas->restore();
                     x += fBmp.width() + kMargin;
@@ -199,7 +199,7 @@ protected:
                     SkPath closedClipPath;
                     clip->asClosedPath(&closedClipPath);
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
-                    clip->setOnCanvas(canvas, SkCanvas::kIntersect_Op, SkToBool(aa));
+                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
                     canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
                                      0, 1.5f * txtPaint.getTextSize(),
@@ -227,7 +227,7 @@ private:
 
         Clip () : fClipType(kNone_ClipType) {}
 
-        void setOnCanvas(SkCanvas* canvas, SkCanvas::ClipOp op, bool aa) const {
+        void setOnCanvas(SkCanvas* canvas, SkClipOp op, bool aa) const {
             switch (fClipType) {
                 case kPath_ClipType:
                     canvas->clipPath(fPath, op, aa);
