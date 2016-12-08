@@ -1113,8 +1113,11 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
         // ICC specs (10.8/10.9) say lut8/16Type profiles must have identity matrices
         // if the input color space is not PCSXYZ, and we do not support PCSXYZ input color spaces
         // so we should never encounter a non-identity matrix here.
-        SkColorSpacePrintf("non-Identity matrix found in non-XYZ input color space lut profile");
-        return false;
+        // However, 2 test images from the ICC website have RGB input spaces and non-identity
+        // matrices so we're not going to fail here, despite being against the spec.
+        SkColorSpacePrintf("Warning: non-Identity matrix found in non-XYZ input color space"
+                           "lut profile");
+        elements->push_back(SkColorSpace_A2B::Element(matrix));
     }
 
     size_t dataOffset      = 48;
