@@ -42,8 +42,6 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
-//#define SK_SUPPORT_LEGACY_CLIP_REGIONOPS
-
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -65,25 +63,6 @@ class SK_API SkCanvas : SkNoncopyable {
     };
 
 public:
-#ifdef SK_SUPPORT_LEGACY_CLIP_REGIONOPS
-    typedef SkRegion::Op ClipOp;
-
-    static const ClipOp kDifference_Op         = SkRegion::kDifference_Op;
-    static const ClipOp kIntersect_Op          = SkRegion::kIntersect_Op;
-    static const ClipOp kUnion_Op              = SkRegion::kUnion_Op;
-    static const ClipOp kXOR_Op                = SkRegion::kXOR_Op;
-    static const ClipOp kReverseDifference_Op  = SkRegion::kReverseDifference_Op;
-    static const ClipOp kReplace_Op            = SkRegion::kReplace_Op;
-#else
-    typedef SkClipOp ClipOp;
-
-    static const ClipOp kDifference_Op         = kDifference_SkClipOp;
-    static const ClipOp kIntersect_Op          = kIntersect_SkClipOp;
-    static const ClipOp kUnion_Op              = kUnion_SkClipOp;
-    static const ClipOp kXOR_Op                = kXOR_SkClipOp;
-    static const ClipOp kReverseDifference_Op  = kReverseDifference_SkClipOp;
-    static const ClipOp kReplace_Op            = kReplace_SkClipOp;
-#endif
     /**
      *  Attempt to allocate raster canvas, matching the ImageInfo, that will draw directly into the
      *  specified pixels. To access the pixels after drawing to them, the caller should call
@@ -493,12 +472,12 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipRect(const SkRect& rect, ClipOp, bool doAntiAlias);
-    void clipRect(const SkRect& rect, ClipOp op) {
+    void clipRect(const SkRect& rect, SkClipOp, bool doAntiAlias);
+    void clipRect(const SkRect& rect, SkClipOp op) {
         this->clipRect(rect, op, false);
     }
     void clipRect(const SkRect& rect, bool doAntiAlias = false) {
-        this->clipRect(rect, kIntersect_Op, doAntiAlias);
+        this->clipRect(rect, kIntersect_SkClipOp, doAntiAlias);
     }
 
     /**
@@ -507,12 +486,12 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipRRect(const SkRRect& rrect, ClipOp op, bool doAntiAlias);
-    void clipRRect(const SkRRect& rrect, ClipOp op) {
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias);
+    void clipRRect(const SkRRect& rrect, SkClipOp op) {
         this->clipRRect(rrect, op, false);
     }
     void clipRRect(const SkRRect& rrect, bool doAntiAlias = false) {
-        this->clipRRect(rrect, kIntersect_Op, doAntiAlias);
+        this->clipRRect(rrect, kIntersect_SkClipOp, doAntiAlias);
     }
 
     /**
@@ -521,12 +500,12 @@ public:
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
      */
-    void clipPath(const SkPath& path, ClipOp op, bool doAntiAlias);
-    void clipPath(const SkPath& path, ClipOp op) {
+    void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias);
+    void clipPath(const SkPath& path, SkClipOp op) {
         this->clipPath(path, op, false);
     }
     void clipPath(const SkPath& path, bool doAntiAlias = false) {
-        this->clipPath(path, kIntersect_Op, doAntiAlias);
+        this->clipPath(path, kIntersect_SkClipOp, doAntiAlias);
     }
 
     /** EXPERIMENTAL -- only used for testing
@@ -543,7 +522,7 @@ public:
         @param deviceRgn    The region to apply to the current clip
         @param op The region op to apply to the current clip
     */
-    void clipRegion(const SkRegion& deviceRgn, ClipOp op = kIntersect_Op);
+    void clipRegion(const SkRegion& deviceRgn, SkClipOp op = kIntersect_SkClipOp);
 
     /** Return true if the specified rectangle, after being transformed by the
         current matrix, would lie completely outside of the current clip. Call
@@ -1479,10 +1458,10 @@ protected:
         kSoft_ClipEdgeStyle
     };
 
-    virtual void onClipRect(const SkRect& rect, ClipOp, ClipEdgeStyle);
-    virtual void onClipRRect(const SkRRect& rrect, ClipOp, ClipEdgeStyle);
-    virtual void onClipPath(const SkPath& path, ClipOp, ClipEdgeStyle);
-    virtual void onClipRegion(const SkRegion& deviceRgn, ClipOp);
+    virtual void onClipRect(const SkRect& rect, SkClipOp, ClipEdgeStyle);
+    virtual void onClipRRect(const SkRRect& rrect, SkClipOp, ClipEdgeStyle);
+    virtual void onClipPath(const SkPath& path, SkClipOp, ClipEdgeStyle);
+    virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp);
 
     virtual void onDiscard();
 
@@ -1741,9 +1720,9 @@ private:
 class SkCanvasClipVisitor {
 public:
     virtual ~SkCanvasClipVisitor();
-    virtual void clipRect(const SkRect&, SkCanvas::ClipOp, bool antialias) = 0;
-    virtual void clipRRect(const SkRRect&, SkCanvas::ClipOp, bool antialias) = 0;
-    virtual void clipPath(const SkPath&, SkCanvas::ClipOp, bool antialias) = 0;
+    virtual void clipRect(const SkRect&, SkClipOp, bool antialias) = 0;
+    virtual void clipRRect(const SkRRect&, SkClipOp, bool antialias) = 0;
+    virtual void clipPath(const SkPath&, SkClipOp, bool antialias) = 0;
 };
 
 #endif
