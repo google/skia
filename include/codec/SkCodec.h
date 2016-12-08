@@ -602,6 +602,14 @@ public:
          *  Number of milliseconds to show this frame.
          */
         size_t fDuration;
+
+        /**
+         *  Whether the end marker for this frame is contained in the stream.
+         *
+         *  Note: this does not guarantee that an attempt to decode will be complete.
+         *  There could be an error in the stream.
+         */
+        bool fFullyReceived;
     };
 
     /**
