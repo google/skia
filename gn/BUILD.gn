@@ -163,12 +163,7 @@ config("default") {
       # for /usr/lib64 as $PATH_TO_USR_LIB/../lib64.  If there's no /usr/lib,
       # it can't find /usr/lib64.  We must point Clang at /usr/lib64 manually.
       lib_dirs += [ "$ndk/platforms/$ndk_platform/usr/lib64" ]
-      ldflags += [
-        # Clang will try to link these two files, but not find them.  Again, do it manually.
-        "-nostartfiles",
-        "$ndk/platforms/$ndk_platform/usr/lib64/crtbegin_dynamic.o",
-        "$ndk/platforms/$ndk_platform/usr/lib64/crtend_android.o",
-      ]
+      ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
     }
 
     libs = [
