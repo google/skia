@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "cd4b13fc_99a17c7b",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-08T16:35:08Z",
+      "side": 1,
+      "message": "Unrelated to this change, but indentation in this area appears to have gone wacky, making control flow non-obvious.",
+      "range": {
+        "startLine": 1335,
+        "startChar": 0,
+        "endLine": 1340,
+        "endChar": 0
+      },
+      "revId": "a51d599c75126cf5f41688451b57ac04eee33239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_d63d9380",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 1
