@@ -781,6 +781,10 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 }
             }
 
+            addFrameIfNecessary();
+            SkGIFFrameContext* currentFrame = m_frames.back().get();
+            currentFrame->setHeaderDefined();
+
             if (query == SkGIFSizeQuery) {
                 // The decoder needs to stop, so we return here, before
                 // flushing the buffer. Next time through, we'll be in the same
@@ -789,10 +793,6 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 return true;
             }
 
-            addFrameIfNecessary();
-            SkGIFFrameContext* currentFrame = m_frames.back().get();
-
-            currentFrame->setHeaderDefined();
 
             currentFrame->setRect(xOffset, yOffset, width, height);
             currentFrame->setInterlaced(SkToBool(currentComponent[8] & 0x40));
