@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_9612ab7a",
+        "filename": "experimental/svg/model/SkSVGRect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-08T14:19:33Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "cd4b13fc_36987704",
+      "revId": "f70773caf58223f46a99559531fd67d3cda9af1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_f68a0fa9",
         "filename": "experimental/svg/model/SkSVGTransformableNode.cpp",
         "patchSetId": 1
