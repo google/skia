@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_d63d9380",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1524,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T16:15:08Z",
+      "side": 1,
+      "message": "I\u0027ll do a follow up change to make this function take a sk_sp and remove this sk_ref_sp.",
+      "range": {
+        "startLine": 1524,
+        "startChar": 62,
+        "endLine": 1524,
+        "endChar": 75
+      },
+      "revId": "a51d599c75126cf5f41688451b57ac04eee33239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_56f663ba",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T16:15:08Z",
+      "side": 1,
+      "message": "Will follow with change to make recordOp take sk_sp.",
+      "revId": "a51d599c75126cf5f41688451b57ac04eee33239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_b634879a",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T16:15:08Z",
+      "side": 1,
+      "message": "Similar followup here.",
+      "range": {
+        "startLine": 266,
+        "startChar": 49,
+        "endLine": 266,
+        "endChar": 65
+      },
+      "revId": "a51d599c75126cf5f41688451b57ac04eee33239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
