@@ -192,10 +192,10 @@ bool BGRAConvolve2D(const unsigned char* sourceData,
     // intermediate image and helps cache coherency.
     // We will need four extra rows to allow horizontal convolution could be done
     // simultaneously. We also pad each row in row buffer to be aligned-up to
-    // 16 bytes.
+    // 32 bytes.
     // TODO(jiesun): We do not use aligned load from row buffer in vertical
     // convolution pass yet. Somehow Windows does not like it.
-    int rowBufferWidth = (filterX.numValues() + 15) & ~0xF;
+    int rowBufferWidth = (filterX.numValues() + 31) & ~0x1F;
     int rowBufferHeight = maxYFilterSize +
                           (SkOpts::convolve_4_rows_horizontally != nullptr ? 4 : 0);
 
