@@ -121,8 +121,9 @@ namespace SK_OPTS_NS {
             }
         }
     }
+#endif
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
     static SK_ALWAYS_INLINE void AccumRemainder(const unsigned char* pixelsLeft,
             const SkConvolutionFilter1D::ConvolutionFixed* filterValues, __m128i& accum, int r) {
@@ -335,6 +336,8 @@ namespace SK_OPTS_NS {
         }
     }
 
+// If we've got AVX2, we've already defined a faster ConvolveVertically above.
+#if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
     // Does vertical convolution to produce one output row. The filter values and
     // length are given in the first two parameters. These are applied to each
     // of the rows pointed to in the |sourceDataRows| array, with each row
@@ -505,6 +508,7 @@ namespace SK_OPTS_NS {
             }
         }
     }
+#endif//SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
 
 #elif defined(SK_ARM_HAS_NEON)
 
