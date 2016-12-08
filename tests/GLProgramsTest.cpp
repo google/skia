@@ -327,8 +327,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        sk_sp<GrDrawOp> batch(GrRandomDrawBatch(&random, context));
-        SkASSERT(batch);
+        sk_sp<GrDrawOp> op(GrRandomDrawBatch(&random, context));
+        SkASSERT(op);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
                                 renderTargetContext.get(), dummyTextures);
@@ -340,7 +340,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                                                 GrAAType::kHW};
         GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
 
-        renderTargetContext->priv().testingOnly_drawBatch(grPaint, aaType, batch.get(), uss,
+        renderTargetContext->priv().testingOnly_addDrawOp(grPaint, aaType, std::move(op), uss,
                                                           snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
@@ -362,8 +362,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            sk_sp<GrDrawOp> batch(GrRandomDrawBatch(&random, context));
-            SkASSERT(batch);
+            sk_sp<GrDrawOp> op(GrRandomDrawBatch(&random, context));
+            SkASSERT(op);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
@@ -375,8 +375,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                              batch.get());
+            renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+                                                              std::move(op));
             drawingManager->flush();
         }
     }

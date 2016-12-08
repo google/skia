@@ -95,10 +95,10 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    void testingOnly_drawBatch(const GrPaint&,
+    void testingOnly_addDrawOp(const GrPaint &,
                                GrAAType,
-                               GrDrawOp* batch,
-                               const GrUserStencilSettings* = nullptr,
+                               sk_sp<GrDrawOp>,
+                               const GrUserStencilSettings * = nullptr,
                                bool snapToCenters = false);
 
 private:
