@@ -22,6 +22,24 @@
       "revId": "27cad1116e321f57644e635dc1a74ac41e6b4df0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_56576a1d",
+        "filename": "src/gpu/.clang-format",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-08T02:20:01Z",
+      "side": 1,
+      "message": "My personal two cents... if there are few enough to fit on one line, that\u0027s ideal.  If not, it\u0027s nice to see each thing on its own line, if only to get a clear count of how many there are.  It\u0027s easy to lose track of packed arguments in a long list.  Quick, how many arguments to SkCanvas::drawVertices()?  Bet you get it wrong the first time...\n\nAgain, just my personal two cents.  After a while of whining I\u0027m sure we\u0027ll get used to anything consistent.",
+      "parentUuid": "0d744b42_f6e536c2",
+      "revId": "27cad1116e321f57644e635dc1a74ac41e6b4df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
