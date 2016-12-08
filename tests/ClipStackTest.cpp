@@ -33,21 +33,21 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     p.lineTo(7, 8);
     p.lineTo(5, 9);
     p.close();
-    s.clipPath(p, SkMatrix::I(), SkCanvas::kIntersect_Op, doAA);
+    s.clipPath(p, SkMatrix::I(), kIntersect_SkClipOp, doAA);
 
     s.save();
     REPORTER_ASSERT(reporter, 2 == s.getSaveCount());
 
     SkRect r = SkRect::MakeLTRB(1, 2, 3, 4);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kIntersect_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kIntersect_SkClipOp, doAA);
     r = SkRect::MakeLTRB(10, 11, 12, 13);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kIntersect_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kIntersect_SkClipOp, doAA);
 
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
 
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kUnion_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
 
     // Test that assignment works.
     SkClipStack copy = s;
@@ -62,7 +62,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kUnion_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s == copy);
 
     // Test that a different op on one level triggers not equal.
@@ -71,7 +71,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kIntersect_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kIntersect_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     // Test that version constructed with rect-path rather than a rect is still considered equal.
@@ -79,7 +79,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     SkPath rp;
     rp.addRect(r);
-    s.clipPath(rp, SkMatrix::I(), SkCanvas::kUnion_Op, doAA);
+    s.clipPath(rp, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s == copy);
 
     // Test that different rects triggers not equal.
@@ -89,7 +89,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
 
     r = SkRect::MakeLTRB(24, 25, 26, 27);
-    s.clipRect(r, SkMatrix::I(), SkCanvas::kUnion_Op, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     // Sanity check
@@ -112,7 +112,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == s.getSaveCount());
 
     p.addRect(r);
-    s.clipPath(p, SkMatrix::I(), SkCanvas::kIntersect_Op, doAA);
+    s.clipPath(p, SkMatrix::I(), kIntersect_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 }
 
@@ -140,7 +140,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
         // the union op will prevent these from being fused together
-        stack.clipRect(gRects[i], SkMatrix::I(), SkCanvas::kUnion_Op, false);
+        stack.clipRect(gRects[i], SkMatrix::I(), kUnion_SkClipOp, false);
     }
 
     assert_count(reporter, stack, 4);
@@ -181,7 +181,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
 
-        element = iter.skipToTopmost(SkCanvas::kUnion_Op);
+        element = iter.skipToTopmost(kUnion_SkClipOp);
         REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
         REPORTER_ASSERT(reporter, element->getRect() == gRects[3]);
     }
@@ -220,12 +220,12 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
         { 10, 10, 50, 50 },
     };
 
-    static const SkCanvas::ClipOp gOps[] = {
-        SkCanvas::kIntersect_Op,
-        SkCanvas::kDifference_Op,
-        SkCanvas::kUnion_Op,
-        SkCanvas::kXOR_Op,
-        SkCanvas::kReverseDifference_Op
+    static const SkClipOp gOps[] = {
+        kIntersect_SkClipOp,
+        kDifference_SkClipOp,
+        kUnion_SkClipOp,
+        kXOR_SkClipOp,
+        kReverseDifference_SkClipOp
     };
 
     SkRect rectA, rectB;
@@ -265,15 +265,15 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
                     SkDEBUGFAIL("Don't call this with kEmpty.");
                     break;
                 case SkClipStack::Element::kRect_Type:
-                    stack.clipRect(rectA, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+                    stack.clipRect(rectA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipRect(rectB, SkMatrix::I(), gOps[op], false);
                     break;
                 case SkClipStack::Element::kRRect_Type:
-                    stack.clipRRect(rrectA, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+                    stack.clipRRect(rrectA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipRRect(rrectB, SkMatrix::I(), gOps[op], false);
                     break;
                 case SkClipStack::Element::kPath_Type:
-                    stack.clipPath(pathA, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+                    stack.clipPath(pathA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipPath(pathB, SkMatrix::I(), gOps[op], false);
                     break;
             }
@@ -286,7 +286,7 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
 
             if (SkClipStack::Element::kRect_Type == primType) {
                 REPORTER_ASSERT(reporter, isIntersectionOfRects ==
-                        (gOps[op] == SkCanvas::kIntersect_Op));
+                        (gOps[op] == kIntersect_SkClipOp));
             } else {
                 REPORTER_ASSERT(reporter, !isIntersectionOfRects);
             }
@@ -334,8 +334,8 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
         clipB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
         clipB.setFillType(SkPath::kInverseEvenOdd_FillType);
 
-        stack.clipPath(clipA, SkMatrix::I(), SkCanvas::kReplace_Op, false);
-        stack.clipPath(clipB, SkMatrix::I(), SkCanvas::kUnion_Op, false);
+        stack.clipPath(clipA, SkMatrix::I(), kReplace_SkClipOp, false);
+        stack.clipPath(clipB, SkMatrix::I(), kUnion_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, stack.isWideOpen());
         REPORTER_ASSERT(reporter, SkClipStack::kWideOpenGenID == stack.getTopmostGenID());
@@ -345,7 +345,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(rectA, SkMatrix::I(), SkCanvas::kUnion_Op, false);
+        stack.clipRect(rectA, SkMatrix::I(), kUnion_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, stack.isWideOpen());
         REPORTER_ASSERT(reporter, SkClipStack::kWideOpenGenID == stack.getTopmostGenID());
@@ -358,7 +358,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
         SkRect emptyRect;
         emptyRect.setEmpty();
 
-        stack.clipRect(emptyRect, SkMatrix::I(), SkCanvas::kDifference_Op, false);
+        stack.clipRect(emptyRect, SkMatrix::I(), kDifference_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, stack.isWideOpen());
         REPORTER_ASSERT(reporter, SkClipStack::kWideOpenGenID == stack.getTopmostGenID());
@@ -370,7 +370,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
 
         stack.save();
 
-        stack.clipRect(rectA, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rectA, SkMatrix::I(), kReplace_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, !stack.isWideOpen());
         REPORTER_ASSERT(reporter, SkClipStack::kWideOpenGenID != stack.getTopmostGenID());
@@ -404,7 +404,7 @@ static void test_rect_inverse_fill(skiatest::Reporter* reporter) {
     path.addRect(rect);
     path.toggleInverseFillType();
     SkClipStack stack;
-    stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+    stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
 
     SkRect bounds;
     SkClipStack::BoundsType boundsType;
@@ -426,9 +426,9 @@ static void test_rect_replace(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
         REPORTER_ASSERT(reporter, 0 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
     }
 
@@ -437,9 +437,9 @@ static void test_rect_replace(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
         REPORTER_ASSERT(reporter, 0 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, true);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, true);
         REPORTER_ASSERT(reporter, 1 == count(stack));
     }
 
@@ -448,23 +448,23 @@ static void test_rect_replace(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
         REPORTER_ASSERT(reporter, 0 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, true);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
     }
 
     // Make sure replace clip rects don't collapse too much.
     {
         SkClipStack stack;
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
-        stack.clipRect(rect2, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
+        stack.clipRect(rect2, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
         stack.save();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 2 == count(stack));
         stack.getBounds(&bound, &type, &isIntersectionOfRects);
         REPORTER_ASSERT(reporter, bound == rect);
@@ -472,16 +472,16 @@ static void test_rect_replace(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
         stack.save();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 2 == count(stack));
         stack.restore();
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
         stack.save();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
-        stack.clipRect(rect2, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
+        stack.clipRect(rect2, SkMatrix::I(), kIntersect_SkClipOp, false);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 2 == count(stack));
         stack.restore();
         REPORTER_ASSERT(reporter, 1 == count(stack));
@@ -498,18 +498,18 @@ static void test_path_replace(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
         REPORTER_ASSERT(reporter, 0 == count(stack));
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, 1 == count(stack));
     }
 
     // Replacing rect with path.
     {
         SkClipStack stack;
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kReplace_SkClipOp, true);
         REPORTER_ASSERT(reporter, 1 == count(stack));
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipPath(path, SkMatrix::I(), kReplace_SkClipOp, true);
         REPORTER_ASSERT(reporter, 1 == count(stack));
     }
 }
@@ -532,9 +532,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(overlapLeft, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(overlapLeft, SkMatrix::I(), kReplace_SkClipOp, false);
 
-        stack.clipRect(overlapRight, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(overlapRight, SkMatrix::I(), kIntersect_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
@@ -547,9 +547,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(overlapLeft, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(overlapLeft, SkMatrix::I(), kReplace_SkClipOp, true);
 
-        stack.clipRect(overlapRight, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
+        stack.clipRect(overlapRight, SkMatrix::I(), kIntersect_SkClipOp, true);
 
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
@@ -562,9 +562,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(overlapLeft, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(overlapLeft, SkMatrix::I(), kReplace_SkClipOp, true);
 
-        stack.clipRect(overlapRight, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(overlapRight, SkMatrix::I(), kIntersect_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, 2 == count(stack));
 
@@ -577,9 +577,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(nestedParent, SkMatrix::I(), SkCanvas::kReplace_Op, true);
+        stack.clipRect(nestedParent, SkMatrix::I(), kReplace_SkClipOp, true);
 
-        stack.clipRect(nestedChild, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(nestedChild, SkMatrix::I(), kIntersect_SkClipOp, false);
 
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
@@ -592,9 +592,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(nestedParent, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(nestedParent, SkMatrix::I(), kReplace_SkClipOp, false);
 
-        stack.clipRect(nestedChild, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
+        stack.clipRect(nestedChild, SkMatrix::I(), kIntersect_SkClipOp, true);
 
         REPORTER_ASSERT(reporter, 1 == count(stack));
 
@@ -607,9 +607,9 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
 
-        stack.clipRect(nestedChild, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(nestedChild, SkMatrix::I(), kReplace_SkClipOp, false);
 
-        stack.clipRect(nestedParent, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
+        stack.clipRect(nestedParent, SkMatrix::I(), kIntersect_SkClipOp, true);
 
         REPORTER_ASSERT(reporter, 2 == count(stack));
 
@@ -637,32 +637,32 @@ static void test_quickContains(skiatest::Reporter* reporter) {
 
     {
         SkClipStack stack;
-        stack.clipRect(outsideRect, SkMatrix::I(), SkCanvas::kDifference_Op, false);
-        // return false because quickContains currently does not care for kDifference_Op
+        stack.clipRect(outsideRect, SkMatrix::I(), kDifference_SkClipOp, false);
+        // return false because quickContains currently does not care for kDifference_SkClipOp
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     // Replace Op tests
     {
         SkClipStack stack;
-        stack.clipRect(outsideRect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(outsideRect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipRect(insideRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(insideRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         stack.save(); // To prevent in-place substitution by replace OP
-        stack.clipRect(outsideRect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(outsideRect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
         stack.restore();
     }
 
     {
         SkClipStack stack;
-        stack.clipRect(outsideRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(outsideRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         stack.save(); // To prevent in-place substitution by replace OP
-        stack.clipRect(insideRect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
+        stack.clipRect(insideRect, SkMatrix::I(), kReplace_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
         stack.restore();
     }
@@ -670,59 +670,59 @@ static void test_quickContains(skiatest::Reporter* reporter) {
     // Verify proper traversal of multi-element clip
     {
         SkClipStack stack;
-        stack.clipRect(insideRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(insideRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         // Use a path for second clip to prevent in-place intersection
-        stack.clipPath(outsideCircle, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(outsideCircle, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     // Intersect Op tests with rectangles
     {
         SkClipStack stack;
-        stack.clipRect(outsideRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(outsideRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipRect(insideRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(insideRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipRect(intersectingRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(intersectingRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipRect(nonIntersectingRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipRect(nonIntersectingRect, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     // Intersect Op tests with circle paths
     {
         SkClipStack stack;
-        stack.clipPath(outsideCircle, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(outsideCircle, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipPath(insideCircle, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(insideCircle, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipPath(intersectingCircle, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(intersectingCircle, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
     {
         SkClipStack stack;
-        stack.clipPath(nonIntersectingCircle, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(nonIntersectingCircle, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -732,7 +732,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkPath path;
         path.addRect(outsideRect);
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -741,7 +741,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkPath path;
         path.addRect(insideRect);
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -750,7 +750,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkPath path;
         path.addRect(intersectingRect);
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -759,7 +759,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkPath path;
         path.addRect(nonIntersectingRect);
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
     }
 
@@ -768,7 +768,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkClipStack stack;
         SkPath path = outsideCircle;
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -776,7 +776,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkClipStack stack;
         SkPath path = insideCircle;
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -784,7 +784,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkClipStack stack;
         SkPath path = intersectingCircle;
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
 
@@ -792,7 +792,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         SkClipStack stack;
         SkPath path = nonIntersectingCircle;
         path.toggleInverseFillType();
-        stack.clipPath(path, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+        stack.clipPath(path, SkMatrix::I(), kIntersect_SkClipOp, false);
         REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
     }
 }
@@ -820,12 +820,12 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
 
 static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
     SkClipStack stack;
-    stack.clipRect({10, 10, 20, 20}, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
+    stack.clipRect({10, 10, 20, 20}, SkMatrix::I(), kIntersect_SkClipOp, false);
 
     SkPath path;
     path.addRect({30, 10, 40, 20});
     path.setFillType(SkPath::kInverseWinding_FillType);
-    stack.clipPath(path, SkMatrix::I(), SkCanvas::kDifference_Op, false);
+    stack.clipPath(path, SkMatrix::I(), kDifference_SkClipOp, false);
 
     REPORTER_ASSERT(reporter, SkClipStack::kEmptyGenID == stack.getTopmostGenID());
 
@@ -851,11 +851,11 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 // reduced stack.
 typedef void (*AddElementFunc) (const SkRect& rect,
                                 bool invert,
-                                SkCanvas::ClipOp op,
+                                SkClipOp op,
                                 SkClipStack* stack,
                                 bool doAA);
 
-static void add_round_rect(const SkRect& rect, bool invert, SkCanvas::ClipOp op, SkClipStack* stack,
+static void add_round_rect(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
                            bool doAA) {
     SkScalar rx = rect.width() / 10;
     SkScalar ry = rect.height() / 20;
@@ -871,7 +871,7 @@ static void add_round_rect(const SkRect& rect, bool invert, SkCanvas::ClipOp op,
     }
 };
 
-static void add_rect(const SkRect& rect, bool invert, SkCanvas::ClipOp op, SkClipStack* stack,
+static void add_rect(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
                      bool doAA) {
     if (invert) {
         SkPath path;
@@ -883,7 +883,7 @@ static void add_rect(const SkRect& rect, bool invert, SkCanvas::ClipOp op, SkCli
     }
 };
 
-static void add_oval(const SkRect& rect, bool invert, SkCanvas::ClipOp op, SkClipStack* stack,
+static void add_oval(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* stack,
                      bool doAA) {
     SkPath path;
     path.addOval(rect);
@@ -929,13 +929,13 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     static const SkScalar kMinElemSizeFrac = SK_Scalar1 / 5;
     static const SkScalar kMaxElemSizeFrac = SK_Scalar1;
 
-    static const SkCanvas::ClipOp kOps[] = {
-        SkCanvas::kDifference_Op,
-        SkCanvas::kIntersect_Op,
-        SkCanvas::kUnion_Op,
-        SkCanvas::kXOR_Op,
-        SkCanvas::kReverseDifference_Op,
-        SkCanvas::kReplace_Op,
+    static const SkClipOp kOps[] = {
+        kDifference_SkClipOp,
+        kIntersect_SkClipOp,
+        kUnion_SkClipOp,
+        kXOR_SkClipOp,
+        kReverseDifference_SkClipOp,
+        kReplace_SkClipOp,
     };
 
     // Replace operations short-circuit the optimizer. We want to make sure that we test this code
@@ -965,8 +965,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         int numElems = r.nextRangeU(kMinElemsPerTest, kMaxElemsPerTest);
         bool doAA = r.nextBiasedBool(kFractionAntialiased);
         for (int e = 0; e < numElems; ++e) {
-            SkCanvas::ClipOp op = kOps[r.nextULessThan(SK_ARRAY_COUNT(kOps))];
-            if (op == SkCanvas::kReplace_Op) {
+            SkClipOp op = kOps[r.nextULessThan(SK_ARRAY_COUNT(kOps))];
+            if (op == kReplace_SkClipOp) {
                 if (r.nextU() % kReplaceDiv) {
                     --e;
                     continue;
@@ -1051,8 +1051,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         SkIRect ibounds = reduced->hasIBounds() ? reduced->ibounds() : kIBounds;
 
         // GrReducedClipStack assumes that the final result is clipped to the returned bounds
-        reducedStack.clipDevRect(ibounds, SkCanvas::kIntersect_Op);
-        stack.clipDevRect(ibounds, SkCanvas::kIntersect_Op);
+        reducedStack.clipDevRect(ibounds, kIntersect_SkClipOp);
+        stack.clipDevRect(ibounds, kIntersect_SkClipOp);
 
         // convert both the original stack and reduced stack to SkRegions and see if they're equal
         SkRegion region;
@@ -1076,10 +1076,10 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
 static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
-        stack.clipRect(SkRect::MakeXYWH(0, 0, 100, 100), SkMatrix::I(), SkCanvas::kReplace_Op,
+        stack.clipRect(SkRect::MakeXYWH(0, 0, 100, 100), SkMatrix::I(), kReplace_SkClipOp,
                        true);
         stack.clipRect(SkRect::MakeXYWH(0, 0, SkScalar(50.3), SkScalar(50.3)), SkMatrix::I(),
-                       SkCanvas::kReplace_Op, true);
+                       kReplace_SkClipOp, true);
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
@@ -1101,16 +1101,16 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         //  C  D
 
         stack.clipRect(SkRect::MakeXYWH(0, 0, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
-                       SkCanvas::kReplace_Op, true);
+                       kReplace_SkClipOp, true);
         int32_t genIDA = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(50, 0, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
-                       SkCanvas::kUnion_Op, true);
+                       kUnion_SkClipOp, true);
         int32_t genIDB = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(0, 50, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
-                       SkCanvas::kUnion_Op, true);
+                       kUnion_SkClipOp, true);
         int32_t genIDC = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(50, 50, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
-                       SkCanvas::kUnion_Op, true);
+                       kUnion_SkClipOp, true);
         int32_t genIDD = stack.getTopmostGenID();
 
 
@@ -1189,8 +1189,8 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 
 static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
     SkClipStack stack;
-    stack.clipDevRect(SkIRect::MakeXYWH(0, 0, 100, 100), SkCanvas::kReplace_Op);
-    stack.clipDevRect(SkIRect::MakeXYWH(0, 0, 50, 50), SkCanvas::kReplace_Op);
+    stack.clipDevRect(SkIRect::MakeXYWH(0, 0, 100, 100), kReplace_SkClipOp);
+    stack.clipDevRect(SkIRect::MakeXYWH(0, 0, 50, 50), kReplace_SkClipOp);
     SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
     // At the time, this would crash.
@@ -1290,7 +1290,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         // Pixel-aligned rect (iior=true).
         name.printf("Pixel-aligned rect test, iter %i", i);
         SkClipStack stack;
-        stack.clipRect(alignedRect, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
+        stack.clipRect(alignedRect, SkMatrix::I(), kIntersect_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {IL, IT, IR, IB}, ClipMethod::kIgnoreClip);
         test_aa_query(reporter, name, stack, m, {IL, IT-1, IR, IT}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {IL, IT-2, IR, IB}, ClipMethod::kScissor);
@@ -1298,7 +1298,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         // Rect (iior=true).
         name.printf("Rect test, iter %i", i);
         stack.reset();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kIntersect_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {L, T,  R, B}, ClipMethod::kIgnoreClip);
         test_aa_query(reporter, name, stack, m, {L-.1f, T, L, B}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {L-.1f, T, L+.1f, B}, ClipMethod::kAAElements, 1);
@@ -1306,7 +1306,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         // Difference rect (iior=false, inside-out bounds).
         name.printf("Difference rect test, iter %i", i);
         stack.reset();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kDifference_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kDifference_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {L, T, R, B}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {L, T-.1f, R, T}, ClipMethod::kIgnoreClip);
         test_aa_query(reporter, name, stack, m, {L, T-.1f, R, T+.1f}, ClipMethod::kAAElements, 1);
@@ -1314,8 +1314,8 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         // Complex clip (iior=false, normal bounds).
         name.printf("Complex clip test, iter %i", i);
         stack.reset();
-        stack.clipRect(rect, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
-        stack.clipRect(innerRect, SkMatrix::I(), SkCanvas::kXOR_Op, true);
+        stack.clipRect(rect, SkMatrix::I(), kIntersect_SkClipOp, true);
+        stack.clipRect(innerRect, SkMatrix::I(), kXOR_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {l, t, r, b}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {r-.1f, t, R, b}, ClipMethod::kAAElements, 1);
         test_aa_query(reporter, name, stack, m, {r-.1f, t, R+.1f, b}, ClipMethod::kAAElements, 2);
@@ -1326,8 +1326,8 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         // Complex clip where outer rect is pixel aligned (iior=false, normal bounds).
         name.printf("Aligned Complex clip test, iter %i", i);
         stack.reset();
-        stack.clipRect(alignedRect, SkMatrix::I(), SkCanvas::kIntersect_Op, true);
-        stack.clipRect(innerRect, SkMatrix::I(), SkCanvas::kXOR_Op, true);
+        stack.clipRect(alignedRect, SkMatrix::I(), kIntersect_SkClipOp, true);
+        stack.clipRect(innerRect, SkMatrix::I(), kXOR_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {l, t, r, b}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {l, b-.1f, r, IB}, ClipMethod::kAAElements, 1);
         test_aa_query(reporter, name, stack, m, {l, b-.1f, r, IB+.1f}, ClipMethod::kAAElements, 1);
@@ -1368,7 +1368,7 @@ DEF_TEST(ClipStack, reporter) {
         { 0, 0, 75, 75 }
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
-        stack.clipDevRect(gRects[i], SkCanvas::kIntersect_Op);
+        stack.clipDevRect(gRects[i], kIntersect_SkClipOp);
     }
 
     // all of the above rects should have been intersected, leaving only 1 rect
@@ -1379,7 +1379,7 @@ DEF_TEST(ClipStack, reporter) {
 
     REPORTER_ASSERT(reporter, element);
     REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
-    REPORTER_ASSERT(reporter, SkCanvas::kIntersect_Op == element->getOp());
+    REPORTER_ASSERT(reporter, kIntersect_SkClipOp == element->getOp());
     REPORTER_ASSERT(reporter, element->getRect() == answer);
     // now check that we only had one in our iterator
     REPORTER_ASSERT(reporter, !iter.next());

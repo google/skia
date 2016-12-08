@@ -37,7 +37,7 @@ public:
     /**
      *  Process an explicit clipPath op.
      */
-    void analyzeClipPath(const SkPath&, SkCanvas::ClipOp, bool doAntiAlias);
+    void analyzeClipPath(const SkPath&, SkClipOp, bool doAntiAlias);
 
     /**
      *  Reset all accumulated stats.

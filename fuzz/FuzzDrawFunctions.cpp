@@ -198,7 +198,7 @@ static void fuzz_drawRect(Fuzz* fuzz) {
     fuzz->next(&bl);
     fuzz->next(&a, &b, &c, &d);
     r = SkRect::MakeXYWH(a, b, c, d);
-    cnv->clipRect(r, SkCanvas::kIntersect_Op, bl);
+    cnv->clipRect(r, kIntersect_SkClipOp, bl);
 }
 
 static void fuzz_drawPath(Fuzz* fuzz) {
@@ -249,7 +249,7 @@ static void fuzz_drawPath(Fuzz* fuzz) {
 
     bool bl;
     fuzz->next(&bl);
-    cnv->clipPath(path, SkCanvas::kIntersect_Op, bl);
+    cnv->clipPath(path, kIntersect_SkClipOp, bl);
 }
 
 static void fuzz_drawBitmap(Fuzz* fuzz) {
