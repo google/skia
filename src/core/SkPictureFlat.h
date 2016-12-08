@@ -130,7 +130,7 @@ enum SaveLayerRecFlatFlags {
 
 static inline uint32_t ClipParams_pack(SkClipOp op, bool doAA) {
     unsigned doAABit = doAA ? 1 : 0;
-    return (doAABit << 4) | op;
+    return (doAABit << 4) | static_cast<int>(op);
 }
 
 static inline SkClipOp ClipParams_unpackRegionOp(uint32_t packed) {

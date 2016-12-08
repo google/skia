@@ -812,7 +812,7 @@ void SkDebugCanvas::addClipStackData(const SkPath& devPath, const SkPath& operan
         addPathData(fCalledAddStackData ? devPath : fSaveDevPath, "path");
         addPathData(operand, "pathB");
         fClipStackData.appendf("%stestPathOp(reporter, path, pathB, %s, filename);<br>",
-            kHTML4SpaceIndent, gOpStrs[elementOp]);
+            kHTML4SpaceIndent, gOpStrs[static_cast<int>(elementOp)]);
         fClipStackData.appendf("}<br>");
         fCalledAddStackData = true;
     }
