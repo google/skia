@@ -72,6 +72,11 @@ public:
     SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
 
     /**
+     *  Returns the appropriate color space to decode to.
+     */
+    sk_sp<SkColorSpace> computeOutputColorSpace();
+
+    /**
      *  Returns the dimensions of the scaled output image, for an input
      *  sampleSize.
      *
