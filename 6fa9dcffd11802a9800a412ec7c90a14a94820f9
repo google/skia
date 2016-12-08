@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_16a1bbdc",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d744b42_c1b07294",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d744b42_81b34a9c",
         "filename": "src/gpu/GrPathRenderer.h",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-08T14:49:31Z",
       "side": 1,
       "message": "fAAType ?",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_f6b8cf10",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d744b42_81b34a9c",
       "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_16169b33",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d744b42_e1ca4e06",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d744b42_c17e32cd",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-08T14:49:31Z",
       "side": 1,
       "message": "Don\u0027t we usually have aaType at the call sites to drawNonAAFilledRect? We could just pass it in and add an assert here for no coverage.",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_361b975b",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Yeah, I did that and then undid it because it felt so weird to have a param called AAType to a function that has \"NonAA\" in the name. I put it back but with the name \"hwOrNoneAAType\"",
+      "parentUuid": "0d744b42_c17e32cd",
       "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_f6fd2fbf",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Yes, though this should allow MSAA. Modified w/ comment.",
+      "parentUuid": "cd4b13fc_76483f7d",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d744b42_41300246",
         "filename": "src/gpu/batches/GrDefaultPathRenderer.cpp",
         "patchSetId": 10
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "cd4b13fc_76acbfd4",
+        "filename": "src/gpu/batches/GrDefaultPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d744b42_41300246",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d744b42_a19206e6",
         "filename": "src/gpu/text/GrStencilAndCoverTextContext.cpp",
         "patchSetId": 10
@@ -115,6 +223,24 @@
       "writtenOn": "2016-12-08T14:49:31Z",
       "side": 1,
       "message": "Maybe rename \u0027aa\u0027 to \u0027isRunAA\u0027 ?",
+      "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_366157bc",
+        "filename": "src/gpu/text/GrStencilAndCoverTextContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-08T15:35:53Z",
+      "side": 1,
+      "message": "Done (runAA)",
+      "parentUuid": "0d744b42_a19206e6",
       "revId": "6fa9dcffd11802a9800a412ec7c90a14a94820f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
