@@ -22,6 +22,24 @@
       "revId": "5d940de01050dd3ab6154c38fa5c76baba49085a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_36a637f5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-08T15:05:19Z",
+      "side": 1,
+      "message": "Yes that\u0027s correct.  I\u0027m concerned that they may end up wanting \"decodes to sRGB with legacy premultiplication\" (similar to Chrome\u0027s current state), but I\u0027m hoping that\u0027s not the case.  If there are complaints about content not looking the same as before, I may need to consider implementing that compatibility mode.",
+      "parentUuid": "cd4b13fc_569183a3",
+      "revId": "5d940de01050dd3ab6154c38fa5c76baba49085a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
