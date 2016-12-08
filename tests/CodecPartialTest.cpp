@@ -247,6 +247,9 @@ DEF_TEST(Codec_partialAnim, r) {
         const size_t secondHalf = fullFrameBytes - firstHalf;
 
         haltingStream->addNewData(firstHalf);
+        auto frameInfo = partialCodec->getFrameInfo();
+        REPORTER_ASSERT(r, frameInfo.size() == i + 1);
+        REPORTER_ASSERT(r, !frameInfo[i].fFullyReceived);
 
         SkBitmap frame;
         frame.allocPixels(info);
@@ -267,6 +270,10 @@ DEF_TEST(Codec_partialAnim, r) {
         haltingStream->addNewData(secondHalf);
         result = partialCodec->incrementalDecode();
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+        frameInfo = partialCodec->getFrameInfo();
+        REPORTER_ASSERT(r, frameInfo.size() == i + 1);
+        REPORTER_ASSERT(r, frameInfo[i].fFullyReceived);
 
         // allocPixels locked the pixels for frame, but frames[i] was copied
         // from another bitmap, and did not retain the locked status.
