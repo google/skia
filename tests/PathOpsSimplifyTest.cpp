@@ -5623,11 +5623,168 @@ path.close();
     testSimplify(reporter, path, filename);
 }
 
+static void joel_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(144.859f, 285.172f);
+path.lineTo(144.859f, 285.172f);
+path.lineTo(144.859f, 285.172f);
+path.lineTo(143.132f, 284.617f);
+path.lineTo(144.859f, 285.172f);
+path.close();
+path.moveTo(135.922f, 286.844f);
+path.lineTo(135.922f, 286.844f);
+path.lineTo(135.922f, 286.844f);
+path.lineTo(135.367f, 288.571f);
+path.lineTo(135.922f, 286.844f);
+path.close();
+path.moveTo(135.922f, 286.844f);
+path.cubicTo(137.07f, 287.219f, 138.242f, 287.086f, 139.242f, 286.578f);
+path.cubicTo(140.234f, 286.078f, 141.031f, 285.203f, 141.406f, 284.055f);
+path.lineTo(144.859f, 285.172f);
+path.cubicTo(143.492f, 289.375f, 138.992f, 291.656f, 134.797f, 290.297f);
+path.lineTo(135.922f, 286.844f);
+path.close();
+path.moveTo(129.68f, 280.242f);
+path.lineTo(129.68f, 280.242f);
+path.lineTo(129.68f, 280.242f);
+path.lineTo(131.407f, 280.804f);
+path.lineTo(129.68f, 280.242f);
+path.close();
+path.moveTo(133.133f, 281.367f);
+path.cubicTo(132.758f, 282.508f, 132.883f, 283.687f, 133.391f, 284.679f);
+path.cubicTo(133.907f, 285.679f, 134.774f, 286.468f, 135.922f, 286.843f);
+path.lineTo(134.797f, 290.296f);
+path.cubicTo(130.602f, 288.929f, 128.313f, 284.437f, 129.68f, 280.241f);
+path.lineTo(133.133f, 281.367f);
+path.close();
+path.moveTo(139.742f, 275.117f);
+path.lineTo(139.742f, 275.117f);
+path.lineTo(139.18f, 276.844f);
+path.lineTo(139.742f, 275.117f);
+path.close();
+path.moveTo(138.609f, 278.57f);
+path.cubicTo(137.461f, 278.203f, 136.297f, 278.328f, 135.297f, 278.836f);
+path.cubicTo(134.297f, 279.344f, 133.508f, 280.219f, 133.133f, 281.367f);
+path.lineTo(129.68f, 280.242f);
+path.cubicTo(131.047f, 276.039f, 135.539f, 273.758f, 139.742f, 275.117f);
+path.lineTo(138.609f, 278.57f);
+path.close();
+path.moveTo(141.406f, 284.055f);
+path.cubicTo(141.773f, 282.907f, 141.648f, 281.735f, 141.148f, 280.735f);
+path.cubicTo(140.625f, 279.735f, 139.757f, 278.946f, 138.609f, 278.571f);
+path.lineTo(139.742f, 275.118f);
+path.cubicTo(143.937f, 276.493f, 146.219f, 280.977f, 144.859f, 285.173f);
+path.lineTo(141.406f, 284.055f);
+path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void joel_2(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+
+path.moveTo(403.283f, 497.197f);
+path.cubicTo(403.424f, 497.244f, 391.111f, 495.556f, 391.111f, 495.556f);
+path.lineTo(392.291f, 493.165f);
+path.cubicTo(392.291f, 493.165f, 388.994f, 492.056f, 386.65f, 491.821f);
+path.cubicTo(384.244f, 491.454f, 381.603f, 490.774f, 381.603f, 490.774f);
+path.lineTo(383.392f, 488.383f);
+path.cubicTo(383.392f, 488.383f, 379.119f, 487.453f, 378.939f, 485.695f);
+path.cubicTo(378.791f, 483.57f, 383.064f, 485.25f, 384.877f, 485.843f);
+path.lineTo(387.697f, 484.351f);
+path.cubicTo(382.752f, 483.835f, 376.595f, 482.124f, 374.478f, 480.312f);
+path.lineTo(356.22f, 496.304f);
+path.lineTo(368.095f, 510.499f);
+path.lineTo(373.884f, 510.202f);
+path.lineTo(374.478f, 509.007f);
+path.lineTo(370.916f, 506.913f);
+path.lineTo(371.807f, 506.022f);
+path.cubicTo(371.807f, 506.022f, 374.807f, 507.28f, 377.752f, 507.514f);
+path.cubicTo(380.752f, 507.881f, 387.4f, 508.108f, 387.4f, 508.108f);
+path.lineTo(388.884f, 506.764f);
+path.cubicTo(388.884f, 506.764f, 378.345f, 504.998f, 378.345f, 504.819f);
+path.lineTo(378.04f, 503.03f);
+path.cubicTo(378.04f, 503.03f, 391.415f, 505.796f, 391.399f, 505.866f);
+path.lineTo(386.063f, 502.132f);
+path.lineTo(387.547f, 500.335f);
+path.lineTo(398.375f, 501.976f);
+path.lineTo(403.283f, 497.197f);
+path.lineTo(403.283f, 497.197f);
+path.close();
+    testSimplify(reporter, path, filename);
+}
+
+static void joel_3(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(391.097f, 334.453f);
+path.lineTo(390.761f, 334.617f);
+path.lineTo(390.425f, 333.937f);
+path.lineTo(390.761f, 333.765f);
+path.lineTo(391.097f, 334.453f);
+path.close();
+path.moveTo(391.128f, 334.438f);
+path.lineTo(390.808f, 334.633f);
+path.lineTo(390.402f, 333.992f);
+path.lineTo(390.73f, 333.781f);
+path.lineTo(391.128f, 334.438f);
+path.lineTo(391.128f, 334.438f);
+path.close();
+path.moveTo(455.073f, 302.219f);
+path.lineTo(455.018f, 302.375f);
+path.lineTo(454.87f, 302.453f);
+path.lineTo(454.706f, 302.109f);
+path.lineTo(455.073f, 302.219f);
+path.close();
+path.moveTo(454.87f, 302.453f);
+path.lineTo(391.097f, 334.453f);
+path.lineTo(390.761f, 333.765f);
+path.lineTo(454.534f, 301.765f);
+path.lineTo(454.87f, 302.453f);
+path.close();
+path.moveTo(456.245f, 296.867f);
+path.lineTo(456.659f, 296.953f);
+path.lineTo(456.526f, 297.351f);
+path.lineTo(456.174f, 297.242f);
+path.lineTo(456.245f, 296.867f);
+path.lineTo(456.245f, 296.867f);
+path.close();
+path.moveTo(456.526f, 297.352f);
+path.lineTo(455.073f, 302.219f);
+path.lineTo(454.339f, 302);
+path.lineTo(455.808f, 297.133f);
+path.lineTo(456.526f, 297.352f);
+path.lineTo(456.526f, 297.352f);
+path.close();
+path.moveTo(450.979f, 295.891f);
+path.lineTo(451.112f, 295.813f);
+path.lineTo(451.26f, 295.836f);
+path.lineTo(451.19f, 296.211f);
+path.lineTo(450.979f, 295.891f);
+path.close();
+path.moveTo(451.261f, 295.836f);
+path.lineTo(456.245f, 296.867f);
+path.lineTo(456.089f, 297.617f);
+path.lineTo(451.105f, 296.586f);
+path.lineTo(451.261f, 295.836f);
+path.close();
+path.moveTo(390.729f, 333.781f);
+path.lineTo(450.979f, 295.89f);
+path.lineTo(451.385f, 296.531f);
+path.lineTo(391.127f, 334.437f);
+path.lineTo(390.729f, 333.781f);
+path.close();
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = testQuads69;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = joel_2;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(joel_3),
+    TEST(joel_2),
+    TEST(joel_1),
     TEST(simplifyTest_1),
     TEST(carsvg_1),
     TEST(tiger8_393),

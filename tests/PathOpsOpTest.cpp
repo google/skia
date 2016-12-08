@@ -3847,10 +3847,10 @@ static void cubicOp130(skiatest::Reporter* reporter, const char* filename) {
 #include "SkGeometry.h"
 
 static void complex_to_quads(const SkPoint pts[], SkPath* path) {
-    SkScalar loopT;
-    if (SkDCubic::ComplexBreak(pts, &loopT)) {
+    SkScalar loopT[3];
+    if (SkDCubic::ComplexBreak(pts, loopT)) {
         SkPoint cubicPair[7];
-        SkChopCubicAt(pts, cubicPair, loopT);
+        SkChopCubicAt(pts, cubicPair, loopT[0]);
         SkDCubic c1, c2;
         c1.set(cubicPair);
         c2.set(&cubicPair[3]);

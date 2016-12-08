@@ -1211,8 +1211,8 @@ bool SkOpSegment::moveMultiples() {
     SkOpSpanBase* test = &fHead;
     do {
         int addCount = test->spanAddsCount();
-        FAIL_IF(addCount < 1);
-        if (addCount == 1) {
+//        FAIL_IF(addCount < 1);
+        if (addCount <= 1) {
             continue;
         }
         SkOpPtT* startPtT = test->ptT();

@@ -47,7 +47,7 @@ struct SkDCubic {
     double calcPrecision() const;
     SkDCubicPair chopAt(double t) const;
     static void Coefficients(const double* cubic, double* A, double* B, double* C, double* D);
-    static bool ComplexBreak(const SkPoint pts[4], SkScalar* t);
+    static int ComplexBreak(const SkPoint pts[4], SkScalar* t);
     int convexHull(char order[kPointCount]) const;
 
     void debugInit() {
@@ -90,6 +90,7 @@ struct SkDCubic {
     int searchRoots(double extremes[6], int extrema, double axisIntercept,
                     SearchAxis xAxis, double* validRoots) const;
 
+    bool toFloatPoints(SkPoint* ) const;
     /**
      *  Return the number of valid roots (0 < root < 1) for this cubic intersecting the
      *  specified horizontal line.

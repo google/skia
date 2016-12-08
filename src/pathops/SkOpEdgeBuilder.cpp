@@ -263,26 +263,28 @@ bool SkOpEdgeBuilder::walk() {
                     // Split complex cubics (such as self-intersecting curves or
                     // ones with difficult curvature) in two before proceeding.
                     // This can be required for intersection to succeed.
-                    SkScalar splitT;
-                    if (SkDCubic::ComplexBreak(pointsPtr, &splitT)) {
-                        SkPoint pair[7];
-                        SkChopCubicAt(pointsPtr, pair, splitT);
-                        if (!SkScalarsAreFinite(&pair[0].fX, SK_ARRAY_COUNT(pair) * 2)) {
+                    SkScalar splitT[3];
+                    int breaks = SkDCubic::ComplexBreak(pointsPtr, splitT);
+                    if (!breaks) {
+                        fCurrentContour->addCubic(pointsPtr);
+                        break;
+                    }
+                    for (int index = 0; index <= breaks; ++index) {
+                        double t1 = index ? splitT[index - 1] : 0;
+                        double t2 = index < breaks ? splitT[index] : 1;
+                        SkDCubic part = SkDCubic::SubDivide(pointsPtr, t1, t2);
+                        SkPoint pts[4];
+                        if (!part.toFloatPoints(pts)) {
                             return false;
                         }
-                        SkPoint cStorage[2][4];
-                        SkPath::Verb v1 = SkReduceOrder::Cubic(&pair[0], cStorage[0]);
-                        SkPath::Verb v2 = SkReduceOrder::Cubic(&pair[3], cStorage[1]);
-                        SkPoint* curve1 = v1 == SkPath::kCubic_Verb ? &pair[0] : cStorage[0];
-                        SkPoint* curve2 = v2 == SkPath::kCubic_Verb ? &pair[3] : cStorage[1];
-                        if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fCurrentContour->addCurve(v1, curve1);
-                            fCurrentContour->addCurve(v2, curve2);
-                            break;
+                        SkPoint reduced[4];
+                        SkPath::Verb verb = SkReduceOrder::Cubic(pts, reduced);
+                        SkPoint* curve = verb == SkPath::kCubic_Verb ? pts : reduced;
+                        if (can_add_curve(verb, curve)) {
+                            fCurrentContour->addCurve(verb, curve);
                         } 
                     }
                 }
-                fCurrentContour->addCubic(pointsPtr);
                 break;
             case SkPath::kClose_Verb:
                 SkASSERT(fCurrentContour);
