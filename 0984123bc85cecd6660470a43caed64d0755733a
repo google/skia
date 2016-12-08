@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d744b42_56f1aa23",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-08T01:57:05Z",
+      "side": 1,
+      "message": "Probably clearer to move the is_fuchsia logic outside this clause, just\n\nif (is_fuchsia) {\n   ... do fuchsia things ...\n}\nif (skia_vulkan_sdk !\u003d \"\" \u0026\u0026 !is_android) {\n   ... do vulkan sdk things ...\n}",
+      "revId": "0984123bc85cecd6660470a43caed64d0755733a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d744b42_b6fb2e05",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-08T01:57:05Z",
+      "side": 1,
+      "message": "This probably doesn\u0027t make sense.  //third_party/mesa/include starts off looking like a GN target, but wants to be a directory path.\n\nIs this better as,\n\nelse if (is_fuchsia) {\n   deps +\u003d [ \"//third_party/mesa\" ]\n}\n\nor something similar?",
+      "revId": "0984123bc85cecd6660470a43caed64d0755733a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
