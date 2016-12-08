@@ -411,7 +411,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
             if (ss) {
                 pipelineBuilder.setUserStencil(ss);
             }
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return true;
         }
     }
@@ -429,7 +429,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
                 return true;
             }
         }
@@ -556,7 +556,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                                          snapToPixelCenters);
             }
 
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -670,7 +670,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
                                           croppedLocalRect, aa, fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -728,7 +728,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
                                           aa, fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -744,7 +744,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
         sk_sp<GrDrawOp> op(GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, localMatrix,
                                                      croppedRect));
         GrPipelineBuilder pipelineBuilder(paint, aaType);
-        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
         return;
     }
 
@@ -793,7 +793,7 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                                texCoords, bounds));
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -816,7 +816,7 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
                                             texRect, colors));
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -861,7 +861,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                            fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
             return;
         }
     }
@@ -877,7 +877,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                                             shaderCaps));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
             return;
         }
     }
@@ -919,7 +919,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
                                               shaderCaps));
     if (op) {
         GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
-        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+        this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
         return;
     }
 }
@@ -942,7 +942,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
                                             aa, fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paintIn, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return true;
         }
     }
@@ -1063,7 +1063,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
 
     sk_sp<GrDrawOp> op(GrRegionBatch::Create(paint.getColor(), viewMatrix, region));
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
@@ -1094,7 +1094,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                                           fInstancedPipelineInfo, &aaType));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -1109,7 +1109,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                                                            shaderCaps));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -1142,7 +1142,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                                           shaderCaps));
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
-            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+            this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
     }
@@ -1170,7 +1170,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                                 imageHeight, std::move(iter), dst));
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 void GrRenderTargetContext::prepareForExternalIO() {
@@ -1207,7 +1207,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
@@ -1334,7 +1334,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                     paint.getColor(), viewMatrix, rects));
               if (op) {
                     GrPipelineBuilder pipelineBuilder(paint, aaType);
-                    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+                    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
                 }
                 return;
             }
@@ -1351,7 +1351,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                                                                shaderCaps));
             if (op) {
                 GrPipelineBuilder pipelineBuilder(paint, aaType);
-                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op.get());
+                this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
                 return;
             }
         }
@@ -1521,5 +1521,5 @@ void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, 
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, op);
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, sk_ref_sp(op));
 }
