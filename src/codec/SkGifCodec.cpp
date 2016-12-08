@@ -74,13 +74,18 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
     if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
-        // Not enough data to determine the size.
+        // Fatal error occurred.
         return nullptr;
     }
 
-    if (0 == reader->screenWidth() || 0 == reader->screenHeight()) {
+    // If no images are in the data, or the first header is not yet defined, we cannot
+    // create a codec. In either case, the width and height are not yet known.
+    if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
         return nullptr;
     }
+
+    // isHeaderDefined() will not return true if the screen size is empty.
+    SkASSERT(reader->screenHeight() > 0 && reader->screenWidth() > 0);
 
     const auto alpha = reader->firstFrameHasAlpha() ? SkEncodedInfo::kBinary_Alpha
                                                     : SkEncodedInfo::kOpaque_Alpha;

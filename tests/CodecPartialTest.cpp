@@ -90,7 +90,7 @@ private:
     SkMemoryStream  fStream;
 };
 
-static void test_partial(skiatest::Reporter* r, const char* name) {
+static void test_partial(skiatest::Reporter* r, const char* name, size_t minBytes = 0) {
     sk_sp<SkData> file = make_from_resource(name);
     if (!file) {
         SkDebugf("missing resource %s\n", name);
@@ -104,7 +104,7 @@ static void test_partial(skiatest::Reporter* r, const char* name) {
     }
 
     // Now decode part of the file
-    HaltingStream* stream = new HaltingStream(file, file->size() / 2);
+    HaltingStream* stream = new HaltingStream(file, SkTMax(file->size() / 2, minBytes));
 
     // Note that we cheat and hold on to a pointer to stream, though it is owned by
     // partialCodec.
@@ -174,7 +174,7 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "baby_tux.png");
 
     test_partial(r, "box.gif");
-    test_partial(r, "randPixels.gif");
+    test_partial(r, "randPixels.gif", 215);
     test_partial(r, "color_wheel.gif");
 }
 

@@ -227,3 +227,15 @@ DEF_TEST(Gif_Sampled, r) {
             bm.rowBytes(), &options);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
+
+// If a GIF file is truncated before the header for the first image is defined,
+// we should not create an SkCodec.
+DEF_TEST(Codec_GifTruncated, r) {
+    SkString path = GetResourcePath("test640x479.gif");
+    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
+
+    // This is right before the header for the first image.
+    data = SkData::MakeSubset(data.get(), 0, 446);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    REPORTER_ASSERT(r, !codec);
+}
