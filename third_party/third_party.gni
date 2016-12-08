@@ -23,9 +23,9 @@ template("third_party") {
   }
 }
 
-set_defaults("third_party") {
-  configs = default_configs - [ "//gn:warnings" ]
-}
+# set_defaults("third_party") {
+#   configs = default_configs - [ "//gn:warnings" ]
+# }
 
 template("system") {
   config(target_name + "_public") {

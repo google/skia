@@ -7,7 +7,7 @@ import("gn/android_framework_defines.gni")
 import("gn/shared_sources.gni")
 
 if (!defined(is_skia_standalone)) {
-  is_skia_standalone = false
+  is_skia_standalone = true
 }
 
 declare_args() {
@@ -38,6 +38,8 @@ declare_args() {
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else if (is_fuchsia) {
+    skia_use_vulkan = true
   } else {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
@@ -130,10 +132,13 @@ config("skia_private") {
   libs = []
   lib_dirs = []
   if (skia_use_vulkan) {
-    if (skia_vulkan_sdk != "" && !is_android) {
+    if ((skia_vulkan_sdk != "" && !is_android) || is_fuchsia) {
       if (is_win) {
         include_dirs += [ "$skia_vulkan_sdk/Include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
+      } else if (is_fuchsia) {
+        include_dirs += [ "//third_party/mesa/include"]
+        lib_dirs += [ "$root_build_dir" ]
       } else {
         include_dirs += [ "$skia_vulkan_sdk/include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
@@ -728,7 +733,7 @@ if (skia_enable_tools) {
       sources = [
         "tools/public_headers_warnings_check.cpp",
       ]
-      configs -= [ "//gn:warnings_except_public_headers" ]
+      # configs -= [ "//gn:warnings_except_public_headers" ]
       deps = [
         ":skia",
         ":skia.h",
@@ -797,10 +802,13 @@ if (skia_enable_tools) {
           "Gdi32.lib",
           "OpenGL32.lib",
         ]
+      } else if(is_fuchsia) {
+        sources += [ "tools/gpu/gl/none/CreatePlatformGLTestContext_none.cpp" ]
       }
 
       if (skia_use_angle) {
-        deps += [ "//third_party/angle2" ]
+        public_defines += [ "SK_ANGLE" ]
+        deps += [ "//third_party/skia/third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
       }
       if (skia_use_mesa) {
@@ -863,7 +871,7 @@ if (skia_enable_tools) {
       "//third_party/libpng",
     ]
     public_deps = [
-      "//third_party/jsoncpp",
+      "//third_party/skia/third_party/jsoncpp",
     ]
   }
 
@@ -950,8 +958,10 @@ if (skia_enable_tools) {
       "src/views/SkViewPriv.cpp",
     ]
     libs = []
+
     deps = []
-    if (!is_android) {
+
+    if (!is_android && !is_fuchsia) {
       sources += [ "src/views/SkWindow.cpp" ]
     }
     if (is_linux) {
@@ -1062,7 +1072,7 @@ if (skia_enable_tools) {
       ":skia",
       ":tests",
       ":tool_utils",
-      "//third_party/jsoncpp",
+      "//third_party/skia/third_party/jsoncpp",
       "//third_party/libpng",
     ]
     testonly = true
@@ -1094,7 +1104,7 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
-      "//third_party/jsoncpp",
+      "//third_party/skia/third_party/jsoncpp",
     ]
     testonly = true
   }
@@ -1175,7 +1185,7 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      "//third_party/jsoncpp",
+      "//third_party/skia/third_party/jsoncpp",
     ]
     testonly = true
   }
@@ -1192,7 +1202,7 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (!is_ios) {
+  if (!is_ios && !is_fuchsia) {
     executable("skiaserve") {
       sources = [
         "tools/skiaserve/Request.cpp",
@@ -1219,7 +1229,7 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/jsoncpp",
+        "//third_party/skia/third_party/jsoncpp",
         "//third_party/libmicrohttpd",
         "//third_party/libpng",
       ]
@@ -1292,7 +1302,7 @@ if (skia_enable_tools) {
     deps = [
       ":skia",
       ":tool_utils",
-      "//third_party/jsoncpp",
+      "//third_party/skia/third_party/jsoncpp",
     ]
     testonly = true
   }
@@ -1366,7 +1376,7 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":views",
-        "//third_party/jsoncpp",
+        "//third_party/skia/third_party/jsoncpp",
       ]
       if (is_android) {
         deps += [ "//third_party/native_app_glue" ]

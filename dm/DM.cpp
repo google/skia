@@ -162,18 +162,19 @@ static void start(const char* config, const char* src, const char* srcOptions, c
 }
 
 static void print_status() {
-    int curr = sk_tools::getCurrResidentSetSizeMB(),
-        peak = sk_tools::getMaxResidentSetSizeMB();
-    SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
+    // int curr = sk_tools::getCurrResidentSetSizeMB(),
+    //     peak = sk_tools::getMaxResidentSetSizeMB();
+    // SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
 
-    SkAutoMutexAcquire lock(gMutex);
-    info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
-         elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
-    for (auto& task : gRunning) {
-        task.dump();
-    }
+    // SkAutoMutexAcquire lock(gMutex);
+    // info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
+    //      elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
+    // for (auto& task : gRunning) {
+    //     task.dump();
+    // }
 }
 
+#if !defined(__Fuchsia__)
 static void find_culprit() {
     // Assumes gMutex is locked.
     SkThreadID thisThread = SkGetThreadID();
@@ -184,6 +185,7 @@ static void find_culprit() {
         }
     }
 }
+#endif
 
 #if defined(SK_BUILD_FOR_WIN32)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
@@ -223,7 +225,10 @@ static void find_culprit() {
     static void setup_crash_handler() {
         SetUnhandledExceptionFilter(crash_handler);
     }
+#elif defined(__Fuchsia__)
+    static void setup_crash_handler() {}
 #else
+
     #include <signal.h>
     #if !defined(SK_BUILD_FOR_ANDROID)
         #include <execinfo.h>
@@ -260,6 +265,7 @@ static void find_culprit() {
         signal(sig, previous_handler[sig]);
         raise(sig);
     }
+
 
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
@@ -842,7 +848,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #if SK_SUPPORT_GPU
     if (gpu_supported()) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
-            GrContextFactory::ContextType contextType = gpuConfig->getContextType();
+            GrContextFactory::ContextType contextType = GrContextFactory::kVulkan_ContextType;// gpuConfig->getContextType();
             GrContextFactory::ContextOptions contextOptions = gpuConfig->getContextOptions();
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {

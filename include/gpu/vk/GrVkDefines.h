@@ -14,7 +14,11 @@
 #elif defined(SK_BUILD_FOR_ANDROID)
 #   define VK_USE_PLATFORM_ANDROID_KHR
 #elif defined(SK_BUILD_FOR_UNIX)
-#   define VK_USE_PLATFORM_XCB_KHR
+#	if defined(__Fuchsia__)
+#		define VK_USE_PLATFORM_MAGMA_KHR
+#	else
+#   	define VK_USE_PLATFORM_XCB_KHR
+#	endif
 #endif
 
 #if defined(Bool) || defined(Status) || defined(True) || defined(False)
