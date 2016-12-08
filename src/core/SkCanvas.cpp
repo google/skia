@@ -666,6 +666,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
+    fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
@@ -1535,6 +1536,26 @@ void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle
                            isAA);
     fDeviceCMDirty = true;
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+}
+
+void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
+    fClipRestrictionRect = rect;
+    fClipStack->setDeviceClipRestriction(rect);
+    if (!fClipRestrictionRect.isEmpty()) {
+        SkRect devRect = SkRect::MakeFromIRect(rect);
+        const SkMatrix& ctm = fMCRec->fMatrix;
+        if (ctm.isIdentity()) { //Android framework is always passing identity
+            this->clipRect(devRect, kIntersect_Op, false);
+        } else {
+            SkMatrix invCtm;
+            if (ctm.invert(&invCtm)) {
+                SkRect localRect;
+                if (invCtm.mapRect(&localRect, devRect)) {
+                    this->clipRect(localRect, kIntersect_Op, false);
+                }
+            }
+        }
+    }
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
