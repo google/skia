@@ -92,10 +92,17 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
     }
 #elif defined(SK_BUILD_FOR_UNIX)
-    if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-        extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
-    }
+#   if defined(__Fuchsia__)
+        if (extensions.hasInstanceExtension(VK_KHR_MAGMA_SURFACE_EXTENSION_NAME)) {
+            instanceExtensionNames.push_back(VK_KHR_MAGMA_SURFACE_EXTENSION_NAME);
+            extensionFlags |= kKHR_surface_GrVkExtensionFlag;
+        }
+#   else
+        if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
+            instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+            extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
+        }
+#   endif
 #endif
 
     const VkInstanceCreateInfo instance_create = {

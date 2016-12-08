@@ -38,6 +38,8 @@ declare_args() {
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else if (is_fuchsia) {
+    skia_use_vulkan = true
   } else {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
@@ -131,10 +133,12 @@ config("skia_private") {
   libs = []
   lib_dirs = []
   if (skia_use_vulkan) {
-    if (skia_vulkan_sdk != "" && !is_android) {
+    if ((skia_vulkan_sdk != "" && !is_android) || is_fuchsia) {
       if (is_win) {
         include_dirs += [ "$skia_vulkan_sdk/Include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
+      } else if (is_fuchsia) {
+        include_dirs += [ "//third_party/mesa/include"]
       } else {
         include_dirs += [ "$skia_vulkan_sdk/include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
