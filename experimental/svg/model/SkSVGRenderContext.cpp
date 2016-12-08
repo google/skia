@@ -328,12 +328,20 @@ void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
 
     const SkPath clipPath = clipNode->asPath(*this);
 
+    // We use the computed clip path in two ways:
+    //
+    //   - apply to the current canvas, for drawing
+    //   - track in the presentation context, for asPath() composition
+    //
+    // TODO: the two uses are exclusive, avoid canvas churn when non needed.
+
     // Only save if needed
     if (fCanvas->getSaveCount() == fCanvasSaveCount) {
         fCanvas->save();
     }
 
     fCanvas->clipPath(clipPath, true);
+    fClipPath.set(clipPath);
 }
 
 const SkPaint* SkSVGRenderContext::fillPaint() const {
