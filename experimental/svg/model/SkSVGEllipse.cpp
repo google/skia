@@ -55,14 +55,26 @@ void SkSVGEllipse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                          const SkPaint& paint, SkPath::FillType) const {
+SkRect SkSVGEllipse::resolve(const SkSVGLengthContext& lctx) const {
     const auto cx = lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto cy = lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical);
     const auto rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);
 
-    if (rx > 0 && ry > 0) {
-        canvas->drawOval(SkRect::MakeXYWH(cx - rx, cy - ry, rx * 2, ry * 2), paint);
-    }
+    return (rx > 0 && ry > 0)
+        ? SkRect::MakeXYWH(cx - rx, cy - ry, rx * 2, ry * 2)
+        : SkRect::MakeEmpty();
+}
+
+void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
+                          const SkPaint& paint, SkPath::FillType) const {
+    canvas->drawOval(this->resolve(lctx), paint);
+}
+
+SkPath SkSVGEllipse::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPath path;
+    path.addOval(this->resolve(ctx.lengthContext()));
+    this->mapToParent(&path);
+
+    return path;
 }

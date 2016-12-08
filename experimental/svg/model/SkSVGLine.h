@@ -11,6 +11,8 @@
 #include "SkSVGShape.h"
 #include "SkSVGTypes.h"
 
+struct SkPoint;
+
 class SkSVGLine final : public SkSVGShape {
 public:
     virtual ~SkSVGLine() = default;
@@ -27,8 +29,13 @@ protected:
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPath::FillType) const override;
 
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
+
 private:
     SkSVGLine();
+
+    // resolve and return the two endpoints
+    std::tuple<SkPoint, SkPoint> resolve(const SkSVGLengthContext&) const;
 
     SkSVGLength fX1 = SkSVGLength(0);
     SkSVGLength fY1 = SkSVGLength(0);

@@ -11,6 +11,7 @@
 #include "SkString.h"
 #include "SkSVGAttributeParser.h"
 #include "SkSVGCircle.h"
+#include "SkSVGClipPath.h"
 #include "SkSVGDefs.h"
 #include "SkSVGDOM.h"
 #include "SkSVGEllipse.h"
@@ -65,6 +66,19 @@ bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     node->setAttribute(attr, SkSVGStringValue(iri));
     return true;
 }
+
+bool SetClipPathAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                          const char* stringValue) {
+    SkSVGClip clip;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseClipPath(&clip)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGClipValue(clip));
+    return true;
+}
+
 
 bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                           const char* stringValue) {
@@ -263,6 +277,7 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
+    { "clip-path"        , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
     { "cx"               , { SkSVGAttribute::kCx               , SetLengthAttribute       }},
     { "cy"               , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
     { "d"                , { SkSVGAttribute::kD                , SetPathDataAttribute     }},
@@ -300,6 +315,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "circle"        , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();         }},
+    { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
     { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
     { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},

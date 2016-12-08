@@ -443,6 +443,25 @@ bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
     return parsedValue && this->parseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG/masking.html#ClipPathProperty
+bool SkSVGAttributeParser::parseClipPath(SkSVGClip* clip) {
+    SkSVGStringType iri;
+    bool parsedValue = false;
+
+    if (this->parseExpectedStringToken("none")) {
+        *clip = SkSVGClip(SkSVGClip::Type::kNone);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *clip = SkSVGClip(SkSVGClip::Type::kInherit);
+        parsedValue = true;
+    } else if (this->parseFuncIRI(&iri)) {
+        *clip = SkSVGClip(iri.value());
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 bool SkSVGAttributeParser::parseLineCap(SkSVGLineCap* cap) {
     static const struct {

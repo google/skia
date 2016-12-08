@@ -14,11 +14,13 @@
 class SkCanvas;
 class SkMatrix;
 class SkPaint;
+class SkPath;
 class SkSVGRenderContext;
 class SkSVGValue;
 
 enum class SkSVGTag {
     kCircle,
+    kClipPath,
     kDefs,
     kEllipse,
     kG,
@@ -42,9 +44,11 @@ public:
 
     void render(const SkSVGRenderContext&) const;
     bool asPaint(const SkSVGRenderContext&, SkPaint*) const;
+    SkPath asPath(const SkSVGRenderContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
 
+    void setClipPath(const SkSVGClip&);
     void setFill(const SkSVGPaint&);
     void setFillOpacity(const SkSVGNumberType&);
     void setFillRule(const SkSVGFillRule&);
@@ -67,6 +71,8 @@ protected:
     virtual void onRender(const SkSVGRenderContext&) const = 0;
 
     virtual bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const { return false; }
+
+    virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
 

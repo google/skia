@@ -74,15 +74,24 @@ void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPath::FillType) const {
+SkRRect SkSVGRect::resolve(const SkSVGLengthContext& lctx) const {
     const SkRect rect = lctx.resolveRect(fX, fY, fWidth, fHeight);
     const SkScalar rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
     const SkScalar ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);
 
-    if (rx || ry) {
-        canvas->drawRRect(SkRRect::MakeRectXY(rect, rx, ry), paint);
-    } else {
-        canvas->drawRect(rect, paint);
-    }
+    return SkRRect::MakeRectXY(rect, rx ,ry);
+}
+
+void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
+                       const SkPaint& paint, SkPath::FillType) const {
+    canvas->drawRRect(this->resolve(lctx), paint);
+}
+
+SkPath SkSVGRect::onAsPath(const SkSVGRenderContext& ctx) const {
+    SkPath path;
+    path.addRRect(this->resolve(ctx.lengthContext()));
+
+    this->mapToParent(&path);
+
+    return path;
 }

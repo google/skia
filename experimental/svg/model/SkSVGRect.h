@@ -11,6 +11,8 @@
 #include "SkSVGShape.h"
 #include "SkSVGTypes.h"
 
+class SkRRect;
+
 class SkSVGRect final : public SkSVGShape {
 public:
     virtual ~SkSVGRect() = default;
@@ -29,8 +31,12 @@ protected:
     void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
                 SkPath::FillType) const override;
 
+    SkPath onAsPath(const SkSVGRenderContext&) const override;
+
 private:
     SkSVGRect();
+
+    SkRRect resolve(const SkSVGLengthContext&) const;
 
     SkSVGLength fX      = SkSVGLength(0);
     SkSVGLength fY      = SkSVGLength(0);
