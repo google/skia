@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkMatrix.h"
+#include "SkPathOps.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGValue.h"
@@ -32,7 +33,18 @@ bool SkSVGNode::asPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
 
 SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
     SkSVGRenderContext localContext(ctx);
-    return this->onPrepareToRender(&localContext) ? this->onAsPath(localContext) : SkPath();
+    if (!this->onPrepareToRender(&localContext)) {
+        return SkPath();
+    }
+
+    SkPath path = this->onAsPath(localContext);
+
+    if (const auto* clipPath = localContext.clipPath()) {
+        // There is a clip-path present on the current node.
+        Op(path, *clipPath, kIntersect_SkPathOp, &path);
+    }
+
+    return path;
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
