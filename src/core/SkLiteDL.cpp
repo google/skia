@@ -149,34 +149,34 @@ namespace {
 
     struct ClipPath final : Op {
         static const auto kType = Type::ClipPath;
-        ClipPath(const SkPath& path, SkCanvas::ClipOp op, bool aa) : path(path), op(op), aa(aa) {}
-        SkPath           path;
-        SkCanvas::ClipOp op;
-        bool             aa;
+        ClipPath(const SkPath& path, SkClipOp op, bool aa) : path(path), op(op), aa(aa) {}
+        SkPath   path;
+        SkClipOp op;
+        bool     aa;
         void draw(SkCanvas* c, const SkMatrix&) { c->clipPath(path, op, aa); }
         void makeThreadsafe() { make_threadsafe(&path, nullptr); }
     };
     struct ClipRect final : Op {
         static const auto kType = Type::ClipRect;
-        ClipRect(const SkRect& rect, SkCanvas::ClipOp op, bool aa) : rect(rect), op(op), aa(aa) {}
-        SkRect           rect;
-        SkCanvas::ClipOp op;
-        bool             aa;
+        ClipRect(const SkRect& rect, SkClipOp op, bool aa) : rect(rect), op(op), aa(aa) {}
+        SkRect   rect;
+        SkClipOp op;
+        bool     aa;
         void draw(SkCanvas* c, const SkMatrix&) { c->clipRect(rect, op, aa); }
     };
     struct ClipRRect final : Op {
         static const auto kType = Type::ClipRRect;
-        ClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool aa) : rrect(rrect), op(op), aa(aa) {}
-        SkRRect          rrect;
-        SkCanvas::ClipOp op;
-        bool             aa;
+        ClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) : rrect(rrect), op(op), aa(aa) {}
+        SkRRect  rrect;
+        SkClipOp op;
+        bool     aa;
         void draw(SkCanvas* c, const SkMatrix&) { c->clipRRect(rrect, op, aa); }
     };
     struct ClipRegion final : Op {
         static const auto kType = Type::ClipRegion;
-        ClipRegion(const SkRegion& region, SkCanvas::ClipOp op) : region(region), op(op) {}
-        SkRegion         region;
-        SkCanvas::ClipOp op;
+        ClipRegion(const SkRegion& region, SkClipOp op) : region(region), op(op) {}
+        SkRegion region;
+        SkClipOp op;
         void draw(SkCanvas* c, const SkMatrix&) { c->clipRegion(region, op); }
     };
 
@@ -599,16 +599,16 @@ void SkLiteDL::setMatrix(const SkMatrix& matrix)   { this->push<SetMatrix>(0, ma
 void SkLiteDL::translate(SkScalar dx, SkScalar dy) { this->push<Translate>(0, dx, dy); }
 void SkLiteDL::translateZ(SkScalar dz) { this->push<TranslateZ>(0, dz); }
 
-void SkLiteDL::clipPath(const SkPath& path, SkCanvas::ClipOp op, bool aa) {
+void SkLiteDL::clipPath(const SkPath& path, SkClipOp op, bool aa) {
     this->push<ClipPath>(0, path, op, aa);
 }
-void SkLiteDL::clipRect(const SkRect& rect, SkCanvas::ClipOp op, bool aa) {
+void SkLiteDL::clipRect(const SkRect& rect, SkClipOp op, bool aa) {
     this->push<ClipRect>(0, rect, op, aa);
 }
-void SkLiteDL::clipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool aa) {
+void SkLiteDL::clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
     this->push<ClipRRect>(0, rrect, op, aa);
 }
-void SkLiteDL::clipRegion(const SkRegion& region, SkCanvas::ClipOp op) {
+void SkLiteDL::clipRegion(const SkRegion& region, SkClipOp op) {
     this->push<ClipRegion>(0, region, op);
 }
 

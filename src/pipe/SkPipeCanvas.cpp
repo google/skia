@@ -309,21 +309,21 @@ void SkPipeCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
-void SkPipeCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPipeCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     fStream->write32(pack_verb(SkPipeVerb::kClipRect, ((unsigned)op << 1) | edgeStyle));
     fStream->write(&rect, 4 * sizeof(SkScalar));
 
     this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-void SkPipeCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPipeCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     fStream->write32(pack_verb(SkPipeVerb::kClipRRect, ((unsigned)op << 1) | edgeStyle));
     write_rrect(fStream, rrect);
 
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-void SkPipeCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkPipeCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kClipPath, ((unsigned)op << 1) | edgeStyle));
     writer.writePath(path);
@@ -331,7 +331,7 @@ void SkPipeCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeS
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-void SkPipeCanvas::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
+void SkPipeCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kClipRegion, (unsigned)op << 1));
     writer.writeRegion(deviceRgn);

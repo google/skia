@@ -111,7 +111,7 @@ void SkDeferredCanvas::emit(const Rec& rec) {
         case kClipRect_Type:
             fCanvas->clipRect(rec.fData.fBounds);
             this->INHERITED::onClipRect(rec.fData.fBounds,
-                                        kIntersect_Op, kHard_ClipEdgeStyle);
+                                        kIntersect_SkClipOp, kHard_ClipEdgeStyle);
             break;
         case kTrans_Type:
         case kScaleTrans_Type: {
@@ -284,8 +284,8 @@ void SkDeferredCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
-void SkDeferredCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
-    if (kIntersect_Op == op) {
+void SkDeferredCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
+    if (kIntersect_SkClipOp == op) {
         this->push_cliprect(rect);
     } else {
         this->flush_all();
@@ -294,19 +294,19 @@ void SkDeferredCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle e
     }
 }
 
-void SkDeferredCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDeferredCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->flush_all();
     fCanvas->clipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-void SkDeferredCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
+void SkDeferredCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     this->flush_all();
     fCanvas->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
+void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     this->flush_all();
     fCanvas->clipRegion(deviceRgn, op);
     this->INHERITED::onClipRegion(deviceRgn, op);

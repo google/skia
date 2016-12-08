@@ -120,7 +120,7 @@ static void fill_canvas(SkCanvas* canvas) {
     }
     canvas->save();
     canvas->setMatrix(SkMatrix::I());
-    canvas->clipRect(DEV_RECT_S, SkCanvas::kReplace_Op);
+    canvas->clipRect(DEV_RECT_S, kReplace_SkClipOp);
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawBitmap(bmp, 0, 0, &paint);

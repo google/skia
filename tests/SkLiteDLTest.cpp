@@ -13,7 +13,7 @@ DEF_TEST(SkLiteDL_basics, r) {
     sk_sp<SkLiteDL> p { SkLiteDL::New({2,2,3,3}) };
 
     p->save();
-        p->clipRect(SkRect{2,3,4,5}, SkCanvas::kIntersect_Op, true);
+        p->clipRect(SkRect{2,3,4,5}, kIntersect_SkClipOp, true);
         p->drawRect(SkRect{0,0,9,9}, SkPaint{});
     p->restore();
 }
@@ -27,7 +27,7 @@ DEF_TEST(SkLiteRecorder, r) {
     rec.reset(p.get());
 
     c->save();
-        c->clipRect(SkRect{2,3,4,5}, SkCanvas::kIntersect_Op, true);
+        c->clipRect(SkRect{2,3,4,5}, kIntersect_SkClipOp, true);
         c->drawRect(SkRect{0,0,9,9}, SkPaint{});
     c->restore();
 }

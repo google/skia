@@ -101,7 +101,7 @@ public:
         Returns a string representation of the SkRegion enum.
         @param op  SkRegion::op enum
      */
-    static SkString* ClipOpToString(SkCanvas::ClipOp op);
+    static SkString* ClipOpToString(SkClipOp op);
 
     /**
         Returns a string representation of the SkRegion.
