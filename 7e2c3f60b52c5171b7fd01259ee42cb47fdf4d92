@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd4b13fc_d950647f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-08T16:47:50Z",
+      "side": 1,
+      "message": "Both rasterclip and clipstack can (or should) take rects in device space. Lets somehow call that directly, rather than invert-into-local to call the public api (which by the way WILL get recorded into pictures :(",
+      "range": {
+        "startLine": 1553,
+        "startChar": 27,
+        "endLine": 1553,
+        "endChar": 34
+      },
+      "revId": "7e2c3f60b52c5171b7fd01259ee42cb47fdf4d92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
