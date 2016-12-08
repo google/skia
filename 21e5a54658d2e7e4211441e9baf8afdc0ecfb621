@@ -63,6 +63,24 @@
       "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4b13fc_161e9b8a",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-08T14:15:26Z",
+      "side": 1,
+      "message": "Great. Thanks for the links!\n\nI see that I should print [terminated] on all exit points, so I added that here.",
+      "parentUuid": "cd4b13fc_cd08ab93",
+      "revId": "21e5a54658d2e7e4211441e9baf8afdc0ecfb621",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
