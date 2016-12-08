@@ -88,7 +88,6 @@ Here's a partial list of the more important Skia classes:
     -   [SkTileImageFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkTileImageFilter.html)
     -   [SkXfermodeImageFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkXfermodeImageFilter.html)
 *   [SkMaskFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkMaskFilter.html)
-    -   [SkEmbossMaskFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkEmbossMaskFilter.html)
     -   [SkTableMaskFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkTableMaskFilter.html)
 *   [SkDrawLooper](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkDrawLooper.html)
     -   [SkBlurDrawLooper](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkBlurDrawLooper.html)
