@@ -326,8 +326,8 @@ static constexpr float gSRGB_toXYZD50[] {
 #endif // LIBPNG >= 1.6
 
 // Returns a colorSpace object that represents any color space information in
-// the encoded data.  If the encoded data contains no color space, this will
-// return NULL.
+// the encoded data.  If the encoded data contains an invalid/unsupported color space,
+// this will return NULL. If there is no color space information, it will guess sRGB
 sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
@@ -410,9 +410,9 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
 #endif // LIBPNG >= 1.6
 
-    // Report that there is no color space information in the PNG.  SkPngCodec is currently
-    // implemented to guess sRGB in this case.
-    return nullptr;
+    // Report that there is no color space information in the PNG.
+    // Guess sRGB in this case.
+    return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
 }
 
 void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
@@ -984,8 +984,9 @@ void AutoCleanPng::infoCallback() {
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
         sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr);
+        const bool unsupportedICC = !colorSpace;
         if (!colorSpace) {
-            // Treat unmarked pngs as sRGB.
+            // Treat unsupported/invalid color spaces as sRGB.
             colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
@@ -1014,6 +1015,7 @@ void AutoCleanPng::infoCallback() {
             *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
         }
+        (*fOutCodec)->setUnsupportedICC(unsupportedICC);
     }
 
 
