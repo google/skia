@@ -53,33 +53,28 @@ public:
 
     void stencilRect(const GrClip& clip,
                      const GrUserStencilSettings* ss,
-                     GrAAType,
+                     bool useHWAA,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
+    void stencilPath(const GrClip&,
+                     bool useHWAA,
+                     const SkMatrix& viewMatrix,
+                     const GrPath*);
 
-    /**
-     * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
-     * for each color sample written.
-     */
     bool drawAndStencilRect(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            GrAA,
+                            bool doAA,
                             const SkMatrix& viewMatrix,
                             const SkRect&);
 
-    /**
-     * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
-     * for each color sample written.
-     */
     bool drawAndStencilPath(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
-                            GrAA,
+                            bool doAA,
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
@@ -96,7 +91,6 @@ public:
     }
 
     void testingOnly_drawBatch(const GrPaint&,
-                               GrAAType,
                                GrDrawOp* batch,
                                const GrUserStencilSettings* = nullptr,
                                bool snapToCenters = false);

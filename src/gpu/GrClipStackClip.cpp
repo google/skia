@@ -42,7 +42,7 @@ bool GrClipStackClip::quickContains(const SkRRect& rrect) const {
                                                   SkIntToScalar(fOrigin.fY)));
 }
 
-bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa) const {
+bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, bool* aa) const {
     if (!fStack) {
         return false;
     }
@@ -54,9 +54,7 @@ bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa)
         tempRTBounds.offset(SkIntToScalar(fOrigin.fX), SkIntToScalar(fOrigin.fY));
         rtBounds = &tempRTBounds;
     }
-    bool isAA;
-    if (fStack->isRRect(*rtBounds, rr, &isAA)) {
-        *aa = GrBoolToAA(isAA);
+    if (fStack->isRRect(*rtBounds, rr, aa)) {
         if (origin) {
             rr->offset(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
         }
@@ -134,14 +132,9 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fShaderCaps = context->caps()->shaderCaps();
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        if (!element->isAA()) {
-            canDrawArgs.fAAType = GrAAType::kNone;
-        } else if (renderTargetContext->isStencilBufferMultisampled()){
-            canDrawArgs.fAAType = GrAAType::kHW;
-        } else {
-            canDrawArgs.fAAType = GrAAType::kCoverage;
-        }
+        canDrawArgs.fAntiAlias = element->isAA();
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
+        canDrawArgs.fIsStencilBufferMSAA = renderTargetContext->isStencilBufferMultisampled();
 
         // the 'false' parameter disallows use of the SW path renderer
         GrPathRenderer* pr =
@@ -457,7 +450,6 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkCanvas::ClipOp op = element->getOp();
-        GrAA aa = GrBoolToAA(element->isAA());
 
         if (SkCanvas::kIntersect_Op == op || SkCanvas::kReverseDifference_Op == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
@@ -467,25 +459,25 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
             if (SkCanvas::kReverseDifference_Op == op) {
                 SkRect temp = SkRect::Make(reducedClip.ibounds());
                 // invert the entire scene
-                helper.drawRect(temp, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
+                helper.drawRect(temp, SkRegion::kXOR_Op, false, 0xFF);
             }
             SkPath clipPath;
             element->asPath(&clipPath);
             clipPath.toggleInverseFillType();
             GrShape shape(clipPath, GrStyle::SimpleFill());
-            helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0x00);
+            helper.drawShape(shape, SkRegion::kReplace_Op, element->isAA(), 0x00);
             continue;
         }
 
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
         if (Element::kRect_Type == element->getType()) {
-            helper.drawRect(element->getRect(), (SkRegion::Op)op, aa, 0xFF);
+            helper.drawRect(element->getRect(), (SkRegion::Op)op, element->isAA(), 0xFF);
         } else {
             SkPath path;
             element->asPath(&path);
             GrShape shape(path, GrStyle::SimpleFill());
-            helper.drawShape(shape, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawShape(shape, (SkRegion::Op)op, element->isAA(), 0xFF);
         }
     }
 

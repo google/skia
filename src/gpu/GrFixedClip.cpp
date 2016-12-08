@@ -29,7 +29,7 @@ void GrFixedClip::getConservativeBounds(int w, int h, SkIRect* devResult, bool* 
     }
 }
 
-bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
+bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const {
     if (fWindowRectsState.enabled()) {
         return false;
     }
@@ -39,7 +39,7 @@ bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
             return false;
         }
         rr->setRect(rect);
-        *aa = GrAA::kNo;
+        *aa = false;
         return true;
     }
     return false;

@@ -26,18 +26,16 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
-    GrDashingEffect::AAMode aaMode = GrDashingEffect::AAMode::kNone;
-    switch (args.fAAType) {
-        case GrAAType::kNone:
-            break;
-        case GrAAType::kCoverage:
-            aaMode = GrDashingEffect::AAMode::kCoverage;
-            break;
-        case GrAAType::kHW:
-            // In this mode we will use aa between dashes but the outer border uses MSAA. Otherwise,
-            // we can wind up with external edges antialiased and internal edges unantialiased.
-            aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
-            break;
+    bool useHWAA = args.fRenderTargetContext->isUnifiedMultisampled();
+    GrDashingEffect::AAMode aaMode;
+    if (useHWAA) {
+        // We ignore args.fAntiAlias here and force anti aliasing when using MSAA. Otherwise,
+        // we can wind up with external edges antialiased and internal edges unantialiased.
+        aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
+    } else if (args.fAntiAlias) {
+        aaMode = GrDashingEffect::AAMode::kCoverage;
+    } else {
+        aaMode = GrDashingEffect::AAMode::kNone;
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
@@ -50,7 +48,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, useHWAA);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
