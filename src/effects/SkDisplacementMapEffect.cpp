@@ -360,8 +360,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         }
         paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-        renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, matrix,
-                                      SkRect::Make(colorBounds));
+        renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();

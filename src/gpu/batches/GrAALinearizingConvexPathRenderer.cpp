@@ -37,7 +37,7 @@ GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (GrAAType::kCoverage != args.fAAType) {
+    if (!args.fAntiAlias) {
         return false;
     }
     if (!args.fShape->knownToBeConvex()) {
@@ -361,7 +361,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                           stroke.getStyle(),
                                                           join, miterLimit));
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());

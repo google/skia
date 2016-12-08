@@ -351,10 +351,9 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
                                        const GrClip& clip,
-                                       GrAAType aaType,
+                                       bool useHWAA,
                                        const SkMatrix& viewMatrix,
                                        const GrPath* path) {
-    bool useHWAA = aaType == GrAAType::kHW;
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());

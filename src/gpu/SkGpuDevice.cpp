@@ -342,8 +342,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         path.setIsVolatile(true);
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
-        fRenderTargetContext->drawPath(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()),
-                                       *draw.fMatrix, path, style);
+        fRenderTargetContext->drawPath(fClip, grPaint, *draw.fMatrix, path, style);
         return;
     }
 
@@ -419,13 +418,13 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
     }
 
     GrStyle style(paint);
-    fRenderTargetContext->drawRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                   rect, &style);
+    fRenderTargetContext->drawRect(fClip, grPaint, *draw.fMatrix, rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
+void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
+                            const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext.get());
     CHECK_SHOULD_DRAW(draw);
@@ -484,8 +483,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPa
 
     SkASSERT(!style.pathEffect());
 
-    fRenderTargetContext->drawRRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                    rrect, style);
+    fRenderTargetContext->drawRRect(fClip, grPaint, *draw.fMatrix, rrect, style);
 }
 
 
@@ -512,8 +510,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
             return;
         }
 
-        fRenderTargetContext->drawDRRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()),
-                                         *draw.fMatrix, outer, inner);
+        fRenderTargetContext->drawDRRect(fClip, grPaint, *draw.fMatrix, outer, inner);
         return;
     }
 
@@ -545,8 +542,7 @@ void SkGpuDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const S
         return;
     }
 
-    fRenderTargetContext->drawRegion(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                     region, GrStyle(paint));
+    fRenderTargetContext->drawRegion(fClip, grPaint, *draw.fMatrix, region, GrStyle(paint));
 }
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
@@ -575,8 +571,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
         return;
     }
 
-    fRenderTargetContext->drawOval(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                   oval, GrStyle(paint));
+    fRenderTargetContext->drawOval(fClip, grPaint, *draw.fMatrix, oval, GrStyle(paint));
 }
 
 void SkGpuDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
@@ -595,8 +590,8 @@ void SkGpuDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar start
         return;
     }
 
-    fRenderTargetContext->drawArc(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                  oval, startAngle, sweepAngle, useCenter, GrStyle(paint));
+    fRenderTargetContext->drawArc(fClip, grPaint, *draw.fMatrix, oval, startAngle, sweepAngle,
+                                  useCenter, GrStyle(paint));
 }
 
 #include "SkMaskFilter.h"
@@ -652,9 +647,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
         return;
     }
 
-    fRenderTargetContext->fillRectWithLocalMatrix(fClip, grPaint,
-                                                  GrBoolToAA(newPaint.isAntiAlias()), m, rect,
-                                                  local);
+    fRenderTargetContext->fillRectWithLocalMatrix(fClip, grPaint, m, rect, local);
 }
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
@@ -1104,10 +1097,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         return;
     }
 
-    // Coverage-based AA would cause seams between tiles.
-    GrAA aa = GrBoolToAA(paint.isAntiAlias() &&
-                         fRenderTargetContext->isStencilBufferMultisampled());
-    fRenderTargetContext->drawRect(fClip, grPaint, aa, viewMatrix, dstRect);
+    fRenderTargetContext->drawRect(fClip, grPaint, viewMatrix, dstRect);
 }
 
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1202,7 +1192,6 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
 
     fRenderTargetContext->fillRectToRect(fClip,
                                          grPaint,
-                                         GrBoolToAA(paint.isAntiAlias()),
                                          SkMatrix::I(),
                                          SkRect::Make(SkIRect::MakeXYWH(left + offset.fX,
                                                                         top + offset.fY,

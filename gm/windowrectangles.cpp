@@ -141,7 +141,7 @@ private:
 class MaskOnlyClipBase : public GrClip {
 private:
     bool quickContains(const SkRect&) const final { return false; }
-    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const final { return false; }
     void getConservativeBounds(int width, int height, SkIRect* rect, bool* iior) const final {
         rect->set(0, 0, width, height);
         if (iior) {
@@ -190,6 +190,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), kNumWindows);
 
     GrPaint paint;
+    paint.setAntiAlias(true);
     if (!rtc->isStencilBufferMultisampled()) {
         paint.setColor4f(GrColor4f(0, 0.25f, 1, 1));
         this->visualizeAlphaMask(ctx, rtc, reducedClip, paint);
@@ -216,7 +217,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     this->stencilCheckerboard(maskRTC.get(), true);
     maskRTC->clear(nullptr, GrColorPackA4(0xff), true);
     maskRTC->priv().drawAndStencilRect(StencilOnlyClip(), &GrUserStencilSettings::kUnused,
-                                       SkRegion::kDifference_Op, false, GrAA::kNo, SkMatrix::I(),
+                                       SkRegion::kDifference_Op, false, false, SkMatrix::I(),
                                        SkRect::MakeIWH(maskRTC->width(), maskRTC->height()));
     reducedClip.drawAlphaClipMask(maskRTC.get());
     sk_sp<GrTexture> mask(maskRTC->asTexture());
@@ -228,7 +229,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // inside window rectangles or outside the scissor should still have the initial checkerboard
     // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
     AlphaOnlyClip clip(mask.get(), x, y);
-    rtc->drawRect(clip, paint, GrAA::kYes, SkMatrix::I(),
+    rtc->drawRect(clip, paint, SkMatrix::I(),
                  SkRect::Make(SkIRect::MakeXYWH(x, y, mask->width(), mask->height())));
 }
 
@@ -267,7 +268,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;
              x < kLayerRect.width(); x += 2 * kMaskCheckerSize) {
             SkIRect checker = SkIRect::MakeXYWH(x, y, kMaskCheckerSize, kMaskCheckerSize);
-            rtc->priv().stencilRect(GrNoClip(), &kSetClip, GrAAType::kNone, SkMatrix::I(),
+            rtc->priv().stencilRect(GrNoClip(), &kSetClip, false, SkMatrix::I(),
                                     SkRect::Make(checker));
         }
     }

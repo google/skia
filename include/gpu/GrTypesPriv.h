@@ -11,16 +11,6 @@
 #include "GrTypes.h"
 #include "SkRefCnt.h"
 
-/** This enum indicates the type of antialiasing to be performed. */
-enum class GrAAType {
-    /** No antialiasing */
-    kNone,
-    /** Use fragment shader code to compute a fractional pixel coverage. */
-    kCoverage,
-    /** Use HW AA (MSAA). */
-    kHW
-};
-
  /**
   * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
   * but should be applicable to other shader languages.)

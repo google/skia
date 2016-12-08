@@ -303,7 +303,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, matrix, SkRect::Make(bounds));
+    renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),

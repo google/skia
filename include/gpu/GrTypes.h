@@ -149,18 +149,6 @@ typedef intptr_t GrBackendContext;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * Used to control antialiasing in draw calls.
- */
-enum class GrAA {
-    kYes,
-    kNo
-};
-
-static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; }
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
 * Geometric primitives used for drawing.
 */
 enum GrPrimitiveType {

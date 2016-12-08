@@ -23,7 +23,6 @@ private:
 
     bool internalDrawPath(GrRenderTargetContext*,
                           const GrPaint&,
-                          GrAAType,
                           const GrUserStencilSettings&,
                           const GrClip&,
                           const SkMatrix& viewMatrix,
