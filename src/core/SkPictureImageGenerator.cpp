@@ -26,7 +26,7 @@ protected:
     bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) override;
 
 #if SK_SUPPORT_GPU
-    GrTexture* onGenerateTexture(GrContext*, const SkIRect*) override;
+    GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIRect&) override;
 #endif
 
 private:
@@ -50,7 +50,7 @@ SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkP
 
 SkPictureImageGenerator::SkPictureImageGenerator(const SkISize& size, const SkPicture* picture,
                                                  const SkMatrix* matrix, const SkPaint* paint)
-    : INHERITED(SkImageInfo::MakeN32Premul(size))
+    : INHERITED(SkImageInfo::MakeS32(size.width(), size.height(), kPremul_SkAlphaType))
     , fPicture(SkRef(picture)) {
 
     if (matrix) {
@@ -66,7 +66,7 @@ SkPictureImageGenerator::SkPictureImageGenerator(const SkISize& size, const SkPi
 
 bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                           SkPMColor ctable[], int* ctableCount) {
-    if (info != getInfo() || ctable || ctableCount) {
+    if (ctable || ctableCount) {
         return false;
     }
 
@@ -132,9 +132,9 @@ SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const Sk
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 
-GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIRect* subset) {
-    const SkImageInfo& info = this->getInfo();
-    SkImageInfo surfaceInfo = subset ? info.makeWH(subset->width(), subset->height()) : info;
+GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+                                                      const SkIRect& subset) {
+    SkImageInfo surfaceInfo = info.makeWH(subset.width(), subset.height());
 
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
@@ -145,9 +145,7 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
     }
 
     SkMatrix matrix = fMatrix;
-    if (subset) {
-        matrix.postTranslate(-subset->x(), -subset->y());
-    }
+    matrix.postTranslate(-subset.x(), -subset.y());
     surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
     surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());

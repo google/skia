@@ -16,7 +16,11 @@ static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     const SkPoint center = { SkIntToScalar(width)/2, SkIntToScalar(height)/2 };
     const SkScalar radius = 40;
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
+    SkPoint pts[2] ={
+        SkPoint::Make(0, 0),
+        SkPoint::Make(width, 0),
+    };
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
                                                  SkShader::kMirror_TileMode));
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawPaint(paint);
@@ -51,6 +55,7 @@ static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2
     canvas->clipRect(dstRect);
     canvas->drawImage(image, 0, 0, nullptr);
     canvas->restore();
+    /*
     canvas->drawRect(dstRect, borderPaint);
 
     dstRect.offset(SkIntToScalar(150), 0);
@@ -63,6 +68,7 @@ static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2
     dstRect.offset(SkIntToScalar(150), 0);
     canvas->drawImageRect(image, dstRect, nullptr);
     canvas->drawRect(dstRect, borderPaint);
+    */
 }
 
 class VeryLargeBitmapGM : public skiagm::GM {
@@ -97,7 +103,7 @@ protected:
         colors[1] = SK_ColorGREEN;
         show_image(canvas, small, small, colors, fProc);
         canvas->translate(0, SkIntToScalar(150));
-
+/*
         colors[0] = SK_ColorBLUE;
         colors[1] = SK_ColorMAGENTA;
         show_image(canvas, big, small, colors, fProc);
@@ -113,6 +119,7 @@ protected:
         // as of this writing, the raster code will fail to draw the scaled version
         // since it has a 64K limit on x,y coordinates... (but gpu should succeed)
         show_image(canvas, veryBig, small, colors, fProc);
+        */
     }
 
 private:
