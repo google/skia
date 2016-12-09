@@ -65,16 +65,25 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "}"
     );
 
-    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(),
-                                 VK_SHADER_STAGE_VERTEX_BIT,
-                                 &fVertShaderModule, &fShaderStageInfo[0])) {
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> vert = GrCompileVkShaderModule(gpu, vertShaderText.c_str(),
+                                                                  VK_SHADER_STAGE_VERTEX_BIT,
+                                                                  &fVertShaderModule,
+                                                                  &fShaderStageInfo[0],
+                                                                  settings);
+    if (!vert || !GrInstallVkShaderModule(gpu, std::move(vert), &fVertShaderModule,
+                                          &fShaderStageInfo[0])) {
         this->destroyResources(gpu);
         return false;
     }
 
-    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(),
-                                 VK_SHADER_STAGE_FRAGMENT_BIT,
-                                 &fFragShaderModule, &fShaderStageInfo[1])) {
+    std::unique_ptr<SkSL::Program> frag = GrCompileVkShaderModule(gpu, fragShaderText.c_str(),
+                                                                  VK_SHADER_STAGE_FRAGMENT_BIT,
+                                                                  &fFragShaderModule,
+                                                                  &fShaderStageInfo[1],
+                                                                  settings);
+    if (!frag || !GrInstallVkShaderModule(gpu, std::move(frag), &fFragShaderModule,
+                                          &fShaderStageInfo[1])) {
         this->destroyResources(gpu);
         return false;
     }
