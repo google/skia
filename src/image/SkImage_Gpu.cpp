@@ -63,7 +63,7 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode,
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
                               CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
@@ -90,14 +90,14 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode,
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                     SkDestinationSurfaceColorMode colorMode,
+                                     SkColorSpace* dstColorSpace,
                                      sk_sp<SkColorSpace>* texColorSpace) const {
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
     GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
-    return adjuster.refTextureSafeForParams(params, colorMode, nullptr);
+    return adjuster.refTextureSafeForParams(params, nullptr);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -463,11 +463,8 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         }
         if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
             // Generator backed image. Tweak info to trigger correct kind of decode.
-            SkDestinationSurfaceColorMode decodeColorMode = dstColorSpace
-                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-                : SkDestinationSurfaceColorMode::kLegacy;
             SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
-                decodeColorMode, proxy.fCaps.get());
+                dstColorSpace, proxy.fCaps.get());
             info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
                                                               scaledSize.height());
 

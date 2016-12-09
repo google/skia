@@ -17,7 +17,8 @@
 #include "SkUnPreMultiply.h"
 
 void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
-    if(as_IB(image)->getROPixels(dst, SkDestinationSurfaceColorMode::kLegacy)
+    SkColorSpace* legacyColorSpace = nullptr;
+    if(as_IB(image)->getROPixels(dst, legacyColorSpace)
        && dst->dimensions() == image->dimensions()) {
         if (dst->colorType() != kIndex_8_SkColorType) {
             return;
@@ -502,7 +503,8 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
     if (pixelSerializer) {
         SkBitmap bm;
         SkAutoPixmapUnlock apu;
-        if (as_IB(image.get())->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy) &&
+        SkColorSpace* legacyColorSpace = nullptr;
+        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) &&
             bm.requestLock(&apu)) {
             data.reset(pixelSerializer->encode(apu.pixmap()));
             if (data && SkIsJFIF(data.get(), &info)) {

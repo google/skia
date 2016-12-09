@@ -66,11 +66,8 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
     //       can scale more efficiently) we should take advantage of it here.
     //
-    SkDestinationSurfaceColorMode decodeColorMode = dst.info().colorSpace()
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, decodeColorMode, chint)) {
+    if (as_IB(this)->getROPixels(&bm, dst.info().colorSpace(), chint)) {
         bm.lockPixels();
         SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
@@ -87,7 +84,8 @@ void SkImage::preroll(GrContext* ctx) const {
     // to produce a cached raster-bitmap form, so that drawing to a raster canvas should be fast.
     //
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
+    SkColorSpace* legacyColorSpace = nullptr;
+    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
         bm.lockPixels();
         bm.unlockPixels();
     }
@@ -109,7 +107,8 @@ SkData* SkImage::encode(SkEncodedImageFormat type, int quality) const {
     // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
     // we should decode in "color space aware" mode, then re-encode that. For now, work around this
     // by asking for a legacy decode (which gives us the raw data in N32).
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
+    SkColorSpace* legacyColorSpace = nullptr;
+    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
         SkDynamicMemoryWStream buf;
         return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData().release() : nullptr;
     }
@@ -128,7 +127,8 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
     // we should decode in "color space aware" mode, then re-encode that. For now, work around this
     // by asking for a legacy decode (which gives us the raw data in N32).
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy) &&
+    SkColorSpace* legacyColorSpace = nullptr;
+    if (as_IB(this)->getROPixels(&bm, legacyColorSpace) &&
         bm.requestLock(&apu)) {
         if (serializer) {
             return serializer->encode(apu.pixmap());
@@ -327,11 +327,8 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
         return nullptr;
     }
     SkColorSpace* colorSpace = as_IB(this)->onImageInfo().colorSpace();
-    SkDestinationSurfaceColorMode decodeColorMode = colorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
-        subset, sk_ref_sp(const_cast<SkImage*>(this)), decodeColorMode);
+        subset, sk_ref_sp(const_cast<SkImage*>(this)), colorSpace);
     if (!srcSpecialImage) {
         return nullptr;
     }
