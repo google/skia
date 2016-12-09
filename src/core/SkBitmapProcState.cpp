@@ -109,7 +109,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
         allow_ignore_fractional_translate = false;
     }
 
-    SkDefaultBitmapController controller;
+    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kNo);
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
                                         fBMStateStorage.get(), fBMStateStorage.size());
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?

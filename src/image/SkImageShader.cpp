@@ -279,7 +279,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     auto quality = paint.getFilterQuality();
 
     SkBitmapProvider provider(fImage.get(), dst);
-    SkDefaultBitmapController controller;
+    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)
     };
@@ -293,7 +293,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     auto info = pm.info();
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
-    if (matrix.getType() <= SkMatrix::kTranslate_Mask &&
+    if (quality == kLow_SkFilterQuality &&
+        matrix.getType() <= SkMatrix::kTranslate_Mask &&
         matrix.getTranslateX() == (int)matrix.getTranslateX() &&
         matrix.getTranslateY() == (int)matrix.getTranslateY()) {
         quality = kNone_SkFilterQuality;
@@ -353,20 +354,48 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     };
 
-    auto sample = [&](SkRasterPipeline::StockStage sampler) {
-        p->append(sampler, ctx);
+    auto sample = [&](SkRasterPipeline::StockStage setup_x,
+                      SkRasterPipeline::StockStage setup_y) {
+        p->append(setup_x, ctx);
+        p->append(setup_y, ctx);
         append_tiling_and_gather();
         p->append(SkRasterPipeline::accumulate, ctx);
     };
 
     if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
+    } else if (quality == kLow_SkFilterQuality) {
+        p->append(SkRasterPipeline::save_xy, ctx);
+
+        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_ny);
+        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_ny);
+        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_py);
+        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_py);
+
+        p->append(SkRasterPipeline::move_dst_src);
     } else {
         p->append(SkRasterPipeline::save_xy, ctx);
-        sample(SkRasterPipeline::bilinear_nn);
-        sample(SkRasterPipeline::bilinear_np);
-        sample(SkRasterPipeline::bilinear_pn);
-        sample(SkRasterPipeline::bilinear_pp);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n3y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n1y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p1y);
+
+        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p3y);
+
         p->append(SkRasterPipeline::move_dst_src);
     }
 
@@ -382,6 +411,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
     if (info.colorType() == kAlpha_8_SkColorType || info.alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul);
+    }
+    if (quality > kLow_SkFilterQuality) {
+        // Bicubic filtering naturally produces out of range values on both sides.
+        p->append(SkRasterPipeline::clamp_0);
+        p->append(SkRasterPipeline::clamp_a);
     }
     return append_gamut_transform(p, scratch, info.colorSpace(), dst);
 }
