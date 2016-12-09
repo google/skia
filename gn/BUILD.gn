@@ -27,6 +27,7 @@ declare_args() {
   extra_ldflags = []
 
   cc_wrapper = ""
+  malloc = ""
 }
 
 if (host_os == "win") {
@@ -58,6 +59,7 @@ config("default") {
   cflags_cc = []
   defines = []
   ldflags = []
+  libs = []
 
   if (is_win) {
     cflags += [
@@ -133,6 +135,16 @@ config("default") {
     ldflags += [ "-m32" ]
   }
 
+  if (malloc != "" && !is_win) {
+    cflags += [
+      "-fno-builtin-malloc",
+      "-fno-builtin-calloc",
+      "-fno-builtin-realloc",
+      "-fno-builtin-free",
+    ]
+    libs += [ malloc ]
+  }
+
   if (is_android) {
     asmflags += [
       "--target=$ndk_target",
@@ -166,7 +178,7 @@ config("default") {
       ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
     }
 
-    libs = [
+    libs += [
       # Order matters here!  Keep these three in exactly this order.
       "c++_static",
       "c++abi",
@@ -192,7 +204,7 @@ config("default") {
       target_cpu,
       "-stdlib=libc++",
     ]
-    libs = [ "objc" ]
+    libs += [ "objc" ]
 
     # We used to link all our iOS tools together, so none actually defines main().
     # Instead they each define their own entry point, which our iOS mega-app called.
@@ -207,7 +219,7 @@ config("default") {
   }
 
   if (is_linux) {
-    libs = [ "pthread" ]
+    libs += [ "pthread" ]
   }
 
   if (sanitize != "") {
