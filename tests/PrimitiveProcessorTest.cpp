@@ -123,11 +123,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
-    sk_sp<GrDrawOp> batch;
+    sk_sp<GrDrawOp> op;
     GrPaint grPaint;
     // This one should succeed.
-    batch.reset(new Batch(attribCnt));
-    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone, batch.get());
+    op.reset(new Batch(attribCnt));
+    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone, std::move(op));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
@@ -135,8 +135,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     context->resetGpuStats();
     // This one should fail.
-    batch.reset(new Batch(attribCnt+1));
-    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone, batch.get());
+    op.reset(new Batch(attribCnt+1));
+    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone, std::move(op));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
