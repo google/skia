@@ -16,6 +16,24 @@
       "revId": "e264c8a5e1a88d363ca961711d53dd4c6fecfea6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_e93a9d85",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-09T15:05:03Z",
+      "side": 1,
+      "message": "I alphabetized the entire list.  is that okay?",
+      "parentUuid": "1a23a39f_e913bd1b",
+      "revId": "e264c8a5e1a88d363ca961711d53dd4c6fecfea6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
