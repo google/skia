@@ -16,6 +16,24 @@
       "revId": "d806f10ca590ca38252b9e96c5bf62baab9472f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_b483d9ec",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-09T21:28:02Z",
+      "side": 1,
+      "message": "Done, though I\u0027ve limited it to this constructor interface.  It looked ridiculous when I started to propagate it into SkBitmapController.cpp.",
+      "parentUuid": "1a23a39f_41dba538",
+      "revId": "d806f10ca590ca38252b9e96c5bf62baab9472f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
