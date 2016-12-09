@@ -209,7 +209,7 @@ DEF_TEST(Codec_partialAnim, r) {
         const SkCodec::Result result = fullCodec->getPixels(info, frame.getPixels(),
                 frame.rowBytes(), &opts, nullptr, nullptr);
 
-        if (result == SkCodec::kIncompleteInput) {
+        if (result == SkCodec::kIncompleteInput || result == SkCodec::kInvalidInput) {
             frameByteCounts.push_back(stream->getPosition() - lastOffset);
 
             // We need to distinguish between a partial frame and no more frames.
@@ -319,4 +319,76 @@ DEF_TEST(Codec_rewind, r) {
     test_interleaved(r, "plane.png");
     test_interleaved(r, "plane_interlaced.png");
     test_interleaved(r, "box.gif");
+}
+
+// Modified version of the giflib logo, from
+// http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html
+// The global color map has been replaced with a local color map.
+static unsigned char gNoGlobalColorMap[] = {
+  // Header
+  0x47, 0x49, 0x46, 0x38, 0x39, 0x61,
+
+  // Logical screen descriptor
+  0x0A, 0x00, 0x0A, 0x00, 0x11, 0x00, 0x00,
+
+  // Image descriptor
+  0x2C, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x0A, 0x00, 0x81,
+
+  // Local color table
+  0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00,
+
+  // Image data
+  0x02, 0x16, 0x8C, 0x2D, 0x99, 0x87, 0x2A, 0x1C, 0xDC, 0x33, 0xA0, 0x02, 0x75,
+  0xEC, 0x95, 0xFA, 0xA8, 0xDE, 0x60, 0x8C, 0x04, 0x91, 0x4C, 0x01, 0x00,
+
+  // Trailer
+  0x3B,
+};
+
+// Test that a gif file truncated before its local color map behaves as expected.
+DEF_TEST(Codec_GifPreMap, r) {
+    sk_sp<SkData> data = SkData::MakeWithoutCopy(gNoGlobalColorMap, sizeof(gNoGlobalColorMap));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "failed to create codec");
+        return;
+    }
+
+    SkBitmap truth;
+    auto info = standardize_info(codec.get());
+    truth.allocPixels(info);
+
+    auto result = codec->getPixels(info, truth.getPixels(), truth.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    // Truncate to 23 bytes, just before the color map. This should fail to decode.
+    codec.reset(SkCodec::NewFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23)));
+    REPORTER_ASSERT(r, codec);
+    if (codec) {
+        SkBitmap bm;
+        bm.allocPixels(info);
+        result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kInvalidInput);
+    }
+
+    // Again, truncate to 23 bytes, this time for an incremental decode. We
+    // cannot start an incremental decode until we have more data. If we did,
+    // we would be using the wrong color table.
+    HaltingStream* stream = new HaltingStream(data, 23);
+    codec.reset(SkCodec::NewFromStream(stream));
+    REPORTER_ASSERT(r, codec);
+    if (codec) {
+        SkBitmap bm;
+        bm.allocPixels(info);
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+
+        stream->addNewData(data->size());
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+        result = codec->incrementalDecode();
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        compare_bitmaps(r, truth, bm);
+    }
 }
