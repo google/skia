@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_bee618f8",
+        "filename": "site/dev/tools/qtdebugger.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-09T20:15:27Z",
+      "side": 1,
+      "message": "Let\u0027s delete this file.",
+      "range": {
+        "startLine": 1,
+        "startChar": 14,
+        "endLine": 1,
+        "endChar": 26
+      },
+      "revId": "875d30fc140df174c2cb0f736d6f2301aaa404d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_5ed1440e",
+        "filename": "site/user/quick/ios.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-09T20:15:27Z",
+      "side": 1,
+      "message": "Please leave this file alone for now.  I\u0027ll fix it when we\u0027re ready.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 59
+      },
+      "revId": "875d30fc140df174c2cb0f736d6f2301aaa404d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
