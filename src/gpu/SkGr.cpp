@@ -558,6 +558,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            SkBlendMode* primColorMode,
                                            bool primitiveIsSrc,
                                            GrPaint* grPaint) {
+    grPaint->setAntiAlias(skPaint.isAntiAlias());
     grPaint->setAllowSRGBInputs(rtc->isGammaCorrect());
 
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.

@@ -102,7 +102,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         tm.postIDiv(2*S, 2*S);
         paint.addColorTextureProcessor(texture, nullptr, tm);
 
-        renderTargetContext->drawRect(clip, paint, GrAA::kNo, vm, SkRect::MakeWH(2*S, 2*S));
+        renderTargetContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
 
         // now update the lower right of the texture in first pass
         // or upper right in second pass
@@ -116,7 +116,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         texture->writePixels(S, (i ? 0 : S), S, S,
                                 texture->config(), gTextureData.get(),
                                 4 * stride);
-        renderTargetContext->drawRect(clip, paint, GrAA::kNo, vm, SkRect::MakeWH(2*S, 2*S));
+        renderTargetContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
     }
 }
 #endif

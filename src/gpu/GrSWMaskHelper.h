@@ -9,7 +9,6 @@
 #define GrSWMaskHelper_DEFINED
 
 #include "GrColor.h"
-#include "GrRenderTargetContext.h"
 #include "GrTextureProvider.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
@@ -52,10 +51,10 @@ public:
     bool init(const SkIRect& resultBounds, const SkMatrix* matrix);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void drawRect(const SkRect& rect, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawRect(const SkRect& rect, SkRegion::Op op, bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void drawShape(const GrShape&, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawShape(const GrShape&, SkRegion::Op op, bool antiAlias, uint8_t alpha);
 
     // Move the mask generation results from the internal bitmap to the gpu.
     void toTexture(GrTexture* texture);
@@ -68,6 +67,7 @@ public:
         fPixels.erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
     }
 
+
     enum class TextureType {
         kExactFit,
         kApproximateFit
@@ -78,7 +78,7 @@ public:
     static GrTexture* DrawShapeMaskToTexture(GrTextureProvider*,
                                              const GrShape&,
                                              const SkIRect& resultBounds,
-                                             GrAA,
+                                             bool antiAlias,
                                              TextureType,
                                              const SkMatrix* matrix);
 

@@ -29,14 +29,15 @@ class GrTexture;
 
 class GrPipelineBuilder : public SkNoncopyable {
 public:
-//    GrPipelineBuilder();
+    GrPipelineBuilder();
+
     /**
      * Initializes the GrPipelineBuilder based on a GrPaint and MSAA availability. Note
      * that GrPipelineBuilder encompasses more than GrPaint. Aspects of GrPipelineBuilder that have
      * no GrPaint equivalents are set to default values with the exception of vertex attribute state
      * which is unmodified by this function and clipping which will be enabled.
      */
-    GrPipelineBuilder(const GrPaint& paint, GrAAType aaType);
+    GrPipelineBuilder(const GrPaint&, bool useHWAA = false);
 
     virtual ~GrPipelineBuilder();
 

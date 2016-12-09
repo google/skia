@@ -160,7 +160,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
 
     grPaint.addColorTextureProcessor(tex, nullptr, textureMat);
 
-    fRenderTargetContext->drawRect(GrNoClip(), grPaint, GrAA::kNo, mat, dst);
+    fRenderTargetContext->drawRect(GrNoClip(), grPaint, mat, dst);
 }
 
 
@@ -244,7 +244,6 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 #define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
 
 void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
-                                                      GrAAType aaType,
                                                       GrDrawOp* batch,
                                                       const GrUserStencilSettings* uss,
                                                       bool snapToCenters) {
@@ -254,7 +253,7 @@ void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_drawBatch");
 
-    GrPipelineBuilder pipelineBuilder(paint, aaType);
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTargetContext->mustUseHWAA(paint));
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }

@@ -42,7 +42,6 @@ enum class Attrib : uint8_t {
 };
 constexpr int kNumAttribs = 1 + (int)Attrib::kLocalRect;
 
-// TODO: replace with GrAAType?
 enum class AntialiasMode : uint8_t {
     kNone,
     kCoverage,
