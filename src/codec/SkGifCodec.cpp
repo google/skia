@@ -239,6 +239,14 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("frame index out of range!\n", kIncompleteInput);
     }
 
+    auto& localMap = fReader->frameContext(frameIndex)->localColorMap();
+    if (localMap.numColors() && !localMap.isDefined()) {
+        // We have parsed enough to know that there is a color map, but cannot
+        // parse the map itself yet. Exit now, so we do not build an incorrect
+        // table.
+        return gif_error("color map not available yet\n", kIncompleteInput);
+    }
+
     fTmpBuffer.reset(new uint8_t[dstInfo.minRowBytes()]);
 
     this->initializeColorTable(dstInfo, frameIndex);
@@ -296,8 +304,19 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         int* inputColorCount,
                                         int* rowsDecoded) {
     Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
-    if (kSuccess != result) {
-        return result;
+    switch (result) {
+        case kSuccess:
+            break;
+        case kIncompleteInput:
+            // onStartIncrementalDecode treats this as incomplete, since it may
+            // provide more data later, but in this case, no more data will be
+            // provided, and there is nothing to draw. We also cannot return
+            // kIncompleteInput, which will make SkCodec attempt to fill
+            // remaining rows, but that requires an SkSwizzler, which we have
+            // not created.
+            return kInvalidInput;
+        default:
+            return result;
     }
 
     if (dstInfo.dimensions() != this->getInfo().dimensions()) {
