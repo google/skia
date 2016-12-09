@@ -128,7 +128,7 @@ public:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
-    GrTexture* generateTexture(GrContext*, const SkIRect* subset = nullptr);
+    GrTexture* generateTexture(GrContext*, const SkIRect& subset);
 
     struct SupportedSizes {
         SkISize fSizes[2];
@@ -259,7 +259,7 @@ protected:
         return false;
     }
 
-    virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
+    virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect&) {
         return nullptr;
     }
 

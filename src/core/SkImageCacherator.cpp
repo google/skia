@@ -235,7 +235,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         ScopedGenerator generator(fSharedGenerator);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(),
                                            cacheInfo.width(), cacheInfo.height());
-        tex.reset(generator->generateTexture(nullptr, &subset));
+        tex.reset(generator->generateTexture(nullptr, subset));
     }
     if (!tex) {
         bitmap->reset();
@@ -545,7 +545,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
     {
         ScopedGenerator generator(fSharedGenerator);
         SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
-        if (GrTexture* tex = generator->generateTexture(ctx, &subset)) {
+        if (GrTexture* tex = generator->generateTexture(ctx, subset)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
             return set_key_and_return(tex, key);
