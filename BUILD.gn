@@ -30,6 +30,8 @@ declare_args() {
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+
+  skia_build_for_android_framework = false
 }
 declare_args() {
   skia_use_dng_sdk =
@@ -92,7 +94,6 @@ config("skia_private") {
     "include/private",
     "src/c",
     "src/codec",
-    "src/config",
     "src/core",
     "src/effects",
     "src/effects/gradients",
@@ -120,13 +121,13 @@ config("skia_private") {
   ]
   if (is_android) {
     defines += [
-      "SK_GAMMA_EXPONENT=1.4",
-      "SK_GAMMA_CONTRAST=0.0",
+      "SK_GAMMA_EXPONENT 1.4",
+      "SK_GAMMA_CONTRAST 0.0",
     ]
   }
   if (is_official_build || is_android) {
     # TODO(bsalomon): it'd be nice to make Android normal.
-    defines += [ "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0" ]
+    defines += [ "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 0" ]
   }
   libs = []
   lib_dirs = []
@@ -640,10 +641,12 @@ component("skia") {
   }
 
   if (is_android) {
-    deps += [
-      "//third_party/cpu-features",
-      "//third_party/expat",
-    ]
+    if (!skia_build_for_android_framework) {
+      deps += [
+        "//third_party/cpu-features",
+        "//third_party/expat",
+      ]
+    }
     sources += [ "src/ports/SkDebug_android.cpp" ]
     libs += [
       "EGL",
