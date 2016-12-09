@@ -22,6 +22,24 @@
       "revId": "7e2c3f60b52c5171b7fd01259ee42cb47fdf4d92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_a44a8c70",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-09T17:07:05Z",
+      "side": 1,
+      "message": "fixed in patch set 10 to call rasterclip and clipstack with rects in device space. fortunately both classes already had clip methods that take device space. This change also avoids SkCanvas::onClipRect and the clip will not be recorded into pictures.",
+      "parentUuid": "cd4b13fc_d950647f",
+      "revId": "7e2c3f60b52c5171b7fd01259ee42cb47fdf4d92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
