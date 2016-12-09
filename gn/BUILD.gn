@@ -12,11 +12,6 @@ declare_args() {
     ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
     cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
-    if (host_os == "win") {
-      ar = ar + ".exe"
-      cc = cc + ".exe"
-      cxx = cxx + ".exe"
-    }
   }
 
   windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
@@ -28,6 +23,14 @@ declare_args() {
 
   cc_wrapper = ""
   malloc = ""
+}
+
+declare_args() {
+  if (host_os == "win") {
+    ar = ar + ".exe"
+    cc = cc + ".exe"
+    cxx = cxx + ".exe"
+  }
 }
 
 if (host_os == "win") {
