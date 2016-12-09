@@ -255,9 +255,6 @@ static bool set_random_state(GrPaint* paint, SkRandom* random) {
     if (random->nextBool()) {
         paint->setAllowSRGBInputs(true);
     }
-    if (random->nextBool()) {
-        paint->setAntiAlias(true);
-    }
     return random->nextBool();
 }
 
@@ -339,8 +336,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
         const GrUserStencilSettings* uss = get_random_stencil(&random);
+        // We don't use kHW because we will hit an assertion if the render target is not
+        // multisampled
+        static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
+        GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
 
-        renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get(), uss, snapToCenters);
+        renderTargetContext->priv().testingOnly_drawBatch(grPaint, aaType, batch.get(), uss,
+                                                          snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -374,7 +376,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
+            renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
+                                                              batch.get());
             drawingManager->flush();
         }
     }

@@ -15,15 +15,10 @@
 #include "batches/GrOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
-GrPipelineBuilder::GrPipelineBuilder()
-    : fFlags(0x0)
-    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-    , fDrawFace(GrDrawFace::kBoth) {
-    SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-}
-
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
-    : GrPipelineBuilder() {
+GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
+        : fFlags(0x0)
+        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+        , fDrawFace(GrDrawFace::kBoth) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
@@ -36,7 +31,8 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, bool useHWAA)
 
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
-    this->setState(GrPipelineBuilder::kHWAntialias_Flag, useHWAA);
+    this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAAType::kMSAA == aaType ||
+                                                         GrAAType::kMixedSamples == aaType);
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,
