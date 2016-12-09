@@ -94,6 +94,10 @@ public:
     void validate() const {}
 #endif
 
+    void setDeviceClipRestriction(const SkIRect* rect) {
+        fClipRestrictionRect = rect;
+    }
+
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
@@ -102,6 +106,7 @@ private:
     // these 2 are caches based on querying the right obj based on fIsBW
     bool        fIsEmpty;
     bool        fIsRect;
+    const SkIRect*    fClipRestrictionRect = nullptr;
 
     bool computeIsEmpty() const {
         return fIsBW ? fBW.isEmpty() : fAA.isEmpty();
@@ -131,6 +136,25 @@ private:
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
     bool op(const SkRasterClip&, SkRegion::Op);
     bool setConservativeRect(const SkRect& r, const SkIRect& clipR, bool isInverse);
+
+    inline void applyClipRestriction(SkRegion::Op op, SkIRect* bounds) {
+        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
+            && !fClipRestrictionRect->isEmpty()) {
+            if (!bounds->intersect(*fClipRestrictionRect)) {
+                bounds->setEmpty();
+            }
+        }
+    }
+
+    inline void applyClipRestriction(SkRegion::Op op, SkRect* bounds) {
+        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
+            && !fClipRestrictionRect->isEmpty()) {
+            auto fClipRestrictionRect2 = SkRect::MakeFromIRect(*fClipRestrictionRect);
+            if (!bounds->intersect(fClipRestrictionRect2)) {
+                bounds->setEmpty();
+            }
+        }
+    }
 };
 
 class SkAutoRasterClipValidate : SkNoncopyable {
