@@ -809,41 +809,103 @@ STAGE(save_xy) {
     r.store(sc->x);
     g.store(sc->y);
 
+    // Whether bilinear or bicubic, all sample points have the same fractional offset (fx,fy).
+    // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
+    // surrounding (x,y), all (0.5,0.5) off-center.
     auto fract = [](const SkNf& v) { return v - v.floor(); };
     fract(r + 0.5f).store(sc->fx);
     fract(g + 0.5f).store(sc->fy);
 }
 
-template <int X, int Y>
-SI void bilinear(void* ctx, SkNf* x, SkNf* y) {
-    auto sc = (SkImageShaderContext*)ctx;
-
-    // Bilinear interpolation considers the 4 physical pixels at
-    // each corner of a logical pixel centered at (sc->x, sc->y).
-    *x = SkNf::Load(sc->x) + X*0.5f;
-    *y = SkNf::Load(sc->y) + Y*0.5f;
-
-    // Each corner pixel contributes color in direct proportion to its overlap.
-    auto fx = SkNf::Load(sc->fx),
-         fy = SkNf::Load(sc->fy);
-    auto overlap = (X > 0 ? fx : (1.0f - fx))
-                 * (Y > 0 ? fy : (1.0f - fy));
-    overlap.store(sc->scale);
-}
-STAGE(bilinear_nn) { bilinear<-1,-1>(ctx, &r, &g); }
-STAGE(bilinear_pn) { bilinear<+1,-1>(ctx, &r, &g); }
-STAGE(bilinear_np) { bilinear<-1,+1>(ctx, &r, &g); }
-STAGE(bilinear_pp) { bilinear<+1,+1>(ctx, &r, &g); }
-
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
-    auto scale = SkNf::Load(sc->scale);
+    // Bilinear and bicubic filtering are both separable, so we'll end up with independent
+    // scale contributions in x and y that we multiply together to get each pixel's scale factor.
+    auto scale = SkNf::Load(sc->scalex) * SkNf::Load(sc->scaley);
     dr = SkNf_fma(scale, r, dr);
     dg = SkNf_fma(scale, g, dg);
     db = SkNf_fma(scale, b, db);
     da = SkNf_fma(scale, a, da);
 }
+
+// In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+// are combined in direct proportion to their area overlapping that logical query pixel.
+// At positive offsets, the x-axis contribution to that rectangular area is fx; (1-fx)
+// at negative x offsets.  The y-axis is treated symmetrically.
+template <int Scale>
+SI void bilinear_x(void* ctx, SkNf* x) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *x = SkNf::Load(sc->x) + Scale*0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    (Scale > 0 ? fx : (1.0f - fx)).store(sc->scalex);
+}
+template <int Scale>
+SI void bilinear_y(void* ctx, SkNf* y) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *y = SkNf::Load(sc->y) + Scale*0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    (Scale > 0 ? fy : (1.0f - fy)).store(sc->scaley);
+}
+STAGE(bilinear_nx) { bilinear_x<-1>(ctx, &r); }
+STAGE(bilinear_px) { bilinear_x<+1>(ctx, &r); }
+STAGE(bilinear_ny) { bilinear_y<-1>(ctx, &g); }
+STAGE(bilinear_py) { bilinear_y<+1>(ctx, &g); }
+
+
+// In bilinear interpolation, the 16 pixels at +/- 0.5 and +/- 1.5 offsets from the sample
+// pixel center are combined with a non-uniform cubic filter, with high filter values near
+// the center and lower values farther away.
+//
+// We break this filter function into two parts, one for near +/- 0.5 offsets,
+// and one for far +/- 1.5 offsets.
+//
+// See GrBicubicEffect for details about this particular Mitchell-Netravali filter.
+SI SkNf bicubic_near(const SkNf& t) {
+    // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
+    return SkNf_fma(t, SkNf_fma(t, SkNf_fma(-21/18.0f, t, 27/18.0f), 9/18.0f), 1/18.0f);
+}
+SI SkNf bicubic_far(const SkNf& t) {
+    // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
+    return (t*t)*SkNf_fma(7/18.0f, t, -6/18.0f);
+}
+
+template <int Scale>
+SI void bicubic_x(void* ctx, SkNf* x) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *x = SkNf::Load(sc->x) + Scale*0.5f;
+    auto fx = SkNf::Load(sc->fx);
+    if (Scale == -3) { return bicubic_far (1.0f - fx).store(sc->scalex); }
+    if (Scale == -1) { return bicubic_near(1.0f - fx).store(sc->scalex); }
+    if (Scale == +1) { return bicubic_near(       fx).store(sc->scalex); }
+    if (Scale == +3) { return bicubic_far (       fx).store(sc->scalex); }
+    SkDEBUGFAIL("unreachable");
+}
+template <int Scale>
+SI void bicubic_y(void* ctx, SkNf* y) {
+    auto sc = (SkImageShaderContext*)ctx;
+
+    *y = SkNf::Load(sc->y) + Scale*0.5f;
+    auto fy = SkNf::Load(sc->fy);
+    if (Scale == -3) { return bicubic_far (1.0f - fy).store(sc->scaley); }
+    if (Scale == -1) { return bicubic_near(1.0f - fy).store(sc->scaley); }
+    if (Scale == +1) { return bicubic_near(       fy).store(sc->scaley); }
+    if (Scale == +3) { return bicubic_far (       fy).store(sc->scaley); }
+    SkDEBUGFAIL("unreachable");
+}
+STAGE(bicubic_n3x) { bicubic_x<-3>(ctx, &r); }
+STAGE(bicubic_n1x) { bicubic_x<-1>(ctx, &r); }
+STAGE(bicubic_p1x) { bicubic_x<+1>(ctx, &r); }
+STAGE(bicubic_p3x) { bicubic_x<+3>(ctx, &r); }
+
+STAGE(bicubic_n3y) { bicubic_y<-3>(ctx, &g); }
+STAGE(bicubic_n1y) { bicubic_y<-1>(ctx, &g); }
+STAGE(bicubic_p1y) { bicubic_y<+1>(ctx, &g); }
+STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }
+
 
 template <typename T>
 SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {

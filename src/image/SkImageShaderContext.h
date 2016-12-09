@@ -30,7 +30,8 @@ struct SkImageShaderContext {
     float         y[8];
     float         fx[8];
     float         fy[8];
-    float         scale[8];
+    float         scalex[8];
+    float         scaley[8];
 };
 
 #endif//SkImageShaderContext_DEFINED
