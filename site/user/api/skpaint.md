@@ -1,14 +1,20 @@
 SkPaint
 =======
+<span id="top"></span>
 
 *color, stroke, font, effects*
 
--   [SkXfermode](#SkXfermode) - transfer modes
--   [ShShader](#ShShader) - gradients and patterns
--   [SkMaskFilter](#SkMaskFilter) - modifications to the alpha mask
--   [SkColorFilter](#SkColorFilter) - modify the source color before applying the
--   [SkPathEffect](#SkPathEffect) - modify to the geometry before it
-    generates an alpha mask.
+<div class="float">
+  <ul>
+    <li><a href="#">SkPaint</a></li>
+    <li><a href="#SkXfermode">SkXfermode</a></li>
+    <li><a href="#SkShader">SkShader</a></li>
+    <li><a href="#SkMaskFilter">SkMaskFilter</a></li>
+    <li><a href="#SkColorFilter">SkColorFilter</a></li>
+    <li><a href="#SkPathEffect">SkPathEffect</a></li>
+  </ul>
+</div>
+
 
 Anytime you draw something in Skia, and want to specify what color it
 is, or how it blends with the background, or what style or font to
@@ -236,9 +242,9 @@ with a vertical alpha gradient.
 <a href='https://fiddle.skia.org/c/@skpaint_xfer'><img
   src='https://fiddle.skia.org/i/@skpaint_xfer_raster.png'></a>
 
-<span id="ShShader"></span>
+<span id="SkShader"></span>
 
-ShShader
+SkShader
 --------
 
 Several shaders are defined (besides the linear gradient already mentioned):
