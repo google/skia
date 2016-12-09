@@ -48,7 +48,7 @@ bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const {
 bool GrFixedClip::apply(GrContext*, GrRenderTargetContext* rtc,
                         bool, bool, GrAppliedClip* out) const {
     if (fScissorState.enabled()) {
-        SkIRect tightScissor = SkIRect::MakeWH(rtc->worstCaseWidth(), rtc->worstCaseHeight());
+        SkIRect tightScissor = SkIRect::MakeWH(rtc->width(), rtc->height());
         if (!tightScissor.intersect(fScissorState.rect())) {
             return false;
         }

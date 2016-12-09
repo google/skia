@@ -7,6 +7,7 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrCaps.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrTextureProvider.h"
@@ -49,14 +50,14 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
 
 #ifdef SK_DEBUG
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
-        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
 #endif
 
     return fTarget;
 }
 
-int GrSurfaceProxy::worstCaseWidth() const { 
+int GrSurfaceProxy::worstCaseWidth(const GrCaps& caps) const {
     if (fTarget) {
         return fTarget->width();
     }
@@ -65,10 +66,14 @@ int GrSurfaceProxy::worstCaseWidth() const {
         return fDesc.fWidth;
     }
 
-    return GrNextPow2(fDesc.fWidth);
+    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fWidth));
+    }
+
+    return fDesc.fWidth;
 }
 
-int GrSurfaceProxy::worstCaseHeight() const { 
+int GrSurfaceProxy::worstCaseHeight(const GrCaps& caps) const {
     if (fTarget) {
         return fTarget->height();
     }
@@ -77,7 +82,11 @@ int GrSurfaceProxy::worstCaseHeight() const {
         return fDesc.fHeight;
     }
 
-    return GrNextPow2(fDesc.fHeight);
+    if (caps.reuseScratchTextures() || fDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        return SkTMax(GrTextureProvider::kMinScratchTextureSize, GrNextPow2(fDesc.fHeight));
+    }
+
+    return fDesc.fHeight;
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {

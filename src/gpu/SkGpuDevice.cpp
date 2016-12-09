@@ -236,10 +236,10 @@ GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
 
 void SkGpuDevice::clearAll() {
     ASSERT_SINGLE_OWNER
-    GrColor color = 0;
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
+
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fRenderTargetContext->clear(&rect, color, true);
+    fRenderTargetContext->clear(&rect, 0x0, true);
 }
 
 void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
