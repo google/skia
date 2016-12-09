@@ -12,6 +12,9 @@ declare_args() {
     ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
     cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+  }
+
+  declare_args {
     if (host_os == "win") {
       ar = ar + ".exe"
       cc = cc + ".exe"
