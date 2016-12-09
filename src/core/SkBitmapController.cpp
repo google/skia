@@ -40,11 +40,15 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&,
+                                   const SkMatrix& inv,
+                                   SkFilterQuality,
+                                   bool canShadeHQ);
 
 private:
     SkBitmap                      fResultBitmap;
     sk_sp<const SkMipMap>         fCurrMip;
+    bool                          fCanShadeHQ;
 
     bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
@@ -126,6 +130,12 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
 
     if (invScaleX > 1 || invScaleY > 1) {
         return false; // only use HQ when upsampling
+    }
+
+    // If the shader can natively handle HQ filtering, let it do it.
+    if (fCanShadeHQ) {
+        fQuality = kHigh_SkFilterQuality;
+        return true;
     }
 
     const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
@@ -219,9 +229,11 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
 
 SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
                                                                const SkMatrix& inv,
-                                                               SkFilterQuality qual) {
+                                                               SkFilterQuality qual,
+                                                               bool canShadeHQ) {
     fInvMatrix = inv;
     fQuality = qual;
+    fCanShadeHQ = canShadeHQ;
 
     bool processed = this->processExternalRequest(provider);
 
@@ -248,5 +260,6 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size,
+                                                             bm, inverse, quality, fCanShadeHQ);
 }
