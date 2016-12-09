@@ -19,7 +19,7 @@ class SkOpContourHead;
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 0
@@ -392,6 +392,10 @@ public:
     static void VerifyOp(const SkPath& one, const SkPath& two, SkPathOp op,
         const SkPath& result);
     static void VerifySimplify(const SkPath& path, const SkPath& result);
+#endif
+
+#if DEBUG_ACTIVE_SPANS
+    static SkString gActiveSpans;
 #endif
 
 };
