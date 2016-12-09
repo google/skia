@@ -12,7 +12,6 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "GrShaderCaps.h"
 #include "SkStream.h"
 #include "SkSLCodeGenerator.h"
 #include "ir/SkSLBinaryExpression.h"
@@ -72,11 +71,12 @@ public:
         kTopLevel_Precedence       = 18
     };
 
-    GLSLCodeGenerator(const Context* context, const GrShaderCaps* caps)
-    : fContext(*context)
-    , fCaps(*caps) {}
+    GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+                      SkWStream* out)
+    : INHERITED(program, errors, out)
+    , fContext(*context) {}
 
-    void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) override;
+    virtual bool generateCode() override;
 
 private:
     void write(const char* s);
@@ -108,6 +108,8 @@ private:
     void writeGlobalVars(const VarDeclaration& vs);
 
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
+
+    void writeFragCoord();
 
     void writeVariableReference(const VariableReference& ref);
 
@@ -156,8 +158,6 @@ private:
     void writeReturnStatement(const ReturnStatement& r);
 
     const Context& fContext;
-    const GrShaderCaps& fCaps;
-    SkWStream* fOut = nullptr;
     SkDynamicMemoryWStream fHeader;
     SkString fFunctionHeader;
     Program::Kind fProgramKind;
@@ -171,6 +171,9 @@ private:
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundImageDecl = false;
+    bool fSetupFragPosition = false;
+
+    typedef CodeGenerator INHERITED;
 };
 
 }

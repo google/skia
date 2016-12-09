@@ -12,6 +12,7 @@
 #include "GrTypes.h"
 #include "vk/GrVkDefines.h"
 #include "vk/GrVkInterface.h"
+#include "SkSLCompiler.h"
 
 class GrVkGpu;
 
@@ -44,9 +45,15 @@ bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat);
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
-                             const char* shaderString,
-                             VkShaderStageFlagBits stage,
+std::unique_ptr<SkSL::Program> GrCompileVkShaderModule(const GrVkGpu* gpu,
+                                                       const char* shaderString,
+                                                       VkShaderStageFlagBits stage,
+                                                       VkShaderModule* shaderModule,
+                                                       VkPipelineShaderStageCreateInfo* stageInfo,
+                                                       const SkSL::Program::Settings& settings);
+
+bool GrInstallVkShaderModule(const GrVkGpu* gpu,
+                             std::unique_ptr<SkSL::Program> program,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo);
 

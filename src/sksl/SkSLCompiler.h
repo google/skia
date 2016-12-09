@@ -16,9 +16,9 @@
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
 #include "SkSLIRGenerator.h"
-#include "SkSLGLSLCodeGenerator.h"
 
 #define SK_FRAGCOLOR_BUILTIN 10001
+#define SK_FRAGCOORD_BUILTIN 15
 
 namespace SkSL {
 
@@ -39,23 +39,25 @@ public:
     ~Compiler();
 
     std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text, 
-                                            std::unordered_map<SkString, CapValue> caps);
+                                            const Program::Settings& settings);
 
-    bool toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out);
-    
-    bool toSPIRV(Program::Kind kind, const SkString& text, SkString* out);
+    bool toSPIRV(const Program& program, SkWStream& out);
 
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
-                SkWStream& out);
-    
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
-                SkString* out);
+    bool toSPIRV(const Program& program, SkString* out);
+
+    bool toGLSL(const Program& program, SkWStream& out);
+
+    bool toGLSL(const Program& program, SkString* out);
 
     void error(Position position, SkString msg) override;
 
     SkString errorText();
 
     void writeErrorCount();
+
+    int errorCount() override {
+        return fErrorCount;
+    }
 
 private:
     void addDefinition(const Expression* lvalue, const Expression* expr,
