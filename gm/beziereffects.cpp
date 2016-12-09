@@ -195,8 +195,7 @@ protected:
                     sk_sp<GrDrawOp> batch = sk_make_sp<BezierCubicOrConicTestBatch>(
                             gp, bounds, color, klmEqs, klmSigns[c]);
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                                      batch.get());
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {
@@ -328,8 +327,7 @@ protected:
                     sk_sp<GrDrawOp> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                                      batch.get());
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {
@@ -540,8 +538,7 @@ protected:
 
                     sk_sp<GrDrawOp> batch(new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                                      batch.get());
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {

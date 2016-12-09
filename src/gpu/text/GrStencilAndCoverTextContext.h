@@ -88,7 +88,7 @@ private:
 
         size_t computeSizeInCache() const;
 
-        GrAA isAntiAlias() const { return fFont.isAntiAlias() ? GrAA::kYes : GrAA::kNo; }
+        bool isAntiAlias() const { return fFont.isAntiAlias(); }
 
     private:
         typedef GrDrawPathRangeBatch::InstanceData InstanceData;

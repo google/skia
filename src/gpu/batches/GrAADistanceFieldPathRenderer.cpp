@@ -90,8 +90,8 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     if (!args.fShape->style().isSimpleFill()) {
         return false;
     }
-    // This does non-inverse coverage-based antialiased fills.
-    if (GrAAType::kCoverage != args.fAAType) {
+    // This does non-inverse antialiased fills.
+    if (!args.fAntiAlias) {
         return false;
     }
     // TODO: Support inverse fill
@@ -128,6 +128,7 @@ public:
 
     AADistanceFieldPathBatch(GrColor color,
                              const GrShape& shape,
+                             bool antiAlias,
                              const SkMatrix& viewMatrix,
                              GrBatchAtlas* atlas,
                              ShapeCache* shapeCache, ShapeDataList* shapeList,
@@ -135,7 +136,7 @@ public:
             : INHERITED(ClassID()) {
         SkASSERT(shape.hasUnstyledKey());
         fBatch.fViewMatrix = viewMatrix;
-        fGeoData.emplace_back(Geometry{color, shape});
+        fGeoData.emplace_back(Geometry{color, shape, antiAlias});
 
         fAtlas = atlas;
         fShapeCache = shapeCache;
@@ -156,7 +157,7 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x\n", geo.fColor);
+            string.appendf("Color: 0x%08x AA:%d\n", geo.fColor, geo.fAntiAlias);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
@@ -273,6 +274,7 @@ private:
                                           atlas,
                                           shapeData,
                                           args.fShape,
+                                          args.fAntiAlias,
                                           desiredDimension,
                                           scale)) {
                     delete shapeData;
@@ -298,8 +300,8 @@ private:
     }
 
     bool addPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrBatchAtlas* atlas,
-                        ShapeData* shapeData, const GrShape& shape, uint32_t dimension,
-                        SkScalar scale) const {
+                        ShapeData* shapeData, const GrShape& shape, bool antiAlias,
+                        uint32_t dimension, SkScalar scale) const {
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -346,7 +348,7 @@ private:
         // rasterize path
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setAntiAlias(true);
+        paint.setAntiAlias(antiAlias);
 
         SkDraw draw;
         sk_bzero(&draw, sizeof(draw));
@@ -500,6 +502,7 @@ private:
     struct Geometry {
         GrColor fColor;
         GrShape fShape;
+        bool fAntiAlias;
     };
 
     BatchTracker fBatch;
@@ -515,6 +518,8 @@ private:
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAADistanceFieldPathRenderer::onDrawPath");
+    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
+    SkASSERT(args.fShape->style().isSimpleFill());
 
     // we've already bailed on inverse filled paths, so this is safe
     SkASSERT(!args.fShape->isEmpty());
@@ -531,10 +536,11 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     sk_sp<GrDrawOp> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
-                                                       *args.fShape, *args.fViewMatrix,
+                                                       *args.fShape,
+                                                       args.fAntiAlias, *args.fViewMatrix,
                                                        fAtlas.get(), &fShapeCache, &fShapeList,
                                                        args.fGammaCorrect));
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
@@ -608,9 +614,11 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
 
     // This path renderer only allows fill styles.
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
+    bool antiAlias = random->nextBool();
 
     return new AADistanceFieldPathBatch(color,
                                         shape,
+                                        antiAlias,
                                         viewMatrix,
                                         gTestStruct.fAtlas.get(),
                                         &gTestStruct.fShapeCache,

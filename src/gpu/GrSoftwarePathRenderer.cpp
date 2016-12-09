@@ -18,8 +18,7 @@
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
-    return !args.fShape->style().applies() && SkToBool(fTexProvider) &&
-           (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone);
+    return !args.fShape->style().applies() && SkToBool(fTexProvider);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +71,9 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                                               viewMatrix, rect,
                                                               nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);
+
     renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
 }
 
@@ -135,7 +135,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
-                    args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
+                    args.fShape->hasUnstyledKey() && args.fAntiAlias;
 
     if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),
                                    args.fRenderTargetContext->height(),
@@ -193,8 +193,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         builder[3] = SkFloat2Bits(ky);
         builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
-        // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
-        // should always be true, though.
     }
 
     sk_sp<GrTexture> texture;
@@ -202,24 +200,25 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
-        GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
-                                                    : GrSWMaskHelper::TextureType::kApproximateFit;
-        GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
-                                                             *boundsForMask, aa,
-                                                             type, args.fViewMatrix));
-        if (!texture) {
-            return false;
-        }
-        if (useCache) {
-            texture->resourcePriv().setUniqueKey(maskKey);
-        }
+         GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
+                                                     : GrSWMaskHelper::TextureType::kApproximateFit;
+         texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
+                                                              *boundsForMask, args.fAntiAlias,
+                                                              type, args.fViewMatrix));
+         if (!texture) {
+             return false;
+         }
+         if (useCache) {
+             texture->resourcePriv().setUniqueKey(maskKey);
+         }
     }
+
     GrSWMaskHelper::DrawToTargetWithShapeMask(texture.get(), args.fRenderTargetContext,
                                               *args.fPaint, *args.fUserStencilSettings,
                                               *args.fClip, *args.fViewMatrix,
                                               SkIPoint {boundsForMask->fLeft, boundsForMask->fTop},
                                               *boundsForMask);
+
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, *args.fPaint, *args.fUserStencilSettings,
                           *args.fClip,

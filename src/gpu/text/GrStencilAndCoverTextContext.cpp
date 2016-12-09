@@ -224,8 +224,10 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrRenderTarg
 
     TextBlob::Iter iter(blob);
     for (TextRun* run = iter.get(); run; run = iter.next()) {
-        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y, clipBounds,
-                  fFallbackTextContext, skPaint);
+        // The run's "font" overrides the anti-aliasing of the passed in paint!
+        paint.setAntiAlias(run->isAntiAlias());
+        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y,
+                  clipBounds, fFallbackTextContext, skPaint);
         run->releaseGlyphCache();
     }
 }
@@ -603,9 +605,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  const SkIRect& clipBounds,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
-    GrAA runAA = this->isAntiAlias();
     SkASSERT(fInstanceData);
-    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || GrAA::kNo == runAA);
+    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || !grPaint.isAntiAlias());
 
     if (fInstanceData->count()) {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -639,16 +640,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                          GrPathRendering::kWinding_FillType, glyphs.get(),
                                          fInstanceData.get(), bounds));
 
-        // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
-        GrAAType aaType = GrAAType::kNone;
-        if (GrAA::kYes == runAA) {
-            if (renderTargetContext->isUnifiedMultisampled()) {
-                aaType = GrAAType::kMSAA;
-            } else if (renderTargetContext->isStencilBufferMultisampled()) {
-                aaType = GrAAType::kMixedSamples;
-            }
-        }
-        GrPipelineBuilder pipelineBuilder(grPaint, aaType);
+        GrPipelineBuilder pipelineBuilder(grPaint);
+        pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
 
         renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());

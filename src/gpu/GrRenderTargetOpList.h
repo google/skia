@@ -95,7 +95,7 @@ public:
      */
     void stencilPath(GrRenderTargetContext*,
                      const GrClip&,
-                     GrAAType aa,
+                     bool useHWAA,
                      const SkMatrix& viewMatrix,
                      const GrPath*);
 

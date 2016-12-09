@@ -46,25 +46,28 @@ public:
      * draws between beginFlush() and endFlush().
      */
     GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                               GrAA, const GrInstancedPipelineInfo&, GrAAType*);
+                                               bool antialias, const GrInstancedPipelineInfo&,
+                                               bool* useHWAA);
 
     GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                               const SkRect& localRect, GrAA,
-                                               const GrInstancedPipelineInfo&, GrAAType*);
+                                               const SkRect& localRect, bool antialias,
+                                               const GrInstancedPipelineInfo&, bool* useHWAA);
 
     GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                               const SkMatrix& localMatrix, GrAA,
-                                               const GrInstancedPipelineInfo&, GrAAType*);
+                                               const SkMatrix& localMatrix, bool antialias,
+                                               const GrInstancedPipelineInfo&, bool* useHWAA);
 
     GrDrawOp* SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&, GrColor,
-                                               GrAA, const GrInstancedPipelineInfo&, GrAAType*);
+                                               bool antialias, const GrInstancedPipelineInfo&,
+                                               bool* useHWAA);
 
     GrDrawOp* SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&, GrColor,
-                                                GrAA, const GrInstancedPipelineInfo&, GrAAType*);
+                                                bool antialias, const GrInstancedPipelineInfo&,
+                                                bool* useHWAA);
 
     GrDrawOp* SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                                 const SkMatrix&, GrColor, GrAA,
-                                                 const GrInstancedPipelineInfo&, GrAAType*);
+                                                 const SkMatrix&, GrColor, bool antialias,
+                                                 const GrInstancedPipelineInfo&, bool* useHWAA);
 
     /**
      * Compiles all recorded draws into GPU buffers and allows the client to begin flushing the
@@ -179,11 +182,11 @@ private:
 
     Batch* SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
                                              const SkMatrix& viewMatrix, GrColor,
-                                             const SkRect& localRect, GrAA aa,
-                                             const GrInstancedPipelineInfo&, GrAAType*);
+                                             const SkRect& localRect, bool antialias,
+                                             const GrInstancedPipelineInfo&, bool* requireHWAA);
 
-    bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
-                             GrAAType*, AntialiasMode*);
+    bool selectAntialiasMode(const SkMatrix& viewMatrix, bool antialias,
+                             const GrInstancedPipelineInfo&, bool* useHWAA, AntialiasMode*);
 
     virtual Batch* createBatch() = 0;
 

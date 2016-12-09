@@ -213,15 +213,15 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                      fp, producer->isAlphaOnly(), &grPaint)) {
         return;
     }
-    GrAA aa = GrBoolToAA(paint.isAntiAlias());
+
     if (canUseTextureCoordsAsLocalCoords) {
-        fRenderTargetContext->fillRectToRect(clip, grPaint, aa, viewMatrix, clippedDstRect,
+        fRenderTargetContext->fillRectToRect(clip, grPaint, viewMatrix, clippedDstRect,
                                              clippedSrcRect);
         return;
     }
 
     if (!mf) {
-        fRenderTargetContext->drawRect(clip, grPaint, aa, viewMatrix, clippedDstRect);
+        fRenderTargetContext->drawRect(clip, grPaint, viewMatrix, clippedDstRect);
         return;
     }
 
@@ -247,6 +247,6 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     rectPath.addRect(clippedDstRect);
     rectPath.setIsVolatile(true);
     GrBlurUtils::drawPathWithMaskFilter(this->context(), fRenderTargetContext.get(), fClip,
-                                        rectPath, &grPaint, aa, viewMatrix, mf,
-                                        GrStyle::SimpleFill(), true);
+                                        rectPath, &grPaint, viewMatrix, mf, GrStyle::SimpleFill(),
+                                        true);
 }
