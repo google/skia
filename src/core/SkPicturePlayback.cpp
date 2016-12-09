@@ -136,7 +136,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader); 
             uint32_t packed = reader->readInt(); 
-            SkClipOp clipOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             BREAK_ON_READ_ERROR(reader);
@@ -151,7 +151,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRegion region;
             reader->readRegion(&region);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             size_t offsetToRestore = reader->readInt();
             BREAK_ON_READ_ERROR(reader);
 
@@ -165,7 +165,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRect rect;
             reader->readRect(&rect);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             BREAK_ON_READ_ERROR(reader);
@@ -180,7 +180,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRRect rrect;
             reader->readRRect(&rrect);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(packed);
+            SkCanvas::ClipOp clipOp = ClipParams_unpackRegionOp(packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             BREAK_ON_READ_ERROR(reader);

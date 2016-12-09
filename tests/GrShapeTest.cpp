@@ -52,7 +52,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     SkMatrix matrix;
     matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
     clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
-    surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
+    surface->getCanvas()->clipRect(clip, SkCanvas::kDifference_Op);
     surface->getCanvas()->concat(matrix);
     SkPaint whitePaint;
     whitePaint.setColor(SK_ColorWHITE);

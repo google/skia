@@ -43,10 +43,10 @@ public:
     void translate(SkScalar, SkScalar);
     void translateZ(SkScalar);
 
-    void clipPath  (const   SkPath&, SkClipOp, bool aa);
-    void clipRect  (const   SkRect&, SkClipOp, bool aa);
-    void clipRRect (const  SkRRect&, SkClipOp, bool aa);
-    void clipRegion(const SkRegion&, SkClipOp);
+    void clipPath  (const   SkPath&, SkCanvas::ClipOp, bool aa);
+    void clipRect  (const   SkRect&, SkCanvas::ClipOp, bool aa);
+    void clipRRect (const  SkRRect&, SkCanvas::ClipOp, bool aa);
+    void clipRegion(const SkRegion&, SkCanvas::ClipOp);
 
     void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);

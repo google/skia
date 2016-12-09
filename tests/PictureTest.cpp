@@ -287,7 +287,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
         for (int i = 0; i < 50; ++i) {
             canvas->clipPath(convexClip);
             canvas->clipPath(concaveClip);
-            canvas->clipPath(convexClip, kIntersect_SkClipOp, true);
+            canvas->clipPath(convexClip, SkCanvas::kIntersect_Op, true);
             canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
         }
     }
@@ -299,7 +299,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     {
         const SkPath concaveClip = make_concave_path();
         for (int i = 0; i < 50; ++i) {
-            canvas->clipPath(concaveClip, kIntersect_SkClipOp, true);
+            canvas->clipPath(concaveClip, SkCanvas::kIntersect_Op, true);
             canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
         }
     }
@@ -398,7 +398,7 @@ static void create_imbalance(SkCanvas* canvas) {
     SkRect clipRect = SkRect::MakeWH(2, 2);
     SkRect drawRect = SkRect::MakeWH(10, 10);
     canvas->save();
-        canvas->clipRect(clipRect, kReplace_SkClipOp);
+        canvas->clipRect(clipRect, SkCanvas::kReplace_Op);
         canvas->translate(1.0f, 1.0f);
         SkPaint p;
         p.setColor(SK_ColorGREEN);
@@ -664,7 +664,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path);
-        canvas->clipPath(invPath, kUnion_SkClipOp);
+        canvas->clipPath(invPath, SkCanvas::kUnion_Op);
         bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
         REPORTER_ASSERT(reporter, true == nonEmpty);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
@@ -674,7 +674,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kDifference_SkClipOp);
+        canvas->clipPath(path, SkCanvas::kDifference_Op);
         bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
         REPORTER_ASSERT(reporter, true == nonEmpty);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
@@ -684,7 +684,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kReverseDifference_SkClipOp);
+        canvas->clipPath(path, SkCanvas::kReverseDifference_Op);
         bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
         // True clip is actually empty in this case, but the best
         // determination we can make using only bounds as input is that the
@@ -697,8 +697,8 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kIntersect_SkClipOp);
-        canvas->clipPath(path2, kXOR_SkClipOp);
+        canvas->clipPath(path, SkCanvas::kIntersect_Op);
+        canvas->clipPath(path2, SkCanvas::kXOR_Op);
         bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
         REPORTER_ASSERT(reporter, true == nonEmpty);
         REPORTER_ASSERT(reporter, 6 == clipBounds.fLeft);
@@ -746,22 +746,22 @@ public:
         , fClipCount(0){
     }
 
-    void onClipRect(const SkRect& r, SkClipOp op, ClipEdgeStyle edgeStyle) override {
+    void onClipRect(const SkRect& r, ClipOp op, ClipEdgeStyle edgeStyle) override {
         fClipCount += 1;
         this->INHERITED::onClipRect(r, op, edgeStyle);
     }
 
-    void onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle)override {
+    void onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle)override {
         fClipCount += 1;
         this->INHERITED::onClipRRect(rrect, op, edgeStyle);
     }
 
-    void onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) override {
+    void onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) override {
         fClipCount += 1;
         this->INHERITED::onClipPath(path, op, edgeStyle);
     }
 
-    void onClipRegion(const SkRegion& deviceRgn, SkClipOp op) override {
+    void onClipRegion(const SkRegion& deviceRgn, ClipOp op) override {
         fClipCount += 1;
         this->INHERITED::onClipRegion(deviceRgn, op);
     }
@@ -778,9 +778,9 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
 
-    canvas->clipRect(SkRect::MakeEmpty(), kReplace_SkClipOp);
+    canvas->clipRect(SkRect::MakeEmpty(), SkCanvas::kReplace_Op);
     // The following expanding clip should not be skipped.
-    canvas->clipRect(SkRect::MakeXYWH(4, 4, 3, 3), kUnion_SkClipOp);
+    canvas->clipRect(SkRect::MakeXYWH(4, 4, 3, 3), SkCanvas::kUnion_Op);
     // Draw something so the optimizer doesn't just fold the world.
     SkPaint p;
     p.setColor(SK_ColorBLUE);
@@ -1134,14 +1134,14 @@ DEF_TEST(PictureGpuAnalyzer, r) {
     const SkPath convexClip = make_convex_path();
     const SkPath concaveClip = make_concave_path();
     for (int i = 0; i < 50; ++i) {
-        analyzer.analyzeClipPath(convexClip, kIntersect_SkClipOp, false);
-        analyzer.analyzeClipPath(convexClip, kIntersect_SkClipOp, true);
-        analyzer.analyzeClipPath(concaveClip, kIntersect_SkClipOp, false);
+        analyzer.analyzeClipPath(convexClip, SkCanvas::kIntersect_Op, false);
+        analyzer.analyzeClipPath(convexClip, SkCanvas::kIntersect_Op, true);
+        analyzer.analyzeClipPath(concaveClip, SkCanvas::kIntersect_Op, false);
     }
     REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
 
     for (int i = 0; i < 50; ++i) {
-        analyzer.analyzeClipPath(concaveClip, kIntersect_SkClipOp, true);
+        analyzer.analyzeClipPath(concaveClip, SkCanvas::kIntersect_Op, true);
     }
     REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
 }

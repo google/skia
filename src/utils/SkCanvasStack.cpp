@@ -77,22 +77,22 @@ void SkCanvasStack::didSetMatrix(const SkMatrix& matrix) {
     this->SkCanvas::didSetMatrix(matrix);
 }
 
-void SkCanvasStack::onClipRect(const SkRect& r, SkClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvasStack::onClipRect(const SkRect& r, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->INHERITED::onClipRect(r, op, edgeStyle);
     this->clipToZOrderedBounds();
 }
 
-void SkCanvasStack::onClipRRect(const SkRRect& rr, SkClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvasStack::onClipRRect(const SkRRect& rr, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->INHERITED::onClipRRect(rr, op, edgeStyle);
     this->clipToZOrderedBounds();
 }
 
-void SkCanvasStack::onClipPath(const SkPath& p, SkClipOp op, ClipEdgeStyle edgeStyle) {
+void SkCanvasStack::onClipPath(const SkPath& p, ClipOp op, ClipEdgeStyle edgeStyle) {
     this->INHERITED::onClipPath(p, op, edgeStyle);
     this->clipToZOrderedBounds();
 }
 
-void SkCanvasStack::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
+void SkCanvasStack::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
     SkASSERT(fList.count() == fCanvasData.count());
     for (int i = 0; i < fList.count(); ++i) {
         SkRegion tempRegion;

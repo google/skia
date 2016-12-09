@@ -271,21 +271,21 @@ static void concat_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* 
 
 static void clipRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kClipRect == unpack_verb(packedVerb));
-    SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
+    SkCanvas::ClipOp op = (SkCanvas::ClipOp)(unpack_verb_extra(packedVerb) >> 1);
     bool isAA = unpack_verb_extra(packedVerb) & 1;
     canvas->clipRect(*skip<SkRect>(reader), op, isAA);
 }
 
 static void clipRRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kClipRRect == unpack_verb(packedVerb));
-    SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
+    SkCanvas::ClipOp op = (SkCanvas::ClipOp)(unpack_verb_extra(packedVerb) >> 1);
     bool isAA = unpack_verb_extra(packedVerb) & 1;
     canvas->clipRRect(read_rrect(reader), op, isAA);
 }
 
 static void clipPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kClipPath == unpack_verb(packedVerb));
-    SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
+    SkCanvas::ClipOp op = (SkCanvas::ClipOp)(unpack_verb_extra(packedVerb) >> 1);
     bool isAA = unpack_verb_extra(packedVerb) & 1;
     SkPath path;
     reader.readPath(&path);
@@ -294,7 +294,7 @@ static void clipPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas
 
 static void clipRegion_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kClipRegion == unpack_verb(packedVerb));
-    SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
+    SkCanvas::ClipOp op = (SkCanvas::ClipOp)(unpack_verb_extra(packedVerb) >> 1);
     SkRegion region;
     reader.readRegion(&region);
     canvas->clipRegion(region, op);

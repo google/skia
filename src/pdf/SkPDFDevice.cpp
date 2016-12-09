@@ -198,9 +198,9 @@ static_assert(SkRegion::kXOR_Op == (int)kXOR_SkPathOp, "region_pathop_mismatch")
 static_assert(SkRegion::kReverseDifference_Op == (int)kReverseDifference_SkPathOp,
               "region_pathop_mismatch");
 
-static SkPathOp region_op_to_pathops_op(SkClipOp op) {
+static SkPathOp region_op_to_pathops_op(SkCanvas::ClipOp op) {
     SkASSERT(op >= 0);
-    SkASSERT(op <= kReverseDifference_SkClipOp);
+    SkASSERT(op <= SkCanvas::kReverseDifference_Op);
     return (SkPathOp)op;
 }
 
@@ -231,7 +231,7 @@ static bool get_clip_stack_path(const SkMatrix& transform,
         }
         entryPath.transform(transform);
 
-        if (kReplace_SkClipOp == clipEntry->getOp()) {
+        if (SkCanvas::kReplace_Op == clipEntry->getOp()) {
             *outClipPath = entryPath;
         } else {
             SkPathOp op = region_op_to_pathops_op(clipEntry->getOp());
@@ -1762,7 +1762,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
             synthesizedClipStack = fExistingClipStack;
             SkPath clipPath;
             clipRegion.getBoundaryPath(&clipPath);
-            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), kReplace_SkClipOp, false);
+            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), SkCanvas::kReplace_Op, false);
             clipStack = &synthesizedClipStack;
         }
     }

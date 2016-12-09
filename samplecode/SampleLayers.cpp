@@ -254,7 +254,7 @@ protected:
         m.postTranslate(fCenter.x(), fCenter.y());
         path.transform(m);
 
-        canvas->clipPath(path, kIntersect_SkClipOp, true);
+        canvas->clipPath(path, SkCanvas::kIntersect_Op, true);
         const SkRect bounds = path.getBounds();
 
         SkPaint paint;

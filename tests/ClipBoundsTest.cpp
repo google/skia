@@ -26,7 +26,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     // create a clip stack that will (trivially) reduce to a single rect that
     // is larger than the screen
     SkClipStack stack;
-    stack.clipRect(clipRect, SkMatrix::I(), kReplace_SkClipOp, false);
+    stack.clipRect(clipRect, SkMatrix::I(), SkCanvas::kReplace_Op, false);
 
     bool isIntersectionOfRects = true;
     SkRect devStackBounds;
