@@ -195,7 +195,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
     }
 
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->clipRect(SkRect::Make(fgBounds), kDifference_SkClipOp);
+    canvas->clipRect(SkRect::Make(fgBounds), SkCanvas::kDifference_Op);
     paint.setColor(0);
     canvas->drawPaint(paint);
 }

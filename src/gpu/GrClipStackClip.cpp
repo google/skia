@@ -167,10 +167,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
         const Element* element = iter.get();
 
-        SkClipOp op = element->getOp();
+        SkCanvas::ClipOp op = element->getOp();
         bool invert = element->isInverseFilled();
         bool needsStencil = invert ||
-                            kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
+                            SkCanvas::kIntersect_Op == op || SkCanvas::kReverseDifference_Op == op;
 
         if (PathNeedsSWRenderer(context, hasUserStencilSettings,
                                 renderTargetContext, translate, element, nullptr, needsStencil)) {
@@ -191,7 +191,7 @@ static bool get_analytic_clip_processor(const ElementList& elements,
     SkSTArray<kMaxAnalyticElements, sk_sp<GrFragmentProcessor>> fps;
     ElementList::Iter iter(elements);
     while (iter.get()) {
-        SkClipOp op = iter.get()->getOp();
+        SkCanvas::ClipOp op = iter.get()->getOp();
         bool invert;
         bool skip = false;
         switch (op) {
@@ -449,14 +449,14 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
 
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        SkClipOp op = element->getOp();
+        SkCanvas::ClipOp op = element->getOp();
 
-        if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
+        if (SkCanvas::kIntersect_Op == op || SkCanvas::kReverseDifference_Op == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
             // that is being "drawn". In both cases we erase all the pixels outside of the geometry
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
             // the pixels before clearing the ones outside the geometry.
-            if (kReverseDifference_SkClipOp == op) {
+            if (SkCanvas::kReverseDifference_Op == op) {
                 SkRect temp = SkRect::Make(reducedClip.ibounds());
                 // invert the entire scene
                 helper.drawRect(temp, SkRegion::kXOR_Op, false, 0xFF);

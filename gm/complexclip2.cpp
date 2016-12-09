@@ -83,13 +83,13 @@ protected:
         fPaths[4].addRoundRect(fRects[4], 5, 5);
         fRectColors[4] = SK_ColorCYAN;
 
-        const SkClipOp ops[] = {
-            kDifference_SkClipOp,
-            kIntersect_SkClipOp,
-            kUnion_SkClipOp,
-            kXOR_SkClipOp,
-            kReverseDifference_SkClipOp,
-            kReplace_SkClipOp,
+        SkCanvas::ClipOp ops[] = {
+            SkCanvas::kDifference_Op,
+            SkCanvas::kIntersect_Op,
+            SkCanvas::kUnion_Op,
+            SkCanvas::kXOR_Op,
+            SkCanvas::kReverseDifference_Op,
+            SkCanvas::kReplace_Op,
         };
 
         SkRandom r;
@@ -200,7 +200,7 @@ private:
     SkRRect fRRects[5];
     SkPath fPaths[5];
     SkColor fRectColors[5];
-    SkClipOp fOps[kRows * kCols][5];
+    SkCanvas::ClipOp fOps[kRows * kCols][5];
     SkScalar fWidth;
     SkScalar fHeight;
     SkScalar fTotalWidth;

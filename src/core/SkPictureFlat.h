@@ -128,13 +128,13 @@ enum SaveLayerRecFlatFlags {
 // clipparams are packed in 5 bits
 //  doAA:1 | clipOp:4
 
-static inline uint32_t ClipParams_pack(SkClipOp op, bool doAA) {
+static inline uint32_t ClipParams_pack(SkCanvas::ClipOp op, bool doAA) {
     unsigned doAABit = doAA ? 1 : 0;
     return (doAABit << 4) | op;
 }
 
-static inline SkClipOp ClipParams_unpackRegionOp(uint32_t packed) {
-    return (SkClipOp)(packed & 0xF);
+static inline SkCanvas::ClipOp ClipParams_unpackRegionOp(uint32_t packed) {
+    return (SkCanvas::ClipOp)(packed & 0xF);
 }
 
 static inline bool ClipParams_unpackDoAA(uint32_t packed) {

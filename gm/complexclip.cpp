@@ -86,14 +86,14 @@ protected:
         paint.setTextSize(SkIntToScalar(20));
 
         constexpr struct {
-            SkClipOp fOp;
+            SkCanvas::ClipOp fOp;
             const char*      fName;
         } gOps[] = { //extra spaces in names for measureText
-            {kIntersect_SkClipOp,         "Isect "},
-            {kDifference_SkClipOp,        "Diff " },
-            {kUnion_SkClipOp,             "Union "},
-            {kXOR_SkClipOp,               "Xor "  },
-            {kReverseDifference_SkClipOp, "RDiff "}
+            {SkCanvas::kIntersect_Op,         "Isect "},
+            {SkCanvas::kDifference_Op,        "Diff " },
+            {SkCanvas::kUnion_Op,             "Union "},
+            {SkCanvas::kXOR_Op,               "Xor "  },
+            {SkCanvas::kReverseDifference_Op, "RDiff "}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

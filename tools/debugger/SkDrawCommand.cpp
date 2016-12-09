@@ -584,19 +584,19 @@ Json::Value SkDrawCommand::MakeJsonRegion(const SkRegion& region) {
     return Json::Value("<unimplemented>");
 }
 
-static Json::Value make_json_regionop(SkClipOp op) {
+static Json::Value make_json_regionop(SkCanvas::ClipOp op) {
     switch (op) {
-        case kDifference_SkClipOp:
+        case SkCanvas::kDifference_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_DIFFERENCE);
-        case kIntersect_SkClipOp:
+        case SkCanvas::kIntersect_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_INTERSECT);
-        case kUnion_SkClipOp:
+        case SkCanvas::kUnion_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_UNION);
-        case kXOR_SkClipOp:
+        case SkCanvas::kXOR_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_XOR);
-        case kReverseDifference_SkClipOp:
+        case SkCanvas::kReverseDifference_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE);
-        case kReplace_SkClipOp:
+        case SkCanvas::kReplace_Op:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REPLACE);
         default:
             SkASSERT(false);
@@ -1592,28 +1592,28 @@ static void extract_json_path(Json::Value& path, SkPath* result) {
     }
 }
 
-SkClipOp get_json_clipop(Json::Value& jsonOp) {
+SkCanvas::ClipOp get_json_clipop(Json::Value& jsonOp) {
     const char* op = jsonOp.asCString();
     if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_DIFFERENCE)) {
-        return kDifference_SkClipOp;
+        return SkCanvas::kDifference_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_INTERSECT)) {
-        return kIntersect_SkClipOp;
+        return SkCanvas::kIntersect_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_UNION)) {
-        return kUnion_SkClipOp;
+        return SkCanvas::kUnion_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_XOR)) {
-        return kXOR_SkClipOp;
+        return SkCanvas::kXOR_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE)) {
-        return kReverseDifference_SkClipOp;
+        return SkCanvas::kReverseDifference_Op;
     }
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REPLACE)) {
-        return kReplace_SkClipOp;
+        return SkCanvas::kReplace_Op;
     }
     SkASSERT(false);
-    return kIntersect_SkClipOp;
+    return SkCanvas::kIntersect_Op;
 }
 
 SkClearCommand::SkClearCommand(SkColor color) : INHERITED(kDrawClear_OpType) {
@@ -1636,7 +1636,7 @@ Json::Value SkClearCommand::toJSON(UrlDataManager& urlDataManager) const {
     return new SkClearCommand(get_json_color(color));
 }
 
-SkClipPathCommand::SkClipPathCommand(const SkPath& path, SkClipOp op, bool doAA)
+SkClipPathCommand::SkClipPathCommand(const SkPath& path, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipPath_OpType) {
     fPath = path;
     fOp = op;
@@ -1672,7 +1672,7 @@ SkClipPathCommand* SkClipPathCommand::fromJSON(Json::Value& command,
                                  command[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS].asBool());
 }
 
-SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkClipOp op)
+SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkCanvas::ClipOp op)
     : INHERITED(kClipRegion_OpType) {
     fRegion = region;
     fOp = op;
@@ -1698,7 +1698,7 @@ SkClipRegionCommand* SkClipRegionCommand::fromJSON(Json::Value& command,
     return nullptr;
 }
 
-SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkClipOp op, bool doAA)
+SkClipRectCommand::SkClipRectCommand(const SkRect& rect, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipRect_OpType) {
     fRect = rect;
     fOp = op;
@@ -1733,7 +1733,7 @@ SkClipRectCommand* SkClipRectCommand::fromJSON(Json::Value& command,
                                  command[SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS].asBool());
 }
 
-SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkClipOp op, bool doAA)
+SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA)
     : INHERITED(kClipRRect_OpType) {
     fRRect = rrect;
     fOp = op;

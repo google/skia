@@ -52,14 +52,14 @@ protected:
         paint.setTextSize(SkIntToScalar(20));
 
         constexpr struct {
-            SkClipOp    fOp;
-            const char* fName;
+            SkCanvas::ClipOp fOp;
+            const char*      fName;
         } gOps[] = {
-            {kIntersect_SkClipOp,         "I"},
-            {kDifference_SkClipOp,        "D" },
-            {kUnion_SkClipOp,             "U"},
-            {kXOR_SkClipOp,               "X"  },
-            {kReverseDifference_SkClipOp, "R"}
+            {SkCanvas::kIntersect_Op,         "I"},
+            {SkCanvas::kDifference_Op,        "D" },
+            {SkCanvas::kUnion_Op,             "U"},
+            {SkCanvas::kXOR_Op,               "X"  },
+            {SkCanvas::kReverseDifference_Op, "R"}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

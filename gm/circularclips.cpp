@@ -36,13 +36,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkClipOp ops[] = {
-            kDifference_SkClipOp,
-            kIntersect_SkClipOp,
-            kUnion_SkClipOp,
-            kXOR_SkClipOp,
-            kReverseDifference_SkClipOp,
-            kReplace_SkClipOp,
+        SkCanvas::ClipOp ops[] = {
+            SkCanvas::kDifference_Op,
+            SkCanvas::kIntersect_Op,
+            SkCanvas::kUnion_Op,
+            SkCanvas::kXOR_Op,
+            SkCanvas::kReverseDifference_Op,
+            SkCanvas::kReplace_Op,
         };
 
         SkRect rect = SkRect::MakeLTRB(fX1 - fR, fY - fR, fX2 + fR, fY + fR);

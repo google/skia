@@ -173,69 +173,69 @@ private:
 
 class SkClipPathCommand : public SkDrawCommand {
 public:
-    SkClipPathCommand(const SkPath& path, SkClipOp op, bool doAA);
+    SkClipPathCommand(const SkPath& path, SkCanvas::ClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkClipPathCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkPath   fPath;
-    SkClipOp fOp;
-    bool     fDoAA;
+    SkPath           fPath;
+    SkCanvas::ClipOp fOp;
+    bool             fDoAA;
 
     typedef SkDrawCommand INHERITED;
 };
 
 class SkClipRegionCommand : public SkDrawCommand {
 public:
-    SkClipRegionCommand(const SkRegion& region, SkClipOp op);
+    SkClipRegionCommand(const SkRegion& region, SkCanvas::ClipOp op);
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkClipRegionCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkRegion fRegion;
-    SkClipOp fOp;
+    SkRegion         fRegion;
+    SkCanvas::ClipOp fOp;
 
     typedef SkDrawCommand INHERITED;
 };
 
 class SkClipRectCommand : public SkDrawCommand {
 public:
-    SkClipRectCommand(const SkRect& rect, SkClipOp op, bool doAA);
+    SkClipRectCommand(const SkRect& rect, SkCanvas::ClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkClipRectCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
     const SkRect& rect() const { return fRect; }
-    SkClipOp op() const { return fOp; }
+    SkCanvas::ClipOp op() const { return fOp; }
     bool doAA() const { return fDoAA; }
 
 private:
-    SkRect   fRect;
-    SkClipOp fOp;
-    bool     fDoAA;
+    SkRect           fRect;
+    SkCanvas::ClipOp fOp;
+    bool             fDoAA;
 
     typedef SkDrawCommand INHERITED;
 };
 
 class SkClipRRectCommand : public SkDrawCommand {
 public:
-    SkClipRRectCommand(const SkRRect& rrect, SkClipOp op, bool doAA);
+    SkClipRRectCommand(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
     static SkClipRRectCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
     const SkRRect& rrect() const { return fRRect; }
-    SkClipOp op() const { return fOp; }
+    SkCanvas::ClipOp op() const { return fOp; }
     bool doAA() const { return fDoAA; }
 
 private:
-    SkRRect  fRRect;
-    SkClipOp fOp;
-    bool     fDoAA;
+    SkRRect          fRRect;
+    SkCanvas::ClipOp fOp;
+    bool             fDoAA;
 
     typedef SkDrawCommand INHERITED;
 };

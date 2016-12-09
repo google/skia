@@ -111,7 +111,7 @@ static SkBitmap make_src_bitmap() {
 static void fill_src_canvas(SkCanvas* canvas) {
     canvas->save();
     canvas->setMatrix(SkMatrix::I());
-    canvas->clipRect(DEV_RECT_S, kReplace_SkClipOp);
+    canvas->clipRect(DEV_RECT_S, SkCanvas::kReplace_Op);
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawBitmap(make_src_bitmap(), 0, 0, &paint);

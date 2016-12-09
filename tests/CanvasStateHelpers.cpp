@@ -44,7 +44,7 @@ void complex_clips_draw(SkCanvas* canvas, int32_t left, int32_t top,
     canvas->drawColor(SK_ColorBLUE);
     canvas->restore();
 
-    canvas->clipRegion(localRegion, (SkClipOp) clipOp);
+    canvas->clipRegion(localRegion, (SkCanvas::ClipOp) clipOp);
     canvas->drawColor(SK_ColorBLUE);
 }
 
