@@ -78,17 +78,16 @@ public:
      * fPipelineBuilder  The pipelineBuilder
      * fViewMatrix       The viewMatrix
      * fShape            The shape to draw
-     * fAntiAlias        True if anti-aliasing is required.
+     * fAntiAlias        The type of anti aliasing required.
      */
     struct CanDrawPathArgs {
         const GrShaderCaps*         fShaderCaps;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
-        bool                        fAntiAlias;
+        GrAAType                    fAAType;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
         bool                        fHasUserStencilSettings;
-        bool                        fIsStencilBufferMSAA;
 
 #ifdef SK_DEBUG
         void validate() const {
@@ -121,7 +120,7 @@ public:
      * fColor                 Color to render with
      * fViewMatrix            The viewMatrix
      * fShape                 The shape to draw
-     * fAntiAlias             true if anti-aliasing is required.
+     * fAAtype                true if anti-aliasing is required.
      * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
     struct DrawPathArgs {
@@ -133,7 +132,7 @@ public:
         const GrClip*               fClip;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
-        bool                        fAntiAlias;
+        GrAAType                    fAAType;
         bool                        fGammaCorrect;
 #ifdef SK_DEBUG
         void validate() const {
@@ -159,10 +158,13 @@ public:
         canArgs.fShaderCaps = args.fResourceProvider->caps()->shaderCaps();
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
-        canArgs.fAntiAlias = args.fAntiAlias;
+        canArgs.fAAType = args.fAAType;
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
-        canArgs.fIsStencilBufferMSAA = args.fRenderTargetContext->isStencilBufferMultisampled();
+        SkASSERT(!(canArgs.fAAType == GrAAType::kHW &&
+                   !args.fRenderTargetContext->isStencilBufferMultisampled()));
+        SkASSERT(!(canArgs.fAAType == GrAAType::kCoverage &&
+                   args.fRenderTargetContext->isStencilBufferMultisampled()));
         SkASSERT(this->canDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
             SkPath path;
@@ -180,14 +182,14 @@ public:
      * fRenderTargetContext   The target of the draws
      * fViewMatrix            Matrix applied to the path.
      * fPath                  The path to draw.
-     * fIsAA                  Is the path to be drawn AA (only set when MSAA is available)
+     * fAAType                The type of AA, cannot be kCoverage.
      */
     struct StencilPathArgs {
         GrResourceProvider*    fResourceProvider;
         GrRenderTargetContext* fRenderTargetContext;
         const GrClip*          fClip;
         const SkMatrix*        fViewMatrix;
-        bool                   fIsAA;
+        GrAAType               fAAType;
         const GrShape*         fShape;
 
 #ifdef SK_DEBUG
@@ -197,6 +199,7 @@ public:
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
             SkASSERT(fShape->style().isSimpleFill());
+            SkASSERT(GrAAType::kCoverage != fAAType);
             SkPath path;
             fShape->asPath(&path);
             SkASSERT(!path.isInverseFillType());
@@ -283,7 +286,7 @@ private:
         drawArgs.fRenderTargetContext = args.fRenderTargetContext;
         drawArgs.fViewMatrix = args.fViewMatrix;
         drawArgs.fShape = args.fShape;
-        drawArgs.fAntiAlias = false;  // In this case the MSAA handles the AA so we want to draw BW
+        drawArgs.fAAType = args.fAAType;
         drawArgs.fGammaCorrect = false;
         this->drawPath(drawArgs);
     }
