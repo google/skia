@@ -39,36 +39,4 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
     return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
 }
 
-//TODO(halcanary):  remove this code once all changes land.
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
-class SkImageEncoder {
-public:
-    enum Type {
-#ifdef GOOGLE3
-        kUnknown_Type = (int)SkEncodedImageFormat::kUnknown,
-#endif
-        kBMP_Type     = (int)SkEncodedImageFormat::kBMP,
-        kGIF_Type     = (int)SkEncodedImageFormat::kGIF,
-        kICO_Type     = (int)SkEncodedImageFormat::kICO,
-        kJPEG_Type    = (int)SkEncodedImageFormat::kJPEG,
-        kPNG_Type     = (int)SkEncodedImageFormat::kPNG,
-        kWBMP_Type    = (int)SkEncodedImageFormat::kWBMP,
-        kWEBP_Type    = (int)SkEncodedImageFormat::kWEBP,
-        kKTX_Type     = (int)SkEncodedImageFormat::kKTX,
-    };
-    static SkData* EncodeData(const SkBitmap& src, Type t, int quality) {
-        SkDynamicMemoryWStream buf;
-        return SkEncodeImage(&buf, src, (SkEncodedImageFormat)t, quality)
-            ? buf.detachAsData().release() : nullptr;
-    }
-    static bool EncodeFile(const char path[], const SkBitmap& src, Type t, int quality) {
-        SkFILEWStream file(path);
-        return SkEncodeImage(&file, src, (SkEncodedImageFormat)t, quality);
-    }
-    static bool EncodeStream(SkWStream* dst, const SkBitmap& bm, Type t, int quality) {
-        return SkEncodeImage(dst, bm, (SkEncodedImageFormat)t, quality);
-    }
-};
-#endif  // SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
-
 #endif  // SkImageEncoder_DEFINED
