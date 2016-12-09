@@ -31,17 +31,16 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, SkImageCacherator* 
     }
 }
 
-GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped,
-                                                   SkDestinationSurfaceColorMode colorMode) {
+GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) {
     return fCacher->lockTexture(this->context(), fOriginalKey, fClient, fCachingHint, willBeMipped,
-                                colorMode);
+                                dstColorSpace);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
-                                      SkDestinationSurfaceColorMode colorMode) {
+                                      SkColorSpace* dstColorSpace) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
         SkImageCacherator::CachedFormat cacheFormat =
-            fCacher->chooseCacheFormat(colorMode, this->context()->caps());
+            fCacher->chooseCacheFormat(dstColorSpace, this->context()->caps());
         GrUniqueKey cacheKey;
         fCacher->makeCacheKeyFromOrigKey(fOriginalKey, cacheFormat, &cacheKey);
         MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
@@ -57,6 +56,6 @@ void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
 SkAlphaType GrImageTextureMaker::alphaType() const {
     return fCacher->info().alphaType();
 }
-sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkDestinationSurfaceColorMode colorMode) {
-    return fCacher->getColorSpace(this->context(), colorMode);
+sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
+    return fCacher->getColorSpace(this->context(), dstColorSpace);
 }

@@ -308,8 +308,7 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap, nullptr,
-                            SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
+        cache->lockAsBitmap(&bitmap, nullptr, canvas->imageInfo().colorSpace());
         canvas->drawBitmap(bitmap, x, y);
     }
 
@@ -318,8 +317,7 @@ protected:
         sk_sp<SkColorSpace> texColorSpace;
         sk_sp<GrTexture> texture(
             cache->lockAsTexture(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware,
-                                 &texColorSpace, nullptr));
+                                 canvas->imageInfo().colorSpace(), &texColorSpace, nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;
