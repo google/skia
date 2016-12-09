@@ -123,11 +123,11 @@ protected:
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
-                    sk_sp<GrDrawOp> batch(
+                    sk_sp<GrDrawOp> op(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                                      batch.get());
+                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+                                                                      std::move(op));
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -237,10 +237,10 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                sk_sp<GrDrawOp> batch(GrRectBatchFactory::CreateNonAAFill(
+                sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(
                     GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                renderTargetContext->priv().testingOnly_drawBatch(grPaint, GrAAType::kNone,
-                                                                  batch.get());
+                renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+                                                                  std::move(op));
             }
         }
     }

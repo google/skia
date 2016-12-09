@@ -115,12 +115,12 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            sk_sp<GrDrawOp> batch(
+                            sk_sp<GrDrawOp> op(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            renderTargetContext->priv().testingOnly_drawBatch(grPaint,
+                            renderTargetContext->priv().testingOnly_addDrawOp(grPaint,
                                                                               GrAAType::kNone,
-                                                                              batch.get());
+                                                                              std::move(op));
                         } else {
                             drew = false;
                         }
