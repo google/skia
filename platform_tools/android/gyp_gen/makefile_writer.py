@@ -114,14 +114,17 @@ DEBUGGING_HELP = (
 SKIA_TOOLS = (
 """
 #############################################################
-# Build the skia tools
+# Build the skia tools (except in the PDK build)
 #
+ifneq ($(TARGET_BUILD_PDK),true)
 
 # benchmark (timings)
 include $(BASE_PATH)/bench/Android.mk
 
 # diamond-master (one test to rule them all)
 include $(BASE_PATH)/dm/Android.mk
+
+endif # disable for PDK
 """
 )
 
