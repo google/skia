@@ -83,8 +83,7 @@ protected:
         }
 
         sk_sp<GrTexture> texture(
-            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter()));
         if (!texture) {
             return;
         }

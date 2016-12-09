@@ -30,8 +30,8 @@ GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
 }
 
 void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
-                                    SkDestinationSurfaceColorMode) {
-    // Color mode is irrelevant in this case - we already have a texture so we're just sub-setting
+                                    SkColorSpace* dstColorSpace) {
+    // Destination color space is irrelevant - we already have a texture so we're just sub-setting
     GrUniqueKey baseKey;
     GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeWH(this->width(), this->height()));
     MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
@@ -46,7 +46,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
     GrContext* context = texture->getContext();
     const SkIRect* contentArea = this->contentAreaOrNull();
     GrUniqueKey key;
-    this->makeCopyKey(copyParams, &key, SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
+    this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
         GrTexture* cachedCopy = context->textureProvider()->findAndRefTextureByUniqueKey(key);
         if (cachedCopy) {
@@ -64,7 +64,6 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
 }
 
 GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& params,
-                                                      SkDestinationSurfaceColorMode colorMode,
                                                       SkIPoint* outOffset) {
     GrTexture* texture = this->originalTexture();
     GrContext* context = texture->getContext();
@@ -106,8 +105,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace,
-                                        SkDestinationSurfaceColorMode colorMode) {
+                                        SkColorSpace* dstColorSpace) {
 
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
@@ -126,7 +124,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
-    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, colorMode, nullptr));
+    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, nullptr));
     if (!texture) {
         return nullptr;
     }

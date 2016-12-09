@@ -182,14 +182,17 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
         return false;
     }
 
+    SkDestinationSurfaceColorMode colorMode = provider.dstColorSpace()
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), provider.colorMode()));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), colorMode));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
             if (!provider.asBitmap(&orig)) {
                 return false;
             }
-            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, provider.colorMode()));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, colorMode));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }

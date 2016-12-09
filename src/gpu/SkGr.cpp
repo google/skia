@@ -319,8 +319,12 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 }
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                               SkDestinationSurfaceColorMode colorMode)
+                                               SkColorSpace* dstColorSpace)
 {
+    SkDestinationSurfaceColorMode colorMode = dstColorSpace
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
+
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
     sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
     if (texture) {
@@ -397,17 +401,15 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 }
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                    const GrSamplerParams& params,
-                                    SkDestinationSurfaceColorMode colorMode) {
+                                    const GrSamplerParams& params) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode, nullptr);
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr, nullptr);
 }
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                           const GrSamplerParams& params,
-                                           SkDestinationSurfaceColorMode colorMode) {
+                                           const GrSamplerParams& params) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode,
+    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, nullptr,
                                                                            nullptr);
     return sk_sp<GrTexture>(tex);
 }
@@ -574,8 +576,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         } else if (const SkShader* shader = skPaint.getShader()) {
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
                                                                       skPaint.getFilterQuality(),
-                                                                      rtc->getColorSpace(),
-                                                                      rtc->colorMode()));
+                                                                      rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }
@@ -762,8 +763,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                                                       &viewM,
                                                                       nullptr,
                                                                       paint.getFilterQuality(),
-                                                                      rtc->getColorSpace(),
-                                                                      rtc->colorMode()));
+                                                                      rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }

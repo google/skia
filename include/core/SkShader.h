@@ -342,21 +342,18 @@ public:
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
-                 SkColorSpace* dstColorSpace,
-                 SkDestinationSurfaceColorMode colorMode)
+                 SkColorSpace* dstColorSpace)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
-            , fDstColorSpace(dstColorSpace)
-            , fColorMode(colorMode) {}
+            , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                    fContext;
         const SkMatrix*               fViewMatrix;
         const SkMatrix*               fLocalMatrix;
         SkFilterQuality               fFilterQuality;
         SkColorSpace*                 fDstColorSpace;
-        SkDestinationSurfaceColorMode fColorMode;
     };
 
     /**

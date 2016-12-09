@@ -146,7 +146,8 @@ protected:
         if (!fPixmap.addr()) {
             sk_sp<SkImage> image = GetResourceAsImage(fFileName.c_str());
             SkBitmap bm;
-            if (!as_IB(image)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
+            SkColorSpace* legacyColorSpace = nullptr;
+            if (!as_IB(image)->getROPixels(&bm, legacyColorSpace)) {
                 SkFAIL("Could not read resource");
             }
             bm.peekPixels(&fPixmap);

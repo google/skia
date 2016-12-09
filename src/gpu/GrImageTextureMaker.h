@@ -25,13 +25,13 @@ protected:
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
-    GrTexture* refOriginalTexture(bool willBeMipped, SkDestinationSurfaceColorMode) override;
+    GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) override;
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
-                     SkDestinationSurfaceColorMode colorMode) override;
+                     SkColorSpace* dstColorSpace) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     SkAlphaType alphaType() const override;
-    sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) override;
+    sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) override;
 
 private:
     SkImageCacherator*      fCacher;

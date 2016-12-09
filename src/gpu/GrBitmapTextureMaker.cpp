@@ -27,7 +27,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 }
 
 GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
-                                                    SkDestinationSurfaceColorMode colorMode) {
+                                                    SkColorSpace* dstColorSpace) {
     GrTexture* tex = nullptr;
 
     if (fOriginalKey.isValid()) {
@@ -37,7 +37,7 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
         }
     }
     if (willBeMipped) {
-        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, colorMode);
+        tex = GrGenerateMipMapsAndUploadToTexture(this->context(), fBitmap, dstColorSpace);
     }
     if (!tex) {
         tex = GrUploadBitmapToTexture(this->context(), fBitmap);
@@ -50,8 +50,8 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
 }
 
 void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
-                                       SkDestinationSurfaceColorMode colorMode) {
-    // Color mode is irrelevant in this case - we always upload the bitmap's contents as-is
+                                       SkColorSpace* dstColorSpace) {
+    // Destination color space is irrelevant - we always upload the bitmap's contents as-is
     if (fOriginalKey.isValid()) {
         MakeCopyKeyFromOrigKey(fOriginalKey, copyParams, copyKey);
     }
@@ -65,7 +65,7 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
     return fBitmap.alphaType();
 }
 
-sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkDestinationSurfaceColorMode colorMode) {
-    // Color space doesn't depend on mode - it's just whatever is in the bitmap
+sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
+    // Color space doesn't depend on destination color space - it's just whatever is in the bitmap
     return sk_ref_sp(fBitmap.colorSpace());
 }

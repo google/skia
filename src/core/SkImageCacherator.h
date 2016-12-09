@@ -48,7 +48,7 @@ public:
      *  If not NULL, the client will be notified (->notifyAddedToCache()) when resources are
      *  added to the cache on its behalf.
      */
-    bool lockAsBitmap(SkBitmap*, const SkImage* client, SkDestinationSurfaceColorMode colorMode,
+    bool lockAsBitmap(SkBitmap*, const SkImage* client, SkColorSpace* dstColorSpace,
                       SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**
@@ -60,8 +60,7 @@ public:
      *
      *  The caller is responsible for calling texture->unref() when they are done.
      */
-    GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&,
-                             SkDestinationSurfaceColorMode colorMode,
+    GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&, SkColorSpace* dstColorSpace,
                              sk_sp<SkColorSpace>* texColorSpace, const SkImage* client,
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
@@ -116,7 +115,7 @@ private:
 
     SkImageCacherator(Validator*);
 
-    CachedFormat chooseCacheFormat(SkDestinationSurfaceColorMode, const GrCaps* = nullptr);
+    CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace, const GrCaps* = nullptr);
     SkImageInfo buildCacheInfo(CachedFormat);
 
     bool generateBitmap(SkBitmap*, const SkImageInfo&);
@@ -126,11 +125,11 @@ private:
     // Returns the texture. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
     GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
-                           SkImage::CachingHint, bool willBeMipped, SkDestinationSurfaceColorMode);
+                           SkImage::CachingHint, bool willBeMipped, SkColorSpace* dstColorSpace);
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even
     // externally).
-    sk_sp<SkColorSpace> getColorSpace(GrContext*, SkDestinationSurfaceColorMode);
+    sk_sp<SkColorSpace> getColorSpace(GrContext*, SkColorSpace* dstColorSpace);
     void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, CachedFormat, GrUniqueKey* cacheKey);
 #endif
 
