@@ -17,6 +17,7 @@ declare_args() {
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
   skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
+  skia_use_ktx = true
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -111,7 +112,6 @@ config("skia_private") {
     "src/utils/win",
     "third_party/etc1",
     "third_party/gif",
-    "third_party/ktx",
   ]
 
   defines = [
@@ -431,6 +431,15 @@ optional("jpeg") {
   ]
 }
 
+optional("ktx") {
+  enabled = skia_use_ktx
+  include_dirs = [ "third_party/ktx" ]
+  sources = [
+    "src/images/SkKTXImageEncoder.cpp",
+    "third_party/ktx/ktx.cpp",
+  ]
+}
+
 optional("pdf") {
   enabled = skia_use_zlib
 
@@ -579,7 +588,6 @@ component("skia") {
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
-    "src/images/SkKTXImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
@@ -592,7 +600,6 @@ component("skia") {
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/gif/SkGifImageReader.cpp",
-    "third_party/ktx/ktx.cpp",
   ]
 
   libs = []
