@@ -19,14 +19,8 @@ class GrClearStencilClipBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
-        : INHERITED(ClassID())
-        , fClip(clip)
-        , fInsideStencilMask(insideStencilMask)
-        , fRenderTarget(rt) {
-        const SkRect& bounds = fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect())
-                                                      : SkRect::MakeIWH(rt->width(), rt->height());
-        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+    static sk_sp<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt) {
+        return sk_sp<GrOp>(new GrClearStencilClipBatch(clip, insideStencilMask, rt));
     }
 
     const char* name() const override { return "ClearStencilClip"; }
@@ -49,6 +43,16 @@ public:
     }
 
 private:
+    GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
+        : INHERITED(ClassID())
+        , fClip(clip)
+        , fInsideStencilMask(insideStencilMask)
+        , fRenderTarget(rt) {
+        const SkRect& bounds = fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect())
+                                                      : SkRect::MakeIWH(rt->width(), rt->height());
+        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrOpFlushState*) override {}
