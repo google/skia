@@ -267,7 +267,7 @@ static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProv
     args.fViewMatrix = &SkMatrix::I();
     GrShape shape(path, style);
     args.fShape = &shape;
-    args.fAntiAlias = false;
+    args.fAAType = GrAAType::kNone;
     tess.drawPath(args);
 }
 
