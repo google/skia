@@ -16,6 +16,24 @@
       "revId": "11c3af7d89a258cffad0938707c55cfb3677b047",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_6f4a0da2",
+        "filename": "src/core/SkBitmapProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-09T18:29:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_6fcd6d1f",
+      "revId": "11c3af7d89a258cffad0938707c55cfb3677b047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
