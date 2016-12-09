@@ -346,7 +346,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(op.get(), appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
@@ -384,19 +384,16 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
         return;
     }
 
-    GrOp* op = GrStencilPathBatch::Create(viewMatrix,
-                                          useHWAA,
-                                          path->getFillType(),
-                                          appliedClip.hasStencilClip(),
-                                          stencilAttachment->bits(),
-                                          appliedClip.scissorState(),
-                                          renderTargetContext->accessRenderTarget(),
-                                          path);
-    this->recordOp(op, appliedClip.clippedDrawBounds());
-    op->unref();
+    sk_sp<GrOp> op = GrStencilPathBatch::Make(viewMatrix,
+                                              useHWAA,
+                                              path->getFillType(),
+                                              appliedClip.hasStencilClip(),
+                                              stencilAttachment->bits(),
+                                              appliedClip.scissorState(),
+                                              renderTargetContext->accessRenderTarget(),
+                                              path);
+    this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
 }
-
-void GrRenderTargetOpList::addOp(sk_sp<GrOp> op) { this->recordOp(op.get(), op->bounds()); }
 
 void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color) {
     // Currently this just inserts or updates the last clear op. However, once in MDB this can
@@ -412,8 +409,9 @@ void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color
         return;
     }
     sk_sp<GrClearBatch> op(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
-    if (op.get() == this->recordOp(op.get(), op->bounds())) {
-        fLastFullClearOp = op.get();
+    if (GrOp* clearOp = this->recordOp(std::move(op))) {
+        // This is either the clear op we just created or another one that it combined with.
+        fLastFullClearOp = static_cast<GrClearBatch*>(clearOp);
     }
 }
 
@@ -421,9 +419,7 @@ void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        GrOp* op = new GrDiscardBatch(renderTarget);
-        this->recordOp(op, op->bounds());
-        op->unref();
+        this->recordOp(GrDiscardBatch::Make(renderTarget));
     }
 }
 
@@ -433,7 +429,7 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    GrOp* op = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    sk_sp<GrOp> op = GrCopySurfaceBatch::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -441,8 +437,7 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
     this->addDependency(src);
 #endif
 
-    this->recordOp(op, op->bounds());
-    op->unref();
+    this->recordOp(std::move(op));
     return true;
 }
 
@@ -460,7 +455,7 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-GrOp* GrRenderTargetOpList::recordOp(GrOp* op, const SkRect& clippedBounds) {
+GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds) {
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
@@ -468,7 +463,7 @@ GrOp* GrRenderTargetOpList::recordOp(GrOp* op, const SkRect& clippedBounds) {
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, op);
+    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, op.get());
     GrOP_INFO("Re-Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
@@ -491,10 +486,10 @@ GrOp* GrRenderTargetOpList::recordOp(GrOp* op, const SkRect& clippedBounds) {
                           candidate->name(), candidate->uniqueID());
                 break;
             }
-            if (candidate->combineIfPossible(op, *this->caps())) {
+            if (candidate->combineIfPossible(op.get(), *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, op);
+                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, op.get());
                 join(&fRecordedOps.fromBack(i).fClippedBounds,
                      fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
                 return candidate;
@@ -516,9 +511,9 @@ GrOp* GrRenderTargetOpList::recordOp(GrOp* op, const SkRect& clippedBounds) {
         GrOP_INFO("\t\tFirstOp\n");
     }
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, op);
-    fRecordedOps.emplace_back(RecordedOp{sk_ref_sp(op), clippedBounds});
+    fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds});
     fLastFullClearOp = nullptr;
-    return op;
+    return fRecordedOps.back().fOp.get();
 }
 
 void GrRenderTargetOpList::forwardCombine() {
@@ -571,7 +566,5 @@ void GrRenderTargetOpList::forwardCombine() {
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
                                             GrRenderTarget* rt) {
-    GrOp* op = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
-    this->recordOp(op, op->bounds());
-    op->unref();
+    this->recordOp(GrClearStencilClipBatch::Make(clip, insideStencilMask, rt));
 }

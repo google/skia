@@ -85,7 +85,7 @@ public:
     void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
                    sk_sp<GrDrawOp>);
 
-    void addOp(sk_sp<GrOp>);
+    void addOp(sk_sp<GrOp> op) { this->recordOp(std::move(op)); }
 
     /**
      * Draws the path into user stencil bits. Upon return, all user stencil values
@@ -135,7 +135,14 @@ private:
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(GrOp*, const SkRect& clippedBounds);
+    GrOp* recordOp(sk_sp<GrOp> op) {
+        SkRect bounds = op->bounds();
+        return this->recordOp(std::move(op), bounds);
+    }
+
+    // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
+    GrOp* recordOp(sk_sp<GrOp>, const SkRect& clippedBounds);
+
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw and returns the texture that should

@@ -60,7 +60,7 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    void recordOp(GrOp*);
+    void recordOp(sk_sp<GrOp>);
 
     SkSTArray<2, sk_sp<GrOp>, true> fRecordedOps;
     GrGpu*                          fGpu;
