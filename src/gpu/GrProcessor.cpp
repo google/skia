@@ -135,7 +135,7 @@ void* GrProcessor::operator new(size_t size) {
 }
 
 void GrProcessor::operator delete(void* target) {
-    return MemoryPoolAccessor().pool()->release(target);
+    MemoryPoolAccessor().pool()->release(target);
 }
 
 bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {

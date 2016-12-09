@@ -49,7 +49,7 @@ void* GrOp::operator new(size_t size) {
 }
 
 void GrOp::operator delete(void* target) {
-    return MemoryPoolAccessor().pool()->release(target);
+    MemoryPoolAccessor().pool()->release(target);
 }
 
 GrOp::GrOp(uint32_t classID)
