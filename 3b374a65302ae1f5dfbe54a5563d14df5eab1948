@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_2428bc98",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "nit: Why is this sometimes capitalized, and sometimes not? My vote is for RoboCop everywhere.",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 11
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_c436a8f8",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "nit: The above line tells you this is a job of the RoboCop. I suggest making this analogous to point (2) - use the \"imperative\" (I think it\u0027s technically a different tense but my grammar is rusty...):\n\nMonitor and approve the semi-autonomous...",
+      "range": {
+        "startLine": 17,
+        "startChar": 3,
+        "endLine": 17,
+        "endChar": 29
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_64c23499",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "Is there a link you can provide here?",
+      "range": {
+        "startLine": 17,
+        "startChar": 34,
+        "endLine": 17,
+        "endChar": 58
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_e482c452",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "\"triaging\" might also be ambiguous. I don\u0027t think you want us to do some of the formal Android processes, or set the priority status. Maybe you just want us to assign bugs to owners?\n\nSomething like:\n\nAssign bugs to the appropriate owner, or to djsollen@ for further investigation.\n\n?",
+      "range": {
+        "startLine": 19,
+        "startChar": 102,
+        "endLine": 19,
+        "endChar": 110
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_04d1405d",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "Can you provide links for the bug trackers, including the relevant searches?",
+      "range": {
+        "startLine": 19,
+        "startChar": 27,
+        "endLine": 19,
+        "endChar": 89
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_c44d888c",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "I find this ambiguous. I first read it as assign bugs that have the owner specified, but I think you mean if it\u0027s clear who *should* be the owner. On a related note, what do we do if they do not have a clear owner? Leave it up to you to investigate? Then I suppose we should assign them to you? But that is the default option for Skia on Android bugs, so how does someone know whether it has been triaged? Do we need a triaged flag?",
+      "range": {
+        "startLine": 19,
+        "startChar": 115,
+        "endLine": 19,
+        "endChar": 153
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_64a914c7",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "Does the job include spending a normal amount of time doing this? I suggest:\n\nThe RoboCop\u0027s job is NOT to address android issues in Perf and Gold.",
+      "range": {
+        "startLine": 21,
+        "startChar": 28,
+        "endLine": 21,
+        "endChar": 60
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_449e18a3",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T17:14:02Z",
+      "side": 1,
+      "message": "Is it only people on this list who have to be RoboCops anyway? I think I would probably email this list to find someone to swap with to begin with.",
+      "range": {
+        "startLine": 36,
+        "startChar": 164,
+        "endLine": 36,
+        "endChar": 187
+      },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
