@@ -45,3 +45,12 @@ deps = {
 }
 
 recursedeps = [ "common" ]
+
+import os
+import sys
+python = 'python' if ('linux' in sys.platform or 'darwin' in sys.platform) else 'python.exe'
+fetch_gn = [p for p in ['bin/fetch-gn', 'skia/bin/fetch-gn'] if os.path.exists(p)][0]
+
+hooks = [
+  { 'action': [ python, fetch_gn ] },
+]
