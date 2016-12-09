@@ -45,3 +45,8 @@ deps = {
 }
 
 recursedeps = [ "common" ]
+
+import sys
+hooks = [
+    { 'action': [sys.executable, 'bin/fetch-gn'] },
+]
