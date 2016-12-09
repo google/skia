@@ -341,25 +341,19 @@ void SkAndroidSDKCanvas::didSetMatrix(const SkMatrix& m) {
     fProxyTarget->setMatrix(m);
 }
 
-void SkAndroidSDKCanvas::onClipRect(const SkRect& rect,
-                                             ClipOp op,
-                                             ClipEdgeStyle style) {
+void SkAndroidSDKCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle style) {
     fProxyTarget->clipRect(rect, op, style);
 }
 
-void SkAndroidSDKCanvas::onClipRRect(const SkRRect& rrect,
-                                              ClipOp op,
-                                              ClipEdgeStyle style) {
+void SkAndroidSDKCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle style) {
     fProxyTarget->clipRRect(rrect, op, style);
 }
 
-void SkAndroidSDKCanvas::onClipPath(const SkPath& path,
-                                             ClipOp op,
-                                             ClipEdgeStyle style) {
+void SkAndroidSDKCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle style) {
     fProxyTarget->clipPath(path, op, style);
 }
 
-void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, ClipOp op) {
+void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
     fProxyTarget->clipRegion(region, op);
 }
 

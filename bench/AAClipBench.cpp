@@ -59,9 +59,9 @@ protected:
             canvas->save();
 #if 1
             if (fDoPath) {
-                canvas->clipPath(fClipPath, SkCanvas::kReplace_Op, fDoAA);
+                canvas->clipPath(fClipPath, kReplace_SkClipOp, fDoAA);
             } else {
-                canvas->clipRect(fClipRect, SkCanvas::kReplace_Op, fDoAA);
+                canvas->clipRect(fClipRect, kReplace_SkClipOp, fDoAA);
             }
 
             canvas->drawRect(fDrawRect, paint);
@@ -130,8 +130,7 @@ protected:
             SkASSERT(path.isConvex());
 
             canvas->clipPath(path,
-                             0 == depth ? SkCanvas::kReplace_Op :
-                                          SkCanvas::kIntersect_Op,
+                             0 == depth ? kReplace_SkClipOp : kIntersect_SkClipOp,
                              fDoAA);
 
             if (kNestingDepth == depth) {
