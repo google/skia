@@ -32,7 +32,8 @@ Because the debugger uses Qt, you'll need to build skia in 64 bit mode:
 
 <!--?prettify?-->
 
-    GYP_DEFINES="skia_arch_width=64" python bin/sync-and-gyp
+    bin/sync
+    GYP_DEFINES="skia_arch_width=64" python ./gyp_skia
     ninja -C out/Debug debugger
     out/Debug/debugger
 
