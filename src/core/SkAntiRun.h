@@ -21,9 +21,8 @@ public:
     int16_t*    fRuns;
     uint8_t*     fAlpha;
 
-    // Return 0-255 given 0-256
     static inline SkAlpha CatchOverflow(int alpha) {
-        SkASSERT(alpha >= 0 && alpha <= 256);
+        SkASSERT(0 <= alpha && alpha <= 256);
         return alpha - (alpha >> 8);
     }
 
