@@ -86,12 +86,8 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
     if (fSrcRect == bounds && dstRect == bounds) {
         // No regions cropped out or resized; return entire image.
         offset->fX = offset->fY = 0;
-        SkDestinationSurfaceColorMode decodeColorMode = ctx.outputProperties().colorSpace()
-            ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-            : SkDestinationSurfaceColorMode::kLegacy;
         return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                             fImage,
-                                             decodeColorMode,
+                                             fImage, ctx.outputProperties().colorSpace(),
                                              &source->props());
     }
 

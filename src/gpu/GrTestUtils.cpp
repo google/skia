@@ -331,9 +331,6 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fArgs.fLocalMatrix = nullptr;
     fArgs.fFilterQuality = kNone_SkFilterQuality;
     fArgs.fDstColorSpace = fColorSpaceStorage.get();
-    fArgs.fColorMode = SkToBool(fArgs.fDstColorSpace)
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
 }
 
 }  // namespace GrTest
