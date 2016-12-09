@@ -875,7 +875,7 @@ bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     }
 
     if (weAllocated) {
-        bitmap->setPixelRef(nullptr);
+        bitmap->setPixelRef(nullptr, 0, 0);
     }
     return false;
 }

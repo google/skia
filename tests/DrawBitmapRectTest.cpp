@@ -38,7 +38,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     SkBitmap bm;
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
     bm.setInfo(info);
-    bm.setPixelRef(new FailurePixelRef(info), 0, 0)->unref();
+    bm.setPixelRef(sk_make_sp<FailurePixelRef>(info), 0, 0);
     // now our bitmap has a pixelref, but we know it will fail to lock
 
     auto surface(SkSurface::MakeRasterN32Premul(200, 200));
