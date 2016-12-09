@@ -83,8 +83,9 @@ an underscore and singular name of the enum name. The enum itself should be
 singular for exclusive values or plural for a bitfield. If a count is needed it
 is  k&lt;singular enum name&gt;Count and not be a member of the enum (see example):
 
-<!--?prettify?-->
+<!--?prettify lang=cc?-->
 ~~~~
+// preferred style:
 enum class SkPancakeType {
      kBlueberry,
      kPlain,
@@ -92,8 +93,9 @@ enum class SkPancakeType {
 };
 ~~~~
 
-<!--?prettify?-->
+<!--?prettify lang=cc?-->
 ~~~~
+// deprecated style:
 enum SkPancakeType {
      kBlueberry_PancakeType,
      kPlain_PancakeType,
