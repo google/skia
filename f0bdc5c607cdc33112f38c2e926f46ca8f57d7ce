@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_e43c04f4",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-09T16:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d391bbb_8f925938",
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_af971d27",
         "filename": "include/core/SkBitmap.h",
         "patchSetId": 3
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_c4390802",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-09T16:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d391bbb_af971d27",
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_4f886108",
         "filename": "src/core/SkBitmap.cpp",
         "patchSetId": 3
@@ -65,6 +101,24 @@
         "endLine": 267,
         "endChar": 41
       },
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_2499dc07",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-09T16:50:24Z",
+      "side": 1,
+      "message": "Yes, but can that happen in another CL?",
+      "parentUuid": "8d391bbb_4f886108",
       "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
