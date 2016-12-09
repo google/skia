@@ -45,3 +45,10 @@ deps = {
 }
 
 recursedeps = [ "common" ]
+
+hooks = []
+
+import os
+import sys
+if os.path.exists('bin/fetch-gn'):
+  hooks.append({ 'action': [sys.executable, 'bin/fetch-gn'] })
