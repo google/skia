@@ -453,9 +453,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 } else {
                     options.fHasPriorFrame = false;
                 }
-                const SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
-                                                                rowBytes, &options,
-                                                                colorPtr, &colorCount);
+                SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
+                                                          rowBytes, &options,
+                                                          colorPtr, &colorCount);
+                if (SkCodec::kInvalidInput == result && i > 0) {
+                    // Some of our test images have truncated later frames. Treat that
+                    // the same as incomplete.
+                    result = SkCodec::kIncompleteInput;
+                }
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput: {
