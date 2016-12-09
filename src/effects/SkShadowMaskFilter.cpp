@@ -252,7 +252,6 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         const SkScalar devSpaceAmbientRadius = srcSpaceAmbientRadius * scaleFactor;
 
         GrPaint newPaint(*grp);
-        newPaint.setAntiAlias(true);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fAmbientAlpha;
         newPaint.setColor4f(color);
@@ -311,7 +310,6 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                               (spotShadowRRect.width() + srcSpaceSpotRadius);
 
         GrPaint newPaint(*grp);
-        newPaint.setAntiAlias(true);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fSpotAlpha;
         newPaint.setColor4f(color);
