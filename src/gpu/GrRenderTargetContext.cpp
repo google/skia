@@ -227,6 +227,65 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
     this->internalClear(rect ? GrFixedClip(*rect) : GrFixedClip::Disabled(), color, canIgnoreRect);
 }
 
+void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                              "GrRenderTargetContext::absClear");
+
+    AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+
+    SkIRect rtRect = SkIRect::MakeWH(fRenderTargetContext->fRenderTargetProxy->worstCaseWidth(
+                                            *fRenderTargetContext->caps()),
+                                     fRenderTargetContext->fRenderTargetProxy->worstCaseHeight(
+                                            *fRenderTargetContext->caps()));
+
+    if (clearRect) {
+        if (clearRect->contains(rtRect)) {
+            clearRect = nullptr; // full screen
+        } else {
+            if (!rtRect.intersect(*clearRect)) {
+                return;
+            }
+        }
+    }
+
+    // TODO: in a post-MDB world this should be handled at the OpList level.
+    // An op-list that is initially cleared and has no other ops should receive an
+    // extra draw.
+    if (fRenderTargetContext->fContext->caps()->useDrawInsteadOfClear()) {
+        // This works around a driver bug with clear by drawing a rect instead.
+        // The driver will ignore a clear if it is the only thing rendered to a
+        // target before the target is read.
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+
+        // We don't call drawRect() here to avoid the cropping to the, possibly smaller,
+        // RenderTargetProxy bounds
+        fRenderTargetContext->drawNonAAFilledRect(GrNoClip(), paint, SkMatrix::I(),
+                                                  SkRect::Make(rtRect),
+                                                  nullptr,nullptr, nullptr, false);
+
+    } else {
+        if (!fRenderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
+        // This path doesn't handle coalescing of full screen clears b.c. it
+        // has to clear the entire render target - not just the content area.
+        // It could be done but will take more finagling.
+        sk_sp<GrOp> batch(GrClearBatch::Make(rtRect, color,
+                                             fRenderTargetContext->accessRenderTarget(),
+                                             !clearRect));
+        if (!batch) {
+            return;
+        }
+        fRenderTargetContext->getOpList()->addOp(std::move(batch));
+    }
+}
+
 void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
                                       const GrColor color,
                                       bool canIgnoreClip) {
@@ -254,7 +313,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         // This works around a driver bug with clear by drawing a rect instead.
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
-        SkIRect clearRect = SkIRect::MakeWH(this->worstCaseWidth(), this->worstCaseHeight());
+        SkIRect clearRect = SkIRect::MakeWH(this->width(), this->height());
         if (isFull) {
             this->discard();
         } else if (!clearRect.intersect(clip.scissorRect())) {
@@ -415,8 +474,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                                            const SkRect& rect,
                                            const GrUserStencilSettings* ss) {
     SkRect croppedRect = rect;
-    if (!crop_filled_rect(this->worstCaseWidth(), this->worstCaseHeight(),
-                          clip, viewMatrix, &croppedRect)) {
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
         return true;
     }
 
