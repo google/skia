@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_34b0e98d",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-09T21:42:37Z",
+      "side": 1,
+      "message": "I was thinking:\n\n1) Monitor and approve the semi-autonomous ...",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 54
+      },
+      "revId": "1d04b243bf9eeebb88172f58c4e65df9541ce244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
