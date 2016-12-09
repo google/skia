@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_b4ae39c9",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-09T22:25:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_de9b145c",
+      "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_217d491f",
         "filename": "src/gpu/vk/GrVkGpu.h",
         "patchSetId": 4
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_940fbd19",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-09T22:25:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_217d491f",
+      "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_41e165b3",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
         "patchSetId": 4
@@ -65,6 +101,24 @@
         "endLine": 277,
         "endChar": 36
       },
+      "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_d4b1b528",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-09T22:25:29Z",
+      "side": 1,
+      "message": "I believe the logic here is identical to the existing code in GrGLSLFragmentShaderBuilder::fragmentPosition() - are we doing it wrong currently? Or did I screw up and they\u0027re not actually equivalent?",
+      "parentUuid": "1a23a39f_41e165b3",
       "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
