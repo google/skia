@@ -278,7 +278,7 @@ public:
      * Draws a partial arc of an oval.
      *
      * @param paint         describes how to color pixels.
-     * @param GrGrAA          Controls whether the arc is antialiased.
+     * @param GrGrAA        Controls whether the arc is antialiased.
      * @param viewMatrix    transformation matrix.
      * @param oval          the bounding rect of the oval.
      * @param startAngle    starting angle in degrees.
