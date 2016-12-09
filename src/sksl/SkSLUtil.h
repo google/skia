@@ -72,6 +72,21 @@ public:
         return result;
     }
 
+    static sk_sp<GrShaderCaps> FragCoordsOld() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 110";
+        result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
+        result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> FragCoordsNew() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+        return result;
+    }
+
     static sk_sp<GrShaderCaps> VariousCaps() {
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";

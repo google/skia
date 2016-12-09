@@ -2,7 +2,7 @@ STRINGIFY(
 
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
-layout(builtin=15) in vec4 gl_FragCoord;
+layout(builtin=15) in vec4 sk_FragCoord;
 
 // 9999 is a temporary value that causes us to ignore these declarations beyond
 // adding them to the symbol table. This works fine in GLSL (where they do not

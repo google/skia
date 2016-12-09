@@ -40,6 +40,7 @@
 #include "ir/SkSLInterfaceBlock.h"
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLModifiersDeclaration.h"
+#include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
@@ -87,12 +88,14 @@ public:
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
                                                                   const ASTModifiersDeclaration& m);
 
+    Program::Inputs fInputs;
+
 private:
     /**
-     * Prepare to compile a program. Pushes a new symbol table and installs the caps so that
-     * references to sk_Caps.<cap> can be resolved.
+     * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
+     * settings.
      */
-    void start(std::unordered_map<SkString, CapValue>* caps);
+    void start(const Program::Settings* settings);
 
     /**
      * Performs cleanup after compilation is complete.
@@ -153,7 +156,8 @@ private:
 
     const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
-    const std::unordered_map<SkString, CapValue>* fCapsMap;
+    const Program::Settings* fSettings;
+    std::unordered_map<SkString, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
     ErrorReporter& fErrors;
