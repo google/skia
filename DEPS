@@ -45,3 +45,11 @@ deps = {
 }
 
 recursedeps = [ "common" ]
+
+import os
+import sys
+fetch_gn = filter(os.path.exists, ['bin/fetch-gn', 'skia/bin/fetch-gn'])[0]
+
+hooks = [
+  { 'action': [ sys.executable, fetch_gn ] },
+]
