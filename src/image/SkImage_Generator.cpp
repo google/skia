@@ -30,9 +30,9 @@ public:
     SkImageCacherator* peekCacherator() const override { return &fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
-    bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
-                            SkDestinationSurfaceColorMode, sk_sp<SkColorSpace>*) const override;
+    bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
+    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                            sk_sp<SkColorSpace>*) const override;
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -45,12 +45,10 @@ private:
 
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      int srcX, int srcY, CachingHint chint) const {
-    SkDestinationSurfaceColorMode decodeColorMode = dstInfo.colorSpace()
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
+    SkColorSpace* dstColorSpace = dstInfo.colorSpace();
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
-        SkImageCacherator::CachedFormat cacheFormat = fCache.chooseCacheFormat(decodeColorMode);
+        SkImageCacherator::CachedFormat cacheFormat = fCache.chooseCacheFormat(dstColorSpace);
         if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm, cacheFormat)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
@@ -64,7 +62,7 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
         }
     }
 
-    if (this->getROPixels(&bm, decodeColorMode, chint)) {
+    if (this->getROPixels(&bm, dstColorSpace, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -74,15 +72,15 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
     return fCache.refEncoded(ctx);
 }
 
-bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkDestinationSurfaceColorMode colorMode,
+bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
                                     CachingHint chint) const {
-    return fCache.lockAsBitmap(bitmap, this, colorMode, chint);
+    return fCache.lockAsBitmap(bitmap, this, dstColorSpace, chint);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                           SkDestinationSurfaceColorMode colorMode,
+                                           SkColorSpace* dstColorSpace,
                                            sk_sp<SkColorSpace>* texColorSpace) const {
-    return fCache.lockAsTexture(ctx, params, colorMode, texColorSpace, this);
+    return fCache.lockAsTexture(ctx, params, dstColorSpace, texColorSpace, this);
 }
 
 sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {

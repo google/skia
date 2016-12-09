@@ -54,11 +54,8 @@ size_t SkImageShader::onContextSize(const ContextRec& rec) const {
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    // TODO: This is wrong. We should be plumbing destination color space to context creation,
-    // and use that to determine the decoding mode of the image.
-    SkDestinationSurfaceColorMode decodeColorMode = SkMipMap::DeduceColorMode(rec);
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get(), decodeColorMode),
+                                                 SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
                                                  rec, storage);
 }
 
@@ -218,7 +215,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                     &doBicubic);
     GrSamplerParams params(tm, textureFilterMode);
     sk_sp<SkColorSpace> texColorSpace;
-    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode,
+    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fDstColorSpace,
                                                          &texColorSpace));
     if (!texture) {
         return nullptr;
@@ -281,9 +278,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
     auto quality = paint.getFilterQuality();
 
-    auto mode = (dst == nullptr) ? SkDestinationSurfaceColorMode::kLegacy
-                                 : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
-    SkBitmapProvider provider(fImage.get(), mode);
+    SkBitmapProvider provider(fImage.get(), dst);
     SkDefaultBitmapController controller;
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)

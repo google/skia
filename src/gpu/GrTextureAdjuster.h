@@ -23,8 +23,7 @@ public:
         outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
         the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
         does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    GrTexture* refTextureSafeForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode,
-                                       SkIPoint* outOffset);
+    GrTexture* refTextureSafeForParams(const GrSamplerParams&, SkIPoint* outOffset);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
@@ -32,8 +31,7 @@ public:
                                 FilterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
+                                SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.
@@ -43,7 +41,7 @@ public:
 protected:
     SkAlphaType alphaType() const override { return fAlphaType; }
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
-                     SkDestinationSurfaceColorMode colorMode) override;
+                     SkColorSpace* dstColorSpace) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     GrTexture* originalTexture() const { return fOriginal; }

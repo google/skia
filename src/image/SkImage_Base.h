@@ -52,12 +52,12 @@ public:
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode,
+    virtual bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace,
                              CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
-                                    SkDestinationSurfaceColorMode, sk_sp<SkColorSpace>*) const = 0;
+    virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+                                    sk_sp<SkColorSpace>*) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 

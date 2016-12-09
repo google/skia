@@ -102,8 +102,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
     }
 
     sk_sp<GrTexture> resultTex(
-        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter(),
-                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter()));
     if (!resultTex) {
         return nullptr;
     }
@@ -181,7 +180,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     sk_sp<SkImage> image,
-                                                    SkDestinationSurfaceColorMode colorMode,
+                                                    SkColorSpace* dstColorSpace,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
@@ -193,7 +192,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
 #endif
     {
         SkBitmap bm;
-        if (as_IB(image)->getROPixels(&bm, colorMode)) {
+        if (as_IB(image)->getROPixels(&bm, dstColorSpace)) {
             return MakeFromRaster(subset, bm, props);
         }
     }
@@ -242,8 +241,7 @@ public:
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         if (context) {
             return sk_ref_sp(
-                GrRefCachedBitmapTexture(context, fBitmap, GrSamplerParams::ClampNoFilter(),
-                                         SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+                GrRefCachedBitmapTexture(context, fBitmap, GrSamplerParams::ClampNoFilter()));
         }
 
         return nullptr;
@@ -252,10 +250,7 @@ public:
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
         if (context) {
             sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
-                                        context,
-                                        fBitmap,
-                                        GrSamplerParams::ClampNoFilter(),
-                                        SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)));
+                context, fBitmap, GrSamplerParams::ClampNoFilter())));
             sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
             return sk_ref_sp(sProxy->asTextureProxy());
         }

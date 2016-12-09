@@ -21,7 +21,7 @@ public:
      *  does not match width()/height() then the contents of the original must be scaled to fit
      *  the texture. Places the color space of the texture in (*texColorSpace).
      */
-    GrTexture* refTextureForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode,
+    GrTexture* refTextureForParams(const GrSamplerParams&, SkColorSpace* dstColorSpace,
                                    sk_sp<SkColorSpace>* texColorSpace);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
@@ -30,8 +30,7 @@ public:
                                 FilterConstraint filterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
+                                SkColorSpace* dstColorSpace) override;
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
@@ -42,13 +41,13 @@ protected:
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
      */
-    virtual GrTexture* refOriginalTexture(bool willBeMipped, SkDestinationSurfaceColorMode) = 0;
+    virtual GrTexture* refOriginalTexture(bool willBeMipped, SkColorSpace* dstColorSpace) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
-     *  the same destination color mode.
+     *  the same destination color space.
      */
-    virtual sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) = 0;
+    virtual sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) = 0;
 
     /**
      *  Return a new (uncached) texture that is the stretch of the maker's original.
@@ -61,7 +60,7 @@ protected:
      *  by copying.
      */
     virtual GrTexture* generateTextureForParams(const CopyParams&, bool willBeMipped,
-                                                SkDestinationSurfaceColorMode);
+                                                SkColorSpace* dstColorSpace);
 
     GrContext* context() const { return fContext; }
 
