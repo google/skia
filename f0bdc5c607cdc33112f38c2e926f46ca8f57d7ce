@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_8f925938",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-09T16:02:33Z",
+      "side": 1,
+      "message": "guard this so we can later remove it?",
+      "range": {
+        "startLine": 437,
+        "startChar": 16,
+        "endLine": 437,
+        "endChar": 27
+      },
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_af971d27",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-09T16:02:33Z",
+      "side": 1,
+      "message": "likewise",
+      "range": {
+        "startLine": 439,
+        "startChar": 16,
+        "endLine": 439,
+        "endChar": 27
+      },
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_4f886108",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-09T16:02:33Z",
+      "side": 1,
+      "message": "can we upgrade NewDirect to MakeDirect, and then just pass that directly to setPixelRef?",
+      "range": {
+        "startLine": 267,
+        "startChar": 25,
+        "endLine": 267,
+        "endChar": 41
+      },
+      "revId": "f0bdc5c607cdc33112f38c2e926f46ca8f57d7ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
