@@ -57,11 +57,12 @@ protected:
 
 class SkDefaultBitmapController : public SkBitmapController {
 public:
-    SkDefaultBitmapController() {}
+    SkDefaultBitmapController(bool canShadeHQ) : fCanShadeHQ(canShadeHQ) {}
 
 protected:
     State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
                            void* storage, size_t storageSize) override;
+    bool fCanShadeHQ;
 };
 
 #endif
