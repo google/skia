@@ -16,13 +16,7 @@
 class GrDiscardBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
-
-    GrDiscardBatch(GrRenderTarget* rt)
-        : INHERITED(ClassID())
-        , fRenderTarget(rt) {
-        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
-                        IsZeroArea::kNo);
-    }
+    static sk_sp<GrOp> Make(GrRenderTarget* rt) { return sk_sp<GrOp>(new GrDiscardBatch(rt)); }
 
     const char* name() const override { return "Discard"; }
 
@@ -39,6 +33,13 @@ public:
     }
 
 private:
+    GrDiscardBatch(GrRenderTarget* rt)
+        : INHERITED(ClassID())
+        , fRenderTarget(rt) {
+        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
+                        IsZeroArea::kNo);
+    }
+
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
         return this->renderTargetUniqueID() == that->renderTargetUniqueID();
     }

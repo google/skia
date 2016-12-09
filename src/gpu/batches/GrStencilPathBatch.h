@@ -19,16 +19,16 @@ class GrStencilPathBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrOp* Create(const SkMatrix& viewMatrix,
-                           bool useHWAA,
-                           GrPathRendering::FillType fillType,
-                           bool hasStencilClip,
-                           int numStencilBits,
-                           const GrScissorState& scissor,
-                           GrRenderTarget* renderTarget,
-                           const GrPath* path) {
-        return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
-                                      numStencilBits, scissor, renderTarget, path);
+    static sk_sp<GrOp> Make(const SkMatrix& viewMatrix,
+                            bool useHWAA,
+                            GrPathRendering::FillType fillType,
+                            bool hasStencilClip,
+                            int numStencilBits,
+                            const GrScissorState& scissor,
+                            GrRenderTarget* renderTarget,
+                            const GrPath* path) {
+        return sk_sp<GrOp>(new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
+                                                  numStencilBits, scissor, renderTarget, path));
     }
 
     const char* name() const override { return "StencilPath"; }

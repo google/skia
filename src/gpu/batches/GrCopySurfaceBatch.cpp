@@ -59,8 +59,8 @@ bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-GrOp* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                    const SkIPoint& dstPoint) {
+sk_sp<GrOp> GrCopySurfaceBatch::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                     const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
     if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
@@ -75,5 +75,5 @@ GrOp* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& 
     if (!ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    return new GrCopySurfaceBatch(dst, src, clippedSrcRect, clippedDstPoint);
+    return sk_sp<GrOp>(new GrCopySurfaceBatch(dst, src, clippedSrcRect, clippedDstPoint));
 }
