@@ -26,9 +26,18 @@ static unsigned char gGIFData[] = {
 };
 
 static unsigned char gGIFDataNoColormap[] = {
-  0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
-  0x21, 0xf9, 0x04, 0x01, 0x0a, 0x00, 0x01, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x00,
-  0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x4c, 0x01, 0x00, 0x3b
+  // Header
+  0x47, 0x49, 0x46, 0x38, 0x39, 0x61,
+  // Screen descriptor
+  0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+  // Graphics control extension
+  0x21, 0xf9, 0x04, 0x01, 0x0a, 0x00, 0x01, 0x00,
+  // Image descriptor
+  0x2c, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
+  // Image data
+  0x02, 0x02, 0x4c, 0x01, 0x00,
+  // Trailer
+  0x3b
 };
 
 static unsigned char gInterlacedGIF[] = {
@@ -177,7 +186,32 @@ DEF_TEST(Gif, reporter) {
 
     test_gif_data_no_colormap(reporter, static_cast<void *>(gGIFDataNoColormap),
                               sizeof(gGIFDataNoColormap));
-    // "libgif warning [missing colormap]"
+
+    // Since there is no color map, we do not even need to parse the image data
+    // to know that we should draw transparent. Truncate the file before the
+    // data. This should still succeed.
+    test_gif_data_no_colormap(reporter, static_cast<void *>(gGIFDataNoColormap), 31);
+
+    // Likewise, incremental decoding should succeed here.
+    {
+        sk_sp<SkData> data = SkData::MakeWithoutCopy(gGIFDataNoColormap, 31);
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        REPORTER_ASSERT(reporter, codec);
+        if (codec) {
+            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            SkBitmap bm;
+            bm.allocPixels(info);
+            REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->startIncrementalDecode(
+                    info, bm.getPixels(), bm.rowBytes()));
+            REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->incrementalDecode());
+            REPORTER_ASSERT(reporter, bm.width() == 1);
+            REPORTER_ASSERT(reporter, bm.height() == 1);
+            REPORTER_ASSERT(reporter, !(bm.empty()));
+            if (!(bm.empty())) {
+                REPORTER_ASSERT(reporter, bm.getColor(0, 0) == 0x00000000);
+            }
+        }
+    }
 
     // test short Gif.  80 is missing a few bytes.
     test_gif_data_short(reporter, static_cast<void *>(gGIFData), 80);
