@@ -220,6 +220,15 @@ public:
 
     GrSurface* instantiate(GrTextureProvider* texProvider);
 
+//    bool readPixels(GrTextureProvider* texProvider,
+//                    int left, int top, int width, int height,
+//                    GrPixelConfig config, void* buffer, size_t rowBytes = 0);
+
+    /*
+     * Eventually, when flushed, copy this proxy's contents into a new one (that is returned)
+     */
+    sk_sp<GrSurfaceProxy> copy(GrContext*, const GrSurfaceDesc& dstDesc, SkBudgeted isDstBudgeted);
+
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */

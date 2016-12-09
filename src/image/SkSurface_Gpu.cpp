@@ -100,7 +100,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
         if (!copy) {
             return nullptr;
         }
-        if (!ctx->copySurface(copy.get(), rt)) {
+        if (!ctx->copySurface2(copy.get(), rt)) {
             return nullptr;
         }
         tex = copy.get();

@@ -52,6 +52,10 @@ public:
 
     bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
+    sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy* src,
+                               const SkIRect& srcRect,
+                               const SkIPoint& dstPoint) override;
+
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
     // akin to GrStyle (GrTextInfo?)
@@ -363,6 +367,7 @@ public:
         return fRenderTargetProxy->instantiate(fContext->textureProvider());
     }
 
+    GrSurfaceProxy* asDeferredSurface() override { return fRenderTargetProxy.get(); }
     GrTextureProxy* asDeferredTexture();
 
     sk_sp<GrTexture> asTexture() {

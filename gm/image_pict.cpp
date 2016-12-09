@@ -239,7 +239,7 @@ protected:
         desc.fHeight = subset->height();
 
         GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture.get(), *subset, SkIPoint::Make(0, 0));
+        fCtx->copySurface1(dst, fTexture.get(), *subset, SkIPoint::Make(0, 0));
         return dst;
     }
 private:

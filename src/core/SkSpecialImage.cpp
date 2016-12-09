@@ -508,7 +508,7 @@ public:
         if (!subTx) {
             return nullptr;
         }
-        fContext->copySurface(subTx.get(), surf, subset, SkIPoint::Make(0, 0));
+        fContext->copySurface1(subTx.get(), surf, subset, SkIPoint::Make(0, 0));
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
                                        fAlphaType, std::move(subTx), fColorSpace, SkBudgeted::kYes);
     }

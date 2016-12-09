@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"
+#include "GrTextureProxy.h"
 #include "GrTracing.h"
 
 #include "SkCanvasPriv.h"
@@ -1324,19 +1325,25 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
-    sk_sp<GrTexture> texture(this->accessRenderTargetContext()->asTexture());
-    if (!texture) {
+    sk_sp<GrSurfaceProxy> sProxy(sk_ref_sp(this->accessRenderTargetContext()->asDeferredSurface()));
+    if (!sProxy) {
         // When the device doesn't have a texture, we create a temporary texture.
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
+#if 0
         texture.reset(fContext->textureProvider()->createTexture(
             this->accessRenderTargetContext()->desc(), SkBudgeted::kYes));
         if (!texture) {
             return nullptr;
         }
 
-        if (!fContext->copySurface(texture.get(),
-                                   this->accessRenderTargetContext()->accessRenderTarget())) {
+        if (!fContext->copySurface2(texture.get(),
+                                    this->accessRenderTargetContext()->accessRenderTarget())) {
+            return nullptr;
+        }
+#endif
+        sProxy = sProxy->copy(fContext.get(), sProxy->desc(), SkBudgeted::kYes);
+        if (!sProxy) {
             return nullptr;
         }
     }
@@ -1344,11 +1351,12 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     const SkImageInfo ii = this->imageInfo();
     const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
 
-    return SkSpecialImage::MakeFromGpu(srcRect,
-                                       kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(texture),
-                                       sk_ref_sp(ii.colorSpace()),
-                                       &this->surfaceProps());
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                               srcRect,
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sProxy,
+                                               sk_ref_sp(ii.colorSpace()),
+                                               &this->surfaceProps());
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,

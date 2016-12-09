@@ -61,7 +61,7 @@ static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* conte
         copyDstDesc.fFlags = flags;
         sk_sp<GrTexture> dst(
                 context->textureProvider()->createTexture(copyDstDesc, SkBudgeted::kYes));
-        context->copySurface(dst.get(), rectangleTexture);
+        context->copySurface2(dst.get(), rectangleTexture);
         test_read_pixels(reporter, context, dst.get(), expectedPixelValues);
     }
 }
@@ -84,7 +84,7 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
         sk_sp<GrTexture> src(context->textureProvider()->createTexture(
                 copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
 
-        context->copySurface(rectangleTexture, src.get());
+        context->copySurface2(rectangleTexture, src.get());
         test_read_pixels(reporter, context, rectangleTexture, pixels.get());
     }
 }

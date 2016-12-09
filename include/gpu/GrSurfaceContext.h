@@ -8,6 +8,8 @@
 #ifndef GrSurfaceContext_DEFINED
 #define GrSurfaceContext_DEFINED
 
+#include "GrSurfaceProxy.h"
+
 #include "SkRefCnt.h"
 
 class GrAuditTrail;
@@ -25,6 +27,14 @@ public:
     ~GrSurfaceContext() override {}
 
     virtual bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+
+    virtual sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+
+    sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy* src) {
+        return this->copy(src, SkIRect::MakeWH(src->width(), src->height()), SkIPoint::Make(0, 0));
+    }
+
+    virtual GrSurfaceProxy* asDeferredSurface() = 0;
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 

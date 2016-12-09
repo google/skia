@@ -157,7 +157,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     if (!subTx) {
         return nullptr;
     }
-    ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
+    ctx->copySurface1(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
                                    fAlphaType, std::move(subTx), fColorSpace, fBudgeted);
 }
