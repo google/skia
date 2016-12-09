@@ -28,6 +28,7 @@ class GrPrimitiveProcessor;
 class GrSamplerParams;
 class GrVkCopyPipeline;
 class GrVkGpu;
+class GrVkMipmapPipeline;
 class GrVkPipeline;
 class GrVkPrimaryCommandBuffer;
 class GrVkRenderTarget;
@@ -55,6 +56,9 @@ public:
     GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
                                                VkPipelineShaderStageCreateInfo*,
                                                VkPipelineLayout);
+    GrVkMipmapPipeline* findOrCreateMipmapPipeline(const GrVkRenderTarget* dst,
+                                                   VkPipelineShaderStageCreateInfo*,
+                                                   VkPipelineLayout);
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
@@ -232,6 +236,9 @@ private:
 
     // Cache of previously created copy pipelines
     SkTArray<GrVkCopyPipeline*> fCopyPipelines;
+
+    // Cache of previously created mipmap pipelines
+    SkTArray<GrVkMipmapPipeline*> fMipmapPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 

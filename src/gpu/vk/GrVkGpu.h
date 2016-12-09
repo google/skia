@@ -17,6 +17,7 @@
 #include "GrVkCopyManager.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
+#include "GrVkMipmapManager.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
@@ -266,6 +267,7 @@ private:
     std::unique_ptr<GrVkHeap>              fHeaps[kHeapCount];
 
     GrVkCopyManager                        fCopyManager;
+    GrVkMipmapManager                      fMipmapManager;
 
 #ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors
