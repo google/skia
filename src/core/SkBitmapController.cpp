@@ -40,11 +40,15 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&,
+                                   const SkMatrix& inv,
+                                   SkFilterQuality,
+                                   bool canShadeHQ);
 
 private:
     SkBitmap                      fResultBitmap;
     sk_sp<const SkMipMap>         fCurrMip;
+    bool                          fCanShadeHQ;
 
     bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
@@ -126,6 +130,14 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
 
     if (invScaleX > 1 || invScaleY > 1) {
         return false; // only use HQ when upsampling
+    }
+
+    // If the shader can natively handle HQ filtering, let it do it.
+    if (fCanShadeHQ) {
+        fQuality = kHigh_SkFilterQuality;
+        SkAssertResult(provider.asBitmap(&fResultBitmap));
+        fResultBitmap.lockPixels();
+        return true;
     }
 
     const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
@@ -222,9 +234,11 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
 
 SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
                                                                const SkMatrix& inv,
-                                                               SkFilterQuality qual) {
+                                                               SkFilterQuality qual,
+                                                               bool canShadeHQ) {
     fInvMatrix = inv;
     fQuality = qual;
+    fCanShadeHQ = canShadeHQ;
 
     bool processed = this->processExternalRequest(provider);
 
@@ -239,7 +253,7 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapPro
         fResultBitmap.lockPixels();
         // lock may fail to give us pixels
     }
-    SkASSERT(fQuality <= kLow_SkFilterQuality);
+    SkASSERT(fCanShadeHQ || fQuality <= kLow_SkFilterQuality);
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
     // and will destroy us if it is nullptr.
@@ -251,5 +265,6 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size,
+                                                             bm, inverse, quality, fCanShadeHQ);
 }
