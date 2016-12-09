@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_0c8f574b",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-09T15:07:30Z",
+      "side": 1,
+      "message": "I don\u0027t quite follow.  Why is this nested?",
+      "revId": "f0744a6ec05fd20061f8013e188deb2a485a8da8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
