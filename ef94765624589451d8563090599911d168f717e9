@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_aa337306",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-09T19:06:56Z",
+      "side": 1,
+      "message": "The loop in GrRenderTargetContext now handles that for us by falling back on coverage AA when nothing can handle a MSAA/MixedSamples request.",
+      "parentUuid": "1a23a39f_ca334f4f",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_8ac8b711",
         "filename": "src/gpu/GrReducedClip.cpp",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_4a3a9fda",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-09T19:06:56Z",
+      "side": 1,
+      "message": "No, this is stencil rendering, the color buffer sample count doesn\u0027t matter.",
+      "parentUuid": "1a23a39f_8ac8b711",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_6a4afba1",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-09T19:00:57Z",
       "side": 1,
       "message": "Declare this outside of the loop?",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_6a70bbb8",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1478,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-09T19:06:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_6a4afba1",
       "revId": "ef94765624589451d8563090599911d168f717e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
