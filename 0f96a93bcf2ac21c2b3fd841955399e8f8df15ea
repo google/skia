@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_497511a7",
+        "filename": "experimental/svg/model/SkSVGNode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-09T12:39:07Z",
+      "side": 1,
+      "message": "Is intersect the only operation we need to worry about ?",
+      "revId": "0f96a93bcf2ac21c2b3fd841955399e8f8df15ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
