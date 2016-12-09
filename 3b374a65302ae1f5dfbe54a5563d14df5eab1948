@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_e19d1142",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-09T20:36:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_2428bc98",
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_c436a8f8",
         "filename": "site/dev/sheriffing/android.md",
         "patchSetId": 2
@@ -65,6 +83,42 @@
         "endLine": 17,
         "endChar": 58
       },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_01d36dee",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-09T20:36:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_c436a8f8",
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_81e77dcb",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-09T20:36:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_64c23499",
       "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -140,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_c1bb356f",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-09T20:36:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_04d1405d",
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a23a39f_64a914c7",
         "filename": "site/dev/sheriffing/android.md",
         "patchSetId": 2
@@ -157,6 +229,24 @@
         "endLine": 21,
         "endChar": 60
       },
+      "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_61c221f0",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-09T20:36:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_64a914c7",
       "revId": "3b374a65302ae1f5dfbe54a5563d14df5eab1948",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
