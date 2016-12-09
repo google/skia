@@ -4,19 +4,20 @@
 # found in the LICENSE file.
 
 declare_args() {
-  ar = "ar"
-  cc = "cc"
-  cxx = "c++"
+  if (is_win) {
+    ar = "ar.exe"
+    cc = "cc.exe"
+    cxx = "c++.exe"
+  } else {
+    ar = "ar"
+    cc = "cc"
+    cxx = "c++"
+  }
 
   if (is_android) {
     ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
     cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
-    if (host_os == "win") {
-      ar = ar + ".exe"
-      cc = cc + ".exe"
-      cxx = cxx + ".exe"
-    }
   }
 
   windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
