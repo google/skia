@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_41dba538",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-09T21:19:15Z",
+      "side": 1,
+      "message": "Use a two-state enum here, per recent discussions (and to avoid the need for the comments at call-sites)?",
+      "revId": "d806f10ca590ca38252b9e96c5bf62baab9472f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
