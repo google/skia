@@ -9,13 +9,14 @@ declare_args() {
   cxx = "c++"
 
   if (is_android) {
-    ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
-    cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
-    cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
     if (host_os == "win") {
-      ar = ar + ".exe"
-      cc = cc + ".exe"
-      cxx = cxx + ".exe"
+      ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar.exe"
+      cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang.exe"
+      cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++.exe"
+    } else {
+      ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
+      cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
+      cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
     }
   }
 
