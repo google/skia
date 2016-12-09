@@ -16,6 +16,24 @@
       "revId": "0f96a93bcf2ac21c2b3fd841955399e8f8df15ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_2c597b47",
+        "filename": "experimental/svg/model/SkSVGNode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-09T13:33:06Z",
+      "side": 1,
+      "message": "At this level, yes.  The clipPath child node geometry gets composited using union in SkSVGContainer::onAsPath(), but having a clip on the clipPath itself implies intersection.",
+      "parentUuid": "1a23a39f_497511a7",
+      "revId": "0f96a93bcf2ac21c2b3fd841955399e8f8df15ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
