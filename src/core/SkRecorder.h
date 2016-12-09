@@ -132,10 +132,10 @@ public:
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int count, SkBlendMode, const SkRect* cull, const SkPaint*) override;
 
-    void onClipRect(const SkRect& rect, ClipOp, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect& rrect, ClipOp, ClipEdgeStyle) override;
-    void onClipPath(const SkPath& path, ClipOp, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion& deviceRgn, ClipOp) override;
+    void onClipRect(const SkRect& rect, SkClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect& rrect, SkClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath& path, SkClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 

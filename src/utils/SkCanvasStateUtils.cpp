@@ -135,15 +135,15 @@ public:
     bool failed() { return fFailed; }
 
     // ClipVisitor
-    void clipRect(const SkRect& rect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRect(const SkRect& rect, SkClipOp op, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipPath(const SkPath&, SkCanvas::ClipOp, bool antialias) override {
+    void clipPath(const SkPath&, SkClipOp, bool antialias) override {
         fFailed |= antialias;
     }
 
@@ -275,7 +275,7 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     }
 
     canvas->setMatrix(matrix);
-    canvas->clipRegion(clip, SkCanvas::kReplace_Op);
+    canvas->clipRegion(clip, kReplace_SkClipOp);
 }
 
 static std::unique_ptr<SkCanvas>

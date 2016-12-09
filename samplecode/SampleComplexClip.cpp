@@ -79,14 +79,14 @@ protected:
         canvas->drawPath(clipB, paint);
 
         static const struct {
-            SkCanvas::ClipOp fOp;
-            const char*      fName;
+            SkClipOp    fOp;
+            const char* fName;
         } gOps[] = { //extra spaces in names for measureText
-            {SkCanvas::kIntersect_Op,         "Isect "},
-            {SkCanvas::kDifference_Op,        "Diff " },
-            {SkCanvas::kUnion_Op,             "Union "},
-            {SkCanvas::kXOR_Op,               "Xor "  },
-            {SkCanvas::kReverseDifference_Op, "RDiff "}
+            {kIntersect_SkClipOp,         "Isect "},
+            {kDifference_SkClipOp,        "Diff " },
+            {kUnion_SkClipOp,             "Union "},
+            {kXOR_SkClipOp,               "Xor "  },
+            {kReverseDifference_SkClipOp, "RDiff "}
         };
 
         canvas->translate(0, SkIntToScalar(40));

@@ -1370,7 +1370,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 
     if (fUseClip) {
         canvas->drawColor(0xFFFF88FF);
-        canvas->clipPath(fClipPath, SkCanvas::kIntersect_Op, true);
+        canvas->clipPath(fClipPath, kIntersect_SkClipOp, true);
     }
 
     // Install a flags filter proxy canvas if needed
