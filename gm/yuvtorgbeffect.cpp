@@ -82,14 +82,11 @@ protected:
 
         sk_sp<GrTexture> texture[3];
         texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp()));
         texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp()));
         texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[2], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[2], GrSamplerParams::ClampBilerp()));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;
@@ -207,14 +204,11 @@ protected:
 
         sk_sp<GrTexture> texture[3];
         texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp()));
         texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp()));
         texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
-                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp()));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;
