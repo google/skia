@@ -15,6 +15,7 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
+#include "GrRenderTargetProxy.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -87,11 +88,11 @@ public:
      */
     static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
                            const GrPipeline& b, const SkRect& bBounds,
-                           const GrCaps& caps)  {
+                           const GrCaps& caps, GrTextureProvider* texProvider)  {
         if (!AreEqual(a, b)) {
             return false;
         }
-        if (a.xferBarrierType(caps)) {
+        if (a.xferBarrierType(caps, texProvider)) {
             return aBounds.fRight <= bBounds.fLeft ||
                    aBounds.fBottom <= bBounds.fTop ||
                    bBounds.fRight <= aBounds.fLeft ||
@@ -146,7 +147,10 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTarget* getRenderTarget(GrTextureProvider* texProvider) const {
+        return fRenderTargetProxy.get()->instantiate(texProvider);
+    }
+    GrRenderTargetProxy* getRenderTargetProxy() const { return fRenderTargetProxy.get(); }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
@@ -172,8 +176,12 @@ public:
         return SkToBool(fFlags & kStencilEnabled_Flag);
     }
 
-    GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        return this->getXferProcessor().xferBarrierType(fRenderTarget.get(), caps);
+    GrXferBarrierType xferBarrierType(const GrCaps& caps, GrTextureProvider* texProvider) const {
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(texProvider);
+        if (!rt) {
+            return kNone_GrXferBarrierType;
+        }
+        return this->getXferProcessor().xferBarrierType(rt, caps);
     }
 
     /**
@@ -219,11 +227,11 @@ private:
         kStencilEnabled_Flag                = 0x40,
     };
 
-    typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
+    typedef GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> RenderTargetProxy;
     typedef GrPendingProgramElement<const GrFragmentProcessor> PendingFragmentProcessor;
     typedef SkAutoSTArray<8, PendingFragmentProcessor> FragmentProcessorArray;
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
-    RenderTarget                        fRenderTarget;
+    RenderTargetProxy                   fRenderTargetProxy;
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;
     const GrUserStencilSettings*        fUserStencilSettings;

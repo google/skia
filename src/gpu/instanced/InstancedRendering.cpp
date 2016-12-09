@@ -382,7 +382,7 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     fIsTracked = true;
 }
 
-bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& caps, GrTextureProvider* texProvider) {
     Batch* that = static_cast<Batch*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);
@@ -390,7 +390,7 @@ bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& c
 
     if (!BatchInfo::CanCombine(fInfo, that->fInfo) ||
         !GrPipeline::CanCombine(*this->pipeline(), this->bounds(),
-                                *that->pipeline(), that->bounds(), caps)) {
+                                *that->pipeline(), that->bounds(), caps, texProvider)) {
         return false;
     }
 
@@ -467,8 +467,9 @@ void InstancedRendering::Batch::onDraw(GrOpFlushState* state, const SkRect& boun
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
     state->gpu()->handleDirtyContext();
-    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps())) {
-        state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
+    if (GrXferBarrierType barrierType = this->pipeline()->xferBarrierType(*state->gpu()->caps(),
+                                                                          state->texProvider())) {
+        state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(state->texProvider()), barrierType);
     }
 
     InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());

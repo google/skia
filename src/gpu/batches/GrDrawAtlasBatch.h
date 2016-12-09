@@ -55,7 +55,7 @@ private:
     int quadCount() const { return fQuadCount; }
     bool coverageIgnored() const { return fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, GrTextureProvider* texProvider) override;
 
     struct Geometry {
         GrColor                 fColor;

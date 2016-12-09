@@ -100,10 +100,10 @@ public:
                      const GrPath*);
 
     /** Clears the entire render target */
-    void fullClear(GrRenderTarget*, GrColor color);
+    void fullClear(GrRenderTargetProxy*, GrColor color);
 
     /** Discards the contents render target. */
-    void discard(GrRenderTarget*);
+    void discard(GrRenderTargetProxy*);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -115,7 +115,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
+    bool copySurface(GrSurfaceProxy* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
@@ -146,7 +146,7 @@ private:
                          GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetProxy*);
 
     struct RecordedOp {
         sk_sp<GrOp> fOp;

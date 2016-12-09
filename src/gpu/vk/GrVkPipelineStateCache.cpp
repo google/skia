@@ -100,11 +100,13 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
-        GrRenderTarget* rt = pipeline.getRenderTarget();
+        GrRenderTargetProxy* rtp = pipeline.getRenderTargetProxy();
+#if 0
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(rt->renderTargetPriv().getStencilAttachment());
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
-                      rt->renderTargetPriv().numStencilBits());
+                      rtp->numStencilBits());
+#endif
     }
 
     // Get GrVkProgramDesc

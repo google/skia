@@ -9,6 +9,8 @@
 
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrTextureProxy.h"
+
 #include "SkCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
@@ -88,7 +90,6 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
     }
 
     GrTexture* tex = rt->asTexture();
-    sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
@@ -96,14 +97,16 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
         GrSurfaceDesc desc = fDevice->accessRenderTargetContext()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
-        copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));
+
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::MakeDeferred(*ctx->caps(), desc,
+                                                                SkBackingFit::kExact, budgeted));
         if (!copy) {
             return nullptr;
         }
         if (!ctx->copySurface(copy.get(), rt)) {
             return nullptr;
         }
-        tex = copy.get();
+        tex = copy->instantiate(ctx->textureProvider())->asTexture();
     }
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;

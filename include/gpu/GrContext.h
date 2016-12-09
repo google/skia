@@ -308,14 +308,14 @@ public:
      * @param srcRect       the rectangle of the src that should be copied.
      * @param dstPoint      the translation applied when writing the srcRect's pixels to the dst.
      */
-    bool copySurface(GrSurface* dst,
+    bool copySurface(GrSurfaceProxy* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
     /** Helper that copies the whole surface but fails when the two surfaces are not identically
         sized. */
-    bool copySurface(GrSurface* dst, GrSurface* src) {
+    bool copySurface(GrSurfaceProxy* dst, GrSurface* src) {
         return this->copySurface(dst, src, SkIRect::MakeWH(dst->width(), dst->height()),
                                  SkIPoint::Make(0,0));
     }

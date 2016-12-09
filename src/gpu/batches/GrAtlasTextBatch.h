@@ -152,7 +152,7 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override;
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack

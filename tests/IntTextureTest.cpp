@@ -7,6 +7,7 @@
 
 #include "Test.h"
 
+#if 0
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
@@ -95,12 +96,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, !success);
 
     // Test that copying from one integer texture to another succeeds.
-    sk_sp<GrTexture> copy(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy);
-    if (!copy) {
+    sk_sp<GrSurfaceProxy> copyProxy(GrSurfaceProxy::MakeWrapped(*context->caps(), desc,
+                                                                SkBackingFit::kExact,
+                                                                SkBudgeted::kYes));
+    REPORTER_ASSERT(reporter, copyProxy);
+    if (!copyProxy) {
         return;
     }
-    success = context->copySurface(copy.get(), texture.get());
+    success = context->copySurface(copyProxy.get(), texture.get());
     REPORTER_ASSERT(reporter, success);
     if (!success) {
         return;
@@ -217,4 +220,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, !texture);
 }
 
+#endif
 #endif

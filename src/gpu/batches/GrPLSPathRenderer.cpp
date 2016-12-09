@@ -915,7 +915,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) override {
         return false;
     }
 

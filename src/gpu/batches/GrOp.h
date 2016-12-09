@@ -9,8 +9,8 @@
 #define GrBatch_DEFINED
 
 #include "../private/SkAtomics.h"
-#include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrSurfaceProxy.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -62,12 +62,12 @@ public:
 
     virtual const char* name() const = 0;
 
-    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
+    bool combineIfPossible(GrOp* that, const GrCaps& caps, GrTextureProvider *texProvider) {
         if (this->classID() != that->classID()) {
             return false;
         }
 
-        return this->onCombineIfPossible(that, caps);
+        return this->onCombineIfPossible(that, caps, texProvider);
     }
 
     const SkRect& bounds() const {
@@ -128,8 +128,11 @@ public:
 
     /** Used to block batching across render target changes. Remove this once we store
         GrOps for different RTs in different targets. */
+#if 0
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;
+#endif
+    virtual GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const = 0;
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
@@ -138,6 +141,9 @@ public:
                        fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
+
+    /** Can remove this when multi-draw-buffer lands */
+    virtual GrRenderTargetProxy* renderTargetProxy() const = 0;
 
 protected:
     /**
@@ -185,7 +191,7 @@ protected:
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
 
 private:
-    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
+    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps, GrTextureProvider *texProvider) = 0;
 
     virtual void onPrepare(GrOpFlushState*) = 0;
     virtual void onDraw(GrOpFlushState*, const SkRect& bounds) = 0;

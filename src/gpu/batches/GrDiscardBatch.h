@@ -17,39 +17,45 @@ class GrDiscardBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDiscardBatch(GrRenderTarget* rt)
+    GrDiscardBatch(GrRenderTargetProxy* rtp)
         : INHERITED(ClassID())
-        , fRenderTarget(rt) {
-        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
+        , fRenderTargetProxy(rtp) {
+        this->setBounds(SkRect::MakeIWH(rtp->width(), rtp->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
     }
 
     const char* name() const override { return "Discard"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fRenderTargetProxy.get()->uniqueID();
     }
+
+    GrRenderTargetProxy* renderTargetProxy() const override { return fRenderTargetProxy.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
+        string.printf("RT: %d", fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
-    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps, GrTextureProvider* texProvider) override {
+        return this->renderTargetProxyUniqueID() == that->renderTargetProxyUniqueID();
     }
 
     void onPrepare(GrOpFlushState*) override {}
 
     void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
-        state->commandBuffer()->discard(fRenderTarget.get());
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->discard(rt);
     }
 
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };

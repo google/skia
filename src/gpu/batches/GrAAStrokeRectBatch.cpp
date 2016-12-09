@@ -204,7 +204,7 @@ private:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, GrTextureProvider *texProvider) override;
 
     void generateAAStrokeRectGeometry(void* vertices,
                                       size_t offset,
@@ -402,11 +402,11 @@ const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourcePr
     }
 }
 
-bool AAStrokeRectBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool AAStrokeRectBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) {
     AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+                                that->bounds(), caps, texProvider)) {
         return false;
     }
 

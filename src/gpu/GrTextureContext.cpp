@@ -70,10 +70,10 @@ bool GrTextureContext::copySurface(GrSurface* src, const SkIRect& srcRect,
     }
 
     GrTextureOpList* opList = this->getOpList();
-    bool result = opList->copySurface(tex.get(), src, srcRect, dstPoint);
+    bool result = opList->copySurface(fContext->textureProvider(), fTextureProxy.get(), src, srcRect, dstPoint);
 
 #ifndef ENABLE_MDB
-    GrOpFlushState flushState(fContext->getGpu(), nullptr);
+    GrOpFlushState flushState(fContext->getGpu(), fContext->resourceProvider(), fContext->textureProvider());
     opList->prepareOps(&flushState);
     opList->executeOps(&flushState);
     opList->reset();

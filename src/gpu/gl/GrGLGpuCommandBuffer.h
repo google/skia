@@ -51,7 +51,12 @@ private:
                 const GrMesh* mesh,
                 int meshCount,
                 const SkRect& bounds) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+        GrRenderTarget* rt = pipeline.getRenderTargetProxy()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
         if (!fRenderTarget) {
             fRenderTarget = target;
         }

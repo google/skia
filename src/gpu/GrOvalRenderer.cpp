@@ -1098,10 +1098,10 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         CircleBatch* that = t->cast<CircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
@@ -1340,11 +1340,11 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         EllipseBatch* that = t->cast<EllipseBatch>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
@@ -1558,10 +1558,10 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         DIEllipseBatch* that = t->cast<DIEllipseBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
@@ -2022,10 +2022,10 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
@@ -2275,11 +2275,11 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 

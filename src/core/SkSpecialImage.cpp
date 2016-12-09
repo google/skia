@@ -504,13 +504,22 @@ public:
         desc.fWidth = subset.width();
         desc.fHeight = subset.height();
 
-        sk_sp<GrTexture> subTx(fContext->textureProvider()->createTexture(desc, SkBudgeted::kYes));
+        sk_sp<GrSurfaceProxy> subProxy(GrSurfaceProxy::MakeDeferred(*fContext->caps(), desc,
+                                                                    SkBackingFit::kExact,
+                                                                    SkBudgeted::kYes));
+        if (!subProxy) {
+            return nullptr;
+        }
+        fContext->copySurface(subProxy.get(), surf, subset, SkIPoint::Make(0, 0));
+
+        GrTexture* subTx = subProxy->instantiate(fContext->textureProvider())->asTexture();
         if (!subTx) {
             return nullptr;
         }
-        fContext->copySurface(subTx.get(), surf, subset, SkIPoint::Make(0, 0));
+
+        // TODO: add proxy-backed SkImages
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, std::move(subTx), fColorSpace, SkBudgeted::kYes);
+                                       fAlphaType, sk_ref_sp(subTx), fColorSpace, SkBudgeted::kYes);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,

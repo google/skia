@@ -55,7 +55,7 @@ private:
                kPoints_GrPrimitiveType == fPrimitiveType;
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, GrTextureProvider* texProvider) override;
 
     struct Mesh {
         GrColor fColor; // Only used if there are no per-vertex colors

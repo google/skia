@@ -16,6 +16,7 @@
 class GrShaderCaps;
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrTextureProvider;
 
 /** This class describes a program to generate. It also serves as a program cache key */
 class GrProgramDesc {
@@ -41,7 +42,8 @@ public:
                       const GrPrimitiveProcessor&,
                       bool hasPointSize,
                       const GrPipeline&,
-                      const GrShaderCaps&);
+                      const GrShaderCaps&,
+                      GrTextureProvider*);
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {

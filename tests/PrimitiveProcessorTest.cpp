@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&, GrTextureProvider *texProvider) override { return false; }
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {
         public:

@@ -18,8 +18,7 @@ class GrResourceProvider;
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
 class GrOpFlushState {
 public:
-    GrOpFlushState(GrGpu*, GrResourceProvider*);
-
+    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTextureProvider*);
     ~GrOpFlushState() { this->reset(); }
 
     /** Inserts an upload to be executed after all ops in the flush prepared their draws but before
@@ -91,6 +90,8 @@ public:
 
     GrGpu* gpu() { return fGpu; }
 
+    GrTextureProvider* texProvider() { return fTextureProvider; }
+
     void reset() {
         fVertexPool.reset();
         fIndexPool.reset();
@@ -101,6 +102,7 @@ private:
     GrGpu*                                      fGpu;
 
     GrResourceProvider*                         fResourceProvider;
+    GrTextureProvider*                          fTextureProvider;
 
     GrGpuCommandBuffer*                         fCommandBuffer;
 

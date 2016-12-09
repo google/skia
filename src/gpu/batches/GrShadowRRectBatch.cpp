@@ -367,10 +367,10 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         ShadowCircleBatch* that = t->cast<ShadowCircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
@@ -796,10 +796,10 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         ShadowCircularRRectBatch* that = t->cast<ShadowCircularRRectBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 

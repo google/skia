@@ -42,6 +42,10 @@ public:
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* = nullptr);
 
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrRenderTargetProxy>,
+                                                         sk_sp<SkColorSpace>,
+                                                         const SkSurfaceProps* = nullptr);
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&) {} // unimpl

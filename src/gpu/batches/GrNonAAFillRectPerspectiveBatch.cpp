@@ -187,10 +187,10 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) override {
         GrNonAAFillRectPerspectiveBatch* that = t->cast<GrNonAAFillRectPerspectiveBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 

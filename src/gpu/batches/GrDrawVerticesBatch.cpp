@@ -171,11 +171,11 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     target->draw(gp.get(), mesh);
 }
 
-bool GrDrawVerticesBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawVerticesBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) {
     GrDrawVerticesBatch* that = t->cast<GrDrawVerticesBatch>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+                                that->bounds(), caps, texProvider)) {
         return false;
     }
 

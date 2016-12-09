@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrGpu;
 class GrOp;
+class GrTextureProvider;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
@@ -50,7 +51,8 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
+    bool copySurface(GrTextureProvider*,
+                     GrSurfaceProxy* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);

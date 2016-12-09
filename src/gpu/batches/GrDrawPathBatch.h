@@ -80,7 +80,7 @@ private:
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) override { return false; }
 
     void onDraw(GrOpFlushState* state, const SkRect& bounds) override;
 
@@ -173,7 +173,7 @@ private:
 
     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) override;
 
     void onDraw(GrOpFlushState* state, const SkRect& bounds) override;
 

@@ -7,6 +7,7 @@
 
 #include "GrGLGpu.h"
 
+#include "GrContext.h"
 #include "builders/GrGLProgramBuilder.h"
 #include "GrProcessor.h"
 #include "GrProgramDesc.h"
@@ -114,7 +115,8 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, primProc, isPoints, pipeline, *gpu->caps()->shaderCaps())) {
+    if (!GrProgramDesc::Build(&desc, primProc, isPoints, pipeline, *gpu->caps()->shaderCaps(),
+                              (GrTextureProvider*) gpu->getContext()->textureProvider())) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }

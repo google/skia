@@ -167,7 +167,7 @@ private:
         fOverrides = overrides;
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps&, GrTextureProvider* texProvider) override {
         // NonAA stroke rects cannot batch right now
         // TODO make these batchable
         return false;

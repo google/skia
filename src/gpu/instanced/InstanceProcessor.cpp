@@ -139,7 +139,8 @@ private:
 
 class GLSLInstanceProcessor::Backend {
 public:
-    static Backend* SK_WARN_UNUSED_RESULT Create(const GrPipeline&, BatchInfo, const VertexInputs&);
+    static Backend* SK_WARN_UNUSED_RESULT Create(const GrPipeline&, BatchInfo, const VertexInputs&,
+                                                 GrTextureProvider*);
     virtual ~Backend() {}
 
     void init(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
@@ -242,7 +243,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
-    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
+    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs, nullptr));
     backend->init(varyingHandler, v);
 
     int usedShapeDefinitions = 0;
@@ -1663,7 +1664,7 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
 
 GLSLInstanceProcessor::Backend*
 GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo batchInfo,
-                                       const VertexInputs& inputs) {
+                                       const VertexInputs& inputs, GrTextureProvider* texProvider) {
     switch (batchInfo.fAntialiasMode) {
         default:
             SkFAIL("Unexpected antialias mode.");
@@ -1673,7 +1674,7 @@ GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo bat
             return new BackendCoverage(batchInfo, inputs);
         case AntialiasMode::kMSAA:
         case AntialiasMode::kMixedSamples: {
-            const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
+            const GrRenderTargetPriv& rtp = pipeline.getRenderTarget(texProvider)->renderTargetPriv();
             const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
             return new BackendMultisample(batchInfo, inputs, specs.fEffectiveSampleCnt);
         }

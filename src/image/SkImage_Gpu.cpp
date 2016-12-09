@@ -153,11 +153,20 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, fBudgeted));
+    sk_sp<GrSurfaceProxy> subProxy(GrSurfaceProxy::MakeDeferred(*ctx->caps(), desc,
+                                                                SkBackingFit::kExact,
+                                                                fBudgeted));
+    if (!subProxy) {
+        return nullptr;
+    }
+    ctx->copySurface(subProxy.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
+
+    // TODO: need proxy-backed SkImage_Gpu
+    sk_sp<GrTexture> subTx = sk_ref_sp(subProxy->instantiate(ctx->textureProvider())->asTexture());
     if (!subTx) {
         return nullptr;
     }
-    ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
+
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
                                    fAlphaType, std::move(subTx), fColorSpace, fBudgeted);
 }

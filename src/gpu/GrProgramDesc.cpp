@@ -150,7 +150,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrPrimitiveProcessor& primProc,
                           bool hasPointSize,
                           const GrPipeline& pipeline,
-                          const GrShaderCaps& shaderCaps) {
+                          const GrShaderCaps& shaderCaps,
+                          GrTextureProvider* texProvider) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -195,16 +196,21 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTargetProxy* rtp = pipeline.getRenderTargetProxy();
 
     if (requiredFeatures & (GrProcessor::kFragmentPosition_RequiredFeature |
                             GrProcessor::kSampleLocations_RequiredFeature)) {
-        header->fSurfaceOriginKey = GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(rt->origin());
+        header->fSurfaceOriginKey = GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(rtp->origin());
     } else {
         header->fSurfaceOriginKey = 0;
     }
 
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
+        GrRenderTarget* rt = rtp->instantiate(texProvider);
+        if (!rt) {
+            return false;
+        }
+
         SkASSERT(pipeline.isHWAntialiasState());
         header->fSamplePatternKey =
             rt->renderTargetPriv().getMultisampleSpecs(pipeline).fUniqueID;
@@ -212,7 +218,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         header->fSamplePatternKey = 0;
     }
 
-    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(rt->config()).asKey();
+    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(rtp->config()).asKey();
 
     header->fIgnoresCoverage = pipeline.ignoresCoverage() ? 1 : 0;
 

@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
@@ -22,14 +23,17 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrXPOverridesForBatch* overrides) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
     const GrUserStencilSettings* userStencil = builder.getUserStencil();
-    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
-    if (!rt) {
-        return nullptr;
-    }
+//    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
+//    if (!rt) {
+//        return nullptr;
+//    }
     
+    GrRenderTargetProxy* rtp = args.fRenderTargetContext->priv().accessRenderTargetProxy();
+    SkASSERT(rtp);
+
     GrPipeline* pipeline = new (memory) GrPipeline;
-    pipeline->fRenderTarget.reset(rt);
-    SkASSERT(pipeline->fRenderTarget);
+    pipeline->fRenderTargetProxy.reset(rtp);
+    SkASSERT(pipeline->fRenderTargetProxy);
     pipeline->fScissorState = *args.fScissor;
     pipeline->fWindowRectsState = *args.fWindowRectsState;
     pipeline->fUserStencilSettings = userStencil;
@@ -222,7 +226,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
-    if (a.getRenderTarget() != b.getRenderTarget() ||
+    if (a.getRenderTargetProxy() != b.getRenderTargetProxy() || // do via ID ?
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||

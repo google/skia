@@ -80,7 +80,7 @@ private:
         , fAtlasTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
-        , fFlushState(context->getGpu(), context->resourceProvider())
+        , fFlushState(context->getGpu(), context->resourceProvider(), context->textureProvider())
         , fFlushing(false)
         , fIsImmediateMode(isImmediateMode) {
     }

@@ -238,9 +238,11 @@ protected:
         desc.fWidth = subset->width();
         desc.fHeight = subset->height();
 
-        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture.get(), *subset, SkIPoint::Make(0, 0));
-        return dst;
+        sk_sp<GrSurfaceProxy> dst(GrSurfaceProxy::MakeDeferred(*fCtx->caps(), desc,
+                                                               SkBackingFit::kExact,
+                                                               SkBudgeted::kNo));
+        fCtx->copySurface(dst.get(), fTexture.get(), *subset, SkIPoint::Make(0, 0));
+        return dst->instantiate(fCtx->textureProvider())->asTexture();
     }
 private:
     sk_sp<GrContext> fCtx;

@@ -123,20 +123,20 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrPipeline& pipeline) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTarget()->height()) {
+        fRenderTargetState.fRenderTargetSize.fHeight != pipeline.getRenderTargetProxy()->height()) {
         fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                                   SkIntToScalar(pipeline.getRenderTarget()->height()));
+                                   SkIntToScalar(pipeline.getRenderTargetProxy()->height()));
     }
 
     // set RT adjustment
-    const GrRenderTarget* rt = pipeline.getRenderTarget();
+    const GrRenderTargetProxy* rtp = pipeline.getRenderTargetProxy();
     SkISize size;
-    size.set(rt->width(), rt->height());
+    size.set(rtp->width(), rtp->height());
     if (!primProc.isPathRendering()) {
-        if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
+        if (fRenderTargetState.fRenderTargetOrigin != rtp->origin() ||
             fRenderTargetState.fRenderTargetSize != size) {
             fRenderTargetState.fRenderTargetSize = size;
-            fRenderTargetState.fRenderTargetOrigin = rt->origin();
+            fRenderTargetState.fRenderTargetOrigin = rtp->origin();
 
             float rtAdjustmentVec[4];
             fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
@@ -146,7 +146,7 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
         SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
-                                                     size, rt->origin());
+                                                     size, rtp->origin());
     }
 }
 

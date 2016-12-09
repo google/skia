@@ -40,7 +40,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
 }
 
 static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
-                             GrTexture* externalTexture, uint32_t expectedPixelValues[]) {
+                             GrSurface* externalTexture, uint32_t expectedPixelValues[]) {
     int pixelCnt = externalTexture->width() * externalTexture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
@@ -76,9 +76,16 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
     copyDesc.fWidth = externalTexture->width();
     copyDesc.fHeight = externalTexture->height();
     copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    sk_sp<GrTexture> copy(context->textureProvider()->createTexture(copyDesc, SkBudgeted::kYes));
-    context->copySurface(copy.get(), externalTexture);
-    test_read_pixels(reporter, context, copy.get(), expectedPixelValues);
+
+    sk_sp<GrSurfaceProxy> dstProxy(GrSurfaceProxy::MakeDeferred(*context->caps(), copyDesc,
+                                                                SkBackingFit::kExact,
+                                                                SkBudgeted::kYes));
+
+    context->copySurface(dstProxy.get(), externalTexture);
+
+    GrSurface* dst = dstProxy->instantiate(context->textureProvider());
+
+    test_read_pixels(reporter, context, dst, expectedPixelValues);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {

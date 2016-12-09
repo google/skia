@@ -482,7 +482,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
 }
 
 const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pipeline) {
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTarget* rt = pipeline.getRenderTarget(fContext->textureProvider());
     SkASSERT(rt->desc().fSampleCnt > 1);
 
     GrStencilSettings stencil;

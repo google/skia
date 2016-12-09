@@ -19,22 +19,26 @@ class GrClearStencilClipBatch final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
+    GrClearStencilClipBatch(const GrFixedClip& clip,
+                            bool insideStencilMask,
+                            GrRenderTargetProxy* rtp)
         : INHERITED(ClassID())
         , fClip(clip)
         , fInsideStencilMask(insideStencilMask)
-        , fRenderTarget(rt) {
+        , fRenderTargetProxy(rtp) {
         const SkRect& bounds = fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect())
-                                                      : SkRect::MakeIWH(rt->width(), rt->height());
+                                                      : SkRect::MakeIWH(rtp->width(),
+                                                                        rtp->height());
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClearStencilClip"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fRenderTargetProxy.get()->uniqueID();
     }
+
+    GrRenderTargetProxy* renderTargetProxy() const override { return fRenderTargetProxy.get(); }
 
     SkString dumpInfo() const override {
         SkString string("Scissor [");
@@ -43,23 +47,28 @@ public:
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
         string.appendf("], IC: %d, RT: %d", fInsideStencilMask,
-                                            fRenderTarget.get()->uniqueID().asUInt());
+                                            fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) override { return false; }
 
     void onPrepare(GrOpFlushState*) override {}
 
     void onDraw(GrOpFlushState* state, const SkRect& /*bounds*/) override {
-        state->commandBuffer()->clearStencilClip(fRenderTarget.get(), fClip, fInsideStencilMask);
+        GrRenderTarget* rt = fRenderTargetProxy.get()->instantiate(nullptr);
+        if (!rt) {
+            return;
+        }
+
+        state->commandBuffer()->clearStencilClip(rt, fClip, fInsideStencilMask);
     }
 
-    const GrFixedClip                                       fClip;
-    const bool                                              fInsideStencilMask;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    const GrFixedClip                                         fClip;
+    const bool                                                fInsideStencilMask;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrOp INHERITED;
 };

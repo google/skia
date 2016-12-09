@@ -320,7 +320,7 @@ private:
         target->draw(gp, mesh);
     }
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&, GrTextureProvider* texProvider) override { return false; }
 
     TessellatingPathBatch(const GrColor& color,
                           const GrShape& shape,

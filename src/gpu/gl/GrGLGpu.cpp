@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrContext.h"
 #include "GrGLGpu.h"
 #include "GrGLBuffer.h"
 #include "GrGLGpuCommandBuffer.h"
@@ -2058,13 +2059,13 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-            pipeline.getRenderTarget()->config());
+            pipeline.getRenderTargetProxy()->config());
         this->flushBlend(blendInfo, swizzle);
     }
 
     program->setData(primProc, pipeline);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget(this->getContext()->textureProvider()));
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
@@ -2776,8 +2777,8 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
     }
 
     for (int i = 0; i < meshCount; ++i) {
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
-            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps(), this->getContext()->textureProvider())) {
+            this->xferBarrier(pipeline.getRenderTarget(this->getContext()->textureProvider()), barrierType);
         }
 
         const GrMesh& mesh = meshes[i];
@@ -2885,7 +2886,7 @@ void GrGLGpu::setupPixelLocalStorage(const GrPipeline& pipeline,
             static_cast<const GrPLSGeometryProcessor&>(primProc).getBounds();
     // setup pixel local storage -- this means capturing and storing the current framebuffer color
     // and initializing the winding counts to zero
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTarget* rt = pipeline.getRenderTarget(this->getContext()->textureProvider());
     SkScalar width = SkIntToScalar(rt->width());
     SkScalar height = SkIntToScalar(rt->height());
     // dst rect edges in NDC (-1 to 1)

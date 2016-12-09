@@ -21,6 +21,11 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
+    // TODO: it seems like we don't need this entry point long term - remove it
+    GrRenderTargetProxy* accessRenderTargetProxy() {
+        return fRenderTargetContext->fRenderTargetProxy.get();
+    }
+
     gr_instanced::InstancedRendering* accessInstancedRendering() const {
         return fRenderTargetContext->getOpList()->instancedRendering();
     }

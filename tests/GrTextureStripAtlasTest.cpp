@@ -26,15 +26,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
 
     GrSurfaceDesc targetDesc = desc;
     targetDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    GrTexture* target = context->textureProvider()->createTexture(targetDesc, SkBudgeted::kYes,
-                                                                  nullptr, 0);
+
+    sk_sp<GrSurfaceProxy> targetProxy(GrSurfaceProxy::MakeDeferred(*context->caps(), desc,
+                                                                   SkBackingFit::kExact,
+                                                                   SkBudgeted::kYes));
 
     SkAutoTMalloc<uint32_t> pixels(desc.fWidth * desc.fHeight);
     memset(pixels.get(), 0xFF, sizeof(uint32_t) * desc.fWidth * desc.fHeight);
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, kRGBA_8888_GrPixelConfig, pixels.get());
 
     // Add a pending read to the texture, and then make it available for reuse.
-    context->copySurface(target, texture);
+    context->copySurface(targetProxy.get(), texture);
     texture->unref();
 
     // Create an atlas with parameters that allow it to reuse the texture.
@@ -53,8 +55,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     bitmap.allocPixels(info, rowBytes);
     memset(bitmap.getPixels(), 1, rowBytes * desc.fHeight);
     int row = atlas->lockRow(bitmap);
-    if (!context->caps()->preferVRAMUseOverFlushes())
+    if (!context->caps()->preferVRAMUseOverFlushes()) {
         REPORTER_ASSERT(reporter, texture == atlas->getTexture());
+    }
+
+    GrSurface* target = targetProxy->instantiate(context->textureProvider());
 
     // The atlas' use of its texture shouldn't change which pixels got copied to the target.
     SkAutoTMalloc<uint32_t> actualPixels(desc.fWidth * desc.fHeight);

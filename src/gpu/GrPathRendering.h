@@ -135,18 +135,21 @@ public:
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,
-                        GrRenderTarget* renderTarget,
+                        GrTextureProvider* textureProvider,
+                        GrRenderTargetProxy* renderTargetProxy,
                         const SkMatrix* viewMatrix,
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
-            , fRenderTarget(renderTarget)
+            , fTextureProvider(textureProvider)
+            , fRenderTargetProxy(renderTargetProxy)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
         bool fUseHWAA;
-        GrRenderTarget* fRenderTarget;
+        GrTextureProvider* fTextureProvider;
+        GrRenderTargetProxy* fRenderTargetProxy;
         const SkMatrix* fViewMatrix;
         const GrScissorState* fScissor;
         const GrStencilSettings* fStencil;
@@ -157,18 +160,20 @@ public:
         this->onStencilPath(args, path);
     }
 
-    void drawPath(const GrPipeline& pipeline,
+    void drawPath(GrTextureProvider* texProvider,
+                  const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                   const GrPath* path) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps(), texProvider)) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(texProvider), barrierType);
         }
         this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
     }
 
-    void drawPaths(const GrPipeline& pipeline,
+    void drawPaths(GrTextureProvider* texProvider,
+                   const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
                    const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
                    const GrPathRange* pathRange,
@@ -178,8 +183,8 @@ public:
                    PathTransformType transformType,
                    int count) {
         fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps(), texProvider)) {
+            fGpu->xferBarrier(pipeline.getRenderTarget(texProvider), barrierType);
         }
 #ifdef SK_DEBUG
         pathRange->assertPathsLoaded(indices, indexType, count);

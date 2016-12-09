@@ -495,7 +495,12 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                                   const GrMesh* meshes,
                                   int meshCount,
                                   const SkRect& bounds) {
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.getRenderTarget());
+    GrRenderTarget* rt = pipeline.getRenderTargetProxy()->instantiate(nullptr);
+    if (!rt) {
+        return;
+    }
+
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
     if (!fRenderTarget) {
         this->init(target);
     }

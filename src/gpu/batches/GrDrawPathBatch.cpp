@@ -13,8 +13,8 @@ static void pre_translate_transform_values(const float* xforms,
                                            GrPathRendering::PathTransformType type, int count,
                                            SkScalar x, SkScalar y, float* dst);
 
-void GrDrawPathBatchBase::onPrepare(GrOpFlushState*) {
-    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
+void GrDrawPathBatchBase::onPrepare(GrOpFlushState* state) {
+    const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget(state->texProvider())->renderTargetPriv();
     fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
                                this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
 }
@@ -33,7 +33,7 @@ void GrDrawPathBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                             this->overrides(),
                                                             this->viewMatrix()));
-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
+    state->gpu()->pathRendering()->drawPath(state->texProvider(), *this->pipeline(), *pathProc,
                                             this->stencilPassSettings(), fPath.get());
 }
 
@@ -62,7 +62,7 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, SkScalar 
     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider* texProvider) {
     GrDrawPathRangeBatch* that = t->cast<GrDrawPathRangeBatch>();
     if (this->fPathRange.get() != that->fPathRange.get() ||
         this->transformType() != that->transformType() ||
@@ -136,7 +136,8 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+        state->gpu()->pathRendering()->drawPaths(state->texProvider(),
+                                                 *this->pipeline(),
                                                  *pathProc,
                                                  this->stencilPassSettings(),
                                                  fPathRange.get(),
@@ -165,7 +166,8 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
         }
         SkASSERT(idx == fTotalPathCount);
 
-        state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
+        state->gpu()->pathRendering()->drawPaths(state->texProvider(),
+                                                 *this->pipeline(),
                                                  *pathProc,
                                                  this->stencilPassSettings(),
                                                  fPathRange.get(),

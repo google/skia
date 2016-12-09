@@ -78,11 +78,12 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureOpList::copySurface(GrSurface* dst,
+bool GrTextureOpList::copySurface(GrTextureProvider* textureProvider,
+                                  GrSurfaceProxy* dst,
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    GrOp* op = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    GrOp* op = GrCopySurfaceBatch::Create(textureProvider, dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }

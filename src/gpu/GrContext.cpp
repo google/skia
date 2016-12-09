@@ -541,20 +541,20 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
-bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+bool GrContext::copySurface(GrSurfaceProxy* dstProxy, GrSurface* src, const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::copySurface");
 
-    if (!src || !dst) {
+    if (!src || !dstProxy) {
         return false;
     }
     ASSERT_OWNED_RESOURCE(src);
-    ASSERT_OWNED_RESOURCE(dst);
+    //ASSERT_OWNED_RESOURCE(dst);
 
     // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+    if (GrPixelConfigIsSint(dstProxy->config()) != GrPixelConfigIsSint(src->config())) {
         return false;
     }
 
@@ -563,6 +563,11 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     // execute the copy immediately. Ensure the data is ready.
     src->flushWrites();
 #endif
+
+    GrSurface* dst = dstProxy->instantiate(this->textureProvider());
+    if (!dst) {
+        return false;
+    }
 
     sk_sp<GrSurfaceContext> surfaceContext(
         this->contextPriv().makeWrappedSurfaceContext(sk_ref_sp(dst)));
@@ -769,6 +774,14 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
 
     return this->makeDeferredRenderTargetContext(fit, width, height, config, std::move(colorSpace),
                                                  sampleCnt, origin, surfaceProps, budgeted);
+}
+
+sk_sp<GrRenderTargetContext> GrContextPriv::makeRenderTargetContext(sk_sp<GrRenderTargetProxy> rtp,
+                                                                    sk_sp<SkColorSpace> colorSpace,
+                                                                    const SkSurfaceProps* props) {
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
+                                                           props);
 }
 
 sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit,

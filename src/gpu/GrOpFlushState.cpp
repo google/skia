@@ -10,9 +10,11 @@
 #include "GrBatchAtlas.h"
 #include "GrPipeline.h"
 
-GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
+GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider,
+                                     GrTextureProvider* texProvider)
     : fGpu(gpu)
     , fResourceProvider(resourceProvider)
+    , fTextureProvider(texProvider)
     , fCommandBuffer(nullptr)
     , fVertexPool(gpu)
     , fIndexPool(gpu)

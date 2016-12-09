@@ -183,10 +183,10 @@ void GrAtlasTextBatch::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo)
     flushInfo->fGlyphsToFlush = 0;
 }
 
-bool GrAtlasTextBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrAtlasTextBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) {
     GrAtlasTextBatch* that = t->cast<GrAtlasTextBatch>();
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+                                that->bounds(), caps, texProvider)) {
         return false;
     }
 

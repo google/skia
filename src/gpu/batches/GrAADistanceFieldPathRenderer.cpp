@@ -475,10 +475,10 @@ private:
     const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps, GrTextureProvider *texProvider) override {
         AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+                                    that->bounds(), caps, texProvider)) {
             return false;
         }
 
