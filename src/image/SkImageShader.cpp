@@ -318,8 +318,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     ctx->ctable  = pm.ctable();
     ctx->color4f = SkColor4f_from_SkColor(paint.getColor(), dst);
     ctx->stride  = pm.rowBytesAsPixels();
-    ctx->width   = pm.width();
-    ctx->height  = pm.height();
+    ctx->width   = (float)pm.width();
+    ctx->height  = (float)pm.height();
     if (matrix.asAffine(ctx->matrix)) {
         p->append(SkRasterPipeline::matrix_2x3, ctx->matrix);
     } else {

@@ -23,8 +23,8 @@ struct SkImageShaderContext {
     SkColorTable* ctable;
     SkColor4f     color4f;
     int           stride;
-    int           width;
-    int           height;
+    float         width;
+    float         height;
     float         matrix[9];
     float         x[8];
     float         y[8];

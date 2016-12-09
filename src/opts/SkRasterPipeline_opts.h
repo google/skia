@@ -796,12 +796,12 @@ SI SkNf mirror(const SkNf& v, float l/*imit*/) {
     result = SkNf::Min(result, nextafterf(l, 0));
     return assert_in_tile(result, l);
 }
-STAGE( clamp_x) { r = clamp (r, *(const int*)ctx); }
-STAGE(repeat_x) { r = repeat(r, *(const int*)ctx); }
-STAGE(mirror_x) { r = mirror(r, *(const int*)ctx); }
-STAGE( clamp_y) { g = clamp (g, *(const int*)ctx); }
-STAGE(repeat_y) { g = repeat(g, *(const int*)ctx); }
-STAGE(mirror_y) { g = mirror(g, *(const int*)ctx); }
+STAGE( clamp_x) { r = clamp (r, *(const float*)ctx); }
+STAGE(repeat_x) { r = repeat(r, *(const float*)ctx); }
+STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
+STAGE( clamp_y) { g = clamp (g, *(const float*)ctx); }
+STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
+STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
 STAGE(save_xy) {
     auto sc = (SkImageShaderContext*)ctx;
