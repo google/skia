@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_ca334f4f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-09T19:00:57Z",
+      "side": 1,
+      "message": "I thought we relied on this always working if it was requested.",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_8ac8b711",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-09T19:00:57Z",
+      "side": 1,
+      "message": "This isn\u0027t kMixedSamples ?",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_6a4afba1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1478,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-09T19:00:57Z",
+      "side": 1,
+      "message": "Declare this outside of the loop?",
+      "revId": "ef94765624589451d8563090599911d168f717e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
