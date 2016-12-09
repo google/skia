@@ -263,7 +263,7 @@ void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
     }
 
     fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
-                                                 batch);
+                                                 sk_ref_sp(batch));
 }
 
 #undef ASSERT_SINGLE_OWNER

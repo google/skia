@@ -82,7 +82,8 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawOp*);
+    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                   sk_sp<GrDrawOp>);
 
     void addOp(sk_sp<GrOp>);
 

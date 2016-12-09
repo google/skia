@@ -264,10 +264,10 @@ static void batch_bounds(SkRect* bounds, const GrOp* batch) {
 void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     GrDrawOp* op) {
+                                     sk_sp<GrDrawOp> op) {
     // Setup clip
     SkRect bounds;
-    batch_bounds(&bounds, op);
+    batch_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(bounds);
     if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
@@ -346,7 +346,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(op, appliedClip.clippedDrawBounds());
+    this->recordOp(op.get(), appliedClip.clippedDrawBounds());
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
