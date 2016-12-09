@@ -424,11 +424,13 @@ private:
 
 bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
                                              const GrPaint& paint,
+                                             GrAAType aaType,
                                              const GrUserStencilSettings& userStencilSettings,
                                              const GrClip& clip,
                                              const SkMatrix& viewMatrix,
                                              const GrShape& shape,
                                              bool stencilOnly) {
+    SkASSERT(GrAAType::kCoverage != aaType);
     SkPath path;
     shape.asPath(&path);
 
@@ -567,23 +569,20 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                                         &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
-            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-
             renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         } else {
             sk_sp<GrDrawOp> batch(new DefaultPathBatch(paint.getColor(), path, srcSpaceTol,
                                                        newCoverage, viewMatrix, isHairline,
                                                        devBounds));
-
-            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
-
             renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
         }
     }
@@ -591,8 +590,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
 }
 
 bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // this class can draw any path with any simple fill style but doesn't do any anti-aliasing.
-    return !args.fAntiAlias &&
+    // This can draw any path with any simple fill style but doesn't do coverage-based antialiasing.
+    return GrAAType::kCoverage != args.fAAType &&
            (args.fShape->style().isSimpleFill() ||
             IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr));
 }
@@ -602,6 +601,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fRenderTargetContext,
                                   *args.fPaint,
+                                  args.fAAType,
                                   *args.fUserStencilSettings,
                                   *args.fClip,
                                   *args.fViewMatrix,
@@ -616,10 +616,10 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Make());
-    paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fRenderTargetContext, paint, GrUserStencilSettings::kUnused,
-                           *args.fClip, *args.fViewMatrix, *args.fShape, true);
+    this->internalDrawPath(args.fRenderTargetContext, paint, args.fAAType,
+                           GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
+                           *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

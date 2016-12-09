@@ -140,7 +140,7 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
         return false;
     }
-    if (args.fAntiAlias) {
+    if (GrAAType::kCoverage == args.fAAType) {
 #ifdef SK_DISABLE_SCREENSPACE_TESS_AA_PATH_RENDERER
         return false;
 #else
@@ -364,14 +364,10 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                         *args.fShape,
                                                         *args.fViewMatrix,
                                                         clipBoundsI,
-                                                        args.fAntiAlias));
-
-    GrPipelineBuilder pipelineBuilder(*args.fPaint,
-                                      args.fRenderTargetContext->mustUseHWAA(*args.fPaint));
+                                                        GrAAType::kCoverage == args.fAAType));
+    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
-
     return true;
 }
 

@@ -84,7 +84,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
                                                -SkIntToScalar(srcOffset.y()));
-    renderTargetContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(),
+    renderTargetContext->fillRectWithLocalMatrix(clip, paint, GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
@@ -112,7 +112,7 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(),
+    renderTargetContext->fillRectWithLocalMatrix(clip, paint, GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
@@ -289,7 +289,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
-        dstRenderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(),
+        dstRenderTargetContext->fillRectToRect(clip, paint, GrAA::kNo, SkMatrix::I(),
                                                SkRect::Make(dstRect), SkRect::Make(srcRect));
 
         srcRenderTargetContext = dstRenderTargetContext;
@@ -381,7 +381,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkIRect dstRect(srcRect);
         scale_irect(&dstRect, scaleFactorX, scaleFactorY);
 
-        dstRenderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(),
+        dstRenderTargetContext->fillRectToRect(clip, paint, GrAA::kNo, SkMatrix::I(),
                                                SkRect::Make(dstRect), SkRect::Make(srcRect));
 
         srcRenderTargetContext = dstRenderTargetContext;
