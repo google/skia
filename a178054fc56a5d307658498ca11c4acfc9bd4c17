@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_f241fe58",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1466,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-10T14:37:39Z",
+      "side": 1,
+      "message": "This seems wrong but is consistent with the previous code. I\u0027ll try a separate CL to change this to kStencilAndColor.",
+      "range": {
+        "startLine": 1466,
+        "startChar": 63,
+        "endLine": 1466,
+        "endChar": 69
+      },
+      "revId": "a178054fc56a5d307658498ca11c4acfc9bd4c17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
