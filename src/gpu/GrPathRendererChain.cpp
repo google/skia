@@ -75,10 +75,9 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
                      GrPathRenderer::kNoRestriction_StencilSupport);
     GrPathRenderer::StencilSupport minStencilSupport;
-    if (kStencilOnly_DrawType == drawType) {
+    if (kStencil_DrawType == drawType) {
         minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;
-    } else if (kStencilAndColor_DrawType == drawType ||
-               kStencilAndColorAntiAlias_DrawType == drawType) {
+    } else if (kStencilAndColor_DrawType == drawType) {
         minStencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         minStencilSupport = GrPathRenderer::kNoSupport_StencilSupport;

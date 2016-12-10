@@ -743,8 +743,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             canDrawArgs.fHasUserStencilSettings = false;
 
             GrDrawingManager* dm = context->contextPriv().drawingManager();
-            pr = dm->getPathRenderer(canDrawArgs, false,
-                                     GrPathRendererChain::kStencilOnly_DrawType,
+            pr = dm->getPathRenderer(canDrawArgs, false, GrPathRendererChain::kStencil_DrawType,
                                      &stencilSupport);
             if (!pr) {
                 return false;
