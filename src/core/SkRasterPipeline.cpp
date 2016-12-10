@@ -7,6 +7,7 @@
 
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
+#include "SkXbyak.h"
 
 SkRasterPipeline::SkRasterPipeline() {}
 
@@ -26,6 +27,12 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
 }
 
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
+#ifdef SK_XBYAK
+    if (auto fn = sk_compile_pipeline_xbyak(fStages.data(), SkToInt(fStages.size()))) {
+        SkDebugf("Compiled with xbyak.\n");
+        return fn;
+    }
+#endif
     return SkOpts::compile_pipeline(fStages.data(), SkToInt(fStages.size()));
 }
 
