@@ -1452,10 +1452,6 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     GrAAType aaType = fRenderTargetContext->decideAAType(aa);
     bool hasUserStencilSettings = !ss->isUnused();
 
-    const GrPathRendererChain::DrawType type = (GrAAType::kCoverage == aaType)
-                                               ? GrPathRendererChain::kColorAntiAlias_DrawType
-                                               : GrPathRendererChain::kColor_DrawType;
-
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fShaderCaps =
@@ -1466,8 +1462,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
-    GrPathRenderer* pr = fRenderTargetContext->fDrawingManager->getPathRenderer(canDrawArgs, false,
-                                                                                type);
+    GrPathRenderer* pr = fRenderTargetContext->fDrawingManager->getPathRenderer(
+            canDrawArgs, false, GrPathRendererChain::DrawType::kColor);
     if (!pr) {
         return false;
     }
@@ -1527,11 +1523,8 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
+    static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
     do {
-        const GrPathRendererChain::DrawType type = GrAAType::kCoverage == aaType
-                ? GrPathRendererChain::kColorAntiAlias_DrawType
-                : GrPathRendererChain::kColor_DrawType;
-
         shape = GrShape(path, style);
         if (shape.isEmpty()) {
             return;
@@ -1540,7 +1533,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         canDrawArgs.fAAType = aaType;
 
         // Try a 1st time without applying any of the style to the geometry (and barring sw)
-        pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
+        pr = fDrawingManager->getPathRenderer(canDrawArgs, false, kType);
         SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
 
         if (!pr && shape.style().pathEffect()) {
@@ -1549,7 +1542,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
             if (shape.isEmpty()) {
                 return;
             }
-            pr = fDrawingManager->getPathRenderer(canDrawArgs, false, type);
+            pr = fDrawingManager->getPathRenderer(canDrawArgs, false, kType);
         }
         if (!pr) {
             if (shape.style().applies()) {
@@ -1559,7 +1552,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
                 }
             }
             // This time, allow SW renderer
-            pr = fDrawingManager->getPathRenderer(canDrawArgs, true, type);
+            pr = fDrawingManager->getPathRenderer(canDrawArgs, true, kType);
         }
         if (!pr && (aaType == GrAAType::kMixedSamples || aaType == GrAAType::kMSAA)) {
             // There are exceptional cases where we may wind up falling back to coverage based AA

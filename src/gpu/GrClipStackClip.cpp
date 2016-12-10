@@ -118,17 +118,9 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
             path.toggleInverseFillType();
         }
 
-        GrPathRendererChain::DrawType type;
-
-        if (needsStencil) {
-            type = element->isAA()
-                            ? GrPathRendererChain::kStencilAndColorAntiAlias_DrawType
-                            : GrPathRendererChain::kStencilAndColor_DrawType;
-        } else {
-            type = element->isAA()
-                            ? GrPathRendererChain::kColorAntiAlias_DrawType
-                            : GrPathRendererChain::kColor_DrawType;
-        }
+        GrPathRendererChain::DrawType type =
+                needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
+                             : GrPathRendererChain::DrawType::kColor;
 
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;

@@ -40,10 +40,10 @@ public:
      * rendered into the stencil.
      *
      * A GrPathRenderer can provide three levels of support for stenciling paths:
-     * 1) kNoRestriction: This is the most general. The caller sets up the GrPipelineBuilder on the target
-     *                    and calls drawPath(). The path is rendered exactly as the draw state
-     *                    indicates including support for simultaneous color and stenciling with
-     *                    arbitrary stenciling rules. Pixels partially covered by AA paths are
+     * 1) kNoRestriction: This is the most general. The caller sets up the GrPipelineBuilder on the
+     *                    target and calls drawPath(). The path is rendered exactly as the draw
+     *                    state indicates including support for simultaneous color and stenciling
+     *                    with arbitrary stenciling rules. Pixels partially covered by AA paths are
      *                    affected by the stencil settings.
      * 2) kStencilOnly: The path renderer cannot apply arbitrary stencil rules nor shade and stencil
      *                  simultaneously. The path renderer does support the stencilPath() function
