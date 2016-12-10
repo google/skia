@@ -122,6 +122,24 @@
       "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_f28f3e79",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-10T18:47:28Z",
+      "side": 1,
+      "message": "Looking at the code it looks like we are currently always setting fFragCoordConventionsExtensionString even when the GLSL version supports it as a core feature (GLSL version  \u003e\u003d 1.50). It\u0027d probably be nice to fix that up to not insert the #extension line when it is core. I\u0027m not sure that a conformant GLSL compiler needs to accept the #extension : require line if it implements a later version that supports the feature, though probably all do.",
+      "parentUuid": "1a23a39f_d4b1b528",
+      "revId": "188800e97a079d6e49f168f0bb21ab2893b8b02a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
