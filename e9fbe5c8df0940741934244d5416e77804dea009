@@ -22,6 +22,47 @@
       "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_1264d239",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-10T01:49:41Z",
+      "side": 1,
+      "message": "I think this should also be 0.5. EdgeAlpha in both cases is just the distance to the line (in the hairline its the abs(distance) so we still only want to compare it to a half pixel out.",
+      "parentUuid": "1a23a39f_88f9da5f",
+      "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_3261d62a",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-10T01:49:41Z",
+      "side": 1,
+      "message": "Does anyone know or remember what this coverageScale is for?",
+      "range": {
+        "startLine": 411,
+        "startChar": 16,
+        "endLine": 411,
+        "endChar": 34
+      },
+      "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
