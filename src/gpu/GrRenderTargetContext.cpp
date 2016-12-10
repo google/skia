@@ -1463,7 +1463,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
 
     // Don't allow the SW renderer
     GrPathRenderer* pr = fRenderTargetContext->fDrawingManager->getPathRenderer(
-            canDrawArgs, false, GrPathRendererChain::DrawType::kColor);
+            canDrawArgs, false, GrPathRendererChain::DrawType::kStencilAndColor);
     if (!pr) {
         return false;
     }
