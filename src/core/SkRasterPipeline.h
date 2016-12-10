@@ -120,7 +120,10 @@ public:
     };
 
 private:
+    std::function<void(size_t, size_t, size_t)> jit() const;
+
     std::vector<Stage> fStages;
 };
+
 
 #endif//SkRasterPipeline_DEFINED
