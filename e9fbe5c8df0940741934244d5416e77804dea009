@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_88f9da5f",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-12-10T01:18:29Z",
+      "side": 1,
+      "message": "Not sure if this one is right or wrong, but the quad fill needed to be 0.5",
+      "range": {
+        "startLine": 382,
+        "startChar": 53,
+        "endLine": 382,
+        "endChar": 56
+      },
+      "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
