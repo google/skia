@@ -63,6 +63,24 @@
       "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_52664a02",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-10T18:30:08Z",
+      "side": 1,
+      "message": "The hairline path renderer is sometimes used for strokes thinner than 1 pixel and it applies a scale like this. Maybe we were trying to simulate that?",
+      "parentUuid": "8d391bbb_3261d62a",
+      "revId": "e9fbe5c8df0940741934244d5416e77804dea009",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
