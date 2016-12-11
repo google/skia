@@ -264,6 +264,15 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     *g = SkNx_cast<float>(_32_bit & SK_G16_MASK_IN_PLACE) * (1.0f / SK_G16_MASK_IN_PLACE);
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
 }
+SI void from_f16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(px, &rh, &gh, &bh, &ah);
+
+    *r = SkHalfToFloat_finite_ftz(rh);
+    *g = SkHalfToFloat_finite_ftz(gh);
+    *b = SkHalfToFloat_finite_ftz(bh);
+    *a = SkHalfToFloat_finite_ftz(ah);
+}
 
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
@@ -459,89 +468,45 @@ STAGE(store_565) {
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
-    SkNh rh, gh, bh, ah;
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
     if (tail) {
-        uint64_t buf[8] = {0};
-        switch (tail & (N-1)) {
-            case 7: buf[6] = ptr[6];
-            case 6: buf[5] = ptr[5];
-            case 5: buf[4] = ptr[4];
-            case 4: buf[3] = ptr[3];
-            case 3: buf[2] = ptr[2];
-            case 2: buf[1] = ptr[1];
-        }
-        buf[0] = ptr[0];
-        SkNh::Load4(buf, &rh, &gh, &bh, &ah);
-    } else {
-        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+        px = load(tail, ptr);
+        src = &px;
     }
-
-    r = SkHalfToFloat_finite_ftz(rh);
-    g = SkHalfToFloat_finite_ftz(gh);
-    b = SkHalfToFloat_finite_ftz(bh);
-    a = SkHalfToFloat_finite_ftz(ah);
+    from_f16(src, &r, &g, &b, &a);
 }
 STAGE(load_f16_d) {
     auto ptr = *(const uint64_t**)ctx + x;
 
-    SkNh rh, gh, bh, ah;
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
     if (tail) {
-        uint64_t buf[8] = {0};
-        switch (tail & (N-1)) {
-            case 7: buf[6] = ptr[6];
-            case 6: buf[5] = ptr[5];
-            case 5: buf[4] = ptr[4];
-            case 4: buf[3] = ptr[3];
-            case 3: buf[2] = ptr[2];
-            case 2: buf[1] = ptr[1];
-        }
-        buf[0] = ptr[0];
-        SkNh::Load4(buf, &rh, &gh, &bh, &ah);
-    } else {
-        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+        px = load(tail, ptr);
+        src = &px;
     }
-
-    dr = SkHalfToFloat_finite_ftz(rh);
-    dg = SkHalfToFloat_finite_ftz(gh);
-    db = SkHalfToFloat_finite_ftz(bh);
-    da = SkHalfToFloat_finite_ftz(ah);
+    from_f16(src, &dr, &dg, &db, &da);
 }
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
-    uint64_t buf[8];
-    SkNh::Store4(tail ? buf : ptr, SkFloatToHalf_finite_ftz(r),
-                                   SkFloatToHalf_finite_ftz(g),
-                                   SkFloatToHalf_finite_ftz(b),
-                                   SkFloatToHalf_finite_ftz(a));
+    SkNx<N, uint64_t> px;
+    SkNh::Store4(tail ? (void*)&px : (void*)ptr, SkFloatToHalf_finite_ftz(r),
+                                                 SkFloatToHalf_finite_ftz(g),
+                                                 SkFloatToHalf_finite_ftz(b),
+                                                 SkFloatToHalf_finite_ftz(a));
     if (tail) {
-        switch (tail & (N-1)) {
-            case 7: ptr[6] = buf[6];
-            case 6: ptr[5] = buf[5];
-            case 5: ptr[4] = buf[4];
-            case 4: ptr[3] = buf[3];
-            case 3: ptr[2] = buf[2];
-            case 2: ptr[1] = buf[1];
-        }
-        ptr[0] = buf[0];
+        store(tail, px, ptr);
     }
 }
 
 STAGE(store_f32) {
     auto ptr = *(SkPM4f**)ctx + x;
 
-    SkPM4f buf[8];
-    SkNf::Store4(tail ? buf : ptr, r,g,b,a);
+    SkNx<N, SkPM4f> px;
+    SkNf::Store4(tail ? (void*)&px : (void*)ptr, r,g,b,a);
     if (tail) {
-        switch (tail & (N-1)) {
-            case 7: ptr[6] = buf[6];
-            case 6: ptr[5] = buf[5];
-            case 5: ptr[4] = buf[4];
-            case 4: ptr[3] = buf[3];
-            case 3: ptr[2] = buf[2];
-            case 2: ptr[1] = buf[1];
-        }
-        ptr[0] = buf[0];
+        store(tail, px, ptr);
     }
 }
 
@@ -964,24 +929,8 @@ STAGE(gather_f16) {
     const uint64_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    // f16 -> f32 conversion works best with tightly packed f16s,
-    // so we gather each component rather than using gather().
-    uint16_t R[N], G[N], B[N], A[N];
-    size_t n = tail ? tail : N;
-    for (size_t i = 0; i < n; i++) {
-        uint64_t rgba = p[offset[i]];
-        R[i] = rgba >>  0;
-        G[i] = rgba >> 16;
-        B[i] = rgba >> 32;
-        A[i] = rgba >> 48;
-    }
-    for (size_t i = n; i < N; i++) {
-        R[i] = G[i] = B[i] = A[i] = 0;
-    }
-    r = SkHalfToFloat_finite_ftz(SkNh::Load(R));
-    g = SkHalfToFloat_finite_ftz(SkNh::Load(G));
-    b = SkHalfToFloat_finite_ftz(SkNh::Load(B));
-    a = SkHalfToFloat_finite_ftz(SkNh::Load(A));
+    auto px = gather(tail, p, offset);
+    from_f16(&px, &r, &g, &b, &a);
 }
 
 
