@@ -22,6 +22,24 @@
       "revId": "7244c459e57586144468e52451318474d0bce700",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba6e17e8_7a1e797c",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T15:07:04Z",
+      "side": 1,
+      "message": "It does do something.  If we don\u0027t set this, we\u0027d expect to build and use third_party/externals/expat.  This says to Skia, you can use expat (skia_use_expat is true by default) but when you do use the system version instead of building it yourself.\n\nThere are three modes we can be in:\n1)  Skia code requiring expat is not built;\n2)  Skia code requiring expat is built, linking against expat we build;\n3)  Skia code requiring expat is built, linking against the system expat.\n\nThis puts us in mode 3.",
+      "parentUuid": "1a23a39f_c65fc28e",
+      "revId": "7244c459e57586144468e52451318474d0bce700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
