@@ -724,6 +724,7 @@ static void restrict_samples(SkTDArray<const SkViewFactory*>& factories, const S
     }
 }
 
+DEFINE_bool(noaaa, false, "No Analytic Anti-Aliasing");
 DEFINE_string(slide, "", "Start on this sample.");
 DEFINE_int32(msaa, 0, "Request multisampling with this count.");
 DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
@@ -749,6 +750,10 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     SkCommandLineFlags::Parse(argc, argv);
 
     fCurrIndex = -1;
+
+    if (FLAGS_noaaa) {
+        gSkUseAnalyticAA = false;
+    }
 
     if (!FLAGS_pictureDir.isEmpty()) {
         SkOSFile::Iter iter(FLAGS_pictureDir[0], "skp");
