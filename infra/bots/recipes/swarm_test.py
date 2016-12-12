@@ -310,7 +310,7 @@ def dm_flags(bot):
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
-  for test in ['gamut']:
+  for test in ['gamut', 'complexclip4_bw', 'complexclip4_aa']:
     blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist([     'lite-8888', 'gm', '_', test])
