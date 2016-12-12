@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_7d34ff99",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-12T18:29:51Z",
+      "side": 1,
+      "message": "nit: Move this above the creation of SkUserConfig, so it immediately follows the Android.bp creation?",
+      "range": {
+        "startLine": 206,
+        "startChar": 2,
+        "endLine": 206,
+        "endChar": 12
+      },
+      "revId": "7f733c3754b5593775d37c4098b81ed62ca62b90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_ddffab88",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-12T18:29:51Z",
+      "side": 1,
+      "message": "Why not make this mandatory? One concern I have is that the file would change based on whether the machine that runs the script has the file. Maybe this doesn\u0027t matter if it is always run on the same machine, but if someone runs locally and wants to compare they\u0027ll see differences caused by the fact that they didn\u0027t run this script.\n\n(The file looks to be small; should we check in our own copy?)",
+      "range": {
+        "startLine": 208,
+        "startChar": 9,
+        "endLine": 208,
+        "endChar": 14
+      },
+      "revId": "7f733c3754b5593775d37c4098b81ed62ca62b90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
