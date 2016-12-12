@@ -1004,6 +1004,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
                 if (oNext == oEnd) {
                     break;
                 }
+                FAIL_IF(!oNext->upCastable());
                 oStart = oNext->upCast();
             } while (true);
         }
