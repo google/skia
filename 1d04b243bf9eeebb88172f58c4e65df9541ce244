@@ -22,6 +22,24 @@
       "revId": "1d04b243bf9eeebb88172f58c4e65df9541ce244",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_46a4d28b",
+        "filename": "site/dev/sheriffing/android.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-12T13:33:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a23a39f_34b0e98d",
+      "revId": "1d04b243bf9eeebb88172f58c4e65df9541ce244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
