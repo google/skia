@@ -114,6 +114,15 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
     return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
 }
 
+sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace() {
+    // Android treats decoded content as sRGB, so sRGB is a logical default choice.
+    // We also have the option to make a more thoughtful decision here.  Ex:
+    // (1) kSRGBLinear (in F16) for wide gamut images?
+    // (2) kSRGBLinear (in F16) for high bit depth images?
+    // (3) Allow the client to choose a non-sRGB working space?
+    return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+}
+
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
         return SkISize::Make(0, 0);
