@@ -199,8 +199,8 @@ static_assert(SkRegion::kReverseDifference_Op == (int)kReverseDifference_SkPathO
               "region_pathop_mismatch");
 
 static SkPathOp region_op_to_pathops_op(SkClipOp op) {
-    SkASSERT(op >= 0);
-    SkASSERT(op <= kReverseDifference_SkClipOp);
+    SkASSERT(static_cast<int>(op) >= 0);
+    SkASSERT(static_cast<int>(op) <= static_cast<int>(kReverseDifference_SkClipOp));
     return (SkPathOp)op;
 }
 

@@ -108,7 +108,7 @@ static const char* toString(SkClipOp op) {
     static const char* gOpNames[] = {
         "DIFF", "SECT", "UNION", "XOR", "RDIFF", "REPLACE"
     };
-    return gOpNames[op];
+    return gOpNames[static_cast<int>(op)];
 }
 
 static void toString(const SkRegion& rgn, SkString* str) {
