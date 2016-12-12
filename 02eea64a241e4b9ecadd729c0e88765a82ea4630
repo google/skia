@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "ba5a9766_3a730108",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T20:49:18Z",
+      "side": 1,
+      "message": "Yep.  By parenthesizing as (x*x) * (x16*x16*x16) * x64,  you\u0027re opting into getting exactly that result.",
+      "parentUuid": "8d391bbb_38ee1542",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_9d1ff327",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 1
