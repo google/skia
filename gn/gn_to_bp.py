@@ -199,3 +199,10 @@ with open('include/config/SkUserConfig.h', 'w') as f:
   for define in sorted(defines):
     print >>f, '  #define', define.replace('=', ' ')
   print >>f, '#endif//SkUserConfig_DEFINED'
+
+# If bpfmt is available (go install github.com/google/blueprint/bpfmt),
+# use it to format Android.bp.
+try:
+  subprocess.call(['bpfmt', '-s', '-w', 'Android.bp'])
+except OSError:
+  print "Sorry, I couldn't find bpfmt to format Android.bp for you."
