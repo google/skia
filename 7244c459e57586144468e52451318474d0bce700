@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_c65fc28e",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-12T14:48:32Z",
+      "side": 1,
+      "message": "This looks like it will add \"expat\" to \"libs\", but that doesn\u0027t appear to translate to a change in the generated file, except for leaving out the non-system version. \"libexpat\" is already included above in \"shared_libs\". Should shared_libs be generated (eventually)? Or should we drop the piece that currently isn\u0027t doing anything?",
+      "range": {
+        "startLine": 96,
+        "startChar": 3,
+        "endLine": 96,
+        "endChar": 24
+      },
+      "revId": "7244c459e57586144468e52451318474d0bce700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
