@@ -173,6 +173,47 @@ private:
     typedef PathBench INHERITED;
 };
 
+// Test max speedup of Analytic AA for concave paths
+class AAAConcavePathBench : public PathBench {
+public:
+    AAAConcavePathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("concave_aaa");
+    }
+
+    void makePath(SkPath* path) override {
+        path->moveTo(10, 10);
+        path->lineTo(15, 10);
+        path->lineTo(15, 5);
+        path->lineTo(40, 40);
+        path->close();
+    }
+
+private:
+    typedef PathBench INHERITED;
+};
+
+// Test max speedup of Analytic AA for convex paths
+class AAAConvexPathBench : public PathBench {
+public:
+    AAAConvexPathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("convex_aaa");
+    }
+
+    void makePath(SkPath* path) override {
+        path->moveTo(10, 10);
+        path->lineTo(15, 10);
+        path->lineTo(40, 50);
+        path->close();
+    }
+
+private:
+    typedef PathBench INHERITED;
+};
+
 class SawToothPathBench : public PathBench {
 public:
     SawToothPathBench(Flags flags) : INHERITED(flags) {}
@@ -1048,6 +1089,11 @@ DEF_BENCH( return new CirclePathBench(FLAGS00); )
 DEF_BENCH( return new CirclePathBench(FLAGS01); )
 DEF_BENCH( return new CirclePathBench(FLAGS10); )
 DEF_BENCH( return new CirclePathBench(FLAGS11); )
+
+DEF_BENCH( return new AAAConcavePathBench(FLAGS00); )
+DEF_BENCH( return new AAAConcavePathBench(FLAGS10); )
+DEF_BENCH( return new AAAConvexPathBench(FLAGS00); )
+DEF_BENCH( return new AAAConvexPathBench(FLAGS10); )
 
 DEF_BENCH( return new SawToothPathBench(FLAGS00); )
 DEF_BENCH( return new SawToothPathBench(FLAGS01); )
