@@ -22,6 +22,24 @@
       "revId": "f6b0e79a9785a168af0bd183e7f96b78cc39ce54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a23a39f_2664363a",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-12T15:36:19Z",
+      "side": 1,
+      "message": "I agree it would be nice to store uniform names (for things like telling us which uniform was unused when an unused uniform warning occurs), but this particular out parameter is not needed for that - in the existing code, it is just used to write a string to the GLSL code and then discarded.\n\nIf we wanted to store uniform names, the right place to do that would presumably be on the UniformHandle.",
+      "parentUuid": "1a23a39f_e6307e44",
+      "revId": "f6b0e79a9785a168af0bd183e7f96b78cc39ce54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
