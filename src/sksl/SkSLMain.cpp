@@ -37,6 +37,9 @@ int main(int argc, const char** argv) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
+    SkSL::Program::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
     SkString name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkFILEWStream out(argv[2]);
@@ -45,7 +48,8 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        if (!compiler.toSPIRV(kind, text, out)) {
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        if (!program || !compiler.toSPIRV(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }
@@ -56,7 +60,8 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        if (!compiler.toGLSL(kind, text, *SkSL::ShaderCapsFactory::Default(), out)) {
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        if (!program || !compiler.toGLSL(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }

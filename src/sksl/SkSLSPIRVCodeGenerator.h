@@ -62,18 +62,21 @@ public:
         virtual void store(SpvId value, SkWStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context)
-    : fContext(*context)
+    SPIRVCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+                       SkWStream* out)
+    : INHERITED(program, errors, out)
+    , fContext(*context)
     , fDefaultLayout(MemoryLayout::k140_Standard)
     , fCapabilities(1 << SpvCapabilityShader)
     , fIdCount(1)
     , fBoolTrue(0)
     , fBoolFalse(0)
+    , fSetupFragPosition(false)
     , fCurrentBlock(0) {
         this->setupIntrinsics();
     }
 
-    void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) override;
+    bool generateCode() override;
 
 private:
     enum IntrinsicKind {
@@ -100,7 +103,7 @@ private:
 
     SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
 
-    SpvId getPointerType(const Type& type, const MemoryLayout& layout, 
+    SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
     std::vector<SpvId> getAccessChain(const Expression& expr, SkWStream& out);
@@ -153,11 +156,11 @@ private:
 
     SpvId writeSwizzle(const Swizzle& swizzle, SkWStream& out);
 
-    SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs, 
-                               SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt, 
+    SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
+                               SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, SkWStream& out);
 
-    SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt, 
+    SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, SkWStream& out);
 
     SpvId writeBinaryExpression(const BinaryExpression& b, SkWStream& out);
@@ -215,7 +218,7 @@ private:
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, SkWStream& out);
 
-    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, int32_t word3, 
+    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, int32_t word3,
                           SkWStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, int32_t word3, int32_t word4,
@@ -231,12 +234,11 @@ private:
                           int32_t word5, int32_t word6, int32_t word7, SkWStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, int32_t word3, int32_t word4,
-                          int32_t word5, int32_t word6, int32_t word7, int32_t word8, 
+                          int32_t word5, int32_t word6, int32_t word7, int32_t word8,
                           SkWStream& out);
 
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
-    ErrorReporter* fErrors;
 
     uint64_t fCapabilities;
     SpvId fIdCount;
@@ -250,6 +252,7 @@ private:
     SkDynamicMemoryWStream fCapabilitiesBuffer;
     SkDynamicMemoryWStream fGlobalInitializersBuffer;
     SkDynamicMemoryWStream fConstantBuffer;
+    SkDynamicMemoryWStream fExtraGlobalsBuffer;
     SkDynamicMemoryWStream fExternalFunctionsBuffer;
     SkDynamicMemoryWStream fVariableBuffer;
     SkDynamicMemoryWStream fNameBuffer;
@@ -261,13 +264,18 @@ private:
     std::unordered_map<uint64_t, SpvId> fUIntConstants;
     std::unordered_map<float, SpvId> fFloatConstants;
     std::unordered_map<double, SpvId> fDoubleConstants;
+    bool fSetupFragPosition;
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;
     std::stack<SpvId> fContinueTarget;
+    SpvId fRTHeightStructId = (SpvId) -1;
+    SpvId fRTHeightFieldIndex = (SpvId) -1;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
+
+    typedef CodeGenerator INHERITED;
 };
 
 }

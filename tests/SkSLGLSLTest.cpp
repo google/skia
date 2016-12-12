@@ -11,23 +11,35 @@
 
 #if SK_SUPPORT_GPU
 
-static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
-                 const char* expected) {
+static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Settings& settings,
+                 const char* expected, SkSL::Program::Inputs* inputs) {
     SkSL::Compiler compiler;
     SkString output;
-    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, SkString(src), caps, &output);
-    if (!result) {
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
+                                                                     SkString(src),
+                                                                     settings);
+    if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
-    REPORTER_ASSERT(r, result);
-    if (result) {
+    REPORTER_ASSERT(r, program);
+    *inputs = program->fInputs;
+    REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+    if (program) {
         SkString skExpected(expected);
         if (output != skExpected) {
-            SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src, 
+            SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src,
                      expected, output.c_str());
         }
         REPORTER_ASSERT(r, output == skExpected);
     }
+}
+
+static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
+                 const char* expected) {
+    SkSL::Program::Settings settings;
+    settings.fCaps = &caps;
+    SkSL::Program::Inputs inputs;
+    test(r, src, settings, expected, &inputs);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
@@ -603,4 +615,66 @@ DEF_TEST(SkSLOffset, r) {
          "    int z;\n"
          "} test;\n");
 }
+
+DEF_TEST(SkSLFragCoord, r) {
+    SkSL::Program::Settings settings;
+    settings.fFlipY = true;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::FragCoordsOld();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 110\n"
+         "#extension GL_ARB_fragment_coord_conventions : require\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "void main() {\n"
+         "    gl_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+
+    caps = SkSL::ShaderCapsFactory::FragCoordsNew();
+    settings.fCaps = caps.get();
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+
+    caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "uniform float u_skRTHeight;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+         "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, 1.0, 1.0);\n"
+         "    sk_FragColor.xy = sk_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, inputs.fRTHeight);
+
+    settings.fFlipY = false;
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         settings,
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+}
+
 #endif
