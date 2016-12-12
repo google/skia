@@ -419,18 +419,20 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             }
             const auto* prevFrame = fReader->frameContext(frameContext->getRequiredFrame());
             if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
-                const SkIRect prevRect = prevFrame->frameRect();
-                auto left = get_scaled_dimension(prevRect.fLeft, fSwizzler->sampleX());
-                auto top = get_scaled_dimension(prevRect.fTop, fSwizzler->sampleY());
-                void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
-                        + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
-                auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
-                auto height = get_scaled_dimension(prevRect.height(), fSwizzler->sampleY());
-                // fSwizzler->fill() would fill to the scaled width of the frame, but we want to
-                // fill to the scaled with of the width of the PRIOR frame, so we do all the scaling
-                // ourselves and call the static version.
-                SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst,
-                                fDstRowBytes, this->getFillValue(dstInfo), kNo_ZeroInitialized);
+                SkIRect prevRect = prevFrame->frameRect();
+                if (prevRect.intersect(this->getInfo().bounds())) {
+                    auto left = get_scaled_dimension(prevRect.fLeft, fSwizzler->sampleX());
+                    auto top = get_scaled_dimension(prevRect.fTop, fSwizzler->sampleY());
+                    void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
+                            + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
+                    auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
+                    auto height = get_scaled_dimension(prevRect.height(), fSwizzler->sampleY());
+                    // fSwizzler->fill() would fill to the scaled width of the frame, but we want to
+                    // fill to the scaled with of the width of the PRIOR frame, so we do all the
+                    // scaling ourselves and call the static version.
+                    SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst,
+                                    fDstRowBytes, this->getFillValue(dstInfo), kNo_ZeroInitialized);
+                }
             }
             filledBackground = true;
         }

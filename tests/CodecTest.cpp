@@ -1452,3 +1452,37 @@ DEF_TEST(Codec_InvalidImages, r) {
     test_invalid_images(r, "invalid_images/skbug5887.gif", true);
     test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", false);
 }
+
+DEF_TEST(Codec_InvalidAnimated, r) {
+    // ASAN will complain if there is an issue.
+    auto path = "invalid_images/skbug6046.gif";
+    auto* stream = GetResourceAsStream(path);
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    auto frameInfos = codec->getFrameInfo();
+    SkCodec::Options opts;
+    for (size_t i = 0; i < frameInfos.size(); i++) {
+        opts.fFrameIndex = i;
+        opts.fHasPriorFrame = frameInfos[i].fRequiredFrame == i - 1;
+        auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
+        if (result != SkCodec::kSuccess) {
+            ERRORF(r, "Failed to start decoding frame %i (out of %i) with error %i\n", i,
+                   frameInfos.size(), result);
+            continue;
+        }
+
+        codec->incrementalDecode();
+    }
+}
