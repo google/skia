@@ -42,7 +42,9 @@ var (
 		"Build-Mac-Clang-arm64-Debug-Android",
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Mac-Clang-x86_64-Debug",
+		"Build-Mac-Clang-x86_64-Debug-CommandBuffer",
 		"Build-Mac-Clang-x86_64-Release",
+		"Build-Mac-Clang-x86_64-Release-CommandBuffer",
 		"Build-Ubuntu-Clang-arm-Debug-Android",
 		"Build-Ubuntu-Clang-arm-Release-Android",
 		"Build-Ubuntu-Clang-arm64-Debug-Android",
@@ -61,16 +63,23 @@ var (
 		"Build-Ubuntu-Clang-x86-Release-Android",
 		"Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
 		"Build-Ubuntu-Clang-x86_64-Debug",
+		"Build-Ubuntu-Clang-x86_64-Debug-ASAN",
+		"Build-Ubuntu-Clang-x86_64-Debug-MSAN",
 		"Build-Ubuntu-Clang-x86_64-Release",
+		"Build-Ubuntu-Clang-x86_64-Release-TSAN",
 		"Build-Ubuntu-GCC-x86-Debug",
 		"Build-Ubuntu-GCC-x86-Release",
 		"Build-Ubuntu-GCC-x86_64-Debug",
 		"Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
+		"Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
 		"Build-Ubuntu-GCC-x86_64-Release",
 		"Build-Ubuntu-GCC-x86_64-Release-ANGLE",
+		"Build-Ubuntu-GCC-x86_64-Release-Fast",
 		"Build-Ubuntu-GCC-x86_64-Release-Mesa",
 		"Build-Ubuntu-GCC-x86_64-Release-NoGPU",
 		"Build-Ubuntu-GCC-x86_64-Release-PDFium",
+		"Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
+		"Build-Ubuntu-GCC-x86_64-Release-Shared",
 		"Build-Ubuntu-GCC-x86_64-Release-Valgrind",
 		"Build-Win-Clang-arm64-Release-Android",
 		"Build-Win-MSVC-x86-Debug",
@@ -81,7 +90,12 @@ var (
 		"Build-Win-MSVC-x86-Release-ANGLE",
 		"Build-Win-MSVC-x86-Release-GDI",
 		"Build-Win-MSVC-x86_64-Debug",
+		"Build-Win-MSVC-x86_64-Debug-ANGLE",
+		"Build-Win-MSVC-x86_64-Debug-GDI",
+		"Build-Win-MSVC-x86_64-Debug-Vulkan",
 		"Build-Win-MSVC-x86_64-Release",
+		"Build-Win-MSVC-x86_64-Release-ANGLE",
+		"Build-Win-MSVC-x86_64-Release-GDI",
 		"Build-Win-MSVC-x86_64-Release-Vulkan",
 		"Housekeeper-Nightly-RecreateSKPs_Canary",
 		"Housekeeper-PerCommit",
@@ -441,11 +455,11 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		Isolate:  "compile_skia.isolate",
 		Priority: 0.8,
 	})
-	// All compile tasks are runnable as their own Job.
-	b.AddJob(name, &specs.JobSpec{
-		Priority:  0.8,
-		TaskSpecs: []string{name},
-	})
+	// All compile tasks are runnable as their own Job. Assert that the Job
+	// is listed in JOBS.
+	if !util.In(name, JOBS) {
+		glog.Fatalf("Job %q is missing from the JOBS list!", name)
+	}
 	return name
 }
 
@@ -799,7 +813,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
 		j.Trigger = "weekly"
 	}
-	b.AddJob(name, j)
+	b.MustAddJob(name, j)
 }
 
 // Regenerate the tasks.json file.
