@@ -16,6 +16,24 @@
       "revId": "22685f17f0149ac757773c59cc513d6c01f3696d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_5864a928",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2016-12-12T20:34:28Z",
+      "side": 1,
+      "message": "When I tried to guard it, the GM test could not link. If there is an easy way to make the test android specific, then I could do it.",
+      "parentUuid": "8d391bbb_f87e3dcc",
+      "revId": "22685f17f0149ac757773c59cc513d6c01f3696d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
