@@ -58,31 +58,14 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM32)         && \
-      defined(SK_BUILD_FOR_ANDROID) && \
-     !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    #include "cpu-features.h"
+#elif defined(SK_CPU_ARM64) && defined(SK_BUILD_FOR_ANDROID)
+    #include <asm/hwcap.h>
+    #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
         uint32_t features = 0;
-
-        uint64_t android_features = android_getCpuFeatures();
-        if (android_features & ANDROID_CPU_ARM_FEATURE_NEON    ) { features |= SkCpu::NEON    ; }
-        if (android_features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) { features |= SkCpu::NEON_FMA; }
-        if (android_features & ANDROID_CPU_ARM_FEATURE_VFP_FP16) { features |= SkCpu::VFP_FP16; }
-        return features;
-    }
-
-#elif defined(SK_CPU_ARM64)         && \
-      defined(SK_BUILD_FOR_ANDROID) && \
-     !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    #include "cpu-features.h"
-
-    static uint32_t read_cpu_features() {
-        uint32_t features = 0;
-
-        uint64_t android_features = android_getCpuFeatures();
-        if (android_features & ANDROID_CPU_ARM64_FEATURE_CRC32) { features |= SkCpu::CRC32; }
+        uint32_t hwcaps = getauxval(AT_HWCAP);
+        if (hwcaps & HWCAP_CRC32) { features |= SkCpu::CRC32; }
         return features;
     }
 

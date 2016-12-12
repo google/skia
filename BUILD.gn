@@ -12,7 +12,6 @@ if (!defined(is_skia_standalone)) {
 
 declare_args() {
   skia_use_angle = false
-  skia_use_cpufeatures = is_android
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -640,9 +639,6 @@ component("skia") {
   }
 
   if (is_android) {
-    if (skia_use_cpufeatures) {
-      deps += [ "//third_party/cpu-features" ]
-    }
     deps += [ "//third_party/expat" ]
     sources += [ "src/ports/SkDebug_android.cpp" ]
     libs += [
