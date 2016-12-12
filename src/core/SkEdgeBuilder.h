@@ -23,7 +23,7 @@ public:
     // returns the number of built edges. The array of those edge pointers
     // is returned from edgeList().
     int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight,
-              bool analyticAA = false);
+              bool analyticAA = false, int* endpointCount = nullptr);
 
     SkEdge** edgeList() { return (SkEdge**)fEdgeList; }
     SkAnalyticEdge** analyticEdgeList() { return (SkAnalyticEdge**)fEdgeList; }
@@ -55,6 +55,7 @@ private:
 
     int         fShiftUp;
     bool        fAnalyticAA;
+    int         fInternalEndpointCount;
 
 public:
     void addLine(const SkPoint pts[]);
