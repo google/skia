@@ -34,6 +34,23 @@
       "revId": "22685f17f0149ac757773c59cc513d6c01f3696d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba5a9766_5ac7d5fd",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-12-12T20:37:17Z",
+      "side": 1,
+      "message": "You would need to guard this and the gm test so it would only run on Android.  It clutters the code so lets not bother for now.",
+      "revId": "22685f17f0149ac757773c59cc513d6c01f3696d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
