@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_5ded7bd2",
+        "filename": "gm/simpleaaclip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-12T18:40:39Z",
+      "side": 1,
+      "message": "nit: we could relocate this entry to consolidate the guards.",
+      "range": {
+        "startLine": 155,
+        "startChar": 14,
+        "endLine": 155,
+        "endChar": 28
+      },
+      "revId": "127e7347ba62411f5ae007305bb98f30e570e899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_7dea3fbd",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-12T18:40:39Z",
+      "side": 1,
+      "message": "nit: SkEXOTIC_CLIPOP_CODE instead of #ifdef?",
+      "range": {
+        "startLine": 183,
+        "startChar": 7,
+        "endLine": 183,
+        "endChar": 32
+      },
+      "revId": "127e7347ba62411f5ae007305bb98f30e570e899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_ddcdeb74",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-12T18:40:39Z",
+      "side": 1,
+      "message": "I think SkASSERT(false) would look cleaner.",
+      "range": {
+        "startLine": 336,
+        "startChar": 26,
+        "endLine": 336,
+        "endChar": 32
+      },
+      "revId": "127e7347ba62411f5ae007305bb98f30e570e899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_3db527d0",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-12T18:40:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we assert \u003c\u003d static_cast\u003cint\u003e(kIntersect_SkClipOp) when not defined?",
+      "revId": "127e7347ba62411f5ae007305bb98f30e570e899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
