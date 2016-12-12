@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a23a39f_e6307e44",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-12T15:13:32Z",
+      "side": 1,
+      "message": "Is there ever a use case where we\u0027d be looping over all our uniforms to print them out for debugging reasons? If so I wonder if it makes sense to put a name in here. Matching the string used in the compiler would be great, but I don\u0027t think that is necessary.",
+      "range": {
+        "startLine": 479,
+        "startChar": 68,
+        "endLine": 479,
+        "endChar": 75
+      },
+      "revId": "f6b0e79a9785a168af0bd183e7f96b78cc39ce54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
