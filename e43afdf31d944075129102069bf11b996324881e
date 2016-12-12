@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_58666902",
+        "filename": "gm/aaa.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-12T21:13:18Z",
+      "side": 1,
+      "message": "could use SkScalarSinCos() here",
+      "range": {
+        "startLine": 113,
+        "startChar": 32,
+        "endLine": 113,
+        "endChar": 35
+      },
+      "revId": "e43afdf31d944075129102069bf11b996324881e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_9890e1a2",
+        "filename": "gm/aaa.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-12T21:13:18Z",
+      "side": 1,
+      "message": "one save, two restores?",
+      "range": {
+        "startLine": 123,
+        "startChar": 14,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "e43afdf31d944075129102069bf11b996324881e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
