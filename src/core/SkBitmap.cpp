@@ -30,18 +30,48 @@ static bool reset_return_false(SkBitmap* bm) {
     return false;
 }
 
-SkBitmap::SkBitmap() {
-    sk_bzero(this, sizeof(*this));
-}
+SkBitmap::SkBitmap()
+    : fPixelLockCount(0)
+    , fPixels        (nullptr)
+    , fColorTable    (nullptr)
+    , fPixelRefOrigin{0, 0}
+    , fRowBytes      (0)
+    , fFlags         (0) {}
 
-SkBitmap::SkBitmap(const SkBitmap& src) {
+// copy pixelref, but don't copy lock.
+SkBitmap::SkBitmap(const SkBitmap& src)
+    : fPixelRef      (src.fPixelRef)
+    , fPixelLockCount(0)
+    , fPixels        (nullptr)
+    , fColorTable    (nullptr)
+    , fPixelRefOrigin(src.fPixelRefOrigin)
+    , fInfo          (src.fInfo)
+    , fRowBytes      (src.fRowBytes)
+    , fFlags         (src.fFlags)
+{
     SkDEBUGCODE(src.validate();)
-    sk_bzero(this, sizeof(*this));
-    *this = src;
     SkDEBUGCODE(this->validate();)
 }
 
-SkBitmap::SkBitmap(SkBitmap&& other) : SkBitmap() { this->swap(other); }
+// take lock and lockcount from other.
+SkBitmap::SkBitmap(SkBitmap&& other)
+    : fPixelRef      (std::move(other.fPixelRef))
+    , fPixelLockCount          (other.fPixelLockCount)
+    , fPixels                  (other.fPixels)
+    , fColorTable              (other.fColorTable)
+    , fPixelRefOrigin          (other.fPixelRefOrigin)
+    , fInfo          (std::move(other.fInfo))
+    , fRowBytes                (other.fRowBytes)
+    , fFlags                   (other.fFlags) {
+    SkASSERT(!other.fPixelRef);
+    other.fInfo.reset();
+    other.fPixelLockCount = 0;
+    other.fPixels         = nullptr;
+    other.fColorTable     = nullptr;
+    other.fPixelRefOrigin = SkIPoint{0, 0};
+    other.fRowBytes       = 0;
+    other.fFlags          = 0;
+}
 
 SkBitmap::~SkBitmap() {
     SkDEBUGCODE(this->validate();)
@@ -51,46 +81,47 @@ SkBitmap::~SkBitmap() {
 SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         this->freePixels();
-        this->fPixelRef = SkSafeRef(src.fPixelRef);
-        if (this->fPixelRef) {
-            // ignore the values if we have a pixelRef
-            this->fPixels = nullptr;
-            this->fColorTable = nullptr;
-        } else {
-            this->fPixels = src.fPixels;
-            this->fColorTable = src.fColorTable;
-        }
-        // we reset our locks if we get blown away
-        this->fPixelLockCount = 0;
-
-        this->fPixelRefOrigin = src.fPixelRefOrigin;
-        this->fInfo = src.fInfo;
-        this->fRowBytes = src.fRowBytes;
-        this->fFlags = src.fFlags;
+        SkASSERT(!fPixels);
+        SkASSERT(!fColorTable);
+        SkASSERT(!fPixelLockCount);
+        fPixelRef       = src.fPixelRef;
+        fPixelRefOrigin = src.fPixelRefOrigin;
+        fInfo           = src.fInfo;
+        fRowBytes       = src.fRowBytes;
+        fFlags          = src.fFlags;
     }
-
     SkDEBUGCODE(this->validate();)
     return *this;
 }
 
 SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
     if (this != &other) {
-        this->swap(other);
-        other.reset();
+        this->freePixels();
+        SkASSERT(!fPixels);
+        SkASSERT(!fColorTable);
+        SkASSERT(!fPixelLockCount);
+        fPixelRef       = std::move(other.fPixelRef);
+        fInfo           = std::move(other.fInfo);
+        fPixelLockCount = other.fPixelLockCount;
+        fPixels         = other.fPixels;
+        fColorTable     = other.fColorTable;
+        fPixelRefOrigin = other.fPixelRefOrigin;
+        fRowBytes       = other.fRowBytes;
+        fFlags          = other.fFlags;
+        SkASSERT(!other.fPixelRef);
+        other.fInfo.reset();
+        other.fPixelLockCount = 0;
+        other.fPixels         = nullptr;
+        other.fColorTable     = nullptr;
+        other.fPixelRefOrigin = SkIPoint{0, 0};
+        other.fRowBytes       = 0;
+        other.fFlags          = 0;
     }
     return *this;
 }
 
 void SkBitmap::swap(SkBitmap& other) {
-    SkTSwap(fColorTable, other.fColorTable);
-    SkTSwap(fPixelRef, other.fPixelRef);
-    SkTSwap(fPixelRefOrigin, other.fPixelRefOrigin);
-    SkTSwap(fPixelLockCount, other.fPixelLockCount);
-    SkTSwap(fPixels, other.fPixels);
-    SkTSwap(fInfo, other.fInfo);
-    SkTSwap(fRowBytes, other.fRowBytes);
-    SkTSwap(fFlags, other.fFlags);
-
+    SkTSwap(*this, other);
     SkDEBUGCODE(this->validate();)
 }
 
@@ -182,7 +213,14 @@ void SkBitmap::updatePixelsFromRef() const {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
+    this->setPixelRef(sk_ref_sp(pr), dx, dy);
+    return pr;
+}
+#endif
+
+void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
         if (kUnknown_SkColorType != fInfo.colorType()) {
@@ -218,15 +256,13 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 
     if (fPixelRef != pr) {
         this->freePixels();
-        SkASSERT(nullptr == fPixelRef);
+        SkASSERT(!fPixelRef);
 
-        SkSafeRef(pr);
-        fPixelRef = pr;
+        fPixelRef = std::move(pr);
         this->updatePixelsFromRef();
     }
 
     SkDEBUGCODE(this->validate();)
-    return pr;
 }
 
 void SkBitmap::lockPixels() const {
@@ -238,7 +274,7 @@ void SkBitmap::lockPixels() const {
 }
 
 void SkBitmap::unlockPixels() const {
-    SkASSERT(nullptr == fPixelRef || fPixelLockCount > 0);
+    SkASSERT(!fPixelRef || fPixelLockCount > 0);
 
     if (fPixelRef && 1 == sk_atomic_dec(&fPixelLockCount)) {
         fPixelRef->unlockPixels();
@@ -248,28 +284,25 @@ void SkBitmap::unlockPixels() const {
 }
 
 bool SkBitmap::lockPixelsAreWritable() const {
-    return (fPixelRef) ? fPixelRef->lockPixelsAreWritable() : false;
+    return fPixelRef ? fPixelRef->lockPixelsAreWritable() : false;
 }
 
 void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
     if (nullptr == p) {
-        this->setPixelRef(nullptr);
+        this->setPixelRef(nullptr, 0, 0);
         return;
     }
 
     if (kUnknown_SkColorType == fInfo.colorType()) {
-        this->setPixelRef(nullptr);
+        this->setPixelRef(nullptr, 0, 0);
         return;
     }
 
-    SkPixelRef* pr = SkMallocPixelRef::NewDirect(fInfo, p, fRowBytes, ctable);
-    if (nullptr == pr) {
-        this->setPixelRef(nullptr);
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewDirect(fInfo, p, fRowBytes, ctable));
+    this->setPixelRef(std::move(pr), 0, 0);
+    if (!fPixelRef) {
         return;
     }
-
-    this->setPixelRef(pr)->unref();
-
     // since we're already allocated, we lockPixels right away
     this->lockPixels();
     SkDEBUGCODE(this->validate();)
@@ -301,11 +334,11 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
 
     SkMallocPixelRef::PRFactory defaultFactory;
 
-    SkPixelRef* pr = defaultFactory.create(correctedInfo, rowBytes, nullptr);
-    if (nullptr == pr) {
+    sk_sp<SkPixelRef> pr(defaultFactory.create(correctedInfo, rowBytes, nullptr));
+    if (!pr) {
         return reset_return_false(this);
     }
-    this->setPixelRef(pr)->unref();
+    this->setPixelRef(std::move(pr), 0, 0);
 
     // TODO: lockPixels could/should return bool or void*/nullptr
     this->lockPixels();
@@ -332,11 +365,11 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, SkPixelRefFactor
         factory = &defaultFactory;
     }
 
-    SkPixelRef* pr = factory->create(correctedInfo, correctedInfo.minRowBytes(), ctable);
-    if (nullptr == pr) {
+    sk_sp<SkPixelRef> pr(factory->create(correctedInfo, correctedInfo.minRowBytes(), ctable));
+    if (!pr) {
         return reset_return_false(this);
     }
-    this->setPixelRef(pr)->unref();
+    this->setPixelRef(std::move(pr), 0, 0);
 
     // TODO: lockPixels could/should return bool or void*/nullptr
     this->lockPixels();
@@ -368,14 +401,14 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
 
-    SkPixelRef* pr = SkMallocPixelRef::NewWithProc(correctedInfo, rb, ct, pixels, releaseProc,
-                                                   context);
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewWithProc(correctedInfo, rb, ct, pixels, releaseProc,
+                                                       context));
     if (!pr) {
         this->reset();
         return false;
     }
 
-    this->setPixelRef(pr)->unref();
+    this->setPixelRef(std::move(pr), 0, 0);
 
     // since we're already allocated, we lockPixels right away
     this->lockPixels();
@@ -406,7 +439,6 @@ void SkBitmap::freePixels() {
         if (fPixelLockCount > 0) {
             fPixelRef->unlockPixels();
         }
-        fPixelRef->unref();
         fPixelRef = nullptr;
         fPixelRefOrigin.setZero();
     }
@@ -416,7 +448,7 @@ void SkBitmap::freePixels() {
 }
 
 uint32_t SkBitmap::getGenerationID() const {
-    return (fPixelRef) ? fPixelRef->getGenerationID() : 0;
+    return fPixelRef ? fPixelRef->getGenerationID() : 0;
 }
 
 void SkBitmap::notifyPixelsChanged() const {
@@ -439,12 +471,12 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
         return false;
     }
 
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, dst->rowBytes(), ctable);
-    if (nullptr == pr) {
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewAllocate(info, dst->rowBytes(), ctable));
+    if (!pr) {
         return false;
     }
 
-    dst->setPixelRef(pr)->unref();
+    dst->setPixelRef(std::move(pr), 0, 0);
     // since we're already allocated, we lockPixels right away
     dst->lockPixels();
     return true;
@@ -597,7 +629,7 @@ void SkBitmap::eraseColor(SkColor c) const {
 bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkDEBUGCODE(this->validate();)
 
-    if (nullptr == result || nullptr == fPixelRef) {
+    if (nullptr == result || !fPixelRef) {
         return false;   // no src pixels
     }
 
@@ -621,7 +653,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         origin.fX += r.fLeft;
         origin.fY += r.fTop;
         // share the pixelref with a custom offset
-        dst.setPixelRef(fPixelRef, origin);
+        dst.setPixelRef(fPixelRef, origin.x(), origin.y());
     }
     SkDEBUGCODE(dst.validate();)
 
@@ -707,8 +739,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
             if (tmpSrc.colorType() == dstColorType && nullptr == alloc) {
                 dst->swap(tmpSrc);
                 // If the result is an exact copy, clone the gen ID.
-                if (dst->pixelRef() && dst->pixelRef()->info() == fPixelRef->info()) {
-                    dst->pixelRef()->cloneGenID(*fPixelRef);
+                SkPixelRef* dstPixelRef = dst->pixelRef();
+                if (!dstPixelRef && dstPixelRef->info() == fPixelRef->info()) {
+                    dstPixelRef->cloneGenID(*fPixelRef);
                 }
                 return true;
             }
@@ -895,7 +928,7 @@ static void write_raw_pixels(SkWriteBuffer* buffer, const SkPixmap& pmap) {
 
 void SkBitmap::WriteRawPixels(SkWriteBuffer* buffer, const SkBitmap& bitmap) {
     const SkImageInfo info = bitmap.info();
-    if (0 == info.width() || 0 == info.height() || nullptr == bitmap.pixelRef()) {
+    if (0 == info.width() || 0 == info.height() || bitmap.isNull()) {
         buffer->writeUInt(0); // instead of snugRB, signaling no pixels
         return;
     }
@@ -981,7 +1014,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         return false;
     }
     bitmap->setInfo(pr->info());
-    bitmap->setPixelRef(pr.get(), 0, 0);
+    bitmap->setPixelRef(std::move(pr), 0, 0);
     return true;
 }
 
@@ -1083,7 +1116,7 @@ void SkBitmap::toString(SkString* str) const {
 bool SkBitmap::requestLock(SkAutoPixmapUnlock* result) const {
     SkASSERT(result);
 
-    SkPixelRef* pr = fPixelRef;
+    SkPixelRef* pr = fPixelRef.get();
     if (nullptr == pr) {
         return false;
     }

@@ -158,7 +158,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint&
     : INHERITED(info.width(), info.height(), pr->getGenerationID())
 {
     fBitmap.setInfo(info, rowBytes);
-    fBitmap.setPixelRef(pr, pixelRefOrigin);
+    fBitmap.setPixelRef(sk_ref_sp(pr), pixelRefOrigin.x(), pixelRefOrigin.y());
     fBitmap.lockPixels();
     SkASSERT(fBitmap.isImmutable());
 }
@@ -364,7 +364,9 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
         // (thus changing our state).
         if (fBitmap.isImmutable()) {
             bitmap->setInfo(fBitmap.info(), fBitmap.rowBytes());
-            bitmap->setPixelRef(fBitmap.pixelRef(), fBitmap.pixelRefOrigin());
+            bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()),
+                                fBitmap.pixelRefOrigin().x(),
+                                fBitmap.pixelRefOrigin().y());
             return true;
         }
     }

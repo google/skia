@@ -263,8 +263,8 @@ static bool alloc_row_bytes(SkBitmap* bm, const SkImageInfo& info, size_t rowByt
     if (!bm->setInfo(info, rowBytes)) {
         return false;
     }
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, nullptr);
-    bm->setPixelRef(pr)->unref();
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewAllocate(info, rowBytes, nullptr));
+    bm->setPixelRef(std::move(pr), 0, 0);
     return true;
 }
 

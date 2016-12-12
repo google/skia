@@ -730,7 +730,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
             // force our cache32pixelref to be built
             (void)cache->getCache32();
             bitmap->setInfo(SkImageInfo::MakeN32Premul(kCache32Count, 1));
-            bitmap->setPixelRef(cache->getCache32PixelRef());
+            bitmap->setPixelRef(sk_ref_sp(cache->getCache32PixelRef()), 0, 0);
         } else {
             // For these cases we use the bitmap cache, but not the GradientShaderCache. So just
             // allocate and populate the bitmap's data directly.

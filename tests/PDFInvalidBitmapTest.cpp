@@ -32,7 +32,7 @@ private:
 SkBitmap make_invalid_bitmap(const SkImageInfo& imageInfo) {
     SkBitmap bitmap;
     bitmap.setInfo(imageInfo);
-    bitmap.setPixelRef(new InvalidPixelRef(imageInfo))->unref();
+    bitmap.setPixelRef(sk_make_sp<InvalidPixelRef>(imageInfo), 0 ,0);
     return bitmap;
 }
 

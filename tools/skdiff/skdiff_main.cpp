@@ -13,6 +13,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkPixelRef.h"
 #include "../private/SkTDArray.h"
 #include "../private/SkTSearch.h"
 
@@ -329,10 +330,10 @@ public:
         SkASSERT(drp != nullptr);
     }
     ~AutoReleasePixels() {
-        fDrp->fBase.fBitmap.setPixelRef(nullptr);
-        fDrp->fComparison.fBitmap.setPixelRef(nullptr);
-        fDrp->fDifference.fBitmap.setPixelRef(nullptr);
-        fDrp->fWhite.fBitmap.setPixelRef(nullptr);
+        fDrp->fBase.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fComparison.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fDifference.fBitmap.setPixelRef(nullptr, 0, 0);
+        fDrp->fWhite.fBitmap.setPixelRef(nullptr, 0, 0);
     }
 
 private:
