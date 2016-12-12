@@ -78,6 +78,7 @@ var (
 		"Build-Ubuntu-GCC-x86_64-Release-Mesa",
 		"Build-Ubuntu-GCC-x86_64-Release-NoGPU",
 		"Build-Ubuntu-GCC-x86_64-Release-PDFium",
+		"Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths",
 		"Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
 		"Build-Ubuntu-GCC-x86_64-Release-Shared",
 		"Build-Ubuntu-GCC-x86_64-Release-Valgrind",
