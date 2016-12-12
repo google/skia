@@ -18,18 +18,7 @@ struct Entry {
     static uint32_t Hash(const int& key) { return key; }
 };
 
-
-class Hash : public SkTDynamicHash<Entry, int> {
-public:
-    Hash() : INHERITED() {}
-
-    // Promote protected methods to public for this test.
-    int capacity() const { return this->INHERITED::capacity(); }
-    int countCollisions(const int& key) const { return this->INHERITED::countCollisions(key); }
-
-private:
-    typedef SkTDynamicHash<Entry, int> INHERITED;
-};
+using Hash = SkTDynamicHash<Entry, int>;
 
 }  // namespace
 
@@ -43,22 +32,12 @@ DEF_TEST(DynamicHash_growth, reporter) {
     Entry e = { 5, 6.0 };
 
     Hash hash;
-    ASSERT(hash.capacity() == 0);
 
     hash.add(&a);
-    ASSERT(hash.capacity() == 4);
-
     hash.add(&b);
-    ASSERT(hash.capacity() == 4);
-
     hash.add(&c);
-    ASSERT(hash.capacity() == 4);
-
     hash.add(&d);
-    ASSERT(hash.capacity() == 8);
-
     hash.add(&e);
-    ASSERT(hash.capacity() == 8);
 
     ASSERT(hash.count() == 5);
 }
@@ -82,22 +61,8 @@ DEF_TEST(DynamicHash_lookup, reporter) {
     Entry a = { 1, 2.0 };
     Entry b = { 5, 3.0 };
 
-    // Before we insert anything, nothing can collide.
-    ASSERT(hash.countCollisions(1) == 0);
-    ASSERT(hash.countCollisions(5) == 0);
-    ASSERT(hash.countCollisions(9) == 0);
-
-    // First is easy.
     hash.add(&a);
-    ASSERT(hash.countCollisions(1) == 0);
-    ASSERT(hash.countCollisions(5) == 1);
-    ASSERT(hash.countCollisions(9) == 1);
-
-    // Second is one step away.
     hash.add(&b);
-    ASSERT(hash.countCollisions(1) == 0);
-    ASSERT(hash.countCollisions(5) == 1);
-    ASSERT(hash.countCollisions(9) == 2);
 
     // We can find our data right?
     ASSERT(hash.find(1) != nullptr);
@@ -128,7 +93,6 @@ DEF_TEST(DynamicHash_remove, reporter) {
     ASSERT(hash.find(5)->value == 3.0);
 
     // This will go in the same slot as 'a' did before.
-    ASSERT(hash.countCollisions(9) == 0);
     hash.add(&c);
     ASSERT(hash.find(9) != nullptr);
     ASSERT(hash.find(9)->value == 4.0);
@@ -194,18 +158,14 @@ static void TestResetOrRewind(skiatest::Reporter* reporter, bool testReset) {
     Entry a = { 1, 2.0 };
     Entry b = { 2, 3.0 };
 
-    ASSERT(hash.capacity() == 0);
     hash.add(&a);
     hash.add(&b);
     ASSERT(hash.count() == 2);
-    ASSERT(hash.capacity() == 4);
 
     if (testReset) {
         hash.reset();
-        ASSERT(hash.capacity() == 0);
     } else {
         hash.rewind();
-        ASSERT(hash.capacity() == 4);
     }
     ASSERT(hash.count() == 0);
 
@@ -213,7 +173,6 @@ static void TestResetOrRewind(skiatest::Reporter* reporter, bool testReset) {
     hash.add(&a);
     hash.add(&b);
     ASSERT(hash.count() == 2);
-    ASSERT(hash.capacity() == 4);
 
     ASSERT(hash.find(1) != nullptr);
     ASSERT(hash.find(2) != nullptr);
