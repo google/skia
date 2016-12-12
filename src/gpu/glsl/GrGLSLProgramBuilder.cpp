@@ -470,13 +470,13 @@ void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
                                                outName);
 }
 
-void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
+void GrGLSLProgramBuilder::addRTHeightUniform(const char* name, const char** outName) {
         SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
         GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
         fUniformHandles.fRTHeightUni =
             uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
                                                     kFloat_GrSLType, kDefault_GrSLPrecision,
-                                                    name, false, 0, nullptr);
+                                                    name, false, 0, outName);
 }
 
 void GrGLSLProgramBuilder::cleanupFragmentProcessors() {

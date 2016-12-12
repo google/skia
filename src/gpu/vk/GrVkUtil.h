@@ -12,7 +12,6 @@
 #include "GrTypes.h"
 #include "vk/GrVkDefines.h"
 #include "vk/GrVkInterface.h"
-#include "ir/SkSLProgram.h"
 
 class GrVkGpu;
 
@@ -49,8 +48,6 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              const char* shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
-                             VkPipelineShaderStageCreateInfo* stageInfo,
-                             const SkSL::Program::Settings& settings,
-                             SkSL::Program::Inputs* outInputs);
+                             VkPipelineShaderStageCreateInfo* stageInfo);
 
 #endif

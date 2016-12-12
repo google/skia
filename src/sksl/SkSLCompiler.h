@@ -16,9 +16,9 @@
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
 #include "SkSLIRGenerator.h"
+#include "SkSLGLSLCodeGenerator.h"
 
 #define SK_FRAGCOLOR_BUILTIN 10001
-#define SK_FRAGCOORD_BUILTIN 15
 
 namespace SkSL {
 
@@ -26,7 +26,7 @@ class IRGenerator;
 
 /**
  * Main compiler entry point. This is a traditional compiler design which first parses the .sksl
- * file into an abstract syntax tree (a tree of ASTNodes), then performs semantic analysis to
+ * file into an abstract syntax tree (a tree of ASTNodes), then performs semantic analysis to 
  * produce a Program (a tree of IRNodes), then feeds the Program into a CodeGenerator to produce
  * compiled output.
  *
@@ -38,16 +38,18 @@ public:
 
     ~Compiler();
 
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text,
-                                            const Program::Settings& settings);
+    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text, 
+                                            std::unordered_map<SkString, CapValue> caps);
 
-    bool toSPIRV(const Program& program, SkWStream& out);
+    bool toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out);
+    
+    bool toSPIRV(Program::Kind kind, const SkString& text, SkString* out);
 
-    bool toSPIRV(const Program& program, SkString* out);
-
-    bool toGLSL(const Program& program, SkWStream& out);
-
-    bool toGLSL(const Program& program, SkString* out);
+    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
+                SkWStream& out);
+    
+    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
+                SkString* out);
 
     void error(Position position, SkString msg) override;
 
@@ -55,15 +57,11 @@ public:
 
     void writeErrorCount();
 
-    int errorCount() override {
-        return fErrorCount;
-    }
-
 private:
     void addDefinition(const Expression* lvalue, const Expression* expr,
                        std::unordered_map<const Variable*, const Expression*>* definitions);
-
-    void addDefinitions(const BasicBlock::Node& node,
+ 
+    void addDefinitions(const BasicBlock::Node& node, 
                         std::unordered_map<const Variable*, const Expression*>* definitions);
 
     void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);

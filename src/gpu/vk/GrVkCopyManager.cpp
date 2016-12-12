@@ -65,21 +65,19 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "}"
     );
 
-    SkSL::Program::Settings settings;
-    SkSL::Program::Inputs inputs;
-    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(), VK_SHADER_STAGE_VERTEX_BIT,
-                                 &fVertShaderModule, &fShaderStageInfo[0], settings, &inputs)) {
+    if (!GrCompileVkShaderModule(gpu, vertShaderText.c_str(),
+                                 VK_SHADER_STAGE_VERTEX_BIT,
+                                 &fVertShaderModule, &fShaderStageInfo[0])) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs.isEmpty());
 
-    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(), VK_SHADER_STAGE_FRAGMENT_BIT,
-                                 &fFragShaderModule, &fShaderStageInfo[1], settings, &inputs)) {
+    if (!GrCompileVkShaderModule(gpu, fragShaderText.c_str(),
+                                 VK_SHADER_STAGE_FRAGMENT_BIT,
+                                 &fFragShaderModule, &fShaderStageInfo[1])) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs.isEmpty());
 
     VkDescriptorSetLayout dsLayout[2];
 

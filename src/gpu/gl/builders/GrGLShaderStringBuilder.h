@@ -20,8 +20,6 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const char** strings,
                                     int* lengths,
                                     int count,
-                                    GrGpu::Stats*,
-                                    const SkSL::Program::Settings& settings,
-                                    SkSL::Program::Inputs* inputs);
+                                    GrGpu::Stats*);
 
 #endif

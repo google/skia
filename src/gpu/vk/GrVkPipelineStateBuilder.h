@@ -14,7 +14,6 @@
 #include "GrVkPipelineState.h"
 #include "GrVkUniformHandler.h"
 #include "GrVkVaryingHandler.h"
-#include "SkSLCompiler.h"
 
 #include "vk/GrVkDefines.h"
 
@@ -56,11 +55,11 @@ private:
                                 const GrVkRenderPass& renderPass,
                                 const GrVkPipelineState::Desc&);
 
-    bool createVkShaderModule(VkShaderStageFlagBits stage,
-                              const GrGLSLShaderBuilder& builder,
-                              VkShaderModule* shaderModule,
-                              VkPipelineShaderStageCreateInfo* stageInfo,
-                              const SkSL::Program::Settings& settings);
+    static bool CreateVkShaderModule(const GrVkGpu* gpu,
+                                     VkShaderStageFlagBits stage,
+                                     const GrGLSLShaderBuilder& builder,
+                                     VkShaderModule* shaderModule,
+                                     VkPipelineShaderStageCreateInfo* stageInfo);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

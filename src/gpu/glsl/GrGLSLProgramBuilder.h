@@ -72,7 +72,7 @@ public:
 
     // Used to add a uniform for the RenderTarget height (used for frag position) without mangling
     // the name of the uniform inside of a stage.
-    void addRTHeightUniform(const char* name);
+    void addRTHeightUniform(const char* name, const char** outName);
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also will mangle the name to be stage-specific unless
