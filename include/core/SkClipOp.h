@@ -34,10 +34,49 @@ enum class SkClipOp {
 
     // Goal: remove these, since they can grow the current clip
 
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     kUnion         = 2,
     kXOR           = 3,
     kReverseDifference = 4,
     kReplace       = 5,
+#endif
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // End of enum
+
+
+
+
+
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Nothing to see here
+
+
+
+
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Turn back!
+
+
+
+
+
+    // Private Internal enums -- do not use -- destined to be removed at any moment!
+
+    kUnion_private_internal_do_not_use             = 2,
+    kXOR_private_internal_do_not_use               = 3,
+    kReverseDifference_private_internal_do_not_use = 4,
+    kReplace_private_internal_do_not_use           = 5,
 };
 
 #endif
