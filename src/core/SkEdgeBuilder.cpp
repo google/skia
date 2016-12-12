@@ -132,11 +132,13 @@ void SkEdgeBuilder::addLine(const SkPoint pts[]) {
                 if (kNo_Combine != combine) {
                     if (kTotal_Combine == combine) {
                         fList.pop();
+                        fInternalEndpointCount -= 2;
                     }
                     goto unallocate_analytic_edge;
                 }
             }
             fList.push(edge);
+            fInternalEndpointCount += 2;
         } else {
 unallocate_analytic_edge:
             ;
@@ -168,6 +170,7 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
         SkAnalyticQuadraticEdge* edge = typedAllocThrow<SkAnalyticQuadraticEdge>(fAlloc);
         if (edge->setQuadratic(pts)) {
             fList.push(edge);
+            fInternalEndpointCount += 2 + edge->fCurveCount;
         } else {
             // TODO: unallocate edge from storage...
         }
@@ -186,6 +189,7 @@ void SkEdgeBuilder::addCubic(const SkPoint pts[]) {
         SkAnalyticCubicEdge* edge = typedAllocThrow<SkAnalyticCubicEdge>(fAlloc);
         if (edge->setCubic(pts)) {
             fList.push(edge);
+            fInternalEndpointCount += 2 - edge->fCurveCount;
         } else {
             // TODO: unallocate edge from storage...
         }
@@ -291,8 +295,10 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
                             if (kNo_Combine == combine) {
                                 *edgePtr++ = edge;
                                 edge += edgeSize;
+                                fInternalEndpointCount += 2;
                             } else if (kTotal_Combine == combine) {
                                 --edgePtr;
+                                fInternalEndpointCount -= 2;
                             }
                         }
                     }
@@ -322,8 +328,10 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
                         if (kNo_Combine == combine) {
                             *edgePtr++ = edge;
                             edge += edgeSize;
+                            fInternalEndpointCount += 2;
                         } else if (kTotal_Combine == combine) {
                             --edgePtr;
+                            fInternalEndpointCount -= 2;
                         }
                     }
                     break;
@@ -348,14 +356,21 @@ static void handle_quad(SkEdgeBuilder* builder, const SkPoint pts[3]) {
 }
 
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
-                         bool canCullToTheRight, bool analyticAA) {
+                         bool canCullToTheRight, bool analyticAA, int* endpointCount) {
     fAlloc.reset();
     fList.reset();
     fShiftUp = shiftUp;
     fAnalyticAA = analyticAA;
+    fInternalEndpointCount = 0;
+
+    SkASSERT(fAnalyticAA || endpointCount == nullptr); // Only Analytic AA uses endpointCount
 
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
-        return this->buildPoly(path, iclip, shiftUp, canCullToTheRight);
+        int result = this->buildPoly(path, iclip, shiftUp, canCullToTheRight);
+        if (endpointCount) {
+            *endpointCount = fInternalEndpointCount;
+        }
+        return result;
     }
 
     SkAutoConicToQuads quadder;
@@ -447,6 +462,11 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
             }
         }
     }
+
+    if (endpointCount) {
+        *endpointCount = fInternalEndpointCount;
+    }
+
     fEdgeList = fList.begin();
     return fList.count();
 }
