@@ -114,6 +114,20 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
     return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
 }
 
+sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType) {
+    switch (outputColorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kIndex_8_SkColorType:
+            return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        case kRGBA_F16_SkColorType:
+            return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        default:
+            // Color correction not supported for k565 and kGray.
+            return nullptr;
+    }
+}
+
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
         return SkISize::Make(0, 0);
