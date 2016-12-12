@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_f81abd54",
+        "filename": "include/gpu/GrSurfaceContext.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-12T21:37:58Z",
+      "side": 1,
+      "message": "Even though these static helpers are creating surface contexts to do their work, their externally visible effect is to create a GrSurfaceProxy. I feel like the calling code would be clearer if these were defined there.",
+      "revId": "edf0edf49f1cefa3f0ee319607ef731d4d4b0e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_580ae901",
+        "filename": "include/gpu/GrSurfaceContext.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-12T21:37:58Z",
+      "side": 1,
+      "message": "Yeah, this is just a tradeoff of adding more casting to the derived classes. When I first added the base class, I started to do that, but didn\u0027t want to pollute the change too much. Might make things clearer to do so now, though.",
+      "revId": "edf0edf49f1cefa3f0ee319607ef731d4d4b0e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
