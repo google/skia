@@ -79,7 +79,8 @@ def _LoadSchema():
 _LoadSchema()
 
 
-def MakeBuilderName(role, extra_config=None, is_trybot=False, **kwargs):
+def MakeBuilderName(role, extra_config=None, is_trybot=False,
+                    **kwargs):  # pragma: no cover
   schema = BUILDER_NAME_SCHEMA.get(role)
   if not schema:  # pragma: no cover
     raise ValueError('%s is not a recognized role.' % role)
@@ -100,7 +101,7 @@ def MakeBuilderName(role, extra_config=None, is_trybot=False, **kwargs):
   return BUILDER_NAME_SEP.join(name_parts)
 
 
-def IsTrybot(builder_name):
+def IsTrybot(builder_name):  # pragma: no cover
   """ Returns true if builder_name refers to a trybot (as opposed to a
   waterfall bot). """
   return builder_name.endswith(TRYBOT_NAME_SUFFIX)
