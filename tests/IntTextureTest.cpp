@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     if (!copy) {
         return;
     }
-    success = context->copySurface(copy.get(), texture.get());
+    success = context->copySurface2(copy.get(), texture.get());
     REPORTER_ASSERT(reporter, success);
     if (!success) {
         return;
@@ -120,14 +120,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     if (!copy) {
         return;
     }
-    success = context->copySurface(copy.get(), texture.get());
+    success = context->copySurface2(copy.get(), texture.get());
     REPORTER_ASSERT(reporter, !success);
     nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
     copy.reset(context->textureProvider()->createTexture(nonIntDesc, SkBudgeted::kYes));
     REPORTER_ASSERT(reporter, copy ||
                     !context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig));
     if (copy) {
-        success = context->copySurface(copy.get(), texture.get());
+        success = context->copySurface2(copy.get(), texture.get());
         REPORTER_ASSERT(reporter, !success);
     }
 

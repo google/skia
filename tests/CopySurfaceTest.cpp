@@ -83,7 +83,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             }
 
                             bool result
-                                    = context->copySurface(dst.get(), src.get(), srcRect, dstPoint);
+                                    = context->copySurface1(dst.get(), src.get(), srcRect, dstPoint);
 
                             bool expectedResult = true;
                             SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,

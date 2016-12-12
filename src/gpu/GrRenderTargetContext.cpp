@@ -133,6 +133,28 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     return fOpList;
 }
 
+// TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
+sk_sp<GrSurfaceProxy> GrRenderTargetContext::copy(GrSurfaceProxy* srcProxy,
+                                                  const SkIRect& srcRect,
+                                                  const SkIPoint& dstPoint) {
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copy");
+
+    // TODO: defer instantiation until flush time
+    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->textureProvider())));
+    if (!src) {
+        return nullptr;
+    }
+
+    if (!this->copySurface(src.get(), srcRect, dstPoint)) {
+        return nullptr;
+    }
+
+    return fRenderTargetProxy;
+}
+
 bool GrRenderTargetContext::copySurface(GrSurface* src, const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
