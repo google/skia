@@ -66,41 +66,6 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
                          source=luci_go_dir,
                          dest=dest)
 
-  def isolate_and_trigger_task(
-      self, isolate_path, isolate_base_dir, task_name, isolate_vars,
-      swarm_dimensions, isolate_blacklist=None, extra_isolate_hashes=None,
-      idempotent=False, store_output=True, extra_args=None, expiration=None,
-      hard_timeout=None, io_timeout=None, cipd_packages=None):
-    """Isolate inputs and trigger the task to run."""
-    os_type = swarm_dimensions.get('os', 'linux')
-    isolated_hash = self.isolate_task(
-        isolate_path, isolate_base_dir, os_type, task_name, isolate_vars,
-        blacklist=isolate_blacklist, extra_hashes=extra_isolate_hashes)
-    tasks = self.trigger_swarming_tasks([(task_name, isolated_hash)],
-                                        swarm_dimensions,
-                                        idempotent=idempotent,
-                                        store_output=store_output,
-                                        extra_args=extra_args,
-                                        expiration=expiration,
-                                        hard_timeout=hard_timeout,
-                                        io_timeout=io_timeout,
-                                        cipd_packages=cipd_packages)
-    assert len(tasks) == 1
-    return tasks[0]
-
-  def isolate_task(self, isolate_path, base_dir, os_type, task_name,
-                   isolate_vars, blacklist=None, extra_hashes=None):
-    """Isolate inputs for the given task."""
-    self.create_isolated_gen_json(isolate_path, base_dir, os_type,
-                                  task_name, isolate_vars,
-                                  blacklist=blacklist)
-    hashes = self.batcharchive([task_name])
-    assert len(hashes) == 1
-    isolated_hash = hashes[0][1]
-    if extra_hashes:
-      isolated_hash = self.add_isolated_includes(task_name, extra_hashes)
-    return isolated_hash
-
   def create_isolated_gen_json(self, isolate_path, base_dir, os_type,
                                task_name, extra_variables, blacklist=None):
     """Creates an isolated.gen.json file (used by the isolate recipe module).
@@ -123,7 +88,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
       '--isolated', isolated_path,
       '--config-variable', 'OS', os_type,
     ]
-    if blacklist:
+    if blacklist:  # pragma: no cover
       for b in blacklist:
         isolate_args.extend(['--blacklist', b])
     for k, v in extra_variables.iteritems():
@@ -155,36 +120,6 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
         verbose=True,  # To avoid no output timeouts.
         build_dir=self.swarming_temp_dir,
         targets=targets).presentation.properties['swarm_hashes'].items()
-
-  def add_isolated_includes(self, task_name, include_hashes):
-    """Add the hashes to the task's .isolated file, return new .isolated hash.
-
-    Args:
-      task: str. Name of the task to which to add the given hash.
-      include_hashes: list of str. Hashes of the new includes.
-    Returns:
-      Updated hash of the .isolated file.
-    """
-    isolated_file = self.isolated_file_path(task_name)
-    self.m.python.inline('add_isolated_input', program="""
-      import json
-      import sys
-      with open(sys.argv[1]) as f:
-        isolated = json.load(f)
-      if not isolated.get('includes'):
-        isolated['includes'] = []
-      for h in sys.argv[2:]:
-        isolated['includes'].append(h)
-      with open(sys.argv[1], 'w') as f:
-        json.dump(isolated, f, sort_keys=True)
-    """, args=[isolated_file] + include_hashes)
-    isolateserver = self.m.swarming_client.path.join('isolateserver.py')
-    r = self.m.python('upload new .isolated file for %s' % task_name,
-                      script=isolateserver,
-                      args=['archive', '--isolate-server',
-                            self.m.isolate.isolate_server, isolated_file],
-                      stdout=self.m.raw_io.output())
-    return shlex.split(r.stdout)[0]
 
   def trigger_swarming_tasks(
       self, swarm_hashes, dimensions, idempotent=False, store_output=True,
@@ -227,7 +162,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
           hard_timeout if hard_timeout else DEFAULT_TASK_TIMEOUT)
       swarming_task.io_timeout = (
           io_timeout if io_timeout else DEFAULT_IO_TIMEOUT)
-      if extra_args:
+      if extra_args:  # pragma: no cover
         swarming_task.extra_args = extra_args
       revision = self.m.properties.get('revision')
       if revision:
@@ -263,17 +198,6 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
       # Add log link.
       self._add_log_links(step_result)
     return rv
-
-  def collect_swarming_task_isolate_hash(self, swarming_task):
-    """Wait for the given swarming task to finish and return its output hash.
-
-    Args:
-      swarming_task: An instance of swarming.SwarmingTask.
-    Returns:
-      the hash of the isolate output of the task.
-    """
-    res = self.collect_swarming_task(swarming_task)
-    return res.json.output['shards'][0]['isolated_out']['isolated']
 
   def _add_log_links(self, step_result):
     """Add Milo log links to all shards in the step."""

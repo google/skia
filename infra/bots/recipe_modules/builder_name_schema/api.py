@@ -29,10 +29,10 @@ class BuilderNameSchemaApi(recipe_api.RecipeApi):
 
     self.TRYBOT_NAME_SUFFIX = builder_name_schema.TRYBOT_NAME_SUFFIX
 
-  def MakeBuilderName(self, *args, **kwargs):
+  def MakeBuilderName(self, *args, **kwargs):  # pragma: no cover
     return builder_name_schema.MakeBuilderName(*args, **kwargs)
 
-  def IsTrybot(self, *args, **kwargs):
+  def IsTrybot(self, *args, **kwargs):  # pragma: no cover
     return builder_name_schema.IsTrybot(*args, **kwargs)
 
   def DictForBuilderName(self, *args, **kwargs):
