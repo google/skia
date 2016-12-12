@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_9d1ff327",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-12T17:50:55Z",
+      "side": 1,
+      "message": "the _d variant was not needed for this code, but I added it just to match the sRGB/etc ones.",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
