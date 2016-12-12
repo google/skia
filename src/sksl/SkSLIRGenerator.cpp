@@ -9,7 +9,6 @@
 
 #include "limits.h"
 
-#include "SkSLCompiler.h"
 #include "ast/SkSLASTBoolLiteral.h"
 #include "ast/SkSLASTFieldSuffix.h"
 #include "ast/SkSLASTFloatLiteral.h"
@@ -85,6 +84,7 @@ IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> sy
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
+, fCapsMap(nullptr)
 , fSymbolTable(std::move(symbolTable))
 , fLoopLevel(0)
 , fErrors(errorReporter) {}
@@ -97,40 +97,14 @@ void IRGenerator::popSymbolTable() {
     fSymbolTable = fSymbolTable->fParent;
 }
 
-static void fill_caps(const GrShaderCaps& caps, std::unordered_map<SkString, CapValue>* capsMap) {
-#define CAP(name) capsMap->insert(std::make_pair(SkString(#name), CapValue(caps.name())));
-    CAP(fbFetchSupport);
-    CAP(fbFetchNeedsCustomOutput);
-    CAP(bindlessTextureSupport);
-    CAP(dropsTileOnZeroDivide);
-    CAP(flatInterpolationSupport);
-    CAP(noperspectiveInterpolationSupport);
-    CAP(multisampleInterpolationSupport);
-    CAP(sampleVariablesSupport);
-    CAP(sampleMaskOverrideCoverageSupport);
-    CAP(externalTextureSupport);
-    CAP(texelFetchSupport);
-    CAP(imageLoadStoreSupport);
-    CAP(mustEnableAdvBlendEqs);
-    CAP(mustEnableSpecificAdvBlendEqs);
-    CAP(mustDeclareFragmentShaderOutput);
-    CAP(canUseAnyFunctionInShader);
-#undef CAP
-}
-
-void IRGenerator::start(const Program::Settings* settings) {
-    fSettings = settings;
-    fCapsMap.clear();
-    if (settings->fCaps) {
-        fill_caps(*settings->fCaps, &fCapsMap);
-    }
+void IRGenerator::start(std::unordered_map<SkString, CapValue>* caps) {
+    this->fCapsMap = caps;
     this->pushSymbolTable();
-    fInputs.reset();
 }
 
 void IRGenerator::finish() {
     this->popSymbolTable();
-    fSettings = nullptr;
+    this->fCapsMap = nullptr;
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(const ASTExtension& extension) {
@@ -626,11 +600,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         case Symbol::kVariable_Kind: {
             const Variable* var = (const Variable*) result;
             this->markReadFrom(*var);
-            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-                fSettings->fFlipY &&
-                (!fSettings->fCaps || !fSettings->fCaps->fragCoordConventionsExtensionString())) {
-                fInputs.fRTHeight = true;
-            }
             return std::unique_ptr<VariableReference>(new VariableReference(identifier.fPosition,
                                                                             *var));
         }
@@ -1367,8 +1336,9 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
 }
 
 std::unique_ptr<Expression> IRGenerator::getCap(Position position, SkString name) {
-    auto found = fCapsMap.find(name);
-    if (found == fCapsMap.end()) {
+    ASSERT(fCapsMap);
+    auto found = fCapsMap->find(name);
+    if (found == fCapsMap->end()) {
         fErrors.error(position, "unknown capability flag '" + name + "'");
         return nullptr;
     }

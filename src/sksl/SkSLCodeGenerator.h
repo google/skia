@@ -18,20 +18,9 @@ namespace SkSL {
  */
 class CodeGenerator {
 public:
-    CodeGenerator(const Program* program, ErrorReporter* errors, SkWStream* out)
-    : fProgram(*program)
-    , fErrors(*errors)
-    , fOut(out) {}
-
     virtual ~CodeGenerator() {}
 
-    virtual bool generateCode() = 0;
-
-protected:
-
-    const Program& fProgram;
-    ErrorReporter& fErrors;
-    SkWStream* fOut;
+    virtual void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) = 0;
 };
 
 } // namespace

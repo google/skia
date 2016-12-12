@@ -27,7 +27,6 @@
 #include "SkMipMap.h"
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
-#include "SkSLCompiler.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
 #include "../private/GrGLSL.h"
@@ -400,20 +399,13 @@ bool GrGLGpu::createPLSSetupProgram() {
 
     str = vshaderTxt.c_str();
     length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-    SkSL::Program::Inputs inputs;
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fPLSSetupProgram.fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats,
-                                                  settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats);
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fPLSSetupProgram.fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats,
-                                                  settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats);
 
     GL_CALL(LinkProgram(fPLSSetupProgram.fProgram));
 
@@ -3863,20 +3855,15 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
 
     str = vshaderTxt.c_str();
     length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-    SkSL::Program::Inputs inputs;
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     GL_CALL(LinkProgram(fCopyPrograms[progIdx].fProgram));
 
@@ -4021,20 +4008,15 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 
     str = vshaderTxt.c_str();
     length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-    SkSL::Program::Inputs inputs;
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     GL_CALL(LinkProgram(fMipmapPrograms[progIdx].fProgram));
 
@@ -4115,20 +4097,15 @@ bool GrGLGpu::createWireRectProgram() {
 
     str = vshaderTxt.c_str();
     length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = this->caps()->shaderCaps();
-    SkSL::Program::Inputs inputs;
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
                                                   GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
                                                   GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  &fStats);
 
     GL_CALL(LinkProgram(fWireRectProgram.fProgram));
 

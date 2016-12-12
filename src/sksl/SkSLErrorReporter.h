@@ -24,8 +24,6 @@ public:
     }
 
     virtual void error(Position position, SkString msg) = 0;
-
-    virtual int errorCount() = 0;
 };
 
 } // namespace

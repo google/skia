@@ -36,7 +36,9 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
+#if USE_SKSL
 #include "SkSLCompiler.h"
+#endif
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
@@ -117,7 +119,11 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     }
 #endif
 
+#if USE_SKSL
     fCompiler = new SkSL::Compiler();
+#else
+    fCompiler = shaderc_compiler_initialize();
+#endif
 
     fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice,
                                backendCtx->fFeatures, backendCtx->fExtensions));
@@ -187,7 +193,11 @@ GrVkGpu::~GrVkGpu() {
 
     VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
 
+#if USE_SKSL
     delete fCompiler;
+#else
+    shaderc_compiler_release(fCompiler);
+#endif
 
 #ifdef SK_ENABLE_VK_LAYERS
     if (fCallback) {

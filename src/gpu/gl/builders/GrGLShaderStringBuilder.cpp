@@ -44,9 +44,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const char** strings,
                                     int* lengths,
                                     int count,
-                                    GrGpu::Stats* stats,
-                                    const SkSL::Program::Settings& settings,
-                                    SkSL::Program::Inputs* outInputs) {
+                                    GrGpu::Stats* stats) {
     const GrGLInterface* gli = glCtx.interface();
 
     GrGLuint shaderId;
@@ -67,20 +65,21 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     SkString glsl;
     if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
         SkSL::Compiler& compiler = *glCtx.compiler();
-        std::unique_ptr<SkSL::Program> program;
-        program = compiler.convertProgram(
-                                        type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
+        SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
+                                                                    ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                        sksl,
-                                        settings);
-        if (!program || !compiler.toGLSL(*program, &glsl)) {
+                                                   sksl,
+                                                   *glCtx.caps()->shaderCaps(),
+                                                   &glsl);
+#ifdef SK_DEBUG
+        if (!result) {
             SkDebugf("SKSL compilation error\n----------------------\n");
             SkDebugf("SKSL:\n");
             dump_string(sksl);
             SkDebugf("\nErrors:\n%s\n", compiler.errorText().c_str());
             SkDEBUGFAIL("SKSL compilation failed!\n");
         }
-        *outInputs = program->fInputs;
+#endif
     } else {
         // TODO: geometry shader support in sksl.
         SkASSERT(type == GR_GL_GEOMETRY_SHADER);

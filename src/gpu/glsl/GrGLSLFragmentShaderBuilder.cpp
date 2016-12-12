@@ -132,7 +132,49 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 
 const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kFragmentPosition_RequiredFeature;)
-    return "sk_FragCoord";
+
+    const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
+    // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
+    // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
+    // declaration varies in earlier GLSL specs. So it is simpler to omit it.
+    if (kTopLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
+        fSetupFragPosition = true;
+        return "gl_FragCoord";
+    } else if (const char* extension = shaderCaps->fragCoordConventionsExtensionString()) {
+        if (!fSetupFragPosition) {
+            if (shaderCaps->generation() < k150_GrGLSLGeneration) {
+                this->addFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
+                                 extension);
+            }
+            fInputs.push_back().set(kVec4f_GrSLType,
+                                    "gl_FragCoord",
+                                    GrShaderVar::kIn_TypeModifier,
+                                    kDefault_GrSLPrecision,
+                                    "origin_upper_left");
+            fSetupFragPosition = true;
+        }
+        return "gl_FragCoord";
+    } else {
+        static const char* kTempName = "tmpXYFragCoord";
+        static const char* kCoordName = "fragCoordYDown";
+        if (!fSetupFragPosition) {
+            const char* rtHeightName;
+
+            fProgramBuilder->addRTHeightUniform("RTHeight", &rtHeightName);
+
+            // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
+            // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
+            // depending on the surrounding code, accessing .xy with a uniform involved can
+            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand
+            // (and only accessing .xy) seems to "fix" things.
+            this->codePrependf("\thighp vec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n", kCoordName,
+                               kTempName, rtHeightName, kTempName);
+            this->codePrependf("highp vec2 %s = gl_FragCoord.xy;", kTempName);
+            fSetupFragPosition = true;
+        }
+        SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
+        return kCoordName;
+    }
 }
 
 const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {

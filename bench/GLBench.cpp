@@ -68,15 +68,14 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
 GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, GrGLenum type) {
     const GrGLInterface* gl = context->interface();
     SkString glsl;
-    SkSL::Program::Settings settings;
-    settings.fCaps = context->caps()->shaderCaps();
-    std::unique_ptr<SkSL::Program> program = context->compiler()->convertProgram(
-                                        type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
+    bool result = context->compiler()->toGLSL(type == GR_GL_VERTEX_SHADER 
+                                                                    ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                        SkString(sksl),
-                                        settings);
-    if (!program || !context->compiler()->toGLSL(*program, &glsl)) {
-        SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl,
+                                              SkString(sksl),
+                                              *context->caps()->shaderCaps(),
+                                              &glsl);
+    if (!result) {
+        SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl, 
                  context->compiler()->errorText().c_str());
     }
     GrGLuint shader;

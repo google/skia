@@ -9,7 +9,6 @@
 
 #include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
-#include "SkSLGLSLCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
@@ -393,10 +392,10 @@ void Compiler::internalConvertProgram(SkString text,
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text,
-                                                  const Program::Settings& settings) {
+                                                  std::unordered_map<SkString, CapValue> caps) {
     fErrorText = "";
     fErrorCount = 0;
-    fIRGenerator->start(&settings);
+    fIRGenerator->start(&caps);
     std::vector<std::unique_ptr<ProgramElement>> elements;
     Modifiers::Flag ignored;
     switch (kind) {
@@ -410,53 +409,12 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     Modifiers::Flag defaultPrecision;
     this->internalConvertProgram(text, &defaultPrecision, &elements);
-    auto result = std::unique_ptr<Program>(new Program(kind, settings, defaultPrecision, &fContext,
-                                                       std::move(elements),
-                                                       fIRGenerator->fSymbolTable,
-                                                       fIRGenerator->fInputs));
+    auto result = std::unique_ptr<Program>(new Program(kind, defaultPrecision, std::move(elements),
+                                                       fIRGenerator->fSymbolTable));
     fIRGenerator->finish();
     this->writeErrorCount();
-    if (fErrorCount) {
-        return nullptr;
-    }
     return result;
 }
-
-
-bool Compiler::toSPIRV(const Program& program, SkWStream& out) {
-    SPIRVCodeGenerator cg(&fContext, &program, this, &out);
-    bool result = cg.generateCode();
-    this->writeErrorCount();
-    return result;
-}
-
-bool Compiler::toSPIRV(const Program& program, SkString* out) {
-    SkDynamicMemoryWStream buffer;
-    bool result = this->toSPIRV(program, buffer);
-    if (result) {
-        sk_sp<SkData> data(buffer.detachAsData());
-        *out = SkString((const char*) data->data(), data->size());
-    }
-    return result;
-}
-
-bool Compiler::toGLSL(const Program& program, SkWStream& out) {
-    GLSLCodeGenerator cg(&fContext, &program, this, &out);
-    bool result = cg.generateCode();
-    this->writeErrorCount();
-    return result;
-}
-
-bool Compiler::toGLSL(const Program& program, SkString* out) {
-    SkDynamicMemoryWStream buffer;
-    bool result = this->toGLSL(program, buffer);
-    if (result) {
-        sk_sp<SkData> data(buffer.detachAsData());
-        *out = SkString((const char*) data->data(), data->size());
-    }
-    return result;
-}
-
 
 void Compiler::error(Position position, SkString msg) {
     fErrorCount++;
@@ -476,6 +434,72 @@ void Compiler::writeErrorCount() {
         }
         fErrorText += "\n";
     }
+}
+
+bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out) {
+    std::unordered_map<SkString, CapValue> capsMap;
+    auto program = this->convertProgram(kind, text, capsMap);
+    if (fErrorCount == 0) {
+        SkSL::SPIRVCodeGenerator cg(&fContext);
+        cg.generateCode(*program.get(), *this, out);
+        this->writeErrorCount();
+    }
+    return fErrorCount == 0;
+}
+
+bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkString* out) {
+    SkDynamicMemoryWStream buffer;
+    bool result = this->toSPIRV(kind, text, buffer);
+    if (result) {
+        sk_sp<SkData> data(buffer.detachAsData());
+        *out = SkString((const char*) data->data(), data->size());
+    }
+    return result;
+}
+
+static void fill_caps(const GrShaderCaps& caps, std::unordered_map<SkString, CapValue>* capsMap) {
+#define CAP(name) capsMap->insert(std::make_pair(SkString(#name), CapValue(caps.name())));
+    CAP(fbFetchSupport);
+    CAP(fbFetchNeedsCustomOutput);
+    CAP(bindlessTextureSupport);
+    CAP(dropsTileOnZeroDivide);
+    CAP(flatInterpolationSupport);
+    CAP(noperspectiveInterpolationSupport);
+    CAP(multisampleInterpolationSupport);
+    CAP(sampleVariablesSupport);
+    CAP(sampleMaskOverrideCoverageSupport);
+    CAP(externalTextureSupport);
+    CAP(texelFetchSupport);
+    CAP(imageLoadStoreSupport);
+    CAP(mustEnableAdvBlendEqs);
+    CAP(mustEnableSpecificAdvBlendEqs);
+    CAP(mustDeclareFragmentShaderOutput);
+    CAP(canUseAnyFunctionInShader);
+#undef CAP
+}
+
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
+                      SkWStream& out) {
+    std::unordered_map<SkString, CapValue> capsMap;
+    fill_caps(caps, &capsMap);
+    auto program = this->convertProgram(kind, text, capsMap);
+    if (fErrorCount == 0) {
+        SkSL::GLSLCodeGenerator cg(&fContext, &caps);
+        cg.generateCode(*program.get(), *this, out);
+        this->writeErrorCount();
+    }
+    return fErrorCount == 0;
+}
+
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
+                      SkString* out) {
+    SkDynamicMemoryWStream buffer;
+    bool result = this->toGLSL(kind, text, caps, buffer);
+    if (result) {
+        sk_sp<SkData> data(buffer.detachAsData());
+        *out = SkString((const char*) data->data(), data->size());
+    }
+    return result;
 }
 
 } // namespace
