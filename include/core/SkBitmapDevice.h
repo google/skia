@@ -14,6 +14,7 @@
 #include "SkColor.h"
 #include "SkDevice.h"
 #include "SkImageInfo.h"
+#include "SkPixelRef.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -140,10 +141,10 @@ protected:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
-    SkPixelRef* setPixelRef(SkPixelRef* pr) {
-        fBitmap.setPixelRef(pr);
-        return pr;
-    }
+    void setPixelRef(sk_sp<SkPixelRef> pr) { fBitmap.setPixelRef(std::move(pr), 0, 0); }
+#ifdef SK_SUPPORT_LEGACY_BITMAP_SETPIXELREF
+    SkPixelRef* setPixelRef(SkPixelRef* pr) { return fBitmap.setPixelRef(pr); }
+#endif
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
