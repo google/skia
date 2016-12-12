@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_5db65bbc",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 1,
+      "message": "Let\u0027s do this in gn_to_bp.py instead.  It\u0027s perfectly ordinary and expected to have FOO\u003dBAR in these defines here.  \n\nShould be as easy as mapping  .replace(\u0027\u003d\u0027, \u0027 \u0027)  over the defines list, right?",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_9de0d3b4",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 1,
+      "message": "This I think conveys the wrong intention.  We do depend on expat in the Android framework build, right?\n\nIs the main problem that we can\u0027t have include dirs that don\u0027t exist in BP?  Usually this is harmless... they must explicitly check for it?\n\nI think what we want to do is something like:\n\n   - set skia_use_system_expat\u003dtrue in gn_to_bp.py\n   - add skia_use_cpufeatures \u003d is_android up top, guard the extra dep here with that, and set it to false in gn_to_bp.py",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_1dace368",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 1,
+      "message": "We don\u0027t move it though.  We overwrite it.  Is there something else going on to delete it?\n\nWhy don\u0027t we just overwrite the file in place in include/config instead, killing two weird birds with one stone?",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_fdc62f37",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 1,
+      "message": "# We handle CPU-specific sources manually.\n\nSomething like that?",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_9db7f3bc",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 1,
+      "message": "I think we can just write this path as a string.  There\u0027s no variables to join...",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

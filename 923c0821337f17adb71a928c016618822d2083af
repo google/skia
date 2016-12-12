@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_3da9a759",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:12:25Z",
+      "side": 0,
+      "message": "Can you leave this commented out so I don\u0027t forget about it?\n\nDoes it not work?",
+      "revId": "923c0821337f17adb71a928c016618822d2083af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
