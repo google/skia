@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_38ee1542",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-12T20:47:54Z",
+      "side": 1,
+      "message": "I think I was misinterpreting what you meant by treeing.\n\nSo is it doing (x*x) possibly in parallel to (x16*x16*x16), whereas in a line as x*(x*(x16*(x16*(x16*x64)))) it can\u0027t do that in parallel without getting possibly different results?",
+      "parentUuid": "8d391bbb_d84fb9aa",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_9d1ff327",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 1
