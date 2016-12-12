@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "ba6e17e8_5afe15f9",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:51:13Z",
+      "side": 1,
+      "message": "Just to be really pedantic, there is no expat in third_party/expat.  It contains only a BUILD.gn file to choose between the sources in third_party/externals/expat or to use a system-installed expat.  All the third_party libraries work the same way, and sort of stand in for the platonic version of that library, however it\u0027s actually built and linked underneath.",
+      "parentUuid": "1a23a39f_661c6ee0",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_1dace368",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
@@ -155,6 +173,24 @@
       "side": 1,
       "message": "It used to be the case that libraries that depended on Skia included \"include/core\" but not \"include/config\" in their own makefiles. (Neither I nor Derek recalls why we didn\u0027t update them to use \"include/config\".) But now it should be fine to leave it in include/config.",
       "parentUuid": "8d391bbb_7d295ff6",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba6e17e8_7a03d92b",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:51:13Z",
+      "side": 1,
+      "message": "Right, export_includes should fix that problem permanently.",
+      "parentUuid": "1a23a39f_a6f9665f",
       "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false

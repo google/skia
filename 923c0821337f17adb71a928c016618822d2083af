@@ -34,6 +34,24 @@
       "revId": "923c0821337f17adb71a928c016618822d2083af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba6e17e8_3afd61f8",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:51:13Z",
+      "side": 0,
+      "message": "Gotcha.  Looking closer, I think I can remove our dependency on this today.   If we do it first it ought to remove some of the complexity here / in 5732.",
+      "parentUuid": "1a23a39f_46217212",
+      "revId": "923c0821337f17adb71a928c016618822d2083af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
