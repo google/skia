@@ -81,7 +81,6 @@ cc_library {
       "libz",
   ],
   static_libs: [
-      //"cpufeatures",  // TODO: use this for CRC32 detection
       "libsfntly",
       "libwebp-decode",
       "libwebp-encode",
@@ -92,7 +91,6 @@ cc_library {
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
   'skia_enable_vulkan_debug_layers': 'false',
-  'skia_use_cpufeatures':            'false',
   'skia_use_system_expat':           'true',
   'skia_use_vulkan':                 'true',
   'target_cpu':                      '"none"',
