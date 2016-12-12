@@ -22,7 +22,7 @@ class SkCanvasClipVisitor;
 #ifdef SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM
     #define SkClipStackImpl_ReplaceOp  kReplace_SkClipOp
 #else
-    #define SkClipStackImpl_ReplaceOp  SkClipOp::kReplace
+    #define SkClipStackImpl_ReplaceOp  SkClipOp::kReplace_private_internal_do_not_use
 #endif
 
 // Because a single save/restore state can have multiple clips, this class
