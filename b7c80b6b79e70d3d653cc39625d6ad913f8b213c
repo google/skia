@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "1a23a39f_4653b286",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-12T14:51:06Z",
+      "side": 1,
+      "message": "\u003e \u003e This I think conveys the wrong intention.  We do depend on expat in the Android framework build, right?\n\u003e \u003e \n\u003e \u003e Is the main problem that we can\u0027t have include dirs that don\u0027t exist in BP?  Usually this is harmless... they must explicitly check for it?\n\u003e \n\u003e Yes. To be fair, we depend on expat, but not the one in third_party/expat.\n\nAh, I see, we still depend on the BUILD.gn file in third_party/expat. (Sort of - I commented on this in your CL - the only thing it does in the \"if (skia_use_system_expat)\" case does not seem to have an effect, unless I\u0027m missing something?)",
+      "parentUuid": "1a23a39f_661c6ee0",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_1dace368",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
