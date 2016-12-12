@@ -593,6 +593,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
+    "SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM",
 ]
 
 ################################################################################

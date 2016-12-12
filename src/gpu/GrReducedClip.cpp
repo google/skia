@@ -19,6 +19,7 @@
 #include "GrStencilSettings.h"
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
+#include "SkClipOpPriv.h"
 
 typedef SkClipStack::Element Element;
 
@@ -432,11 +433,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
 }
 
 static bool element_is_pure_subtract(SkClipOp op) {
-    SkASSERT(op >= 0);
-    return op <= kIntersect_SkClipOp;
+    SkASSERT(static_cast<int>(op) >= 0);
+    return static_cast<int>(op) <= static_cast<int>(kIntersect_SkClipOp);
 
-    GR_STATIC_ASSERT(0 == kDifference_SkClipOp);
-    GR_STATIC_ASSERT(1 == kIntersect_SkClipOp);
+    GR_STATIC_ASSERT(0 == static_cast<int>(kDifference_SkClipOp));
+    GR_STATIC_ASSERT(1 == static_cast<int>(kIntersect_SkClipOp));
 }
 
 void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {

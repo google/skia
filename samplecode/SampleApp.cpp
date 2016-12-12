@@ -36,6 +36,7 @@
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
 #include "SkScan.h"
+#include "SkClipOpPriv.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"

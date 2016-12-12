@@ -7,6 +7,7 @@
 
 #include "CanvasStateHelpers.h"
 #include "SkCanvas.h"
+#include "SkClipOpPriv.h"
 #include "SkCanvasStateUtils.h"
 #include "SkCommandLineFlags.h"
 #include "SkDrawFilter.h"

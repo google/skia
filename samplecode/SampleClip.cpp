@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkClipOpPriv.h"
 
 constexpr int W = 150;
 constexpr int H = 200;

@@ -12,6 +12,7 @@
 #include "SkDevice.h"
 #include "SkRasterClip.h"
 #include "SkWriter32.h"
+#include "SkClipOpPriv.h"
 
 /*
  * WARNING: The structs below are part of a stable ABI and as such we explicitly

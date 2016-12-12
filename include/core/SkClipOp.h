@@ -10,7 +10,10 @@
 
 #include "SkTypes.h"
 
-// these kept in SkRegion::Op order for now ...
+// SkClipOp enum values always match the corresponding values in SkRegion::Op
+
+#ifdef SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM
+
 enum SkClipOp {
     kDifference_SkClipOp    = 0,
     kIntersect_SkClipOp     = 1,
@@ -22,5 +25,21 @@ enum SkClipOp {
     kReverseDifference_SkClipOp = 4,
     kReplace_SkClipOp       = 5,
 };
+
+#else
+
+enum class SkClipOp {
+    kDifference    = 0,
+    kIntersect     = 1,
+
+    // Goal: remove these, since they can grow the current clip
+
+    kUnion         = 2,
+    kXOR           = 3,
+    kReverseDifference = 4,
+    kReplace       = 5,
+};
+
+#endif
 
 #endif

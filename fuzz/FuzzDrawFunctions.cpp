@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
+#include "SkClipOpPriv.h"
 
 static const int kBmpSize = 24;
 static const int kMaxX = 250;

@@ -26,6 +26,7 @@
 #include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "picture_utils.h"
+#include "SkClipOpPriv.h"
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"

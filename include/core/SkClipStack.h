@@ -18,6 +18,13 @@
 
 class SkCanvasClipVisitor;
 
+
+#ifdef SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM
+    #define SkClipStackImpl_ReplaceOp  kReplace_SkClipOp
+#else
+    #define SkClipStackImpl_ReplaceOp  SkClipOp::kReplace
+#endif
+
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
 // Each clip in fDeque stores the stack state to which it belongs
@@ -54,7 +61,7 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, kReplace_SkClipOp, false);
+            this->initCommon(0, SkClipStackImpl_ReplaceOp, false);
             this->setEmpty();
         }
 
@@ -226,7 +233,7 @@ public:
         int                     fGenID;
 
         Element(int saveCount) {
-            this->initCommon(saveCount, kReplace_SkClipOp, false);
+            this->initCommon(saveCount, SkClipStackImpl_ReplaceOp, false);
             this->setEmpty();
         }
 

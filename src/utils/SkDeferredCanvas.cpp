@@ -11,6 +11,7 @@
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
+#include "SkClipOpPriv.h"
 
 bool SkDeferredCanvas::Rec::isConcat(SkMatrix* m) const {
     switch (fType) {

@@ -9,6 +9,7 @@
 #include "SkBlurImageFilter.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
+#include "SkClipOpPriv.h"
 
 #define WIDTH 512
 #define HEIGHT 512

@@ -13,6 +13,7 @@
 #include "SkRSXform.h"
 #include "SkTextBlob.h"
 #include "SkTSearch.h"
+#include "SkClipOpPriv.h"
 
 #define HEAP_BLOCK_SIZE 4096
 

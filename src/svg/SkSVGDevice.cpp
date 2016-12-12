@@ -22,6 +22,7 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"
+#include "SkClipOpPriv.h"
 
 namespace {
 

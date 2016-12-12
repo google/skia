@@ -16,6 +16,7 @@
 #include "SkStringUtils.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "SkClipOpPriv.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
