@@ -21,6 +21,10 @@ struct SkAnalyticEdge {
     SkAnalyticEdge* fNext;
     SkAnalyticEdge* fPrev;
 
+    // During aaa_walk_edges, if this edge is a left edge,
+    // then fRiteE is its corresponding right edge. Otherwise it's nullptr.
+    SkAnalyticEdge* fRiteE;
+
     SkFixed fX;
     SkFixed fDX;
     SkFixed fUpperX;        // The x value when y = fUpperY
@@ -29,6 +33,10 @@ struct SkAnalyticEdge {
     SkFixed fLowerY;        // The lower bound of y (our edge is from y = fUpperY to y = fLowerY)
     SkFixed fDY;            // abs(1/fDX); may be SK_MaxS32 when fDX is close to 0.
                             // fDY is only used for blitting trapezoids.
+
+    SkFixed fSavedX;        // For deferred blitting
+    SkFixed fSavedY;        // For deferred blitting
+    SkFixed fSavedDY;       // For deferred blitting
 
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
@@ -42,6 +50,10 @@ struct SkAnalyticEdge {
         return ((unsigned)y + (SK_Fixed1 >> (accuracy + 1))) >> (16 - accuracy) << (16 - accuracy);
     }
 
+    static inline SkFixed ceilSnapY(SkFixed y, int accuracy = kDefaultAccuracy) {
+        return snapY(y + (SK_Fixed1 >> (accuracy + 1)) - 1);
+    }
+
     // Update fX, fY of this edge so fY = y
     inline void goY(SkFixed y) {
         if (y == fY + SK_Fixed1) {
@@ -53,6 +65,19 @@ struct SkAnalyticEdge {
             fX = fUpperX + SkFixedMul(fDX, y - fUpperY);
             fY = y;
         }
+    }
+
+    inline void goY(SkFixed y, int yShift) {
+        SkASSERT(yShift >= 0 && yShift <= 2);
+        SkASSERT(fDX == 0 || y - fY == SK_Fixed1 >> yShift);
+        fY = y;
+        fX += fDX >> yShift;
+    }
+
+    inline void saveXY(SkFixed x, SkFixed y, SkFixed dY) {
+        fSavedX = x;
+        fSavedY = y;
+        fSavedDY = dY;
     }
 
     inline bool setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip = nullptr);
@@ -89,17 +114,21 @@ struct SkAnalyticQuadraticEdge : public SkAnalyticEdge {
     SkFixed fSnappedX, fSnappedY;
 
     bool setQuadratic(const SkPoint pts[3]);
-    bool updateQuadratic();
+    bool updateQuadratic(bool isInitializing = false);
 };
 
 struct SkAnalyticCubicEdge : public SkAnalyticEdge {
     SkCubicEdge fCEdge;
 
+    SkFixed fSnappedY; // to make sure that y is increasing with smooth jump and snapping
+
     bool setCubic(const SkPoint pts[4]);
-    bool updateCubic();
+    bool updateCubic(bool isInitializing = false);
 };
 
 bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) {
+    fRiteE = nullptr;
+
     // We must set X/Y using the same way (times 4, to FDot6, then to Fixed) as Quads/Cubics.
     // Otherwise the order of the edge might be wrong due to precision limit.
     SkFixed x0 = SkFDot6ToFixed(SkScalarToFDot6(p0.fX * 4)) >> 2;
@@ -128,7 +157,11 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect
         winding = -1;
     }
 
-    SkFixed slope = SkFixedDiv(x1 - x0, y1 - y0);
+    SkFDot6 dy = (y1 - y0) >> 10;
+    SkFDot6 dx = (x1 - x0) >> 10;
+    SkFixed slope = dy ? QuickSkFDot6Div(dx, dy) : SK_MaxS32;
+    SkASSERT(dx == 0 || slope != 0);
+    SkFixed absSlope = SkAbs32(slope);
 
     fX          = x0;
     fDX         = slope;
@@ -136,7 +169,9 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect
     fY          = y0;
     fUpperY     = y0;
     fLowerY     = y1;
-    fDY         = x1 != x0 ? SkAbs32(SkFixedDiv(y1 - y0, x1 - x0)) : SK_MaxS32;
+    fDY         = dx == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
+                                                 ? QuickFDot6Inverse::Lookup(absSlope)
+                                                 : SkAbs32(QuickSkFDot6Div(dy, dx));
     fCurveCount = 0;
     fWinding    = SkToS8(winding);
     fCurveShift = 0;
