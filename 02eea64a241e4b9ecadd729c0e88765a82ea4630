@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_d84fb9aa",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T20:33:16Z",
+      "side": 1,
+      "message": "Ha, that\u0027s cute.  Floating point math isn\u0027t generally associative or distributive where you\u0027d expect.  Commutative operations are usually commutative, but sometimes that breaks down when NaN is involved or for operations not spec\u0027d by IEEE.\n\nAll this means the compiler can\u0027t really reorder float math unless you tell it to explicitly (i.e. using -ffast-math).  With floats every parenthesis matters.\n\nGrouping these things into a tree lets some of them get going earlier or in parallel with the others.  Most processors have some degree of superscalar execution that lets them have a couple operations in flight, and when they\u0027re complex pipelined things like float math, it\u0027s even more useful to give it some data parallelism to work with.",
+      "parentUuid": "8d391bbb_58d909dd",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_9d1ff327",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 1
