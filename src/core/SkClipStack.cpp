@@ -10,6 +10,7 @@
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkClipOpPriv.h"
 
 #include <new>
 
@@ -951,16 +952,16 @@ void SkClipStack::Element::dump() const {
         "reverse-difference",
         "replace",
     };
-    static_assert(0 == kDifference_SkClipOp, "op_str");
-    static_assert(1 == kIntersect_SkClipOp, "op_str");
-    static_assert(2 == kUnion_SkClipOp, "op_str");
-    static_assert(3 == kXOR_SkClipOp, "op_str");
-    static_assert(4 == kReverseDifference_SkClipOp, "op_str");
-    static_assert(5 == kReplace_SkClipOp, "op_str");
+    static_assert(0 == static_cast<int>(kDifference_SkClipOp), "op_str");
+    static_assert(1 == static_cast<int>(kIntersect_SkClipOp), "op_str");
+    static_assert(2 == static_cast<int>(kUnion_SkClipOp), "op_str");
+    static_assert(3 == static_cast<int>(kXOR_SkClipOp), "op_str");
+    static_assert(4 == static_cast<int>(kReverseDifference_SkClipOp), "op_str");
+    static_assert(5 == static_cast<int>(kReplace_SkClipOp), "op_str");
     static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "op_str");
 
     SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d\n", kTypeStrings[fType],
-             kOpStrings[fOp], (fDoAA ? "yes" : "no"), fSaveCount);
+             kOpStrings[static_cast<int>(fOp)], (fDoAA ? "yes" : "no"), fSaveCount);
     switch (fType) {
         case kEmpty_Type:
             SkDebugf("\n");

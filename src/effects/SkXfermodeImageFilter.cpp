@@ -26,6 +26,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
+#include "SkClipOpPriv.h"
 
 class SkXfermodeImageFilter_Base : public SkImageFilter {
 public:

@@ -15,6 +15,7 @@
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkSurface.h"
+#include "SkClipOpPriv.h"
 
 using Key = SkTArray<uint32_t>;
 

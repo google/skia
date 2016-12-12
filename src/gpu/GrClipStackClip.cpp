@@ -19,6 +19,7 @@
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
+#include "SkClipOpPriv.h"
 
 typedef SkClipStack::Element Element;
 typedef GrReducedClip::InitialState InitialState;
@@ -204,16 +205,16 @@ static bool get_analytic_clip_processor(const ElementList& elements,
         bool invert;
         bool skip = false;
         switch (op) {
-            case SkRegion::kReplace_Op:
+            case kReplace_SkClipOp:
                 SkASSERT(iter.get() == elements.head());
                 // Fallthrough, handled same as intersect.
-            case SkRegion::kIntersect_Op:
+            case kIntersect_SkClipOp:
                 invert = false;
                 if (iter.get()->contains(boundsInClipSpace)) {
                     skip = true;
                 }
                 break;
-            case SkRegion::kDifference_Op:
+            case kDifference_SkClipOp:
                 invert = true;
                 // We don't currently have a cheap test for whether a rect is fully outside an
                 // element's primitive, so don't attempt to set skip.

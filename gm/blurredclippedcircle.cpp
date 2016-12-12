@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkBlurMaskFilter.h"
+#include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
 #include "SkPaint.h"
 #include "SkRRect.h"

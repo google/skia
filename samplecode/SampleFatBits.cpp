@@ -15,6 +15,7 @@
 #include "SkUtils.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+#include "SkClipOpPriv.h"
 
 #define FAT_PIXEL_COLOR     SK_ColorBLACK
 #define PIXEL_CENTER_SIZE   3

@@ -10,6 +10,7 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 #include "SkTypes.h"
+#include "SkClipOpPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"

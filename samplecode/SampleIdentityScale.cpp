@@ -17,6 +17,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkTime.h"
+#include "SkClipOpPriv.h"
 
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145

@@ -48,6 +48,7 @@
 #include "SkGrPriv.h"
 
 #endif
+#include "SkClipOpPriv.h"
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
