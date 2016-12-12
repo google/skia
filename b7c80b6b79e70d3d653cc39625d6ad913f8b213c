@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_3d1fe7d4",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T14:15:22Z",
+      "side": 1,
+      "message": "Err... what I was trying to say is, we don\u0027t move it, we write a new one.  What happens to the old one in include/core?  We must have to manually delete it?  At that point, it seems to make more sense to just overwrite it.",
+      "parentUuid": "8d391bbb_1dace368",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_fdc62f37",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
