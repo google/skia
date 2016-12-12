@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_9dfc5301",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-12T16:20:34Z",
+      "side": 1,
+      "message": "Is this still necessary?",
+      "range": {
+        "startLine": 873,
+        "startChar": 4,
+        "endLine": 873,
+        "endChar": 57
+      },
+      "revId": "fcd909cf8ae204a83aa06abf7aaa4c03078f2693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
