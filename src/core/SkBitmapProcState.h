@@ -236,8 +236,11 @@ public:
             biasY = s.fFilterOneY >> 1;
         }
 
-        fX = SkScalarToFractionalInt(pt.x()) - SkFixedToFractionalInt(biasX);
-        fY = SkScalarToFractionalInt(pt.y()) - SkFixedToFractionalInt(biasY);
+        // punt to unsigned for defined underflow behavior
+        fX = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.x()) -
+                               (uint64_t)SkFixedToFractionalInt(biasX));
+        fY = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.y()) -
+                               (uint64_t)SkFixedToFractionalInt(biasY));
 
         if (scalarPoint) {
             scalarPoint->set(pt.x() - SkFixedToScalar(biasX),
