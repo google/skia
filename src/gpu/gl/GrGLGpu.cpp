@@ -2393,7 +2393,7 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
         }
     } else {
         if (kYes_TriState != fHWWriteToColor) {
-            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+ //           GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
         }
     }
