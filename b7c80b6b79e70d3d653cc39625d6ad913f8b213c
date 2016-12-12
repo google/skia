@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "ba6e17e8_bae89136",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-12T15:01:26Z",
+      "side": 1,
+      "message": "Yes, here the practical effect is a no-op, as we don\u0027t look at the libs sections of the .json file.  The important thing it does though is convey to the reader \"we depend on the system expat\".",
+      "parentUuid": "1a23a39f_4653b286",
+      "revId": "b7c80b6b79e70d3d653cc39625d6ad913f8b213c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_1dace368",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
