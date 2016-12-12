@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_58d909dd",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-12T20:25:13Z",
+      "side": 1,
+      "message": "Well, multiplication is associative+commutative, so besides what I can imagine are small float-precision issues wouldn\u0027t it be the same? Either way, added them for more clarity in the grouping. Also not sure how treeing could help here given the values that we have/want.",
+      "parentUuid": "ba5a9766_baaef163",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_9d1ff327",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "I think we can leave this out for now.  I don\u0027t think we intend to blit into 2.2 gamma buffers any time soon, and if we want to it\u0027ll be easy to add using from_2dot2 as a pattern.",
       "parentUuid": "8d391bbb_9d1ff327",
+      "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_78d6cdaf",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-12T20:25:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba5a9766_5aca353f",
       "revId": "02eea64a241e4b9ecadd729c0e88765a82ea4630",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
