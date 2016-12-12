@@ -8,8 +8,11 @@
 #include "GrSurfaceProxy.h"
 
 #include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrSurfaceContext.h"
 #include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
