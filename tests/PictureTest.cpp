@@ -661,6 +661,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fRight);
     }
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path);
@@ -672,6 +673,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
         REPORTER_ASSERT(reporter, 10 == clipBounds.fRight);
     }
+#endif
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path, kDifference_SkClipOp);
@@ -682,6 +684,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
         REPORTER_ASSERT(reporter, 10 == clipBounds.fRight);
     }
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path, kReverseDifference_SkClipOp);
@@ -706,6 +709,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fRight);
     }
+#endif
 }
 
 static void test_cull_rect_reset(skiatest::Reporter* reporter) {
@@ -775,6 +779,7 @@ private:
 };
 
 static void test_clip_expansion(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
 
@@ -792,6 +797,7 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
 
     // Both clips should be present on playback.
     REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
+#endif
 }
 
 static void test_hierarchical(skiatest::Reporter* reporter) {

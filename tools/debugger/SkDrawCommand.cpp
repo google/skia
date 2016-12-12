@@ -591,12 +591,14 @@ static Json::Value make_json_regionop(SkClipOp op) {
             return Json::Value(SKDEBUGCANVAS_REGIONOP_DIFFERENCE);
         case kIntersect_SkClipOp:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_INTERSECT);
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
         case kUnion_SkClipOp:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_UNION);
         case kXOR_SkClipOp:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_XOR);
         case kReverseDifference_SkClipOp:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE);
+#endif
         case kReplace_SkClipOp:
             return Json::Value(SKDEBUGCANVAS_REGIONOP_REPLACE);
         default:
@@ -1601,6 +1603,7 @@ SkClipOp get_json_clipop(Json::Value& jsonOp) {
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_INTERSECT)) {
         return kIntersect_SkClipOp;
     }
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_UNION)) {
         return kUnion_SkClipOp;
     }
@@ -1610,6 +1613,7 @@ SkClipOp get_json_clipop(Json::Value& jsonOp) {
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE)) {
         return kReverseDifference_SkClipOp;
     }
+#endif
     else if (!strcmp(op, SKDEBUGCANVAS_REGIONOP_REPLACE)) {
         return kReplace_SkClipOp;
     }

@@ -464,18 +464,20 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
         case kDifference_SkClipOp:
             this->combineBoundsDiff(combination, prevFinite);
             break;
+        case kIntersect_SkClipOp:
+            this->combineBoundsIntersection(combination, prevFinite);
+            break;
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
         case kXOR_SkClipOp:
             this->combineBoundsXOR(combination, prevFinite);
             break;
         case kUnion_SkClipOp:
             this->combineBoundsUnion(combination, prevFinite);
             break;
-        case kIntersect_SkClipOp:
-            this->combineBoundsIntersection(combination, prevFinite);
-            break;
         case kReverseDifference_SkClipOp:
             this->combineBoundsRevDiff(combination, prevFinite);
             break;
+#endif
         case kReplace_SkClipOp:
             // Replace just ignores everything prior
             // The current clip's bound information is already filled in
@@ -954,9 +956,11 @@ void SkClipStack::Element::dump() const {
     };
     static_assert(0 == static_cast<int>(kDifference_SkClipOp), "op_str");
     static_assert(1 == static_cast<int>(kIntersect_SkClipOp), "op_str");
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     static_assert(2 == static_cast<int>(kUnion_SkClipOp), "op_str");
     static_assert(3 == static_cast<int>(kXOR_SkClipOp), "op_str");
     static_assert(4 == static_cast<int>(kReverseDifference_SkClipOp), "op_str");
+#endif
     static_assert(5 == static_cast<int>(kReplace_SkClipOp), "op_str");
     static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "op_str");
 

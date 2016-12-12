@@ -19,6 +19,7 @@ typedef GrReducedClip::InitialState InitialState;
 #endif
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     SkClipStack s;
     bool doAA = false;
 
@@ -114,6 +115,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     p.addRect(r);
     s.clipPath(p, SkMatrix::I(), kIntersect_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
+#endif
 }
 
 static void assert_count(skiatest::Reporter* reporter, const SkClipStack& stack,
@@ -129,6 +131,7 @@ static void assert_count(skiatest::Reporter* reporter, const SkClipStack& stack,
 // Exercise the SkClipStack's bottom to top and bidirectional iterators
 // (including the skipToTopmost functionality)
 static void test_iterators(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     SkClipStack stack;
 
     static const SkRect gRects[] = {
@@ -185,6 +188,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
         REPORTER_ASSERT(reporter, element->getRect() == gRects[3]);
     }
+#endif
 }
 
 // Exercise the SkClipStack's getConservativeBounds computation
@@ -223,9 +227,11 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
     static const SkClipOp gOps[] = {
         kIntersect_SkClipOp,
         kDifference_SkClipOp,
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
         kUnion_SkClipOp,
         kXOR_SkClipOp,
         kReverseDifference_SkClipOp
+#endif
     };
 
     SkRect rectA, rectB;
@@ -323,6 +329,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
     }
 
     // Test out case where the user specifies a union that includes everything
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     {
         SkClipStack stack;
 
@@ -350,6 +357,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, stack.isWideOpen());
         REPORTER_ASSERT(reporter, SkClipStack::kWideOpenGenID == stack.getTopmostGenID());
     }
+#endif
 
     // Test out empty difference from a wide open clip
     {
@@ -932,9 +940,11 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     static const SkClipOp kOps[] = {
         kDifference_SkClipOp,
         kIntersect_SkClipOp,
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
         kUnion_SkClipOp,
         kXOR_SkClipOp,
         kReverseDifference_SkClipOp,
+#endif
         kReplace_SkClipOp,
     };
 
@@ -1093,6 +1103,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 
         reduced->~GrReducedClip();
     }
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     {
         SkClipStack stack;
 
@@ -1185,6 +1196,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
             SkASSERT(reduced.ibounds() == testCases[i].clipIRect);
         }
     }
+#endif
 }
 
 static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
@@ -1268,6 +1280,7 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
 }
 
 static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     constexpr SkScalar IL = 2, IT = 1, IR = 6, IB = 7;         // Pixel aligned rect.
     constexpr SkScalar L = 2.2f, T = 1.7f, R = 5.8f, B = 7.3f; // Generic rect.
     constexpr SkScalar l = 3.3f, t = 2.8f, r = 4.7f, b = 6.2f; // Small rect contained in R.
@@ -1351,6 +1364,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         xform.mapRect(&innerRect);
         m.postConcat(xform);
     }
+#endif
 }
 
 #endif

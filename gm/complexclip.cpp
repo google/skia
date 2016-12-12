@@ -90,9 +90,11 @@ protected:
         } gOps[] = { //extra spaces in names for measureText
             {kIntersect_SkClipOp,         "Isect "},
             {kDifference_SkClipOp,        "Diff " },
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             {kUnion_SkClipOp,             "Union "},
             {kXOR_SkClipOp,               "Xor "  },
             {kReverseDifference_SkClipOp, "RDiff "}
+#endif
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

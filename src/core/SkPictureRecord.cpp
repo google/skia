@@ -233,9 +233,11 @@ void SkPictureRecord::didTranslateZ(SkScalar z) {
 
 static bool clipOpExpands(SkClipOp op) {
     switch (op) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
         case kUnion_SkClipOp:
         case kXOR_SkClipOp:
         case kReverseDifference_SkClipOp:
+#endif
         case kReplace_SkClipOp:
             return true;
         case kIntersect_SkClipOp:

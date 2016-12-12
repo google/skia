@@ -180,7 +180,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
         SkClipOp op = element->getOp();
         bool invert = element->isInverseFilled();
         bool needsStencil = invert ||
-                            kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
+                            kReverseDifference_SkClipOp == op ||
+#endif
+                            kIntersect_SkClipOp == op;
 
         if (PathNeedsSWRenderer(context, hasUserStencilSettings,
                                 renderTargetContext, translate, element, nullptr, needsStencil)) {
@@ -462,16 +465,18 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
         SkClipOp op = element->getOp();
         GrAA aa = GrBoolToAA(element->isAA());
 
-        if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
+        if (kIntersect_SkClipOp == op SkEXOTIC_CLIPOP_CODE(|| kReverseDifference_SkClipOp == op)) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
             // that is being "drawn". In both cases we erase all the pixels outside of the geometry
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
             // the pixels before clearing the ones outside the geometry.
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             if (kReverseDifference_SkClipOp == op) {
                 SkRect temp = SkRect::Make(reducedClip.ibounds());
                 // invert the entire scene
                 helper.drawRect(temp, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
             }
+#endif
             SkPath clipPath;
             element->asPath(&clipPath);
             clipPath.toggleInverseFillType();

@@ -57,9 +57,11 @@ protected:
         } gOps[] = {
             {kIntersect_SkClipOp,         "I"},
             {kDifference_SkClipOp,        "D" },
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             {kUnion_SkClipOp,             "U"},
             {kXOR_SkClipOp,               "X"  },
             {kReverseDifference_SkClipOp, "R"}
+#endif
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

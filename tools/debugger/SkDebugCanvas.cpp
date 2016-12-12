@@ -277,6 +277,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
 #endif
     }
 
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     if (SkColorGetA(fClipVizColor) != 0) {
         canvas->save();
         #define LARGE_COORD 1000000000
@@ -287,7 +288,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         canvas->drawPaint(clipPaint);
         canvas->restore();
     }
-
+#endif
+    
     if (fMegaVizMode) {
         canvas->save();
         // nuke the CTM

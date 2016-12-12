@@ -320,12 +320,14 @@ SkString* SkObjectParser::ClipOpToString(SkClipOp op) {
         mOp->append("kDifference_Op");
     } else if (op == kIntersect_SkClipOp) {
         mOp->append("kIntersect_Op");
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     } else if (op == kUnion_SkClipOp) {
         mOp->append("kUnion_Op");
     } else if (op == kXOR_SkClipOp) {
         mOp->append("kXOR_Op");
     } else if (op == kReverseDifference_SkClipOp) {
         mOp->append("kReverseDifference_Op");
+#endif
     } else if (op == kReplace_SkClipOp) {
         mOp->append("kReplace_Op");
     } else {

@@ -201,7 +201,9 @@ static_assert(SkRegion::kReverseDifference_Op == (int)kReverseDifference_SkPathO
 
 static SkPathOp region_op_to_pathops_op(SkClipOp op) {
     SkASSERT(static_cast<int>(op) >= 0);
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     SkASSERT(static_cast<int>(op) <= static_cast<int>(kReverseDifference_SkClipOp));
+#endif
     return (SkPathOp)op;
 }
 

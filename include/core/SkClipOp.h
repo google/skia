@@ -19,10 +19,11 @@ enum SkClipOp {
     kIntersect_SkClipOp     = 1,
 
     // Goal: remove these, since they can grow the current clip
-
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     kUnion_SkClipOp         = 2,
     kXOR_SkClipOp           = 3,
     kReverseDifference_SkClipOp = 4,
+#endif
     kReplace_SkClipOp       = 5,
 };
 
@@ -34,12 +35,19 @@ enum class SkClipOp {
 
     // Goal: remove these, since they can grow the current clip
 
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
     kUnion         = 2,
     kXOR           = 3,
     kReverseDifference = 4,
+#endif
     kReplace       = 5,
 };
+#endif
 
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
+    #define SkEXOTIC_CLIPOP_CODE(code)  code
+#else
+    #define SkEXOTIC_CLIPOP_CODE(code)
 #endif
 
 #endif

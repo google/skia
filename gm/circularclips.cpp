@@ -39,9 +39,11 @@ protected:
         const SkClipOp ops[] = {
             kDifference_SkClipOp,
             kIntersect_SkClipOp,
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             kUnion_SkClipOp,
             kXOR_SkClipOp,
             kReverseDifference_SkClipOp,
+#endif
             kReplace_SkClipOp,
         };
 

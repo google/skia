@@ -207,6 +207,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             case kUnion_SkClipOp:
                 // If the union-ed shape contains the entire bounds then after this element
                 // the bounds is entirely inside the clip. If the union-ed shape is outside the
@@ -276,7 +277,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = embiggens = true;
                 }
                 break;
-
+#endif
             case kReplace_SkClipOp:
                 // Replace will always terminate our walk. We will either begin the forward walk
                 // at the replace op or detect here than the shape is either completely inside
@@ -327,9 +328,13 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
 
             // if it is a flip, change it to a bounds-filling rect
             if (isFlip) {
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
                 SkASSERT(kXOR_SkClipOp == element->getOp() ||
                          kReverseDifference_SkClipOp == element->getOp());
                 fElements.addToHead(SkRect::Make(fIBounds), kReverseDifference_SkClipOp, false);
+#else
+                SkASSERT(!isFlip);
+#endif
             } else {
                 Element* newElement = fElements.addToHead(*element);
                 if (newElement->isAA()) {
@@ -375,6 +380,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         element->setOp(kReplace_SkClipOp);
                     }
                     break;
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
                 case kUnion_SkClipOp:
                     if (InitialTriState::kAllIn == initialTriState) {
                         // unioning the infinite plane with anything is a no-op.
@@ -407,6 +413,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         }
                     }
                     break;
+#endif
                 case kReplace_SkClipOp:
                     skippable = false; // we would have skipped it in the backwards walk if we
                                        // could've.

@@ -148,10 +148,14 @@ protected:
         } gOps[] = {
             { SK_ColorBLACK,    "Difference", kDifference_SkClipOp    },
             { SK_ColorRED,      "Intersect",  kIntersect_SkClipOp     },
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             { sk_tool_utils::color_to_565(0xFF008800), "Union", kUnion_SkClipOp },
             { SK_ColorGREEN,    "Rev Diff",   kReverseDifference_SkClipOp },
+#endif
             { SK_ColorYELLOW,   "Replace",    kReplace_SkClipOp       },
+#ifdef SK_SUPPORT_EXOTIC_CLIPOPS
             { SK_ColorBLUE,     "XOR",        kXOR_SkClipOp           },
+#endif
         };
 
         SkPaint textPaint;
