@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkDrawable.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkLatticeIter.h"
 #include "SkOverdrawCanvas.h"
@@ -291,6 +292,10 @@ void SkOverdrawCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice
                                            const SkRect& dst, const SkPaint* paint) {
     sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
     this->onDrawImageLattice(image.get(), lattice, dst, paint);
+}
+
+void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    drawable->draw(this, matrix);
 }
 
 void SkOverdrawCanvas::onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {
