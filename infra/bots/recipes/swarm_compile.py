@@ -42,6 +42,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Fast',
       'Build-Ubuntu-GCC-x86_64-Release-Mesa',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
+      'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
       'Build-Win-Clang-arm64-Release-GN_Android',
       'Build-Win-MSVC-x86-Debug',
