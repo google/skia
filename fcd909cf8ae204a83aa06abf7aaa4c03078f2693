@@ -22,6 +22,24 @@
       "revId": "fcd909cf8ae204a83aa06abf7aaa4c03078f2693",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_fd28ef98",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-12T16:25:49Z",
+      "side": 1,
+      "message": "As far as I can see, yes. The PNG codec class itself doesn\u0027t read the icc data, but relies on this callback to do so, and it does not inherit from SkCodec.",
+      "parentUuid": "8d391bbb_9dfc5301",
+      "revId": "fcd909cf8ae204a83aa06abf7aaa4c03078f2693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
