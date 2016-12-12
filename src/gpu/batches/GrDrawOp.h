@@ -66,9 +66,6 @@ public:
 
     bool installPipeline(const GrPipeline::CreateArgs&);
 
-    // TODO no GrPrimitiveProcessors yet read fragment position
-    bool willReadFragmentPosition() const { return false; }
-
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     // This is a bit more exciting than the other call sites since it uses the pipeline
     GrGpuResource::UniqueID renderTargetUniqueID() const final {
