@@ -73,6 +73,7 @@ gm_sources = [
   "$_gm/complexclip_blur_tiled.cpp",
   "$_gm/complexclip2.cpp",
   "$_gm/complexclip3.cpp",
+  "$_gm/complexclip4.cpp",
   "$_gm/composeshader.cpp",
   "$_gm/concavepaths.cpp",
   "$_gm/conicpaths.cpp",

@@ -668,6 +668,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(fConservativeRasterClip);
+    fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
@@ -1537,6 +1538,19 @@ void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeSty
                            isAA);
     fDeviceCMDirty = true;
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+}
+
+void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
+    fClipRestrictionRect = rect;
+    fClipStack->setDeviceClipRestriction(fClipRestrictionRect);
+    if (!fClipRestrictionRect.isEmpty()) {
+        this->checkForDeferredSave();
+        AutoValidateClip avc(this);
+        fClipStack->clipDevRect(fClipRestrictionRect, kIntersect_SkClipOp);
+        fMCRec->fRasterClip.op(fClipRestrictionRect, SkRegion::kIntersect_Op);
+        fDeviceCMDirty = true;
+        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    }
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
