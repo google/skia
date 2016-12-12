@@ -503,7 +503,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     uint32_t* swizzleDst = (uint32_t*) dst;
     size_t decodeDstRowBytes = rowBytes;
     size_t swizzleDstRowBytes = rowBytes;
-    int dstWidth = dstInfo.width();
+    int dstWidth = this->options().fSubset ? this->options().fSubset->width() : dstInfo.width();
     if (fSwizzleSrcRow && fColorXformSrcRow) {
         decodeDst = (JSAMPLE*) fSwizzleSrcRow;
         swizzleDst = fColorXformSrcRow;
