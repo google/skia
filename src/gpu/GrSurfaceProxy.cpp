@@ -7,8 +7,11 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrSurfaceContext.h"
 #include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
@@ -55,6 +58,34 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
 
     return fTarget;
 }
+
+#if 0
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::copy(GrContext* context,
+                                           const GrSurfaceDesc& dstDesc,
+                                           SkBudgeted isDstBudgeted) {
+    // We don't allow conversion between integer configs and float/fixed configs.
+    if (GrPixelConfigIsSint(dstDesc.fConfig) != GrPixelConfigIsSint(this->config())) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceContext> dstContext(
+        context->contextPriv().makeDeferredSurfaceContext(dstDesc, isDstBudgeted));
+
+    if (!dstContext) {
+        return nullptr;
+    }
+
+    if (!dstContext->copy(this)) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(dstContext->asDeferredSurface());
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::copy(GrContext* context, const SkIRect& subset) {
+    %%
+}
+#endif
 
 int GrSurfaceProxy::worstCaseWidth() const { 
     if (fTarget) {
