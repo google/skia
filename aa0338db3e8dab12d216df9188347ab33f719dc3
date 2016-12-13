@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_fecc65c8",
+        "filename": "src/gpu/GrTextureContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-13T20:30:51Z",
+      "side": 1,
+      "message": "Is it better to just return nullptr here, given the contract we\u0027re trying to enforce?",
+      "revId": "aa0338db3e8dab12d216df9188347ab33f719dc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
