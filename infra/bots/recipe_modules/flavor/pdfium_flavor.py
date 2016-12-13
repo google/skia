@@ -34,12 +34,15 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     # Setup gn args.
     gn_args = [
-        'pdf_use_skia=true',
         'pdf_is_standalone=true',
         'clang_use_chrome_plugins=false',
         'is_component_build=false',
         'is_debug=false',
-        ]
+    ]
+    if 'SkiaPaths' in self.m.vars.builder_name:
+      gn_args.append('pdf_use_skia_paths=true')
+    else:
+      gn_args.append('pdf_use_skia=true')
 
 
     env = kwargs.pop('env', {})
