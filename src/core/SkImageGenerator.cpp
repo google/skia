@@ -93,7 +93,8 @@ bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* s
 
 bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
                                             const SkIPoint& subsetOrigin,
-                                            const SkPixmap& subsetPixels) {
+                                            const SkPixmap& subsetPixels,
+                                            SkFilterQuality fq) {
     if (scaledSize.width() <= 0 || scaledSize.height() <= 0) {
         return false;
     }
@@ -105,7 +106,7 @@ bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
     if (!SkIRect::MakeWH(scaledSize.width(), scaledSize.height()).contains(subset)) {
         return false;
     }
-    return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels);
+    return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels, fq);
 }
 
 bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,

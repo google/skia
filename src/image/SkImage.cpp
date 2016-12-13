@@ -9,6 +9,7 @@
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkImageCacherator.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
@@ -62,10 +63,13 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     if (this->width() == dst.width() && this->height() == dst.height()) {
         return this->readPixels(dst, 0, 0, chint);
     }
+    SkImageCacherator* cacherator = as_IB(this)->peekCacherator();
+    if (cacherator) {
+        if (chint == SkImage::kDisallow_CachingHint && cacherator->generateScaledPixels(dst, quality)) {
+            return true;
+        }
+    }
 
-    // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
-    //       can scale more efficiently) we should take advantage of it here.
-    //
     SkDestinationSurfaceColorMode decodeColorMode = dst.info().colorSpace()
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
