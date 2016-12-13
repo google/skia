@@ -682,14 +682,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                                        const SkImageInfo& dstInfo,
                                        const SkCodec::Options& options,
                                        const SkIRect* frame,
-                                       bool preSwizzled) {
+                                       bool skipFormatConversion) {
     if (SkEncodedInfo::kPalette_Color == encodedInfo.color() && nullptr == ctable) {
         return nullptr;
     }
 
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
-    if (preSwizzled) {
+    if (skipFormatConversion) {
         switch (dstInfo.colorType()) {
             case kGray_8_SkColorType:
                 proc = &sample1;
@@ -1003,7 +1003,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
 
     int srcBPP;
     const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
-    if (preSwizzled) {
+    if (skipFormatConversion) {
         srcBPP = dstBPP;
     } else {
         // Store bpp in bytes if it is an even multiple, otherwise use bits

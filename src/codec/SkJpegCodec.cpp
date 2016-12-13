@@ -626,12 +626,14 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
 }
 
 void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
-    // libjpeg-turbo may have already performed color conversion.  We must indicate the
-    // appropriate format to the swizzler.
+    // libjpeg-turbo will handle format conversion from YUV to RGBA, BGRA, or 565.  fColorXform
+    // will handle format conversion from CMYK.  We only need the swizzler to perform format
+    // conversion when we have a CMYK image without a fColorXform.
+    bool skipFormatConversion = this->colorXform() ||
+                                (JCS_CMYK != fDecoderMgr->dinfo()->out_color_space);
+
     SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
-    bool preSwizzled = true;
-    if (JCS_CMYK == fDecoderMgr->dinfo()->out_color_space) {
-        preSwizzled = false;
+    if (!skipFormatConversion) {
         swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kInvertedCMYK_Color,
                                            swizzlerInfo.alpha(),
                                            swizzlerInfo.bitsPerComponent());
@@ -647,7 +649,7 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
         swizzlerOptions.fSubset = &fSwizzlerSubset;
     }
     fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions,
-                                               nullptr, preSwizzled));
+                                               nullptr, skipFormatConversion));
     SkASSERT(fSwizzler);
 }
 
