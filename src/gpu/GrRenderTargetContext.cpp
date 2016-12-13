@@ -1562,7 +1562,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
             // This time, allow SW renderer
             pr = fDrawingManager->getPathRenderer(canDrawArgs, true, kType);
         }
-        if (!pr && (aaType == GrAAType::kMixedSamples || aaType == GrAAType::kMSAA)) {
+        if (!pr && GrAATypeIsHW(aaType)) {
             // There are exceptional cases where we may wind up falling back to coverage based AA
             // when the target is MSAA (e.g. through disabling path renderers via GrContextOptions).
             aaType = GrAAType::kCoverage;

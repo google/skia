@@ -354,7 +354,7 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
                                        GrAAType aaType,
                                        const SkMatrix& viewMatrix,
                                        const GrPath* path) {
-    bool useHWAA = (aaType == GrAAType::kMSAA || aaType == GrAAType::kMixedSamples);
+    bool useHWAA = GrAATypeIsHW(aaType);
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     SkASSERT(path);
     SkASSERT(this->caps()->shaderCaps()->pathRenderingSupport());

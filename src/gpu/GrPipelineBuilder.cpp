@@ -31,8 +31,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
 
     fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
-    this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAAType::kMSAA == aaType ||
-                                                         GrAAType::kMixedSamples == aaType);
+    this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAATypeIsHW(aaType));
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,

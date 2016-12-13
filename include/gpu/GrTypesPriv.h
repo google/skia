@@ -26,10 +26,25 @@ enum class GrAAType {
     kMixedSamples
 };
 
- /**
-  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
-  * but should be applicable to other shader languages.)
-  */
+static inline bool GrAATypeIsHW(GrAAType type) {
+    switch (type) {
+        case GrAAType::kNone:
+            return false;
+        case GrAAType::kCoverage:
+            return false;
+        case GrAAType::kMSAA:
+            return true;
+        case GrAAType::kMixedSamples:
+            return true;
+    }
+    SkFAIL("Unknown AA Type");
+    return false;
+}
+
+/**
+ * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
+ * but should be applicable to other shader languages.)
+ */
 enum GrSLType {
     kVoid_GrSLType,
     kBool_GrSLType,
