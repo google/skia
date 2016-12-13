@@ -28,7 +28,7 @@
     #define SkEncodeImageAsWEBP(...) false
 #endif
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_HAS_KTX_ENCODER
     bool SkEncodeImageAsKTX(SkWStream*, const SkPixmap&);
 #else
     #define SkEncodeImageAsKTX(...) false
