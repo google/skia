@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_0348022a",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-12-13T15:34:19Z",
+      "side": 1,
+      "message": "Good catch.  Another minor correction- I think \"is\" should be \"are\" since your subject is plural.  I had to consult a grammar guide about lists separated by \"and\".",
+      "range": {
+        "startLine": 3,
+        "startChar": 97,
+        "endLine": 3,
+        "endChar": 99
+      },
+      "revId": "c1734c693cac29109a45262daefe2312f52dab13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
