@@ -246,6 +246,12 @@
         "Build-Ubuntu-GCC-x86_64-Release-PDFium"
       ]
     },
+    "Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths"
+      ]
+    },
     "Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD": {
       "priority": 0.8,
       "tasks": [
@@ -2570,6 +2576,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
