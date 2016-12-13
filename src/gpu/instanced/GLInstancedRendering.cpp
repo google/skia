@@ -15,7 +15,7 @@
 
 namespace gr_instanced {
 
-class GLInstancedRendering::GLBatch : public InstancedRendering::Batch {
+class GLInstancedRendering::GLBatch final : public InstancedRendering::Batch {
 public:
     DEFINE_OP_CLASS_ID
 

@@ -13,7 +13,7 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
-class GrAtlasTextBatch : public GrMeshDrawOp {
+class GrAtlasTextBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
