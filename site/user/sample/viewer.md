@@ -1,6 +1,6 @@
 Skia Viewer
 ==========================
-The Skia Viewer is another windowed app similar to SampleApp. It's main advantages over SampleApp is that it supports Vulkan on Linux, Windows and Android, and it uses a cleaner cross-platform windowing system, currently located in tools/viewer/sk_app. However, it is a work in progress, so it doesn't yet support all the features of SampleApp.
+The Skia Viewer is another windowed app similar to SampleApp. Its main advantages over SampleApp are that it supports Vulkan on Linux, Windows and Android, and it uses a cleaner cross-platform windowing system (currently located in tools/viewer/sk_app). However, it is a work in progress, so it doesn't yet support all the features of SampleApp.
 
 Like SampleApp, it displays a series of slides that exhibit specific features of the Skia system. It is mainly controlled using the keyboard: left (&#x2190;) and (&#x2192;) right arrows to move from slide to slide. Some slides require use resources stored outside the program. These resources are stored in the `<skia-path>/resources` directory.
 
