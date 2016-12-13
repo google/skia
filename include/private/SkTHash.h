@@ -65,15 +65,15 @@ public:
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
             if (s.empty()) {
-                return NULL;
+                return nullptr;
             }
             if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
                 return &s.val;
             }
-            index = this->next(index, n);
+            index = --index >= 0 ? index : fCapacity - 1;
         }
         SkASSERT(fCapacity == 0);
-        return NULL;
+        return nullptr;
     }
 
     // Remove the value with this key from the hash table.
@@ -88,11 +88,22 @@ public:
             if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
                 fRemoved++;
                 fCount--;
-                s.markRemoved();
-                return;
+                break;
             }
-            index = this->next(index, n);
+            index = --index >= 0 ? index : fCapacity - 1;
         }
+
+        Slot& s = fSlots[index];
+        int emptyIndex = index;
+        s.markEmpty();
+        index = --index >= 0 ? index : fCapacity - 1;
+
+        Slot& s1 = fSlots[index];
+        if (s1.empty()) return;
+        int r = s1.hash & (fCapacity-1);
+
+
+
         SkASSERT(fCapacity == 0);
     }
 
@@ -139,7 +150,8 @@ private:
                 s.val = std::move(val);
                 return &s.val;
             }
-            index = this->next(index, n);
+
+            index = --index >= 0 ? index : fCapacity - 1;
         }
         SkASSERT(false);
         return NULL;
@@ -163,13 +175,6 @@ private:
         SkASSERT(fCount == oldCount);
     }
 
-    int next(int index, int n) const {
-        // A valid strategy explores all slots in [0, fCapacity) as n walks from 0 to fCapacity-1.
-        // Both of these strategies are valid:
-        //return (index + 0 + 1) & (fCapacity-1);      // Linear probing.
-        return (index + n + 1) & (fCapacity-1);        // Quadratic probing.
-    }
-
     static uint32_t Hash(const K& key) {
         uint32_t hash = Traits::Hash(key);
         return hash < 2 ? hash+2 : hash;  // We reserve hash 0 and 1 to mark empty or removed slots.
@@ -180,7 +185,7 @@ private:
         bool   empty() const { return this->hash == 0; }
         bool removed() const { return this->hash == 1; }
 
-        void markRemoved() { this->hash = 1; }
+        void markEmpty() { this->hash = 0; }
 
         T val;
         uint32_t hash;
