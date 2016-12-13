@@ -7,6 +7,8 @@
 
 #include "GrSurfaceContext.h"
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "../private/GrAuditTrail.h"
 
 
@@ -23,4 +25,51 @@ GrSurfaceContext::GrSurfaceContext(GrContext* context,
     , fSingleOwner(singleOwner)
 #endif
 {
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceContext::Copy(GrContext* context,
+                                             GrSurfaceProxy* src,
+                                             SkIRect srcRect,
+                                             SkBudgeted budgeted) {
+    if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc dstDesc = src->desc();
+    dstDesc.fWidth = srcRect.width();
+    dstDesc.fHeight = srcRect.height();
+
+    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(dstDesc,
+                                                                                         budgeted));
+    if (!dstContext) {
+        return nullptr;
+    }
+
+    if (!dstContext->copy(src, srcRect, SkIPoint::Make(0, 0))) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(dstContext->asDeferredSurface());
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceContext::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                                 GrTexture* srcTexture, SkBudgeted budgeted) {
+
+    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+                                                                                dstDesc,
+                                                                                budgeted));
+    if (!dstContext) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> srcProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(srcTexture)));
+    if (!srcProxy) {
+        return nullptr;
+    }
+
+    if (!dstContext->copy(srcProxy.get())) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(dstContext->asDeferredSurface());
 }
