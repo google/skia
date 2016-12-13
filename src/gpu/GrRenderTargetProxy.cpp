@@ -8,6 +8,7 @@
 #include "GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
+#include "GrGpuResourcePriv.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTextureProvider.h"
@@ -63,3 +64,10 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
     return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false, SkBackingFit::kApprox == fFit);
 }
 
+bool GrRenderTargetProxy::refsWrappedObjects() const {
+    if (!fTarget) {
+        return false;
+    }
+
+    return fTarget->resourcePriv().refsWrappedObjects();
+}

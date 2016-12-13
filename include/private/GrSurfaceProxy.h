@@ -266,6 +266,20 @@ public:
         return fGpuMemorySize;
     }
 
+    // Helper function that creates a temporary SurfaceContext to perform the copy
+    static sk_sp<GrSurfaceProxy> Copy(GrContext*, GrSurfaceProxy* src,
+                                      SkIRect srcRect, SkBudgeted);
+
+    // Copy the entire 'src'
+    static sk_sp<GrSurfaceProxy> Copy(GrContext* context, GrSurfaceProxy* src,
+                                      SkBudgeted budgeted) {
+        return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
+    }
+
+    // Test-only entry point - should decrease in use as proxies propagate
+    static sk_sp<GrSurfaceProxy> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                          GrTexture* srcTexture, SkBudgeted budgeted);
+
     bool isWrapped_ForTesting() const;
 
     SkDEBUGCODE(void validate(GrContext*) const;)
