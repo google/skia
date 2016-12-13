@@ -17,6 +17,7 @@ declare_args() {
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
   skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
+  skia_use_ktx_encoder = true
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -414,6 +415,14 @@ optional("gpu") {
   }
 }
 
+optional("ktx_encoder") {
+  enabled = skia_use_ktx_encoder
+  public_defines = [ "SK_HAS_KTX_ENCODER" ]
+  sources = [
+    "src/images/SkKTXImageEncoder.cpp",
+  ]
+}
+
 optional("jpeg") {
   enabled = skia_use_libjpeg_turbo
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
@@ -578,7 +587,6 @@ component("skia") {
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
-    "src/images/SkKTXImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
