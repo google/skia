@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrRectBatchFactory.h"
+#include "GrRectOpFactory.h"
 
-#include "GrAAStrokeRectBatch.h"
+#include "GrAAStrokeRectOp.h"
 
 #include "SkStrokeRec.h"
 
-namespace GrRectBatchFactory {
+namespace GrRectOpFactory {
 
-GrDrawOp* CreateAAFillNestedRects(GrColor color,
-                                  const SkMatrix& viewMatrix,
-                                  const SkRect rects[2]) {
+sk_sp<GrDrawOp> MakeAAFillNestedRects(GrColor color,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
@@ -26,10 +26,9 @@ GrDrawOp* CreateAAFillNestedRects(GrColor color,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrAAFillRectBatch::Create(color, viewMatrix, devOutside, devOutside);
+        return GrAAFillRectOp::Make(color, viewMatrix, devOutside, devOutside);
     }
 
-    return GrAAStrokeRectBatch::CreateFillBetweenRects(color, viewMatrix, devOutside, devInside);
+    return GrAAStrokeRectOp::MakeFillBetweenRects(color, viewMatrix, devOutside, devInside);
 }
-
 };
