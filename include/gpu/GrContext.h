@@ -19,7 +19,6 @@
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
 #include "../private/GrSingleOwner.h"
-#include "../private/SkMutex.h"
 
 struct GrBatchAtlasConfig;
 class GrBatchFontCache;
@@ -415,18 +414,6 @@ private:
     bool                                    fDidTestPMConversions;
     int                                     fPMToUPMConversion;
     int                                     fUPMToPMConversion;
-    // The sw backend may call GrContext::readSurfacePixels on multiple threads
-    // We may transfer the responsibilty for using a mutex to the sw backend
-    // when there are fewer code paths that lead to a readSurfacePixels call
-    // from the sw backend. readSurfacePixels is reentrant in one case - when performing
-    // the PM conversions test. To handle this we do the PM conversions test outside
-    // of fReadPixelsMutex and use a separate mutex to guard it. When it re-enters
-    // readSurfacePixels it will grab fReadPixelsMutex and release it before the outer
-    // readSurfacePixels proceeds to grab it.
-    // TODO: Stop pretending to make GrContext thread-safe for sw rasterization and provide
-    // a mechanism to make a SkPicture safe for multithreaded sw rasterization.
-    SkMutex                                 fReadPixelsMutex;
-    SkMutex                                 fTestPMConversionsMutex;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
@@ -465,8 +452,7 @@ private:
     sk_sp<GrFragmentProcessor> createUPMToPMEffect(GrTexture*, const GrSwizzle&,
                                                    const SkMatrix&) const;
     /** Called before either of the above two functions to determine the appropriate fragment
-        processors for conversions. This must be called by readSurfacePixels before a mutex is
-        taken, since testingvPM conversions itself will call readSurfacePixels */
+        processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);
     /** Returns true if we've already determined that createPMtoUPMEffect and createUPMToPMEffect
         will fail. In such cases fall back to SW conversion. */
