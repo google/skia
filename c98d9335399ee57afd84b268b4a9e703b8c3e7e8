@@ -16,6 +16,24 @@
       "revId": "c98d9335399ee57afd84b268b4a9e703b8c3e7e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ade4329_7dad5781",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-13T21:21:03Z",
+      "side": 1,
+      "message": "Done. I originally thought I would use \"skia_use_ktx\", but SkGr.cpp uses ktx as well.",
+      "parentUuid": "1ade4329_9dba23be",
+      "revId": "c98d9335399ee57afd84b268b4a9e703b8c3e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
