@@ -1056,3 +1056,67 @@ DEF_TEST(image_roundtrip_premul, reporter) {
 
     REPORTER_ASSERT(reporter, equal(bm0, bm2));
 }
+
+namespace {
+
+class MockImageGenerator : public SkImageGenerator {
+public:
+     MockImageGenerator(int w, int h) : SkImageGenerator(SkImageInfo::MakeN32Premul(w, h)) {}
+
+protected:
+    bool onComputeScaledDimensions(SkScalar scale, SupportedSizes* sizes) override {
+        sizes->fSizes[0] = SkISize::Make(scale * getInfo().width(), scale * getInfo().height());
+        return true;
+    }
+    bool onGenerateScaledPixels(const SkISize& size, const SkIPoint& offset, const SkPixmap&,
+                                SkFilterQuality fq) override {
+        if (fOnGenerateScaledPixelsCallback)
+            fOnGenerateScaledPixelsCallback(size, offset, fq);
+        return true;
+    }
+
+public:
+    std::function<void(const SkISize&, const SkIPoint&, SkFilterQuality)> fOnGenerateScaledPixelsCallback = nullptr;
+};
+
+} // anonymous namespace
+
+DEF_TEST(image_scale_pixels_in_generator, reporter) {
+    const int kWidth = 100;
+    const int kHeight = 60;
+    MockImageGenerator* generator = new MockImageGenerator(kWidth, kHeight);
+    sk_sp<SkImage> image = SkImage::MakeFromGenerator(generator);
+
+    struct {
+        SkFilterQuality fExpectedQuality;
+        SkScalar        fExpectedScaleFactor;
+        bool            fExpectedCall;
+    } testCases[] = {
+        { kLow_SkFilterQuality, 1.0, false },
+        { kMedium_SkFilterQuality, 0.7, true },
+        { kNone_SkFilterQuality, 0.3, true },
+        { kNone_SkFilterQuality, 0, false }
+    };
+
+    for (auto testCase : testCases) {
+        const SkImageInfo scaled_info = SkImageInfo::MakeN32Premul(
+            testCase.fExpectedScaleFactor * image->width(),
+            testCase.fExpectedScaleFactor * image->height());
+        SkAutoPixmapStorage scaled;
+        if (testCase.fExpectedScaleFactor != 0)
+            scaled.alloc(scaled_info);
+
+        bool onGenerateScaledPixelsCalled = false;
+        generator->fOnGenerateScaledPixelsCallback =
+            [&](const SkISize& size, const SkIPoint& offset, SkFilterQuality fq) {
+            onGenerateScaledPixelsCalled = true;
+            REPORTER_ASSERT(reporter, fq == testCase.fExpectedQuality);
+            REPORTER_ASSERT(reporter, offset.x() == 0);
+            REPORTER_ASSERT(reporter, offset.y() == 0);
+            REPORTER_ASSERT(reporter, size.width() == scaled_info.width());
+            REPORTER_ASSERT(reporter, size.height() == scaled_info.height());
+        };
+        image->scalePixels(scaled, testCase.fExpectedQuality, SkImage::kDisallow_CachingHint);
+        REPORTER_ASSERT(reporter, onGenerateScaledPixelsCalled == testCase.fExpectedCall);
+    }
+}

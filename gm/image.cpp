@@ -381,7 +381,7 @@ static void show_scaled_generator(SkCanvas* canvas, SkImageGenerator* gen) {
             bm.allocPixels(info);
             SkPixmap pmap;
             bm.peekPixels(&pmap);
-            if (gen->generateScaledPixels(pmap)) {
+            if (gen->generateScaledPixels(pmap, kNone_SkFilterQuality)) {
                 canvas->drawBitmap(bm, 0, SkIntToScalar(genInfo.height() - info.height())/2);
             }
         }

@@ -160,17 +160,21 @@ public:
      *          return false;
      *      }
      *
+     *  If generator scales the image, it needs to apply the specified filter-quality.
+     *  Generator would scale the image, e.g. if it owns the full size image pixel data.
+     *
      *  If the requested colortype/alphatype in pixels is not supported,
      *  or the requested scaledSize is not supported, or the generator encounters an error,
      *  this returns false.
      */
     bool generateScaledPixels(const SkISize& scaledSize, const SkIPoint& subsetOrigin,
-                              const SkPixmap& subsetPixels);
+                              const SkPixmap& subsetPixels, SkFilterQuality quality);
 
-    bool generateScaledPixels(const SkPixmap& scaledPixels) {
+    bool generateScaledPixels(const SkPixmap& scaledPixels, SkFilterQuality quality) {
         return this->generateScaledPixels(SkISize::Make(scaledPixels.width(),
                                                         scaledPixels.height()),
-                                          SkIPoint::Make(0, 0), scaledPixels);
+                                          SkIPoint::Make(0, 0), scaledPixels,
+                                          quality);
     }
 
     /**
@@ -266,7 +270,8 @@ protected:
     virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
         return false;
     }
-    virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+    virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&,
+                                        SkFilterQuality) {
         return false;
     }
 

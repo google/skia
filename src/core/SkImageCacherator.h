@@ -79,6 +79,9 @@ public:
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                               int srcX, int srcY);
+    // Generate pixels to preallocated pixmap.
+    bool generateScaledPixels(const SkPixmap& pixmap,
+                              SkFilterQuality filterQuality);
 
     bool directAccessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,
                                  SkFilterQuality, SkImageGenerator::ScaledImageRec*);

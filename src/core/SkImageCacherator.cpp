@@ -182,6 +182,15 @@ bool SkImageCacherator::directAccessScaledImage(const SkRect& srcRect,
     return ScopedGenerator(fSharedGenerator)->accessScaledImage(srcRect, totalMatrix, fq, rec);
 }
 
+bool SkImageCacherator::generateScaledPixels(const SkPixmap& dst,
+                                             SkFilterQuality quality) {
+    ScopedGenerator generator(fSharedGenerator);
+    const SkImageInfo& genInfo = generator->getInfo();
+    if (genInfo.width() <= 0 || genInfo.height() <= 0 || dst.width() <= 0 || dst.height() <= 0)
+        return false;
+    return generator->generateScaledPixels(dst, quality);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, CachedFormat format) {

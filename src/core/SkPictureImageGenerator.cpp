@@ -23,7 +23,8 @@ protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
     bool onComputeScaledDimensions(SkScalar scale, SupportedSizes*) override;
-    bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) override;
+    bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&,
+                                SkFilterQuality) override;
 
 #if SK_SUPPORT_GPU
     GrTexture* onGenerateTexture(GrContext*, const SkIRect*) override;
@@ -99,7 +100,8 @@ bool SkPictureImageGenerator::onComputeScaledDimensions(SkScalar scale,
 
 bool SkPictureImageGenerator::onGenerateScaledPixels(const SkISize& scaledSize,
                                                      const SkIPoint& scaledOrigin,
-                                                     const SkPixmap& scaledPixels) {
+                                                     const SkPixmap& scaledPixels,
+                                                     SkFilterQuality) {
     int w = scaledSize.width();
     int h = scaledSize.height();
 
