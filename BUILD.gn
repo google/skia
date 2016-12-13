@@ -27,6 +27,7 @@ declare_args() {
 
   skia_enable_android_framework_defines = false
   skia_enable_gpu = true
+  skia_enable_ktx_encoder = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
@@ -414,6 +415,14 @@ optional("gpu") {
   }
 }
 
+optional("ktx_encoder") {
+  enabled = skia_enable_ktx_encoder
+  public_defines = [ "SK_HAS_KTX_ENCODER" ]
+  sources = [
+    "src/images/SkKTXImageEncoder.cpp",
+  ]
+}
+
 optional("jpeg") {
   enabled = skia_use_libjpeg_turbo
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
@@ -578,7 +587,6 @@ component("skia") {
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
-    "src/images/SkKTXImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",

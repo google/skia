@@ -109,6 +109,7 @@ cc_library {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
+  'skia_enable_ktx_encoder':         'false',
   'skia_enable_vulkan_debug_layers': 'false',
   'skia_use_system_expat':           'true',
   'skia_use_vulkan':                 'true',
