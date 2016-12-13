@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_8334f29a",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-13T15:38:48Z",
+      "side": 1,
+      "message": "constructor (placement new), not assignment?",
+      "revId": "2d56c787d8876e378d00130e063b846689af7950",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
