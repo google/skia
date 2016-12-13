@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d391bbb_f879dd6d",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1480,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-13T13:29:19Z",
+      "side": 1,
+      "message": "This failed after rebasing on my change to consider a frame that claims to have a color table but does not as incomplete. So I modified the file to no longer claim to have a color table.",
+      "range": {
+        "startLine": 1480,
+        "startChar": 12,
+        "endLine": 1480,
+        "endChar": 39
+      },
+      "revId": "beb8d144b36039a8c2f6b60278923ca8bb2ed209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
