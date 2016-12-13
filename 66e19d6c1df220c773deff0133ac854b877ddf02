@@ -52,6 +52,24 @@
       "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ade4329_5d26dbe7",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-13T15:08:59Z",
+      "side": 1,
+      "message": "Oh, duh, missed the assert. Thanks.",
+      "parentUuid": "1ade4329_1d453390",
+      "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
