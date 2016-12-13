@@ -283,6 +283,7 @@ config("warnings") {
       "-Wvla",
 
       "-Wno-deprecated-declarations",
+      "-Wno-maybe-uninitialized",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
 
