@@ -34,7 +34,6 @@ private:
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
         : fRect(rect), fEdgeType(edgeType) {
         this->initClassID<AARectEffect>();
-        this->setWillReadFragmentPosition();
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -113,24 +112,27 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
                                                     &rectName);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    const char* fragmentPos = fragBuilder->fragmentPosition();
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
         fragBuilder->codeAppend("\t\tfloat xSub, ySub;\n");
-        fragBuilder->codeAppendf("\t\txSub = min(%s.x - %s.x, 0.0);\n", fragmentPos, rectName);
-        fragBuilder->codeAppendf("\t\txSub += min(%s.z - %s.x, 0.0);\n", rectName, fragmentPos);
-        fragBuilder->codeAppendf("\t\tySub = min(%s.y - %s.y, 0.0);\n", fragmentPos, rectName);
-        fragBuilder->codeAppendf("\t\tySub += min(%s.w - %s.y, 0.0);\n", rectName, fragmentPos);
+        fragBuilder->codeAppendf("\t\txSub = min(sk_FragCoord.x - %s.x, 0.0);\n", rectName);
+        fragBuilder->codeAppendf("\t\txSub += min(%s.z - sk_FragCoord.x, 0.0);\n", rectName);
+        fragBuilder->codeAppendf("\t\tySub = min(sk_FragCoord.y - %s.y, 0.0);\n", rectName);
+        fragBuilder->codeAppendf("\t\tySub += min(%s.w - sk_FragCoord.y, 0.0);\n", rectName);
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
         fragBuilder->codeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
         fragBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
-        fragBuilder->codeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
-        fragBuilder->codeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
-        fragBuilder->codeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
-        fragBuilder->codeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
+        fragBuilder->codeAppendf("\t\talpha *= (sk_FragCoord.x - %s.x) > -0.5 ? 1.0 : 0.0;\n",
+                                 rectName);
+        fragBuilder->codeAppendf("\t\talpha *= (%s.z - sk_FragCoord.x) > -0.5 ? 1.0 : 0.0;\n",
+                                 rectName);
+        fragBuilder->codeAppendf("\t\talpha *= (sk_FragCoord.y - %s.y) > -0.5 ? 1.0 : 0.0;\n",
+                                 rectName);
+        fragBuilder->codeAppendf("\t\talpha *= (%s.w - sk_FragCoord.y) > -0.5 ? 1.0 : 0.0;\n",
+                                 rectName);
     }
 
     if (GrProcessorEdgeTypeIsInverseFill(aare.getEdgeType())) {
@@ -199,10 +201,10 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fragBuilder->codeAppend("\t\tfloat edge;\n");
-    const char* fragmentPos = fragBuilder->fragmentPosition();
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(%s.x, %s.y, 1));\n",
-                                 edgeArrayName, i, fragmentPos, fragmentPos);
+        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(sk_FragCoord.x, sk_FragCoord.y, "
+                                                             "1));\n",
+                                 edgeArrayName, i);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
             fragBuilder->codeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
         } else {
@@ -348,7 +350,6 @@ GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, cons
     for (int i = 0; i < n; ++i) {
         fEdges[3 * i + 2] += SK_ScalarHalf;
     }
-    this->setWillReadFragmentPosition();
 }
 
 bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {

@@ -197,8 +197,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     GrRenderTarget* rt = pipeline.getRenderTarget();
 
-    if (requiredFeatures & (GrProcessor::kFragmentPosition_RequiredFeature |
-                            GrProcessor::kSampleLocations_RequiredFeature)) {
+    if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         header->fSurfaceOriginKey = GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(rt->origin());
     } else {
         header->fSurfaceOriginKey = 0;
