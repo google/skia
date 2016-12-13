@@ -7,8 +7,6 @@
 
 #include "GrDrawOp.h"
 
-GrDrawOp::GrDrawOp(uint32_t classID) : INHERITED(classID), fPipelineInstalled(false) { }
-
 GrDrawOp::~GrDrawOp() {
     if (fPipelineInstalled) {
         this->pipeline()->~GrPipeline();

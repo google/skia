@@ -57,8 +57,14 @@ class GrOpFlushState;
 
 class GrOp : public GrNonAtomicRef<GrOp> {
 public:
-    GrOp(uint32_t classID);
-    virtual ~GrOp();
+    GrOp(uint32_t classID)
+        : fClassID(classID)
+        , fUniqueID(kIllegalOpID) {
+        SkASSERT(classID == SkToU32(fClassID));
+        SkDEBUGCODE(fUsed = false;)
+        SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
+    }
+    virtual ~GrOp() {}
 
     virtual const char* name() const = 0;
 

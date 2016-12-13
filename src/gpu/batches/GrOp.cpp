@@ -52,12 +52,5 @@ void GrOp::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-GrOp::GrOp(uint32_t classID)
-    : fClassID(classID)
-    , fUniqueID(kIllegalOpID) {
-    SkASSERT(classID == SkToU32(fClassID));
-    SkDEBUGCODE(fUsed = false;)
-    SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
-}
 
-GrOp::~GrOp() {}
+

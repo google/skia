@@ -157,7 +157,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         }
     }
 }
-class AAFillRectBatch : public GrMeshDrawOp {
+class AAFillRectBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

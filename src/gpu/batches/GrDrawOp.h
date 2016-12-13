@@ -56,7 +56,8 @@ public:
 
     class Target;
 
-    GrDrawOp(uint32_t classID);
+    GrDrawOp(uint32_t classID) : INHERITED(classID), fPipelineInstalled(false) { }
+
     ~GrDrawOp() override;
 
     /**

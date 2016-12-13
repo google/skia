@@ -50,7 +50,7 @@ static void tesselate_region(intptr_t vertices,
     }
 }
 
-class RegionBatch : public GrMeshDrawOp {
+class RegionBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

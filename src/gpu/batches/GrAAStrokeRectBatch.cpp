@@ -116,7 +116,7 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAStrokeRectBatch : public GrMeshDrawOp {
+class AAStrokeRectBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
