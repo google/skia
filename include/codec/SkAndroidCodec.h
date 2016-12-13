@@ -47,6 +47,7 @@ public:
 
 
     const SkImageInfo& getInfo() const { return fInfo; }
+    const SkEncodedInfo& getEncodedInfo() { return fCodec->getEncodedInfo(); }
 
     /**
      *  Format of the encoded data.
