@@ -86,10 +86,6 @@ public:
         virtual const char* getCategory() const = 0;
         virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
-        // for SkTDynamicHash::Traits
-        static uint32_t Hash(const Key& key) { return key.hash(); }
-        static const Key& GetKey(const Rec& rec) { return rec.getKey(); }
-
     private:
         Rec*    fNext;
         Rec*    fPrev;
