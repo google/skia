@@ -14,7 +14,6 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkMakeUnique.h"
 #include "SkNx.h"
-#include "SkRasterPipeline_opts.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
 
