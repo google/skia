@@ -13,7 +13,6 @@
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureAdjuster.h"
@@ -154,31 +153,13 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
 
-    sk_sp<GrSurfaceContext> sContext(ctx->contextPriv().makeDeferredSurfaceContext(desc,
-                                                                                   fBudgeted));
-    if (!sContext) {
-        return nullptr;
-    }
-
-    // TODO: make gpu images be proxy-backed to we don't need to do this
-    sk_sp<GrSurfaceProxy> tmpSrc(GrSurfaceProxy::MakeWrapped(fTexture));
-    if (!tmpSrc) {
-        return nullptr;
-    }
-
-    if (!sContext->copy(tmpSrc.get(), subset, SkIPoint::Make(0, 0))) {
-        return nullptr;
-    }
-
-    // TODO: make gpu images be proxy-backed to we don't need to do this
-    GrSurface* subTx = sContext->asDeferredSurface()->instantiate(ctx->textureProvider());
+    sk_sp<GrTexture> subTx(ctx->textureProvider()->createTexture(desc, fBudgeted));
     if (!subTx) {
         return nullptr;
     }
-
+    ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
     return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                   fAlphaType, sk_ref_sp(subTx->asTexture()),
-                                   fColorSpace, fBudgeted);
+                                   fAlphaType, std::move(subTx), fColorSpace, fBudgeted);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

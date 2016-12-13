@@ -14,11 +14,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
 #include "GrTexture.h"
-#include "GrTextureProxy.h"
 #include "../src/image/SkImage_Gpu.h"
 #endif
 
@@ -213,15 +209,15 @@ class TextureGenerator : public SkImageGenerator {
 public:
     TextureGenerator(GrContext* ctx, const SkImageInfo& info, SkPicture* pic)
         : SkImageGenerator(info)
-        , fCtx(SkRef(ctx)) {
-
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+        , fCtx(SkRef(ctx))
+    {
+        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
         if (surface) {
             surface->getCanvas()->clear(0);
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fProxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(as_IB(image)->peekTexture()));
+            fTexture.reset(SkRef(as_IB(image)->peekTexture()));
         }
     }
 protected:
@@ -230,41 +226,22 @@ protected:
             SkASSERT(ctx == fCtx.get());
         }
 
-        if (!fProxy) {
+        if (!fTexture) {
             return nullptr;
-        }
-
-        if (subset.fLeft == 0 && subset.fTop == 0 &&
-            subset.fRight == fProxy->width() && subset.fBottom == fProxy->height()) {
-            return SkSafeRef(fProxy->instantiate(fCtx->textureProvider())->asTexture());
         }
 
         // need to copy the subset into a new texture
-        GrSurfaceDesc desc = fProxy->desc();
+        GrSurfaceDesc desc = fTexture->desc();
         desc.fWidth = subset.width();
         desc.fHeight = subset.height();
 
-        sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
-                                                                                desc,
-                                                                                SkBudgeted::kNo));
-        if (!dstContext) {
-            return nullptr;
-        }
-
-        if (!dstContext->copy(fProxy.get(), subset, SkIPoint::Make(0, 0))) {
-            return nullptr;
-        }
-
-        GrSurface* dstSurf = dstContext->asDeferredSurface()->instantiate(fCtx->textureProvider());
-        if (!dstSurf) {
-            return nullptr;
-        }
-
-        return SkRef(dstSurf->asTexture());
+        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
+        fCtx->copySurface(dst, fTexture.get(), subset, SkIPoint::Make(0, 0));
+        return dst;
     }
 private:
-    sk_sp<GrContext>      fCtx;
-    sk_sp<GrSurfaceProxy> fProxy;
+    sk_sp<GrContext> fCtx;
+    sk_sp<GrTexture> fTexture;
 };
 static SkImageGenerator* make_tex_generator(GrContext* ctx, SkPicture* pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
