@@ -51,10 +51,19 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
 
-#include "SkTDynamicHash.h"
+#include "SkTHash.h"
+
+namespace {
+    struct HashTraits {
+        static uint32_t Hash(const SkResourceCache::Key& key) { return key.hash(); }
+        static const SkResourceCache::Key& GetKey(const SkResourceCache::Rec* rec) {
+            return rec->getKey();
+        }
+    };
+}
 
 class SkResourceCache::Hash :
-    public SkTDynamicHash<SkResourceCache::Rec, SkResourceCache::Key> {};
+    public SkTHashTable<SkResourceCache::Rec*, SkResourceCache::Key, HashTraits> {};
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -224,8 +233,8 @@ SkResourceCache::~SkResourceCache() {
 bool SkResourceCache::find(const Key& key, FindVisitor visitor, void* context) {
     this->checkMessages();
 
-    Rec* rec = fHash->find(key);
-    if (rec) {
+    if (auto found = fHash->find(key)) {
+        Rec* rec = *found;
         if (visitor(*rec, context)) {
             this->moveToHead(rec);  // for our LRU
             return true;
@@ -254,14 +263,13 @@ void SkResourceCache::add(Rec* rec) {
 
     SkASSERT(rec);
     // See if we already have this key (racy inserts, etc.)
-    Rec* existing = fHash->find(rec->getKey());
-    if (existing) {
+    if (nullptr != fHash->find(rec->getKey())) {
         delete rec;
         return;
     }
 
     this->addToHead(rec);
-    fHash->add(rec);
+    fHash->set(rec);
 
     if (gDumpCacheTransactions) {
         SkString bytesStr, totalStr;
