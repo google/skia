@@ -32,7 +32,6 @@ TEST_BUILDERS = {
       'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan',
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
-      'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
       'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
       'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
@@ -328,10 +327,6 @@ def dm_flags(bot):
     blacklist('_ image _ interlaced1.png')
     blacklist('_ image _ interlaced2.png')
     blacklist('_ image _ interlaced3.png')
-    for raw_ext in r:
-      blacklist('_ image _ .%s' % raw_ext)
-
-  if 'Nexus9' in bot:
     for raw_ext in r:
       blacklist('_ image _ .%s' % raw_ext)
 
