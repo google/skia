@@ -113,9 +113,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        sk_sp<GrDrawOp> coverBatch(
-                GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
-                                                    nullptr, &invert));
+        sk_sp<GrDrawOp> coverOp(GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM,
+                                                                    bounds, nullptr, &invert));
 
         // fake inverse with a stencil and cover
         args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,
@@ -143,7 +142,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             GrPipelineBuilder pipelineBuilder(*args.fPaint, coverAAType);
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
-            args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, coverBatch.get());
+            args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(coverOp));
         }
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -156,12 +155,12 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 0xffff>()
         );
 
-        sk_sp<GrDrawOp> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
-                                                      path.get()));
+        sk_sp<GrDrawOp> op(
+                GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(), path.get()));
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
         pipelineBuilder.setUserStencil(&kCoverPass);
-        args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+        args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     }
 
     return true;

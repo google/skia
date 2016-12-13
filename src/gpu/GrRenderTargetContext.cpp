@@ -744,7 +744,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
         sk_sp<GrDrawOp> op(GrAAFillRectBatch::CreateWithLocalRect(paint.getColor(), viewMatrix,
                                                                   croppedRect, croppedLocalRect));
         GrPipelineBuilder pipelineBuilder(paint, aaType);
-        this->addDrawOp(pipelineBuilder, clip, op.get());
+        this->addDrawOp(pipelineBuilder, clip, std::move(op));
         return;
     }
 
@@ -1584,11 +1584,11 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
 }
 
 void GrRenderTargetContext::addDrawOp(const GrPipelineBuilder& pipelineBuilder, const GrClip& clip,
-                                      GrDrawOp* op) {
+                                      sk_sp<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::addDrawOp");
 
-    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, sk_ref_sp(op));
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }

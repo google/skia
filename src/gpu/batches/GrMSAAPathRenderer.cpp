@@ -659,18 +659,17 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            sk_sp<GrDrawOp> batch(
-                    GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
-                                                        &localMatrix));
+            sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds,
+                                                                   nullptr, &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);
 
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            sk_sp<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
-                                                         viewMatrix, devBounds));
-            if (!batch->isValid()) {
+            sk_sp<MSAAPathBatch> op(
+                    new MSAAPathBatch(paint.getColor(), path, viewMatrix, devBounds));
+            if (!op->isValid()) {
                 return false;
             }
 
@@ -679,7 +678,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, batch.get());
+            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         }
     }
     return true;
