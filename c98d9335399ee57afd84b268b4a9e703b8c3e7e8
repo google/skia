@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ade4329_9dba23be",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-13T21:07:48Z",
+      "side": 1,
+      "message": "Might consider one of\n\n    skia_use_ktx             # emphasizes third-party code dependency\n    skia_enable_ktx_encoder  # emphasizes optional skia component",
+      "revId": "c98d9335399ee57afd84b268b4a9e703b8c3e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
