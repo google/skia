@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_c310aa3a",
+        "filename": "include/gpu/GrSurfaceContext.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-13T14:02:50Z",
+      "side": 1,
+      "message": "Moved to GrSurfaceProxy.",
+      "parentUuid": "8d391bbb_f81abd54",
+      "revId": "edf0edf49f1cefa3f0ee319607ef731d4d4b0e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d391bbb_580ae901",
         "filename": "include/gpu/GrSurfaceContext.h",
         "patchSetId": 9
