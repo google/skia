@@ -371,7 +371,8 @@ public:
     }
 
     GrSurfaceProxy* asDeferredSurface() override { return fRenderTargetProxy.get(); }
-    GrTextureProxy* asDeferredTexture();
+    GrTextureProxy* asDeferredTexture() override;
+    GrRenderTargetProxy* asDeferredRenderTarget() override { return fRenderTargetProxy.get(); }
 
     sk_sp<GrTexture> asTexture() {
         if (!this->accessRenderTarget()) {

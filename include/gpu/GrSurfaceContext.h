@@ -50,6 +50,8 @@ public:
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asDeferredSurface() = 0;
+    virtual GrTextureProxy* asDeferredTexture() = 0;
+    virtual GrRenderTargetProxy* asDeferredRenderTarget() = 0;
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
