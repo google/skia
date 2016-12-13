@@ -118,7 +118,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathBatch : public GrMeshDrawOp {
+class AADistanceFieldPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

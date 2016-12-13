@@ -71,7 +71,7 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-class NonAAFillRectBatch : public GrMeshDrawOp {
+class NonAAFillRectBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

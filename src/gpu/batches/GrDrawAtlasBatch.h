@@ -12,7 +12,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 
-class GrDrawAtlasBatch : public GrMeshDrawOp {
+class GrDrawAtlasBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

@@ -214,7 +214,7 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathBatch : public GrMeshDrawOp {
+class MSAAPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
