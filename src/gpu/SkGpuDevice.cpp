@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"
+#include "GrTextureProxy.h"
 #include "GrTracing.h"
 
 #include "SkCanvasPriv.h"
@@ -262,9 +263,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
         if (fRenderTargetContext->wasAbandoned()) {
             return;
         }
-        newRTC->copySurface(fRenderTargetContext->asTexture().get(),
-                            SkIRect::MakeWH(this->width(), this->height()),
-                            SkIPoint::Make(0, 0));
+        newRTC->copy(fRenderTargetContext->asDeferredSurface());
     }
 
     fRenderTargetContext = newRTC;
@@ -1332,19 +1331,15 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
-    sk_sp<GrTexture> texture(this->accessRenderTargetContext()->asTexture());
-    if (!texture) {
+    sk_sp<GrSurfaceProxy> sProxy(sk_ref_sp(this->accessRenderTargetContext()->asDeferredTexture()));
+    if (!sProxy) {
         // When the device doesn't have a texture, we create a temporary texture.
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
-        texture.reset(fContext->textureProvider()->createTexture(
-            this->accessRenderTargetContext()->desc(), SkBudgeted::kYes));
-        if (!texture) {
-            return nullptr;
-        }
-
-        if (!fContext->copySurface(texture.get(),
-                                   this->accessRenderTargetContext()->accessRenderTarget())) {
+        sProxy = GrSurfaceProxy::Copy(fContext.get(),
+                                      this->accessRenderTargetContext()->asDeferredSurface(),
+                                      SkBudgeted::kYes);
+        if (!sProxy) {
             return nullptr;
         }
     }
@@ -1352,11 +1347,12 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
     const SkImageInfo ii = this->imageInfo();
     const SkIRect srcRect = SkIRect::MakeWH(ii.width(), ii.height());
 
-    return SkSpecialImage::MakeFromGpu(srcRect,
-                                       kNeedNewImageUniqueID_SpecialImage,
-                                       std::move(texture),
-                                       sk_ref_sp(ii.colorSpace()),
-                                       &this->surfaceProps());
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                               srcRect,
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sProxy,
+                                               sk_ref_sp(ii.colorSpace()),
+                                               &this->surfaceProps());
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,

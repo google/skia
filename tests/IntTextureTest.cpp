@@ -95,40 +95,48 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, !success);
 
     // Test that copying from one integer texture to another succeeds.
-    sk_sp<GrTexture> copy(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy);
-    if (!copy) {
-        return;
-    }
-    success = context->copySurface(copy.get(), texture.get());
-    REPORTER_ASSERT(reporter, success);
-    if (!success) {
-        return;
-    }
-    sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
-    REPORTER_ASSERT(reporter, success);
-    if (success) {
-        check_pixels(reporter, kS, kS, testData.get(), readData.get());
+    {
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, desc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, copy);
+        if (!copy) {
+            return;
+        }
+
+        GrSurface* copySurface = copy->instantiate(context->textureProvider());
+        REPORTER_ASSERT(reporter, copySurface);
+        if (!copySurface) {
+            return;
+        }
+
+        sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
+        success = copySurface->readPixels(0, 0, kS, kS,
+                                          kRGBA_8888_sint_GrPixelConfig, readData.get());
+        REPORTER_ASSERT(reporter, success);
+        if (success) {
+            check_pixels(reporter, kS, kS, testData.get(), readData.get());
+        }
     }
 
-    // Test that copying to a non-integer texture fails.
-    GrSurfaceDesc nonIntDesc = desc;
-    nonIntDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    copy.reset(context->textureProvider()->createTexture(nonIntDesc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy);
-    if (!copy) {
-        return;
+
+    // Test that copying to a non-integer (8888) texture fails.
+    {
+        GrSurfaceDesc nonIntDesc = desc;
+        nonIntDesc.fConfig = kRGBA_8888_GrPixelConfig;
+
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, nonIntDesc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, !copy);
     }
-    success = context->copySurface(copy.get(), texture.get());
-    REPORTER_ASSERT(reporter, !success);
-    nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
-    copy.reset(context->textureProvider()->createTexture(nonIntDesc, SkBudgeted::kYes));
-    REPORTER_ASSERT(reporter, copy ||
-                    !context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig));
-    if (copy) {
-        success = context->copySurface(copy.get(), texture.get());
-        REPORTER_ASSERT(reporter, !success);
+
+    // Test that copying to a non-integer (RGBA_half) texture fails.
+    if (context->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        GrSurfaceDesc nonIntDesc = desc;
+        nonIntDesc.fConfig = kRGBA_half_GrPixelConfig;
+
+        sk_sp<GrSurfaceProxy> copy(GrSurfaceProxy::TestCopy(context, nonIntDesc,
+                                                            texture.get(), SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, !copy);
     }
 
     // We overwrite the top left quarter of the texture with the bottom right quarter of the

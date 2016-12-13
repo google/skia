@@ -50,8 +50,6 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
-    bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
     // akin to GrStyle (GrTextInfo?)
@@ -372,6 +370,7 @@ public:
         return fRenderTargetProxy->instantiate(fContext->textureProvider());
     }
 
+    GrSurfaceProxy* asDeferredSurface() override { return fRenderTargetProxy.get(); }
     GrTextureProxy* asDeferredTexture();
 
     sk_sp<GrTexture> asTexture() {
@@ -467,6 +466,9 @@ private:
                           const SkPath&,
                           const GrStyle&);
 
+    bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+
+
     // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
     void addDrawOp(const GrPipelineBuilder&, const GrClip&, GrDrawOp*);
 
@@ -483,6 +485,8 @@ private:
     sk_sp<SkColorSpace>               fColorSpace;
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
+
+    typedef GrSurfaceContext INHERITED;
 };
 
 #endif
