@@ -286,6 +286,10 @@ config("warnings") {
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
 
+    if (!is_clang) {
+      cflags += [ "-Wno-maybe-uninitialized" ]
+    }
+
     if (is_clang) {
       cflags += [
         "-Weverything",
