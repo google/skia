@@ -61,6 +61,9 @@
 bool SkOpAngle::after(SkOpAngle* test) {
     SkOpAngle* lh = test;
     SkOpAngle* rh = lh->fNext;
+    if (lh->debugID() == 23 && this->debugID() == 84 && rh->debugID() == 74) {
+        SkDebugf("");
+    }
     SkASSERT(lh != rh);
     fPart.fCurve = fOriginalCurvePart;
     lh->fPart.fCurve = lh->fOriginalCurvePart;
@@ -165,6 +168,10 @@ bool SkOpAngle::after(SkOpAngle* test) {
 //        SkASSERT(lrOpposite != trOpposite);
         return COMPARE_RESULT(10, lrOpposite);
     }
+    if (!this->alignmentSameSide(lh) || !this->alignmentSameSide(rh)) {
+        fUnorderable = true;
+        return false;
+    }
     if (lrOrder < 0) {
         if (ltOrder < 0) {
             return COMPARE_RESULT(11, trOrder);
@@ -176,25 +183,21 @@ bool SkOpAngle::after(SkOpAngle* test) {
 
 // given a line, see if the opposite curve's convex hull is all on one side
 // returns -1=not on one side    0=this CW of test   1=this CCW of test
-int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
+int SkOpAngle::allOnOneSide(const SkDPoint* pts, int count) {
     SkASSERT(!fPart.isCurve());
-    SkASSERT(test->fPart.isCurve());
+    SkASSERT(count == 3 || count == 4);
     SkDPoint origin = fPart.fCurve[0];
     SkDVector line = fPart.fCurve[1] - origin;
     double crosses[3];
-    SkPath::Verb testVerb = test->segment()->verb();
-    int iMax = SkPathOpsVerbToPoints(testVerb);
-//    SkASSERT(origin == test.fCurveHalf[0]);
-    const SkDCurve& testCurve = test->fPart.fCurve;
-    for (int index = 1; index <= iMax; ++index) {
-        double xy1 = line.fX * (testCurve[index].fY - origin.fY);
-        double xy2 = line.fY * (testCurve[index].fX - origin.fX);
+    for (int index = 1; index < count; ++index) {
+        double xy1 = line.fX * (pts[index].fY - origin.fY);
+        double xy2 = line.fY * (pts[index].fX - origin.fX);
         crosses[index - 1] = AlmostBequalUlps(xy1, xy2) ? 0 : xy1 - xy2;
     }
     if (crosses[0] * crosses[1] < 0) {
         return -1;
     }
-    if (SkPath::kCubic_Verb == testVerb) {
+    if (4 == count) {
         if (crosses[0] * crosses[2] < 0 || crosses[1] * crosses[2] < 0) {
             return -1;
         }
@@ -205,11 +208,39 @@ int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
     if (crosses[1]) {
         return crosses[1] < 0;
     }
-    if (SkPath::kCubic_Verb == testVerb && crosses[2]) {
+    if (4 == count && crosses[2]) {
         return crosses[2] < 0;
     }
     fUnorderable = true;
     return -1;
+}
+
+int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
+    SkASSERT(test->fPart.isCurve());
+    int ptCount = SkPathOpsVerbToPoints(test->segment()->verb()) + 1;
+    return this->allOnOneSide(test->fPart.fCurve.fCubic.fPts, ptCount);
+}
+
+bool SkOpAngle::alignmentSameSide(const SkOpAngle* test) {
+    if (test->fPart.fCurve.fLine[0] == test->fOriginalCurvePart.fLine[0]) {
+        return true;
+    }
+    if (SkPath::kLine_Verb == test->segment()->verb()) {
+        SkDPoint bothLines[3];  // [0] is uninitialized / unused
+        bothLines[1] = test->fPart.fCurve.fLine[1];
+        bothLines[2] = test->fOriginalCurvePart.fLine[1];
+        return this->allOnOneSide(bothLines, SK_ARRAY_COUNT(bothLines)) >= 0;
+    }
+    int oneSide = this->allOnOneSide(test);
+    if (oneSide < 0) {
+        return true;
+    }
+    int ptCount = SkPathOpsVerbToPoints(test->segment()->verb()) + 1;
+    int origOneSide = this->allOnOneSide(test->fOriginalCurvePart.fCubic.fPts, ptCount);
+    if (origOneSide < 0) {
+        return true;
+    }
+    return oneSide == origOneSide;
 }
 
 bool SkOpAngle::checkCrossesZero() const {

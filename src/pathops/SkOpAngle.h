@@ -97,6 +97,8 @@ public:
 
 private:
     bool after(SkOpAngle* test);
+    bool alignmentSameSide(const SkOpAngle* test);
+    int allOnOneSide(const SkDPoint* pts, int count);
     int allOnOneSide(const SkOpAngle* test);
     bool checkCrossesZero() const;
     bool checkParallel(SkOpAngle* );
