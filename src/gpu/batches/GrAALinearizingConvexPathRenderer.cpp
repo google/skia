@@ -355,16 +355,14 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    sk_sp<GrDrawOp> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
-                                                          *args.fViewMatrix,
-                                                          path, strokeWidth,
-                                                          stroke.getStyle(),
-                                                          join, miterLimit));
+    sk_sp<GrDrawOp> op(new AAFlatteningConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix,
+                                                       path, strokeWidth, stroke.getStyle(), join,
+                                                       miterLimit));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }

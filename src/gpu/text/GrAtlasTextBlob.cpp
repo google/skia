@@ -317,15 +317,12 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
 
         GrColor color = grPaint.getColor();
 
-        sk_sp<GrDrawOp> batch(this->createBatch(info, glyphCount, run,
-                                                subRun, viewMatrix, x, y, color,
-                                                skPaint, props,
-                                                distanceAdjustTable,
-                                                rtc->isGammaCorrect(),
-                                                cache));
+        sk_sp<GrDrawOp> op(this->createBatch(info, glyphCount, run, subRun, viewMatrix, x, y, color,
+                                             skPaint, props, distanceAdjustTable,
+                                             rtc->isGammaCorrect(), cache));
         GrPipelineBuilder pipelineBuilder(grPaint, GrAAType::kNone);
 
-        rtc->addDrawOp(pipelineBuilder, clip, batch.get());
+        rtc->addDrawOp(pipelineBuilder, clip, std::move(op));
     }
 }
 

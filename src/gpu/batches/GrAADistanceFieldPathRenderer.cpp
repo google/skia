@@ -530,14 +530,13 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    sk_sp<GrDrawOp> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
-                                                       *args.fShape, *args.fViewMatrix,
-                                                       fAtlas.get(), &fShapeCache, &fShapeList,
-                                                       args.fGammaCorrect));
+    sk_sp<GrDrawOp> op(new AADistanceFieldPathBatch(args.fPaint->getColor(), *args.fShape,
+                                                    *args.fViewMatrix, fAtlas.get(), &fShapeCache,
+                                                    &fShapeList, args.fGammaCorrect));
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }
