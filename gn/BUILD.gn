@@ -40,13 +40,18 @@ if (host_os == "win") {
 }
 
 is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
-if (!is_clang && !is_win) {
-  is_clang = exec_script("is_clang.py",
-                         [
-                           cc,
-                           cxx,
-                         ],
-                         "value")
+if (!is_win) {
+  is_old_gcc = false
+  if (!is_clang) {
+    compiler = exec_script("compiler_detect.py",
+                           [
+                             cc,
+                             cxx,
+                           ],
+                           "string")
+    is_clang = compiler == "clang"
+    is_old_gcc = compiler == "old_gcc"
+  }
 }
 
 if (is_ios) {
@@ -285,6 +290,10 @@ config("warnings") {
       "-Wno-deprecated-declarations",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
+
+    if (is_old_gcc) {
+      cflags += [ "-Wno-maybe-uninitialized" ]
+    }
 
     if (is_clang) {
       cflags += [
