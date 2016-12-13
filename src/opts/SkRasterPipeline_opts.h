@@ -301,17 +301,23 @@ STAGE(clamp_0) {
     g = SkNf::Max(g, 0.0f);
     b = SkNf::Max(b, 0.0f);
 }
+STAGE(clamp_1) {
+    a = SkNf::Min(a, 1.0f);
+    r = SkNf::Min(r, 1.0f);
+    g = SkNf::Min(g, 1.0f);
+    b = SkNf::Min(b, 1.0f);
+}
 STAGE(clamp_a) {
     a = SkNf::Min(a, 1.0f);
     r = SkNf::Min(r, a);
     g = SkNf::Min(g, a);
     b = SkNf::Min(b, a);
 }
-STAGE(clamp_1) {
-    a = SkNf::Min(a, 1.0f);
-    r = SkNf::Min(r, 1.0f);
-    g = SkNf::Min(g, 1.0f);
-    b = SkNf::Min(b, 1.0f);
+STAGE(clamp_a_d) {
+    da = SkNf::Min(da, 1.0f);
+    dr = SkNf::Min(dr, da);
+    dg = SkNf::Min(dg, da);
+    db = SkNf::Min(db, da);
 }
 
 STAGE(unpremul) {

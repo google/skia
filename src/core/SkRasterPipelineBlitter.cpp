@@ -197,7 +197,7 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::swap_rb_d);
     }
     if (fDst.info().gammaCloseToSRGB()) {
-        p->append(SkRasterPipeline::from_srgb_d);
+        p->append_from_srgb_d(fDst.info().alphaType());
     }
 }
 
