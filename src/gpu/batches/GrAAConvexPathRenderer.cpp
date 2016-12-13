@@ -1000,12 +1000,12 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawOp> batch(new AAConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix, path));
+    sk_sp<GrDrawOp> op(new AAConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix, path));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 

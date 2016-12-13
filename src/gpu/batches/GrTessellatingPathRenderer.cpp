@@ -360,14 +360,14 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    sk_sp<GrDrawOp> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
-                                                        *args.fShape,
-                                                        *args.fViewMatrix,
-                                                        clipBoundsI,
-                                                        GrAAType::kCoverage == args.fAAType));
+    sk_sp<GrDrawOp> op(TessellatingPathBatch::Create(args.fPaint->getColor(),
+                                                     *args.fShape,
+                                                     *args.fViewMatrix,
+                                                     clipBoundsI,
+                                                     GrAAType::kCoverage == args.fAAType));
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;
 }
 

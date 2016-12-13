@@ -977,13 +977,12 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    sk_sp<GrDrawOp> batch(create_hairline_batch(args.fPaint->getColor(),
-                                                *args.fViewMatrix, path,
-                                                args.fShape->style(), devClipBounds));
+    sk_sp<GrDrawOp> op(create_hairline_batch(args.fPaint->getColor(), *args.fViewMatrix, path,
+                                             args.fShape->style(), devClipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, batch.get());
+    args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
 
     return true;
 }
