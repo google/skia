@@ -22,6 +22,24 @@
       "revId": "c1734c693cac29109a45262daefe2312f52dab13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_e3ff6e88",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-12-13T15:41:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d391bbb_0348022a",
+      "revId": "c1734c693cac29109a45262daefe2312f52dab13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
