@@ -141,6 +141,12 @@ class SkGlyph {
     };
 
 public:
+    SkGlyph()                          = default;
+    SkGlyph(const SkGlyph&)            = default;
+    SkGlyph(SkGlyph&&)                 = default;
+    SkGlyph& operator=(const SkGlyph&) = default;
+    SkGlyph& operator=(SkGlyph&&)      = default;
+
     static const SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
     void*       fImage;
     PathData*   fPathData;

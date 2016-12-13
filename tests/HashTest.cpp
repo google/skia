@@ -111,6 +111,13 @@ public:
         *fCounter += 1;
     }
 
+    CopyCounter(CopyCounter&& other) { *this = std::move(other); }
+    void operator=(CopyCounter&& other) {
+        fID = other.fID;
+        fCounter = other.fCounter;
+    }
+
+
     bool operator==(const CopyCounter& other) const {
         return fID == other.fID;
     }
