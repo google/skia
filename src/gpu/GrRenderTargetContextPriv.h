@@ -114,6 +114,10 @@ public:
                                const GrUserStencilSettings* = nullptr,
                                bool snapToCenters = false);
 
+    bool refsWrappedObjects() const {
+        return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();
+    }
+
 private:
     explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
         : fRenderTargetContext(renderTargetContext) {}
