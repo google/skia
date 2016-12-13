@@ -8,6 +8,7 @@
 #ifndef SkRasterPipeline_DEFINED
 #define SkRasterPipeline_DEFINED
 
+#include "SkImageInfo.h"
 #include "SkNx.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
@@ -58,7 +59,7 @@
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(trace) M(registers)                                        \
     M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)      \
-    M(clamp_0) M(clamp_a) M(clamp_1)                             \
+    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_d)                \
     M(unpremul) M(premul)                                        \
     M(set_rgb)                                                   \
     M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
@@ -118,6 +119,11 @@ public:
         StockStage stage;
         void*        ctx;
     };
+
+    // Conversion from sRGB can be subtly tricky when premultiplication is involved.
+    // Use these helpers to keep things sane.
+    void append_from_srgb  (SkAlphaType);
+    void append_from_srgb_d(SkAlphaType);
 
 private:
     std::vector<Stage> fStages;

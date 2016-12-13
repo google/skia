@@ -38,13 +38,13 @@ public:
 
         SkRasterPipeline p;
         p.append(SkRasterPipeline::load_8888, &src_ctx);
-        p.append(SkRasterPipeline::from_srgb);
+        p.append_from_srgb(kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
         if (kF16) {
             p.append(SkRasterPipeline::load_f16_d, &dst_ctx);
         } else {
             p.append(SkRasterPipeline::load_8888_d, &dst_ctx);
-            p.append(SkRasterPipeline::from_srgb_d);
+            p.append_from_srgb_d(kPremul_SkAlphaType);
         }
         p.append(SkRasterPipeline::srcover);
         if (kF16) {

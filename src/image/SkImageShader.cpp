@@ -350,7 +350,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
             default: SkASSERT(false);
         }
         if (info.gammaCloseToSRGB() && dst != nullptr) {
-            p->append(SkRasterPipeline::from_srgb);
+            p->append_from_srgb(info.alphaType());
         }
     };
 
