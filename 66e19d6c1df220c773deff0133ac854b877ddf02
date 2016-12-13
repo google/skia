@@ -16,6 +16,24 @@
       "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ade4329_9d8dc3c7",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-13T14:46:51Z",
+      "side": 1,
+      "message": "Yes:  it\u0027s a count, guaranteed to be positive (hence the rename and assert above).",
+      "parentUuid": "1ade4329_3d9f4ff0",
+      "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
