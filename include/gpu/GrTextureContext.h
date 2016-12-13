@@ -29,6 +29,13 @@ public:
 
     bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
+    GrTextureProxy* asDeferredTexture() override { return fTextureProxy.get(); }
+    GrRenderTargetProxy* asDeferredRenderTarget() override {
+        // If it can return a RTProxy it should be wrapped in a GrRenderTargetTextureContext
+        SkASSERT(!fTextureProxy->asRenderTargetProxy());
+        return fTextureProxy->asRenderTargetProxy();
+    }
+
 protected:
     GrTextureContext(GrContext*, GrDrawingManager*, sk_sp<GrTextureProxy>, GrAuditTrail*,
                      GrSingleOwner*);

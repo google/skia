@@ -226,6 +226,7 @@ void GrContext::flush() {
     fDrawingManager->flush();
 }
 
+#if 0
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
@@ -532,6 +533,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     }
     return true;
 }
+#endif
 
 void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     ASSERT_SINGLE_OWNER

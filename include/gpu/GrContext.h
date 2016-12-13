@@ -243,6 +243,7 @@ public:
      */
     void flush();
 
+#if 0
    /**
     * These flags can be used with the read/write pixels functions below.
     */
@@ -300,6 +301,7 @@ public:
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
+#endif
 
     /**
      * Copies a rectangle of texels from src to dst.

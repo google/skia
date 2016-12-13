@@ -118,9 +118,11 @@ GrRenderTarget* GrRenderTargetContext::instantiate() {
     return fRenderTargetProxy->instantiate(fContext->textureProvider());
 }
 
+#if 0
 GrTextureProxy* GrRenderTargetContext::asDeferredTexture() {
     return fRenderTargetProxy->asTextureProxy();
 }
+#endif
 
 GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     ASSERT_SINGLE_OWNER

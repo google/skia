@@ -67,6 +67,9 @@ public:
                               SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds);
 
+    GrTextureProxy* asDeferredTexture() override { return fRenderTargetProxy->asTextureProxy(); }
+    GrRenderTargetProxy* asDeferredRenderTarget() override { return fRenderTargetProxy.get(); }
+
     /**
      * Provides a perfomance hint that the render target's contents are allowed
      * to become undefined.
@@ -372,7 +375,7 @@ public:
         return fRenderTargetProxy->instantiate(fContext->textureProvider());
     }
 
-    GrTextureProxy* asDeferredTexture();
+//    GrTextureProxy* asDeferredTexture();
 
     sk_sp<GrTexture> asTexture() {
         if (!this->accessRenderTarget()) {
