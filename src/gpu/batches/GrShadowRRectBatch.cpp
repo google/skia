@@ -225,7 +225,7 @@ private:
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
-            
+
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f*bounds.width();
             SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
@@ -504,7 +504,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 //   each vertex is also given the normalized x & y distance from the interior rect's edge
 //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
 
-class ShadowCircularRRectBatch : public GrMeshDrawOp {
+class ShadowCircularRRectBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

@@ -597,7 +597,7 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CircleBatch : public GrMeshDrawOp {
+class CircleBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -883,7 +883,7 @@ private:
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f*bounds.width();
             SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
-            
+
             v0->fPos = center + SkPoint::Make(-octOffset*halfWidth, -halfWidth);
             v0->fColor = color;
             v0->fOffset = SkPoint::Make(-octOffset, -1);

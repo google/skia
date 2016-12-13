@@ -18,7 +18,7 @@
 class GrOpFlushState;
 struct GrInitInvariantOutput;
 
-class GrDrawVerticesBatch : public GrMeshDrawOp {
+class GrDrawVerticesBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

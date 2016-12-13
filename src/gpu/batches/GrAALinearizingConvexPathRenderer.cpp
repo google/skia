@@ -123,7 +123,7 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAFlatteningConvexPathBatch : public GrMeshDrawOp {
+class AAFlatteningConvexPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -377,7 +377,7 @@ DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
     SkPath path = GrTest::TestPathConvex(random);
 
     SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
-                                     SkStrokeRec::kStroke_Style, 
+                                     SkStrokeRec::kStroke_Style,
                                      SkStrokeRec::kStrokeAndFill_Style };
 
     SkStrokeRec::Style style = styles[random->nextU() % 3];
@@ -396,7 +396,7 @@ DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
         miterLimit = random->nextRangeF(0.5f, 2.0f);
     }
 
-    return new AAFlatteningConvexPathBatch(color, viewMatrix, path, strokeWidth, 
+    return new AAFlatteningConvexPathBatch(color, viewMatrix, path, strokeWidth,
                                            style, join, miterLimit);
 }
 

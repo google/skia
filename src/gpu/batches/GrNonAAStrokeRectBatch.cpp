@@ -45,7 +45,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
 }
 
-class NonAAStrokeRectBatch : public GrMeshDrawOp {
+class NonAAStrokeRectBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

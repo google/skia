@@ -94,7 +94,7 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathBatch : public GrMeshDrawOp {
+class DefaultPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

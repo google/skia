@@ -23,7 +23,7 @@ static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
     return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
 }
 
-class GrNonAANinePatchBatch : public GrMeshDrawOp {
+class GrNonAANinePatchBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

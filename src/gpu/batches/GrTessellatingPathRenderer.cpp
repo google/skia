@@ -156,7 +156,7 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     return true;
 }
 
-class TessellatingPathBatch : public GrMeshDrawOp {
+class TessellatingPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 

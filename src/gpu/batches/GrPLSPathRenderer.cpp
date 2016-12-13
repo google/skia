@@ -763,7 +763,7 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
-class PLSPathBatch : public GrMeshDrawOp {
+class PLSPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)

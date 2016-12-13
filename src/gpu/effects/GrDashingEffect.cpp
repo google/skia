@@ -238,7 +238,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords);
 
-class DashBatch : public GrMeshDrawOp {
+class DashBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     struct Geometry {

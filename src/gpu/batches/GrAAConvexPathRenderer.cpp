@@ -732,7 +732,7 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAConvexPathBatch : public GrMeshDrawOp {
+class AAConvexPathBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     AAConvexPathBatch(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)

@@ -90,7 +90,7 @@ static void tesselate(intptr_t vertices,
 }
 
 // We handle perspective in the local matrix or viewmatrix with special batches
-class GrNonAAFillRectPerspectiveBatch : public GrMeshDrawOp {
+class GrNonAAFillRectPerspectiveBatch final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
