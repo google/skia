@@ -70,10 +70,9 @@ private:
             SkAutoSTArray<24, uint32_t> fKey;
         };
         Key                   fKey;
-        SkScalar              fScale;
         GrBatchAtlas::AtlasID fID;
         SkRect                fBounds;
-        SkIPoint16            fAtlasLocation;
+        SkRect                fTexCoords;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
         static inline const Key& GetKey(const ShapeData& data) {
