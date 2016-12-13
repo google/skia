@@ -366,7 +366,7 @@ public:
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
     void setDeviceClipRestriction(const SkIRect& rect) {
-        fClipRestrictionRect = SkRect::MakeFromIRect(rect);
+        fClipRestrictionRect = SkRect::Make(rect);
     }
 
     /**

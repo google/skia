@@ -149,8 +149,7 @@ private:
     inline void applyClipRestriction(SkRegion::Op op, SkRect* bounds) {
         if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
             && !fClipRestrictionRect->isEmpty()) {
-            auto fClipRestrictionRect2 = SkRect::MakeFromIRect(*fClipRestrictionRect);
-            if (!bounds->intersect(fClipRestrictionRect2)) {
+            if (!bounds->intersect(SkRect::Make(*fClipRestrictionRect))) {
                 bounds->setEmpty();
             }
         }
