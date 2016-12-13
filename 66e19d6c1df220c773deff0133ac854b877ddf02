@@ -34,6 +34,24 @@
       "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ade4329_1d453390",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-13T14:48:59Z",
+      "side": 1,
+      "message": "(trying to save a branch for the one introduced in this CL :)",
+      "parentUuid": "1ade4329_9d8dc3c7",
+      "revId": "66e19d6c1df220c773deff0133ac854b877ddf02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
