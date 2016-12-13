@@ -421,8 +421,11 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
                 SkIRect prevRect = prevFrame->frameRect();
                 if (prevRect.intersect(this->getInfo().bounds())) {
-                    auto left = get_scaled_dimension(prevRect.fLeft, fSwizzler->sampleX());
-                    auto top = get_scaled_dimension(prevRect.fTop, fSwizzler->sampleY());
+                    // Do the divide ourselves for left and top, since we do not want
+                    // get_scaled_dimension to upgrade 0 to 1. (This is similar to SkSampledCodec's
+                    // sampling of the subset.)
+                    auto left = prevRect.fLeft / fSwizzler->sampleX();
+                    auto top = prevRect.fTop / fSwizzler->sampleY();
                     void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
                             + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
                     auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
