@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ade4329_3d64af5e",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-13T14:16:35Z",
+      "side": 1,
+      "message": "Time to try \n\n    bool did_overflow \u003d __builtin_mul_overflow(count, dx, result)\n\n?  That should work #if defined(__GNUC__) || defined(__clang__), though we may need to limit it further to particular platforms (i.e. 64-bit x86 or ARM) to really guarantee it\u0027s worth using, and not just a call into some runtime library.",
+      "revId": "311b51e6f74e9ea090aa2d3ac18b9e5700a93e00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ade4329_5d697b35",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-13T14:16:35Z",
+      "side": 1,
+      "message": "Probably want to update ua and ub names if you\u0027re changing a and b.",
+      "revId": "311b51e6f74e9ea090aa2d3ac18b9e5700a93e00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
