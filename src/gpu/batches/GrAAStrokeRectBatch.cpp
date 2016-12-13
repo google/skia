@@ -116,14 +116,13 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAStrokeRectBatch : public GrMeshDrawOp {
+class AAStrokeRectOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    AAStrokeRectBatch(GrColor color, const SkMatrix& viewMatrix,
-                      const SkRect& devOutside, const SkRect& devInside)
-            : INHERITED(ClassID())
-            , fViewMatrix(viewMatrix) {
+    AAStrokeRectOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& devOutside,
+                   const SkRect& devInside)
+        : INHERITED(ClassID()), fViewMatrix(viewMatrix) {
         SkASSERT(!devOutside.isEmpty());
         SkASSERT(!devInside.isEmpty());
 
@@ -132,22 +131,22 @@ public:
         fMiterStroke = true;
     }
 
-    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                            const SkStrokeRec& stroke) {
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                                const SkStrokeRec& stroke) {
         bool isMiter;
         if (!allowed_stroke(stroke, &isMiter)) {
             return nullptr;
         }
 
-        AAStrokeRectBatch* batch = new AAStrokeRectBatch();
-        batch->fMiterStroke = isMiter;
-        Geometry& geo = batch->fGeoData.push_back();
+        AAStrokeRectOp* op = new AAStrokeRectOp();
+        op->fMiterStroke = isMiter;
+        Geometry& geo = op->fGeoData.push_back();
         compute_rects(&geo.fDevOutside, &geo.fDevOutsideAssist, &geo.fDevInside, &geo.fDegenerate,
                       viewMatrix, rect, stroke.getWidth(), isMiter);
         geo.fColor = color;
-        batch->setBounds(geo.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
-        batch->fViewMatrix = viewMatrix;
-        return batch;
+        op->setBounds(geo.fDevOutside, HasAABloat::kYes, IsZeroArea::kNo);
+        op->fViewMatrix = viewMatrix;
+        return sk_sp<GrDrawOp>(op);
     }
 
     const char* name() const override { return "AAStrokeRect"; }
@@ -181,7 +180,7 @@ public:
     }
 
 private:
-    AAStrokeRectBatch() : INHERITED(ClassID()) {}
+    AAStrokeRectOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target*) const override;
     void initBatchTracker(const GrXPOverridesForBatch&) override;
@@ -244,7 +243,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
+void AAStrokeRectOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     // Handle any color overrides
     if (!overrides.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
@@ -259,7 +258,7 @@ void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides)
     fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
 }
 
-void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
+void AAStrokeRectOp::onPrepareDraws(Target* target) const {
     bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
     sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
@@ -311,9 +310,8 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     helper.recordDraw(target, gp.get());
 }
 
-const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                                  bool miterStroke) {
-
+const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                               bool miterStroke) {
     if (miterStroke) {
         static const uint16_t gMiterIndices[] = {
             0 + 0, 1 + 0, 5 + 0, 5 + 0, 4 + 0, 0 + 0,
@@ -402,8 +400,8 @@ const GrBuffer* AAStrokeRectBatch::GetIndexBuffer(GrResourceProvider* resourcePr
     }
 }
 
-bool AAStrokeRectBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    AAStrokeRectBatch* that = t->cast<AAStrokeRectBatch>();
+bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    AAStrokeRectOp* that = t->cast<AAStrokeRectOp>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                 that->bounds(), caps)) {
@@ -445,18 +443,18 @@ static void setup_scale(int* scale, SkScalar inset) {
     }
 }
 
-void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
-                                                     size_t offset,
-                                                     size_t vertexStride,
-                                                     int outerVertexNum,
-                                                     int innerVertexNum,
-                                                     GrColor color,
-                                                     const SkRect& devOutside,
-                                                     const SkRect& devOutsideAssist,
-                                                     const SkRect& devInside,
-                                                     bool miterStroke,
-                                                     bool degenerate,
-                                                     bool tweakAlphaForCoverage) const {
+void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
+                                                  size_t offset,
+                                                  size_t vertexStride,
+                                                  int outerVertexNum,
+                                                  int innerVertexNum,
+                                                  GrColor color,
+                                                  const SkRect& devOutside,
+                                                  const SkRect& devOutsideAssist,
+                                                  const SkRect& devInside,
+                                                  bool miterStroke,
+                                                  bool degenerate,
+                                                  bool tweakAlphaForCoverage) const {
     intptr_t verts = reinterpret_cast<intptr_t>(vertices) + offset;
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
@@ -595,20 +593,20 @@ void AAStrokeRectBatch::generateAAStrokeRectGeometry(void* vertices,
     }
 }
 
-namespace GrAAStrokeRectBatch {
+namespace GrAAStrokeRectOp {
 
-GrDrawOp* CreateFillBetweenRects(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& devOutside,
-                                 const SkRect& devInside) {
-    return new AAStrokeRectBatch(color, viewMatrix, devOutside, devInside);
+sk_sp<GrDrawOp> MakeFillBetweenRects(GrColor color,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& devOutside,
+                                     const SkRect& devInside) {
+    return sk_sp<GrDrawOp>(new AAStrokeRectOp(color, viewMatrix, devOutside, devInside));
 }
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec& stroke) {
-    return AAStrokeRectBatch::Create(color, viewMatrix, rect, stroke);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkStrokeRec& stroke) {
+    return AAStrokeRectOp::Make(color, viewMatrix, rect, stroke);
 }
 
 }
@@ -619,7 +617,7 @@ GrDrawOp* Create(GrColor color,
 
 #include "GrBatchTest.h"
 
-DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
+DRAW_BATCH_TEST_DEFINE(AAStrokeRectOp) {
     bool miterStroke = random->nextBool();
 
     // Create either a empty rect or a non-empty rect.
@@ -636,7 +634,7 @@ DRAW_BATCH_TEST_DEFINE(AAStrokeRectBatch) {
                         miterStroke ? SkPaint::kMiter_Join : SkPaint::kBevel_Join,
                         1.f);
     SkMatrix matrix = GrTest::TestMatrixRectStaysRect(random);
-    return GrAAStrokeRectBatch::Create(color, matrix, rect, rec);
+    return GrAAStrokeRectOp::Make(color, matrix, rect, rec).get();
 }
 
 #endif

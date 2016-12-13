@@ -9,6 +9,7 @@
 #define GrAnalyticRectBatch_DEFINED
 
 #include "GrColor.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 class SkMatrix;
@@ -24,13 +25,13 @@ struct SkRect;
  * @param croppedRect  the shape in device space, clipped to the device's bounds
  * @param bounds       the axis aligned bounds of the shape in device space
  */
-class GrAnalyticRectBatch {
+class GrAnalyticRectOp {
 public:
-    static GrDrawOp* CreateAnalyticRectBatch(GrColor color,
-                                             const SkMatrix& viewMatrix,
-                                             const SkRect& rect,
-                                             const SkRect& croppedRect,
-                                             const SkRect& bounds);
+    static sk_sp<GrDrawOp> MakeAnalyticRect(GrColor color,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRect& rect,
+                                            const SkRect& croppedRect,
+                                            const SkRect& bounds);
 };
 
 #endif // GrAnalyticRectBatch_DEFINED

@@ -9,22 +9,20 @@
 #define GrNonAAStrokeRectBatch_DEFINED
 
 #include "GrColor.h"
-
-#include "SkTypes.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 struct SkRect;
 class SkStrokeRec;
 class SkMatrix;
 
-namespace GrNonAAStrokeRectBatch {
+namespace GrNonAAStrokeRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec&,
-                 bool snapToPixelCenters);
-
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkStrokeRec&,
+                     bool snapToPixelCenters);
 }
 
 #endif

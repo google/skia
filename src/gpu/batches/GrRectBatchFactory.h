@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRectBatchFactory_DEFINED
-#define GrRectBatchFactory_DEFINED
+#ifndef GrRectOpFactory_DEFINED
+#define GrRectOpFactory_DEFINED
 
 #include "GrAAFillRectBatch.h"
 #include "GrAAStrokeRectBatch.h"
@@ -16,68 +16,68 @@
 #include "GrNonAAStrokeRectBatch.h"
 #include "GrPaint.h"
 #include "SkMatrix.h"
+#include "SkRefCnt.h"
+#include "batches/GrDrawOp.h"
 
-class GrOp;
 struct SkRect;
 class SkStrokeRec;
 
 /*
  * A factory for returning batches which can draw rectangles.
  */
-namespace GrRectBatchFactory {
+namespace GrRectOpFactory {
 
-inline GrDrawOp* CreateNonAAFill(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkRect* localRect,
-                                 const SkMatrix* localMatrix) {
+inline sk_sp<GrDrawOp> MakeNonAAFill(GrColor color,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& rect,
+                                     const SkRect* localRect,
+                                     const SkMatrix* localMatrix) {
     if (viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective())) {
-        return GrNonAAFillRectBatch::CreateWithPerspective(color, viewMatrix, rect, localRect,
-                                                           localMatrix);
+        return GrNonAAFillRectOp::MakeWithPerspective(color, viewMatrix, rect, localRect,
+                                                      localMatrix);
     } else {
-        return GrNonAAFillRectBatch::Create(color, viewMatrix, rect, localRect, localMatrix);
+        return GrNonAAFillRectOp::Make(color, viewMatrix, rect, localRect, localMatrix);
     }
 }
 
-inline GrDrawOp* CreateAAFill(const GrPaint& paint,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkRect& croppedRect,
-                              const SkRect& devRect) {
+inline sk_sp<GrDrawOp> MakeAAFill(const GrPaint& paint,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect& rect,
+                                  const SkRect& croppedRect,
+                                  const SkRect& devRect) {
     if (!paint.usesDistanceVectorField()) {
-        return GrAAFillRectBatch::Create(paint.getColor(), viewMatrix, croppedRect, devRect);
+        return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
     } else {
-        return GrAnalyticRectBatch::CreateAnalyticRectBatch(paint.getColor(), viewMatrix, rect,
-                                                            croppedRect, devRect);
+        return GrAnalyticRectOp::MakeAnalyticRect(paint.getColor(), viewMatrix, rect, croppedRect,
+                                                  devRect);
     }
 }
 
-inline GrDrawOp* CreateAAFill(GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkMatrix& localMatrix,
-                              const SkRect& rect,
-                              const SkRect& devRect) {
-    return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
+inline sk_sp<GrDrawOp> MakeAAFill(GrColor color,
+                                  const SkMatrix& viewMatrix,
+                                  const SkMatrix& localMatrix,
+                                  const SkRect& rect,
+                                  const SkRect& devRect) {
+    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-inline GrDrawOp* CreateNonAAStroke(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkStrokeRec& strokeRec,
-                                   bool snapToPixelCenters) {
-    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
+inline sk_sp<GrDrawOp> MakeNonAAStroke(GrColor color,
+                                       const SkMatrix& viewMatrix,
+                                       const SkRect& rect,
+                                       const SkStrokeRec& strokeRec,
+                                       bool snapToPixelCenters) {
+    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
 }
 
-inline GrDrawOp* CreateAAStroke(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkRect& rect,
-                                const SkStrokeRec& stroke) {
-    return GrAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke);
+inline sk_sp<GrDrawOp> MakeAAStroke(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkStrokeRec& stroke) {
+    return GrAAStrokeRectOp::Make(color, viewMatrix, rect, stroke);
 }
 
 // First rect is outer; second rect is inner
-GrDrawOp* CreateAAFillNestedRects(GrColor, const SkMatrix& viewMatrix, const SkRect rects[2]);
-
+sk_sp<GrDrawOp> MakeAAFillNestedRects(GrColor, const SkMatrix& viewMatrix, const SkRect rects[2]);
 };
 
 #endif

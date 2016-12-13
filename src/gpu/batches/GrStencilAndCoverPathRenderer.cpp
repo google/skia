@@ -113,8 +113,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        sk_sp<GrDrawOp> coverOp(GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM,
-                                                                    bounds, nullptr, &invert));
+        sk_sp<GrDrawOp> coverOp(GrRectOpFactory::MakeNonAAFill(args.fPaint->getColor(), viewM,
+                                                               bounds, nullptr, &invert));
 
         // fake inverse with a stencil and cover
         args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,

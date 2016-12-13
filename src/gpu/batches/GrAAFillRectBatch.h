@@ -9,33 +9,33 @@
 #define GrAAFillRectBatch_DEFINED
 
 #include "GrColor.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 class SkMatrix;
-class GrOp;
 struct SkRect;
 
-namespace GrAAFillRectBatch {
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect& devRect);
+namespace GrAAFillRectOp {
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkRect& devRect);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
-                 const SkRect& rect);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkMatrix& localMatrix,
+                     const SkRect& rect);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
-                 const SkRect& rect,
-                 const SkRect& devRect);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkMatrix& localMatrix,
+                     const SkRect& rect,
+                     const SkRect& devRect);
 
-GrDrawOp* CreateWithLocalRect(GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkRect& localRect);
+sk_sp<GrDrawOp> MakeWithLocalRect(GrColor color,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect& rect,
+                                  const SkRect& localRect);
 };
 
 #endif

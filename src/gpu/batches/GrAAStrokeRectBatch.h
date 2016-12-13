@@ -9,6 +9,7 @@
 #define GrAAStrokeRectBatch_DEFINED
 
 #include "GrColor.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 class GrResourceProvider;
@@ -16,18 +17,17 @@ class SkMatrix;
 struct SkRect;
 class SkStrokeRec;
 
-namespace GrAAStrokeRectBatch {
+namespace GrAAStrokeRectOp {
 
-GrDrawOp* CreateFillBetweenRects(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& devOutside,
-                                 const SkRect& devInside);
+sk_sp<GrDrawOp> MakeFillBetweenRects(GrColor color,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& devOutside,
+                                     const SkRect& devInside);
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec& stroke);
-
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkStrokeRec& stroke);
 }
 
 #endif

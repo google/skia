@@ -157,15 +157,16 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         }
     }
 }
-class AAFillRectBatch : public GrMeshDrawOp {
+class AAFillRectOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    AAFillRectBatch(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect,
-                    const SkMatrix* localMatrix) : INHERITED(ClassID()) {
+    AAFillRectOp(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkRect& devRect,
+                 const SkMatrix* localMatrix)
+        : INHERITED(ClassID()) {
         if (localMatrix) {
             void* mem = fRectData.push_back_n(sizeof(RectWithLocalMatrixInfo));
             new (mem) RectWithLocalMatrixInfo(color, viewMatrix, rect, devRect, *localMatrix);
@@ -179,7 +180,7 @@ public:
         fRectCnt = 1;
     }
 
-    const char* name() const override { return "AAFillRectBatch"; }
+    const char* name() const override { return "AAFillRectOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
@@ -267,7 +268,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AAFillRectBatch* that = t->cast<AAFillRectBatch>();
+        AAFillRectOp* that = t->cast<AAFillRectOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -342,43 +343,43 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrAAFillRectBatch {
+namespace GrAAFillRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect& devRect) {
-    return new AAFillRectBatch(color, viewMatrix, rect, devRect, nullptr);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkRect& devRect) {
+    return sk_sp<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
 }
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
-                 const SkRect& rect,
-                 const SkRect& devRect) {
-    return new AAFillRectBatch(color, viewMatrix, rect, devRect, &localMatrix);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkMatrix& localMatrix,
+                     const SkRect& rect,
+                     const SkRect& devRect) {
+    return sk_sp<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, &localMatrix));
 }
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkMatrix& localMatrix,
-                 const SkRect& rect) {
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkMatrix& localMatrix,
+                     const SkRect& rect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
-    return Create(color, viewMatrix, localMatrix, rect, devRect);
+    return Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-GrDrawOp* CreateWithLocalRect(GrColor color,
-                              const SkMatrix& viewMatrix,
-                              const SkRect& rect,
-                              const SkRect& localRect) {
+sk_sp<GrDrawOp> MakeWithLocalRect(GrColor color,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect& rect,
+                                  const SkRect& localRect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
     SkMatrix localMatrix;
     if (!localMatrix.setRectToRect(rect, localRect, SkMatrix::kFill_ScaleToFit)) {
         return nullptr;
     }
-    return Create(color, viewMatrix, localMatrix, rect, devRect);
+    return Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
 };
@@ -394,7 +395,7 @@ DRAW_BATCH_TEST_DEFINE(AAFillRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect devRect = GrTest::TestRect(random);
-    return GrAAFillRectBatch::Create(color, viewMatrix, rect, devRect);
+    return GrAAFillRectOp::Make(color, viewMatrix, rect, devRect).get();
 }
 
 DRAW_BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
@@ -403,7 +404,7 @@ DRAW_BATCH_TEST_DEFINE(AAFillRectBatchLocalMatrix) {
     SkMatrix localMatrix = GrTest::TestMatrix(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect devRect = GrTest::TestRect(random);
-    return GrAAFillRectBatch::Create(color, viewMatrix, localMatrix, rect, devRect);
+    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect).get();
 }
 
 #endif

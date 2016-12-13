@@ -71,13 +71,13 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-class NonAAFillRectBatch : public GrMeshDrawOp {
+class NonAAFillRectOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                       const SkRect* localRect, const SkMatrix* localMatrix)
-            : INHERITED(ClassID()) {
+    NonAAFillRectOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                    const SkRect* localRect, const SkMatrix* localMatrix)
+        : INHERITED(ClassID()) {
         SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix ||
                                                   !localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
@@ -96,7 +96,7 @@ public:
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "NonAAFillRectBatch"; }
+    const char* name() const override { return "NonAAFillRectOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
@@ -126,7 +126,7 @@ public:
     }
 
 private:
-    NonAAFillRectBatch() : INHERITED(ClassID()) {}
+    NonAAFillRectOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
@@ -160,7 +160,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        NonAAFillRectBatch* that = t->cast<NonAAFillRectBatch>();
+        NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -190,14 +190,14 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrNonAAFillRectBatch {
+namespace GrNonAAFillRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect* localRect,
-                 const SkMatrix* localMatrix) {
-    return new NonAAFillRectBatch(color, viewMatrix, rect, localRect, localMatrix);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkRect* localRect,
+                     const SkMatrix* localMatrix) {
+    return sk_sp<GrDrawOp>(new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 
 };
@@ -217,9 +217,9 @@ DRAW_BATCH_TEST_DEFINE(RectBatch) {
 
     bool hasLocalRect = random->nextBool();
     bool hasLocalMatrix = random->nextBool();
-    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect,
-                                        hasLocalRect ? &localRect : nullptr,
-                                        hasLocalMatrix ? &localMatrix : nullptr);
+    return GrNonAAFillRectOp::Make(color, viewMatrix, rect, hasLocalRect ? &localRect : nullptr,
+                                   hasLocalMatrix ? &localMatrix : nullptr)
+            .get();
 }
 
 #endif

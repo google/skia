@@ -9,25 +9,25 @@
 #define GrNonAAFillRectBatch_DEFINED
 
 #include "GrColor.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 class SkMatrix;
 struct SkRect;
 
-namespace GrNonAAFillRectBatch {
+namespace GrNonAAFillRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect* localRect,
-                 const SkMatrix* localMatrix);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkRect* localRect,
+                     const SkMatrix* localMatrix);
 
-GrDrawOp* CreateWithPerspective(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkRect& rect,
-                                const SkRect* localRect,
-                                const SkMatrix* localMatrix);
-
+sk_sp<GrDrawOp> MakeWithPerspective(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect* localRect,
+                                    const SkMatrix* localMatrix);
 };
 
 #endif

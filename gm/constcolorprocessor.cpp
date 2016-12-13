@@ -109,9 +109,8 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    sk_sp<GrDrawOp> op(
-                            GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
-                                                                renderRect, nullptr, nullptr));
+                    sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                            grPaint.getColor(), viewMatrix, renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                       std::move(op));
 
