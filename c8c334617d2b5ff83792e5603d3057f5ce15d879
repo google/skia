@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8d391bbb_be24ad76",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-13T21:34:14Z",
+      "side": 1,
+      "message": "Haha indeed. Fixed.",
+      "parentUuid": "1ade4329_dd9bcb5b",
+      "revId": "c8c334617d2b5ff83792e5603d3057f5ce15d879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1ade4329_406ef071",
         "filename": "BUILD.gn",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-13T21:22:03Z",
       "side": 1,
       "message": "I always forget this too.  You\u0027ll want to add \":ktx_encoder\" here.",
+      "revId": "c8c334617d2b5ff83792e5603d3057f5ce15d879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d391bbb_1e14d907",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-13T21:34:14Z",
+      "side": 1,
+      "message": "Fixed. Thanks!",
+      "parentUuid": "1ade4329_406ef071",
       "revId": "c8c334617d2b5ff83792e5603d3057f5ce15d879",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
