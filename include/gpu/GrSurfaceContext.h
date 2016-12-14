@@ -46,6 +46,9 @@ protected:
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
