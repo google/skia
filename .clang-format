@@ -49,7 +49,7 @@ BreakStringLiterals: true
 ColumnLimit:     100
 CommentPragmas:  '^ IWYU pragma:'
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth: 4
+ConstructorInitializerIndentWidth: 8
 ContinuationIndentWidth: 8
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
