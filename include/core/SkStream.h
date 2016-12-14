@@ -377,9 +377,7 @@ public:
 
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override { return fBytesWritten; }
-    // random access write
-    // modifies stream and returns true if offset + size is less than or equal to getOffset()
-    bool write(const void* buffer, size_t offset, size_t size);
+
     bool read(void* buffer, size_t offset, size_t size);
     size_t getOffset() const { return fBytesWritten; }
 
