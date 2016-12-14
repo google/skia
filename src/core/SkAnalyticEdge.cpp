@@ -39,43 +39,31 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
     fY          = y0;
     fUpperY     = y0;
     fLowerY     = y1;
-    fDY         = (absSlope | dx) == 0
-                  ? SK_MaxS32
-                  : absSlope < kInverseTableSize
-                    ? QuickFDot6Inverse::Lookup(absSlope)
-                    : SkAbs32(QuickSkFDot6Div(dy, dx));
+    fDY         = (dx == 0 || absSlope == 0)
+                        ? QuickFDot6Inverse::Lookup(1)
+                        : absSlope < kInverseTableSize
+                                ? QuickFDot6Inverse::Lookup(absSlope)
+                                : SkAbs32(QuickSkFDot6Div(dy, dx));
 
     return true;
 }
 
-void SkAnalyticEdge::chopLineWithClip(const SkIRect& clip) {
-    int top = SkFixedFloorToInt(fUpperY);
-
-    SkASSERT(top < clip.fBottom);
-
-    // clip the line to the clip top
-    if (top < clip.fTop) {
-        SkASSERT(SkFixedCeilToInt(fLowerY) > clip.fTop);
-        SkFixed newY = SkIntToFixed(clip.fTop);
-        this->goY(newY);
-        fUpperY = newY;
-    }
-}
-
 bool SkAnalyticQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
-    if (!fQEdge.setQuadraticWithoutUpdate(pts, 2)) {
+    fRiteE = nullptr;
+
+    if (!fQEdge.setQuadraticWithoutUpdate(pts, SkAnalyticEdge::kDefaultAccuracy)) {
         return false;
     }
-    fQEdge.fQx >>= 2;
-    fQEdge.fQy >>= 2;
-    fQEdge.fQDx >>= 2;
-    fQEdge.fQDy >>= 2;
-    fQEdge.fQDDx >>= 2;
-    fQEdge.fQDDy >>= 2;
-    fQEdge.fQLastX >>= 2;
-    fQEdge.fQLastY >>= 2;
-    fQEdge.fQy = snapY(fQEdge.fQy);
-    fQEdge.fQLastY = snapY(fQEdge.fQLastY);
+    fQEdge.fQx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQDx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQDy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQDDx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQDDy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQLastX >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQLastY >>= SkAnalyticEdge::kDefaultAccuracy;
+    fQEdge.fQy = SnapY(fQEdge.fQy);
+    fQEdge.fQLastY = SnapY(fQEdge.fQLastY);
 
     fWinding = fQEdge.fWinding;
     fCurveCount = fQEdge.fCurveCount;
@@ -87,7 +75,7 @@ bool SkAnalyticQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     return this->updateQuadratic();
 }
 
-bool SkAnalyticQuadraticEdge::updateQuadratic() {
+bool SkAnalyticQuadraticEdge::updateQuadratic(bool keepContinuous) {
     int     success = 0; // initialize to fail!
     int     count = fCurveCount;
     SkFixed oldx = fQEdge.fQx;
@@ -99,21 +87,33 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
 
     SkASSERT(count > 0);
 
+    if (keepContinuous) {
+        // We use fX as the starting x to ensure the continuouty.
+        // Without it, we may break the sorted edge list.
+        SkASSERT(SkAbs32(fX - SkFixedMul(fY - fSnappedY, fDX) - fSnappedX) < SK_Fixed1);
+        SkASSERT(SkAbs32(fY - fSnappedY) < SK_Fixed1); // This may differ due to smooth jump
+        fSnappedX = fX;
+        fSnappedY = fY;
+    }
+
     do {
         SkFixed slope;
         if (--count > 0)
         {
             newx    = oldx + (dx >> shift);
             newy    = oldy + (dy >> shift);
-            SkFDot6 diffY = (newy - fSnappedY) >> 10;
-            slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
             if (SkAbs32(dy >> shift) >= SK_Fixed1 * 2) { // only snap when dy is large enough
+                slope = SkAnalyticEdge::SafeDiv(newx - fSnappedX, newy - fSnappedY);
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx - SkFixedMul(slope, newy - newSnappedY);
             } else {
-                newSnappedY = SkTMin(fQEdge.fQLastY, snapY(newy));
+                newSnappedY = SkTMin(fQEdge.fQLastY, SnapY(newy));
                 newSnappedX = newx;
+                slope = SkAnalyticEdge::SafeDiv(newx - fSnappedX, newSnappedY - fSnappedY);
             }
+            SkASSERT(slope == SK_MaxS32 ||
+                    SkAbs32(fSnappedX + SkFixedMul(slope, newSnappedY - fSnappedY) - newSnappedX)
+                    < SK_FixedHalf);
             dx += fQEdge.fQDDx;
             dy += fQEdge.fQDDy;
         }
@@ -123,10 +123,10 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newy    = fQEdge.fQLastY;
             newSnappedY = newy;
             newSnappedX = newx;
-            SkFDot6 diffY = (newy - fSnappedY) >> 10;
-            slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
+            slope = SkAnalyticEdge::SafeDiv(newx - fSnappedX, newy - fSnappedY);
         }
         if (slope < SK_MaxS32) {
+            SkASSERT(!keepContinuous || fSnappedY >= fY);
             success = this->updateLine(fSnappedX, fSnappedY, newSnappedX, newSnappedY, slope);
         }
         oldx = newx;
@@ -146,32 +146,36 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
 }
 
 bool SkAnalyticCubicEdge::setCubic(const SkPoint pts[4]) {
-    if (!fCEdge.setCubicWithoutUpdate(pts, 2)) {
+    fRiteE = nullptr;
+
+    if (!fCEdge.setCubicWithoutUpdate(pts, SkAnalyticEdge::kDefaultAccuracy)) {
         return false;
     }
 
-    fCEdge.fCx >>= 2;
-    fCEdge.fCy >>= 2;
-    fCEdge.fCDx >>= 2;
-    fCEdge.fCDy >>= 2;
-    fCEdge.fCDDx >>= 2;
-    fCEdge.fCDDy >>= 2;
-    fCEdge.fCDDDx >>= 2;
-    fCEdge.fCDDDy >>= 2;
-    fCEdge.fCLastX >>= 2;
-    fCEdge.fCLastY >>= 2;
-    fCEdge.fCy = snapY(fCEdge.fCy);
-    fCEdge.fCLastY = snapY(fCEdge.fCLastY);
+    fCEdge.fCx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDDx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDDy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDDDx >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCDDDy >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCLastX >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCLastY >>= SkAnalyticEdge::kDefaultAccuracy;
+    fCEdge.fCy = SnapY(fCEdge.fCy);
+    fCEdge.fCLastY = SnapY(fCEdge.fCLastY);
 
     fWinding = fCEdge.fWinding;
     fCurveCount = fCEdge.fCurveCount;
     fCurveShift = fCEdge.fCurveShift;
     fCubicDShift = fCEdge.fCubicDShift;
 
+    fSnappedY = fCEdge.fCy;
+
     return this->updateCubic();
 }
 
-bool SkAnalyticCubicEdge::updateCubic() {
+bool SkAnalyticCubicEdge::updateCubic(bool keepContinuous) {
     int     success;
     int     count = fCurveCount;
     SkFixed oldx = fCEdge.fCx;
@@ -179,6 +183,14 @@ bool SkAnalyticCubicEdge::updateCubic() {
     SkFixed newx, newy;
     const int ddshift = fCurveShift;
     const int dshift = fCubicDShift;
+
+    SkFixed startX = oldx;
+    // Maintain continuouty as we did in SkAnalyticQuadraticEdge
+    if (keepContinuous) {
+        SkASSERT(SkAbs32(fX - SkFixedMul(fDX, fY - SnapY(oldy)) - oldx) < SK_Fixed1);
+        startX = fX;
+        fSnappedY = fY;
+    }
 
     SkASSERT(count < 0);
 
@@ -203,17 +215,22 @@ bool SkAnalyticCubicEdge::updateCubic() {
             newy = oldy;
         }
 
-        SkFixed snappedOldY = SkAnalyticEdge::snapY(oldy);
-        SkFixed snappedNewY = SkAnalyticEdge::snapY(newy);
-        SkFixed slope = SkFixedToFDot6(snappedNewY - snappedOldY) == 0
-                        ? SK_MaxS32
-                        : SkFDot6Div(SkFixedToFDot6(newx - oldx),
-                                     SkFixedToFDot6(snappedNewY - snappedOldY));
+        SkFixed newSnappedY = SkAnalyticEdge::SnapY(newy);
+        // we want to SkASSERT(snappedNewY <= fCEdge.fCLastY), but our finite fixedpoint
+        // doesn't always achieve that, so we have to explicitly pin it here.
+        if (fCEdge.fCLastY < newSnappedY) {
+            newSnappedY = fCEdge.fCLastY;
+            count = 0;
+        }
 
-        success = this->updateLine(oldx, snappedOldY, newx, snappedNewY, slope);
+        SkFixed slope = SkAnalyticEdge::SafeDiv(newx - startX, newSnappedY - fSnappedY);
+
+        SkASSERT(!keepContinuous || fSnappedY >= fY);
+        success = this->updateLine(startX, fSnappedY, newx, newSnappedY, slope);
 
         oldx = newx;
         oldy = newy;
+        fSnappedY = newSnappedY;
     } while (count < 0 && !success);
 
     fCEdge.fCx  = newx;
