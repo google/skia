@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a23133a_79d367ee",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 92,
+        "startChar": 20,
+        "endLine": 92,
+        "endChar": 24
+      },
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_c7029e27",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "[native] \u003c\u003d [empty] \u003c [candidate]   \u003d\u003d GOOD, can move candidate to empty slot\n[empty] \u003c [native] \u003c [candidate]  \u003d\u003d BAD, need to leave candidate where it is",
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_a7f7aa17",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 106,
+        "startChar": 24,
+        "endLine": 106,
+        "endChar": 28
+      },
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_87fca6fc",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "nice to {}",
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_47efce40",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "Let\u0027s steal and use Slot https://skia-review.googlesource.com/c/6042/3/include/private/SkTHash.h#180... little more foolproof.",
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_27ecda49",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T18:31:22Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 161,
+        "startChar": 20,
+        "endLine": 161,
+        "endChar": 24
+      },
+      "revId": "5d48ec4831495bdfa2c36cf44c766c06e9e14de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
