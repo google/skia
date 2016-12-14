@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a0b5ba9_c77cde5f",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T20:56:03Z",
+      "side": 1,
+      "message": "Is everything the same if you write this as memcpy(dst, src, 4)?\n\nif (size \u003d\u003d 4) {\n   memcpy(dst, src, 4);\n} else {\n   memcpy(dst, src, size);\n}",
+      "revId": "966f8a3869c49e1a7586d9c7884a090c71f3cf13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
