@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a23133a_79512724",
+        "filename": "src/core/SkColorSpace_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-14T19:13:54Z",
+      "side": 1,
+      "message": "(will remove whitespace), also just got tired of typing gammas-\u003edata(i).fTable.fSize a billion times.",
+      "revId": "936774cfc5943ad9ce68c4be410e679eb8f6a234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
