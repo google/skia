@@ -45,6 +45,12 @@ GrTextureContext::~GrTextureContext() {
     SkSafeUnref(fOpList);
 }
 
+GrRenderTargetProxy* GrTextureContext::asDeferredRenderTarget() {
+    // If the proxy can return an RTProxy it should've been wrapped in a RTContext
+    SkASSERT(!fTextureProxy->asRenderTargetProxy());
+    return nullptr;
+}
+
 GrTextureOpList* GrTextureContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
