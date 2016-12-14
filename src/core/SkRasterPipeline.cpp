@@ -11,6 +11,14 @@
 SkRasterPipeline::SkRasterPipeline() {}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
+#ifdef SK_DEBUG
+    switch (stage) {
+        case from_srgb:
+        case from_srgb_d:
+            SkDEBUGFAIL("Please use append_srgb[_d]() instead.");
+        default: break;
+    }
+#endif
     fStages.push_back({stage, ctx});
 }
 
@@ -41,4 +49,30 @@ void SkRasterPipeline::dump() const {
         SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
+}
+
+// It's pretty easy to start with sound premultiplied linear floats, pack those
+// to sRGB encoded bytes, then read them back to linear floats and find them not
+// quite premultiplied, with a color channel just a smidge greater than the alpha
+// channel.  This can happen basically any time we have different transfer
+// functions for alpha and colors... sRGB being the only one we draw into.
+
+// This is an annoying problem with no known good solution.  So apply the clamp hammer.
+
+void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
+    //this->append(from_srgb);
+    fStages.push_back({from_srgb, nullptr});
+
+    if (at == kPremul_SkAlphaType) {
+        this->append(SkRasterPipeline::clamp_a);
+    }
+}
+
+void SkRasterPipeline::append_from_srgb_d(SkAlphaType at) {
+    //this->append(from_srgb_d);
+    fStages.push_back({from_srgb_d, nullptr});
+
+    if (at == kPremul_SkAlphaType) {
+        this->append(SkRasterPipeline::clamp_a_d);
+    }
 }

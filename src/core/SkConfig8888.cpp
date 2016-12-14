@@ -47,7 +47,7 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         case kBGRA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::load_8888, &srcRow);
             if (src_srgb) {
-                pipeline.append(SkRasterPipeline::from_srgb);
+                pipeline.append_from_srgb(srcInfo.alphaType());
             }
             if (swap_rb) {
                 pipeline.append(SkRasterPipeline::swap_rb);
