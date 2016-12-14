@@ -11,7 +11,11 @@ declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
-  ndk_api = 21
+  if (target_cpu == "x86" || target_cpu == "mipsel" || target_cpu == "arm") {
+    ndk_api = 18
+  } else {
+    ndk_api = 21
+  }
   sanitize = ""
 }
 declare_args() {

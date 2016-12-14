@@ -158,8 +158,8 @@ config("default") {
     ]
     cflags_cc += [
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",  # Through r12b.
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",  # Since r13.
+      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/include",
+      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib/include",
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
@@ -167,7 +167,7 @@ config("default") {
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     lib_dirs = [
-      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
+      "$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
 
@@ -179,15 +179,7 @@ config("default") {
       ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
     }
 
-    libs += [
-      # Order matters here!  Keep these three in exactly this order.
-      "c++_static",
-      "c++abi",
-      "android_support",
-    ]
-    if (target_cpu == "arm") {
-      libs += [ "unwind" ]
-    }
+    libs += [ "gnustl_static" ]
   }
 
   if (is_ios) {
