@@ -18,19 +18,12 @@
 struct SkIPoint16 {
     int16_t fX, fY;
 
-    static SkIPoint16 Make(int x, int y) {
-        SkIPoint16 pt;
-        pt.set(x, y);
-        return pt;
-    }
+    static SkIPoint16 Make(int x, int y) { return SkIPoint16{SkToS16(x), SkToS16(y)}; }
 
     int16_t x() const { return fX; }
     int16_t y() const { return fY; }
 
-    void set(int x, int y) {
-        fX = SkToS16(x);
-        fY = SkToS16(y);
-    }
+    void set(int x, int y) { *this = SkIPoint16{SkToS16(x), SkToS16(y)}; }
 };
 
 /** \struct SkIPoint
@@ -40,11 +33,7 @@ struct SkIPoint16 {
 struct SkIPoint {
     int32_t fX, fY;
 
-    static SkIPoint Make(int32_t x, int32_t y) {
-        SkIPoint pt;
-        pt.set(x, y);
-        return pt;
-    }
+    static SkIPoint Make(int32_t x, int32_t y) { return SkIPoint{x, y}; }
 
     int32_t x() const { return fX; }
     int32_t y() const { return fY; }
@@ -59,10 +48,10 @@ struct SkIPoint {
     /**
      *  Set both fX and fY to zero. Same as set(0, 0)
      */
-    void setZero() { fX = fY = 0; }
+    void setZero() { *this = SkIPoint{0, 0}; }
 
     /** Set the x and y values of the point. */
-    void set(int32_t x, int32_t y) { fX = x; fY = y; }
+    void set(int32_t x, int32_t y) { *this = SkIPoint{x, y}; }
 
     /** Rotate the point clockwise, writing the new point into dst
         It is legal for dst == this
@@ -91,12 +80,7 @@ struct SkIPoint {
     /** Return a new point whose X and Y coordinates are the negative of the
         original point's
     */
-    SkIPoint operator-() const {
-        SkIPoint neg;
-        neg.fX = -fX;
-        neg.fY = -fY;
-        return neg;
-    }
+    SkIPoint operator-() const { return SkIPoint{-fX, -fY}; }
 
     /** Add v's coordinates to this point's */
     void operator+=(const SkIPoint& v) {
@@ -127,17 +111,13 @@ struct SkIPoint {
         a and b (i.e. a - b)
     */
     friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b) {
-        SkIPoint v;
-        v.set(a.fX - b.fX, a.fY - b.fY);
-        return v;
+        return SkIPoint{a.fX - b.fX, a.fY - b.fY};
     }
 
     /** Returns a new point whose coordinates are the sum of a and b (a + b)
     */
     friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b) {
-        SkIPoint v;
-        v.set(a.fX + b.fX, a.fY + b.fY);
-        return v;
+        return SkIPoint{a.fX + b.fX, a.fY + b.fY};
     }
 
     /** Returns the dot product of a and b, treating them as 2D vectors
@@ -156,11 +136,7 @@ struct SkIPoint {
 struct SK_API SkPoint {
     SkScalar    fX, fY;
 
-    static SkPoint Make(SkScalar x, SkScalar y) {
-        SkPoint pt;
-        pt.set(x, y);
-        return pt;
-    }
+    static SkPoint Make(SkScalar x, SkScalar y) { return SkPoint{x, y}; }
 
     SkScalar x() const { return fX; }
     SkScalar y() const { return fY; }
@@ -171,14 +147,13 @@ struct SK_API SkPoint {
     bool isZero() const { return (0 == fX) & (0 == fY); }
 
     /** Set the point's X and Y coordinates */
-    void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
+    void set(SkScalar x, SkScalar y) { *this = SkPoint{x, y}; }
 
     /** Set the point's X and Y coordinates by automatically promoting (x,y) to
         SkScalar values.
     */
     void iset(int32_t x, int32_t y) {
-        fX = SkIntToScalar(x);
-        fY = SkIntToScalar(y);
+        *this = SkPoint{SkIntToScalar(x), SkIntToScalar(y)};
     }
 
     /** Set the point's X and Y coordinates by automatically promoting p's

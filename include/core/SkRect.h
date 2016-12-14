@@ -20,11 +20,7 @@ struct SkRect;
 struct SK_API SkIRect {
     int32_t fLeft, fTop, fRight, fBottom;
 
-    static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty() {
-        SkIRect r;
-        r.setEmpty();
-        return r;
-    }
+    static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty() { return SkIRect{0, 0, 0, 0}; }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeLargest() {
         SkIRect r;
@@ -33,27 +29,19 @@ struct SK_API SkIRect {
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
-        SkIRect r;
-        r.set(0, 0, w, h);
-        return r;
+        return SkIRect{0, 0, w, h};
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
-        SkIRect r;
-        r.set(0, 0, size.width(), size.height());
-        return r;
+        return SkIRect{0, 0, size.width(), size.height()};
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
-        SkIRect rect;
-        rect.set(l, t, r, b);
-        return rect;
+        return SkIRect{l, t, r, b};
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
-        SkIRect r;
-        r.set(x, y, x + w, y + h);
-        return r;
+        return SkIRect {x, y, x + w, y + h};
     }
 
     int left() const { return fLeft; }
@@ -122,32 +110,25 @@ struct SK_API SkIRect {
 
     /** Set the rectangle to (0,0,0,0)
     */
-    void setEmpty() { memset(this, 0, sizeof(*this)); }
+    void setEmpty() { *this = SkIRect{0, 0, 0, 0}; }
 
     void set(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        fLeft   = left;
-        fTop    = top;
-        fRight  = right;
-        fBottom = bottom;
+        *this = SkIRect{left, top, right, bottom};
     }
     // alias for set(l, t, r, b)
     void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        this->set(left, top, right, bottom);
+        *this = SkIRect{left, top, right, bottom};
     }
 
     void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height) {
-        fLeft = x;
-        fTop = y;
-        fRight = x + width;
-        fBottom = y + height;
+        *this = SkIRect{x, y, x + width, y + height};
     }
 
     /**
      *  Make the largest representable rectangle
      */
     void setLargest() {
-        fLeft = fTop = SK_MinS32;
-        fRight = fBottom = SK_MaxS32;
+        *this = SkIRect{SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32};
     }
 
     /**
@@ -155,29 +136,28 @@ struct SK_API SkIRect {
      *  be max 32bit and right will be min 32bit).
      */
     void setLargestInverted() {
-        fLeft = fTop = SK_MaxS32;
-        fRight = fBottom = SK_MinS32;
+        *this = SkIRect{SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32};
     }
 
     /**
      *  Return a new IRect, built as an offset of this rect.
      */
     SkIRect makeOffset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
+        return SkIRect{fLeft + dx, fTop + dy, fRight + dx, fBottom + dy};
     }
 
     /**
      *  Return a new IRect, built as an inset of this rect.
      */
     SkIRect makeInset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight - dx, fBottom - dy);
+        return SkIRect{fLeft + dx, fTop + dy, fRight - dx, fBottom - dy};
     }
 
     /**
      *  Return a new Rect, built as an outset of this rect.
      */
     SkIRect makeOutset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft - dx, fTop - dy, fRight + dx, fBottom + dy);
+        return SkIRect{fLeft - dx, fTop - dy, fRight + dx, fBottom + dy};
     }
 
     /** Offset set the rectangle by adding dx to its left and right,
@@ -401,42 +381,29 @@ struct SK_API SkRect {
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
-        SkRect r;
-        r.set(0, 0, w, h);
-        return r;
+        return SkRect{0, 0, w, h};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
-        SkRect r;
-        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
-        return r;
+        return SkRect{0, 0, SkIntToScalar(w), SkIntToScalar(h)};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size) {
-        SkRect r;
-        r.set(0, 0, size.width(), size.height());
-        return r;
+        return SkRect{0, 0, size.width(), size.height()};
     }
 
     static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
                                                            SkScalar b) {
-        return SkRect {l, t, r, b};
+        return SkRect{l, t, r, b};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h) {
-        SkRect r;
-        r.set(x, y, x + w, y + h);
-        return r;
+        return SkRect{x, y, x + w, y + h};
     }
 
     SK_ATTR_DEPRECATED("use Make()")
     static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect) {
-        SkRect r;
-        r.set(SkIntToScalar(irect.fLeft),
-              SkIntToScalar(irect.fTop),
-              SkIntToScalar(irect.fRight),
-              SkIntToScalar(irect.fBottom));
-        return r;
+        return SkRect::Make(irect);
     }
 
     static SkRect Make(const SkISize& size) {
@@ -444,12 +411,10 @@ struct SK_API SkRect {
     }
     
     static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect) {
-        SkRect r;
-        r.set(SkIntToScalar(irect.fLeft),
-              SkIntToScalar(irect.fTop),
-              SkIntToScalar(irect.fRight),
-              SkIntToScalar(irect.fBottom));
-        return r;
+        return SkRect{SkIntToScalar(irect.fLeft),
+                      SkIntToScalar(irect.fTop),
+                      SkIntToScalar(irect.fRight),
+                      SkIntToScalar(irect.fBottom)};
     }
 
     /**
@@ -612,21 +577,21 @@ struct SK_API SkRect {
      *  Return a new Rect, built as an offset of this rect.
      */
     SkRect makeOffset(SkScalar dx, SkScalar dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
+        return SkRect{fLeft + dx, fTop + dy, fRight + dx, fBottom + dy};
     }
     
     /**
      *  Return a new Rect, built as an inset of this rect.
      */
     SkRect makeInset(SkScalar dx, SkScalar dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight - dx, fBottom - dy);
+        return SkRect{fLeft + dx, fTop + dy, fRight - dx, fBottom - dy};
     }
 
     /**
      *  Return a new Rect, built as an outset of this rect.
      */
     SkRect makeOutset(SkScalar dx, SkScalar dy) const {
-        return MakeLTRB(fLeft - dx, fTop - dy, fRight + dx, fBottom + dy);
+        return SkRect{fLeft - dx, fTop - dy, fRight + dx, fBottom + dy};
     }
 
     /** Offset set the rectangle by adding dx to its left and right,
