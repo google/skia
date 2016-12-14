@@ -16,6 +16,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
+#include "GrTextureProxy.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -340,7 +341,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = CreateSoftwareClipMask(context->textureProvider(), reducedClip);
+            result = CreateSoftwareClipMask(context, reducedClip);
         } else {
             result = CreateAlphaClipMask(context, reducedClip);
         }
@@ -425,11 +426,11 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
     return texture;
 }
 
-sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texProvider,
+sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrContext* context,
                                                          const GrReducedClip& reducedClip) {
     GrUniqueKey key;
     GetClipMaskKey(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
-    if (GrTexture* texture = texProvider->findAndRefTextureByUniqueKey(key)) {
+    if (GrTexture* texture = context->textureProvider()->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
 
@@ -437,7 +438,7 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
     // the top left corner of the resulting rect to the top left of the texture.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(reducedClip.width(), reducedClip.height());
 
-    GrSWMaskHelper helper(texProvider);
+    GrSWMaskHelper helper;
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
@@ -484,19 +485,14 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
         }
     }
 
-    // Allocate clip mask texture
-    GrSurfaceDesc desc;
-    desc.fWidth = reducedClip.width();
-    desc.fHeight = reducedClip.height();
-    desc.fConfig = kAlpha_8_GrPixelConfig;
+    sk_sp<GrTextureProxy> result(helper.toTexture(context, SkBackingFit::kApprox));
 
-    sk_sp<GrTexture> result(texProvider->createApproxTexture(desc));
-    if (!result) {
+    GrTexture* tex = result->instantiate(context->textureProvider());
+    if (!tex) {
         return nullptr;
     }
-    result->resourcePriv().setUniqueKey(key);
 
-    helper.toTexture(result.get());
+    tex->resourcePriv().setUniqueKey(key);
 
-    return result;
+    return sk_ref_sp(tex);
 }
