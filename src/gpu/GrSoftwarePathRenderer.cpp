@@ -201,12 +201,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         texture.reset(args.fResourceProvider->findAndRefTextureByUniqueKey(maskKey));
     }
     if (!texture) {
-        GrSWMaskHelper::TextureType type = useCache ? GrSWMaskHelper::TextureType::kExactFit
-                                                    : GrSWMaskHelper::TextureType::kApproximateFit;
+        SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
         texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
                                                              *boundsForMask, aa,
-                                                             type, args.fViewMatrix));
+                                                             fit, args.fViewMatrix));
         if (!texture) {
             return false;
         }
