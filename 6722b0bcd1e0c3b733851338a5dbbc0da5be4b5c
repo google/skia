@@ -22,6 +22,24 @@
       "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_c74a9ec8",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T14:35:54Z",
+      "side": 1,
+      "message": "\u003e This seems like the wrong way to do this, IMO. The comment for this method says:\n\u003e \n\u003e     /**\n\u003e      *  @param requestedColorType Color type requested by the client\n\u003e      *\n\u003e      *  If it is possible to decode to requestedColorType, this returns\n\u003e      *  requestedColorType.  Otherwise, this returns whichever color type\n\u003e      *  is suggested by the codec as the best match for the encoded data.\n\u003e      */\n\u003e \n\u003e Why not update the callers to request F16?\n\u003e \n\u003e Oh wait, the caller ultimately may come from Android\u0027s Java API, which does not have any notion of F16. And if they use a BitmapFactory.Options object, they\u0027ll be requesting N32 by default. It seems a little weird that we will not support their request when we can. (On a related note, we\u0027ll have doubled RAM use, since F16 is 8 bytes per pixel, versus N32\u0027s 4. The client didn\u0027t pick N32 to save RAM, though...)\n\u003e \n\nWe could potentially move this into the framework.  Ex: Expose getEncodedInfo() on SkAndroidCodec and allow the caller to request F16 on high precision images.  But then we\u0027re still lying to the Java client, and we have this code in two places (BitmapFactory, BitmapRegionDecoder).\n\nThe idea is that apps that opt for color correct behavior will use 16-bit pngs as wide gamut assets.  And they will want to preserve the additional precision - we\u0027d rather it be the default than force them to explicitly ask for it in the Options.\n\nI\u0027m not concerned about doubling anyone\u0027s memory use.  16-bit pngs are extremely rare - this behavior is really for assets that we intentionally encode to 16-bits.\n\nI agree that it is weird to not support the request when we can.  I don\u0027t feel great about this - Android did already break this contract with gif and wbmp... not sure that this makes it any better here.  The counterargument is that almost all apps use the default options, but users of wide gamut assets will want high precision.  I think it\u0027s a reasonable decision for the framework to use more precision when the encoded image has more precision.\n\n\u003e What behavior changes do we need to worry about by switching them to F16? The first thing that comes to mind is we need to make sure that we support Bitmap.getPixel/getPixels [1]. Without a change to Android\u0027s Bitmap.cpp (here [2]), it looks like they will fail [3].\n\u003e \n\u003e [1] https://developer.android.com/reference/android/graphics/Bitmap.html#getPixel(int, int)\n\u003e [2] https://cs.corp.google.com/android/frameworks/base/core/jni/android/graphics/Bitmap.cpp?q\u003dbitmap.cpp\u0026sq\u003dpackage:android\u0026dr\u0026l\u003d481\n\u003e [3] https://cs.corp.google.com/android/frameworks/base/core/jni/android/graphics/Bitmap.cpp?q\u003dbitmap.cpp\u0026sq\u003dpackage:android\u0026dr\u0026l\u003d1028\n\nromainguy@ is handling this.",
+      "parentUuid": "1aaac39b_5de79b27",
+      "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
