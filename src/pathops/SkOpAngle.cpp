@@ -140,6 +140,8 @@ bool SkOpAngle::after(SkOpAngle* test) {
         int trGap = (rh->fSectorStart - fSectorStart + 32) & 0x1f;
         trOrder = trGap > 20 ? 0 : trGap > 11 ? -1 : 1;
     }
+    this->alignmentSameSide(lh, &ltOrder);
+    this->alignmentSameSide(rh, &trOrder);
     if (lrOrder >= 0 && ltOrder >= 0 && trOrder >= 0) {
         return COMPARE_RESULT(7, lrOrder ? (ltOrder & trOrder) : (ltOrder | trOrder));
     }
@@ -210,6 +212,40 @@ int SkOpAngle::allOnOneSide(const SkOpAngle* test) {
     }
     fUnorderable = true;
     return -1;
+}
+
+// To sort the angles, all curves are translated to have the same starting point.
+// If the curve's control point in its original position is on one side of a compared line,
+// and translated is on the opposite side, reverse the previously computed order.
+void SkOpAngle::alignmentSameSide(const SkOpAngle* test, int* order) const {
+    if (*order < 0) {
+        return;
+    }
+    if (fPart.isCurve()) {
+        // This should support all curve types, but only bug that requires this has lines
+        // Turning on for curves causes existing tests to fail
+        return;
+    }
+    if (test->fPart.isCurve()) {
+        return;
+    }
+    const SkDPoint& xOrigin = test->fPart.fCurve.fLine[0];
+    const SkDPoint& oOrigin = test->fOriginalCurvePart.fLine[0];
+    if (xOrigin == oOrigin) {
+        return;
+    }
+    int iMax = SkPathOpsVerbToPoints(this->segment()->verb());
+    SkDVector xLine = test->fPart.fCurve.fLine[1] - xOrigin;
+    SkDVector oLine = test->fOriginalCurvePart.fLine[1] - oOrigin;
+    for (int index = 1; index <= iMax; ++index) {
+        const SkDPoint& testPt = fPart.fCurve[index];
+        double xCross = oLine.crossCheck(testPt - xOrigin);
+        double oCross = xLine.crossCheck(testPt - oOrigin);
+        if (oCross * xCross < 0) {
+            *order ^= 1;
+            break;
+        }
+    }
 }
 
 bool SkOpAngle::checkCrossesZero() const {
