@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrNinePatch.h"
+#include "GrLatticeOp.h"
 
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
@@ -23,16 +23,16 @@ static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
     return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
 }
 
-class GrNonAANinePatchBatch final : public GrMeshDrawOp {
+class NonAALatticeOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 
-    GrNonAANinePatchBatch(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect &dst)
-        : INHERITED(ClassID()) {
+    NonAALatticeOp(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
+                   std::unique_ptr<SkLatticeIter> iter, const SkRect& dst)
+            : INHERITED(ClassID()) {
         Patch& patch = fPatches.push_back();
         patch.fViewMatrix = viewMatrix;
         patch.fColor = color;
@@ -46,16 +46,14 @@ public:
         this->setTransformedBounds(patch.fDst, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "NonAANinePatchBatch"; }
+    const char* name() const override { return "NonAALatticeOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
 
         for (int i = 0; i < fPatches.count(); ++i) {
-            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i,
-                        fPatches[i].fColor,
-                        fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
+            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        fPatches[i].fColor, fPatches[i].fDst.fLeft, fPatches[i].fDst.fTop,
                         fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
@@ -89,8 +87,7 @@ private:
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, numRects);
+                                     indexBuffer.get(), kVertsPerRect, kIndicesPerRect, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -111,8 +108,8 @@ private:
             intptr_t patchVerts = verts;
             while (patch.fIter->next(&srcR, &dstR)) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(verts);
-                positions->setRectFan(dstR.fLeft, dstR.fTop,
-                                      dstR.fRight, dstR.fBottom, vertexStride);
+                positions->setRectFan(dstR.fLeft, dstR.fTop, dstR.fRight, dstR.fBottom,
+                                      vertexStride);
 
                 // Setup local coords
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
@@ -123,7 +120,7 @@ private:
                 GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
                 for (int j = 0; j < 4; ++j) {
                     *vertColor = patch.fColor;
-                    vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+                    vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
                 }
                 verts += kVertsPerRect * vertexStride;
             }
@@ -131,8 +128,8 @@ private:
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                patch.fViewMatrix.mapPointsWithStride(positions, vertexStride,
-                        kVertsPerRect * patch.fIter->numRectsToDraw());
+                patch.fViewMatrix.mapPointsWithStride(
+                        positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
         helper.recordDraw(target, gp.get());
@@ -144,7 +141,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        GrNonAANinePatchBatch* that = t->cast<GrNonAANinePatchBatch>();
+        NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -153,8 +150,8 @@ private:
         SkASSERT(this->fImageWidth == that->fImageWidth &&
                  this->fImageHeight == that->fImageHeight);
 
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
+        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
+        // tweaking.
         if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
             fOverrides = that->fOverrides;
         }
@@ -179,10 +176,10 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrNinePatch {
-GrDrawOp* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                      std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
-    return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, std::move(iter),
-                                     dst);
+namespace GrLatticeOp {
+sk_sp<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+    return sk_sp<GrDrawOp>(
+            new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
 }
 };
