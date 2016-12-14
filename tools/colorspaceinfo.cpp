@@ -10,7 +10,9 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
@@ -19,13 +21,15 @@
 #include "sk_tool_utils.h"
 
 DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
-DEFINE_string(output, "output.png", "A path to the output image.");
+DEFINE_string(gamut_output, "gamut_output.png", "A path to the output gamut image.");
+DEFINE_string(gamma_output, "gamma_output.png", "A path to the output gamma image.");
+DEFINE_string(clut_output, "clut_output.png", "A pathto the output CLUT image.");
 DEFINE_bool(sRGB, false, "Draws the sRGB gamut.");
 DEFINE_bool(adobeRGB, false, "Draws the Adobe RGB gamut.");
 DEFINE_string(uncorrected, "", "A path to reencode the uncorrected input image.");
 
-static void dump_transfer_fn(SkColorSpace_XYZ* colorSpace) {
-    switch (colorSpace->gammaNamed()) {
+static void dump_transfer_fn(SkGammaNamed gammaNamed) {
+    switch (gammaNamed) {
         case kSRGB_SkGammaNamed:
             SkDebugf("Transfer Function: sRGB\n");
             return;
@@ -39,11 +43,14 @@ static void dump_transfer_fn(SkColorSpace_XYZ* colorSpace) {
             break;
     }
 
-    static const char* kChannels[] = { "Red  ", "Green", "Blue ", };
-    const SkGammas* gammas = colorSpace->gammas();
-    for (int i = 0; i < 3; i++) {
-        if (gammas->isNamed(i)) {
-            switch (gammas->data(i).fNamed) {
+}
+
+static void dump_transfer_fn(const SkGammas& gammas) {
+    static const char* kChannels[] = { "Red  ", "Green", "Blue ", "Alpha"};
+    SkASSERT(gammas.channels() <= 4);
+    for (int i = 0; i < gammas.channels(); i++) {
+        if (gammas.isNamed(i)) {
+            switch (gammas.data(i).fNamed) {
                 case kSRGB_SkGammaNamed:
                     SkDebugf("%s Transfer Function: sRGB\n", kChannels[i]);
                     return;
@@ -57,19 +64,169 @@ static void dump_transfer_fn(SkColorSpace_XYZ* colorSpace) {
                     SkASSERT(false);
                     continue;
             }
-        } else if (gammas->isValue(i)) {
-            SkDebugf("%s Transfer Function: Exponent %.3f\n", kChannels[i], gammas->data(i).fValue);
-        } else if (gammas->isParametric(i)) {
-            const SkColorSpaceTransferFn& fn = gammas->data(i).params(gammas);
+        } else if (gammas.isValue(i)) {
+            SkDebugf("%s Transfer Function: Exponent %.3f\n", kChannels[i], gammas.data(i).fValue);
+        } else if (gammas.isParametric(i)) {
+            const SkColorSpaceTransferFn& fn = gammas.data(i).params(&gammas);
             SkDebugf("%s Transfer Function: Parametric A = %.3f, B = %.3f, C = %.3f, D = %.3f, "
                      "E = %.3f, F = %.3f, G = %.3f\n", kChannels[i], fn.fA, fn.fB, fn.fC, fn.fD,
                      fn.fE, fn.fF, fn.fG);
         } else {
-            SkASSERT(gammas->isTable(i));
+            SkASSERT(gammas.isTable(i));
             SkDebugf("%s Transfer Function: Table (%d entries)\n", kChannels[i],
-                    gammas->data(i).fTable.fSize);
+                    gammas.data(i).fTable.fSize);
         }
     }
+}
+
+static void dump_matrix(const SkMatrix44& m) {
+    for (int r = 0; r < 4; ++r) {
+        SkDebugf("|");
+        for (int c = 0; c < 4; ++c) {
+            SkDebugf(" %f ", m.get(r, c));
+        }
+        SkDebugf("|\n");
+    }
+}
+
+static inline float parametric(const SkColorSpaceTransferFn& fn, float x) {
+    return x >= fn.fD ? powf(fn.fA*x + fn.fB, fn.fG) + fn.fC
+                      : fn.fE*x + fn.fF;
+}
+
+static SkIRect draw_transfer_fn(SkCanvas* canvas, SkGammaNamed gammaNamed, const SkGammas* gammas,
+                             SkColor color, int col) {
+    SkColorSpaceTransferFn fn[4];
+    struct TableInfo {
+        const float* fTable;
+        int          fSize;
+    };
+    TableInfo table[4];
+    bool isTable[4] = {false, false, false, false};
+    const int channels = gammas ? gammas->channels() : 1;
+    SkASSERT(channels <= 4);
+    if (kNonStandard_SkGammaNamed != gammaNamed) {
+        dump_transfer_fn(gammaNamed);
+        for (int i = 0; i < channels; ++i) {
+            fn[i] = gammanamed_to_parametric(gammaNamed);
+        }
+    } else {
+        SkASSERT(gammas);
+        dump_transfer_fn(*gammas);
+        for (int i = 0; i < channels; ++i) {
+            if (gammas->isTable(i)) {
+                table[i].fTable = gammas->table(i);
+                table[i].fSize = gammas->data(i).fTable.fSize;
+                isTable[i] = true;
+            } else {
+                fn[i] = gamma_to_parametric(*gammas, i);
+            }
+        }
+    }
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setStrokeWidth(3.0f);
+    // note: gamma has positive values going up in this image so this origin is
+    //       the bottom left and we must subtract y instead of adding.
+    const float gap         = 16.0f;
+    const float cellWidth   = 500.0f;
+    const float cellHeight  = 500.0f;
+    const float gammaWidth  = cellWidth - 2 * gap;
+    const float gammaHeight = cellHeight - 2 * gap;
+    for (int i = 0; i < channels; ++i) {
+        // gamma origin point
+        const float ox = gap + cellWidth * col;
+        const float oy = gap + gammaHeight + cellHeight * i;
+        if (isTable[i]) {
+            auto tx = [&table,i](int index) {
+                return index / (table[i].fSize - 1.0f);
+            };
+            for (int ti = 1; ti < table[i].fSize; ++ti) {
+                canvas->drawLine(ox + gammaWidth * tx(ti - 1),
+                                 oy - gammaHeight * table[i].fTable[ti - 1],
+                                 ox + gammaWidth * tx(ti),
+                                 oy - gammaHeight * table[i].fTable[ti],
+                                 paint);
+            }
+        } else {
+            const float step = 0.01f;
+            float yPrev = parametric(fn[i], 0.0f);
+            for (float x = step; x <= 1.0f; x += step) {
+                const float y = parametric(fn[i], x);
+                canvas->drawLine(ox + gammaWidth * (x - step), oy - gammaHeight * yPrev,
+                                 ox + gammaWidth * x, oy - gammaHeight * y,
+                                 paint);
+                yPrev = y;
+            }
+        }
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRectCoords(ox, oy - gammaHeight, ox + gammaWidth, oy, paint);
+    }
+    return {(int)cellWidth * col, 0, (int)cellWidth * (1 + col), (int)cellHeight * channels};
+}
+
+static void dump_clut(const SkColorLookUpTable& clut) {
+    SkDebugf("CLUT: ");
+    for (int i = 0; i < clut.inputChannels(); ++i) {
+        SkDebugf("[%d]", clut.gridPoints(i));
+    }
+    SkDebugf(" -> [%d]\n", clut.outputChannels());
+}
+
+static SkIRect draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimOrder[4]) {
+    dump_clut(clut);
+
+    const int gap = 8;
+    auto usedGridPoints = [&](int dim) {
+        const int gp = clut.gridPoints(dimOrder[dim]);
+        return gp <= 16 ? gp : 16;
+    };
+    // do horizontal cuts for the 3rd dimension (if applicable)
+    const int cols = clut.inputChannels() >= 3 ? usedGridPoints(2) : 1;
+    // and vertical ones for the 4th dimension (if applicable)
+    const int rows = clut.inputChannels() >= 4 ? usedGridPoints(3) : 1;
+
+    const int canvasWidth = 2000;
+    const int canvasHeight = 2000;
+
+    // make sure the cross-section CLUT cuts are square still by using the
+    // smallest of the width/height, then adjust the gaps between accordingly
+    const int cutWidth = (canvasWidth - gap * (1 + cols)) / cols;
+    const int cutHeight = (canvasHeight - gap * (1 + rows)) / rows;
+    const int cutSize = cutWidth < cutHeight ? cutWidth : cutHeight;
+    const int cutHorizGap = (canvasWidth - cutSize * cols) / (1 + cols);
+    const int cutVertGap = (canvasHeight - cutSize * rows) / (1 + rows);
+
+    SkPaint paint;
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < cols; ++col) {
+            const float xStep = 1.0f / (std::min(cutSize, clut.gridPoints(dimOrder[0])) - 1);
+            const float yStep = 1.0f / (std::min(cutSize, clut.gridPoints(dimOrder[1])) - 1);
+            const float ox = clut.inputChannels() >= 3 ? (1 + col) * cutHorizGap + col * cutSize
+                                                       : gap;
+            const float oy = clut.inputChannels() >= 4 ? (1 + row) * cutVertGap + row * cutSize
+                                                       : gap;
+            for (float x = 0.0f; x < 1.0f; x += xStep) {
+                for (float y = 0.0f; y < 1.0f; y += yStep) {
+                    const float z = col / (cols - 1.0f);
+                    const float w = row / (rows - 1.0f);
+                    const float input[4] = {x, y, z, w};
+                    float output[3];
+                    clut.interp(output, input);
+                    paint.setColor(SkColorSetRGB(255*output[0], 255*output[1], 255*output[2]));
+                    canvas->drawRectCoords(ox + cutSize * x, oy + cutSize * y,
+                                           ox + cutSize * (x + xStep), oy + cutSize * (y + yStep),
+                                           paint);
+                }
+            }
+        }
+    }
+    return {
+      0,
+      0,
+      clut.inputChannels() >= 3 ? canvasWidth : 2 * gap + cutSize,
+      clut.inputChannels() >= 4 ? canvasHeight : 2 * gap + cutSize
+    };
 }
 
 /**
@@ -159,8 +316,10 @@ int main(int argc, char** argv) {
                          "png, for comparison with the input image.\n");
     SkCommandLineFlags::Parse(argc, argv);
     const char* input = FLAGS_input[0];
-    const char* output = FLAGS_output[0];
-    if (!input || !output) {
+    const char* gamut_output = FLAGS_gamut_output[0];
+    const char* gamma_output = FLAGS_gamma_output[0];
+    const char* clut_output = FLAGS_clut_output[0];
+    if (!input || !gamut_output || !gamma_output || !clut_output) {
         SkCommandLineFlags::PrintUsage();
         return -1;
     }
@@ -172,7 +331,8 @@ int main(int argc, char** argv) {
     }
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    if (codec) {
+    const bool isImage = (codec != nullptr);
+    if (isImage) {
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     } else {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
@@ -183,20 +343,31 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    // TODO: command line tweaking of this order
+    int dimOrder[4] = {0, 1, 2, 3};
+
     // Load a graph of the CIE XYZ color gamut.
-    SkBitmap gamut;
-    if (!GetResourceAsBitmap("gamut.png", &gamut)) {
+    SkBitmap gamutCanvasBitmap;
+    if (!GetResourceAsBitmap("gamut.png", &gamutCanvasBitmap)) {
         SkDebugf("Program failure.\n");
         return -1;
     }
-    SkCanvas canvas(gamut);
+    SkCanvas gamutCanvas(gamutCanvasBitmap);
+
+    SkBitmap gammaCanvasBitmap;
+    gammaCanvasBitmap.allocN32Pixels(2000, 2000);
+    SkCanvas gammaCanvas(gammaCanvasBitmap);
+
+    SkBitmap clutCanvasBitmap;
+    clutCanvasBitmap.allocN32Pixels(2000, 2000);
+    SkCanvas clutCanvas(clutCanvasBitmap);
 
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB) {
         sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, "sRGB", 0xFFFF9394, false);
+        draw_gamut(&gamutCanvas, *mat, "sRGB", 0xFFFF9394, false);
     }
 
     // Draw the Adobe RGB gamut if requested.
@@ -204,34 +375,111 @@ int main(int argc, char** argv) {
         sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
         const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
+        draw_gamut(&gamutCanvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
     }
 
+    bool hasCLUT = false;
+    int gammaCol = 0;
+    SkIRect gammaSubset = SkIRect::EmptyIRect();
+    SkIRect clutSubset = SkIRect::EmptyIRect();
     if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type()) {
         const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, input, 0xFF000000, true);
-        dump_transfer_fn((SkColorSpace_XYZ*) colorSpace.get());
+        auto xyz = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
+        SkDebugf("XYZ/TRC color space\n");
+        draw_gamut(&gamutCanvas, *mat, input, 0xFF000000, true);
+        gammaSubset = draw_transfer_fn(&gammaCanvas, xyz->gammaNamed(), xyz->gammas(), 0xFF000000,
+                                       gammaCol++);
     } else {
-        SkDebugf("Color space is defined using an A2B tag.  It cannot be represented by "
-                 "a transfer function and to D50 matrix.\n");
+        SkColorSpace_A2B* a2b = static_cast<SkColorSpace_A2B*>(colorSpace.get());
+        SkDebugf("A2B color space");
+        SkDebugf("Conversion type: ");
+        switch (a2b->inputColorFormat()) {
+            case SkColorSpace_Base::InputColorFormat::kRGB:
+                SkDebugf("RGB");
+                break;
+            case SkColorSpace_Base::InputColorFormat::kCMYK:
+                SkDebugf("CMYK");
+                break;
+            case SkColorSpace_Base::InputColorFormat::kGray:
+                SkDebugf("Gray");
+                break;
+
+        }
+        SkDebugf(" -> ");
+        switch (a2b->pcs()) {
+            case SkColorSpace_A2B::PCS::kXYZ:
+                SkDebugf("XYZ\n");
+                break;
+            case SkColorSpace_A2B::PCS::kLAB:
+                SkDebugf("LAB\n");
+                break;
+        }
+        for (int i = 0; i < a2b->count(); ++i) {
+            const SkColorSpace_A2B::Element& e = a2b->element(i);
+            switch (e.type()) {
+                case SkColorSpace_A2B::Element::Type::kGammaNamed:
+                    gammaSubset.join(draw_transfer_fn(&gammaCanvas, e.gammaNamed(), nullptr,
+                                                      0xFF000000, gammaCol++));
+                    break;
+                case SkColorSpace_A2B::Element::Type::kGammas:
+                    gammaSubset.join(draw_transfer_fn(&gammaCanvas, kNonStandard_SkGammaNamed,
+                                                      &e.gammas(), 0xFF000000, gammaCol++));
+                    break;
+                case SkColorSpace_A2B::Element::Type::kCLUT:
+                    SkASSERT(!hasCLUT);
+                    clutSubset = draw_clut(&clutCanvas, e.colorLUT(), dimOrder);
+                    hasCLUT = true;
+                    break;
+                case SkColorSpace_A2B::Element::Type::kMatrix:
+                    dump_matrix(e.matrix());
+                    break;
+            }
+        }
     }
 
-    // Finally, encode the result to the output file.
-    sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(gamut, SkEncodedImageFormat::kPNG, 100);
-    if (!out) {
-        SkDebugf("Failed to encode gamut output.\n");
+    // marker to tell the web-tool the names of all images output
+    SkDebugf("=========\n");
+    auto saveCanvasBitmap = [](const SkBitmap& orig, const SkIRect* region, const char *fname) {
+        SkBitmap subset;
+        // Take a subset of the bitmap if one is passed in, otherwise use the original bitmap
+        const bool subsetSuccess = region && orig.extractSubset(&subset, *region);
+        const SkBitmap& bitmap = subsetSuccess ? subset : orig;
+        // Finally, encode the result to the output file.
+        sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG,
+                                                             100);
+        if (!out) {
+            SkDebugf("Failed to encode %s output.\n", fname);
+            return false;
+        }
+        SkFILEWStream stream(fname);
+        if (!stream.write(out->data(), out->size())) {
+            SkDebugf("Failed to write %s output.\n", fname);
+            return false;
+        }
+        // record name of canvas
+        SkDebugf("%s\n", fname);
+        return true;
+    };
+
+    // only XYZ images have a gamut visualization since the matrix in A2B is not
+    // a gamut adjustment from RGB->XYZ always (or ever)
+    if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type() &&
+        !saveCanvasBitmap(gamutCanvasBitmap, nullptr, gamma_output)) {
         return -1;
     }
-    SkFILEWStream stream(output);
-    bool result = stream.write(out->data(), out->size());
-    if (!result) {
-        SkDebugf("Failed to write gamut output.\n");
+    if (gammaCol > 0 && !saveCanvasBitmap(gammaCanvasBitmap, &gammaSubset, gamma_output)) {
+        return -1;
+    }
+    if (hasCLUT && !saveCanvasBitmap(clutCanvasBitmap, &clutSubset, clut_output)) {
         return -1;
     }
 
+    if (isImage) {
+        SkDebugf("%s\n", input);
+    }
     // Also, if requested, decode and reencode the uncorrected input image.
-    if (!FLAGS_uncorrected.isEmpty() && codec) {
+    if (!FLAGS_uncorrected.isEmpty() && isImage) {
         SkBitmap bitmap;
         int width = codec->getInfo().width();
         int height = codec->getInfo().height();
@@ -242,17 +490,18 @@ int main(int argc, char** argv) {
             SkDebugf("Could not decode input image.\n");
             return -1;
         }
-        out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100);
+        sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG,
+                                                             100);
         if (!out) {
             SkDebugf("Failed to encode uncorrected image.\n");
             return -1;
         }
         SkFILEWStream bitmapStream(FLAGS_uncorrected[0]);
-        result = bitmapStream.write(out->data(), out->size());
-        if (!result) {
+        if (!bitmapStream.write(out->data(), out->size())) {
             SkDebugf("Failed to write uncorrected image output.\n");
             return -1;
         }
+        SkDebugf("%s\n", FLAGS_uncorrected[0]);
     }
 
     return 0;

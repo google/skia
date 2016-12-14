@@ -91,6 +91,11 @@ struct SkGammas : SkRefCnt {
         SkASSERT(isTable(i));
         return this->data(i).fTable.table(this);
     }
+    
+    int tableSize(int i) const {
+        SkASSERT(isTable(i));
+        return this->data(i).fTable.fSize;
+    }
 
     const SkColorSpaceTransferFn& params(int i) const {
         SkASSERT(isParametric(i));
