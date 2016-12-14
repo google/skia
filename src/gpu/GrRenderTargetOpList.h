@@ -28,7 +28,7 @@
 #include "SkTypes.h"
 
 class GrAuditTrail;
-class GrClearBatch;
+class GrClearOp;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -160,22 +160,22 @@ private:
         sk_sp<GrOp> fOp;
         SkRect fClippedBounds;
     };
-    SkSTArray<256, RecordedOp, true>                fRecordedOps;
-    GrClearBatch*                                   fLastFullClearOp;
+    SkSTArray<256, RecordedOp, true> fRecordedOps;
+    GrClearOp* fLastFullClearOp;
     // The context is only in service of the GrClip, remove once it doesn't need this.
-    GrContext*                                      fContext;
-    GrGpu*                                          fGpu;
-    GrResourceProvider*                             fResourceProvider;
+    GrContext* fContext;
+    GrGpu* fGpu;
+    GrResourceProvider* fResourceProvider;
 
-    bool                                            fClipOpToBounds;
-    int                                             fMaxOpLookback;
-    int                                             fMaxOpLookahead;
+    bool fClipOpToBounds;
+    int fMaxOpLookback;
+    int fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    int32_t                                         fLastClipStackGenID;
-    SkIRect                                         fLastClipStackRect;
-    SkIPoint                                        fLastClipOrigin;
+    int32_t fLastClipStackGenID;
+    SkIRect fLastClipStackRect;
+    SkIPoint fLastClipOrigin;
 
     typedef GrOpList INHERITED;
 };

@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDiscardBatch_DEFINED
-#define GrDiscardBatch_DEFINED
+#ifndef GrDiscardOp_DEFINED
+#define GrDiscardOp_DEFINED
 
 #include "GrGpu.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
 
-class GrDiscardBatch final : public GrOp {
+class GrDiscardOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrOp> Make(GrRenderTarget* rt) { return sk_sp<GrOp>(new GrDiscardBatch(rt)); }
+    static sk_sp<GrOp> Make(GrRenderTarget* rt) { return sk_sp<GrOp>(new GrDiscardOp(rt)); }
 
     const char* name() const override { return "Discard"; }
 
@@ -33,9 +33,7 @@ public:
     }
 
 private:
-    GrDiscardBatch(GrRenderTarget* rt)
-        : INHERITED(ClassID())
-        , fRenderTarget(rt) {
+    GrDiscardOp(GrRenderTarget* rt) : INHERITED(ClassID()), fRenderTarget(rt) {
         this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
     }

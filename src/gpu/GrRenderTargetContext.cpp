@@ -19,7 +19,7 @@
 #include "GrResourceProvider.h"
 #include "SkSurfacePriv.h"
 
-#include "batches/GrClearBatch.h"
+#include "batches/GrClearOp.h"
 #include "batches/GrDrawAtlasBatch.h"
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrNinePatch.h"  // TODO Factory
@@ -276,7 +276,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         // This path doesn't handle coalescing of full screen clears b.c. it
         // has to clear the entire render target - not just the content area.
         // It could be done but will take more finagling.
-        sk_sp<GrOp> batch(GrClearBatch::Make(rtRect, color,
+        sk_sp<GrOp> batch(GrClearOp::Make(rtRect, color,
                                              fRenderTargetContext->accessRenderTarget(),
                                              !clearRect));
         if (!batch) {
@@ -333,7 +333,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         if (!this->accessRenderTarget()) {
             return;
         }
-        sk_sp<GrOp> op(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        sk_sp<GrOp> op(GrClearOp::Make(clip, color, this->accessRenderTarget()));
         if (!op) {
             return;
         }

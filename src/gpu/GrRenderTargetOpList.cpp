@@ -27,10 +27,10 @@
 
 #include "SkStrokeRec.h"
 
-#include "batches/GrClearBatch.h"
-#include "batches/GrClearStencilClipBatch.h"
-#include "batches/GrCopySurfaceBatch.h"
-#include "batches/GrDiscardBatch.h"
+#include "batches/GrClearOp.h"
+#include "batches/GrClearStencilClipOp.h"
+#include "batches/GrCopySurfaceOp.h"
+#include "batches/GrDiscardOp.h"
 #include "batches/GrDrawOp.h"
 #include "batches/GrDrawPathBatch.h"
 #include "batches/GrRectOpFactory.h"
@@ -408,10 +408,10 @@ void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color
         fLastFullClearOp->setColor(color);
         return;
     }
-    sk_sp<GrClearBatch> op(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
+    sk_sp<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, renderTarget));
     if (GrOp* clearOp = this->recordOp(std::move(op))) {
         // This is either the clear op we just created or another one that it combined with.
-        fLastFullClearOp = static_cast<GrClearBatch*>(clearOp);
+        fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
     }
 }
 
@@ -419,7 +419,7 @@ void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        this->recordOp(GrDiscardBatch::Make(renderTarget));
+        this->recordOp(GrDiscardOp::Make(renderTarget));
     }
 }
 
@@ -429,7 +429,7 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    sk_sp<GrOp> op = GrCopySurfaceBatch::Make(dst, src, srcRect, dstPoint);
+    sk_sp<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -566,5 +566,5 @@ void GrRenderTargetOpList::forwardCombine() {
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
                                             GrRenderTarget* rt) {
-    this->recordOp(GrClearStencilClipBatch::Make(clip, insideStencilMask, rt));
+    this->recordOp(GrClearStencilClipOp::Make(clip, insideStencilMask, rt));
 }

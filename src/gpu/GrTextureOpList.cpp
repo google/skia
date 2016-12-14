@@ -11,7 +11,7 @@
 #include "GrGpu.h"
 #include "GrTextureProxy.h"
 
-#include "batches/GrCopySurfaceBatch.h"
+#include "batches/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +82,7 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    sk_sp<GrOp> op = GrCopySurfaceBatch::Make(dst, src, srcRect, dstPoint);
+    sk_sp<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
