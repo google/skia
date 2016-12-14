@@ -142,6 +142,7 @@ bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
 
 //////////////////////////////////////////////////////////////////////////////
 
+#if 0
 bool GrSurface::writePixels(int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer, size_t rowBytes,
                             uint32_t pixelOpsFlags) {
@@ -165,12 +166,14 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
     return context->readSurfacePixels(this, left, top, width, height, config, buffer,
                                       rowBytes, pixelOpsFlags);
 }
+#endif
 
 static bool encode_image_to_file(const char* path, const SkBitmap& src) {
     SkFILEWStream file(path);
     return file.isValid() && SkEncodeImage(&file, src, SkEncodedImageFormat::kPNG, 100);
 }
 
+#if 0
 // TODO: This should probably be a non-member helper function. It might only be needed in
 // debug or developer builds.
 bool GrSurface::savePixels(const char* filename) {
@@ -197,6 +200,7 @@ bool GrSurface::savePixels(const char* filename) {
 
     return true;
 }
+#endif
 
 void GrSurface::flushWrites() {
     if (!this->wasDestroyed()) {

@@ -57,6 +57,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
             static const uint32_t kFlags = kExact_ScratchTextureFlag |
                                            kNoCreate_ScratchTextureFlag;
             if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
+#if 0
                 if (!mipLevelCount ||
                     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                          texels[0].fPixels, texels[0].fRowBytes)) {
@@ -65,6 +66,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
                     }
                     return texture;
                 }
+#endif
                 texture->unref();
             }
         }

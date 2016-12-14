@@ -226,6 +226,7 @@ void GrContext::flush() {
     fDrawingManager->flush();
 }
 
+#if 0
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
@@ -531,6 +532,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     }
     return true;
 }
+#endif
 
 void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     ASSERT_SINGLE_OWNER
@@ -851,12 +853,12 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 
 void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     ASSERT_SINGLE_OWNER
-    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
+//    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
         if (!fDidTestPMConversions) {
             test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
         }
-    }
+//    }
 }
 
 sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,

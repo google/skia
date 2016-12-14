@@ -9,6 +9,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -92,25 +93,26 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(), desc,
-                                                             SkBackingFit::kApprox,
-                                                             SkBudgeted::kYes));
-    if (!proxy || !proxy->asTextureProxy()) {
+    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
+                                                                         desc,
+                                                                         SkBackingFit::kApprox,
+                                                                         SkBudgeted::kYes);
+    if (!sContext) {
         return false;
     }
 
-    // This is a bit goofy but, until writePixels is moved to GrSurfaceContext, we're stuck
-    // instantiating here to do the writePixels
-    GrTexture* texture = proxy->asTextureProxy()->instantiate(context->textureProvider());
-    if (!texture) {
+    if (!sContext->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                               dstM.fImage, dstM.fRowBytes)) {
         return false;
     }
 
-    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                         dstM.fImage, dstM.fRowBytes);
+    GrTextureProxy* tProxy = sContext->asDeferredTexture();
+    if (!tProxy) {
+        return false;
+    }
 
     return draw_mask(renderTargetContext, context->textureProvider(),
-                     clipData, viewMatrix, dstM.fBounds, grp, sk_ref_sp(proxy->asTextureProxy()));
+                     clipData, viewMatrix, dstM.fBounds, grp, sk_ref_sp(tProxy));
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.

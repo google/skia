@@ -66,6 +66,7 @@ public:
     virtual GrRenderTarget* asRenderTarget() { return NULL; }
     virtual const GrRenderTarget* asRenderTarget() const { return NULL; }
 
+#if 0
     /**
      * Reads a rectangle of pixels from the surface.
      * @param left          left edge of the rectangle to read (inclusive)
@@ -108,6 +109,7 @@ public:
                      const void* buffer,
                      size_t rowBytes = 0,
                      uint32_t pixelOpsFlags = 0);
+#endif
 
     /**
      * After this returns any pending writes to the surface will be issued to the backend 3D API.

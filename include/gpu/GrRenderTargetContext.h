@@ -316,6 +316,7 @@ public:
      */
     void prepareForExternalIO();
 
+#if 0
     /**
      * Reads a rectangle of pixels from the render target context.
      * @param dstInfo       image info for the destination
@@ -343,6 +344,7 @@ public:
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
                      int x, int y);
+#endif
 
     bool isStencilBufferMultisampled() const {
         return fRenderTargetProxy->isStencilBufferMultisampled();

@@ -6,6 +6,7 @@
  */
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrYUVProvider.h"
 #include "effects/GrGammaEffect.h"
@@ -93,24 +94,24 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     GrSurfaceDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
-    sk_sp<GrTexture> yuvTextures[3];
+    sk_sp<GrSurfaceContext> yuvContexts[3];
     for (int i = 0; i < 3; i++) {
         yuvDesc.fWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
         yuvDesc.fHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
         // TODO: why do we need this check?
-        bool needsExactTexture =
-                (yuvDesc.fWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
-                (yuvDesc.fHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
-        if (needsExactTexture) {
-            yuvTextures[i].reset(ctx->textureProvider()->createTexture(yuvDesc, SkBudgeted::kYes));
-        } else {
-            yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
+        SkBackingFit fit = (yuvDesc.fWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
+                           (yuvDesc.fHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight)
+                           ? SkBackingFit::kExact : SkBackingFit::kApprox;
+
+        yuvContexts[i] = ctx->contextPriv().makeDeferredSurfaceContext(yuvDesc, fit, SkBudgeted::kYes);
+        if (!yuvContexts[i]) {
+            return nullptr;
         }
-        if (!yuvTextures[i] ||
-            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight, yuvDesc.fConfig,
+
+        if (!yuvContexts[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight, yuvDesc.fConfig,
                                          planes[i], yuvInfo.fSizeInfo.fWidthBytes[i])) {
-                return nullptr;
-            }
+            return nullptr;
+        }
     }
 
     // We never want to perform color-space conversion during the decode
@@ -125,7 +126,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
-        GrYUVEffect::MakeYUVToRGB(yuvTextures[0].get(), yuvTextures[1].get(), yuvTextures[2].get(),
+        GrYUVEffect::MakeYUVToRGB(nullptr, nullptr, nullptr, //yuvTextures[0].get(), yuvTextures[1].get(), yuvTextures[2].get(),
                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 

@@ -1268,6 +1268,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
+#if 0
 bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                                        size_t dstRowBytes, int x, int y) {
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
@@ -1314,6 +1315,7 @@ bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* 
     return rt->writePixels(x, y, srcInfo.width(), srcInfo.height(),
                            config, srcBuffer, srcRowBytes, flags);
 }
+#endif
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {
