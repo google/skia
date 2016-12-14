@@ -22,6 +22,24 @@
       "revId": "47037f1b5a47541163fb57a51a9d866b53826b9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a4643f2_9d89830d",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T17:58:55Z",
+      "side": 1,
+      "message": "+1 to this. Negative flags hurt readability.",
+      "parentUuid": "1aaac39b_a01d544d",
+      "revId": "47037f1b5a47541163fb57a51a9d866b53826b9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
