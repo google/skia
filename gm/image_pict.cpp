@@ -221,7 +221,8 @@ public:
         }
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, const SkIRect& subset) override {
+    GrTexture* onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+                                 const SkIPoint& origin) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
         }
@@ -232,11 +233,13 @@ protected:
 
         // need to copy the subset into a new texture
         GrSurfaceDesc desc = fTexture->desc();
-        desc.fWidth = subset.width();
-        desc.fHeight = subset.height();
+        desc.fWidth = info.width();
+        desc.fHeight = info.height();
 
         GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture.get(), subset, SkIPoint::Make(0, 0));
+        fCtx->copySurface(dst, fTexture.get(),
+                          SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
+                          SkIPoint::Make(0, 0));
         return dst;
     }
 private:
