@@ -40,6 +40,24 @@
       "revId": "c2c3f9e796440f9b823fd634f852a8e5aa1d3125",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_40d690ad",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:58:01Z",
+      "side": 1,
+      "message": "Yeah - if the first frame is subset, and does not have a transparent pixel, we may need more than 256 colors (transparent background - we no longer use the background color or arbitrarily pick something, plus the color table).",
+      "parentUuid": "1aaac39b_60506c79",
+      "revId": "c2c3f9e796440f9b823fd634f852a8e5aa1d3125",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
