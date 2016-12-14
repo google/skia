@@ -316,6 +316,10 @@ def dm_flags(bot):
     blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
+  # GM that not support tiles_rt
+  for test in ['complexclip4_bw', 'complexclip4_aa']:
+    blacklist([ 'tiles_rt-8888', 'gm', '_', test])
+
   # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
