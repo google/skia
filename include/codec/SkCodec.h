@@ -35,7 +35,7 @@ class ColorCodecBench;
 /**
  *  Abstraction layer directly on top of an image codec.
  */
-class SkCodec : SkNoncopyable {
+class SK_API SkCodec : SkNoncopyable {
 public:
     /**
      *  Minimum number of bytes that must be buffered in SkStream input.
