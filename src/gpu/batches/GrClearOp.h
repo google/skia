@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrClearBatch_DEFINED
-#define GrClearBatch_DEFINED
+#ifndef GrClearOp_DEFINED
+#define GrClearOp_DEFINED
 
 #include "GrFixedClip.h"
 #include "GrGpu.h"
@@ -15,22 +15,21 @@
 #include "GrOpFlushState.h"
 #include "GrRenderTarget.h"
 
-class GrClearBatch final : public GrOp {
+class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
-        sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
-        if (!batch->fRenderTarget) {
+    static sk_sp<GrClearOp> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
+        sk_sp<GrClearOp> op(new GrClearOp(clip, color, rt));
+        if (!op->fRenderTarget) {
             return nullptr; // The clip did not contain any pixels within the render target.
         }
-        return batch;
+        return op;
     }
 
-    static sk_sp<GrClearBatch> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt,
+    static sk_sp<GrClearOp> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt,
                                     bool fullScreen) {
-        sk_sp<GrClearBatch> batch(new GrClearBatch(rect, color, rt, fullScreen));
-        return batch;
+        return sk_sp<GrClearOp>(new GrClearOp(rect, color, rt, fullScreen));
     }
 
     const char* name() const override { return "Clear"; }
@@ -55,7 +54,7 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearBatch(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt)
+    GrClearOp(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt)
         : INHERITED(ClassID())
         , fClip(clip)
         , fColor(color) {
@@ -74,7 +73,7 @@ private:
         fRenderTarget.reset(rt);
     }
 
-    GrClearBatch(const SkIRect& rect, GrColor color, GrRenderTarget* rt, bool fullScreen)
+    GrClearOp(const SkIRect& rect, GrColor color, GrRenderTarget* rt, bool fullScreen)
         : INHERITED(ClassID())
         , fClip(GrFixedClip(rect))
         , fColor(color)
@@ -89,7 +88,7 @@ private:
         // This could be much more complicated. Currently we look at cases where the new clear
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
-        GrClearBatch* cb = t->cast<GrClearBatch>();
+        GrClearOp* cb = t->cast<GrClearOp>();
         SkASSERT(cb->fRenderTarget == fRenderTarget);
         if (!fClip.windowRectsState().cheapEqualTo(cb->fClip.windowRectsState())) {
             return false;
@@ -105,7 +104,7 @@ private:
         return false;
     }
 
-    bool contains(const GrClearBatch* that) const {
+    bool contains(const GrClearOp* that) const {
         // The constructor ensures that scissor gets disabled on any clip that fills the entire RT.
         return !fClip.scissorEnabled() ||
                (that->fClip.scissorEnabled() &&

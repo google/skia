@@ -28,7 +28,7 @@
 #include "SkTypes.h"
 
 class GrAuditTrail;
-class GrClearBatch;
+class GrClearOp;
 class GrClip;
 class GrCaps;
 class GrPath;
@@ -161,7 +161,7 @@ private:
         SkRect fClippedBounds;
     };
     SkSTArray<256, RecordedOp, true>                fRecordedOps;
-    GrClearBatch*                                   fLastFullClearOp;
+    GrClearOp*                                   fLastFullClearOp;
     // The context is only in service of the GrClip, remove once it doesn't need this.
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;

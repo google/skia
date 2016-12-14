@@ -21,7 +21,7 @@
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
 
-#include "batches/GrCopySurfaceBatch.h"
+#include "batches/GrCopySurfaceOp.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrGammaEffect.h"
 #include "text/GrTextBlobCache.h"

@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-
-#include "GrCopySurfaceBatch.h"
+#include "GrCopySurfaceOp.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
-bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
-                                                const GrSurface* src,
-                                                const SkIRect& srcRect,
-                                                const SkIPoint& dstPoint,
-                                                SkIRect* clippedSrcRect,
-                                                SkIPoint* clippedDstPoint) {
+bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
+                                             const GrSurface* src,
+                                             const SkIRect& srcRect,
+                                             const SkIPoint& dstPoint,
+                                             SkIRect* clippedSrcRect,
+                                             SkIPoint* clippedDstPoint) {
     *clippedSrcRect = srcRect;
     *clippedDstPoint = dstPoint;
 
@@ -59,8 +58,8 @@ bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-sk_sp<GrOp> GrCopySurfaceBatch::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                     const SkIPoint& dstPoint) {
+sk_sp<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                  const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
     if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
@@ -75,5 +74,5 @@ sk_sp<GrOp> GrCopySurfaceBatch::Make(GrSurface* dst, GrSurface* src, const SkIRe
     if (!ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    return sk_sp<GrOp>(new GrCopySurfaceBatch(dst, src, clippedSrcRect, clippedDstPoint));
+    return sk_sp<GrOp>(new GrCopySurfaceOp(dst, src, clippedSrcRect, clippedDstPoint));
 }
