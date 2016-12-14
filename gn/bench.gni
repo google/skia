@@ -111,6 +111,7 @@ bench_sources = [
   "$_bench/SKPAnimationBench.cpp",
   "$_bench/SKPBench.cpp",
   "$_bench/SkRasterPipelineBench.cpp",
+  "$_bench/StreamBench.cpp",
   "$_bench/SortBench.cpp",
   "$_bench/StrokeBench.cpp",
   "$_bench/SwizzleBench.cpp",

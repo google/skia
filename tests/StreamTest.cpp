@@ -352,6 +352,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
     SkRandom rand(kSeed << 1);
     uint8_t buffer[4096];
     SkDynamicMemoryWStream dynamicMemoryWStream;
+    size_t totalWritten = 0;
     for (int i = 0; i < 32; ++i) {
         // Randomize the length of the blocks.
         size_t size = rand.nextRangeU(1, sizeof(buffer));
@@ -359,6 +360,8 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
             buffer[j] = valueSource.nextU() & 0xFF;
         }
         dynamicMemoryWStream.write(buffer, size);
+        totalWritten += size;
+        REPORTER_ASSERT(rep, totalWritten == dynamicMemoryWStream.bytesWritten());
     }
     std::unique_ptr<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
     sk_sp<SkData> expected(SkData::MakeUninitialized(asset->getLength()));
