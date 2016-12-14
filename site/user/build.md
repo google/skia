@@ -84,16 +84,33 @@ Windows
 -------
 
 Skia can build on Windows with Visual Studio 2015 Update 3.  No older or newer
-version is supported.  If you use Visual Studio, you may want to pass
-`--ide=vs` to `gn gen` to generate `all.sln`.
-
-The bots use a packaged toolchain, which you may be able to download like this:
+version is supported. The bots use a packaged toolchain, which you may be able
+to download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
 If you pass that downloaded path to GN via `windk`, you can build using that
 toolchain instead of your own from Visual Studio.  This toolchain is the only
 way we support 32-bit builds, by also setting `target_cpu="x86"`.
+
+### Visual Studio Solutions
+
+If you use Visual Studio, you may want to pass `--ide=vs` to `gn gen` to
+generate `all.sln`.  That solution will exist within the GN directory for the
+specific configuration, and will only build/run that configuration.
+
+If you want a Visual Studio Solution that supports multiple GN configurations,
+there is a helper script. It requires that all of your GN directories be inside
+the `out` directory. First, create all of your GN configurations as usual.
+Pass `--ide=vs` when running `gn gen` for each one. Then:
+
+    python gn/gn_meta_sln.py
+
+This creates a new dedicated output directory and solution file
+`out/sln/skia.sln`. It has one solution configuration for each GN configuration,
+and supports building and running any of them. It also adjusts syntax highlighting
+of inactive code blocks based on preprocessor definitions from the selected
+solution configuration.
 
 CMake
 -----
