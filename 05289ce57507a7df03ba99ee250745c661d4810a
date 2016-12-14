@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_3d860f37",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T14:36:10Z",
+      "side": 1,
+      "message": "I didn\u0027t see a way in clang format to make the #include sorting case insensitive (which seems to be what we mostly do).",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 20
+      },
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_dd7ccb5f",
+        "filename": "src/gpu/batches/GrNonAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T14:36:10Z",
+      "side": 1,
+      "message": "This would not be my preferred way to format this.",
+      "range": {
+        "startLine": 219,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 18
+      },
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
