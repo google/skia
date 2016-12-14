@@ -1195,9 +1195,7 @@ int nanobench_main() {
         start_keepalive();
     }
 
-    if (FLAGS_analyticAA) {
-        gSkUseAnalyticAA = true;
-    }
+    gSkUseAnalyticAA = FLAGS_analyticAA;
 
     int runs = 0;
     BenchmarkStream benchStream;
