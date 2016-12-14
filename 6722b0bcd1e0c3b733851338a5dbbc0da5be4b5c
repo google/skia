@@ -76,6 +76,24 @@
       "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_c072a050",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:10:37Z",
+      "side": 1,
+      "message": "(Need not be in this CL. Still lgtm)",
+      "parentUuid": "1aaac39b_5db8bbc5",
+      "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
