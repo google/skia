@@ -12,7 +12,6 @@
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
-#include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
@@ -25,6 +24,7 @@
 #include "batches/GrDrawVerticesBatch.h"
 #include "batches/GrNinePatch.h"  // TODO Factory
 #include "batches/GrOp.h"
+#include "batches/GrOvalOpFactory.h"
 #include "batches/GrRectOpFactory.h"
 #include "batches/GrRegionBatch.h"
 #include "batches/GrShadowRRectBatch.h"
@@ -926,12 +926,12 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
-                                                            paint.usesDistanceVectorField(),
-                                                            viewMatrix,
-                                                            rrect,
-                                                            stroke,
-                                                            shaderCaps));
+        sk_sp<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(paint.getColor(),
+                                                          paint.usesDistanceVectorField(),
+                                                          viewMatrix,
+                                                          rrect,
+                                                          stroke,
+                                                          shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
@@ -1159,11 +1159,8 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
-                                                           viewMatrix,
-                                                           oval,
-                                                           stroke,
-                                                           shaderCaps));
+        sk_sp<GrDrawOp> op =
+                GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
@@ -1189,14 +1186,14 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     GrAAType aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        sk_sp<GrDrawOp> op(GrOvalRenderer::CreateArcBatch(paint.getColor(),
-                                                          viewMatrix,
-                                                          oval,
-                                                          startAngle,
-                                                          sweepAngle,
-                                                          useCenter,
-                                                          style,
-                                                          shaderCaps));
+        sk_sp<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(paint.getColor(),
+                                                        viewMatrix,
+                                                        oval,
+                                                        startAngle,
+                                                        sweepAngle,
+                                                        useCenter,
+                                                        style,
+                                                        shaderCaps);
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
@@ -1401,11 +1398,8 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
 
         if (isOval && !path.isInverseFillType()) {
             const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-            sk_sp<GrDrawOp> op(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
-                                                               viewMatrix,
-                                                               ovalRect,
-                                                               style.strokeRec(),
-                                                               shaderCaps));
+            sk_sp<GrDrawOp> op = GrOvalOpFactory::MakeOvalOp(
+                    paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
                 GrPipelineBuilder pipelineBuilder(paint, aaType);
                 this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
