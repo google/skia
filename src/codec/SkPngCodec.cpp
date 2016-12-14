@@ -874,17 +874,17 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
 // FIXME (scroggo): Once SK_GOOGLE3_PNG_HACK is no more, this method can be inline in
 // AutoCleanPng::infoCallback
 static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
-                                  SkEncodedInfo::Color* outColor, SkEncodedInfo::Alpha* outAlpha) {
+                                  SkEncodedInfo::Color* outColor, SkEncodedInfo::Alpha* outAlpha,
+                                  int* outBitDepth) {
     png_uint_32 origWidth, origHeight;
     int bitDepth, encodedColorType;
     png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bitDepth,
                  &encodedColorType, nullptr, nullptr, nullptr);
 
-    // Tell libpng to strip 16 bit/color files down to 8 bits/color.
-    // TODO: Should we handle this in SkSwizzler?  Could this also benefit
-    //       RAW decodes?
-    if (bitDepth == 16) {
-        SkASSERT(PNG_COLOR_TYPE_PALETTE != encodedColorType);
+    // TODO: Should we support 16-bits of precision for gray images?
+    if (bitDepth == 16 && (PNG_COLOR_TYPE_GRAY == encodedColorType ||
+                           PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType)) {
+        bitDepth = 8;
         png_set_strip_16(png_ptr);
     }
 
@@ -899,6 +899,7 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             // byte into separate bytes (useful for paletted and grayscale images).
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
+                bitDepth = 8;
                 png_set_packing(png_ptr);
             }
 
@@ -922,6 +923,7 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
             // Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel.
             if (bitDepth < 8) {
                 // TODO: Should we use SkSwizzler here?
+                bitDepth = 8;
                 png_set_expand_gray_1_2_4_to_8(png_ptr);
             }
 
@@ -954,11 +956,14 @@ static void general_info_callback(png_structp png_ptr, png_infop info_ptr,
     if (outAlpha) {
         *outAlpha = alpha;
     }
+    if (outBitDepth) {
+        *outBitDepth = bitDepth;
+    }
 }
 
 #ifdef SK_GOOGLE3_PNG_HACK
 void SkPngCodec::rereadInfoCallback() {
-    general_info_callback(fPng_ptr, fInfo_ptr, nullptr, nullptr);
+    general_info_callback(fPng_ptr, fInfo_ptr, nullptr, nullptr, nullptr);
     png_set_interlace_handling(fPng_ptr);
     png_read_update_info(fPng_ptr, fInfo_ptr);
 }
@@ -967,7 +972,8 @@ void SkPngCodec::rereadInfoCallback() {
 void AutoCleanPng::infoCallback() {
     SkEncodedInfo::Color color;
     SkEncodedInfo::Alpha alpha;
-    general_info_callback(fPng_ptr, fInfo_ptr, &color, &alpha);
+    int bitDepth;
+    general_info_callback(fPng_ptr, fInfo_ptr, &color, &alpha, &bitDepth);
 
     const int numberPasses = png_set_interlace_handling(fPng_ptr);
 
@@ -990,7 +996,7 @@ void AutoCleanPng::infoCallback() {
             colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
-        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, 8);
+        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
         // FIXME (scroggo): Once we get rid of SK_GOOGLE3_PNG_HACK, general_info_callback can
         // be inlined, so these values will already be set.
         png_uint_32 origWidth = png_get_image_width(fPng_ptr, fInfo_ptr);
@@ -1072,9 +1078,9 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
         return false;
     }
 
-    // If the image is RGBA and we have a color xform, we can skip the swizzler.
+    // If the image is 32-bit RGBA and we have a color xform, we can skip the swizzler.
     if (this->colorXform() && SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color() &&
-        !options.fSubset)
+        8 == this->getEncodedInfo().bitsPerComponent() && !options.fSubset)
     {
         fXformMode = kColorOnly_XformMode;
         return true;
