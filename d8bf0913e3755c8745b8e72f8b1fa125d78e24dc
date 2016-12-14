@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a0b5ba9_27861a37",
+        "filename": "src/gpu/batches/GrOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T21:04:20Z",
+      "side": 1,
+      "message": "I think you want to remove operator new and operator delete...\n\nIf you need to call malloc() and free(), please always call sk_malloc_throw() and sk_free().",
+      "revId": "d8bf0913e3755c8745b8e72f8b1fa125d78e24dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
