@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a0b5ba9_a7932ae8",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T17:26:59Z",
+      "side": 1,
+      "message": "probably don\u0027t need these parens",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 24
+      },
+      "revId": "bb5f5c81bfdcb6f2efd1be89f270da3c9d22c22b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_678e52c3",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T17:26:59Z",
+      "side": 1,
+      "message": "Is it just me or is this backward shift logic crazy difficult to think about?\n\nI took a stab at Robin Hood hashing today, and it seemed a lot simpler to figure out how to do backward shifts: shift any elements you find with distance-to-ideal-slot \u003e 0.  Though, of course, my impl is asserting...\n\nhttps://skia-review.googlesource.com/c/6042",
+      "revId": "bb5f5c81bfdcb6f2efd1be89f270da3c9d22c22b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_87982605",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T17:26:59Z",
+      "side": 1,
+      "message": "return (index + 1) \u0026 (fCapacity - 1) ?\n\nwhy go backwards, and why branch?  we\u0027ve already loaded fCapacity...",
+      "revId": "bb5f5c81bfdcb6f2efd1be89f270da3c9d22c22b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_c79e1ef2",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-14T17:26:59Z",
+      "side": 1,
+      "message": "~~\u003e hash ? hash : 1;  // We reserve ...",
+      "revId": "bb5f5c81bfdcb6f2efd1be89f270da3c9d22c22b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
