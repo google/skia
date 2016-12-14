@@ -1296,8 +1296,8 @@ int dm_main() {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
-    if (FLAGS_analyticAA) {
-        gSkUseAnalyticAA = true;
+    if (!FLAGS_analyticAA) {
+        gSkUseAnalyticAA = false;
     }
 
     if (FLAGS_verbose) {
