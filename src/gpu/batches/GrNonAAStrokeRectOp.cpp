@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrNonAAStrokeRectBatch.h"
+#include "GrNonAAStrokeRectOp.h"
 
 #include "GrBatchTest.h"
 #include "GrColor.h"
@@ -23,7 +23,7 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
     const SkScalar rad = SkScalarHalf(width);
     // TODO we should be able to enable this assert, but we'd have to filter these draws
     // this is a bug
-    //SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
+    // SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
     verts[1].set(rect.fLeft - rad, rect.fTop - rad);
@@ -45,7 +45,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
 }
 
-class NonAAStrokeRectBatch final : public GrMeshDrawOp {
+class NonAAStrokeRectOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -53,10 +53,10 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                       "StrokeWidth: %.2f\n",
-                       fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                       fStrokeWidth);
+        string.appendf(
+                "Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                "StrokeWidth: %.2f\n",
+                fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, fStrokeWidth);
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
@@ -70,20 +70,20 @@ public:
         coverage->setKnownSingleComponent(0xff);
     }
 
-    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                            const SkStrokeRec& stroke, bool snapToPixelCenters) {
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                                const SkStrokeRec& stroke, bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
             return nullptr;
         }
-        NonAAStrokeRectBatch* batch = new NonAAStrokeRectBatch();
-        batch->fColor = color;
-        batch->fViewMatrix = viewMatrix;
-        batch->fRect = rect;
+        NonAAStrokeRectOp* op = new NonAAStrokeRectOp();
+        op->fColor = color;
+        op->fViewMatrix = viewMatrix;
+        op->fRect = rect;
         // Sort the rect for hairlines
-        batch->fRect.sort();
-        batch->fStrokeWidth = stroke.getWidth();
+        op->fRect.sort();
+        op->fStrokeWidth = stroke.getWidth();
 
-        SkScalar rad = SkScalarHalf(batch->fStrokeWidth);
+        SkScalar rad = SkScalarHalf(op->fStrokeWidth);
         SkRect bounds = rect;
         bounds.outset(rad, rad);
 
@@ -98,16 +98,15 @@ public:
                        SkScalarFloorToScalar(bounds.fRight),
                        SkScalarFloorToScalar(bounds.fBottom));
             bounds.offset(0.5f, 0.5f);
-            batch->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+            op->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
         } else {
-            batch->setTransformedBounds(bounds, batch->fViewMatrix, HasAABloat ::kNo,
-                                        IsZeroArea::kNo);
+            op->setTransformedBounds(bounds, op->fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
         }
-        return batch;
+        return sk_sp<GrDrawOp>(op);
     }
 
 private:
-    NonAAStrokeRectBatch() : INHERITED(ClassID()) {}
+    NonAAStrokeRectOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp;
@@ -116,8 +115,8 @@ private:
             Color color(fColor);
             Coverage coverage(fOverrides.readsCoverage() ? Coverage::kSolid_Type
                                                          : Coverage::kNone_Type);
-            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                                    LocalCoords::kUnused_Type);
+            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type
+                                                                  : LocalCoords::kUnused_Type);
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
 
@@ -133,8 +132,8 @@ private:
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
-                                              &firstVertex);
+        void* verts =
+                target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -186,21 +185,20 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrNonAAStrokeRectBatch {
+namespace GrNonAAStrokeRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkStrokeRec& stroke,
-                 bool snapToPixelCenters) {
-    return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke, snapToPixelCenters);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkStrokeRec& stroke,
+                     bool snapToPixelCenters) {
+    return NonAAStrokeRectOp::Make(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
-
 }
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectBatch) {
+DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
@@ -210,7 +208,8 @@ DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectBatch) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeJoin(SkPaint::kMiter_Join);
     SkStrokeRec strokeRec(paint);
-    return GrNonAAStrokeRectBatch::Create(color, viewMatrix, rect, strokeRec, random->nextBool());
+    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, random->nextBool())
+            .release();
 }
 
 #endif

@@ -19,7 +19,7 @@
 
 #include "SkDistanceFieldGen.h"
 
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -190,7 +190,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                      maskMatrix,
                                                      GrSamplerParams::kNone_FilterMode));
 
-    sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), SkMatrix::I(), dstRect,
-                                                           nullptr, &invert));
+    sk_sp<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(), dstRect,
+                                                        nullptr, &invert);
     renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 }

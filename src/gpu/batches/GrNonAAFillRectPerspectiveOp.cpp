@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrNonAAFillRectBatch.h"
+#include "GrNonAAFillRectOp.h"
 
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -41,8 +41,8 @@ static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
     // Otherwise, if we have a local rect, then we apply the localMatrix directly to the localRect
     // to generate vertex local coords
     if (viewMatrix.hasPerspective()) {
-        LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type :
-                                                         LocalCoords::kUsePosition_Type,
+        LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
+                                                       : LocalCoords::kUsePosition_Type,
                                 localMatrix);
         return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
@@ -63,8 +63,7 @@ static void tesselate(intptr_t vertices,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    positions->setRectFan(rect.fLeft, rect.fTop,
-                          rect.fRight, rect.fBottom, vertexStride);
+    positions->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
     if (viewMatrix) {
         viewMatrix->mapPointsWithStride(positions, vertexStride, kVertsPerInstance);
@@ -75,8 +74,8 @@ static void tesselate(intptr_t vertices,
     if (localQuad) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
         for (int i = 0; i < kVertsPerInstance; i++) {
-            SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset +
-                              i * vertexStride);
+            SkPoint* coords =
+                    reinterpret_cast<SkPoint*>(vertices + kLocalOffset + i * vertexStride);
             *coords = localQuad->point(i);
         }
     }
@@ -85,21 +84,19 @@ static void tesselate(intptr_t vertices,
     GrColor* vertColor = reinterpret_cast<GrColor*>(vertices + kColorOffset);
     for (int j = 0; j < 4; ++j) {
         *vertColor = color;
-        vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+        vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
     }
 }
 
 // We handle perspective in the local matrix or viewmatrix with special batches
-class GrNonAAFillRectPerspectiveBatch final : public GrMeshDrawOp {
+class NonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrNonAAFillRectPerspectiveBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                                    const SkRect* localRect, const SkMatrix* localMatrix)
-            : INHERITED(ClassID())
-            , fViewMatrix(viewMatrix) {
-        SkASSERT(viewMatrix.hasPerspective() || (localMatrix &&
-                                                 localMatrix->hasPerspective()));
+    NonAAFillRectPerspectiveOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                               const SkRect* localRect, const SkMatrix* localMatrix)
+            : INHERITED(ClassID()), fViewMatrix(viewMatrix) {
+        SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;
         info.fRect = rect;
@@ -121,9 +118,9 @@ public:
         str.appendf("# batched: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& geo = fRects[0];
-            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, geo.fColor,
-                        geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight, geo.fRect.fBottom);
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
+                        geo.fRect.fBottom);
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
@@ -144,7 +141,7 @@ public:
     }
 
 private:
-    GrNonAAFillRectPerspectiveBatch() : INHERITED(ClassID()) {}
+    NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
@@ -156,18 +153,19 @@ private:
             return;
         }
         SkASSERT(fHasLocalRect
-                     ? gp->getVertexStride() ==
-                         sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
-                     : gp->getVertexStride() == sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
+                         ? gp->getVertexStride() ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
+                         : gp->getVertexStride() ==
+                                   sizeof(GrDefaultGeoProcFactory::PositionColorAttr));
 
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+        void* vertices =
+                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+                            kVertsPerInstance, kIndicesPerInstance, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -175,8 +173,8 @@ private:
 
         for (int i = 0; i < instanceCount; i++) {
             const RectInfo& info = fRects[i];
-            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerInstance * vertexStride;
+            intptr_t verts =
+                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerInstance * vertexStride;
             if (fHasLocalRect) {
                 GrQuad quad(info.fLocalRect);
                 tesselate(verts, vertexStride, info.fColor, nullptr, info.fRect, &quad);
@@ -188,7 +186,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        GrNonAAFillRectPerspectiveBatch* that = t->cast<GrNonAAFillRectPerspectiveBatch>();
+        NonAAFillRectPerspectiveOp* that = t->cast<NonAAFillRectPerspectiveOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -232,16 +230,16 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrNonAAFillRectBatch {
+namespace GrNonAAFillRectOp {
 
-GrDrawOp* CreateWithPerspective(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkRect& rect,
-                                const SkRect* localRect,
-                                const SkMatrix* localMatrix) {
-    return new GrNonAAFillRectPerspectiveBatch(color, viewMatrix, rect, localRect, localMatrix);
+sk_sp<GrDrawOp> MakeWithPerspective(GrColor color,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& rect,
+                                    const SkRect* localRect,
+                                    const SkMatrix* localMatrix) {
+    return sk_sp<GrDrawOp>(
+            new NonAAFillRectPerspectiveOp(color, viewMatrix, rect, localRect, localMatrix));
 }
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +248,7 @@ GrDrawOp* CreateWithPerspective(GrColor color,
 
 #include "GrBatchTest.h"
 
-DRAW_BATCH_TEST_DEFINE(PerspRectBatch) {
+DRAW_BATCH_TEST_DEFINE(NonAAFillRectPerspectiveOp) {
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
@@ -263,9 +261,10 @@ DRAW_BATCH_TEST_DEFINE(PerspRectBatch) {
     }
 
     bool hasLocalRect = random->nextBool();
-    return GrNonAAFillRectBatch::CreateWithPerspective(color, viewMatrix, rect,
-                                                       hasLocalRect ? &localRect : nullptr,
-                                                       hasLocalMatrix ? &localMatrix : nullptr);
+    return GrNonAAFillRectOp::MakeWithPerspective(color, viewMatrix, rect,
+                                                  hasLocalRect ? &localRect : nullptr,
+                                                  hasLocalMatrix ? &localMatrix : nullptr)
+            .release();
 }
 
 #endif

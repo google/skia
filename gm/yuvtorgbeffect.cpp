@@ -17,7 +17,7 @@
 #include "SkGr.h"
 #include "SkGradientShader.h"
 #include "batches/GrDrawOp.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 #include "effects/GrYUVEffect.h"
 
 #define YSIZE 8
@@ -123,9 +123,8 @@ protected:
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
-                    sk_sp<GrDrawOp> op(
-                            GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
-                                                                renderRect, nullptr, nullptr));
+                    sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                            GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                       std::move(op));
                 }
@@ -237,8 +236,8 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(
-                    GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
+                sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(GrColor_WHITE, viewMatrix,
+                                                                  renderRect, nullptr, nullptr));
                 renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                   std::move(op));
             }

@@ -19,7 +19,7 @@
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
 #include "batches/GrMeshDrawOp.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 #include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -659,8 +659,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds,
-                                                                   nullptr, &localMatrix));
+            sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewM, bounds,
+                                                              nullptr, &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);

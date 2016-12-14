@@ -33,7 +33,7 @@
 #include "batches/GrDiscardBatch.h"
 #include "batches/GrDrawOp.h"
 #include "batches/GrDrawPathBatch.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 #include "batches/GrStencilPathBatch.h"
 
 #include "instanced/InstancedRendering.h"

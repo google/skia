@@ -8,12 +8,12 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
-#include "GrPipelineBuilder.h"
 #include "GrGpuResourcePriv.h"
+#include "GrPipelineBuilder.h"
 #include "GrSWMaskHelper.h"
 #include "GrSurfaceContextPriv.h"
 #include "GrTextureProvider.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -69,8 +69,8 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    sk_sp<GrDrawOp> op(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect,
-                                                           nullptr, &localMatrix));
+    sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect, nullptr,
+                                                      &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);

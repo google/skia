@@ -5,21 +5,20 @@
  * found in the LICENSE file.
  */
 
-
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrDrawPathBatch.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilPathBatch.h"
 #include "GrStyle.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -113,8 +112,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        sk_sp<GrDrawOp> coverOp(GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM,
-                                                                    bounds, nullptr, &invert));
+        sk_sp<GrDrawOp> coverOp(GrRectOpFactory::MakeNonAAFill(args.fPaint->getColor(), viewM,
+                                                               bounds, nullptr, &invert));
 
         // fake inverse with a stencil and cover
         args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,
