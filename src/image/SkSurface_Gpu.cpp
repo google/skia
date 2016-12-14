@@ -14,7 +14,6 @@
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
-#include "GrRenderTargetContextPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -83,37 +82,29 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
-    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
-    if (!rtc) {
+    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
+    if (!rt) {
         return nullptr;
     }
 
-    GrContext* ctx = fDevice->context();
-
-    GrSurfaceProxy* srcProxy = rtc->asDeferredSurface();
-    sk_sp<GrSurfaceContext> copyCtx;
+    GrTexture* tex = rt->asTexture();
+    sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
-    if (kAlways_SkCopyPixelsMode == cpm || !srcProxy || rtc->priv().refsWrappedObjects()) {
-        GrSurfaceDesc desc = rtc->desc();
+    if (kAlways_SkCopyPixelsMode == cpm || !tex || rt->resourcePriv().refsWrappedObjects()) {
+        GrSurfaceDesc desc = fDevice->accessRenderTargetContext()->desc();
+        GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
-
-        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc, budgeted);
-        if (!copyCtx) {
+        copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));
+        if (!copy) {
             return nullptr;
         }
-
-        if (!copyCtx->copy(srcProxy)) {
+        if (!ctx->copySurface(copy.get(), rt)) {
             return nullptr;
         }
-
-        srcProxy = copyCtx->asDeferredSurface();
+        tex = copy.get();
     }
-
-    // TODO: add proxy-backed SkImage_Gpu
-    GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
-
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
     if (tex) {
