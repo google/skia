@@ -276,12 +276,15 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     SkASSERT(count > 0);
     const SkLinearGradient& linearGradient = static_cast<const SkLinearGradient&>(fShader);
 
+// Only use the Sk4f impl when known to be fast.
+#if defined(SKNX_IS_FAST)
     if (SkShader::kClamp_TileMode == linearGradient.fTileMode &&
         kLinear_MatrixClass == fDstToIndexClass)
     {
         this->shade4_clamp(x, y, dstC, count);
         return;
     }
+#endif
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
