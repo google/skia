@@ -14,17 +14,9 @@ template <typename T> struct SkTSize {
     T fWidth;
     T fHeight;
 
-    static SkTSize Make(T w, T h) {
-        SkTSize s;
-        s.fWidth = w;
-        s.fHeight = h;
-        return s;
-    }
+    static SkTSize Make(T w, T h) { return SkTSize<T>{w, h}; }
 
-    void set(T w, T h) {
-        fWidth = w;
-        fHeight = h;
-    }
+    void set(T w, T h) { *this = SkTSize<T>{w, h}; }
 
     /** Returns true iff fWidth == 0 && fHeight == 0
      */
@@ -38,9 +30,7 @@ template <typename T> struct SkTSize {
     }
 
     /** Set the width and height to 0 */
-    void setEmpty() {
-        fWidth = fHeight = 0;
-    }
+    void setEmpty() { *this = SkTSize<T>{0, 0}; }
 
     T width() const { return fWidth; }
     T height() const { return fHeight; }
@@ -82,28 +72,21 @@ struct SkSize : public SkTSize<SkScalar> {
         return s;
     }
 
-
     SkSize& operator=(const SkISize& src) {
         this->set(SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight));
         return *this;
     }
 
     SkISize toRound() const {
-        SkISize s;
-        s.set(SkScalarRoundToInt(fWidth), SkScalarRoundToInt(fHeight));
-        return s;
+        return SkISize{SkScalarRoundToInt(fWidth), SkScalarRoundToInt(fHeight)};
     }
 
     SkISize toCeil() const {
-        SkISize s;
-        s.set(SkScalarCeilToInt(fWidth), SkScalarCeilToInt(fHeight));
-        return s;
+        return SkISize{SkScalarCeilToInt(fWidth), SkScalarCeilToInt(fHeight)};
     }
 
     SkISize toFloor() const {
-        SkISize s;
-        s.set(SkScalarFloorToInt(fWidth), SkScalarFloorToInt(fHeight));
-        return s;
+        return SkISize{SkScalarFloorToInt(fWidth), SkScalarFloorToInt(fHeight)};
     }
 };
 
