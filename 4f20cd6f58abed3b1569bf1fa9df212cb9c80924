@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a23133a_d999530c",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Thoughts on using SkMatrix here?  I\u0027m starting to think I made the wrong choice for SkColorSpace with SkMatrix44.  We just never need the extra entries except for in the weird cases that we\u0027ve since refactored away.\n\nIMO, the drawback of SkMatrix is that it thinks of everything in terms of translate, scale, skew etc.\n\nOr, maybe I should just stick with SkMatrix44 here, and if we decide to switch, we do everything at once?",
+      "range": {
+        "startLine": 36,
+        "startChar": 18,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_598ea3c2",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Not implemented yet.",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 74
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_19882bb2",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Not implemented yet.",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 96
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_b9981f05",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Thoughts on using the SkICC_Base trick and hiding the fact that this is currently implemented with an SkColorSpace?",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 36
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_d944f395",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Oops, will remove.",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 68
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_994e7bb2",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T18:57:24Z",
+      "side": 1,
+      "message": "Same here.  Bad rebase, will remove.",
+      "range": {
+        "startLine": 261,
+        "startChar": 8,
+        "endLine": 262,
+        "endChar": 60
+      },
+      "revId": "4f20cd6f58abed3b1569bf1fa9df212cb9c80924",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
