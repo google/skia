@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "5a0b5ba9_67677241",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T16:45:46Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly about 4444...\n\nI think we need to pay attention to the transfer function for gray.",
+      "parentUuid": "cd4b13fc_38acf0d3",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd4b13fc_8a11331a",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 2
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "I was thinking convert to luminance, but I guess that\u0027s more smarts than we want in readPixels()?",
       "parentUuid": "cd4b13fc_58dc5c75",
+      "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0b5ba9_47646e3a",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T16:45:46Z",
+      "side": 1,
+      "message": "I think it\u0027s good to not support gray here.\n\nMaybe we should have a special case where the src is gray, the request is for gray and the color spaces match?",
+      "parentUuid": "0d744b42_93dac405",
       "revId": "7e37f85cee08f8d8f9dbf2dd598b3630591013a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
