@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a23133a_d99153a3",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-14T19:21:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0b5ba9_a739eae6",
+      "revId": "494b8cf07bccb088f6dc641c46427b261a32463a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a0b5ba9_873ee6ca",
         "filename": "include/private/SkTHash.h",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-14T19:02:18Z",
       "side": 1,
       "message": "Probably don\u0027t want to truncate hash here...",
+      "revId": "494b8cf07bccb088f6dc641c46427b261a32463a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_39664f02",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-14T19:21:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0b5ba9_873ee6ca",
       "revId": "494b8cf07bccb088f6dc641c46427b261a32463a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
         "endLine": 207,
         "endChar": 16
       },
+      "revId": "494b8cf07bccb088f6dc641c46427b261a32463a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_19690bd3",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-14T19:21:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0b5ba9_67541216",
       "revId": "494b8cf07bccb088f6dc641c46427b261a32463a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
