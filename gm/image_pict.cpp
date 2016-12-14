@@ -221,7 +221,8 @@ public:
         }
     }
 protected:
-    GrTexture* onGenerateTexture(GrContext* ctx, const SkIRect& subset) override {
+    GrTexture* onGenerateTexture(GrContext* ctx, const SkImageInfo&,
+                                 const SkIRect& subset) override {
         if (ctx) {
             SkASSERT(ctx == fCtx.get());
         }

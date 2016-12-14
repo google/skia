@@ -77,11 +77,12 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
     return this->onGetYUV8Planes(sizeInfo, planes);
 }
 
-GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkIRect& subset) {
+GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
+                                             const SkIRect& subset) {
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(subset)) {
         return nullptr;
     }
-    return this->onGenerateTexture(ctx, subset);
+    return this->onGenerateTexture(ctx, info, subset);
 }
 
 bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
