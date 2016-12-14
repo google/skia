@@ -642,10 +642,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
                                                            surfaceProps);
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface> surface) {
+sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy) {
     ASSERT_SINGLE_OWNER_PRIV
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
 
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
@@ -653,6 +651,14 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
         SkASSERT(proxy->asTextureProxy());
         return this->drawingManager()->makeTextureContext(std::move(proxy));
     }
+}
+
+sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface> surface) {
+    ASSERT_SINGLE_OWNER_PRIV
+
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
+
+    return this->makeWrappedSurfaceContext(std::move(proxy));
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
