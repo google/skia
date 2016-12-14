@@ -60,14 +60,14 @@ public:
 
     // If there is an entry in the table with this key, return a pointer to it.  If not, null.
     T* find(const K& key) const {
-        uint32_t hash = Hash(key);
+        uint32_t hash = Traits::Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            if (s.empty()) {
+            if (!s.live) {
                 return nullptr;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
+            if (s.match(key, hash)) {
                 return &s.val;
             }
             index = this->next(index);
@@ -80,41 +80,26 @@ public:
     void remove(const K& key) {
         SkASSERT(this->find(key));
 
-        uint32_t hash = Hash(key);
+        uint32_t hash = Traits::Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
-            Slot& s = fSlots[index];
-            SkASSERT(!s.empty());
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
+            SkASSERT(fSlots[index].live);
+            if (fSlots[index].match(key, hash)) {
+
+                auto next = this->next(index);
+                while (fSlots[next].live && fSlots[next].dist > 0) {
+                    if (true/*I think my problem is this condition.*/) {
+                        fSlots[index] = std::move(fSlots[next]);
+                        fSlots[index].dist--;
+                        index = next;
+                    }
+                    next = this->next(next);
+                }
+                fSlots[index] = Slot();
                 fCount--;
-                break;
+                return;
             }
             index = this->next(index);
-        }
-
-        // Rearrange elements to restore the invariants for linear probing.
-        for (;;) {
-            Slot& emptySlot = fSlots[index];
-            int emptyIndex = index;
-            emptySlot.markEmpty();
-            int originalIndex;
-            // Look for an element that can be moved into the empty slot.
-            // If the empty slot is in between where an element landed, and its native slot, then
-            // move it to the empty slot. Don't move it if its native slot is in between where
-            // the element landed and the empty slot.
-            // [native] <= [empty] < [candidate] == GOOD, can move candidate to empty slot
-            // [empty] < [native] < [candidate] == BAD, need to leave candidate where it is
-            do {
-                index = this->next(index);
-                Slot& s = fSlots[index];
-                if (s.empty()) { return; }
-                originalIndex = s.hash & (fCapacity - 1);
-            } while ((index <= originalIndex && originalIndex < emptyIndex)
-                     || (originalIndex < emptyIndex && emptyIndex < index)
-                     || (emptyIndex < index && index <= originalIndex));
-            // Move the element to the empty slot.
-            Slot& moveFrom = fSlots[index];
-            emptySlot = std::move(moveFrom);
         }
     }
 
@@ -122,7 +107,7 @@ public:
     template <typename Fn>  // f(T*)
     void foreach(Fn&& fn) {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (fSlots[i].live) {
                 fn(&fSlots[i].val);
             }
         }
@@ -132,7 +117,7 @@ public:
     template <typename Fn>  // f(T) or f(const T&)
     void foreach(Fn&& fn) const {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty()) {
+            if (fSlots[i].live) {
                 fn(fSlots[i].val);
             }
         }
@@ -141,24 +126,29 @@ public:
 private:
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
-        uint32_t hash = Hash(key);
+        uint32_t hash = Traits::Hash(key);
         int index = hash & (fCapacity-1);
+
+        Slot candidate(std::move(val), hash, 0);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            if (s.empty()) {
-                // New entry.
-                s.val  = std::move(val);
-                s.hash = hash;
+            if (!s.live) {
+                s = std::move(candidate);
                 fCount++;
                 return &s.val;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
-                // Overwrite previous entry.
-                // Note: this triggers extra copies when adding the same value repeatedly.
-                s.val = std::move(val);
+            if (s.match(key, hash)) {
+                s = std::move(candidate);
                 return &s.val;
             }
+            if (s.dist < candidate.dist) {
+                // Robin hood!  Steal this slot from its rich small-dist inhabitant.
+                Slot evicted = std::move(s);
+                s = std::move(candidate);
+                candidate = std::move(evicted);
+            }
 
+            candidate.dist++;
             index = this->next(index);
         }
         SkASSERT(false);
@@ -176,7 +166,7 @@ private:
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
-            if (!s.empty()) {
+            if (s.live) {
                 this->uncheckedSet(std::move(s.val));
             }
         }
@@ -184,32 +174,31 @@ private:
     }
 
     int next(int index) const {
-        index--;
-        if (index < 0) { index += fCapacity; }
-        return index;
-    }
-
-    static uint32_t Hash(const K& key) {
-        uint32_t hash = Traits::Hash(key);
-        return hash ? hash : 1;  // We reserve hash 0 to mark empty.
+        return (index+1) & (fCapacity-1);
     }
 
     struct Slot {
-        Slot() : hash(0) {}
-        Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
+        Slot() : hash(0), dist(0), live(false) {}
+        Slot(T&& v, uint32_t h, int d)
+            : val(std::move(v)), hash((uint16_t)h), dist(SkToU8(d)), live(true) {}
+
         Slot(Slot&& o) { *this = std::move(o); }
         Slot& operator=(Slot&& o) {
             val  = std::move(o.val);
             hash = o.hash;
+            dist = o.dist;
+            live = o.live;
             return *this;
         }
 
-        bool empty() const { return this->hash == 0; }
-
-        void markEmpty() { this->hash = 0; }
+        bool match(const K& k, uint16_t h) const {
+            return hash == h && k == Traits::GetKey(val);
+        }
 
         T        val;
-        uint32_t hash;
+        uint16_t hash;
+        uint8_t  dist;
+        bool     live;
     };
 
     int fCount, fCapacity;
