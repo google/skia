@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a23133a_99aafb22",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-14T18:45:37Z",
+      "side": 1,
+      "message": "\"If false, disable analytic anti-aliasing.\"",
+      "range": {
+        "startLine": 69,
+        "startChar": 12,
+        "endLine": 69,
+        "endChar": 22
+      },
+      "revId": "c530d99b9e2ee40f154a658ebc9b57eb26e81e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
