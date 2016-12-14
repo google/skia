@@ -24,6 +24,7 @@ class SkPath;
 typedef SkIRect SkXRect;
 
 extern std::atomic<bool> gSkUseAnalyticAA;
+extern std::atomic<bool> gSkForceAnalyticAA;
 
 class AdditiveBlitter;
 

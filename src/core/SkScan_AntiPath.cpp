@@ -753,9 +753,19 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
     }
 }
 
+static bool suitableForAAA(const SkPath& path) {
+    if (gSkForceAnalyticAA.load()) {
+        return true;
+    }
+    const SkRect& bounds = path.getBounds();
+    return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 4;
+}
+
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter) {
-    if (gSkUseAnalyticAA.load()) {
+    // Do not use AAA if path is too complicated:
+    // there won't be any speed up and significant visual improvement.
+    if (gSkUseAnalyticAA.load() && suitableForAAA(path)) {
         SkScan::AAAFillPath(path, clip, blitter);
         return;
     }
