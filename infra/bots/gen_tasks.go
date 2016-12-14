@@ -190,6 +190,7 @@ var (
 		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android_Vulkan",
 		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
 		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android_Vulkan",
+		"Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android",
 		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
 		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
 		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
@@ -347,6 +348,7 @@ func swarmDimensions(parts map[string]string) []string {
 			deviceInfo := map[string][]string{
 				"AndroidOne":    {"sprout", "MOB30Q"},
 				"GalaxyS7":      {"heroqlteatt", "MMB29M"},
+				"GalaxyTab3":    {"goyawifi", "JDQ39"},
 				"NVIDIA_Shield": {"foster", "MRA58K"},
 				"Nexus10":       {"manta", "LMY49J"},
 				"Nexus5":        {"hammerhead", "MOB31E"},
