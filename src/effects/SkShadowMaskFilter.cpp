@@ -349,7 +349,7 @@ sk_sp<GrTextureProxy> SkShadowMaskFilterImpl::filterMaskGPU(GrContext*,
                                                             sk_sp<GrTextureProxy> srcProxy,
                                                             const SkMatrix& ctm,
                                                             const SkIRect& maskRect) const {
-    // This filter it generative and doesn't operate on pre-existing masks
+    // This filter is generative and doesn't operate on pre-existing masks
     return nullptr;
 }
 
