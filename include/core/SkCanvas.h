@@ -42,12 +42,6 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
-#ifdef SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM
-    #define SkCanvasImpl_DefaultClipOp  kIntersect_SkClipOp
-#else
-    #define SkCanvasImpl_DefaultClipOp  SkClipOp::kIntersect
-#endif
-
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -483,7 +477,7 @@ public:
         this->clipRect(rect, op, false);
     }
     void clipRect(const SkRect& rect, bool doAntiAlias = false) {
-        this->clipRect(rect, SkCanvasImpl_DefaultClipOp, doAntiAlias);
+        this->clipRect(rect, SkClipOp::kIntersect, doAntiAlias);
     }
 
     /**
@@ -508,7 +502,7 @@ public:
         this->clipRRect(rrect, op, false);
     }
     void clipRRect(const SkRRect& rrect, bool doAntiAlias = false) {
-        this->clipRRect(rrect, SkCanvasImpl_DefaultClipOp, doAntiAlias);
+        this->clipRRect(rrect, SkClipOp::kIntersect, doAntiAlias);
     }
 
     /**
@@ -522,7 +516,7 @@ public:
         this->clipPath(path, op, false);
     }
     void clipPath(const SkPath& path, bool doAntiAlias = false) {
-        this->clipPath(path, SkCanvasImpl_DefaultClipOp, doAntiAlias);
+        this->clipPath(path, SkClipOp::kIntersect, doAntiAlias);
     }
 
     /** EXPERIMENTAL -- only used for testing
@@ -539,7 +533,7 @@ public:
         @param deviceRgn    The region to apply to the current clip
         @param op The region op to apply to the current clip
     */
-    void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkCanvasImpl_DefaultClipOp);
+    void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect);
 
     /** Return true if the specified rectangle, after being transformed by the
         current matrix, would lie completely outside of the current clip. Call

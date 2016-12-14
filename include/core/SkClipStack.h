@@ -18,15 +18,6 @@
 
 class SkCanvasClipVisitor;
 
-
-#ifdef SK_SUPPORT_LEGACY_CLIPOPS_PLAIN_ENUM
-    #define SkClipStackImpl_UnionOp    kUnion_SkClipOp
-    #define SkClipStackImpl_ReplaceOp  kReplace_SkClipOp
-#else
-    #define SkClipStackImpl_UnionOp    SkClipOp::kUnion_private_internal_do_not_use
-    #define SkClipStackImpl_ReplaceOp  SkClipOp::kReplace_private_internal_do_not_use
-#endif
-
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.
 // Each clip in fDeque stores the stack state to which it belongs
@@ -63,7 +54,7 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, SkClipStackImpl_ReplaceOp, false);
+            this->initCommon(0, SkClipOp::kReplace_private_internal_do_not_use, false);
             this->setEmpty();
         }
 
@@ -235,7 +226,7 @@ public:
         int                     fGenID;
 
         Element(int saveCount) {
-            this->initCommon(saveCount, SkClipStackImpl_ReplaceOp, false);
+            this->initCommon(saveCount, SkClipOp::kReplace_private_internal_do_not_use, false);
             this->setEmpty();
         }
 
@@ -525,7 +516,7 @@ private:
     void restoreTo(int saveCount);
 
     inline bool hasClipRestriction(SkClipOp op) {
-        return op >= SkClipStackImpl_UnionOp && !fClipRestrictionRect.isEmpty();
+        return op >= SkClipOp::kUnion_private_internal_do_not_use && !fClipRestrictionRect.isEmpty();
     }
 
     /**
