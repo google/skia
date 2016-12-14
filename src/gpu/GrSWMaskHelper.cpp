@@ -97,13 +97,13 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
 /**
  * Get a texture (from the texture cache) of the correct size & format.
  */
-GrTexture* GrSWMaskHelper::createTexture(TextureType textureType) {
+GrTexture* GrSWMaskHelper::createTexture(SkBackingFit fit) {
     GrSurfaceDesc desc;
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    if (TextureType::kApproximateFit == textureType) {
+    if (SkBackingFit::kApprox == fit) {
         return fTexProvider->createApproxTexture(desc);
     } else {
         return fTexProvider->createTexture(desc, SkBudgeted::kYes);
@@ -140,7 +140,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
                                                   const GrShape& shape,
                                                   const SkIRect& resultBounds,
                                                   GrAA aa,
-                                                  TextureType textureType,
+                                                  SkBackingFit fit,
                                                   const SkMatrix* matrix) {
     GrSWMaskHelper helper(texProvider);
 
@@ -150,7 +150,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 
     helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
 
-    GrTexture* texture(helper.createTexture(textureType));
+    GrTexture* texture(helper.createTexture(fit));
     if (!texture) {
         return nullptr;
     }
