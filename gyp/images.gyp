@@ -15,7 +15,6 @@
         'core.gyp:*',
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
         'etc1.gyp:libetc1',
-        'ktx.gyp:libSkKTX',
         'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
@@ -30,7 +29,6 @@
         '../src/image/',
       ],
       'sources': [
-        '../src/images/SkKTXImageEncoder.cpp',
         '../src/images/SkWEBPImageEncoder.cpp',
         '../src/images/SkJPEGImageEncoder.cpp',
         '../src/images/SkPNGImageEncoder.cpp',
@@ -65,15 +63,6 @@
           ],
           'dependencies': [
             'libpng.gyp:libpng',
-          ],
-          'conditions': [
-            [ 'skia_android_framework == 1', {
-              # The android framework disables these decoders as they are of little use to
-              # Java applications that can't take advantage of the compressed formats.
-              'sources!': [
-                '../src/images/SkKTXImageEncoder.cpp',
-              ],
-            }],
           ],
         }],
         [ 'skia_os == "ios"', {

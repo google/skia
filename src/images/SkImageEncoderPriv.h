@@ -28,12 +28,6 @@
     #define SkEncodeImageAsWEBP(...) false
 #endif
 
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool SkEncodeImageAsKTX(SkWStream*, const SkPixmap&);
-#else
-    #define SkEncodeImageAsKTX(...) false
-#endif
-
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     bool SkEncodeImageWithCG(SkWStream*, const SkPixmap&, SkEncodedImageFormat);
 #else

@@ -19,7 +19,6 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             case SkEncodedImageFormat::kJPEG: return SkEncodeImageAsJPEG(dst, src, quality);
             case SkEncodedImageFormat::kPNG:  return SkEncodeImageAsPNG(dst, src);
             case SkEncodedImageFormat::kWEBP: return SkEncodeImageAsWEBP(dst, src, quality);
-            case SkEncodedImageFormat::kKTX:  return SkEncodeImageAsKTX(dst, src);
             default:                          return false;
         }
     #endif
