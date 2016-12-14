@@ -83,8 +83,8 @@ class SkOpContourHead;
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_COINCIDENCE 01
-#define DEBUG_COINCIDENCE_DUMP 0
-#define DEBUG_COINCIDENCE_ORDER 0  // tight arc quads may generate out-of-order coincdence spans
+#define DEBUG_COINCIDENCE_DUMP 01
+#define DEBUG_COINCIDENCE_ORDER 01  // tight arc quads may generate out-of-order coincdence spans
 #define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
@@ -392,6 +392,10 @@ public:
     static void VerifyOp(const SkPath& one, const SkPath& two, SkPathOp op,
         const SkPath& result);
     static void VerifySimplify(const SkPath& path, const SkPath& result);
+#endif
+
+#if DEBUG_ACTIVE_SPANS
+    static SkString gActiveSpans;
 #endif
 
 };
