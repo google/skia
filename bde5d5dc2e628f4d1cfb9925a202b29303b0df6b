@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_601e2cd8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:35:50Z",
+      "side": 1,
+      "message": "Haha, indeed. All the more reason to just delete the ktx encoder: https://skia-review.googlesource.com/c/6031/",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 86
+      },
+      "revId": "bde5d5dc2e628f4d1cfb9925a202b29303b0df6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
