@@ -551,31 +551,6 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
     return true;
 }
 
-bool SkDynamicMemoryWStream::write(const void* buffer, size_t offset, size_t count)
-{
-    if (offset + count > fBytesWritten) {
-        return false; // test does not partially modify
-    }
-
-    this->invalidateCopy();
-
-    Block* block = fHead;
-    while (block != nullptr) {
-        size_t size = block->written();
-        if (offset < size) {
-            size_t part = offset + count > size ? size - offset : count;
-            memcpy(block->start() + offset, buffer, part);
-            if (count <= part)
-                return true;
-            count -= part;
-            buffer = (const void*) ((char* ) buffer + part);
-        }
-        offset = offset > size ? offset - size : 0;
-        block = block->fNext;
-    }
-    return false;
-}
-
 bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count)
 {
     if (offset + count > fBytesWritten)
