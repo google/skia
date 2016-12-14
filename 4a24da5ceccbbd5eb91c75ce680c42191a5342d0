@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_bdd57f05",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T14:58:01Z",
+      "side": 1,
+      "message": "is?",
+      "range": {
+        "startLine": 352,
+        "startChar": 19,
+        "endLine": 352,
+        "endChar": 21
+      },
+      "revId": "4a24da5ceccbbd5eb91c75ce680c42191a5342d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
