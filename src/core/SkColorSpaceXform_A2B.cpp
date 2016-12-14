@@ -183,6 +183,19 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         currentChannels = e.outputChannels();
         switch (e.type()) {
             case SkColorSpace_A2B::Element::Type::kGammaNamed:
+                // take the fast path for 3-channel named gammas
+                if (3 == currentChannels) {
+                    if (k2Dot2Curve_SkGammaNamed == e.gammaNamed()) {
+                        SkCSXformPrintf("fast path from 2.2\n");
+                        fElementsPipeline.append(SkRasterPipeline::from_2dot2);
+                        break;
+                    } else if (kSRGB_SkGammaNamed == e.gammaNamed()) {
+                        SkCSXformPrintf("fast path from sRGB\n");
+                        // Images should always start the pipeline as unpremul
+                        fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                        break;
+                    }
+                }
                 if (kLinear_SkGammaNamed != e.gammaNamed()) {
                     SkCSXformPrintf("Gamma stage added: %s\n",
                                     debugGammaNamed[(int)e.gammaNamed()]);
@@ -261,32 +274,40 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         addMatrix(*dstSpace->fromXYZD50());
     }
 
-    if (kNonStandard_SkGammaNamed != dstSpace->gammaNamed()) {
-        if (!fLinearDstGamma) {
-            SkColorSpaceTransferFn fn =
-                    invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()));
-            this->addTransferFns(fn, 3);
-        }
-    } else {
-        for (int channel = 0; channel < 3; ++channel) {
-            const SkGammas& gammas = *dstSpace->gammas();
-            if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
-                static constexpr int kInvTableSize = 256;
-                std::vector<float> storage(kInvTableSize);
-                invert_table_gamma(storage.data(), nullptr, storage.size(), gammas.table(channel),
-                                  gammas.data(channel).fTable.fSize);
-                SkTableTransferFn table = {
-                        storage.data(),
-                        (int) storage.size(),
-                };
-                fTableStorage.push_front(std::move(storage));
+    switch (dstSpace->gammaNamed()) {
+        case kLinear_SkGammaNamed:
+            // do nothing
+            break;
+        case k2Dot2Curve_SkGammaNamed:
+            fElementsPipeline.append(SkRasterPipeline::to_2dot2);
+            break;
+        case kSRGB_SkGammaNamed:
+            fElementsPipeline.append(SkRasterPipeline::to_srgb);
+            break;
+        case kNonStandard_SkGammaNamed: {
+            for (int channel = 0; channel < 3; ++channel) {
+                const SkGammas& gammas = *dstSpace->gammas();
+                if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
+                    static constexpr int kInvTableSize = 256;
+                    std::vector<float> storage(kInvTableSize);
+                    invert_table_gamma(storage.data(), nullptr, storage.size(),
+                                       gammas.table(channel),
+                                       gammas.data(channel).fTable.fSize);
+                    SkTableTransferFn table = {
+                            storage.data(),
+                            (int) storage.size(),
+                    };
+                    fTableStorage.push_front(std::move(storage));
 
-                this->addTableFn(table, channel);
-            } else {
-                SkColorSpaceTransferFn fn = invert_parametric(gamma_to_parametric(gammas, channel));
-                this->addTransferFn(fn, channel);
+                    this->addTableFn(table, channel);
+                } else {
+                    SkColorSpaceTransferFn fn =
+                            invert_parametric(gamma_to_parametric(gammas, channel));
+                    this->addTransferFn(fn, channel);
+                }
             }
         }
+        break;
     }
 }
 

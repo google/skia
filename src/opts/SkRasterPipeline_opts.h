@@ -371,6 +371,21 @@ STAGE(to_srgb) {
     b = sk_linear_to_srgb_needs_round(b);
 }
 
+STAGE(from_2dot2) {
+    auto from_2dot2 = [](const SkNf& x) {
+        // x^(141/64) = x^(2.20312) is a great approximation of the true value, x^(2.2).
+        // (note: x^(35/16) = x^(2.1875) is an okay one as well and would be quicker)
+        auto x16 = x.rsqrt().rsqrt().rsqrt().rsqrt();   // x^(1/16) = x^(4/64);
+        auto x64 = x16.rsqrt().rsqrt();                 // x^(1/64)
+
+        // x^(141/64) = x^(128/64) * x^(12/64) * x^(1/64)
+        return SkNf::Max((x*x) * (x16*x16*x16) * (x64), 0.0f);
+    };
+    
+    r = from_2dot2(r);
+    g = from_2dot2(g);
+    b = from_2dot2(b);
+}
 STAGE(to_2dot2) {
     auto to_2dot2 = [](const SkNf& x) {
         // x^(29/64) is a very good approximation of the true value, x^(1/2.2).

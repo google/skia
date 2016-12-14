@@ -63,7 +63,7 @@
     M(unpremul) M(premul)                                        \
     M(set_rgb)                                                   \
     M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
-    M(to_2dot2)                                                  \
+    M(from_2dot2) M(to_2dot2)                                    \
     M(constant_color) M(store_f32)                               \
     M(load_565)  M(load_565_d)  M(store_565)                     \
     M(load_f16)  M(load_f16_d)  M(store_f16)                     \
