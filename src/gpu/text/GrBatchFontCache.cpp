@@ -102,6 +102,65 @@ void GrBatchFontCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
     }
 }
 
+#ifdef SK_DEBUG
+#include "GrContextPriv.h"
+#include "GrSurfaceProxy.h"
+#include "GrSurfaceContext.h"
+#include "GrTextureProxy.h"
+
+#include "SkBitmap.h"
+#include "SkImageEncoder.h"
+#include "SkStream.h"
+#include <stdio.h>
+
+/**
+  * Write the contents of the surface proxy to a PNG. Returns true if successful.
+  * @param filename      Full path to desired file
+  */
+static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* filename) {
+    SkBitmap bm;
+    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(sProxy->width(), sProxy->height()))) {
+        return false;
+    }
+
+    sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
+                                                                            sk_ref_sp(sProxy)));
+    if (!sContext || !sContext->asDeferredTexture()) {
+        return false;
+    }
+
+    // TODO: remove this instantiation when readPixels is on SurfaceContext
+    GrTexture* tex = sContext->asDeferredTexture()->instantiate(context->textureProvider());
+    if (!tex) {
+        return false;
+    }
+
+    bool result = tex->readPixels(0, 0, sProxy->width(), sProxy->height(), kSkia8888_GrPixelConfig,
+                                  bm.getPixels(), bm.rowBytes());
+    if (!result) {
+        SkDebugf("------ failed to read pixels for %s\n", filename);
+        return false;
+    }
+
+    // remove any previous version of this file
+    remove(filename);
+
+    SkFILEWStream file(filename);
+    if (!file.isValid()) {
+        SkDebugf("------ failed to create file: %s\n", filename);
+        remove(filename);   // remove any partial file
+        return false;
+    }
+
+    if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {
+        SkDebugf("------ failed to encode %s\n", filename);
+        remove(filename);   // remove any partial file
+        return false;
+    }
+
+    return true;
+}
+
 void GrBatchFontCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
@@ -114,12 +173,16 @@ void GrBatchFontCache::dump() const {
 #else
                 filename.printf("fontcache_%d%d.png", gDumpCount, i);
 #endif
-                texture->surfacePriv().savePixels(filename.c_str());
+
+                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(texture)));
+
+                save_pixels(fContext, sProxy.get(), filename.c_str());
             }
         }
     }
     ++gDumpCount;
 }
+#endif
 
 void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
     // Delete any old atlases.

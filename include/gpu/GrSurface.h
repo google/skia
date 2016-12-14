@@ -135,7 +135,6 @@ public:
 
 protected:
     // Methods made available via GrSurfacePriv
-    bool savePixels(const char* filename);
     bool hasPendingRead() const;
     bool hasPendingWrite() const;
     bool hasPendingIO() const;

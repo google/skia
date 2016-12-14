@@ -182,7 +182,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
+#ifdef SK_DEBUG
     void dump() const;
+#endif
 
     void setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]);
 
