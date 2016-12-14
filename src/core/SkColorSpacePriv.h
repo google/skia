@@ -84,3 +84,42 @@ static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
            color_space_almost_equal(0.0f, coeffs.fF) &&
            color_space_almost_equal(2.2f, coeffs.fG);
 }
+
+static inline void value_to_parametric(SkColorSpaceTransferFn* coeffs, float exponent) {
+    coeffs->fA = 1.0f;
+    coeffs->fB = 0.0f;
+    coeffs->fC = 0.0f;
+    coeffs->fD = 0.0f;
+    coeffs->fE = 0.0f;
+    coeffs->fF = 0.0f;
+    coeffs->fG = exponent;
+}
+
+static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
+                                       SkGammaNamed gammaNamed) {
+    switch (gammaNamed) {
+        case kSRGB_SkGammaNamed:
+            coeffs->fA = 1.0f / 1.055f;
+            coeffs->fB = 0.055f / 1.055f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 0.04045f;
+            coeffs->fE = 1.0f / 12.92f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 2.4f;
+            return true;
+        case k2Dot2Curve_SkGammaNamed:
+            value_to_parametric(coeffs, 2.2f);
+            return true;
+        case kLinear_SkGammaNamed:
+            coeffs->fA = 0.0f;
+            coeffs->fB = 0.0f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 1.0f;
+            coeffs->fE = 1.0f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 0.0f;
+            return true;
+        default:
+            return false;
+    }
+}
