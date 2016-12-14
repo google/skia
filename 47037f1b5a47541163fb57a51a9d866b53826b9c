@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_a01d544d",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-14T17:50:20Z",
+      "side": 1,
+      "message": "I find [some negative prefix][some feature] flags confusing.\n\nWould it be reasonable instead to do this?\n\nDEFINE_bool(analyticAA, true, \"Analytic Anti-Alias\");\n\nAlso, note \"Anti\" instead of \"Anati\"",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "47037f1b5a47541163fb57a51a9d866b53826b9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
