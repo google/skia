@@ -233,9 +233,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
     {
         ScopedGenerator generator(fSharedGenerator);
-        SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(),
-                                           cacheInfo.width(), cacheInfo.height());
-        tex.reset(generator->generateTexture(nullptr, subset));
+        tex.reset(generator->generateTexture(nullptr, cacheInfo, fOrigin));
     }
     if (!tex) {
         bitmap->reset();
@@ -541,21 +539,20 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
         }
     }
 
+    // The CachedFormat is both an index for which cache "slot" we'll use to store this particular
+    // decoded variant of the encoded data, and also a recipe for how to transform the original
+    // info to get the one that we're going to decode to.
+    SkImageInfo cacheInfo = this->buildCacheInfo(format);
+
     // 2. Ask the generator to natively create one
     {
         ScopedGenerator generator(fSharedGenerator);
-        SkIRect subset = SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
-        if (GrTexture* tex = generator->generateTexture(ctx, subset)) {
+        if (GrTexture* tex = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
             return set_key_and_return(tex, key);
         }
     }
-
-    // The CachedFormat is both an index for which cache "slot" we'll use to store this particular
-    // decoded variant of the encoded data, and also a recipe for how to transform the original
-    // info to get the one that we're going to decode to.
-    SkImageInfo cacheInfo = this->buildCacheInfo(format);
 
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
 

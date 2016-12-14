@@ -117,6 +117,18 @@ public:
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
      *  texture) this will return that image. If not, this will return NULL.
      *
+     *  This routine also supports retrieving only a subset of the pixels. That subset is specified
+     *  by the following rectangle:
+     *
+     *      subset = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height())
+     *
+     *  If subset is not contained inside the generator's bounds, this returns false.
+     *
+     *      whole = SkIRect::MakeWH(getInfo().width(), getInfo().height())
+     *      if (!whole.contains(subset)) {
+     *          return false;
+     *      }
+     *
      *  Regarding the GrContext parameter:
      *
      *  The caller may pass NULL for the context. In that case the generator may assume that its
@@ -128,7 +140,7 @@ public:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
-    GrTexture* generateTexture(GrContext*, const SkIRect& subset);
+    GrTexture* generateTexture(GrContext*, const SkImageInfo& info, const SkIPoint& origin);
 
     struct SupportedSizes {
         SkISize fSizes[2];
@@ -259,7 +271,7 @@ protected:
         return false;
     }
 
-    virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect&) {
+    virtual GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) {
         return nullptr;
     }
 
