@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_5de79b27",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T14:10:45Z",
+      "side": 1,
+      "message": "This seems like the wrong way to do this, IMO. The comment for this method says:\n\n    /**\n     *  @param requestedColorType Color type requested by the client\n     *\n     *  If it is possible to decode to requestedColorType, this returns\n     *  requestedColorType.  Otherwise, this returns whichever color type\n     *  is suggested by the codec as the best match for the encoded data.\n     */\n\nWhy not update the callers to request F16?\n\nOh wait, the caller ultimately may come from Android\u0027s Java API, which does not have any notion of F16. And if they use a BitmapFactory.Options object, they\u0027ll be requesting N32 by default. It seems a little weird that we will not support their request when we can. (On a related note, we\u0027ll have doubled RAM use, since F16 is 8 bytes per pixel, versus N32\u0027s 4. The client didn\u0027t pick N32 to save RAM, though...)\n\nWhat behavior changes do we need to worry about by switching them to F16? The first thing that comes to mind is we need to make sure that we support Bitmap.getPixel/getPixels [1]. Without a change to Android\u0027s Bitmap.cpp (here [2]), it looks like they will fail [3].\n\n[1] https://developer.android.com/reference/android/graphics/Bitmap.html#getPixel(int, int)\n[2] https://cs.corp.google.com/android/frameworks/base/core/jni/android/graphics/Bitmap.cpp?q\u003dbitmap.cpp\u0026sq\u003dpackage:android\u0026dr\u0026l\u003d481\n[3] https://cs.corp.google.com/android/frameworks/base/core/jni/android/graphics/Bitmap.cpp?q\u003dbitmap.cpp\u0026sq\u003dpackage:android\u0026dr\u0026l\u003d1028",
+      "range": {
+        "startLine": 79,
+        "startChar": 35,
+        "endLine": 79,
+        "endChar": 56
+      },
+      "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
