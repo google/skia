@@ -158,7 +158,7 @@ public:
     const SkOpSegment* debugSegment(int id) const;
 
 #if DEBUG_ACTIVE_SPANS
-    void debugShowActiveSpans() const;
+    void debugShowActiveSpans(SkString* str) const;
 #endif
 #if DEBUG_MARK_DONE
     void debugShowNewWinding(const char* fun, const SkOpSpan* span, int winding);

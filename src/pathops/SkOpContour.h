@@ -41,8 +41,6 @@ public:
         appendSegment().addCubic(pts, this);
     }
 
-    SkOpSegment* addCurve(SkPath::Verb verb, const SkPoint pts[4], SkScalar weight = 1);
-
     SkOpSegment* addLine(SkPoint pts[2]) {
         SkASSERT(pts[0] != pts[1]);
         return appendSegment().addLine(pts, this);
@@ -123,10 +121,10 @@ public:
     }
 
 #if DEBUG_ACTIVE_SPANS
-    void debugShowActiveSpans() {
+    void debugShowActiveSpans(SkString* str) {
         SkOpSegment* segment = &fHead;
         do {
-            segment->debugShowActiveSpans();
+            segment->debugShowActiveSpans(str);
         } while ((segment = segment->next()));
     }
 #endif
@@ -372,7 +370,7 @@ public:
     void toPath(SkPathWriter* path) const;
     SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
 
-private:
+protected:
     SkOpGlobalState* fState;
     SkOpSegment fHead;
     SkOpSegment* fTail;
@@ -427,6 +425,27 @@ public:
         prev->setNext(nullptr);
     }
 
+};
+
+class SkOpContourBuilder {
+public:
+    SkOpContourBuilder(SkOpContour* contour)
+        : fContour(contour)
+        , fLastIsLine(false) {
+    }
+
+    void addConic(SkPoint pts[3], SkScalar weight);
+    void addCubic(SkPoint pts[4]);
+    void addCurve(SkPath::Verb verb, const SkPoint pts[4], SkScalar weight = 1);
+    void addLine(const SkPoint pts[2]);
+    void addQuad(SkPoint pts[3]);
+    void flush();
+    SkOpContour* contour() { return fContour; }
+    void setContour(SkOpContour* contour) { flush(); fContour = contour; }
+protected:
+    SkOpContour* fContour;
+    SkPoint fLastLine[2];
+    bool fLastIsLine;
 };
 
 #endif
