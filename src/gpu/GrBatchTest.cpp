@@ -23,12 +23,12 @@ DRAW_BATCH_TEST_EXTERN(DefaultPathBatch);
 DRAW_BATCH_TEST_EXTERN(CircleOp);
 DRAW_BATCH_TEST_EXTERN(DIEllipseOp);
 DRAW_BATCH_TEST_EXTERN(EllipseOp);
-DRAW_BATCH_TEST_EXTERN(GrDrawAtlasBatch);
+DRAW_BATCH_TEST_EXTERN(GrDrawAtlasOp);
 DRAW_BATCH_TEST_EXTERN(NonAAStrokeRectOp);
 DRAW_BATCH_TEST_EXTERN(RRectOp);
 DRAW_BATCH_TEST_EXTERN(TesselatingPathBatch);
 DRAW_BATCH_TEST_EXTERN(TextBlobBatch);
-DRAW_BATCH_TEST_EXTERN(VerticesBatch);
+DRAW_BATCH_TEST_EXTERN(VerticesOp);
 
 static BatchTestFunc gTestBatches[] = {
     DRAW_BATCH_TEST_ENTRY(AAConvexPathBatch),
@@ -43,12 +43,12 @@ static BatchTestFunc gTestBatches[] = {
     DRAW_BATCH_TEST_ENTRY(CircleOp),
     DRAW_BATCH_TEST_ENTRY(DIEllipseOp),
     DRAW_BATCH_TEST_ENTRY(EllipseOp),
-    DRAW_BATCH_TEST_ENTRY(GrDrawAtlasBatch),
+    DRAW_BATCH_TEST_ENTRY(GrDrawAtlasOp),
     DRAW_BATCH_TEST_ENTRY(NonAAStrokeRectOp),
     DRAW_BATCH_TEST_ENTRY(RRectOp),
     DRAW_BATCH_TEST_ENTRY(TesselatingPathBatch),
     DRAW_BATCH_TEST_ENTRY(TextBlobBatch),
-    DRAW_BATCH_TEST_ENTRY(VerticesBatch)
+    DRAW_BATCH_TEST_ENTRY(VerticesOp)
 };
 
 GrDrawOp* GrRandomDrawBatch(SkRandom* random, GrContext* context) {

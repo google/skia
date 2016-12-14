@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRegionBatch_DEFINED
-#define GrRegionBatch_DEFINED
+#ifndef GrRegionOp_DEFINED
+#define GrRegionOp_DEFINED
 
 #include "GrColor.h"
+#include "SkRefCnt.h"
 
 class GrDrawOp;
 class SkMatrix;
 class SkRegion;
 
-namespace GrRegionBatch {
+namespace GrRegionOp {
 
-GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region);
-
-};
+sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region);
+}
 
 #endif

@@ -5,21 +5,25 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawAtlasBatch_DEFINED
-#define GrDrawAtlasBatch_DEFINED
+#ifndef GrDrawAtlasOp_DEFINED
+#define GrDrawAtlasOp_DEFINED
 
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 
-class GrDrawAtlasBatch final : public GrMeshDrawOp {
+class GrDrawAtlasOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
-                     const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
+                                const SkRSXform* xforms, const SkRect* rects,
+                                const SkColor* colors) {
+        return sk_sp<GrDrawOp>(
+                new GrDrawAtlasOp(color, viewMatrix, spriteCount, xforms, rects, colors));
+    }
 
-    const char* name() const override { return "DrawAtlasBatch"; }
+    const char* name() const override { return "DrawAtlasOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -34,7 +38,7 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
+        // When this is called there is only one atlas draw.
         if (this->hasColors()) {
             color->setUnknownFourComponents();
         } else {
@@ -44,6 +48,9 @@ public:
     }
 
 private:
+    GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
+                  const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
+
     void onPrepareDraws(Target*) const override;
 
     void initBatchTracker(const GrXPOverridesForBatch&) override;
@@ -58,18 +65,18 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Geometry {
-        GrColor                 fColor;
+        GrColor fColor;
         SkTArray<uint8_t, true> fVerts;
     };
 
     SkSTArray<1, Geometry, true> fGeoData;
 
     SkMatrix fViewMatrix;
-    GrColor  fColor;
-    int      fQuadCount;
-    bool     fColorIgnored;
-    bool     fCoverageIgnored;
-    bool     fHasColors;
+    GrColor fColor;
+    int fQuadCount;
+    bool fColorIgnored;
+    bool fCoverageIgnored;
+    bool fHasColors;
 
     typedef GrMeshDrawOp INHERITED;
 };
