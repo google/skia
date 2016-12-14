@@ -355,7 +355,8 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
     fAnalyticAA = analyticAA;
 
     if (SkPath::kLine_SegmentMask == path.getSegmentMasks()) {
-        return this->buildPoly(path, iclip, shiftUp, canCullToTheRight);
+        int result = this->buildPoly(path, iclip, shiftUp, canCullToTheRight);
+        return result;
     }
 
     SkAutoConicToQuads quadder;
@@ -447,6 +448,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
             }
         }
     }
+
     fEdgeList = fList.begin();
     return fList.count();
 }
