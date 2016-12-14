@@ -163,9 +163,14 @@ def dm_flags(bot):
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('f16 image _ _')
-  blacklist('srgb image _ _')
   blacklist('gpusrgb image _ _')
   blacklist('glsrgb image _ _')
+
+  # Decoder tests are now performing gamma correct decodes.  This means
+  # that, when viewing the results, we need to perform a gamma correct
+  # encode to PNG.  Therefore, we run the image tests in srgb mode instead
+  # of 8888.
+  blacklist('8888 image _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
