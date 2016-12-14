@@ -70,10 +70,13 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
     }
 
     SkColorType suggestedColorType = this->getInfo().colorType();
+    bool highPrecision = fCodec->getEncodedInfo().bitsPerComponent() > 8;
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
-        case kN32_SkColorType:
             return kN32_SkColorType;
+        case kN32_SkColorType:
+            // F16 is the Android default for high precision images.
+            return highPrecision ? kRGBA_F16_SkColorType : kN32_SkColorType;
         case kIndex_8_SkColorType:
             if (kIndex_8_SkColorType == suggestedColorType) {
                 return kIndex_8_SkColorType;
@@ -93,6 +96,8 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
                 return kRGB_565_SkColorType;
             }
             break;
+        case kRGBA_F16_SkColorType:
+            return kRGBA_F16_SkColorType;
         default:
             break;
     }
@@ -103,8 +108,8 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
         return kN32_SkColorType;
     }
 
-    // This may be kN32_SkColorType or kIndex_8_SkColorType.
-    return suggestedColorType;
+    // |suggestedColorType| may be kN32_SkColorType or kIndex_8_SkColorType.
+    return highPrecision ? kRGBA_F16_SkColorType : suggestedColorType;
 }
 
 SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
