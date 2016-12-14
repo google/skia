@@ -29,6 +29,7 @@ public:
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface> tex);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                       SkBackingFit fit,
                                                        SkBudgeted isDstBudgeted);
 
     sk_sp<GrSurfaceContext> makeTestSurfaceContext(sk_sp<GrSurfaceProxy> proxy);

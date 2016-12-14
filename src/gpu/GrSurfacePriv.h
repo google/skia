@@ -33,11 +33,13 @@ public:
                                       const void** data,
                                       size_t* rowBytes);
 
+#if 0
     /**
      * Write the contents of the surface to a PNG. Returns true if successful.
      * @param filename      Full path to desired file
      */
     bool savePixels(const char* filename) { return fSurface->savePixels(filename); }
+#endif
 
     bool hasPendingRead() const { return fSurface->hasPendingRead(); }
     bool hasPendingWrite() const { return fSurface->hasPendingWrite(); }

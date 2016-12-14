@@ -226,6 +226,7 @@ void GrContext::flush() {
     fDrawingManager->flush();
 }
 
+#if 0
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
     SkSrcPixelInfo srcPI;
@@ -532,6 +533,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     }
     return true;
 }
+#endif
 
 void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     ASSERT_SINGLE_OWNER
@@ -603,10 +605,11 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                                  SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted) {
 
     sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
-                                                               SkBackingFit::kExact, isDstBudgeted);
+                                                               fit, isDstBudgeted);
 
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
@@ -843,13 +846,13 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 
 void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     ASSERT_SINGLE_OWNER
-    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
+//    if (SkToBool(kUnpremul_PixelOpsFlag & flags)) {
         SkAutoMutexAcquire ama(fTestPMConversionsMutex);
         if (!fDidTestPMConversions) {
             test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
             fDidTestPMConversions = true;
         }
-    }
+//    }
 }
 
 sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,

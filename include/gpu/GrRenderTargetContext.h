@@ -65,6 +65,9 @@ public:
                               SkScalar x, SkScalar y,
                               SkDrawFilter*, const SkIRect& clipBounds);
 
+    GrTextureProxy* asDeferredTexture() override { return fRenderTargetProxy->asTextureProxy(); }
+    GrRenderTargetProxy* asDeferredRenderTarget() override { return fRenderTargetProxy.get(); }
+
     /**
      * Provides a perfomance hint that the render target's contents are allowed
      * to become undefined.
@@ -314,6 +317,7 @@ public:
      */
     void prepareForExternalIO();
 
+#if 0
     /**
      * Reads a rectangle of pixels from the render target context.
      * @param dstInfo       image info for the destination
@@ -341,6 +345,7 @@ public:
      */
     bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
                      int x, int y);
+#endif
 
     bool isStencilBufferMultisampled() const {
         return fRenderTargetProxy->isStencilBufferMultisampled();
@@ -371,7 +376,7 @@ public:
     }
 
     GrSurfaceProxy* asDeferredSurface() override { return fRenderTargetProxy.get(); }
-    GrTextureProxy* asDeferredTexture();
+//    GrTextureProxy* asDeferredTexture();
 
     sk_sp<GrTexture> asTexture() {
         if (!this->accessRenderTarget()) {

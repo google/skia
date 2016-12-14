@@ -243,6 +243,7 @@ public:
      */
     void flush();
 
+#if 0
    /**
     * These flags can be used with the read/write pixels functions below.
     */
@@ -300,6 +301,7 @@ public:
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
+#endif
 
     /**
      * After this returns any pending writes to the surface will have been issued to the backend 3D API.

@@ -9,6 +9,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -83,12 +84,24 @@ static bool sw_draw_with_mask_filter(GrRenderTargetContext* renderTargetContext,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
+#if 0
     sk_sp<GrTexture> texture(textureProvider->createApproxTexture(desc));
     if (!texture) {
         return false;
     }
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
+#endif
+    GrContext* context = nullptr;
+    sk_sp<GrTexture> texture;
+    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(texture);
+
+    sContext->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig, dstM.fImage, dstM.fRowBytes);
+
+    GrTextureProxy* tProxy = sContext->asDeferredTexture();
+    if (!tProxy) {
+        return false;
+    }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix, dstM.fBounds, grp, texture.get());
 }

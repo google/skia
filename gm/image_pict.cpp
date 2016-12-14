@@ -245,8 +245,9 @@ protected:
         desc.fHeight = subset.height();
 
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
-                                                                                desc,
-                                                                                SkBudgeted::kNo));
+                                                                            desc,
+                                                                            SkBackingFit::kExact,
+                                                                            SkBudgeted::kNo));
         if (!dstContext) {
             return nullptr;
         }

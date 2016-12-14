@@ -239,7 +239,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         readRTC->fillRectToRect(GrNoClip(), paint1, GrAA::kNo, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
+        readRTC->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -251,7 +251,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         readRTC->fillRectToRect(GrNoClip(), paint3, GrAA::kNo, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
+        readRTC->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 
         failed = false;
         for (int y = 0; y < kSize && !failed; ++y) {

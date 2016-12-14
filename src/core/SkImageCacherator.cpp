@@ -247,6 +247,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         return false;
     }
 
+#if 0
     const uint32_t pixelOpsFlags = 0;
     if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(),
                          SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
@@ -254,6 +255,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         bitmap->reset();
         return false;
     }
+#endif
 
     bitmap->pixelRef()->setImmutableWithID(fUniqueIDs[format]);
     if (SkImage::kAllow_CachingHint == chint) {

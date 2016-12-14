@@ -14,8 +14,10 @@
 
 class GrAuditTrail;
 class GrContext;
+class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
+class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
 
@@ -51,7 +53,53 @@ public:
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asDeferredSurface() = 0;
 
+    virtual GrTextureProxy* asDeferredTexture() = 0; //{ return nullptr; }
+    virtual GrRenderTargetProxy* asDeferredRenderTarget() = 0; //{ return nullptr; }
+
     GrAuditTrail* auditTrail() { return fAuditTrail; }
+
+    /**
+     * Reads a rectangle of pixels from the surface.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
+     *
+     * @return true if the read succeeded, false if not. The read can fail because of an unsupported
+     *              pixel config.
+     */
+    bool readPixels(int left, int top, int width, int height,
+                    GrPixelConfig config,
+                    void* buffer,
+                    size_t rowBytes = 0,
+                    uint32_t pixelOpsFlags = 0);
+
+    /**
+     * Copy the src pixels [buffer, rowbytes, pixelconfig] into the surface at the specified
+     * rectangle.
+     * @param left          left edge of the rectangle to write (inclusive)
+     * @param top           top edge of the rectangle to write (inclusive)
+     * @param width         width of rectangle to write in pixels.
+     * @param height        height of rectangle to write in pixels.
+     * @param config        the pixel config of the source buffer
+     * @param buffer        memory to read the rectangle from.
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
+     *                      packed.
+     * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
+     *
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *              unsupported pixel config.
+     */
+    bool writePixels(int left, int top, int width, int height,
+                     GrPixelConfig config,
+                     const void* buffer,
+                     size_t rowBytes = 0,
+                     uint32_t pixelOpsFlags = 0);
 
 protected:
     GrSurfaceContext(GrContext*, GrAuditTrail*, GrSingleOwner*);
