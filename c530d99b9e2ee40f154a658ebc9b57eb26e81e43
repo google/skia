@@ -22,6 +22,24 @@
       "revId": "c530d99b9e2ee40f154a658ebc9b57eb26e81e43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a23133a_f9cc5725",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-14T18:47:49Z",
+      "side": 1,
+      "message": "Thank you for the catch! Done.",
+      "parentUuid": "9a23133a_99aafb22",
+      "revId": "c530d99b9e2ee40f154a658ebc9b57eb26e81e43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
