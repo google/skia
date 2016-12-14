@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_bdd0df0c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:01:04Z",
+      "side": 1,
+      "message": "But we do have images we test on that use 16bit depth?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 62
+      },
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_1de7d3f6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:01:04Z",
+      "side": 1,
+      "message": "Reference the Android bug? (b/32984164)",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_fd778778",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:01:04Z",
+      "side": 1,
+      "message": "nit: 16 bits per component",
+      "range": {
+        "startLine": 527,
+        "startChar": 6,
+        "endLine": 527,
+        "endChar": 9
+      },
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
