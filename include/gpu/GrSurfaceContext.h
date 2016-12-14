@@ -15,6 +15,7 @@ class GrContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
+class GrSurfaceContextPriv;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
@@ -36,7 +37,13 @@ public:
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
+    // Provides access to functions that aren't part of the public API.
+    GrSurfaceContextPriv surfPriv();
+    const GrSurfaceContextPriv surfPriv() const;
+
 protected:
+    friend class GrSurfaceContextPriv;
+
     GrSurfaceContext(GrContext*, GrAuditTrail*, GrSingleOwner*);
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
@@ -46,6 +53,9 @@ protected:
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
