@@ -40,6 +40,24 @@
       "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_9d03e3c1",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T14:52:38Z",
+      "side": 1,
+      "message": "Fair enough. Maybe we should update the (already incorrect) header?",
+      "parentUuid": "5a0b5ba9_c74a9ec8",
+      "revId": "6722b0bcd1e0c3b733851338a5dbbc0da5be4b5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
