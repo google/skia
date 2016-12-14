@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_c07ce0d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T16:49:40Z",
+      "side": 1,
+      "message": "Yes, they are well covered in the png test suite on the bots.",
+      "parentUuid": "1aaac39b_bdd0df0c",
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_1de7d3f6",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_a081d49a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T16:49:40Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1aaac39b_1de7d3f6",
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_fd778778",
         "filename": "src/codec/SkSwizzler.cpp",
         "patchSetId": 3
@@ -65,6 +101,24 @@
         "endLine": 527,
         "endChar": 9
       },
+      "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_802db8aa",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T16:49:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_fd778778",
       "revId": "6ec175603cc4823bad667a1f39759ebb99a3c4fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
