@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_a08e7410",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_bdfe9f8b",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_5d067bd0",
         "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
         "patchSetId": 6
@@ -53,6 +71,24 @@
       "writtenOn": "2016-12-14T15:11:31Z",
       "side": 1,
       "message": "Won\u0027t the op be freed as soon as you return here? The sk_sp is constructed from the original (bare) pointer, so it inherits the creation ref. Then it goes out of scope here. No one else has a ref, right?",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_80a4988c",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_5d067bd0",
       "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_60a18c7a",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_3d13af0e",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_7df017ae",
         "filename": "src/gpu/batches/GrAAStrokeRectOp.cpp",
         "patchSetId": 6
@@ -87,6 +141,24 @@
       "writtenOn": "2016-12-14T15:11:31Z",
       "side": 1,
       "message": "nit: \"... two ops ...\" (sorry that this is going to push you to 101 chars) :(",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_e0bfdc90",
+        "filename": "src/gpu/batches/GrAAStrokeRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_7df017ae",
       "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -110,6 +182,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_409e903e",
+        "filename": "src/gpu/batches/GrAAStrokeRectOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_1d10f3fd",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_7dbb77c4",
         "filename": "src/gpu/batches/GrAnalyticRectOp.cpp",
         "patchSetId": 6
@@ -121,6 +211,24 @@
       "writtenOn": "2016-12-14T15:11:31Z",
       "side": 1,
       "message": "Change this to GrAnalyticRectOp::Make(...).release, too? (It seems like an odd exception that\u0027s bypassing the factory).",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_e0e6bcce",
+        "filename": "src/gpu/batches/GrAnalyticRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "As discussed, pretty ambivalent about these file scoped classes having private constructors with a Make static that just forwards the params on. On the one hand, simple rules and consistency, on the other hand no caller outside of this file can construct this type anyway.",
+      "parentUuid": "1aaac39b_7dbb77c4",
       "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -185,6 +293,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_20cdc449",
+        "filename": "src/gpu/batches/GrNonAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "It also turns this:\n    return GrNonAAFillRectOp::Make(color,\n                                   viewMatrix,\n                                   rect,\n                                   hasLocalRect ? \u0026localRect : nullptr,\n                                   hasLocalMatrix ? \u0026localMatrix : nullptr).release();\ninto this:\n    return GrNonAAFillRectOp::Make(color,\n                                   viewMatrix,\n                                   rect,\n                                   hasLocalRect ? \u0026localRect : nullptr,\n                                   hasLocalMatrix ? \u0026localMatrix : nullptr)\n            .release();\n\nNot sure why, but that doesn\u0027t seem as offensive to me.",
+      "parentUuid": "1aaac39b_fdad4785",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_ddb28be1",
         "filename": "src/gpu/batches/GrNonAAStrokeRectOp.cpp",
         "patchSetId": 6
@@ -202,6 +328,24 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_c0dbc008",
+        "filename": "src/gpu/batches/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_ddb28be1",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_0069a868",
         "filename": "src/gpu/batches/NonAAFillRectPerspectiveOp.cpp",
         "patchSetId": 6
@@ -213,6 +357,24 @@
       "writtenOn": "2016-12-14T15:11:31Z",
       "side": 1,
       "message": ".release()",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_a0e0b4b1",
+        "filename": "src/gpu/batches/NonAAFillRectPerspectiveOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-14T15:39:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1aaac39b_0069a868",
       "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
