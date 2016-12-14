@@ -22,6 +22,24 @@
       "revId": "c2c3f9e796440f9b823fd634f852a8e5aa1d3125",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_60506c79",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-14T15:50:45Z",
+      "side": 1,
+      "message": "Even on the first frame?  sgtm.",
+      "parentUuid": "1aaac39b_e0f8fc5b",
+      "revId": "c2c3f9e796440f9b823fd634f852a8e5aa1d3125",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
