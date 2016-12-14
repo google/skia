@@ -23,7 +23,13 @@ class SkPath;
 */
 typedef SkIRect SkXRect;
 
+#ifndef SK_SUPPORT_LEGACY_AAA
+    // Use this to check that we successfully guard the change against Chromium layout tests
+    #define SK_SUPPORT_LEGACY_AAA
+#endif
+
 extern std::atomic<bool> gSkUseAnalyticAA;
+extern std::atomic<bool> gSkForceAnalyticAA;
 
 class AdditiveBlitter;
 
