@@ -25,6 +25,125 @@
     },
     {
       "key": {
+        "uuid": "1aaac39b_bdfe9f8b",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "nit: \"... two ops ...\"",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_5d067bd0",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "Won\u0027t the op be freed as soon as you return here? The sk_sp is constructed from the original (bare) pointer, so it inherits the creation ref. Then it goes out of scope here. No one else has a ref, right?",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_3d13af0e",
+        "filename": "src/gpu/batches/GrAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_7df017ae",
+        "filename": "src/gpu/batches/GrAAStrokeRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "nit: \"... two ops ...\" (sorry that this is going to push you to 101 chars) :(",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_1d10f3fd",
+        "filename": "src/gpu/batches/GrAAStrokeRectOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "Unnecessary?",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_7dbb77c4",
+        "filename": "src/gpu/batches/GrAnalyticRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "Change this to GrAnalyticRectOp::Make(...).release, too? (It seems like an odd exception that\u0027s bypassing the factory).",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_3dc5ef49",
+        "filename": "src/gpu/batches/GrNonAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": ":)",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1aaac39b_dd7ccb5f",
         "filename": "src/gpu/batches/GrNonAAFillRectOp.cpp",
         "patchSetId": 6
@@ -42,6 +161,58 @@
         "endLine": 219,
         "endChar": 18
       },
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_fdad4785",
+        "filename": "src/gpu/batches/GrNonAAFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": "Wow, no.",
+      "parentUuid": "1aaac39b_dd7ccb5f",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_ddb28be1",
+        "filename": "src/gpu/batches/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": ".release()",
+      "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1aaac39b_0069a868",
+        "filename": "src/gpu/batches/NonAAFillRectPerspectiveOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T15:11:31Z",
+      "side": 1,
+      "message": ".release()",
       "revId": "05289ce57507a7df03ba99ee250745c661d4810a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
