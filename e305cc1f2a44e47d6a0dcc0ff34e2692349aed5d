@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a23133a_79892747",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-14T20:02:43Z",
+      "side": 0,
+      "message": "Guessing that you no longer need encoder, stream and stdio?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 0
+      },
+      "revId": "e305cc1f2a44e47d6a0dcc0ff34e2692349aed5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
