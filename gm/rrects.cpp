@@ -10,7 +10,7 @@
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "batches/GrDrawOp.h"
-#include "batches/GrRectBatchFactory.h"
+#include "batches/GrRectOpFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
 #include "SkRRect.h"
@@ -115,9 +115,8 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            sk_sp<GrDrawOp> op(
-                                    GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
-                                                                        bounds, nullptr, nullptr));
+                            sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                                    0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
                             renderTargetContext->priv().testingOnly_addDrawOp(grPaint,
                                                                               GrAAType::kNone,
                                                                               std::move(op));

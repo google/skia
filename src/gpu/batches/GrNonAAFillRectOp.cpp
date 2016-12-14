@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrNonAAFillRectBatch.h"
+#include "GrNonAAFillRectOp.h"
 
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -45,8 +45,7 @@ static void tesselate(intptr_t vertices,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    positions->setRectFan(rect.fLeft, rect.fTop,
-                          rect.fRight, rect.fBottom, vertexStride);
+    positions->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
     if (viewMatrix) {
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerInstance);
@@ -57,8 +56,8 @@ static void tesselate(intptr_t vertices,
     if (localQuad) {
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
         for (int i = 0; i < kVertsPerInstance; i++) {
-            SkPoint* coords = reinterpret_cast<SkPoint*>(vertices + kLocalOffset +
-                              i * vertexStride);
+            SkPoint* coords =
+                    reinterpret_cast<SkPoint*>(vertices + kLocalOffset + i * vertexStride);
             *coords = localQuad->point(i);
         }
     }
@@ -67,19 +66,18 @@ static void tesselate(intptr_t vertices,
     GrColor* vertColor = reinterpret_cast<GrColor*>(vertices + kColorOffset);
     for (int j = 0; j < 4; ++j) {
         *vertColor = color;
-        vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+        vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
     }
 }
 
-class NonAAFillRectBatch final : public GrMeshDrawOp {
+class NonAAFillRectOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                       const SkRect* localRect, const SkMatrix* localMatrix)
+    NonAAFillRectOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                    const SkRect* localRect, const SkMatrix* localMatrix)
             : INHERITED(ClassID()) {
-        SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix ||
-                                                  !localMatrix->hasPerspective()));
+        SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;
         info.fViewMatrix = viewMatrix;
@@ -96,16 +94,16 @@ public:
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "NonAAFillRectBatch"; }
+    const char* name() const override { return "NonAAFillRectOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# batched: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& info = fRects[i];
-            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, info.fColor,
-                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
+            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
+                        info.fRect.fBottom);
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
@@ -115,7 +113,7 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
+        // When this is called there is only one rect.
         color->setKnownFourComponents(fRects[0].fColor);
         coverage->setKnownSingleComponent(0xff);
     }
@@ -126,7 +124,7 @@ public:
     }
 
 private:
-    NonAAFillRectBatch() : INHERITED(ClassID()) {}
+    NonAAFillRectOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
@@ -142,17 +140,17 @@ private:
 
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+        void* vertices =
+                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+                            kVertsPerInstance, kIndicesPerInstance, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         for (int i = 0; i < instanceCount; i++) {
-            intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
-                             i * kVertsPerInstance * vertexStride;
+            intptr_t verts =
+                    reinterpret_cast<intptr_t>(vertices) + i * kVertsPerInstance * vertexStride;
             tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
@@ -160,14 +158,14 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        NonAAFillRectBatch* that = t->cast<NonAAFillRectBatch>();
+        NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
         }
 
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
+        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
+        // tweaking.
         if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
             fOverrides = that->fOverrides;
         }
@@ -190,16 +188,15 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrNonAAFillRectBatch {
+namespace GrNonAAFillRectOp {
 
-GrDrawOp* Create(GrColor color,
-                 const SkMatrix& viewMatrix,
-                 const SkRect& rect,
-                 const SkRect* localRect,
-                 const SkMatrix* localMatrix) {
-    return new NonAAFillRectBatch(color, viewMatrix, rect, localRect, localMatrix);
+sk_sp<GrDrawOp> Make(GrColor color,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkRect* localRect,
+                     const SkMatrix* localMatrix) {
+    return sk_sp<GrDrawOp>(new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
 }
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +205,7 @@ GrDrawOp* Create(GrColor color,
 
 #include "GrBatchTest.h"
 
-DRAW_BATCH_TEST_DEFINE(RectBatch) {
+DRAW_BATCH_TEST_DEFINE(NonAAFillRectOp) {
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
@@ -217,9 +214,12 @@ DRAW_BATCH_TEST_DEFINE(RectBatch) {
 
     bool hasLocalRect = random->nextBool();
     bool hasLocalMatrix = random->nextBool();
-    return GrNonAAFillRectBatch::Create(color, viewMatrix, rect,
-                                        hasLocalRect ? &localRect : nullptr,
-                                        hasLocalMatrix ? &localMatrix : nullptr);
+    return GrNonAAFillRectOp::Make(color,
+                                   viewMatrix,
+                                   rect,
+                                   hasLocalRect ? &localRect : nullptr,
+                                   hasLocalMatrix ? &localMatrix : nullptr)
+            .release();
 }
 
 #endif
