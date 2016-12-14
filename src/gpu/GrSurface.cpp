@@ -166,38 +166,6 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
                                       rowBytes, pixelOpsFlags);
 }
 
-static bool encode_image_to_file(const char* path, const SkBitmap& src) {
-    SkFILEWStream file(path);
-    return file.isValid() && SkEncodeImage(&file, src, SkEncodedImageFormat::kPNG, 100);
-}
-
-// TODO: This should probably be a non-member helper function. It might only be needed in
-// debug or developer builds.
-bool GrSurface::savePixels(const char* filename) {
-    SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(this->width(), this->height()))) {
-        return false;
-    }
-
-    bool result = this->readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
-                                   bm.getPixels());
-    if (!result) {
-        SkDebugf("------ failed to read pixels for %s\n", filename);
-        return false;
-    }
-
-    // remove any previous version of this file
-    remove(filename);
-
-    if (!encode_image_to_file(filename, bm)) {
-        SkDebugf("------ failed to encode %s\n", filename);
-        remove(filename);   // remove any partial file
-        return false;
-    }
-
-    return true;
-}
-
 void GrSurface::flushWrites() {
     if (!this->wasDestroyed()) {
         this->getContext()->flushSurfaceWrites(this);
