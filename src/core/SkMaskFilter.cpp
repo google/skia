@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
+#include "GrTextureProxy.h"
 #include "SkGr.h"
 #endif
 
@@ -335,11 +336,11 @@ bool SkMaskFilter::directFilterRRectMaskGPU(GrContext*,
     return false;
 }
 
-bool SkMaskFilter::filterMaskGPU(GrTexture* src,
-                                 const SkMatrix& ctm,
-                                 const SkIRect& maskRect,
-                                 GrTexture** result) const {
-    return false;
+sk_sp<GrTextureProxy> SkMaskFilter::filterMaskGPU(GrContext*,
+                                                  sk_sp<GrTextureProxy> srcProxy,
+                                                  const SkMatrix& ctm,
+                                                  const SkIRect& maskRect) const {
+    return nullptr;
 }
 #endif
 

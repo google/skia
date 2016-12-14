@@ -17,6 +17,7 @@
 #include "GrInvariantOutput.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -54,10 +55,10 @@ public:
                                   const SkStrokeRec& strokeRec,
                                   const SkRRect& rrect,
                                   const SkRRect& devRRect) const override;
-    bool filterMaskGPU(GrTexture* src,
-                       const SkMatrix& ctm,
-                       const SkIRect& maskRect,
-                       GrTexture** result) const override;
+    sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
+                                        sk_sp<GrTextureProxy> srcProxy,
+                                        const SkMatrix& ctm,
+                                        const SkIRect& maskRect) const override;
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
@@ -344,12 +345,12 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     return true;
 }
 
-bool SkShadowMaskFilterImpl::filterMaskGPU(GrTexture* src,
-                                           const SkMatrix& ctm,
-                                           const SkIRect& maskRect,
-                                           GrTexture** result) const {
-    // TODO
-    return false;
+sk_sp<GrTextureProxy> SkShadowMaskFilterImpl::filterMaskGPU(GrContext*,
+                                                            sk_sp<GrTextureProxy> srcProxy,
+                                                            const SkMatrix& ctm,
+                                                            const SkIRect& maskRect) const {
+    // This filter it generative and doesn't operate on pre-existing masks
+    return nullptr;
 }
 
 #endif

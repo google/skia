@@ -24,6 +24,7 @@
 #include "GrInvariantOutput.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
+#include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -64,10 +65,10 @@ public:
                                   const SkStrokeRec& strokeRec,
                                   const SkRRect& rrect,
                                   const SkRRect& devRRect) const override;
-    bool filterMaskGPU(GrTexture* src,
-                       const SkMatrix& ctm,
-                       const SkIRect& maskRect,
-                       GrTexture** result) const override;
+    sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
+                                        sk_sp<GrTextureProxy> srcProxy,
+                                        const SkMatrix& ctm,
+                                        const SkIRect& maskRect) const override;
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
@@ -1490,17 +1491,21 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     return true;
 }
 
-bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
-                                         const SkMatrix& ctm,
-                                         const SkIRect& maskRect,
-                                         GrTexture** result) const {
+sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
+                                                          sk_sp<GrTextureProxy> srcProxy,
+                                                          const SkMatrix& ctm,
+                                                          const SkIRect& maskRect) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
-    GrContext* context = src->getContext();
-
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     SkASSERT(xformedSigma > 0);
+
+    // TODO: defer this further (i.e., push the proxy into GaussianBlur)
+    GrTexture* src = srcProxy->instantiate(context->textureProvider());
+    if (!src) {
+        return nullptr;
+    }
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
@@ -1511,7 +1516,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
                                                                                   xformedSigma,
                                                                                   xformedSigma));
     if (!renderTargetContext) {
-        return false;
+        return nullptr;
     }
 
     if (!isNormalBlur) {
@@ -1539,8 +1544,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
                                       SkRect::Make(clipRect));
     }
 
-    *result = renderTargetContext->asTexture().release();
-    return SkToBool(*result);
+    return sk_ref_sp(renderTargetContext->asDeferredTexture());
 }
 
 #endif // SK_SUPPORT_GPU

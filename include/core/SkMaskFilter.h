@@ -23,6 +23,7 @@ class GrPaint;
 class GrFragmentProcessor;
 class GrRenderTarget;
 class GrTexture;
+class GrTextureProxy;
 class GrTextureProvider;
 class SkBitmap;
 class SkBlitter;
@@ -141,10 +142,10 @@ public:
      * Implementations are free to get the GrContext from the src texture in order to create
      * additional textures and perform multiple passes.
      */
-    virtual bool filterMaskGPU(GrTexture* src,
-                               const SkMatrix& ctm,
-                               const SkIRect& maskRect,
-                               GrTexture** result) const;
+    virtual sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
+                                                sk_sp<GrTextureProxy> srcProxy,
+                                                const SkMatrix& ctm,
+                                                const SkIRect& maskRect) const;
 #endif
 
     /**
