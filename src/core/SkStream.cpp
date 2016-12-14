@@ -504,12 +504,8 @@ SkDynamicMemoryWStream::~SkDynamicMemoryWStream()
     reset();
 }
 
-void SkDynamicMemoryWStream::reset()
-{
-    this->invalidateCopy();
-
+void SkDynamicMemoryWStream::reset() {
     Block*  block = fHead;
-
     while (block != nullptr) {
         Block*  next = block->fNext;
         sk_free(block);
@@ -519,11 +515,8 @@ void SkDynamicMemoryWStream::reset()
     fBytesWritten = 0;
 }
 
-bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
-{
+bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     if (count > 0) {
-        this->invalidateCopy();
-
         fBytesWritten += count;
 
         size_t  size;
@@ -556,8 +549,6 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t offset, size_t cou
     if (offset + count > fBytesWritten) {
         return false; // test does not partially modify
     }
-
-    this->invalidateCopy();
 
     Block* block = fHead;
     while (block != nullptr) {
@@ -597,19 +588,13 @@ bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count)
     return false;
 }
 
-void SkDynamicMemoryWStream::copyTo(void* dst) const
-{
-    if (fCopy) {
-        memcpy(dst, fCopy->data(), fBytesWritten);
-    } else {
-        Block* block = fHead;
-
-        while (block != nullptr) {
-            size_t size = block->written();
-            memcpy(dst, block->start(), size);
-            dst = (void*)((char*)dst + size);
-            block = block->fNext;
-        }
+void SkDynamicMemoryWStream::copyTo(void* dst) const {
+    Block* block = fHead;
+    while (block != nullptr) {
+        size_t size = block->written();
+        memcpy(dst, block->start(), size);
+        dst = (void*)((char*)dst + size);
+        block = block->fNext;
     }
 }
 
@@ -629,24 +614,16 @@ void SkDynamicMemoryWStream::padToAlign4()
     write(&zero, padBytes);
 }
 
-sk_sp<SkData> SkDynamicMemoryWStream::snapshotAsData() const {
-    if (nullptr == fCopy) {
-        auto data = SkData::MakeUninitialized(fBytesWritten);
-        // be sure to call copyTo() before we assign to fCopy
-        this->copyTo(data->writable_data());
-        fCopy = std::move(data);
-    }
-    return fCopy;
-}
-
 sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
-    sk_sp<SkData> data = this->snapshotAsData();
-    this->reset();
-    return data;
-}
-
-void SkDynamicMemoryWStream::invalidateCopy() {
-    fCopy = nullptr;
+    const size_t size = this->bytesWritten();
+    if (size == 0) {
+        return SkData::MakeEmpty();
+    } else {
+        sk_sp<SkData> data = SkData::MakeUninitialized(size);
+        this->copyTo(data->writable_data());
+        this->reset();
+        return data;
+    }
 }
 
 class SkBlockMemoryRefCnt : public SkRefCnt {
@@ -795,13 +772,8 @@ private:
 };
 
 SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
-    if (fCopy) {
-        SkMemoryStream* stream = new SkMemoryStream(fCopy);
-        this->reset();
-        return stream;
-    }
-    SkBlockMemoryStream* stream = new SkBlockMemoryStream(fHead, fBytesWritten);
-    fHead = 0;
+    SkBlockMemoryStream* stream = new SkBlockMemoryStream(fHead, this->bytesWritten());
+    fHead = nullptr;    // signal reset() to not free anything
     this->reset();
     return stream;
 }
