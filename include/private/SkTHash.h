@@ -24,7 +24,7 @@
 template <typename T, typename K, typename Traits = T>
 class SkTHashTable : SkNoncopyable {
 public:
-    SkTHashTable() : fCount(0), fRemoved(0), fCapacity(0) {}
+    SkTHashTable() : fCount(0), fCapacity(0) {}
 
     // Clear the table.
     void reset() {
@@ -51,29 +51,29 @@ public:
     // Copy val into the hash table, returning a pointer to the copy now in the table.
     // If there already is an entry in the table with the same key, we overwrite it.
     T* set(T&& val) {
-        if (4 * (fCount+fRemoved) >= 3 * fCapacity) {
+        if (4 * fCount >= 3 * fCapacity) {
             this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
         return this->uncheckedSet(std::move(val));
     }
     T* set(const T& val) { return this->set(std::move(T(val))); }
 
-    // If there is an entry in the table with this key, return a pointer to it.  If not, NULL.
+    // If there is an entry in the table with this key, return a pointer to it.  If not, null.
     T* find(const K& key) const {
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
             if (s.empty()) {
-                return NULL;
+                return nullptr;
             }
-            if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
+            if (hash == s.hash && key == Traits::GetKey(s.val)) {
                 return &s.val;
             }
-            index = this->next(index, n);
+            index = this->next(index);
         }
         SkASSERT(fCapacity == 0);
-        return NULL;
+        return nullptr;
     }
 
     // Remove the value with this key from the hash table.
@@ -85,22 +85,44 @@ public:
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
             SkASSERT(!s.empty());
-            if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
-                fRemoved++;
+            if (hash == s.hash && key == Traits::GetKey(s.val)) {
                 fCount--;
-                s.markRemoved();
-                return;
+                break;
             }
-            index = this->next(index, n);
+            index = this->next(index);
         }
-        SkASSERT(fCapacity == 0);
+
+        // Rearrange elements to restore the invariants for linear probing.
+        for (;;) {
+            Slot& emptySlot = fSlots[index];
+            int emptyIndex = index;
+            emptySlot.markEmpty();
+            int originalIndex;
+            // Look for an element that can be moved into the empty slot.
+            // If the empty slot is in between where an element landed, and its native slot, then
+            // move it to the empty slot. Don't move it if its native slot is in between where
+            // the element landed and the empty slot.
+            // [native] <= [empty] < [candidate] == GOOD, can move candidate to empty slot
+            // [empty] < [native] < [candidate] == BAD, need to leave candidate where it is
+            do {
+                index = this->next(index);
+                Slot& s = fSlots[index];
+                if (s.empty()) { return; }
+                originalIndex = s.hash & (fCapacity - 1);
+            } while ((index <= originalIndex && originalIndex < emptyIndex)
+                     || (originalIndex < emptyIndex && emptyIndex < index)
+                     || (emptyIndex < index && index <= originalIndex));
+            // Move the element to the empty slot.
+            Slot& moveFrom = fSlots[index];
+            emptySlot = std::move(moveFrom);
+        }
     }
 
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
     template <typename Fn>  // f(T*)
     void foreach(Fn&& fn) {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty() && !fSlots[i].removed()) {
+            if (!fSlots[i].empty()) {
                 fn(&fSlots[i].val);
             }
         }
@@ -110,7 +132,7 @@ public:
     template <typename Fn>  // f(T) or f(const T&)
     void foreach(Fn&& fn) const {
         for (int i = 0; i < fCapacity; i++) {
-            if (!fSlots[i].empty() && !fSlots[i].removed()) {
+            if (!fSlots[i].empty()) {
                 fn(fSlots[i].val);
             }
         }
@@ -123,11 +145,8 @@ private:
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            if (s.empty() || s.removed()) {
+            if (s.empty()) {
                 // New entry.
-                if (s.removed()) {
-                    fRemoved--;
-                }
                 s.val  = std::move(val);
                 s.hash = hash;
                 fCount++;
@@ -139,54 +158,61 @@ private:
                 s.val = std::move(val);
                 return &s.val;
             }
-            index = this->next(index, n);
+
+            index = this->next(index);
         }
         SkASSERT(false);
-        return NULL;
+        return nullptr;
     }
 
     void resize(int capacity) {
         int oldCapacity = fCapacity;
         SkDEBUGCODE(int oldCount = fCount);
 
-        fCount = fRemoved = 0;
+        fCount = 0;
         fCapacity = capacity;
         SkAutoTArray<Slot> oldSlots(capacity);
         oldSlots.swap(fSlots);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
-            if (!s.empty() && !s.removed()) {
+            if (!s.empty()) {
                 this->uncheckedSet(std::move(s.val));
             }
         }
         SkASSERT(fCount == oldCount);
     }
 
-    int next(int index, int n) const {
-        // A valid strategy explores all slots in [0, fCapacity) as n walks from 0 to fCapacity-1.
-        // Both of these strategies are valid:
-        //return (index + 0 + 1) & (fCapacity-1);      // Linear probing.
-        return (index + n + 1) & (fCapacity-1);        // Quadratic probing.
+    int next(int index) const {
+        index--;
+        if (index < 0) { index += fCapacity; }
+        return index;
     }
 
     static uint32_t Hash(const K& key) {
         uint32_t hash = Traits::Hash(key);
-        return hash < 2 ? hash+2 : hash;  // We reserve hash 0 and 1 to mark empty or removed slots.
+        return hash ? hash : 1;  // We reserve hash 0 to mark empty.
     }
 
     struct Slot {
         Slot() : hash(0) {}
-        bool   empty() const { return this->hash == 0; }
-        bool removed() const { return this->hash == 1; }
+        Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
+        Slot(Slot&& o) { *this = std::move(o); }
+        Slot& operator=(Slot&& o) {
+            val  = std::move(o.val);
+            hash = o.hash;
+            return *this;
+        }
 
-        void markRemoved() { this->hash = 1; }
+        bool empty() const { return this->hash == 0; }
 
-        T val;
+        void markEmpty() { this->hash = 0; }
+
+        T        val;
         uint32_t hash;
     };
 
-    int fCount, fRemoved, fCapacity;
+    int fCount, fCapacity;
     SkAutoTArray<Slot> fSlots;
 };
 
@@ -217,12 +243,12 @@ public:
     V* set(const K& key, const V& val) { return this->set(std::move(K(key)), std::move(V(val))); }
 
     // If there is key/value entry in the table with this key, return a pointer to the value.
-    // If not, return NULL.
+    // If not, return null.
     V* find(const K& key) const {
         if (Pair* p = fTable.find(key)) {
             return &p->val;
         }
-        return NULL;
+        return nullptr;
     }
 
     // Remove the key/value entry in the table with this key.
