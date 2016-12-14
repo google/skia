@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aaac39b_e0f8fc5b",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-14T15:39:28Z",
+      "side": 1,
+      "message": "D\u0027oh! I just realized the GIF decoder no longer always supports kIndex8. So we need to also check the SkColorType. I can make that change in a follow-up.",
+      "range": {
+        "startLine": 68,
+        "startChar": 8,
+        "endLine": 68,
+        "endChar": 44
+      },
+      "revId": "c2c3f9e796440f9b823fd634f852a8e5aa1d3125",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
