@@ -58,14 +58,14 @@ public:
     }
     T* set(const T& val) { return this->set(std::move(T(val))); }
 
-    // If there is an entry in the table with this key, return a pointer to it.  If not, NULL.
+    // If there is an entry in the table with this key, return a pointer to it.  If not, nullptr.
     T* find(const K& key) const {
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
             if (s.empty()) {
-                return NULL;
+                return nullptr;
             }
             if (!s.removed() && hash == s.hash && key == Traits::GetKey(s.val)) {
                 return &s.val;
@@ -73,7 +73,7 @@ public:
             index = this->next(index, n);
         }
         SkASSERT(fCapacity == 0);
-        return NULL;
+        return nullptr;
     }
 
     // Remove the value with this key from the hash table.
@@ -142,7 +142,7 @@ private:
             index = this->next(index, n);
         }
         SkASSERT(false);
-        return NULL;
+        return nullptr;
     }
 
     void resize(int capacity) {
@@ -164,10 +164,7 @@ private:
     }
 
     int next(int index, int n) const {
-        // A valid strategy explores all slots in [0, fCapacity) as n walks from 0 to fCapacity-1.
-        // Both of these strategies are valid:
-        //return (index + 0 + 1) & (fCapacity-1);      // Linear probing.
-        return (index + n + 1) & (fCapacity-1);        // Quadratic probing.
+        return (index + 1) & (fCapacity-1);  // Linear probing.
     }
 
     static uint32_t Hash(const K& key) {
@@ -217,12 +214,12 @@ public:
     V* set(const K& key, const V& val) { return this->set(std::move(K(key)), std::move(V(val))); }
 
     // If there is key/value entry in the table with this key, return a pointer to the value.
-    // If not, return NULL.
+    // If not, return nullptr.
     V* find(const K& key) const {
         if (Pair* p = fTable.find(key)) {
             return &p->val;
         }
-        return NULL;
+        return nullptr;
     }
 
     // Remove the key/value entry in the table with this key.
