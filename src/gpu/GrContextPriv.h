@@ -26,6 +26,10 @@ public:
     // Create a surfaceContext that wraps an existing texture or renderTarget
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface> tex);
 
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                       SkBackingFit dstFit,
+                                                       SkBudgeted isDstBudgeted);
+
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
                                                          const GrBackendTextureDesc& desc,
                                                          sk_sp<SkColorSpace> colorSpace,

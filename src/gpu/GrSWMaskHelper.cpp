@@ -9,10 +9,13 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "batches/GrDrawOp.h"
 #include "GrRenderTargetContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrShape.h"
+#include "GrSurfaceContext.h"
+#include "GrTextureProxy.h"
 
 #include "SkDistanceFieldGen.h"
 
@@ -94,33 +97,30 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
     return true;
 }
 
-/**
- * Get a texture (from the texture cache) of the correct size & format.
- */
-GrTexture* GrSWMaskHelper::createTexture(SkBackingFit fit) {
+sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit fit) {
     GrSurfaceDesc desc;
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    if (SkBackingFit::kApprox == fit) {
-        return fTexProvider->createApproxTexture(desc);
-    } else {
-        return fTexProvider->createTexture(desc, SkBudgeted::kYes);
+    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
+                                                                                desc,
+                                                                                fit,
+                                                                                SkBudgeted::kYes);
+    if (!sContext || !sContext->asDeferredTexture()) {
+        return nullptr;
     }
-}
 
-/**
- * Move the result of the software mask generation back to the gpu
- */
-void GrSWMaskHelper::toTexture(GrTexture *texture) {
-    // Since we're uploading to it, and it's compressed, 'texture' shouldn't
-    // have a render target.
-    SkASSERT(!texture->asRenderTarget());
+    // TODO: can skip this step when writePixels is moved
+    GrTexture* tex = sContext->asDeferredTexture()->instantiate(context->textureProvider());
+    if (!tex) {
+        return nullptr;
+    }
 
-    texture->writePixels(0, 0, fPixels.width(), fPixels.height(), texture->config(),
-                         fPixels.addr(), fPixels.rowBytes());
+    tex->writePixels(0, 0, fPixels.width(), fPixels.height(), kAlpha_8_GrPixelConfig,
+                     fPixels.addr(), fPixels.rowBytes());
 
+    return sk_ref_sp(sContext->asDeferredTexture());
 }
 
 /**
@@ -136,13 +136,13 @@ void GrSWMaskHelper::toSDF(unsigned char* sdf) {
  * Software rasterizes shape to A8 mask and uploads the result to a scratch texture. Returns the
  * resulting texture on success; nullptr on failure.
  */
-GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider,
-                                                  const GrShape& shape,
-                                                  const SkIRect& resultBounds,
-                                                  GrAA aa,
-                                                  SkBackingFit fit,
-                                                  const SkMatrix* matrix) {
-    GrSWMaskHelper helper(texProvider);
+sk_sp<GrTexture> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
+                                                        const GrShape& shape,
+                                                        const SkIRect& resultBounds,
+                                                        GrAA aa,
+                                                        SkBackingFit fit,
+                                                        const SkMatrix* matrix) {
+    GrSWMaskHelper helper;
 
     if (!helper.init(resultBounds, matrix)) {
         return nullptr;
@@ -150,14 +150,12 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 
     helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
 
-    GrTexture* texture(helper.createTexture(fit));
-    if (!texture) {
+    sk_sp<GrTextureProxy> tProxy = helper.toTexture(context, fit);
+    if (!tProxy) {
         return nullptr;
     }
 
-    helper.toTexture(texture);
-
-    return texture;
+    return sk_ref_sp(tProxy->instantiate(context->textureProvider()));
 }
 
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,

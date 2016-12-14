@@ -485,6 +485,8 @@ private:
     sk_sp<SkColorSpace>               fColorSpace;
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
+
+    typedef GrSurfaceContext INHERITED;
 };
 
 #endif

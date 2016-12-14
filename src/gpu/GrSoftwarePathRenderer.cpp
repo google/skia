@@ -11,6 +11,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSWMaskHelper.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrTextureProvider.h"
 #include "batches/GrRectBatchFactory.h"
 
@@ -203,9 +204,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!texture) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        texture.reset(GrSWMaskHelper::DrawShapeMaskToTexture(fTexProvider, *args.fShape,
-                                                             *boundsForMask, aa,
-                                                             fit, args.fViewMatrix));
+        GrContext* context = args.fRenderTargetContext->surfPriv().getContext();
+        texture = GrSWMaskHelper::DrawShapeMaskToTexture(context, *args.fShape,
+                                                         *boundsForMask, aa,
+                                                         fit, args.fViewMatrix);
         if (!texture) {
             return false;
         }

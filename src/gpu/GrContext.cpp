@@ -593,6 +593,23 @@ void GrContext::flushSurfaceIO(GrSurface* surface) {
     }
 }
 
+sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                                  SkBackingFit fit,
+                                                                  SkBudgeted isDstBudgeted) {
+
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
+                                                               fit, isDstBudgeted);
+
+    if (proxy->asRenderTargetProxy()) {
+        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
+    } else {
+        SkASSERT(proxy->asTextureProxy());
+        return this->drawingManager()->makeTextureContext(std::move(proxy));
+    }
+
+    return nullptr;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 int GrContext::getRecommendedSampleCount(GrPixelConfig config,
                                          SkScalar dpi) const {
@@ -639,7 +656,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
-                                                                   const GrBackendTextureDesc& desc, 
+                                                                   const GrBackendTextureDesc& desc,
                                                                    sk_sp<SkColorSpace> colorSpace,
                                                                    const SkSurfaceProps* props,
                                                                    GrWrapOwnership ownership) {
