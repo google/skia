@@ -148,9 +148,6 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     fSampleSize, colorType, false)) {
                 return "Cannot decode (full) region.";
             }
-            if (colorType != bitmap.colorType()) {
-                return Error::Nonfatal("Cannot convert to color type.");
-            }
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -203,9 +200,6 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     if (!brd->decodeRegion(&bitmap, nullptr, SkIRect::MakeXYWH(decodeLeft,
                             decodeTop, decodeWidth, decodeHeight), fSampleSize, colorType, false)) {
                         return "Cannot decode region.";
-                    }
-                    if (colorType != bitmap.colorType()) {
-                        return Error::Nonfatal("Cannot convert to color type.");
                     }
 
                     canvas->drawBitmapRect(bitmap,
