@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa55efac_a4a222e0",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "By Skia convention, expressing maxCount as a size_t sort of implies what you\u0027re counting are bytes.  It\u0027s probably clearer to our conventions to use int.\n\nNot a bad idea to make this constructor explicit.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_64b50a14",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "This of course is beautiful and correct.  I just had a thought....\n\nOne day we might want to try bypassing the cleanup of one of the two data structures.  E.g. if we just walk the LRU and delete the Entries, we don\u0027t really need to do anything to clean up the map except call its destructor.  No map lookups actually have to be done.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_24af12c8",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "Just curious... does the LRU break if we don\u0027t check this, and just always remove() / addToHead()?  Just wondering if the comment here is // LRU breaks if we don\u0027t do this, or // No point fussing around if it\u0027s already at head position.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_24d8727f",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "I think you\u0027ve still got a couple extra key copies that would be pretty trivial to avoid.  At some point you\u0027ll want to copy it, sure, but I think as written it copies 3 times.  One as the parameter to insert(), one as the parameter to Entry(), and one in fKey(key).",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_e4a81ac6",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "We usually make counts ints.  If you make fMaxCount an int,  you won\u0027t need to cast here.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_e4133a40",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "Probably best as int too.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_04dbf67e",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T15:42:45Z",
+      "side": 1,
+      "message": "I think you can get away with \u003cEntry*, K, Traits\u003e here.  const K\u0026 isn\u0027t hurting anything to my knowledge... may just look like it matters where it doesn\u0027t.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
