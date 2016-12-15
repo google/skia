@@ -183,6 +183,8 @@ public:
     static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len,
                                        InputColorFormat inputColorFormat);
 
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 
@@ -196,8 +198,6 @@ private:
      *  Rejected by some parsers because the "profile description" is empty
      */
     sk_sp<SkData> writeToICC() const;
-
-    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
