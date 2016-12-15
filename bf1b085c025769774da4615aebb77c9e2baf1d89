@@ -183,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "fa55efac_872288b9",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T19:28:11Z",
+      "side": 1,
+      "message": "It doesn\u0027t delete the pointers when it\u0027s done with them.  It deletes its Entry pointers, and then the destructor of Entry calls the destructor of fValue, which deletes the pointer.\n\nWhat Mike is pointing out here is that none of that requires a unique pointer.  You\u0027ve constrained the value type to std::unique_ptr\u003cV\u003e when it really can be any moveable type V.",
+      "parentUuid": "ba0a97d0_6010a6ff",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_e4a81ac6",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -282,6 +300,24 @@
       "side": 1,
       "message": "I did that based on a comment in SkTHash.cpp - \"If the key is large and stored inside T, you may want to make K a const\u0026.\". The key is stored inside T and potentially could be large. You don\u0027t think it matters?",
       "parentUuid": "fa55efac_04dbf67e",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_c7188091",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T19:28:11Z",
+      "side": 1,
+      "message": "Hmm.  Not really sure what I meant there.  I think perhaps I meant, you might want to make the parameter to Hash() const K\u0026  (as you\u0027ve already done).\n\nSkTHashTable\u003cEntry*, K, Traits\u003e fMap should work just fine here.",
+      "parentUuid": "ba0a97d0_e0daf633",
       "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
