@@ -16,6 +16,24 @@
       "revId": "7177ec6a4f3c53cb580d317716f3ef3454e802aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_fd43c310",
+        "filename": "src/gpu/batches/GrStencilPathOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T14:54:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_fd5aa30c",
+      "revId": "7177ec6a4f3c53cb580d317716f3ef3454e802aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
