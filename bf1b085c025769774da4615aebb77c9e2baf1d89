@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_80db3a7d",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa55efac_a4a222e0",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_64b50a14",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_a0f91ea8",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa55efac_64b50a14",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_24af12c8",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-15T15:42:45Z",
       "side": 1,
       "message": "Just curious... does the LRU break if we don\u0027t check this, and just always remove() / addToHead()?  Just wondering if the comment here is // LRU breaks if we don\u0027t do this, or // No point fussing around if it\u0027s already at head position.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e00316c0",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "The latter. I\u0027ve added a comment to clarify.",
+      "parentUuid": "fa55efac_24af12c8",
       "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -93,6 +147,42 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_6010a6ff",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "The cache deletes the pointers when it\u0027s done with them, so it uses unique_ptr to make the ownership transfer explicit. Should I be handling this differently?",
+      "parentUuid": "fa55efac_040d361a",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_2006aecf",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "fa55efac_24d8727f",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_e4a81ac6",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -104,6 +194,24 @@
       "writtenOn": "2016-12-15T15:42:45Z",
       "side": 1,
       "message": "We usually make counts ints.  If you make fMaxCount an int,  you won\u0027t need to cast here.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_c0db723a",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa55efac_e4a81ac6",
       "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -127,6 +235,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_a0e0fee3",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa55efac_e4133a40",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_04dbf67e",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -138,6 +264,24 @@
       "writtenOn": "2016-12-15T15:42:45Z",
       "side": 1,
       "message": "I think you can get away with \u003cEntry*, K, Traits\u003e here.  const K\u0026 isn\u0027t hurting anything to my knowledge... may just look like it matters where it doesn\u0027t.",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0daf633",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:19:14Z",
+      "side": 1,
+      "message": "I did that based on a comment in SkTHash.cpp - \"If the key is large and stored inside T, you may want to make K a const\u0026.\". The key is stored inside T and potentially could be large. You don\u0027t think it matters?",
+      "parentUuid": "fa55efac_04dbf67e",
       "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
