@@ -11,6 +11,8 @@
 #include "GrContext.h"
 #include "GrSurfaceContext.h"
 
+class GrSurfaceProxy;
+
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
     data members or virtual methods. */
