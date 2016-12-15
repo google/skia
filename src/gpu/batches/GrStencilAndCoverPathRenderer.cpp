@@ -8,7 +8,7 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawPathBatch.h"
+#include "GrDrawPathOp.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
@@ -16,7 +16,7 @@
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
-#include "GrStencilPathBatch.h"
+#include "GrStencilPathOp.h"
 #include "GrStyle.h"
 #include "batches/GrRectOpFactory.h"
 
@@ -154,8 +154,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 0xffff>()
         );
 
-        sk_sp<GrDrawOp> op(
-                GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(), path.get()));
+        sk_sp<GrDrawOp> op = GrDrawPathOp::Make(viewMatrix, args.fPaint->getColor(), path.get());
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
         pipelineBuilder.setUserStencil(&kCoverPass);
