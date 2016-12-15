@@ -137,9 +137,8 @@ static bool reset_and_return_false(SkBitmap* bitmap) {
     return false;
 }
 
-bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* infoPtr,
+bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo& info,
                                          SkBitmap::Allocator* allocator) {
-    SkImageInfo info = infoPtr ? *infoPtr : this->getInfo();
     if (0 == info.getSafeSize(info.minRowBytes())) {
         return false;
     }
@@ -155,7 +154,7 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* in
         // kIndex_8_SkColorTable.
         // https://bug.skia.org/4355
 #if 1
-        // ignroe the allocator, and see if we can succeed without it
+        // ignore the allocator, and see if we can succeed without it
         if (!bitmap->tryAllocPixels(nullptr, ctable.get())) {
             return reset_and_return_false(bitmap);
         }
