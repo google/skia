@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_5d1e2f25",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-12-15T14:51:08Z",
+      "side": 1,
+      "message": "Actually, can we do:\n\nfmt.Sprintf(\"os:%s\", DEFAULT_OS)\n\nOr maybe we do:\n\nDEFAULT_OS_LINUX \u003d \"Ubuntu-14.04\"\nDEFAULT_OS \u003d DEFAULT_OS_LINUX\n...\nfmt.Sprintf(\"os:%s\", DEFAULT_OS_LINUX)",
+      "range": {
+        "startLine": 277,
+        "startChar": 2,
+        "endLine": 277,
+        "endChar": 19
+      },
+      "revId": "1160b0574ce41fac61304b879dba7ee4e17efa9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_bd494b37",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-12-15T14:51:08Z",
+      "side": 1,
+      "message": "DEFAULT_OS_LINUX, if following the above suggestion.",
+      "range": {
+        "startLine": 334,
+        "startChar": 15,
+        "endLine": 334,
+        "endChar": 27
+      },
+      "revId": "1160b0574ce41fac61304b879dba7ee4e17efa9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
