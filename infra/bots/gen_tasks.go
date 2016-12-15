@@ -23,7 +23,8 @@ import (
 )
 
 const (
-	DEFAULT_OS = "Ubuntu"
+	DEFAULT_OS       = DEFAULT_OS_LINUX
+	DEFAULT_OS_LINUX = "Ubuntu-14.04"
 
 	// Pool for Skia bots.
 	POOL_SKIA = "Skia"
@@ -274,7 +275,7 @@ var (
 	LINUX_GCE_DIMENSIONS = []string{
 		"cpu:x86-64-avx2",
 		"gpu:none",
-		"os:Ubuntu",
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
 		fmt.Sprintf("pool:%s", POOL_SKIA),
 	}
 
@@ -331,7 +332,7 @@ func swarmDimensions(parts map[string]string) []string {
 		d["os"] = map[string]string{
 			"Android": "Android",
 			"Mac":     "Mac-10.11",
-			"Ubuntu":  "Ubuntu-14.04",
+			"Ubuntu":  DEFAULT_OS_LINUX,
 			"Win":     "Windows-2008ServerR2-SP1",
 			"Win10":   "Windows-10-10586",
 			"Win2k8":  "Windows-2008ServerR2-SP1",
