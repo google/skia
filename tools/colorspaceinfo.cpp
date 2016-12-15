@@ -23,6 +23,7 @@
 DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
 DEFINE_string(gamut_output, "gamut_output.png", "A path to the output gamut image.");
 DEFINE_string(gamma_output, "gamma_output.png", "A path to the output gamma image.");
+DEFINE_string(clut_output, "clut_output.png", "A path to the output CLUT image.");
 DEFINE_bool(sRGB, false, "Draws the sRGB gamut.");
 DEFINE_bool(adobeRGB, false, "Draws the Adobe RGB gamut.");
 DEFINE_string(uncorrected, "", "A path to reencode the uncorrected input image.");
@@ -75,6 +76,16 @@ static void dump_transfer_fn(const SkGammas& gammas) {
             SkDebugf("%s Transfer Function: Table (%d entries)\n", kChannels[i],
                     gammas.data(i).fTable.fSize);
         }
+    }
+}
+
+static void dump_matrix(const SkMatrix44& m) {
+    for (int r = 0; r < 4; ++r) {
+        SkDebugf("|");
+        for (int c = 0; c < 4; ++c) {
+            SkDebugf(" %f ", m.get(r, c));
+        }
+        SkDebugf("|\n");
     }
 }
 
@@ -152,6 +163,70 @@ static SkIRect draw_transfer_fn(SkCanvas* canvas, SkGammaNamed gammaNamed, const
         canvas->drawRectCoords(ox, oy - gammaHeight, ox + gammaWidth, oy, paint);
     }
     return {(int)cellWidth * col, 0, (int)cellWidth * (1 + col), (int)cellHeight * channels};
+}
+
+static void dump_clut(const SkColorLookUpTable& clut) {
+    SkDebugf("CLUT: ");
+    for (int i = 0; i < clut.inputChannels(); ++i) {
+        SkDebugf("[%d]", clut.gridPoints(i));
+    }
+    SkDebugf(" -> [%d]\n", clut.outputChannels());
+}
+
+static SkIRect draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimOrder[4]) {
+    dump_clut(clut);
+
+    const int gap = 8;
+    auto usedGridPoints = [&](int dim) {
+        const int gp = clut.gridPoints(dimOrder[dim]);
+        return gp <= 16 ? gp : 16;
+    };
+    // do horizontal cuts for the 3rd dimension (if applicable)
+    const int cols = clut.inputChannels() >= 3 ? usedGridPoints(2) : 1;
+    // and vertical ones for the 4th dimension (if applicable)
+    const int rows = clut.inputChannels() >= 4 ? usedGridPoints(3) : 1;
+
+    const int canvasWidth = 2000;
+    const int canvasHeight = 2000;
+
+    // make sure the cross-section CLUT cuts are square still by using the
+    // smallest of the width/height, then adjust the gaps between accordingly
+    const int cutWidth = (canvasWidth - gap * (1 + cols)) / cols;
+    const int cutHeight = (canvasHeight - gap * (1 + rows)) / rows;
+    const int cutSize = cutWidth < cutHeight ? cutWidth : cutHeight;
+    const int cutHorizGap = (canvasWidth - cutSize * cols) / (1 + cols);
+    const int cutVertGap = (canvasHeight - cutSize * rows) / (1 + rows);
+
+    SkPaint paint;
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < cols; ++col) {
+            const float xStep = 1.0f / (std::min(cutSize, clut.gridPoints(dimOrder[0])) - 1);
+            const float yStep = 1.0f / (std::min(cutSize, clut.gridPoints(dimOrder[1])) - 1);
+            const float ox = clut.inputChannels() >= 3 ? (1 + col) * cutHorizGap + col * cutSize
+                                                       : gap;
+            const float oy = clut.inputChannels() >= 4 ? (1 + row) * cutVertGap + row * cutSize
+                                                       : gap;
+            for (float x = 0.0f; x < 1.0f; x += xStep) {
+                for (float y = 0.0f; y < 1.0f; y += yStep) {
+                    const float z = col / (cols - 1.0f);
+                    const float w = row / (rows - 1.0f);
+                    const float input[4] = {x, y, z, w};
+                    float output[3];
+                    clut.interp(output, input);
+                    paint.setColor(SkColorSetRGB(255*output[0], 255*output[1], 255*output[2]));
+                    canvas->drawRectCoords(ox + cutSize * x, oy + cutSize * y,
+                                           ox + cutSize * (x + xStep), oy + cutSize * (y + yStep),
+                                           paint);
+                }
+            }
+        }
+    }
+    return {
+      0,
+      0,
+      clut.inputChannels() >= 3 ? canvasWidth : 2 * gap + cutSize,
+      clut.inputChannels() >= 4 ? canvasHeight : 2 * gap + cutSize
+    };
 }
 
 /**
@@ -232,8 +307,9 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(
             "Usage: colorspaceinfo --input <path to input image or icc profile> "
-                                  "--gamma_output <path to output gamma image> "
-                                  "--gamut_output <path to output gamut image>"
+                                  "--gamma_output <path to output gamma image> (if present)"
+                                  "--gamut_output <path to output gamut image> (if present)"
+                                  "--clut_output <path to output clut image> (if present)"
                                   "--sRGB <draw canonical sRGB gamut> "
                                   "--adobeRGB <draw canonical Adobe RGB gamut> "
                                   "--uncorrected <path to reencoded, uncorrected input image>\n"
@@ -244,7 +320,8 @@ int main(int argc, char** argv) {
     const char* input = FLAGS_input[0];
     const char* gamut_output = FLAGS_gamut_output[0];
     const char* gamma_output = FLAGS_gamma_output[0];
-    if (!input || !gamut_output || !gamma_output) {
+    const char* clut_output = FLAGS_clut_output[0];
+    if (!input || !gamut_output || !gamma_output || !clut_output) {
         SkCommandLineFlags::PrintUsage();
         return -1;
     }
@@ -268,6 +345,9 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    // TODO: command line tweaking of this order
+    int dimOrder[4] = {0, 1, 2, 3};
+
     // Load a graph of the CIE XYZ color gamut.
     SkBitmap gamutCanvasBitmap;
     if (!GetResourceAsBitmap("gamut.png", &gamutCanvasBitmap)) {
@@ -279,6 +359,10 @@ int main(int argc, char** argv) {
     SkBitmap gammaCanvasBitmap;
     gammaCanvasBitmap.allocN32Pixels(2000, 2000);
     SkCanvas gammaCanvas(gammaCanvasBitmap);
+
+    SkBitmap clutCanvasBitmap;
+    clutCanvasBitmap.allocN32Pixels(2000, 2000);
+    SkCanvas clutCanvas(clutCanvasBitmap);
 
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB) {
@@ -296,19 +380,64 @@ int main(int argc, char** argv) {
         draw_gamut(&gamutCanvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
     }
 
+    bool hasCLUT = false;
     int gammaCol = 0;
     SkIRect gammaSubset = SkIRect::EmptyIRect();
+    SkIRect clutSubset = SkIRect::EmptyIRect();
     if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type()) {
         const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
         SkASSERT(mat);
         auto xyz = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
+        SkDebugf("XYZ/TRC color space\n");
         draw_gamut(&gamutCanvas, *mat, input, 0xFF000000, true);
         gammaSubset = draw_transfer_fn(&gammaCanvas, xyz->gammaNamed(), xyz->gammas(), 0xFF000000,
                                        gammaCol++);
     } else {
-        SkDebugf("Color space is defined using an A2B tag.  It cannot be represented by "
-                 "a transfer function and to D50 matrix.\n");
-        return -1;
+        SkColorSpace_A2B* a2b = static_cast<SkColorSpace_A2B*>(colorSpace.get());
+        SkDebugf("A2B color space");
+        SkDebugf("Conversion type: ");
+        switch (a2b->inputColorFormat()) {
+            case SkColorSpace_Base::InputColorFormat::kRGB:
+                SkDebugf("RGB");
+                break;
+            case SkColorSpace_Base::InputColorFormat::kCMYK:
+                SkDebugf("CMYK");
+                break;
+            case SkColorSpace_Base::InputColorFormat::kGray:
+                SkDebugf("Gray");
+                break;
+
+        }
+        SkDebugf(" -> ");
+        switch (a2b->pcs()) {
+            case SkColorSpace_A2B::PCS::kXYZ:
+                SkDebugf("XYZ\n");
+                break;
+            case SkColorSpace_A2B::PCS::kLAB:
+                SkDebugf("LAB\n");
+                break;
+        }
+        for (int i = 0; i < a2b->count(); ++i) {
+            const SkColorSpace_A2B::Element& e = a2b->element(i);
+            switch (e.type()) {
+                case SkColorSpace_A2B::Element::Type::kGammaNamed:
+                    gammaSubset.join(draw_transfer_fn(&gammaCanvas, e.gammaNamed(), nullptr,
+                                                      0xFF000000, gammaCol++));
+                    break;
+                case SkColorSpace_A2B::Element::Type::kGammas:
+                    gammaSubset.join(draw_transfer_fn(&gammaCanvas, kNonStandard_SkGammaNamed,
+                                                      &e.gammas(), 0xFF000000, gammaCol++));
+                    break;
+                case SkColorSpace_A2B::Element::Type::kCLUT:
+                    SkASSERT(!hasCLUT);
+                    clutSubset = draw_clut(&clutCanvas, e.colorLUT(), dimOrder);
+                    hasCLUT = true;
+                    break;
+                case SkColorSpace_A2B::Element::Type::kMatrix:
+                    dump_matrix(e.matrix());
+                    break;
+            }
+        }
     }
 
     // marker to tell the web-tool the names of all images output
@@ -342,6 +471,9 @@ int main(int argc, char** argv) {
         return -1;
     }
     if (gammaCol > 0 && !saveCanvasBitmap(gammaCanvasBitmap, &gammaSubset, gamma_output)) {
+        return -1;
+    }
+    if (hasCLUT && !saveCanvasBitmap(clutCanvasBitmap, &clutSubset, clut_output)) {
         return -1;
     }
 
