@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_03a8d471",
+        "filename": "src/gpu/batches/GrMSAAPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-15T22:23:31Z",
+      "side": 1,
+      "message": "\"may render\" or \"may be rendered\"",
+      "revId": "48de362f0ced0fff8d4cbaad2ed966a3dc8b20e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
