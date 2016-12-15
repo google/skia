@@ -69,37 +69,6 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
     return true;
 }
 
-static inline SkColorSpaceTransferFn value_to_parametric(float exp) {
-    return {exp, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-}
-
-static inline SkColorSpaceTransferFn gammanamed_to_parametric(SkGammaNamed gammaNamed) {
-    switch (gammaNamed) {
-        case kLinear_SkGammaNamed:
-            return value_to_parametric(1.f);
-        case kSRGB_SkGammaNamed:
-            return {2.4f, (1.f / 1.055f), (0.055f / 1.055f), 0.f, 0.04045f, (1.f / 12.92f), 0.f};
-        case k2Dot2Curve_SkGammaNamed:
-            return value_to_parametric(2.2f);
-        default:
-            SkASSERT(false);
-            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
-    }
-}
-
-static inline SkColorSpaceTransferFn gamma_to_parametric(const SkGammas& gammas, int channel) {
-    switch (gammas.type(channel)) {
-        case SkGammas::Type::kNamed_Type:
-            return gammanamed_to_parametric(gammas.data(channel).fNamed);
-        case SkGammas::Type::kValue_Type:
-            return value_to_parametric(gammas.data(channel).fValue);
-        case SkGammas::Type::kParam_Type:
-            return gammas.params(channel);
-        default:
-            SkASSERT(false);
-            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
-    }
-}
 static inline SkColorSpaceTransferFn invert_parametric(const SkColorSpaceTransferFn& fn) {
     // Original equation is:       y = (ax + b)^g + c   for x >= d
     //                             y = ex + f           otherwise
