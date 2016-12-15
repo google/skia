@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_fd5aa30c",
+        "filename": "src/gpu/batches/GrStencilPathOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-15T14:39:58Z",
+      "side": 1,
+      "message": "Seems like most of the other name() overrides include \"Op\" at the end?",
+      "revId": "7177ec6a4f3c53cb580d317716f3ef3454e802aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
