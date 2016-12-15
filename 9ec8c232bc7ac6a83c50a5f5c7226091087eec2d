@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_5dc2af42",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T15:23:06Z",
+      "side": 1,
+      "message": "Oops, fixed.",
+      "parentUuid": "5a0b5ba9_e722426c",
+      "revId": "9ec8c232bc7ac6a83c50a5f5c7226091087eec2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a0b5ba9_c7273e7a",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_bdadcb86",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T15:23:06Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "5a0b5ba9_c7273e7a",
+      "revId": "9ec8c232bc7ac6a83c50a5f5c7226091087eec2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a0b5ba9_6717720b",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 5
@@ -47,6 +83,42 @@
       "writtenOn": "2016-12-14T21:19:07Z",
       "side": 1,
       "message": "If Entry\u0027s got to have the key in it, we\u0027re probably better off using SkTHashTable.  As written you\u0027ll end up with two copies of each key, one in the table and one behind your Entry*.",
+      "revId": "9ec8c232bc7ac6a83c50a5f5c7226091087eec2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_ddacff87",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T15:23:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0b5ba9_6717720b",
+      "revId": "9ec8c232bc7ac6a83c50a5f5c7226091087eec2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_fda743a0",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T15:23:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0b5ba9_6717720b",
       "revId": "9ec8c232bc7ac6a83c50a5f5c7226091087eec2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
