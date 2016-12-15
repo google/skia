@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrAtlasTextBatch.h"
+#include "GrAtlasTextOp.h"
 
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
