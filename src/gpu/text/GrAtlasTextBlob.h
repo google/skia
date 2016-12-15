@@ -279,11 +279,11 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    GrDrawOp* test_createBatch(int glyphCount, int run, int subRun,
-                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               const SkPaint& skPaint, const SkSurfaceProps& props,
-                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                               GrBatchFontCache* cache);
+    sk_sp<GrDrawOp> test_makeOp(int glyphCount, int run, int subRun, const SkMatrix& viewMatrix,
+                                SkScalar x, SkScalar y, GrColor color, const SkPaint& skPaint,
+                                const SkSurfaceProps& props,
+                                const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                GrBatchFontCache* cache);
 
 private:
     GrAtlasTextBlob()
@@ -496,23 +496,15 @@ private:
     };
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInBatch(GrDrawOp::Target* target,
-                      GrBatchFontCache* fontCache,
-                      GrBlobRegenHelper* helper,
-                      Run* run, Run::SubRunInfo* info,
-                      SkAutoGlyphCache*, int glyphCount,
-                      size_t vertexStride,
-                      GrColor color, SkScalar transX,
-                      SkScalar transY) const;
+    void regenInOp(GrDrawOp::Target* target, GrBatchFontCache* fontCache, GrBlobRegenHelper* helper,
+                   Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
+                   size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
-    inline GrDrawOp* createBatch(const Run::SubRunInfo& info,
-                                 int glyphCount, int run, int subRun,
-                                 const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                 GrColor color,
-                                 const SkPaint& skPaint, const SkSurfaceProps& props,
-                                 const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                 bool useGammaCorrectDistanceTable,
-                                 GrBatchFontCache* cache);
+    inline sk_sp<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+                                  const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+                                  const SkPaint& skPaint, const SkSurfaceProps& props,
+                                  const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                  bool useGammaCorrectDistanceTable, GrBatchFontCache* cache);
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)

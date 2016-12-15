@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasTextBatch_DEFINED
-#define GrAtlasTextBatch_DEFINED
+#ifndef GrAtlasTextOp_DEFINED
+#define GrAtlasTextOp_DEFINED
 
 #include "batches/GrMeshDrawOp.h"
 
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
-class GrAtlasTextBatch final : public GrMeshDrawOp {
+class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -31,57 +31,55 @@ public:
         GrColor fColor;
     };
 
-    static GrAtlasTextBatch* CreateBitmap(GrMaskFormat maskFormat, int glyphCount,
-                                          GrBatchFontCache* fontCache) {
-        GrAtlasTextBatch* batch = new GrAtlasTextBatch;
+    static sk_sp<GrAtlasTextOp> MakeBitmap(GrMaskFormat maskFormat, int glyphCount,
+                                           GrBatchFontCache* fontCache) {
+        sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
 
-        batch->fFontCache = fontCache;
+        op->fFontCache = fontCache;
         switch (maskFormat) {
             case kA8_GrMaskFormat:
-                batch->fMaskType = kGrayscaleCoverageMask_MaskType;
+                op->fMaskType = kGrayscaleCoverageMask_MaskType;
                 break;
             case kA565_GrMaskFormat:
-                batch->fMaskType = kLCDCoverageMask_MaskType;
+                op->fMaskType = kLCDCoverageMask_MaskType;
                 break;
             case kARGB_GrMaskFormat:
-                batch->fMaskType = kColorBitmapMask_MaskType;
+                op->fMaskType = kColorBitmapMask_MaskType;
                 break;
         }
-        batch->fBatch.fNumGlyphs = glyphCount;
-        batch->fGeoCount = 1;
-        batch->fFilteredColor = 0;
-        batch->fFontCache = fontCache;
-        batch->fUseBGR = false;
-        return batch;
+        op->fNumGlyphs = glyphCount;
+        op->fGeoCount = 1;
+        op->fFilteredColor = 0;
+        op->fFontCache = fontCache;
+        op->fUseBGR = false;
+        return op;
     }
 
-    static GrAtlasTextBatch* CreateDistanceField(
-                                              int glyphCount, GrBatchFontCache* fontCache,
-                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                              bool useGammaCorrectDistanceTable,
-                                              SkColor filteredColor, bool isLCD,
-                                              bool useBGR) {
-        GrAtlasTextBatch* batch = new GrAtlasTextBatch;
+    static sk_sp<GrAtlasTextOp> MakeDistanceField(
+            int glyphCount, GrBatchFontCache* fontCache,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            bool useGammaCorrectDistanceTable, SkColor filteredColor, bool isLCD, bool useBGR) {
+        sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
 
-        batch->fFontCache = fontCache;
-        batch->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
-        batch->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
-        batch->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
-        batch->fFilteredColor = filteredColor;
-        batch->fUseBGR = useBGR;
-        batch->fBatch.fNumGlyphs = glyphCount;
-        batch->fGeoCount = 1;
-        return batch;
+        op->fFontCache = fontCache;
+        op->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
+        op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
+        op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
+        op->fFilteredColor = filteredColor;
+        op->fUseBGR = useBGR;
+        op->fNumGlyphs = glyphCount;
+        op->fGeoCount = 1;
+        return op;
     }
 
-    // to avoid even the initial copy of the struct, we have a getter for the first item which
-    // is used to seed the batch with its initial geometry.  After seeding, the client should call
-    // init() so the Batch can initialize itself
+    // To avoid even the initial copy of the struct, we have a getter for the first item which
+    // is used to seed the op with its initial geometry.  After seeding, the client should call
+    // init() so the op can initialize itself
     Geometry& geometry() { return fGeoData[0]; }
 
     void init() {
         const Geometry& geo = fGeoData[0];
-        fBatch.fColor = geo.fColor;
+        fColor = geo.fColor;
         SkRect bounds;
         geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
                                        geo.fY);
@@ -90,7 +88,7 @@ public:
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "TextBatch"; }
+    const char* name() const override { return "AtlasTextOp"; }
 
     SkString dumpInfo() const override;
 
@@ -99,23 +97,22 @@ protected:
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override;
 
-
 private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        sk_sp<const GrBuffer>      fVertexBuffer;
-        sk_sp<const GrBuffer>      fIndexBuffer;
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor> fGeometryProcessor;
-        int                        fGlyphsToFlush;
-        int                        fVertexOffset;
+        int fGlyphsToFlush;
+        int fVertexOffset;
     };
 
     void onPrepareDraws(Target* target) const override;
 
-    GrAtlasTextBatch() : INHERITED(ClassID()) {} // initialized in factory functions.
+    GrAtlasTextOp() : INHERITED(ClassID()) {}  // initialized in factory functions.
 
-    ~GrAtlasTextBatch() {
+    ~GrAtlasTextOp() {
         for (int i = 0; i < fGeoCount; i++) {
             fGeoData[i].fBlob->unref();
         }
@@ -132,7 +129,7 @@ private:
             case kLCDDistanceField_MaskType:
                 return kA8_GrMaskFormat;
         }
-        return kA8_GrMaskFormat; // suppress warning
+        return kA8_GrMaskFormat;  // suppress warning
     }
 
     bool usesDistanceFields() const {
@@ -141,16 +138,15 @@ private:
     }
 
     bool isLCD() const {
-        return kLCDCoverageMask_MaskType == fMaskType ||
-               kLCDDistanceField_MaskType == fMaskType;
+        return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
     }
 
     inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
-    GrColor color() const { return fBatch.fColor; }
+    GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    int numGlyphs() const { return fBatch.fNumGlyphs; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    int numGlyphs() const { return fNumGlyphs; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
@@ -159,15 +155,12 @@ private:
     sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor filteredColor,
                                                 GrColor color, GrTexture* texture) const;
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        int fNumGlyphs;
-    };
+    GrColor fColor;
+    bool fUsesLocalCoords;
+    bool fColorIgnored;
+    bool fCoverageIgnored;
+    int fNumGlyphs;
 
-    BatchTracker fBatch;
     // The minimum number of Geometry we will try to allocate.
     enum { kMinGeometryAllocated = 4 };
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
@@ -180,7 +173,7 @@ private:
         kGrayscaleDistanceField_MaskType,
         kLCDDistanceField_MaskType,
     } fMaskType;
-    bool fUseBGR; // fold this into the enum?
+    bool fUseBGR;  // fold this into the enum?
 
     GrBatchFontCache* fFontCache;
 
@@ -189,7 +182,7 @@ private:
     SkColor fFilteredColor;
     bool fUseGammaCorrectDistanceTable;
 
-    friend class GrBlobRegenHelper; // Needs to trigger flushes
+    friend class GrBlobRegenHelper;  // Needs to trigger flushes
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -200,20 +193,18 @@ private:
  */
 class GrBlobRegenHelper {
 public:
-    GrBlobRegenHelper(const GrAtlasTextBatch* batch, GrMeshDrawOp::Target* target,
-                      GrAtlasTextBatch::FlushInfo* flushInfo)
-        : fBatch(batch), fTarget(target), fFlushInfo(flushInfo) {}
+    GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
+                      GrAtlasTextOp::FlushInfo* flushInfo)
+            : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
 
     void flush();
 
-    void incGlyphCount(int glyphCount = 1) {
-        fFlushInfo->fGlyphsToFlush += glyphCount;
-    }
+    void incGlyphCount(int glyphCount = 1) { fFlushInfo->fGlyphsToFlush += glyphCount; }
 
 private:
-    const GrAtlasTextBatch* fBatch;
+    const GrAtlasTextOp* fOp;
     GrMeshDrawOp::Target* fTarget;
-    GrAtlasTextBatch::FlushInfo* fFlushInfo;
+    GrAtlasTextOp::FlushInfo* fFlushInfo;
 };
 
 #endif

@@ -428,9 +428,10 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
                                                gSurfaceProps, text,
                                                static_cast<size_t>(textLen), x, y));
 
-    return blob->test_createBatch(textLen, 0, 0, viewMatrix, x, y, color, skPaint,
-                                  gSurfaceProps, gTextContext->dfAdjustTable(),
-                                  context->getBatchFontCache());
+    return blob
+            ->test_makeOp(textLen, 0, 0, viewMatrix, x, y, color, skPaint, gSurfaceProps,
+                          gTextContext->dfAdjustTable(), context->getBatchFontCache())
+            .release();
 }
 
 #endif
