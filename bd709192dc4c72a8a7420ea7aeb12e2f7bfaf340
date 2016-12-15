@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_80885ab4",
+        "filename": "src/gpu/batches/GrAtlasTextOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T15:59:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_a0a59e54",
+      "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_c00c12b7",
         "filename": "src/gpu/batches/GrAtlasTextOp.h",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-15T15:50:27Z",
       "side": 1,
       "message": "GrAtlasTextOp_DEFINED",
+      "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_208b4eb2",
+        "filename": "src/gpu/batches/GrAtlasTextOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T15:59:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_c00c12b7",
       "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_00944ace",
+        "filename": "src/gpu/batches/GrAtlasTextOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T15:59:07Z",
+      "side": 1,
+      "message": "Triggers -Wpessimizing-move (correctly I believe b/c of NRVO)",
+      "parentUuid": "ba0a97d0_00172abd",
+      "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_40212213",
         "filename": "src/gpu/batches/GrAtlasTextOp.h",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-15T15:50:27Z",
       "side": 1,
       "message": "std::move()",
+      "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_408e42c2",
+        "filename": "src/gpu/batches/GrAtlasTextOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T15:59:07Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "ba0a97d0_40212213",
       "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
