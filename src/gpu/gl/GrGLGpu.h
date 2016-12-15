@@ -20,6 +20,7 @@
 #include "GrTexturePriv.h"
 #include "GrWindowRectsState.h"
 #include "GrXferProcessor.h"
+#include "SkLRUCache.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
 
@@ -279,29 +280,24 @@ private:
                                 bool hasPointSize);
 
     private:
-        enum {
-            // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
-            // shader before evicting from the cache.
-            kMaxEntries = 128,
-            kHashBits = 6,
-        };
+        // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
+        // shader before evicting from the cache.
+        static const int kMaxEntries = 128;
 
         struct Entry;
-
-        struct ProgDescLess;
 
         // binary search for entry matching desc. returns index into fEntries that matches desc or ~
         // of the index of where it should be inserted.
         int search(const GrProgramDesc& desc) const;
 
-        // sorted array of all the entries
-        Entry*                      fEntries[kMaxEntries];
-        // hash table based on lowest kHashBits bits of the program key. Used to avoid binary
-        // searching fEntries.
-        Entry*                      fHashTable[1 << kHashBits];
+        struct DescHash {
+            uint32_t operator()(const GrProgramDesc& desc) const {
+                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            }
+        };
 
-        int                         fCount;
-        unsigned int                fCurrLRUStamp;
+        SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
+
         GrGLGpu*                    fGpu;
 #ifdef PROGRAM_CACHE_STATS
         int                         fTotalRequests;
