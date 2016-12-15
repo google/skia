@@ -243,14 +243,7 @@ public:
     static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
                                             const SkPaint*);
 
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator) {
-        return this->tryGenerateBitmap(bm, &info, allocator);
-    }
-    void generateBitmap(SkBitmap* bm, const SkImageInfo& info) {
-        if (!this->tryGenerateBitmap(bm, &info, nullptr)) {
-            sk_throw();
-        }
-    }
+    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
 
 protected:
     enum {
@@ -286,8 +279,6 @@ protected:
                                      ScaledImageRec*) {
         return false;
     }
-
-    bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo, SkBitmap::Allocator*);
 
 private:
     const SkImageInfo fInfo;
