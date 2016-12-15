@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_600a6604",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1598,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-15T17:52:12Z",
+      "side": 1,
+      "message": "Print says (Gray) instead of (CMYK)?",
+      "revId": "f50f7b4543bb4792727f5adc606bcd231216fe98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_c0f532d3",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1604,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-15T17:52:12Z",
+      "side": 1,
+      "message": "Are there any colour formats we wouldn\u0027t want to try a2b on in the future, or would it always be the catch-all for all input colour formats?",
+      "revId": "f50f7b4543bb4792727f5adc606bcd231216fe98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
