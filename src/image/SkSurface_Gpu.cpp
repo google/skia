@@ -14,6 +14,7 @@
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -82,29 +83,39 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
-    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
-    if (!rt) {
+    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    if (!rtc) {
         return nullptr;
     }
 
-    GrTexture* tex = rt->asTexture();
-    sk_sp<GrTexture> copy;
+    GrContext* ctx = fDevice->context();
+
+    GrSurfaceProxy* srcProxy = rtc->asDeferredSurface();
+    sk_sp<GrSurfaceContext> copyCtx;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
-    if (kAlways_SkCopyPixelsMode == cpm || !tex || rt->resourcePriv().refsWrappedObjects()) {
-        GrSurfaceDesc desc = fDevice->accessRenderTargetContext()->desc();
-        GrContext* ctx = fDevice->context();
+    if (kAlways_SkCopyPixelsMode == cpm || !srcProxy || rtc->priv().refsWrappedObjects()) {
+        GrSurfaceDesc desc = rtc->desc();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
-        copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));
-        if (!copy) {
+
+        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
+                                                                SkBackingFit::kExact,
+                                                                budgeted);
+        if (!copyCtx) {
             return nullptr;
         }
-        if (!ctx->copySurface(copy.get(), rt)) {
+
+        if (!copyCtx->copy(srcProxy)) {
             return nullptr;
         }
-        tex = copy.get();
+
+        srcProxy = copyCtx->asDeferredSurface();
     }
+
+    // TODO: add proxy-backed SkImage_Gpu
+    GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
+
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
     if (tex) {

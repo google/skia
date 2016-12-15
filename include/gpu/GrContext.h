@@ -301,25 +301,6 @@ public:
                             uint32_t pixelOpsFlags = 0);
 
     /**
-     * Copies a rectangle of texels from src to dst.
-     * @param dst           the surface to copy to.
-     * @param src           the surface to copy from.
-     * @param srcRect       the rectangle of the src that should be copied.
-     * @param dstPoint      the translation applied when writing the srcRect's pixels to the dst.
-     */
-    bool copySurface(GrSurface* dst,
-                     GrSurface* src,
-                     const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
-
-    /** Helper that copies the whole surface but fails when the two surfaces are not identically
-        sized. */
-    bool copySurface(GrSurface* dst, GrSurface* src) {
-        return this->copySurface(dst, src, SkIRect::MakeWH(dst->width(), dst->height()),
-                                 SkIPoint::Make(0,0));
-    }
-
-    /**
      * After this returns any pending writes to the surface will have been issued to the backend 3D API.
      */
     void flushSurfaceWrites(GrSurface* surface);

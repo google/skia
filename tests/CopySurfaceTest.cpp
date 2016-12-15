@@ -10,6 +10,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrSurfaceContext.h"
+#include "GrSurfaceProxy.h"
 #include "GrTexture.h"
 #include "GrTextureProvider.h"
 
@@ -68,22 +71,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
-                            sk_sp<GrTexture> src(
-                                context->textureProvider()->createTexture(srcDesc, SkBudgeted::kNo,
-                                                                          srcPixels.get(),
-                                                                          kRowBytes));
-                            sk_sp<GrTexture> dst(
-                                context->textureProvider()->createTexture(dstDesc, SkBudgeted::kNo,
-                                                                          dstPixels.get(),
-                                                                          kRowBytes));
+                            sk_sp<GrSurfaceProxy> src(GrSurfaceProxy::MakeDeferred(
+                                                                    *context->caps(),
+                                                                    context->textureProvider(),
+                                                                    srcDesc, SkBudgeted::kNo,
+                                                                    srcPixels.get(),
+                                                                    kRowBytes));
+
+                            sk_sp<GrSurfaceProxy> dst(GrSurfaceProxy::MakeDeferred(
+                                                                    *context->caps(),
+                                                                    context->textureProvider(),
+                                                                    dstDesc, SkBudgeted::kNo,
+                                                                    dstPixels.get(),
+                                                                    kRowBytes));
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");
                                 continue;
                             }
 
-                            bool result
-                                    = context->copySurface(dst.get(), src.get(), srcRect, dstPoint);
+                            sk_sp<GrSurfaceContext> sContext =
+                                            context->contextPriv().makeWrappedSurfaceContext(dst);
+
+                            bool result = sContext->copy(src.get(), srcRect, dstPoint);
 
                             bool expectedResult = true;
                             SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
@@ -120,9 +130,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 continue;
                             }
 
+                            GrSurface* dstSurf = dst->instantiate(context->textureProvider());
+
                             sk_memset32(read.get(), 0, kW * kH);
-                            if (!dst->readPixels(0, 0, kW, kH, baseDesc.fConfig, read.get(),
-                                                 kRowBytes)) {
+                            if (!dstSurf->readPixels(0, 0, kW, kH, baseDesc.fConfig, read.get(),
+                                                     kRowBytes)) {
                                 ERRORF(reporter, "Error calling readPixels");
                                 continue;
                             }

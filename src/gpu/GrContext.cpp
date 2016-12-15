@@ -540,43 +540,6 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
-bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
-    ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fAuditTrail, "GrContext::copySurface");
-
-    if (!src || !dst) {
-        return false;
-    }
-    ASSERT_OWNED_RESOURCE(src);
-    ASSERT_OWNED_RESOURCE(dst);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
-        return false;
-    }
-
-#ifndef ENABLE_MDB
-    // We can't yet fully defer copies to textures, so GrTextureContext::copySurface will
-    // execute the copy immediately. Ensure the data is ready.
-    src->flushWrites();
-#endif
-
-    sk_sp<GrSurfaceContext> surfaceContext(
-        this->contextPriv().makeWrappedSurfaceContext(sk_ref_sp(dst)));
-
-    if (!surfaceContext) {
-        return false;
-    }
-
-    if (!surfaceContext->copySurface(src, srcRect, dstPoint)) {
-        return false;
-    }
-
-    return true;
-}
-
 void GrContext::flushSurfaceWrites(GrSurface* surface) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -591,23 +554,6 @@ void GrContext::flushSurfaceIO(GrSurface* surface) {
     if (surface->surfacePriv().hasPendingIO()) {
         this->flush();
     }
-}
-
-sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
-                                                                  SkBackingFit fit,
-                                                                  SkBudgeted isDstBudgeted) {
-
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
-                                                               fit, isDstBudgeted);
-
-    if (proxy->asRenderTargetProxy()) {
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
-    } else {
-        SkASSERT(proxy->asTextureProxy());
-        return this->drawingManager()->makeTextureContext(std::move(proxy));
-    }
-
-    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -657,6 +603,16 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
     ASSERT_SINGLE_OWNER_PRIV
 
     sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
+
+    return this->makeWrappedSurfaceContext(std::move(proxy));
+}
+
+sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                                  SkBackingFit fit,
+                                                                  SkBudgeted isDstBudgeted) {
+
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
+                                                               fit, isDstBudgeted);
 
     return this->makeWrappedSurfaceContext(std::move(proxy));
 }

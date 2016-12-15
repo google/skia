@@ -133,12 +133,20 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     return fOpList;
 }
 
-bool GrRenderTargetContext::copySurface(GrSurface* src, const SkIRect& srcRect,
-                                        const SkIPoint& dstPoint) {
+// TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
+bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
+                                   const SkIRect& srcRect,
+                                   const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copySurface");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copy");
+
+    // TODO: defer instantiation until flush time
+    sk_sp<GrSurface> src(sk_ref_sp(srcProxy->instantiate(fContext->textureProvider())));
+    if (!src) {
+        return false;
+    }
 
     // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
     sk_sp<GrRenderTarget> rt(
@@ -147,7 +155,7 @@ bool GrRenderTargetContext::copySurface(GrSurface* src, const SkIRect& srcRect,
         return false;
     }
 
-    return this->getOpList()->copySurface(rt.get(), src, srcRect, dstPoint);
+    return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
 }
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const GrPaint& grPaint,
