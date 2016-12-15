@@ -732,23 +732,18 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAConvexPathBatch final : public GrMeshDrawOp {
+class AAConvexPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    AAConvexPathBatch(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
-        : INHERITED(ClassID()) {
-        fGeoData.emplace_back(Geometry{color, viewMatrix, path});
-        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kNo);
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkPath& path) {
+        return sk_sp<GrDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
     }
 
-    const char* name() const override { return "AAConvexBatch"; }
+    const char* name() const override { return "AAConvexPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x\n", geo.fColor);
-        }
+        string.appendf("Color: 0x%08x, Count: %d\n", fColor, fPaths.count());
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
@@ -757,26 +752,28 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
     }
 
 private:
+    AAConvexPathOp(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
+            : INHERITED(ClassID()), fColor(color) {
+        fPaths.emplace_back(PathData{viewMatrix, path});
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+    }
+
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fColor);
 
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
-        fBatch.fLinesOnly = SkPath::kLine_SegmentMask == fGeoData[0].fPath.getSegmentMasks();
-        fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+        fUsesLocalCoords = overrides.readsLocalCoords();
+        fCoverageIgnored = !overrides.readsCoverage();
+        fLinesOnly = SkPath::kLine_SegmentMask == fPaths[0].fPath.getSegmentMasks();
+        fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
     void prepareLinesOnlyDraws(Target* target) const {
@@ -800,12 +797,12 @@ private:
 
         GrAAConvexTessellator tess;
 
-        int instanceCount = fGeoData.count();
+        int instanceCount = fPaths.count();
 
         for (int i = 0; i < instanceCount; i++) {
             tess.rewind();
 
-            const Geometry& args = fGeoData[i];
+            const PathData& args = fPaths[i];
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
                 continue;
@@ -830,7 +827,7 @@ private:
                 return;
             }
 
-            extract_verts(tess, verts, vertexStride, args.fColor, idxs, canTweakAlphaForCoverage);
+            extract_verts(tess, verts, vertexStride, fColor, idxs, canTweakAlphaForCoverage);
 
             GrMesh mesh;
             mesh.initIndexed(kTriangles_GrPrimitiveType,
@@ -849,7 +846,7 @@ private:
         }
 #endif
 
-        int instanceCount = fGeoData.count();
+        int instanceCount = fPaths.count();
 
         SkMatrix invert;
         if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
@@ -863,7 +860,7 @@ private:
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
+            const PathData& args = fPaths[i];
 
             // We use the fact that SkPath::transform path does subdivision based on
             // perspective. Otherwise, we apply the view matrix when copying to the
@@ -933,7 +930,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
+        AAConvexPathOp* that = t->cast<AAConvexPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -952,41 +949,36 @@ private:
             return false;
         }
 
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
+        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
+        // tweaking
         if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            fBatch.fCanTweakAlphaForCoverage = false;
+            fCanTweakAlphaForCoverage = false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool linesOnly() const { return fBatch.fLinesOnly; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    GrColor color() const { return fColor; }
+    bool linesOnly() const { return fLinesOnly; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
+    const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
+    bool coverageIgnored() const { return fCoverageIgnored; }
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fLinesOnly;
-        bool fCanTweakAlphaForCoverage;
-    };
+    GrColor fColor;
+    bool fUsesLocalCoords;
+    bool fCoverageIgnored;
+    bool fLinesOnly;
+    bool fCanTweakAlphaForCoverage;
 
-    struct Geometry {
-        GrColor fColor;
+    struct PathData {
         SkMatrix fViewMatrix;
         SkPath fPath;
     };
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkSTArray<1, PathData, true> fPaths;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -1000,7 +992,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawOp> op(new AAConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix, path));
+    sk_sp<GrDrawOp> op = AAConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path);
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
@@ -1015,12 +1007,12 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAConvexPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AAConvexPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
 
-    return new AAConvexPathBatch(color, viewMatrix, path);
+    return AAConvexPathOp::Make(color, viewMatrix, path).release();
 }
 
 #endif

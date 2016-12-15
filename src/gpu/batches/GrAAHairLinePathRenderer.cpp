@@ -675,29 +675,31 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineBatch final : public GrMeshDrawOp {
+class AAHairlineOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    AAHairlineBatch(GrColor color,
-                    uint8_t coverage,
-                    const SkMatrix& viewMatrix,
-                    const SkPath& path,
-                    SkIRect devClipBounds) : INHERITED(ClassID()) {
-        fGeoData.emplace_back(Geometry{color, coverage, viewMatrix, path, devClipBounds});
+    static sk_sp<GrDrawOp> Make(GrColor color,
+                                const SkMatrix& viewMatrix,
+                                const SkPath& path,
+                                const GrStyle& style,
+                                const SkIRect& devClipBounds) {
+        SkScalar hairlineCoverage;
+        uint8_t newCoverage = 0xff;
+        if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
+            newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
+        }
 
-        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kYes);
+        return sk_sp<GrDrawOp>(
+                new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
     }
 
-    const char* name() const override { return "AAHairlineBatch"; }
+    const char* name() const override { return "AAHairlineOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x Coverage: 0x%02x\n", geo.fColor, geo.fCoverage);
-        }
-        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor, fCoverage,
+                       fPaths.count());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -705,25 +707,31 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
     }
 
 private:
+    AAHairlineOp(GrColor color,
+                 uint8_t coverage,
+                 const SkMatrix& viewMatrix,
+                 const SkPath& path,
+                 SkIRect devClipBounds)
+            : INHERITED(ClassID()), fColor(color), fCoverage(coverage) {
+        fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds});
+
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kYes);
+    }
+
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fColor);
 
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
-        fBatch.fCoverage = fGeoData[0].fCoverage;
+        fUsesLocalCoords = overrides.readsLocalCoords();
     }
 
     void onPrepareDraws(Target*) const override;
@@ -733,7 +741,7 @@ private:
     typedef SkTArray<float, true> FloatArray;
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AAHairlineBatch* that = t->cast<AAHairlineBatch>();
+        AAHairlineOp* that = t->cast<AAHairlineOp>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -766,42 +774,32 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    uint8_t coverage() const { return fBatch.fCoverage; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    GrColor color() const { return fColor; }
+    uint8_t coverage() const { return fCoverage; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
-
-    struct Geometry {
-        GrColor fColor;
-        uint8_t fCoverage;
+    struct PathData {
         SkMatrix fViewMatrix;
         SkPath fPath;
         SkIRect fDevClipBounds;
     };
 
-    struct BatchTracker {
-        GrColor fColor;
-        uint8_t fCoverage;
-        SkRect fDevBounds;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
+    GrColor fColor;
+    uint8_t fCoverage;
+    bool fUsesLocalCoords;
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkSTArray<1, PathData, true> fPaths;
 
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAHairlineBatch::onPrepareDraws(Target* target) const {
+void AAHairlineOp::onPrepareDraws(Target* target) const {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -829,9 +827,9 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
     FloatArray cWeights;
     int quadCount = 0;
 
-    int instanceCount = fGeoData.count();
+    int instanceCount = fPaths.count();
     for (int i = 0; i < instanceCount; i++) {
-        const Geometry& args = fGeoData[i];
+        const PathData& args = fPaths[i];
         quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
                                             &lines, &quads, &conics, &qSubdivs, &cWeights);
     }
@@ -951,20 +949,6 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
     }
 }
 
-static GrDrawOp* create_hairline_batch(GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       const SkPath& path,
-                                       const GrStyle& style,
-                                       const SkIRect& devClipBounds) {
-    SkScalar hairlineCoverage;
-    uint8_t newCoverage = 0xff;
-    if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
-        newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
-    }
-
-    return new AAHairlineBatch(color, newCoverage, viewMatrix, path, devClipBounds);
-}
-
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAHairlinePathRenderer::onDrawPath");
@@ -974,16 +958,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &devClipBounds);
-
     SkPath path;
     args.fShape->asPath(&path);
-    sk_sp<GrDrawOp> op(create_hairline_batch(args.fPaint->getColor(), *args.fViewMatrix, path,
-                                             args.fShape->style(), devClipBounds));
-
+    sk_sp<GrDrawOp> op = AAHairlineOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path,
+                                            args.fShape->style(), devClipBounds);
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
-
     return true;
 }
 
@@ -991,13 +972,14 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAHairlineBatch) {
+DRAW_BATCH_TEST_DEFINE(AAHairlineOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
-    return create_hairline_batch(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds);
+    return AAHairlineOp::Make(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds)
+            .release();
 }
 
 #endif

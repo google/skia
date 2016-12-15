@@ -118,38 +118,26 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathBatch final : public GrMeshDrawOp {
+class AADistanceFieldPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    typedef GrAADistanceFieldPathRenderer::ShapeData ShapeData;
-    typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
-    typedef GrAADistanceFieldPathRenderer::ShapeDataList ShapeDataList;
+    using ShapeData = GrAADistanceFieldPathRenderer::ShapeData;
+    using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
+    using ShapeDataList = GrAADistanceFieldPathRenderer::ShapeDataList;
 
-    AADistanceFieldPathBatch(GrColor color,
-                             const GrShape& shape,
-                             const SkMatrix& viewMatrix,
-                             GrBatchAtlas* atlas,
-                             ShapeCache* shapeCache, ShapeDataList* shapeList,
-                             bool gammaCorrect)
-            : INHERITED(ClassID()) {
-        SkASSERT(shape.hasUnstyledKey());
-        fBatch.fViewMatrix = viewMatrix;
-        fGeoData.emplace_back(Geometry{color, shape});
-
-        fAtlas = atlas;
-        fShapeCache = shapeCache;
-        fShapeList = shapeList;
-        fGammaCorrect = gammaCorrect;
-
-        // Compute bounds
-        this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+    static sk_sp<GrDrawOp> Make(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
+                                GrBatchAtlas* atlas, ShapeCache* shapeCache,
+                                ShapeDataList* shapeList, bool gammaCorrect) {
+        return sk_sp<GrDrawOp>(new AADistanceFieldPathOp(color, shape, viewMatrix, atlas,
+                                                         shapeCache, shapeList, gammaCorrect));
     }
-    const char* name() const override { return "AADistanceFieldPathBatch"; }
+
+    const char* name() const override { return "AADistanceFieldPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        for (const auto& geo : fGeoData) {
+        for (const auto& geo : fShapes) {
             string.appendf("Color: 0x%08x\n", geo.fColor);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
@@ -160,22 +148,38 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fShapes[0].fColor);
         coverage->setUnknownSingleComponent();
     }
 
 private:
+    AADistanceFieldPathOp(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
+                          GrBatchAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
+                          bool gammaCorrect)
+            : INHERITED(ClassID()) {
+        SkASSERT(shape.hasUnstyledKey());
+        fViewMatrix = viewMatrix;
+        fShapes.emplace_back(Entry{color, shape});
+
+        fAtlas = atlas;
+        fShapeCache = shapeCache;
+        fShapeList = shapeList;
+        fGammaCorrect = gammaCorrect;
+
+        // Compute bounds
+        this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+    }
+
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fShapes[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fShapes[0].fColor);
 
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        fColorIgnored = !overrides.readsColor();
+        fUsesLocalCoords = overrides.readsLocalCoords();
+        fCoverageIgnored = !overrides.readsCoverage();
     }
 
     struct FlushInfo {
@@ -187,7 +191,7 @@ private:
     };
 
     void onPrepareDraws(Target* target) const override {
-        int instanceCount = fGeoData.count();
+        int instanceCount = fShapes.count();
 
         SkMatrix invert;
         if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
@@ -234,7 +238,7 @@ private:
         // Pointer to the next set of vertices to write.
         intptr_t offset = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
+            const Entry& args = fShapes[i];
 
             // get mip level
             SkScalar maxScale = this->viewMatrix().getMaxScale();
@@ -463,12 +467,12 @@ private:
         }
     }
 
-    GrColor color() const { return fGeoData[0].fColor; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
+    GrColor color() const { return fShapes[0].fColor; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
+        AADistanceFieldPathOp* that = t->cast<AADistanceFieldPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -479,25 +483,22 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fShapes.push_back_n(that->fShapes.count(), that->fShapes.begin());
         this->joinBounds(*that);
         return true;
     }
 
-    struct BatchTracker {
-        SkMatrix fViewMatrix;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-    };
+    SkMatrix fViewMatrix;
+    bool fUsesLocalCoords;
+    bool fColorIgnored;
+    bool fCoverageIgnored;
 
-    struct Geometry {
+    struct Entry {
         GrColor fColor;
         GrShape fShape;
     };
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry> fGeoData;
+    SkSTArray<1, Entry> fShapes;
     GrBatchAtlas* fAtlas;
     ShapeCache* fShapeCache;
     ShapeDataList* fShapeList;
@@ -524,9 +525,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    sk_sp<GrDrawOp> op(new AADistanceFieldPathBatch(args.fPaint->getColor(), *args.fShape,
-                                                    *args.fViewMatrix, fAtlas.get(), &fShapeCache,
-                                                    &fShapeList, args.fGammaCorrect));
+    sk_sp<GrDrawOp> op = AADistanceFieldPathOp::Make(args.fPaint->getColor(), *args.fShape,
+                                                     *args.fViewMatrix, fAtlas.get(), &fShapeCache,
+                                                     &fShapeList, args.fGammaCorrect);
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
@@ -581,7 +582,7 @@ struct PathTestStruct {
     ShapeDataList fShapeList;
 };
 
-DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathOp) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {
@@ -602,13 +603,14 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     // This path renderer only allows fill styles.
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
 
-    return new AADistanceFieldPathBatch(color,
-                                        shape,
-                                        viewMatrix,
-                                        gTestStruct.fAtlas.get(),
-                                        &gTestStruct.fShapeCache,
-                                        &gTestStruct.fShapeList,
-                                        gammaCorrect);
+    return AADistanceFieldPathOp::Make(color,
+                                       shape,
+                                       viewMatrix,
+                                       gTestStruct.fAtlas.get(),
+                                       &gTestStruct.fShapeCache,
+                                       &gTestStruct.fShapeList,
+                                       gammaCorrect)
+            .release();
 }
 
 #endif
