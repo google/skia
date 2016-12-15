@@ -15,14 +15,19 @@ static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
-    sk_sp<SkData> data = stream.snapshotAsData();
-    if (offset + len > data->size()) {
-        return false;
-    }
     if (len != strlen(buffer)) {
         return false;
     }
-    return memcmp(data->bytes() + offset, buffer, len) == 0;
+
+    const size_t streamSize = stream.bytesWritten();
+
+    if (offset + len > streamSize) {
+        return false;
+    }
+
+    SkAutoTMalloc<char> data(streamSize);
+    stream.copyTo(data.get());
+    return memcmp(data.get() + offset, buffer, len) == 0;
 }
 
 DEF_TEST(SkPDF_ToUnicode, reporter) {

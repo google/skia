@@ -118,12 +118,6 @@ static void TestWStream(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
 
     {
-        sk_sp<SkData> data = ds.snapshotAsData();
-        REPORTER_ASSERT(reporter, 100 * 26 == data->size());
-        REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
-    }
-
-    {
         // Test that this works after a snapshot.
         std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);

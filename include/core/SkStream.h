@@ -385,7 +385,6 @@ public:
     void copyTo(void* dst) const;
     void writeToStream(SkWStream* dst) const;
 
-    sk_sp<SkData> snapshotAsData() const;
     // Return the contents as SkData, and then reset the stream.
     sk_sp<SkData> detachAsData();
 
@@ -400,9 +399,6 @@ private:
     Block*  fHead;
     Block*  fTail;
     size_t  fBytesWritten;
-    mutable sk_sp<SkData> fCopy;  // is invalidated if we write after it is created
-
-    void invalidateCopy();
 
     // For access to the Block type.
     friend class SkBlockMemoryStream;
