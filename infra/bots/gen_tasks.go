@@ -359,7 +359,7 @@ func swarmDimensions(parts map[string]string) []string {
 				"Nexus7v2":      {"flo", "M"},
 				"NexusPlayer":   {"fugu", "NRD90R"},
 				"Pixel":         {"sailfish", "NMF25"},
-				"PixelC":        {"dragon", "NMF26C"},
+				"PixelC":        {"dragon", "NMF26H"},
 				"PixelXL":       {"marlin", "NMF25"},
 			}[parts["model"]]
 			d["device_type"] = deviceInfo[0]
