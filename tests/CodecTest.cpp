@@ -1453,6 +1453,22 @@ DEF_TEST(Codec_InvalidImages, r) {
     test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", false);
 }
 
+DEF_TEST(Codec_InvalidBmp, r) {
+    // This file reports a header size that crashes when we try to read this
+    // much directly from a file using SkFILEStream.
+    SkString path = GetResourcePath("invalid_images/b33651913.bmp");
+    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
+    if (!stream->isValid()) {
+        ERRORF(r, "no stream");
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    // This file is invalid, but more importantly, we did not crash before
+    // reaching here.
+    REPORTER_ASSERT(r, !codec);
+}
+
 DEF_TEST(Codec_InvalidAnimated, r) {
     // ASAN will complain if there is an issue.
     auto path = "invalid_images/skbug6046.gif";
