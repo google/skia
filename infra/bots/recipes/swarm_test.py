@@ -63,7 +63,7 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['8888', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
+  configs = ['8888', 'srgb', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
@@ -90,7 +90,7 @@ def dm_flags(bot):
 
   if '-GCE-' in bot:
     configs.extend(['565'])
-    configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
+    configs.extend(['f16'])
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
     configs.extend(['lite-8888'])                # Experimental display list.
 
@@ -163,9 +163,14 @@ def dm_flags(bot):
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('f16 image _ _')
-  blacklist('srgb image _ _')
   blacklist('gpusrgb image _ _')
   blacklist('glsrgb image _ _')
+
+  # Decoder tests are now performing gamma correct decodes.  This means
+  # that, when viewing the results, we need to perform a gamma correct
+  # encode to PNG.  Therefore, we run the image tests in srgb mode instead
+  # of 8888.
+  blacklist('8888 image _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
