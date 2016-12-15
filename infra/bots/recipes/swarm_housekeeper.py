@@ -32,14 +32,6 @@ def RunSteps(api):
 
   cwd = api.path['checkout']
 
-  api.run(
-    api.step,
-    'android platform self-tests',
-    cmd=['python',
-         cwd.join('platform_tools', 'android', 'tests', 'run_all.py')],
-    cwd=cwd,
-    abort_on_failure=False)
-
   # TODO(borenet): Detect static initializers?
 
   gsutil_path = api.path['depot_tools'].join('gsutil.py')

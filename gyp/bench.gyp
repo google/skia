@@ -36,7 +36,7 @@
       'conditions': [
         ['skia_android_framework', {
           'libraries': [
-            'skia_static.a',
+            'skia.a',
             '-lhwui',
           ],
           'include_dirs': [
