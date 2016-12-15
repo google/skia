@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_e06dd642",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-12-15T15:45:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_5d1e2f25",
+      "revId": "1160b0574ce41fac61304b879dba7ee4e17efa9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_bd494b37",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -42,6 +60,24 @@
         "endLine": 334,
         "endChar": 27
       },
+      "revId": "1160b0574ce41fac61304b879dba7ee4e17efa9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_4053e286",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-12-15T15:45:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_bd494b37",
       "revId": "1160b0574ce41fac61304b879dba7ee4e17efa9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
