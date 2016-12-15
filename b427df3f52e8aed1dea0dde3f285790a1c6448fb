@@ -462,6 +462,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_00444a18",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-15T18:41:27Z",
+      "side": 1,
+      "message": "other nit: use ++i",
+      "parentUuid": "ba0a97d0_a01bde99",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_8015fa61",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 5
@@ -479,6 +497,24 @@
         "endLine": 533,
         "endChar": 41
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_a04e3e3a",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-15T18:41:27Z",
+      "side": 1,
+      "message": "+1\n- confusing to use a mutable reference\n- seems inefficient to update the memory-behind-the-ref in the loop",
+      "parentUuid": "ba0a97d0_8015fa61",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
