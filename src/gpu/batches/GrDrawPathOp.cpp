@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawPathBatch.h"
+#include "GrDrawPathOp.h"
 
 #include "GrRenderTargetPriv.h"
 
@@ -13,13 +13,13 @@ static void pre_translate_transform_values(const float* xforms,
                                            GrPathRendering::PathTransformType type, int count,
                                            SkScalar x, SkScalar y, float* dst);
 
-void GrDrawPathBatchBase::onPrepare(GrOpFlushState*) {
+void GrDrawPathOpBase::onPrepare(GrOpFlushState*) {
     const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
     fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
                                this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
 }
 
-SkString GrDrawPathBatch::dumpInfo() const {
+SkString GrDrawPathOp::dumpInfo() const {
     SkString string;
     string.printf("PATH: 0x%p", fPath.get());
     string.append(DumpPipelineInfo(*this->pipeline()));
@@ -27,17 +27,16 @@ SkString GrDrawPathBatch::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
-    GrProgramDesc  desc;
+void GrDrawPathOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
+    GrProgramDesc desc;
 
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                            this->overrides(),
-                                                            this->viewMatrix()));
+    sk_sp<GrPathProcessor> pathProc(
+            GrPathProcessor::Create(this->color(), this->overrides(), this->viewMatrix()));
     state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
                                             this->stencilPassSettings(), fPath.get());
 }
 
-SkString GrDrawPathRangeBatch::dumpInfo() const {
+SkString GrDrawPathRangeOp::dumpInfo() const {
     SkString string;
     string.printf("RANGE: 0x%p COUNTS: [", fPathRange.get());
     for (DrawList::Iter iter(fDraws); iter.get(); iter.next()) {
@@ -50,25 +49,23 @@ SkString GrDrawPathRangeBatch::dumpInfo() const {
     return string;
 }
 
-GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
-                                           SkScalar y, GrColor color,
-                                           GrPathRendering::FillType fill, GrPathRange* range,
-                                           const InstanceData* instanceData, const SkRect& bounds)
-    : INHERITED(ClassID(), viewMatrix, color, fill)
-    , fPathRange(range)
-    , fTotalPathCount(instanceData->count())
-    , fScale(scale) {
+GrDrawPathRangeOp::GrDrawPathRangeOp(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x,
+                                     SkScalar y, GrColor color, GrPathRendering::FillType fill,
+                                     GrPathRange* range, const InstanceData* instanceData,
+                                     const SkRect& bounds)
+        : INHERITED(ClassID(), viewMatrix, color, fill)
+        , fPathRange(range)
+        , fTotalPathCount(instanceData->count())
+        , fScale(scale) {
     fDraws.addToHead()->set(instanceData, x, y);
     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    GrDrawPathRangeBatch* that = t->cast<GrDrawPathRangeBatch>();
+bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    GrDrawPathRangeOp* that = t->cast<GrDrawPathRangeOp>();
     if (this->fPathRange.get() != that->fPathRange.get() ||
-        this->transformType() != that->transformType() ||
-        this->fScale != that->fScale ||
-        this->color() != that->color() ||
-        !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        this->transformType() != that->transformType() || this->fScale != that->fScale ||
+        this->color() != that->color() || !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
     }
     if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
@@ -91,7 +88,8 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
                 return false;
             }
             break;
-        default: break;
+        default:
+            break;
     }
     // TODO: Check some other things here. (winding, opaque, pathProc color, vm, ...)
     // Try to combine this call with the previous DrawPaths. We do this by stenciling all the
@@ -118,7 +116,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     return true;
 }
 
-void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
+void GrDrawPathRangeOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     const Draw& head = *fDraws.head();
 
     SkMatrix drawMatrix(this->viewMatrix());
@@ -129,10 +127,8 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     localMatrix.setScale(fScale, fScale);
     localMatrix.preTranslate(head.fX, head.fY);
 
-    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                            this->overrides(),
-                                                            drawMatrix,
-                                                            localMatrix));
+    sk_sp<GrPathProcessor> pathProc(
+            GrPathProcessor::Create(this->color(), this->overrides(), drawMatrix, localMatrix));
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
@@ -155,8 +151,7 @@ void GrDrawPathRangeBatch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
             const InstanceData& instances = *draw.fInstanceData;
             memcpy(&indexStorage[idx], instances.indices(), instances.count() * sizeof(uint16_t));
             pre_translate_transform_values(instances.transformValues(), this->transformType(),
-                                           instances.count(),
-                                           draw.fX - head.fX, draw.fY - head.fY,
+                                           instances.count(), draw.fX - head.fX, draw.fY - head.fY,
                                            &transformStorage[floatsPerTransform * idx]);
             idx += instances.count();
 

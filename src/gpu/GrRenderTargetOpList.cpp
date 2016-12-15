@@ -32,9 +32,9 @@
 #include "batches/GrCopySurfaceOp.h"
 #include "batches/GrDiscardOp.h"
 #include "batches/GrDrawOp.h"
-#include "batches/GrDrawPathBatch.h"
+#include "batches/GrDrawPathOp.h"
 #include "batches/GrRectOpFactory.h"
-#include "batches/GrStencilPathBatch.h"
+#include "batches/GrStencilPathOp.h"
 
 #include "instanced/InstancedRendering.h"
 
@@ -384,14 +384,14 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
         return;
     }
 
-    sk_sp<GrOp> op = GrStencilPathBatch::Make(viewMatrix,
-                                              useHWAA,
-                                              path->getFillType(),
-                                              appliedClip.hasStencilClip(),
-                                              stencilAttachment->bits(),
-                                              appliedClip.scissorState(),
-                                              renderTargetContext->accessRenderTarget(),
-                                              path);
+    sk_sp<GrOp> op = GrStencilPathOp::Make(viewMatrix,
+                                           useHWAA,
+                                           path->getFillType(),
+                                           appliedClip.hasStencilClip(),
+                                           stencilAttachment->bits(),
+                                           appliedClip.scissorState(),
+                                           renderTargetContext->accessRenderTarget(),
+                                           path);
     this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
 }
 
