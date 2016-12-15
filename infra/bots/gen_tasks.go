@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	DEFAULT_OS = "Ubuntu"
+	DEFAULT_OS = "Ubuntu-14.04"
 
 	// Pool for Skia bots.
 	POOL_SKIA = "Skia"
@@ -274,7 +274,7 @@ var (
 	LINUX_GCE_DIMENSIONS = []string{
 		"cpu:x86-64-avx2",
 		"gpu:none",
-		"os:Ubuntu",
+		"os:Ubuntu-14.04",
 		fmt.Sprintf("pool:%s", POOL_SKIA),
 	}
 
