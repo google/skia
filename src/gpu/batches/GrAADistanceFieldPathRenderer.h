@@ -95,7 +95,7 @@ private:
 
     typedef GrPathRenderer INHERITED;
 
-    friend class AADistanceFieldPathBatch;
+    friend class AADistanceFieldPathOp;
     friend struct PathTestStruct;
 };
 
