@@ -106,6 +106,16 @@ static SkBitmapRegionDecoder* create_brd(Path path) {
     return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
 }
 
+static inline void alpha8_to_gray8(SkBitmap* bitmap) {
+    // Android requires kGray8 bitmaps to be tagged as kAlpha8.  Here we convert
+    // them back to kGray8 so our test framework can draw them correctly.
+    if (kAlpha_8_SkColorType == bitmap->info().colorType()) {
+        SkImageInfo newInfo = bitmap->info().makeColorType(kGray_8_SkColorType)
+                                            .makeAlphaType(kOpaque_SkAlphaType);
+        *const_cast<SkImageInfo*>(&bitmap->info()) = newInfo;
+    }
+}
+
 Error BRDSrc::draw(SkCanvas* canvas) const {
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
@@ -148,6 +158,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     fSampleSize, colorType, false)) {
                 return "Cannot decode (full) region.";
             }
+            alpha8_to_gray8(&bitmap);
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -202,6 +213,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                         return "Cannot decode region.";
                     }
 
+                    alpha8_to_gray8(&bitmap);
                     canvas->drawBitmapRect(bitmap,
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
