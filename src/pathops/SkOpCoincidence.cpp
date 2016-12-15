@@ -16,6 +16,16 @@ bool SkCoincidentSpans::collapsed(const SkOpPtT* test) const {
         || (fOppPtTEnd == test && fOppPtTStart->contains(test));
 }
 
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::coinPtTEnd() const {
+    return fCoinPtTEnd;
+}
+
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::coinPtTStart() const {
+    return fCoinPtTStart;
+}
+
 // sets the span's end to the ptT referenced by the previous-next
 void SkCoincidentSpans::correctOneEnd(
         const SkOpPtT* (SkCoincidentSpans::* getEnd)() const,
@@ -123,6 +133,16 @@ bool SkCoincidentSpans::contains(const SkOpPtT* s, const SkOpPtT* e) const {
         }
         return oppTs <= s->fT && e->fT <= oppTe;
     }
+}
+
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::oppPtTStart() const {
+    return fOppPtTStart;
+}
+
+// out of line since this function is referenced by address
+const SkOpPtT* SkCoincidentSpans::oppPtTEnd() const {
+    return fOppPtTEnd;
 }
 
 // A coincident span is unordered if the pairs of points in the main and opposite curves'
