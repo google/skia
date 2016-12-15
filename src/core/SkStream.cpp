@@ -107,20 +107,6 @@ bool SkWStream::writeScalarAsText(SkScalar value)
     return this->write(buffer, stop - buffer);
 }
 
-bool SkWStream::write8(U8CPU value) {
-    uint8_t v = SkToU8(value);
-    return this->write(&v, 1);
-}
-
-bool SkWStream::write16(U16CPU value) {
-    uint16_t v = SkToU16(value);
-    return this->write(&v, 2);
-}
-
-bool SkWStream::write32(uint32_t value) {
-    return this->write(&value, 4);
-}
-
 bool SkWStream::writeScalar(SkScalar value) {
     return this->write(&value, sizeof(value));
 }
@@ -467,7 +453,15 @@ bool SkMemoryWStream::write(const void* buffer, size_t size) {
 
 ////////////////////////////////////////////////////////////////////////
 
-#define SkDynamicMemoryWStream_MinBlockSize   256
+static inline void sk_memcpy_4bytes(void* dst, const void* src, size_t size) {
+    if (size == 4) {
+        memcpy(dst, src, 4);
+    } else {
+        memcpy(dst, src, size);
+    }
+}
+
+#define SkDynamicMemoryWStream_MinBlockSize   4096
 
 struct SkDynamicMemoryWStream::Block {
     Block*  fNext;
@@ -479,29 +473,26 @@ struct SkDynamicMemoryWStream::Block {
     size_t  avail() const { return fStop - fCurr; }
     size_t  written() const { return fCurr - this->start(); }
 
-    void init(size_t size)
-    {
+    void init(size_t size) {
         fNext = nullptr;
         fCurr = this->start();
         fStop = this->start() + size;
     }
 
-    const void* append(const void* data, size_t size)
-    {
+    const void* append(const void* data, size_t size) {
         SkASSERT((size_t)(fStop - fCurr) >= size);
-        memcpy(fCurr, data, size);
+        sk_memcpy_4bytes(fCurr, data, size);
         fCurr += size;
         return (const void*)((const char*)data + size);
     }
 };
 
 SkDynamicMemoryWStream::SkDynamicMemoryWStream()
-    : fHead(nullptr), fTail(nullptr), fBytesWritten(0)
+    : fHead(nullptr), fTail(nullptr), fBytesWrittenBeforeTail(0)
 {}
 
-SkDynamicMemoryWStream::~SkDynamicMemoryWStream()
-{
-    reset();
+SkDynamicMemoryWStream::~SkDynamicMemoryWStream() {
+    this->reset();
 }
 
 void SkDynamicMemoryWStream::reset() {
@@ -512,25 +503,39 @@ void SkDynamicMemoryWStream::reset() {
         block = next;
     }
     fHead = fTail = nullptr;
-    fBytesWritten = 0;
+    fBytesWrittenBeforeTail = 0;
+}
+
+size_t SkDynamicMemoryWStream::bytesWritten() const {
+    this->validate();
+
+    if (fTail) {
+        return fBytesWrittenBeforeTail + fTail->written();
+    }
+    return 0;
 }
 
 bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     if (count > 0) {
-        fBytesWritten += count;
-
         size_t  size;
 
-        if (fTail != nullptr && fTail->avail() > 0) {
-            size = SkTMin(fTail->avail(), count);
-            buffer = fTail->append(buffer, size);
-            SkASSERT(count >= size);
-            count -= size;
-            if (count == 0)
-                return true;
+        if (fTail) {
+            if (fTail->avail() > 0) {
+                size = SkTMin(fTail->avail(), count);
+                buffer = fTail->append(buffer, size);
+                SkASSERT(count >= size);
+                count -= size;
+                if (count == 0) {
+                    return true;
+                }
+            }
+            // If we get here, we've just exhausted fTail, so update our tracker
+            fBytesWrittenBeforeTail += fTail->written();
         }
 
-        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize);
+        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
+        size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
+
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->init(size);
         block->append(buffer, count);
@@ -540,14 +545,15 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
         else
             fHead = fTail = block;
         fTail = block;
+        this->validate();
     }
     return true;
 }
 
-bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count)
-{
-    if (offset + count > fBytesWritten)
+bool SkDynamicMemoryWStream::read(void* buffer, size_t offset, size_t count) {
+    if (offset + count > this->bytesWritten()) {
         return false; // test does not partially modify
+    }
     Block* block = fHead;
     while (block != nullptr) {
         size_t size = block->written();
@@ -581,14 +587,19 @@ void SkDynamicMemoryWStream::writeToStream(SkWStream* dst) const {
     }
 }
 
-void SkDynamicMemoryWStream::padToAlign4()
-{
-    // cast to remove unary-minus warning
-    int padBytes = -(int)fBytesWritten & 0x03;
-    if (padBytes == 0)
-        return;
-    int zero = 0;
-    write(&zero, padBytes);
+void SkDynamicMemoryWStream::padToAlign4() {
+    // The contract is to write zeros until the entire stream has written a multiple of 4 bytes.
+    // Our Blocks are guaranteed always be (a) full (except the tail) and (b) a multiple of 4
+    // so it is sufficient to just examine the tail (if present).
+
+    if (fTail) {
+        // cast to remove unary-minus warning
+        int padBytes = -(int)fTail->written() & 0x03;
+        if (padBytes) {
+            int zero = 0;
+            fTail->append(&zero, padBytes);
+        }
+    }
 }
 
 sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
@@ -602,6 +613,31 @@ sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
     this->reset(); // this is the "detach" part
     return data;
 }
+
+#ifdef SK_DEBUG
+void SkDynamicMemoryWStream::validate() const {
+    if (!fHead) {
+        SkASSERT(!fTail);
+        SkASSERT(fBytesWrittenBeforeTail == 0);
+        return;
+    }
+    SkASSERT(fTail);
+
+    size_t bytes = 0;
+    const Block* block = fHead;
+    while (block) {
+        if (block->fNext) {
+            SkASSERT(block->avail() == 0);
+            bytes += block->written();
+            SkASSERT(bytes == SkAlign4(bytes)); // see padToAlign4()
+        }
+        block = block->fNext;
+    }
+    SkASSERT(bytes == fBytesWrittenBeforeTail);
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkBlockMemoryRefCnt : public SkRefCnt {
 public:
