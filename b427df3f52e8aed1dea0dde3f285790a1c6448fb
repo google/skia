@@ -1,0 +1,533 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_a0111ecb",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "if (!fQEdge.setQuadraticWithoutUpdate(pts, kDefaultAccuracy)) {",
+      "range": {
+        "startLine": 54,
+        "startChar": 47,
+        "endLine": 54,
+        "endChar": 61
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e01b16e7",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 64,
+        "startChar": 23,
+        "endLine": 64,
+        "endChar": 37
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_802b3af3",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "As noted above, this could be moved to updateQuadraticContinous() ...",
+      "range": {
+        "startLine": 97,
+        "startChar": 4,
+        "endLine": 97,
+        "endChar": 5
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_a0f8fe5a",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "SkFixedToFDot6()",
+      "range": {
+        "startLine": 107,
+        "startChar": 16,
+        "endLine": 107,
+        "endChar": 22
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0f2f676",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "outdent #ifdef and friends?",
+      "range": {
+        "startLine": 113,
+        "startChar": 17,
+        "endLine": 113,
+        "endChar": 23
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_40080295",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "#ifndef",
+      "range": {
+        "startLine": 120,
+        "startChar": 13,
+        "endLine": 120,
+        "endChar": 19
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_2037ce3e",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "(In keeping with the comments above)  enclose keepContinuous in the function declaration and definition with SkDEBUGCODE() to allow this usage",
+      "range": {
+        "startLine": 139,
+        "startChar": 12,
+        "endLine": 139,
+        "endChar": 20
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_8034da38",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "if (!fCEdge.setCubicWithoutUpdate(pts, kDefaultAccuracy)) {",
+      "range": {
+        "startLine": 161,
+        "startChar": 16,
+        "endLine": 161,
+        "endChar": 37
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_6031c646",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 174,
+        "startChar": 39,
+        "endLine": 174,
+        "endChar": 55
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_2064ee39",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "changing keepContinuous\u003d\u003d false caller to  \n\n  updateCubic(fCEdge.fCx) \n\nand keepContinous \u003d\u003d true caller to:\n\n  SkASSERT(SkAbs32(fX - SkFixedMul(fDX, fY - SnapY(oldy)) - oldx) \u003c SK_Fixed1);\n  fSnappedY \u003d fY;\n  updateCubic(fX)\n\nmay be more clear",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 5
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0983606",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "as in updateQuadratic, pass keepContinuous inside SkDEBUGCODE() to keep this assert",
+      "range": {
+        "startLine": 241,
+        "startChar": 8,
+        "endLine": 241,
+        "endChar": 16
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0c67600",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "If SnapY is always only called with accuracy \u003d\u003d kDefaultAccuracy, remove the param?",
+      "range": {
+        "startLine": 48,
+        "startChar": 26,
+        "endLine": 48,
+        "endChar": 31
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_40af6261",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "updateQuadratic() is only called once with \u0027true\u0027 and once with \u0027false\u0027. \nThe effect of \u0027true\u0027 could be moved into another function (e.g., \"updateQuadraticContinuous()\") \nsince the code exclusive to \"true\" does not depend on the setup inside the function as far as I can tell.\n\nThere is only other reference to keepContinuous inside updateQuadratic(), but that is in a SkASSERT\nwhich would allow keepContinous to be a debugging-only parameter.",
+      "range": {
+        "startLine": 107,
+        "startChar": 30,
+        "endLine": 107,
+        "endChar": 45
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_20acee6a",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "I\u0027m not a big fan of this style, because it makes the parameter at the callsite opaque.\nMore comments at the updateCubic() implementation.",
+      "range": {
+        "startLine": 116,
+        "startChar": 26,
+        "endLine": 116,
+        "endChar": 41
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_a0e63ecd",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "Since you\u0027re already in the SkAnalyticEdge scope, the specifier is redundant. The parens also aren\u0027t required.\n\n  const int accuracy \u003dkDefaultAccuracy;\n  const int multiplier \u003d 1 \u003c\u003c kDefaultAccuracy;",
+      "range": {
+        "startLine": 125,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 25
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_20d34eef",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "Use  SkFixedToFDot6() ?",
+      "range": {
+        "startLine": 148,
+        "startChar": 16,
+        "endLine": 148,
+        "endChar": 17
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0531656",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "I don\u0027t know if Skia has a rule about this, but usually parameters that are mallable are passed as pointers instead of by reference.\n\nI\u0027d prefer to see either\n\n  alpha \u003d safelyAddAlpha(alpha, delta);\n\nor \n\n  safelyAddAlpha(delta, \u0026alpha)\n\nbut check with Mike to see if one or the other or neither is preferred.",
+      "range": {
+        "startLine": 92,
+        "startChar": 25,
+        "endLine": 92,
+        "endChar": 31
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_40592276",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "pretty sure friend should go at the end and should be private.\n\nFriending another child class gives me the heeby-jeebies. \nShould both RunBasedAdditiveBlitter and SafeRLEAdditiveBlitter be derived from a common base if they need shared visibility?",
+      "range": {
+        "startLine": 277,
+        "startChar": 13,
+        "endLine": 277,
+        "endChar": 35
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_00260ae6",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "Note that this not marked const but it is called from a SkASSERT below. \n(No reason for this not be const though)",
+      "range": {
+        "startLine": 320,
+        "startChar": 29,
+        "endLine": 320,
+        "endChar": 33
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_a01bde99",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "nit: \n  for (int i \u003d 0; i \u003c len; i++) {",
+      "range": {
+        "startLine": 518,
+        "startChar": 8,
+        "endLine": 518,
+        "endChar": 9
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_8015fa61",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "This hurts my head. Do you really want to update fBlitter-\u003efOffsetX\ninside a loop? Can\u0027t you update it once at the end?",
+      "range": {
+        "startLine": 533,
+        "startChar": 33,
+        "endLine": 533,
+        "endChar": 41
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_60126679",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "parens unnecessary",
+      "range": {
+        "startLine": 573,
+        "startChar": 4,
+        "endLine": 573,
+        "endChar": 11
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_20efce41",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-15T16:23:25Z",
+      "side": 1,
+      "message": "given 256, safelyAddAlpha pins alpha to 255 and addAlpha subtracts 1 if alpha \u003e 128? Why two different strategies?",
+      "range": {
+        "startLine": 669,
+        "startChar": 12,
+        "endLine": 669,
+        "endChar": 26
+      },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
