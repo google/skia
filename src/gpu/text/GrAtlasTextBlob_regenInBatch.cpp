@@ -138,15 +138,10 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
-                                   GrBatchFontCache* fontCache,
-                                   GrBlobRegenHelper *helper,
-                                   Run* run,
-                                   Run::SubRunInfo* info,
-                                   SkAutoGlyphCache* lazyCache,
-                                   int glyphCount, size_t vertexStride,
-                                   GrColor color, SkScalar transX,
-                                   SkScalar transY) const {
+void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+                                GrBlobRegenHelper* helper, Run* run, Run::SubRunInfo* info,
+                                SkAutoGlyphCache* lazyCache, int glyphCount, size_t vertexStride,
+                                GrColor color, SkScalar transX, SkScalar transY) const {
     SkASSERT(lazyCache);
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     GrBatchTextStrike* strike = nullptr;
@@ -208,7 +203,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
 
         intptr_t vertex = reinterpret_cast<intptr_t>(fVertices);
         vertex += info->vertexStartIndex();
-        vertex += vertexStride * glyphIdx * GrAtlasTextBatch::kVerticesPerGlyph;
+        vertex += vertexStride * glyphIdx * GrAtlasTextOp::kVerticesPerGlyph;
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            info->drawAsDistanceFields(), transX,
                                                            transY, log2Width, log2Height, color);
@@ -286,19 +281,41 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
     RegenMask regenMask = (RegenMask)regenMaskBits;
 
     switch (regenMask) {
-        case kRegenPos: this->regenInBatch<true, false, false, false>(REGEN_ARGS); break;
-        case kRegenCol: this->regenInBatch<false, true, false, false>(REGEN_ARGS); break;
-        case kRegenTex: this->regenInBatch<false, false, true, false>(REGEN_ARGS); break;
-        case kRegenGlyph: this->regenInBatch<false, false, true, true>(REGEN_ARGS); break;
+        case kRegenPos:
+            this->regenInOp<true, false, false, false>(REGEN_ARGS);
+            break;
+        case kRegenCol:
+            this->regenInOp<false, true, false, false>(REGEN_ARGS);
+            break;
+        case kRegenTex:
+            this->regenInOp<false, false, true, false>(REGEN_ARGS);
+            break;
+        case kRegenGlyph:
+            this->regenInOp<false, false, true, true>(REGEN_ARGS);
+            break;
 
-            // combinations
-        case kRegenPosCol: this->regenInBatch<true, true, false, false>(REGEN_ARGS); break;
-        case kRegenPosTex: this->regenInBatch<true, false, true, false>(REGEN_ARGS); break;
-        case kRegenPosTexGlyph: this->regenInBatch<true, false, true, true>(REGEN_ARGS); break;
-        case kRegenPosColTex: this->regenInBatch<true, true, true, false>(REGEN_ARGS); break;
-        case kRegenPosColTexGlyph: this->regenInBatch<true, true, true, true>(REGEN_ARGS); break;
-        case kRegenColTex: this->regenInBatch<false, true, true, false>(REGEN_ARGS); break;
-        case kRegenColTexGlyph: this->regenInBatch<false, true, true, true>(REGEN_ARGS); break;
+        // combinations
+        case kRegenPosCol:
+            this->regenInOp<true, true, false, false>(REGEN_ARGS);
+            break;
+        case kRegenPosTex:
+            this->regenInOp<true, false, true, false>(REGEN_ARGS);
+            break;
+        case kRegenPosTexGlyph:
+            this->regenInOp<true, false, true, true>(REGEN_ARGS);
+            break;
+        case kRegenPosColTex:
+            this->regenInOp<true, true, true, false>(REGEN_ARGS);
+            break;
+        case kRegenPosColTexGlyph:
+            this->regenInOp<true, true, true, true>(REGEN_ARGS);
+            break;
+        case kRegenColTex:
+            this->regenInOp<false, true, true, false>(REGEN_ARGS);
+            break;
+        case kRegenColTexGlyph:
+            this->regenInOp<false, true, true, true>(REGEN_ARGS);
+            break;
         case kNoRegen:
             helper->incGlyphCount(*glyphCount);
 
