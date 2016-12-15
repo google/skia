@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_c091b2a3",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_a0111ecb",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_e01b16e7",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 64,
         "endChar": 37
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_a0963e97",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_e01b16e7",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_008c4a89",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_802b3af3",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_a0f8fe5a",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 5
@@ -88,6 +142,24 @@
         "endLine": 107,
         "endChar": 22
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e090369d",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_a0f8fe5a",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_40864269",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_e0f2f676",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_40080295",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 5
@@ -134,6 +224,24 @@
         "endLine": 120,
         "endChar": 19
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_20834e59",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_40080295",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -163,6 +271,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_607d4683",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "I think that this check is no longer necessary. It was used when I compute the intersection point very accurately. Now since intersection has an accuracy of at most 2 bits, I don\u0027t think that we need this. Done.",
+      "parentUuid": "ba0a97d0_2037ce3e",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_8034da38",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 5
@@ -180,6 +306,24 @@
         "endLine": 161,
         "endChar": 37
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_c0bc1211",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_8034da38",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -209,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_a0c11e95",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_6031c646",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_2064ee39",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 5
@@ -226,6 +388,24 @@
         "endLine": 203,
         "endChar": 5
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_00c72aa7",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Yes, I\u0027ve added keepContinuous() which modifies fCEdge.fCx if needed.",
+      "parentUuid": "ba0a97d0_2064ee39",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -255,6 +435,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_e0cb16b1",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Same as above. Done.",
+      "parentUuid": "ba0a97d0_e0983606",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_e0c67600",
         "filename": "src/core/SkAnalyticEdge.h",
         "patchSetId": 5
@@ -272,6 +470,24 @@
         "endLine": 48,
         "endChar": 31
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_c06a52cd",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Sure, I used that accuracy in one of my removed optimization.Happy to remove the param. Done.",
+      "parentUuid": "ba0a97d0_e0c67600",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -301,6 +517,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_405f622b",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done. I\u0027ve removed the parameter and added keepContinuous() method to both quad and cubic edges, and make explicit call to them when necessary.",
+      "parentUuid": "ba0a97d0_40af6261",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_20acee6a",
         "filename": "src/core/SkAnalyticEdge.h",
         "patchSetId": 5
@@ -318,6 +552,24 @@
         "endLine": 116,
         "endChar": 41
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_205cee34",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_20acee6a",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -347,6 +599,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_80697ad5",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_a0e63ecd",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_20d34eef",
         "filename": "src/core/SkAnalyticEdge.h",
         "patchSetId": 5
@@ -364,6 +634,24 @@
         "endLine": 148,
         "endChar": 17
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_6066e602",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_20d34eef",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -393,6 +681,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_e0acb687",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_e0531656",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_40592276",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 5
@@ -416,6 +722,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_237a3827",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Right, I\u0027ve changed SafeRLEAdditiveBlitter as a child of RunBasedAdditiveBlitter. The previous approach is definitely a hack that I shouldn\u0027t land into production... Don.e",
+      "parentUuid": "ba0a97d0_40592276",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_00260ae6",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 5
@@ -433,6 +757,24 @@
         "endLine": 320,
         "endChar": 33
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_e0a2f6e0",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_00260ae6",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -473,6 +815,42 @@
       "writtenOn": "2016-12-15T18:41:27Z",
       "side": 1,
       "message": "other nit: use ++i",
+      "parentUuid": "ba0a97d0_a01bde99",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_c38ffc0f",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_00444a18",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_40b8020f",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "ba0a97d0_a01bde99",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -521,6 +899,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_a013de40",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Ah, it hurts my head too... This is one of the overly aggressive optimization I had. I\u0027m going to remove all these and just put a single line: fBlitter-\u003efOffsetX \u003d fBlitter-\u003efRuns.add(x, 0, 1, 0, 0, fBlitter-\u003efOffsetX) to break the runs. Done.",
+      "parentUuid": "ba0a97d0_8015fa61",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_60126679",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 5
@@ -544,6 +940,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_0019ea60",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0a97d0_60126679",
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_20efce41",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 5
@@ -561,6 +975,24 @@
         "endLine": 669,
         "endChar": 26
       },
+      "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_4003e2f0",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-15T19:40:05Z",
+      "side": 1,
+      "message": "Because addAlpha is much faster than safelyAddAlpha: SkTMin(x, 255) is much slower than x - (x \u003e\u003e 8). However, the addAlpha can only handle 256, but not 257. safelyAddAlpha can handle any value greater than 255.",
+      "parentUuid": "ba0a97d0_20efce41",
       "revId": "b427df3f52e8aed1dea0dde3f285790a1c6448fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
