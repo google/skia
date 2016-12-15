@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_9d27277b",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-15T14:46:09Z",
+      "side": 1,
+      "message": "Can we rework this a little bit to continue to support gray images with RGB profiles (which seems to also be a common case)?",
+      "range": {
+        "startLine": 358,
+        "startChar": 15,
+        "endLine": 358,
+        "endChar": 77
+      },
+      "revId": "dfefbbbaa9fc727218298ffd82459c79e2ef537a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
