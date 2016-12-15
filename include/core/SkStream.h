@@ -194,11 +194,19 @@ public:
 
     // helpers
 
-    bool    write8(U8CPU);
-    bool    write16(U16CPU);
-    bool    write32(uint32_t);
+    bool write8(U8CPU value)   {
+        uint8_t v = SkToU8(value);
+        return this->write(&v, 1);
+    }
+    bool write16(U16CPU value) {
+        uint16_t v = SkToU16(value);
+        return this->write(&v, 2);
+    }
+    bool write32(uint32_t v) {
+        return this->write(&v, 4);
+    }
 
-    bool    writeText(const char text[]) {
+    bool writeText(const char text[]) {
         SkASSERT(text);
         return this->write(text, strlen(text));
     }
@@ -376,10 +384,11 @@ public:
     virtual ~SkDynamicMemoryWStream();
 
     bool write(const void* buffer, size_t size) override;
-    size_t bytesWritten() const override { return fBytesWritten; }
-
+    size_t bytesWritten() const override;
     bool read(void* buffer, size_t offset, size_t size);
-    size_t getOffset() const { return fBytesWritten; }
+
+    // Why do we have this as a separate method???
+    size_t getOffset() const { return this->bytesWritten(); }
 
     // copy what has been written to the stream into dst
     void copyTo(void* dst) const;
@@ -398,7 +407,13 @@ private:
     struct Block;
     Block*  fHead;
     Block*  fTail;
-    size_t  fBytesWritten;
+    size_t  fBytesWrittenBeforeTail;
+
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
 
     // For access to the Block type.
     friend class SkBlockMemoryStream;
