@@ -13,7 +13,7 @@
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
 
-#include "batches/GrAtlasTextBatch.h"
+#include "batches/GrAtlasTextOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // A large template to handle regenerating the vertices of a textblob with as few branches as
