@@ -9,10 +9,11 @@
 #include "SkStream.h"
 
 class StreamBench : public Benchmark {
-    SkString fName;
+    SkString    fName;
+    const bool  fTestWrite4;
 public:
-    StreamBench()  {
-        fName.printf("wstream");
+    StreamBench(bool testWrite4) : fTestWrite4(testWrite4) {
+        fName.printf("wstream_%d", testWrite4);
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -23,11 +24,18 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        const char t3[] = { 1, 2, 3 };
+        const char t5[] = { 1, 2, 3, 4, 5 };
         for (int i = 0; i < loops*100; ++i) {
             SkDynamicMemoryWStream stream;
-            for (int j = 0; j < 100000; ++j) {
-                stream.write32(j);
-                stream.write32(j+j);
+            for (int j = 0; j < 10000; ++j) {
+                if (fTestWrite4) {
+                    stream.write32(j);
+                    stream.write32(j+j);
+                } else {
+                    stream.write(t3, 3);
+                    stream.write(t5, 5);
+                }
             }
         }
     }
@@ -38,4 +46,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH(return new StreamBench;)
+DEF_BENCH(return new StreamBench(false);)
+DEF_BENCH(return new StreamBench(true);)
