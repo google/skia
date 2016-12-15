@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba0a97d0_609b864d",
+        "filename": "src/gpu/text/GrAtlasTextContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-15T15:31:37Z",
+      "side": 1,
+      "message": "?!",
+      "range": {
+        "startLine": 431,
+        "startChar": 10,
+        "endLine": 434,
+        "endChar": 23
+      },
+      "revId": "bd709192dc4c72a8a7420ea7aeb12e2f7bfaf340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
