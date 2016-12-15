@@ -153,6 +153,7 @@ skia_core_sources = [
   "$_src/core/SkGraphics.cpp",
   "$_src/core/SkHalf.cpp",
   "$_src/core/SkHalf.h",
+  "$_src/core/SkICC.cpp",
   "$_src/core/SkImageFilter.cpp",
   "$_src/core/SkImageFilterCache.cpp",
   "$_src/core/SkImageFilterCache.h",
