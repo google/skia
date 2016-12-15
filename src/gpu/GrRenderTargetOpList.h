@@ -32,7 +32,7 @@ class GrClearOp;
 class GrClip;
 class GrCaps;
 class GrPath;
-class GrDrawPathBatchBase;
+class GrDrawPathOpBase;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
