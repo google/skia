@@ -12,6 +12,7 @@
 #include "SkRWBuffer.h"
 #include "SkString.h"
 
+#include "FakeStreams.h"
 #include "Resources.h"
 #include "Test.h"
 
@@ -49,46 +50,6 @@ static void compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const Sk
         REPORTER_ASSERT(r, !memcmp(bm1.getAddr(0, 0), bm2.getAddr(0, 0), rowBytes));
     }
 }
-
-/*
- *  Represents a stream without all of its data.
- */
-class HaltingStream : public SkStream {
-public:
-    HaltingStream(sk_sp<SkData> data, size_t initialLimit)
-        : fTotalSize(data->size())
-        , fLimit(initialLimit)
-        , fStream(std::move(data))
-    {}
-
-    void addNewData(size_t extra) {
-        fLimit = SkTMin(fTotalSize, fLimit + extra);
-    }
-
-    size_t read(void* buffer, size_t size) override {
-        if (fStream.getPosition() + size > fLimit) {
-            size = fLimit - fStream.getPosition();
-        }
-
-        return fStream.read(buffer, size);
-    }
-
-    bool isAtEnd() const override {
-        return fStream.isAtEnd();
-    }
-
-    bool hasPosition() const override { return true; }
-    size_t getPosition() const override { return fStream.getPosition(); }
-    bool rewind() override { return fStream.rewind(); }
-    bool move(long offset) override { return fStream.move(offset); }
-
-    bool isAllDataReceived() const { return fLimit == fTotalSize; }
-
-private:
-    const size_t    fTotalSize;
-    size_t          fLimit;
-    SkMemoryStream  fStream;
-};
 
 static void test_partial(skiatest::Reporter* r, const char* name, size_t minBytes = 0) {
     sk_sp<SkData> file = make_from_resource(name);
