@@ -123,19 +123,54 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAFlatteningConvexPathBatch final : public GrMeshDrawOp {
+class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-
-    AAFlatteningConvexPathBatch(GrColor color,
+    static sk_sp<GrDrawOp> Make(GrColor color,
                                 const SkMatrix& viewMatrix,
                                 const SkPath& path,
                                 SkScalar strokeWidth,
                                 SkStrokeRec::Style style,
                                 SkPaint::Join join,
-                                SkScalar miterLimit) : INHERITED(ClassID()) {
-        fGeoData.emplace_back(Geometry{ color, viewMatrix, path,
-                                        strokeWidth, style, join, miterLimit });
+                                SkScalar miterLimit) {
+        return sk_sp<GrDrawOp>(new AAFlatteningConvexPathOp(color, viewMatrix, path, strokeWidth,
+                                                            style, join, miterLimit));
+    }
+
+    const char* name() const override { return "AAFlatteningConvexPathOp"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& path : fPaths) {
+            string.appendf(
+                    "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
+                    "MiterLimit: %.2f\n",
+                    path.fColor, path.fStrokeWidth, path.fStyle, path.fJoin, path.fMiterLimit);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
+    void computePipelineOptimizations(GrInitInvariantOutput* color,
+                                      GrInitInvariantOutput* coverage,
+                                      GrBatchToXPOverrides* overrides) const override {
+        // When this is called there is only one path.
+        color->setKnownFourComponents(fPaths[0].fColor);
+        coverage->setUnknownSingleComponent();
+    }
+
+private:
+    AAFlatteningConvexPathOp(GrColor color,
+                             const SkMatrix& viewMatrix,
+                             const SkPath& path,
+                             SkScalar strokeWidth,
+                             SkStrokeRec::Style style,
+                             SkPaint::Join join,
+                             SkScalar miterLimit)
+            : INHERITED(ClassID()) {
+        fPaths.emplace_back(
+                PathData{color, viewMatrix, path, strokeWidth, style, join, miterLimit});
 
         // compute bounds
         SkRect bounds = path.getBounds();
@@ -151,43 +186,18 @@ public:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "AAFlatteningConvexBatch"; }
-
-    SkString dumpInfo() const override {
-        SkString string;
-        for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
-                           "MiterLimit: %.2f\n",
-                           geo.fColor, geo.fStrokeWidth, geo.fStyle, geo.fJoin, geo.fMiterLimit);
-        }
-        string.append(DumpPipelineInfo(*this->pipeline()));
-        string.append(INHERITED::dumpInfo());
-        return string;
-    }
-
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
-private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
+            fPaths[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+        overrides.getOverrideColorIfSet(&fPaths[0].fColor);
 
         // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
-        fBatch.fLinesOnly = SkPath::kLine_SegmentMask == fGeoData[0].fPath.getSegmentMasks();
-        fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+        fColor = fPaths[0].fColor;
+        fUsesLocalCoords = overrides.readsLocalCoords();
+        fCoverageIgnored = !overrides.readsCoverage();
+        fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
     void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
@@ -238,7 +248,7 @@ private:
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorAttr) :
                  vertexStride == sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr));
 
-        int instanceCount = fGeoData.count();
+        int instanceCount = fPaths.count();
 
         int vertexCount = 0;
         int indexCount = 0;
@@ -247,7 +257,7 @@ private:
         uint8_t* vertices = (uint8_t*) sk_malloc_throw(maxVertices * vertexStride);
         uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
+            const PathData& args = fPaths[i];
             GrAAConvexTessellator tess(args.fStyle, args.fStrokeWidth,
                                        args.fJoin, args.fMiterLimit);
 
@@ -286,7 +296,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        AAFlatteningConvexPathBatch* that = t->cast<AAFlatteningConvexPathBatch>();
+        AAFlatteningConvexPathOp* that = t->cast<AAFlatteningConvexPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -297,34 +307,24 @@ private:
             return false;
         }
 
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
+        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
+        // tweaking
         if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            fBatch.fCanTweakAlphaForCoverage = false;
+            fCanTweakAlphaForCoverage = false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    bool linesOnly() const { return fBatch.fLinesOnly; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    GrColor color() const { return fColor; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
+    const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
+    bool coverageIgnored() const { return fCoverageIgnored; }
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fLinesOnly;
-        bool fCanTweakAlphaForCoverage;
-    };
-
-    struct Geometry {
+    struct PathData {
         GrColor fColor;
         SkMatrix fViewMatrix;
         SkPath fPath;
@@ -334,8 +334,11 @@ private:
         SkScalar fMiterLimit;
     };
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    GrColor fColor;
+    bool fUsesLocalCoords;
+    bool fCoverageIgnored;
+    bool fCanTweakAlphaForCoverage;
+    SkSTArray<1, PathData, true> fPaths;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -355,9 +358,9 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    sk_sp<GrDrawOp> op(new AAFlatteningConvexPathBatch(args.fPaint->getColor(), *args.fViewMatrix,
-                                                       path, strokeWidth, stroke.getStyle(), join,
-                                                       miterLimit));
+    sk_sp<GrDrawOp> op =
+            AAFlatteningConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path,
+                                           strokeWidth, stroke.getStyle(), join, miterLimit);
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
@@ -371,9 +374,9 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathOp) {
     GrColor color = GrRandomColor(random);
-    SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
+    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPath path = GrTest::TestPathConvex(random);
 
     SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
@@ -396,8 +399,9 @@ DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
         miterLimit = random->nextRangeF(0.5f, 2.0f);
     }
 
-    return new AAFlatteningConvexPathBatch(color, viewMatrix, path, strokeWidth,
-                                           style, join, miterLimit);
+    return AAFlatteningConvexPathOp::Make(color, viewMatrix, path, strokeWidth, style, join,
+                                          miterLimit)
+            .release();
 }
 
 #endif
