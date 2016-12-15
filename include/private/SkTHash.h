@@ -50,13 +50,12 @@ public:
 
     // Copy val into the hash table, returning a pointer to the copy now in the table.
     // If there already is an entry in the table with the same key, we overwrite it.
-    T* set(T&& val) {
+    T* set(T val) {
         if (4 * fCount >= 3 * fCapacity) {
             this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
         return this->uncheckedSet(std::move(val));
     }
-    T* set(const T& val) { return this->set(std::move(T(val))); }
 
     // If there is an entry in the table with this key, return a pointer to it.  If not, null.
     T* find(const K& key) const {
@@ -236,11 +235,10 @@ public:
 
     // Set key to val in the table, replacing any previous value with the same key.
     // We copy both key and val, and return a pointer to the value copy now in the table.
-    V* set(K&& key, V&& val) {
+    V* set(K key, V val) {
         Pair* out = fTable.set({std::move(key), std::move(val)});
         return &out->val;
     }
-    V* set(const K& key, const V& val) { return this->set(std::move(K(key)), std::move(V(val))); }
 
     // If there is key/value entry in the table with this key, return a pointer to the value.
     // If not, return null.
@@ -296,8 +294,7 @@ public:
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
     // Copy an item into the set.
-    void add(T&& item) { fTable.set(std::move(item)); }
-    void add(const T& item) { this->add(std::move(T(item))); }
+    void add(T item) { fTable.set(std::move(item)); }
 
     // Is this item in the set?
     bool contains(const T& item) const { return SkToBool(this->find(item)); }
