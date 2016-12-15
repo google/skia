@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa55efac_c75080f0",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-15T20:09:05Z",
+      "side": 1,
+      "message": "If you want to be extra clear, I think you can write (const K\u0026 key, V\u0026\u0026 value) here.",
+      "revId": "f7555a749e472518549f12572921c73c33eafd06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
