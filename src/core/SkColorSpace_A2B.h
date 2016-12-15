@@ -166,10 +166,10 @@ public:
 
     InputColorFormat inputColorFormat() const { return fInputColorFormat; }
 
-private:
     SkColorSpace_A2B(InputColorFormat inputColorFormat, std::vector<Element> elements, PCS pcs,
                      sk_sp<SkData> profileData);
 
+private:
     InputColorFormat     fInputColorFormat;
     std::vector<Element> fElements;
     PCS                  fPCS;
