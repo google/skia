@@ -9,6 +9,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrTextureStripAtlas.h"
 #include "GrTypes.h"
@@ -21,51 +22,98 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     desc.fWidth = 32;
     desc.fHeight = 32;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    GrTexture* texture = context->textureProvider()->createTexture(desc, SkBudgeted::kYes,
-                                                                   nullptr, 0);
 
-    GrSurfaceDesc targetDesc = desc;
-    targetDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    GrTexture* target = context->textureProvider()->createTexture(targetDesc, SkBudgeted::kYes,
-                                                                  nullptr, 0);
+    sk_sp<GrSurfaceProxy> srcProxy;
 
-    SkAutoTMalloc<uint32_t> pixels(desc.fWidth * desc.fHeight);
-    memset(pixels.get(), 0xFF, sizeof(uint32_t) * desc.fWidth * desc.fHeight);
-    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, kRGBA_8888_GrPixelConfig, pixels.get());
+    {
+        SkAutoTMalloc<uint32_t> pixels(desc.fWidth * desc.fHeight);
+        memset(pixels.get(), 0xFF, sizeof(uint32_t) * desc.fWidth * desc.fHeight);
 
-    // Add a pending read to the texture, and then make it available for reuse.
-    context->copySurface(target, texture);
-    texture->unref();
+        srcProxy = GrSurfaceProxy::MakeDeferred(*context->caps(), context->textureProvider(),
+                                                desc, SkBudgeted::kYes,
+                                                pixels.get(), 0);
+    }
+
+    // Add a pending read to the src texture, and then make it available for reuse.
+    sk_sp<GrSurfaceProxy> targetProxy;
+    GrSurface* srcSurface;
+
+    {
+        GrSurfaceDesc targetDesc = desc;
+        targetDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+
+        // We can't use GrSurfaceProxy::Copy bc we may be changing the dst proxy type
+        sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+                                                                            targetDesc,
+                                                                            SkBackingFit::kExact,
+                                                                            SkBudgeted::kYes));
+        REPORTER_ASSERT(reporter, dstContext);
+
+        if (!dstContext->copy(srcProxy.get())) {
+            return;
+        }
+
+        targetProxy = sk_ref_sp(dstContext->asDeferredSurface());
+
+        srcSurface = srcProxy->instantiate(context->textureProvider());
+        srcProxy.reset();
+    }
 
     // Create an atlas with parameters that allow it to reuse the texture.
-    GrTextureStripAtlas::Desc atlasDesc;
-    atlasDesc.fContext = context;
-    atlasDesc.fConfig = desc.fConfig;
-    atlasDesc.fWidth = desc.fWidth;
-    atlasDesc.fHeight = desc.fHeight;
-    atlasDesc.fRowHeight = 1;
-    GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(atlasDesc);
+    GrTextureStripAtlas* atlas;
+
+    {
+        GrTextureStripAtlas::Desc atlasDesc;
+        atlasDesc.fContext = context;
+        atlasDesc.fConfig = desc.fConfig;
+        atlasDesc.fWidth = desc.fWidth;
+        atlasDesc.fHeight = desc.fHeight;
+        atlasDesc.fRowHeight = 1;
+        atlas = GrTextureStripAtlas::GetAtlas(atlasDesc);
+    }
 
     // Write to the atlas' texture.
-    SkImageInfo info = SkImageInfo::MakeN32(desc.fWidth, desc.fHeight, kPremul_SkAlphaType);
-    size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
-    SkBitmap bitmap;
-    bitmap.allocPixels(info, rowBytes);
-    memset(bitmap.getPixels(), 1, rowBytes * desc.fHeight);
-    int row = atlas->lockRow(bitmap);
-    if (!context->caps()->preferVRAMUseOverFlushes())
-        REPORTER_ASSERT(reporter, texture == atlas->getTexture());
+    int lockedRow;
+
+    {
+        SkImageInfo info = SkImageInfo::MakeN32(desc.fWidth, desc.fHeight, kPremul_SkAlphaType);
+        size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
+        SkBitmap bitmap;
+        bitmap.allocPixels(info, rowBytes);
+        memset(bitmap.getPixels(), 1, rowBytes * desc.fHeight);
+        lockedRow = atlas->lockRow(bitmap);
+    }
 
     // The atlas' use of its texture shouldn't change which pixels got copied to the target.
-    SkAutoTMalloc<uint32_t> actualPixels(desc.fWidth * desc.fHeight);
-    bool success = target->readPixels(0, 0, desc.fWidth, desc.fHeight, kRGBA_8888_GrPixelConfig,
-                                      actualPixels.get());
-    REPORTER_ASSERT(reporter, success);
-    REPORTER_ASSERT(reporter,
-                    !memcmp(pixels.get(), actualPixels.get(),
-                            sizeof(uint32_t) * desc.fWidth * desc.fHeight));
-    target->unref();
-    atlas->unlockRow(row);
+    {
+        SkAutoTMalloc<uint8_t> actualPixels(sizeof(uint32_t) * desc.fWidth * desc.fHeight);
+
+        // TODO: move readPixels to GrSurfaceProxy?
+        GrSurface* surf = targetProxy->instantiate(context->textureProvider());
+
+        bool success = surf->readPixels(0, 0, desc.fWidth, desc.fHeight,
+                                        kRGBA_8888_GrPixelConfig, actualPixels.get());
+        REPORTER_ASSERT(reporter, success);
+
+        bool good = true;
+
+        const uint8_t* bytes = actualPixels.get();
+        for (size_t i = 0; i < sizeof(uint32_t) * desc.fWidth * desc.fHeight; ++i, ++bytes) {
+            if (0xFF != *bytes) {
+                good = false;
+                break;
+            }
+        }
+
+        REPORTER_ASSERT(reporter, good);
+    }
+
+    if (!context->caps()->preferVRAMUseOverFlushes()) {
+        // This is kindof dodgy since we released it!
+        REPORTER_ASSERT(reporter, srcSurface == atlas->getTexture());
+    }
+
+    atlas->unlockRow(lockedRow);
 }
 
 #endif
