@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_00728a88",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1598,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-15T18:07:29Z",
+      "side": 1,
+      "message": "Nice catch, done.",
+      "parentUuid": "ba0a97d0_600a6604",
+      "revId": "f50f7b4543bb4792727f5adc606bcd231216fe98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba0a97d0_c0f532d3",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-15T17:52:12Z",
       "side": 1,
       "message": "Are there any colour formats we wouldn\u0027t want to try a2b on in the future, or would it always be the catch-all for all input colour formats?",
+      "revId": "f50f7b4543bb4792727f5adc606bcd231216fe98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_072bf8f4",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1604,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-15T18:07:29Z",
+      "side": 1,
+      "message": "I think it can be anything, though you\u0027re the expert.  I think I see what you\u0027re getting at, moving the return_a2b() out of the switch.",
+      "parentUuid": "ba0a97d0_c0f532d3",
       "revId": "f50f7b4543bb4792727f5adc606bcd231216fe98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
