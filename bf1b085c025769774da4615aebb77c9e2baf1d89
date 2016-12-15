@@ -201,6 +201,24 @@
     },
     {
       "key": {
+        "uuid": "ba0a97d0_031734bd",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:59:23Z",
+      "side": 1,
+      "message": "Derp. You are of course correct, fixed.",
+      "parentUuid": "fa55efac_872288b9",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa55efac_e4a81ac6",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 6
@@ -318,6 +336,24 @@
       "side": 1,
       "message": "Hmm.  Not really sure what I meant there.  I think perhaps I meant, you might want to make the parameter to Hash() const K\u0026  (as you\u0027ve already done).\n\nSkTHashTable\u003cEntry*, K, Traits\u003e fMap should work just fine here.",
       "parentUuid": "ba0a97d0_e0daf633",
+      "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba0a97d0_43212c13",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-15T19:59:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa55efac_c7188091",
       "revId": "bf1b085c025769774da4615aebb77c9e2baf1d89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
