@@ -214,24 +214,26 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathBatch final : public GrMeshDrawOp {
+class MSAAPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-
-    MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
-                  const SkRect& devBounds)
-            : INHERITED(ClassID())
-            , fViewMatrix(viewMatrix) {
-        fPaths.emplace_back(PathInfo{color, path});
-        this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
+                                const SkRect& devBounds) {
         int contourCount;
-        this->computeWorstCasePointCount(path, &contourCount, &fMaxLineVertices, &fMaxQuadVertices);
-        fMaxLineIndices = fMaxLineVertices * 3;
-        fMaxQuadIndices = fMaxQuadVertices * 3;
-        fIsIndexed = contourCount > 1;
+        int maxLineVertices;
+        int maxQuadVertices;
+        ComputeWorstCasePointCount(path, &contourCount, &maxLineVertices, &maxQuadVertices);
+        bool isIndexed = contourCount > 1;
+        if (isIndexed &&
+            (maxLineVertices > kMaxIndexedVertexCnt || maxQuadVertices > kMaxIndexedVertexCnt)) {
+            return nullptr;
+        }
+
+        return sk_sp<GrDrawOp>(new MSAAPathOp(color, path, viewMatrix, devBounds, maxLineVertices,
+                                              maxQuadVertices, isIndexed));
     }
 
-    const char* name() const override { return "MSAAPathBatch"; }
+    const char* name() const override { return "MSAAPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -247,16 +249,23 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one path
+        // When this is called there is only one path.
         color->setKnownFourComponents(fPaths[0].fColor);
         coverage->setKnownSingleComponent(0xff);
     }
 
-    bool isValid() const {
-        return !fIsIndexed || fMaxLineIndices <= SK_MaxU16;
+private:
+    MSAAPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
+               const SkRect& devBounds, int maxLineVertices, int maxQuadVertices, bool isIndexed)
+            : INHERITED(ClassID())
+            , fViewMatrix(viewMatrix)
+            , fMaxLineVertices(maxLineVertices)
+            , fMaxQuadVertices(maxQuadVertices)
+            , fIsIndexed(isIndexed) {
+        fPaths.emplace_back(PathInfo{color, path});
+        this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
         // Handle any color overrides
         if (!overrides.readsColor()) {
@@ -265,8 +274,8 @@ private:
         overrides.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 
-    void computeWorstCasePointCount(const SkPath& path, int* subpaths, int* outLinePointCount,
-                                    int* outQuadPointCount) const {
+    static void ComputeWorstCasePointCount(const SkPath& path, int* subpaths,
+                                           int* outLinePointCount, int* outQuadPointCount) {
         int linePointCount = 0;
         int quadPointCount = 0;
         *subpaths = 1;
@@ -318,7 +327,6 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        SkASSERT(this->isValid());
         if (fMaxLineVertices == 0) {
             SkASSERT(fMaxQuadVertices == 0);
             return;
@@ -353,8 +361,8 @@ private:
         const GrBuffer* lineIndexBuffer = nullptr;
         int firstLineIndex;
         if (fIsIndexed) {
-            lines.indices = target->makeIndexSpace(fMaxLineIndices, &lineIndexBuffer,
-                                                   &firstLineIndex);
+            lines.indices =
+                    target->makeIndexSpace(3 * fMaxLineVertices, &lineIndexBuffer, &firstLineIndex);
             if (!lines.indices) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -367,7 +375,7 @@ private:
 
         SkAutoFree quadIndexPtr;
         if (fIsIndexed) {
-            quads.indices = (uint16_t*) sk_malloc_throw(fMaxQuadIndices * sizeof(uint16_t));
+            quads.indices = (uint16_t*)sk_malloc_throw(3 * fMaxQuadVertices * sizeof(uint16_t));
             quadIndexPtr.set(quads.indices);
             quads.nextIndex = quads.indices;
         } else {
@@ -390,10 +398,10 @@ private:
         }
         int lineVertexOffset = (int) (lines.nextVertex - lines.vertices);
         int lineIndexOffset = (int) (lines.nextIndex - lines.indices);
-        SkASSERT(lineVertexOffset <= fMaxLineVertices && lineIndexOffset <= fMaxLineIndices);
+        SkASSERT(lineVertexOffset <= fMaxLineVertices && lineIndexOffset <= 3 * fMaxLineVertices);
         int quadVertexOffset = (int) (quads.nextVertex - quads.vertices);
         int quadIndexOffset = (int) (quads.nextIndex - quads.indices);
-        SkASSERT(quadVertexOffset <= fMaxQuadVertices && quadIndexOffset <= fMaxQuadIndices);
+        SkASSERT(quadVertexOffset <= fMaxQuadVertices && quadIndexOffset <= 3 * fMaxQuadVertices);
 
         if (lineVertexOffset) {
             sk_sp<GrGeometryProcessor> lineGP;
@@ -448,7 +456,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        MSAAPathBatch* that = t->cast<MSAAPathBatch>();
+        MSAAPathOp* that = t->cast<MSAAPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                      that->bounds(), caps)) {
             return false;
@@ -458,8 +466,9 @@ private:
             return false;
         }
 
-        if ((fMaxLineIndices + that->fMaxLineIndices > SK_MaxU16) ||
-            (fMaxQuadIndices + that->fMaxQuadIndices > SK_MaxU16)) {
+        // If we grow to include 2+ paths we will be indexed.
+        if (((fMaxLineVertices + that->fMaxLineVertices) > kMaxIndexedVertexCnt) ||
+            ((fMaxQuadVertices + that->fMaxQuadVertices) > kMaxIndexedVertexCnt)) {
             return false;
         }
 
@@ -468,8 +477,6 @@ private:
         fIsIndexed = true;
         fMaxLineVertices += that->fMaxLineVertices;
         fMaxQuadVertices += that->fMaxQuadVertices;
-        fMaxLineIndices += that->fMaxLineIndices;
-        fMaxQuadIndices += that->fMaxQuadIndices;
         return true;
     }
 
@@ -543,6 +550,9 @@ private:
         return true;
     }
 
+    // Lines and quads may render with an index buffer. However, we don't have any support for
+    // overflowing the max index.
+    static constexpr int kMaxIndexedVertexCnt = SK_MaxU16 / 3;
     struct PathInfo {
         GrColor  fColor;
         SkPath   fPath;
@@ -553,8 +563,6 @@ private:
     SkMatrix fViewMatrix;
     int fMaxLineVertices;
     int fMaxQuadVertices;
-    int fMaxLineIndices;
-    int fMaxQuadIndices;
     bool fIsIndexed;
 
     typedef GrMeshDrawOp INHERITED;
@@ -667,12 +675,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            sk_sp<MSAAPathBatch> op(
-                    new MSAAPathBatch(paint.getColor(), path, viewMatrix, devBounds));
-            if (!op->isValid()) {
+            sk_sp<GrDrawOp> op = MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
+            if (!op) {
                 return false;
             }
-
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {

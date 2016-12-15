@@ -94,29 +94,24 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathBatch final : public GrMeshDrawOp {
+class DefaultPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    DefaultPathBatch(GrColor color, const SkPath& path, SkScalar tolerance,
-                     uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
-                     const SkRect& devBounds)
-            : INHERITED(ClassID()) {
-        fBatch.fCoverage = coverage;
-        fBatch.fIsHairline = isHairline;
-        fBatch.fViewMatrix = viewMatrix;
-        fGeoData.emplace_back(Geometry{color, path, tolerance});
-
-        this->setBounds(devBounds, HasAABloat::kNo,
-                        isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
+                                uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
+                                const SkRect& devBounds) {
+        return sk_sp<GrDrawOp>(new DefaultPathOp(color, path, tolerance, coverage, viewMatrix,
+                                                 isHairline, devBounds));
     }
 
-    const char* name() const override { return "DefaultPathBatch"; }
+    const char* name() const override { return "DefaultPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        for (const auto& geo : fGeoData) {
-            string.appendf("Color: 0x%08x Tolerance: %.2f\n", geo.fColor, geo.fTolerance);
+        string.appendf("Color: 0x%08x Count: %d\n", fColor, fPaths.count());
+        for (const auto& path : fPaths) {
+            string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
@@ -126,24 +121,31 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
+        color->setKnownFourComponents(fColor);
         coverage->setKnownSingleComponent(this->coverage());
     }
 
 private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+    DefaultPathOp(GrColor color, const SkPath& path, SkScalar tolerance, uint8_t coverage,
+                  const SkMatrix& viewMatrix, bool isHairline, const SkRect& devBounds)
+            : INHERITED(ClassID())
+            , fColor(color)
+            , fCoverage(coverage)
+            , fViewMatrix(viewMatrix)
+            , fIsHairline(isHairline) {
+        fPaths.emplace_back(PathData{path, tolerance});
 
-        // setup batch properties
-        fBatch.fColorIgnored = !overrides.readsColor();
-        fBatch.fColor = fGeoData[0].fColor;
-        fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-        fBatch.fCoverageIgnored = !overrides.readsCoverage();
+        this->setBounds(devBounds, HasAABloat::kNo,
+                        isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
+    }
+
+    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+        if (!overrides.readsColor()) {
+            fColor = GrColor_ILLEGAL;
+        }
+        overrides.getOverrideColorIfSet(&fColor);
+        fUsesLocalCoords = overrides.readsLocalCoords();
+        fCoverageIgnored = !overrides.readsCoverage();
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -163,7 +165,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
 
-        int instanceCount = fGeoData.count();
+        int instanceCount = fPaths.count();
 
         // compute number of vertices
         int maxVertices = 0;
@@ -171,7 +173,7 @@ private:
         // We will use index buffers if we have multiple paths or one path with multiple contours
         bool isIndexed = instanceCount > 1;
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
+            const PathData& args = fPaths[i];
 
             int contourCount;
             maxVertices += GrPathUtils::worstCasePointCount(args.fPath, &contourCount,
@@ -233,7 +235,7 @@ private:
         int vertexOffset = 0;
         int indexOffset = 0;
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& args = fGeoData[i];
+            const PathData& args = fPaths[i];
 
             int vertexCnt = 0;
             int indexCnt = 0;
@@ -269,7 +271,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        DefaultPathBatch* that = t->cast<DefaultPathBatch>();
+        DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                      that->bounds(), caps)) {
             return false;
@@ -291,7 +293,7 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
         return true;
     }
@@ -305,7 +307,6 @@ private:
                     const SkPath& path,
                     SkScalar srcSpaceTol,
                     bool isIndexed) const {
-        {
             SkScalar srcSpaceTolSqd = SkScalarMul(srcSpaceTol, srcSpaceTol);
 
             uint16_t indexOffsetU16 = (uint16_t)indexOffset;
@@ -388,36 +389,28 @@ private:
 
             *vertexCnt = static_cast<int>(vert - base);
             *indexCnt = static_cast<int>(idx - idxBase);
-
-        }
         return true;
     }
 
-    GrColor color() const { return fBatch.fColor; }
-    uint8_t coverage() const { return fBatch.fCoverage; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    const SkMatrix& viewMatrix() const { return fBatch.fViewMatrix; }
-    bool isHairline() const { return fBatch.fIsHairline; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    GrColor color() const { return fColor; }
+    uint8_t coverage() const { return fCoverage; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    bool isHairline() const { return fIsHairline; }
+    bool coverageIgnored() const { return fCoverageIgnored; }
 
-    struct BatchTracker {
-        GrColor fColor;
-        uint8_t fCoverage;
-        SkMatrix fViewMatrix;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fIsHairline;
-    };
-
-    struct Geometry {
-        GrColor fColor;
+    struct PathData {
         SkPath fPath;
         SkScalar fTolerance;
     };
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    GrColor fColor;
+    uint8_t fCoverage;
+    SkMatrix fViewMatrix;
+    bool fUsesLocalCoords;
+    bool fCoverageIgnored;
+    bool fIsHairline;
+    SkSTArray<1, PathData, true> fPaths;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -573,9 +566,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             pipelineBuilder.setUserStencil(passes[p]);
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            sk_sp<GrDrawOp> op(new DefaultPathBatch(paint.getColor(), path, srcSpaceTol,
-                                                    newCoverage, viewMatrix, isHairline,
-                                                    devBounds));
+            sk_sp<GrDrawOp> op =
+                    DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
+                                        viewMatrix, isHairline, devBounds);
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
@@ -625,7 +618,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
+DRAW_BATCH_TEST_DEFINE(DefaultPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 
@@ -641,7 +634,8 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathBatch) {
 
     viewMatrix.mapRect(&bounds);
     uint8_t coverage = GrRandomCoverage(random);
-    return new DefaultPathBatch(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds);
+    return DefaultPathOp::Make(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds)
+            .release();
 }
 
 #endif
