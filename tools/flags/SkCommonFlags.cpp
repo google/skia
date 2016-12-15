@@ -72,8 +72,8 @@ bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* o
     SkASSERT(output);
 
     static const char* const exts[] = {
-        "bmp", "gif", "jpg", "jpeg", "png", "webp", "ktx", "astc", "wbmp", "ico",
-        "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "KTX", "ASTC", "WBMP", "ICO",
+        "bmp", "gif", "jpg", "jpeg", "png", "webp", "astc", "wbmp", "ico",
+        "BMP", "GIF", "JPG", "JPEG", "PNG", "WEBP", "ASTC", "WBMP", "ICO",
 #ifdef SK_CODEC_DECODES_RAW
         "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
         "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
