@@ -22,6 +22,24 @@
       "revId": "83350c7700f4ffcd2bf8bd549aef5dccbcd51821",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa55efac_27b634b8",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-15T18:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a23133a_bc532d57",
+      "revId": "83350c7700f4ffcd2bf8bd549aef5dccbcd51821",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
