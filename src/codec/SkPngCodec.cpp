@@ -8,7 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkColorTable.h"
 #include "SkMath.h"
 #include "SkOpts.h"
@@ -328,7 +328,8 @@ static constexpr float gSRGB_toXYZD50[] {
 // Returns a colorSpace object that represents any color space information in
 // the encoded data.  If the encoded data contains an invalid/unsupported color space,
 // this will return NULL. If there is no color space information, it will guess sRGB
-sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
+sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
+                                     SkEncodedInfo::Color color) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
@@ -345,7 +346,16 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
-        return SkColorSpace::MakeICC(profile, length);
+        SkColorSpace_Base::InputColorFormat inputColorFormat =
+                SkColorSpace_Base::InputColorFormat::kRGB;
+        switch (color) {
+            case SkEncodedInfo::kGray_Color:
+            case SkEncodedInfo::kGrayAlpha_Color:
+                inputColorFormat = SkColorSpace_Base::InputColorFormat::kGray;
+            default:
+                break;
+        }
+        return SkColorSpace_Base::MakeICC(profile, length, inputColorFormat);
     }
 
     // Second, check for sRGB.
@@ -989,7 +999,7 @@ void AutoCleanPng::infoCallback() {
 #endif
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
-        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr);
+        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr, color);
         const bool unsupportedICC = !colorSpace;
         if (!colorSpace) {
             // Treat unsupported/invalid color spaces as sRGB.
