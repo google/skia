@@ -84,3 +84,35 @@ static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
            color_space_almost_equal(0.0f, coeffs.fF) &&
            color_space_almost_equal(2.2f, coeffs.fG);
 }
+
+static inline SkColorSpaceTransferFn value_to_parametric(float exp) {
+    return {exp, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+}
+
+static inline SkColorSpaceTransferFn gammanamed_to_parametric(SkGammaNamed gammaNamed) {
+    switch (gammaNamed) {
+        case kLinear_SkGammaNamed:
+            return value_to_parametric(1.f);
+        case kSRGB_SkGammaNamed:
+            return {2.4f, (1.f / 1.055f), (0.055f / 1.055f), 0.f, 0.04045f, (1.f / 12.92f), 0.f};
+        case k2Dot2Curve_SkGammaNamed:
+            return value_to_parametric(2.2f);
+        default:
+            SkASSERT(false);
+            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
+    }
+}
+
+static inline SkColorSpaceTransferFn gamma_to_parametric(const SkGammas& gammas, int channel) {
+    switch (gammas.type(channel)) {
+        case SkGammas::Type::kNamed_Type:
+            return gammanamed_to_parametric(gammas.data(channel).fNamed);
+        case SkGammas::Type::kValue_Type:
+            return value_to_parametric(gammas.data(channel).fValue);
+        case SkGammas::Type::kParam_Type:
+            return gammas.params(channel);
+        default:
+            SkASSERT(false);
+            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
+    }
+}
