@@ -338,6 +338,7 @@ DEF_SAMPLE( return new ArcToView; )
 class FatStroke : public SampleView {
     bool fClosed, fShowStroke, fShowHidden, fShowSkeleton;
     int  fJoinType, fCapType;
+    float fWidth = 30;
     SkPaint fPtsPaint, fHiddenPaint, fSkeletonPaint, fStrokePaint;
 public:
     enum {
@@ -398,6 +399,8 @@ protected:
                 case '4': this->toggle3(fJoinType); return true;
                 case '5': this->toggle3(fCapType); return true;
                 case '6': this->toggle(fClosed); return true;
+                case '-': fWidth -= 5; this->inval(nullptr); return true;
+                case '=': fWidth += 5; this->inval(nullptr); return true;
                 default: break;
             }
         }
@@ -420,6 +423,7 @@ protected:
         SkPath path;
         this->makePath(&path);
 
+        fStrokePaint.setStrokeWidth(fWidth);
         fStrokePaint.setStrokeJoin((SkPaint::Join)fJoinType);
         fStrokePaint.setStrokeCap((SkPaint::Cap)fCapType);
 
