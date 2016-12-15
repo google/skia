@@ -53,6 +53,9 @@ public:
 
     GrRenderTarget::Flags testingOnly_getFlags() const;
 
+    // TODO: move this to a priv class!
+    bool refsWrappedObjects() const;
+
 protected:
     friend class GrSurfaceProxy;  // for ctors
 

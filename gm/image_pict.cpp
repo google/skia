@@ -14,7 +14,11 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrSurfaceContext.h"
+#include "GrSurfaceProxy.h"
 #include "GrTexture.h"
+#include "GrTextureProxy.h"
 #include "../src/image/SkImage_Gpu.h"
 #endif
 
@@ -209,15 +213,15 @@ class TextureGenerator : public SkImageGenerator {
 public:
     TextureGenerator(GrContext* ctx, const SkImageInfo& info, SkPicture* pic)
         : SkImageGenerator(info)
-        , fCtx(SkRef(ctx))
-    {
-        auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+        , fCtx(SkRef(ctx)) {
+
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
         if (surface) {
             surface->getCanvas()->clear(0);
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fTexture.reset(SkRef(as_IB(image)->peekTexture()));
+            fProxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(as_IB(image)->peekTexture()));
         }
     }
 protected:
@@ -227,24 +231,45 @@ protected:
             SkASSERT(ctx == fCtx.get());
         }
 
-        if (!fTexture) {
+        if (!fProxy) {
             return nullptr;
         }
 
+        if (origin.fX == 0 && origin.fY == 0 &&
+            info.width() == fProxy->width() && info.height() == fProxy->height()) {
+            return SkSafeRef(fProxy->instantiate(fCtx->textureProvider())->asTexture());
+        }
+
         // need to copy the subset into a new texture
-        GrSurfaceDesc desc = fTexture->desc();
+        GrSurfaceDesc desc = fProxy->desc();
         desc.fWidth = info.width();
         desc.fHeight = info.height();
 
-        GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture.get(),
-                          SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                          SkIPoint::Make(0, 0));
-        return dst;
+        sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
+                                                                            desc,
+                                                                            SkBackingFit::kExact,
+                                                                            SkBudgeted::kNo));
+        if (!dstContext) {
+            return nullptr;
+        }
+
+        if (!dstContext->copy(
+                            fProxy.get(),
+                            SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
+                            SkIPoint::Make(0, 0))) {
+            return nullptr;
+        }
+
+        GrSurface* dstSurf = dstContext->asDeferredSurface()->instantiate(fCtx->textureProvider());
+        if (!dstSurf) {
+            return nullptr;
+        }
+
+        return SkRef(dstSurf->asTexture());
     }
 private:
-    sk_sp<GrContext> fCtx;
-    sk_sp<GrTexture> fTexture;
+    sk_sp<GrContext>      fCtx;
+    sk_sp<GrSurfaceProxy> fProxy;
 };
 static SkImageGenerator* make_tex_generator(GrContext* ctx, SkPicture* pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
