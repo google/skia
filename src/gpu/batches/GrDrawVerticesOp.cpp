@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawVerticesBatch.h"
+#include "GrDrawVerticesOp.h"
 
 #include "GrDefaultGeoProcFactory.h"
 #include "GrInvariantOutput.h"
@@ -21,23 +21,22 @@ static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
     *colorOffset = -1;
 
     Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type :
-                                             LocalCoords::kUsePosition_Type);
+    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type
+                                           : LocalCoords::kUsePosition_Type);
     *colorOffset = sizeof(SkPoint);
     if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
     }
-    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
-                                         coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type), coverage, localCoords,
+                                         viewMatrix);
 }
 
-GrDrawVerticesBatch::GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiveType,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPoint* positions, int vertexCount,
-                                         const uint16_t* indices, int indexCount,
-                                         const GrColor* colors, const SkPoint* localCoords,
-                                         const SkRect& bounds)
-    : INHERITED(ClassID()) {
+GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
+                                   const SkMatrix& viewMatrix, const SkPoint* positions,
+                                   int vertexCount, const uint16_t* indices, int indexCount,
+                                   const GrColor* colors, const SkPoint* localCoords,
+                                   const SkRect& bounds)
+        : INHERITED(ClassID()) {
     SkASSERT(positions);
 
     fViewMatrix = viewMatrix;
@@ -72,10 +71,10 @@ GrDrawVerticesBatch::GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiv
     this->setBounds(bounds, HasAABloat::kNo, zeroArea);
 }
 
-void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                       GrInitInvariantOutput* coverage,
-                                                       GrBatchToXPOverrides* overrides) const {
-    // When this is called on a batch, there is only one mesh
+void GrDrawVerticesOp::computePipelineOptimizations(GrInitInvariantOutput* color,
+                                                    GrInitInvariantOutput* coverage,
+                                                    GrBatchToXPOverrides* overrides) const {
+    // When this is called there is only one mesh.
     if (fVariableColor) {
         color->setUnknownFourComponents();
     } else {
@@ -84,7 +83,7 @@ void GrDrawVerticesBatch::computePipelineOptimizations(GrInitInvariantOutput* co
     coverage->setKnownSingleComponent(0xff);
 }
 
-void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
+void GrDrawVerticesOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     SkASSERT(fMeshes.count() == 1);
     GrColor overrideColor;
     if (overrides.getOverrideColorIfSet(&overrideColor)) {
@@ -98,15 +97,15 @@ void GrDrawVerticesBatch::initBatchTracker(const GrXPOverridesForBatch& override
     }
 }
 
-void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
+void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     bool hasLocalCoords = !fMeshes[0].fLocalCoords.isEmpty();
     int colorOffset = -1, texOffset = -1;
     sk_sp<GrGeometryProcessor> gp(set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset,
                                                         fViewMatrix, fCoverageIgnored));
     size_t vertexStride = gp->getVertexStride();
 
-    SkASSERT(vertexStride == sizeof(SkPoint) + (hasLocalCoords ? sizeof(SkPoint) : 0)
-                                             + sizeof(GrColor));
+    SkASSERT(vertexStride ==
+             sizeof(SkPoint) + (hasLocalCoords ? sizeof(SkPoint) : 0) + sizeof(GrColor));
 
     int instanceCount = fMeshes.count();
 
@@ -162,8 +161,8 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
 
     GrMesh mesh;
     if (indices) {
-        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, fVertexCount, fIndexCount);
+        mesh.initIndexed(this->primitiveType(), vertexBuffer, indexBuffer, firstVertex, firstIndex,
+                         fVertexCount, fIndexCount);
 
     } else {
         mesh.init(this->primitiveType(), vertexBuffer, firstVertex, fVertexCount);
@@ -171,8 +170,8 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     target->draw(gp.get(), mesh);
 }
 
-bool GrDrawVerticesBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
-    GrDrawVerticesBatch* that = t->cast<GrDrawVerticesBatch>();
+bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                 that->bounds(), caps)) {
@@ -183,7 +182,7 @@ bool GrDrawVerticesBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    // We currently use a uniform viewmatrix for this batch
+    // We currently use a uniform viewmatrix for this op.
     if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
         return false;
     }
@@ -256,11 +255,10 @@ static SkPoint random_point(SkRandom* random, SkScalar min, SkScalar max) {
 }
 
 static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkScalar max,
-                             SkRandom* random,
-                             SkTArray<SkPoint>* positions,
+                             SkRandom* random, SkTArray<SkPoint>* positions,
                              SkTArray<SkPoint>* texCoords, bool hasTexCoords,
-                             SkTArray<GrColor>* colors, bool hasColors,
-                             SkTArray<uint16_t>* indices, bool hasIndices) {
+                             SkTArray<GrColor>* colors, bool hasColors, SkTArray<uint16_t>* indices,
+                             bool hasIndices) {
     for (uint32_t v = 0; v < count; v++) {
         positions->push_back(random_point(random, min, max));
         if (hasTexCoords) {
@@ -276,7 +274,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
     }
 }
 
-DRAW_BATCH_TEST_DEFINE(VerticesBatch) {
+DRAW_BATCH_TEST_DEFINE(VerticesOp) {
     GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 
@@ -294,33 +292,28 @@ DRAW_BATCH_TEST_DEFINE(VerticesBatch) {
 
     static const SkScalar kMinVertExtent = -100.f;
     static const SkScalar kMaxVertExtent = 100.f;
-    randomize_params(seed_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
-                     random,
-                     &positions,
-                     &texCoords, hasTexCoords,
-                     &colors, hasColors,
-                     &indices, hasIndices);
+    randomize_params(seed_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent, random,
+                     &positions, &texCoords, hasTexCoords, &colors, hasColors, &indices,
+                     hasIndices);
 
     for (uint32_t i = 1; i < primitiveCount; i++) {
         randomize_params(primitive_vertices(type), vertexCount, kMinVertExtent, kMaxVertExtent,
-                         random,
-                         &positions,
-                         &texCoords, hasTexCoords,
-                         &colors, hasColors,
-                         &indices, hasIndices);
+                         random, &positions, &texCoords, hasTexCoords, &colors, hasColors, &indices,
+                         hasIndices);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkRect bounds;
-    SkDEBUGCODE(bool result = ) bounds.setBoundsCheck(positions.begin(), vertexCount);
+    SkDEBUGCODE(bool result =) bounds.setBoundsCheck(positions.begin(), vertexCount);
     SkASSERT(result);
 
     viewMatrix.mapRect(&bounds);
 
     GrColor color = GrRandomColor(random);
-    return new GrDrawVerticesBatch(color, type, viewMatrix, positions.begin(), vertexCount,
-                                   indices.begin(), hasIndices ? vertexCount : 0,
-                                   colors.begin(), texCoords.begin(), bounds);
+    return GrDrawVerticesOp::Make(color, type, viewMatrix, positions.begin(), vertexCount,
+                                  indices.begin(), hasIndices ? vertexCount : 0, colors.begin(),
+                                  texCoords.begin(), bounds)
+            .release();
 }
 
 #endif

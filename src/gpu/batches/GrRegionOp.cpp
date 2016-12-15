@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrRegionBatch.h"
+#include "GrRegionOp.h"
 
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
@@ -27,22 +27,22 @@ static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage, const SkMatrix& vi
 }
 
 static void tesselate_region(intptr_t vertices,
-                            size_t vertexStride,
-                            GrColor color,
-                            const SkRegion& region) {
+                             size_t vertexStride,
+                             GrColor color,
+                             const SkRegion& region) {
     SkRegion::Iterator iter(region);
 
     intptr_t verts = vertices;
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
-        SkPoint* position = (SkPoint*) verts;
+        SkPoint* position = (SkPoint*)verts;
         position->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
         static const int kColorOffset = sizeof(SkPoint);
         GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
         for (int i = 0; i < kVertsPerInstance; i++) {
             *vertColor = color;
-            vertColor = (GrColor*) ((intptr_t) vertColor + vertexStride);
+            vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
         }
 
         verts += vertexStride * kVertsPerInstance;
@@ -50,14 +50,12 @@ static void tesselate_region(intptr_t vertices,
     }
 }
 
-class RegionBatch final : public GrMeshDrawOp {
+class RegionOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    RegionBatch(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region)
-            : INHERITED(ClassID())
-            , fViewMatrix(viewMatrix)
-    {
+    RegionOp(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region)
+            : INHERITED(ClassID()), fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
         info.fRegion = region;
@@ -66,15 +64,15 @@ public:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "GrRegionBatch"; }
+    const char* name() const override { return "GrRegionOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# batched: %d\n", fRegions.count());
         for (int i = 0; i < fRegions.count(); ++i) {
             const RegionInfo& info = fRegions[i];
-            str.appendf("%d: Color: 0x%08x, Region with %d rects\n",
-                        i, info.fColor, info.fRegion.computeRegionComplexity());
+            str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor,
+                        info.fRegion.computeRegionComplexity());
         }
         str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
@@ -84,7 +82,7 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one region.
+        // When this is called there is only one region.
         color->setKnownFourComponents(fRegions[0].fColor);
         coverage->setKnownSingleComponent(0xff);
     }
@@ -95,7 +93,6 @@ public:
     }
 
 private:
-
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage(), fViewMatrix);
         if (!gp) {
@@ -113,9 +110,9 @@ private:
         size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
-        void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer.get(), kVertsPerInstance, kIndicesPerInstance,
-                                     numRects);
+        void* vertices =
+                helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+                            kVertsPerInstance, kIndicesPerInstance, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -131,7 +128,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        RegionBatch* that = t->cast<RegionBatch>();
+        RegionOp* that = t->cast<RegionOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -158,10 +155,9 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-namespace GrRegionBatch {
+namespace GrRegionOp {
 
-GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
-    return new RegionBatch(color, viewMatrix, region);
+sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
+    return sk_sp<GrDrawOp>(new RegionOp(color, viewMatrix, region));
 }
-
-};
+}

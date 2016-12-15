@@ -75,8 +75,7 @@ public:
 
 private:
     GrDrawPathBatch(const SkMatrix& viewMatrix, GrColor color, const GrPath* path)
-        : INHERITED(ClassID(), viewMatrix, color, path->getFillType())
-        , fPath(path) {
+            : GrDrawPathBatchBase(ClassID(), viewMatrix, color, path->getFillType()), fPath(path) {
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 

@@ -20,14 +20,14 @@
 #include "SkSurfacePriv.h"
 
 #include "batches/GrClearOp.h"
-#include "batches/GrDrawAtlasBatch.h"
-#include "batches/GrDrawVerticesBatch.h"
-#include "batches/GrNinePatch.h"  // TODO Factory
+#include "batches/GrDrawAtlasOp.h"
+#include "batches/GrDrawVerticesOp.h"
+#include "batches/GrLatticeOp.h"
 #include "batches/GrOp.h"
 #include "batches/GrOvalOpFactory.h"
 #include "batches/GrRectOpFactory.h"
-#include "batches/GrRegionBatch.h"
-#include "batches/GrShadowRRectBatch.h"
+#include "batches/GrRegionOp.h"
+#include "batches/GrShadowRRectOp.h"
 
 #include "effects/GrRRectEffect.h"
 
@@ -276,13 +276,12 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         // This path doesn't handle coalescing of full screen clears b.c. it
         // has to clear the entire render target - not just the content area.
         // It could be done but will take more finagling.
-        sk_sp<GrOp> batch(GrClearOp::Make(rtRect, color,
-                                             fRenderTargetContext->accessRenderTarget(),
-                                             !clearRect));
-        if (!batch) {
+        sk_sp<GrOp> op(GrClearOp::Make(rtRect, color, fRenderTargetContext->accessRenderTarget(),
+                                       !clearRect));
+        if (!op) {
             return;
         }
-        fRenderTargetContext->getOpList()->addOp(std::move(batch));
+        fRenderTargetContext->getOpList()->addOp(std::move(op));
     }
 }
 
@@ -845,9 +844,9 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     viewMatrix.mapRect(&bounds);
 
-    sk_sp<GrDrawOp> op(new GrDrawVerticesBatch(paint.getColor(), primitiveType, viewMatrix,
-                                               positions, vertexCount, indices, indexCount, colors,
-                                               texCoords, bounds));
+    sk_sp<GrDrawOp> op =
+            GrDrawVerticesOp::Make(paint.getColor(), primitiveType, viewMatrix, positions,
+                                   vertexCount, indices, indexCount, colors, texCoords, bounds);
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
@@ -869,9 +868,8 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    sk_sp<GrDrawOp> op(new GrDrawAtlasBatch(paint.getColor(), viewMatrix, spriteCount, xform,
-                                            texRect, colors));
-
+    sk_sp<GrDrawOp> op =
+            GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
@@ -968,12 +966,8 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
     // TODO: add instancing support?
 
     const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-    sk_sp<GrDrawOp> op(CreateShadowRRectBatch(paint.getColor(),
-                                              viewMatrix,
-                                              rrect,
-                                              blurRadius,
-                                              stroke,
-                                              shaderCaps));
+    sk_sp<GrDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix, rrect, blurRadius,
+                                               stroke, shaderCaps);
     if (op) {
         GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
         this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
@@ -1103,7 +1097,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawRegion");
 
     if (GrAA::kYes == aa) {
-        // GrRegionBatch performs no antialiasing but is much faster, so here we check the matrix
+        // GrRegionOp performs no antialiasing but is much faster, so here we check the matrix
         // to see whether aa is really required.
         if (!SkToBool(viewMatrix.getType() & ~(SkMatrix::kTranslate_Mask)) &&
             is_int(viewMatrix.getTranslateX()) &&
@@ -1118,7 +1112,7 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         return this->drawPath(clip, paint, aa, viewMatrix, path, style);
     }
 
-    sk_sp<GrDrawOp> op(GrRegionBatch::Create(paint.getColor(), viewMatrix, region));
+    sk_sp<GrDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
@@ -1220,8 +1214,8 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    sk_sp<GrDrawOp> op(GrNinePatch::CreateNonAA(paint.getColor(), viewMatrix, imageWidth,
-                                                imageHeight, std::move(iter), dst));
+    sk_sp<GrDrawOp> op = GrLatticeOp::MakeNonAA(paint.getColor(), viewMatrix, imageWidth,
+                                                imageHeight, std::move(iter), dst);
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
