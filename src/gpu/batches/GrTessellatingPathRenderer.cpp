@@ -156,19 +156,20 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     return true;
 }
 
-class TessellatingPathBatch final : public GrMeshDrawOp {
+class TessellatingPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawOp* Create(const GrColor& color,
-                            const GrShape& shape,
-                            const SkMatrix& viewMatrix,
-                            SkIRect devClipBounds,
-                            bool antiAlias) {
-        return new TessellatingPathBatch(color, shape, viewMatrix, devClipBounds, antiAlias);
+    static sk_sp<GrDrawOp> Make(const GrColor& color,
+                                const GrShape& shape,
+                                const SkMatrix& viewMatrix,
+                                SkIRect devClipBounds,
+                                bool antiAlias) {
+        return sk_sp<GrDrawOp>(
+                new TessellatingPathOp(color, shape, viewMatrix, devClipBounds, antiAlias));
     }
 
-    const char* name() const override { return "TessellatingPathBatch"; }
+    const char* name() const override { return "TessellatingPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -322,17 +323,17 @@ private:
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    TessellatingPathBatch(const GrColor& color,
-                          const GrShape& shape,
-                          const SkMatrix& viewMatrix,
-                          const SkIRect& devClipBounds,
-                          bool antiAlias)
-      : INHERITED(ClassID())
-      , fColor(color)
-      , fShape(shape)
-      , fViewMatrix(viewMatrix)
-      , fDevClipBounds(devClipBounds)
-      , fAntiAlias(antiAlias) {
+    TessellatingPathOp(const GrColor& color,
+                       const GrShape& shape,
+                       const SkMatrix& viewMatrix,
+                       const SkIRect& devClipBounds,
+                       bool antiAlias)
+            : INHERITED(ClassID())
+            , fColor(color)
+            , fShape(shape)
+            , fViewMatrix(viewMatrix)
+            , fDevClipBounds(devClipBounds)
+            , fAntiAlias(antiAlias) {
         SkRect devBounds;
         viewMatrix.mapRect(&devBounds, shape.bounds());
         if (shape.inverseFilled()) {
@@ -360,11 +361,11 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    sk_sp<GrDrawOp> op(TessellatingPathBatch::Create(args.fPaint->getColor(),
-                                                     *args.fShape,
-                                                     *args.fViewMatrix,
-                                                     clipBoundsI,
-                                                     GrAAType::kCoverage == args.fAAType));
+    sk_sp<GrDrawOp> op = TessellatingPathOp::Make(args.fPaint->getColor(),
+                                                  *args.fShape,
+                                                  *args.fViewMatrix,
+                                                  clipBoundsI,
+                                                  GrAAType::kCoverage == args.fAAType);
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
@@ -375,7 +376,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(TesselatingPathBatch) {
+DRAW_BATCH_TEST_DEFINE(TesselatingPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);
@@ -388,7 +389,7 @@ DRAW_BATCH_TEST_DEFINE(TesselatingPathBatch) {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
     GrShape shape(path, style);
-    return TessellatingPathBatch::Create(color, shape, viewMatrix, devClipBounds, antiAlias);
+    return TessellatingPathOp::Make(color, shape, viewMatrix, devClipBounds, antiAlias).release();
 }
 
 #endif
