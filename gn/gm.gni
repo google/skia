@@ -198,6 +198,7 @@ gm_sources = [
   "$_gm/ninepatchstretch.cpp",
   "$_gm/nonclosedpaths.cpp",
   "$_gm/occludedrrectblur.cpp",
+  "$_gm/oddgammabitmap.cpp",
   "$_gm/offsetimagefilter.cpp",
   "$_gm/ovals.cpp",
   "$_gm/overdrawcolorfilter.cpp",
