@@ -241,7 +241,7 @@ public:
      *  time.
      */
     static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
-                                            const SkPaint*);
+                                            const SkPaint*, sk_sp<SkColorSpace>);
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
 

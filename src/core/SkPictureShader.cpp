@@ -157,6 +157,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkMatrix* localM,
+                                                 SkColorSpace* dstColorSpace,
                                                  const int maxTextureSize) const {
     SkASSERT(fPicture && !fPicture->cullRect().isEmpty());
 
@@ -225,7 +226,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
                                  SkMatrix::kFill_ScaleToFit);
 
         sk_sp<SkImage> tileImage(
-            SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr));
+            SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr,
+                                     sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
         }
@@ -245,7 +247,8 @@ size_t SkPictureShader::onContextSize(const ContextRec&) const {
 }
 
 SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix));
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
+                                                       rec.fDstColorSpace));
     if (!bitmapShader) {
         return nullptr;
     }
@@ -323,7 +326,7 @@ sk_sp<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(const AsFPArgs& 
         maxTextureSize = args.fContext->caps()->maxTextureSize();
     }
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, args.fLocalMatrix,
-                                                       maxTextureSize));
+                                                       args.fDstColorSpace, maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }

@@ -17,7 +17,7 @@
 class SkPictureImageGenerator : SkImageGenerator {
 public:
     static SkImageGenerator* Create(const SkISize&, const SkPicture*, const SkMatrix*,
-                                    const SkPaint*);
+                                    const SkPaint*, sk_sp<SkColorSpace>);
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
@@ -30,7 +30,8 @@ protected:
 #endif
 
 private:
-    SkPictureImageGenerator(const SkISize&, const SkPicture*, const SkMatrix*, const SkPaint*);
+    SkPictureImageGenerator(const SkImageInfo& info, const SkPicture*, const SkMatrix*,
+                            const SkPaint*);
 
     sk_sp<const SkPicture> fPicture;
     SkMatrix               fMatrix;
@@ -40,17 +41,29 @@ private:
 };
 
 SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkPicture* picture,
-                                const SkMatrix* matrix, const SkPaint* paint) {
+                                                  const SkMatrix* matrix, const SkPaint* paint,
+                                                  sk_sp<SkColorSpace> colorSpace) {
     if (!picture || size.isEmpty()) {
         return nullptr;
     }
 
-    return new SkPictureImageGenerator(size, picture, matrix, paint);
+    SkColorType colorType;
+    if (!colorSpace || colorSpace->gammaCloseToSRGB()) {
+        colorType = kN32_SkColorType;
+    } else if (colorSpace->gammaIsLinear()) {
+        colorType = kRGBA_F16_SkColorType;
+    } else {
+        return nullptr;
+    }
+
+    SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType,
+                                         kPremul_SkAlphaType, std::move(colorSpace));
+    return new SkPictureImageGenerator(info, picture, matrix, paint);
 }
 
-SkPictureImageGenerator::SkPictureImageGenerator(const SkISize& size, const SkPicture* picture,
+SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, const SkPicture* picture,
                                                  const SkMatrix* matrix, const SkPaint* paint)
-    : INHERITED(SkImageInfo::MakeS32(size.width(), size.height(), kPremul_SkAlphaType))
+    : INHERITED(info)
     , fPicture(SkRef(picture)) {
 
     if (matrix) {
@@ -123,8 +136,9 @@ bool SkPictureImageGenerator::onGenerateScaledPixels(const SkISize& scaledSize,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const SkPicture* picture,
-                                                   const SkMatrix* matrix, const SkPaint* paint) {
-    return SkPictureImageGenerator::Create(size, picture, matrix, paint);
+                                                   const SkMatrix* matrix, const SkPaint* paint,
+                                                   sk_sp<SkColorSpace> colorSpace) {
+    return SkPictureImageGenerator::Create(size, picture, matrix, paint, std::move(colorSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

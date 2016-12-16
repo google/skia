@@ -314,12 +314,18 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
 }
 
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                        const SkMatrix* matrix, const SkPaint* paint) {
+                                        const SkMatrix* matrix, const SkPaint* paint,
+                                        sk_sp<SkColorSpace> colorSpace) {
     if (!picture) {
         return nullptr;
     }
-    return MakeFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture.get(),
-                                                              matrix, paint));
+    return MakeFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture.get(), matrix,
+                                                              paint, std::move(colorSpace)));
+}
+
+sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
+                                        const SkMatrix* matrix, const SkPaint* paint) {
+    return MakeFromPicture(std::move(picture), dimensions, matrix, paint, nullptr);
 }
 
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,

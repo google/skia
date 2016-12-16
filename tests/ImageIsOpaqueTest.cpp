@@ -124,7 +124,8 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
         SkImage::MakeRasterCopy(pmap),
         GetResourceAsImage("mandrill_128.png"),
         GetResourceAsImage("color_wheel.jpg"),
-        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr),
+        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
+                                 SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)),
     })
     {
         REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);
