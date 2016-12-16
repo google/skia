@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_ecf20377",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-16T16:18:12Z",
+      "side": 1,
+      "message": "stack overflow? :)",
+      "revId": "1dfd6e5b94c5879b8d52d6f1a6c17a58c08bb90b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
