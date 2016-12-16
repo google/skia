@@ -7,7 +7,7 @@
 
 #include "GrOpFlushState.h"
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrPipeline.h"
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
