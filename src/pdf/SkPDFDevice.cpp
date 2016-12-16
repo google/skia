@@ -1800,7 +1800,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     }
 
     SkPDFDevice::ContentEntry* entry;
-    if (fContentEntries.back() && fContentEntries.back()->fContent.getOffset() == 0) {
+    if (fContentEntries.back() && fContentEntries.back()->fContent.bytesWritten() == 0) {
         entry = fContentEntries.back();
     } else if (blendMode != SkBlendMode::kDstOver) {
         entry = fContentEntries.emplace_back();
@@ -1830,7 +1830,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
     }
     if (blendMode == SkBlendMode::kDstOver) {
         SkASSERT(!dst);
-        if (fContentEntries.front()->fContent.getOffset() == 0) {
+        if (fContentEntries.front()->fContent.bytesWritten() == 0) {
             // For DstOver, an empty content entry was inserted before the rest
             // of the content entries. If nothing was drawn, it needs to be
             // removed.
@@ -1974,7 +1974,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    if (!fContentEntries.front() || fContentEntries.front()->fContent.getOffset() == 0) {
+    if (!fContentEntries.front() || fContentEntries.front()->fContent.bytesWritten() == 0) {
         SkASSERT(fContentEntries.count() <= 1);
         return true;
     }

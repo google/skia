@@ -33,7 +33,7 @@ DEF_TEST(SkPDF_OpaqueSrcModeToSrcOver, r) {
     U8CPU alpha = SK_AlphaOPAQUE;
     run_test(&srcMode, SkBlendMode::kSrc, alpha);
     run_test(&srcOverMode, SkBlendMode::kSrcOver, alpha);
-    REPORTER_ASSERT(r, srcMode.getOffset() == srcOverMode.getOffset());
+    REPORTER_ASSERT(r, srcMode.bytesWritten() == srcOverMode.bytesWritten());
     // The two PDFs should be equal because they have an opaque alpha.
 
     srcMode.reset();
@@ -42,6 +42,6 @@ DEF_TEST(SkPDF_OpaqueSrcModeToSrcOver, r) {
     alpha = 0x80;
     run_test(&srcMode, SkBlendMode::kSrc, alpha);
     run_test(&srcOverMode, SkBlendMode::kSrcOver, alpha);
-    REPORTER_ASSERT(r, srcMode.getOffset() > srcOverMode.getOffset());
+    REPORTER_ASSERT(r, srcMode.bytesWritten() > srcOverMode.bytesWritten());
     // The two PDFs should not be equal because they have a non-opaque alpha.
 }

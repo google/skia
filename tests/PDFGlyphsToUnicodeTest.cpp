@@ -90,7 +90,7 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     // Remove characters and ranges.
     buffer.reset();
@@ -108,7 +108,7 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop1,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     // Remove characters from range to downdrade it to one char.
     buffer.reset();
@@ -122,7 +122,7 @@ endbfrange\n";
 endbfchar\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResultChop2,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     buffer.reset();
 
@@ -139,7 +139,7 @@ endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0,
                                             expectedResultSingleBytes,
-                                            buffer.getOffset()));
+                                            buffer.bytesWritten()));
 
     glyphToUnicode.reset();
     glyphsInSubset.reset();
@@ -176,5 +176,5 @@ endbfchar\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
-                                            buffer2.getOffset()));
+                                            buffer2.bytesWritten()));
 }
