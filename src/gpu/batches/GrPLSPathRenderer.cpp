@@ -763,20 +763,14 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
-class PLSPathBatch final : public GrMeshDrawOp {
+class PLSPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
-            : INHERITED(ClassID())
-            , fColor(color)
-            , fPath(path)
-            , fViewMatrix(viewMatrix) {
-        // compute bounds
-        this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kNo);
+    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, const SkMatrix& viewMatrix) {
+        return sk_sp<GrDrawOp>(new PLSPathOp(color, path, viewMatrix));
     }
 
-    const char* name() const override { return "PLSBatch"; }
+    const char* name() const override { return "PLSPathOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -789,7 +783,6 @@ public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
         color->setKnownFourComponents(fColor);
         coverage->setUnknownSingleComponent();
         overrides->fUsePLSDstRead = true;
@@ -802,7 +795,6 @@ public:
         }
         overrides.getOverrideColorIfSet(&fColor);
 
-        // setup batch properties
         fUsesLocalCoords = overrides.readsLocalCoords();
     }
 
@@ -915,6 +907,13 @@ public:
     }
 
 private:
+    PLSPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
+            : INHERITED(ClassID()), fColor(color), fPath(path), fViewMatrix(viewMatrix) {
+        // compute bounds
+        this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kNo);
+    }
+
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         return false;
     }
@@ -935,7 +934,7 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawOp> op(new PLSPathBatch(args.fPaint->getColor(), path, *args.fViewMatrix));
+    sk_sp<GrDrawOp> op = PLSPathOp::Make(args.fPaint->getColor(), path, *args.fViewMatrix);
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
@@ -949,12 +948,12 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(PLSPathBatch) {
+DRAW_BATCH_TEST_DEFINE(PLSPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix vm = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
 
-    return new PLSPathBatch(color, path, vm);
+    return PLSPathOp::Make(color, path, vm).release();
 }
 
 #endif
