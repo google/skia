@@ -22,13 +22,13 @@ namespace gr_instanced {
  */
 class InstanceProcessor : public GrGeometryProcessor {
 public:
-    InstanceProcessor(BatchInfo, GrBuffer* paramsBuffer);
+    InstanceProcessor(OpInfo, GrBuffer* paramsBuffer);
 
     const char* name() const override { return "Instance Processor"; }
-    BatchInfo batchInfo() const { return fBatchInfo; }
+    OpInfo opInfo() const { return fOpInfo; }
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(fBatchInfo.fData);
+        b->add32(fOpInfo.fData);
     }
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -56,8 +56,8 @@ private:
      */
     static GrCaps::InstancedSupport CheckSupport(const GrShaderCaps&, const GrCaps&);
 
-    const BatchInfo fBatchInfo;
-    BufferAccess    fParamsAccess;
+    OpInfo fOpInfo;
+    BufferAccess fParamsAccess;
 
     friend class GLInstancedRendering; // For CheckSupport.
 

@@ -469,8 +469,8 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
 
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
-        op.reset(ir->recordRect(croppedRect, viewMatrix, paint.getColor(), aa,
-                                fInstancedPipelineInfo, &aaType));
+        op = ir->recordRect(croppedRect, viewMatrix, paint.getColor(), aa, fInstancedPipelineInfo,
+                            &aaType);
         if (op) {
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             if (ss) {
