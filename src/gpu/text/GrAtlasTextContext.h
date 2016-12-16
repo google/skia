@@ -54,7 +54,7 @@ private:
     // Determines if we need to use fake gamma (and contrast boost):
     inline static uint32_t ComputeScalerContextFlags(GrRenderTargetContext*);
     static void RegenerateTextBlob(GrAtlasTextBlob* bmp,
-                                   GrBatchFontCache*,
+                                   GrAtlasGlyphCache*,
                                    const GrShaderCaps&,
                                    const SkPaint& skPaint, GrColor,
                                    uint32_t scalerContextFlags,
@@ -65,7 +65,7 @@ private:
     inline static bool HasLCD(const SkTextBlob*);
 
     static inline GrAtlasTextBlob* CreateDrawTextBlob(GrTextBlobCache*,
-                                                      GrBatchFontCache*, const GrShaderCaps&,
+                                                      GrAtlasGlyphCache*, const GrShaderCaps&,
                                                       const GrPaint&,
                                                       const SkPaint&,
                                                       uint32_t scalerContextFlags,
@@ -73,7 +73,7 @@ private:
                                                       const SkSurfaceProps&,
                                                       const char text[], size_t byteLength,
                                                       SkScalar x, SkScalar y);
-    static inline GrAtlasTextBlob* CreateDrawPosTextBlob(GrTextBlobCache*, GrBatchFontCache*,
+    static inline GrAtlasTextBlob* CreateDrawPosTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
                                                          const GrShaderCaps&,
                                                          const GrPaint&,
                                                          const SkPaint&,
