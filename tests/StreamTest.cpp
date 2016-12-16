@@ -84,7 +84,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     for (i = 0; i < 100; i++) {
         REPORTER_ASSERT(reporter, ds.write(s, 26));
     }
-    REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
+    REPORTER_ASSERT(reporter, ds.bytesWritten() == 100 * 26);
 
     char* dst = new char[100 * 26 + 1];
     dst[100*26] = '*';
@@ -97,7 +97,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     {
         std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
-        REPORTER_ASSERT(reporter, ds.getOffset() == 0);
+        REPORTER_ASSERT(reporter, ds.bytesWritten() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
         std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());
@@ -115,12 +115,12 @@ static void TestWStream(skiatest::Reporter* reporter) {
     for (i = 0; i < 100; i++) {
         REPORTER_ASSERT(reporter, ds.write(s, 26));
     }
-    REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
+    REPORTER_ASSERT(reporter, ds.bytesWritten() == 100 * 26);
 
     {
         // Test that this works after a snapshot.
         std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
-        REPORTER_ASSERT(reporter, ds.getOffset() == 0);
+        REPORTER_ASSERT(reporter, ds.bytesWritten() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
         std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());

@@ -385,16 +385,14 @@ public:
 
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override;
+
     bool read(void* buffer, size_t offset, size_t size);
 
-    // Why do we have this as a separate method???
-    size_t getOffset() const { return this->bytesWritten(); }
-
-    // copy what has been written to the stream into dst
+    /** More efficient version of read(dst, 0, bytesWritten()). */
     void copyTo(void* dst) const;
     void writeToStream(SkWStream* dst) const;
 
-    // Return the contents as SkData, and then reset the stream.
+    /** Return the contents as SkData, and then reset the stream. */
     sk_sp<SkData> detachAsData();
 
     /** Reset, returning a reader stream with the current content. */
