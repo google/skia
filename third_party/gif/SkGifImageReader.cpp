@@ -305,7 +305,8 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
     return true;
 }
 
-sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkColorType colorType, size_t transparentPixel) const
+sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkStreamBuffer* streamBuffer, SkColorType colorType,
+                                              size_t transparentPixel) const
 {
     if (!m_isDefined)
         return nullptr;
@@ -323,8 +324,14 @@ sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkColorType colorType, size_t tran
     }
     m_packColorProc = proc;
 
+    const size_t bytes = m_colors * SK_BYTES_PER_COLORMAP_ENTRY;
+    sk_sp<SkData> rawData(streamBuffer->getDataAtPosition(m_position, bytes));
+    if (!rawData) {
+        return nullptr;
+    }
+
     SkASSERT(m_colors <= SK_MAX_COLORS);
-    const uint8_t* srcColormap = m_rawData->bytes();
+    const uint8_t* srcColormap = rawData->bytes();
     SkPMColor colorStorage[SK_MAX_COLORS];
     for (size_t i = 0; i < m_colors; i++) {
         if (i == transparentPixel) {
@@ -341,18 +348,19 @@ sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkColorType colorType, size_t tran
     return m_table;
 }
 
-sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_t index) const {
+sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_t index) {
     if (index >= m_frames.size()) {
         return nullptr;
     }
 
     const SkGIFFrameContext* frameContext = m_frames[index].get();
     const SkGIFColorMap& localColorMap = frameContext->localColorMap();
+    const size_t transPix = frameContext->transparentPixel();
     if (localColorMap.isDefined()) {
-        return localColorMap.buildTable(colorType, frameContext->transparentPixel());
+        return localColorMap.buildTable(&m_streamBuffer, colorType, transPix);
     }
     if (m_globalColorMap.isDefined()) {
-        return m_globalColorMap.buildTable(colorType, frameContext->transparentPixel());
+        return m_globalColorMap.buildTable(&m_streamBuffer, colorType, transPix);
     }
     return nullptr;
 }
@@ -360,7 +368,8 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
+bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
+                               bool* frameComplete)
 {
     *frameComplete = false;
     if (!m_lzwContext) {
@@ -379,8 +388,14 @@ bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 
     // Some bad GIFs have extra blocks beyond the last row, which we don't want to decode.
     while (m_currentLzwBlock < m_lzwBlocks.size() && m_lzwContext->hasRemainingRows()) {
-        if (!m_lzwContext->doLZW(reinterpret_cast<const unsigned char*>(m_lzwBlocks[m_currentLzwBlock]->data()),
-                                                                        m_lzwBlocks[m_currentLzwBlock]->size())) {
+        const auto& block = m_lzwBlocks[m_currentLzwBlock];
+        const size_t len = block.blockSize;
+
+        sk_sp<SkData> data(streamBuffer->getDataAtPosition(block.blockPosition, len));
+        if (!data) {
+            return false;
+        }
+        if (!m_lzwContext->doLZW(reinterpret_cast<const unsigned char*>(data->data()), len)) {
             return false;
         }
         ++m_currentLzwBlock;
@@ -402,7 +417,7 @@ bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 {
     SkGIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
-    return currentFrame->decode(m_client, frameComplete);
+    return currentFrame->decode(&m_streamBuffer, m_client, frameComplete);
 }
 
 // Parse incoming GIF data stream into internal data structures.
@@ -428,22 +443,19 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
     }
 
     while (true) {
-        const size_t bytesBuffered = m_streamBuffer.buffer(m_bytesToConsume);
-        if (bytesBuffered < m_bytesToConsume) {
-            // The stream does not yet have enough data. Mark that we need less next time around,
-            // and return.
-            m_bytesToConsume -= bytesBuffered;
+        if (!m_streamBuffer.buffer(m_bytesToConsume)) {
+            // The stream does not yet have enough data.
             return true;
         }
 
         switch (m_state) {
-        case SkGIFLZW:
+        case SkGIFLZW: {
             SkASSERT(!m_frames.empty());
-            // FIXME: All this copying might be wasteful for e.g. SkMemoryStream
-            m_frames.back()->addLzwBlock(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            auto* frame = m_frames.back().get();
+            frame->addLzwBlock(m_streamBuffer.markPosition(), m_bytesToConsume);
             GETN(1, SkGIFSubBlock);
             break;
-
+        }
         case SkGIFLZWStart: {
             SkASSERT(!m_frames.empty());
             m_frames.back()->setDataSize(this->getOneByte());
@@ -494,7 +506,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
         }
 
         case SkGIFGlobalColormap: {
-            m_globalColorMap.setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            m_globalColorMap.setTablePosition(m_streamBuffer.markPosition());
             GETN(1, SkGIFImageStart);
             break;
         }
@@ -631,7 +643,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 
         case SkGIFApplicationExtension: {
             // Check for netscape application extension.
-            if (m_streamBuffer.bytesBuffered() == 11) {
+            if (m_bytesToConsume == 11) {
                 const unsigned char* currentComponent =
                     reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
@@ -789,7 +801,6 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 // The decoder needs to stop, so we return here, before
                 // flushing the buffer. Next time through, we'll be in the same
                 // state, requiring the same amount in the buffer.
-                m_bytesToConsume = 0;
                 return true;
             }
 
@@ -820,7 +831,8 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 
         case SkGIFImageColormap: {
             SkASSERT(!m_frames.empty());
-            m_frames.back()->localColorMap().setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            auto& cmap = m_frames.back()->localColorMap();
+            cmap.setTablePosition(m_streamBuffer.markPosition());
             GETN(1, SkGIFLZWStart);
             break;
         }

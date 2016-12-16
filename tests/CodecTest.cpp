@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "FakeStreams.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
@@ -889,35 +890,6 @@ public:
 private:
     SkMemoryStream fStream;
     const size_t   fLimit;
-};
-
-// Stream that is not an asset stream (!hasPosition() or !hasLength())
-class NotAssetMemStream : public SkStream {
-public:
-    NotAssetMemStream(sk_sp<SkData> data) : fStream(std::move(data)) {}
-
-    bool hasPosition() const override {
-        return false;
-    }
-
-    bool hasLength() const override {
-        return false;
-    }
-
-    size_t peek(void* buf, size_t bytes) const override {
-        return fStream.peek(buf, bytes);
-    }
-    size_t read(void* buf, size_t bytes) override {
-        return fStream.read(buf, bytes);
-    }
-    bool rewind() override {
-        return fStream.rewind();
-    }
-    bool isAtEnd() const override {
-        return fStream.isAtEnd();
-    }
-private:
-    SkMemoryStream fStream;
 };
 
 // Disable RAW tests for Win32.

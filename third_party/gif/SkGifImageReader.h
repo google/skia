@@ -137,37 +137,51 @@ private:
     const SkGIFFrameContext* m_frameContext;
 };
 
+struct SkGIFLZWBlock {
+ public:
+  SkGIFLZWBlock(size_t position, size_t size)
+      : blockPosition(position), blockSize(size) {}
+
+  const size_t blockPosition;
+  const size_t blockSize;
+};
+
 class SkGIFColorMap final {
 public:
     SkGIFColorMap()
         : m_isDefined(false)
+        , m_position(0)
         , m_colors(0)
         , m_packColorProc(nullptr)
     {
     }
 
     void setNumColors(size_t colors) {
+        SkASSERT(!m_colors);
+        SkASSERT(!m_position);
+
         m_colors = colors;
+    }
+
+    void setTablePosition(size_t position) {
+        SkASSERT(!m_isDefined);
+
+        m_position = position;
+        m_isDefined = true;
     }
 
     size_t numColors() const { return m_colors; }
 
-    void setRawData(const char* data, size_t size)
-    {
-        // FIXME: Can we avoid this copy?
-        m_rawData = SkData::MakeWithCopy(data, size);
-        SkASSERT(m_colors * SK_BYTES_PER_COLORMAP_ENTRY == size);
-        m_isDefined = true;
-    }
     bool isDefined() const { return m_isDefined; }
 
     // Build RGBA table using the data stream.
-    sk_sp<SkColorTable> buildTable(SkColorType dstColorType, size_t transparentPixel) const;
+    sk_sp<SkColorTable> buildTable(SkStreamBuffer*, SkColorType dstColorType,
+                                   size_t transparentPixel) const;
 
 private:
     bool m_isDefined;
+    size_t m_position;
     size_t m_colors;
-    sk_sp<SkData> m_rawData;
     mutable PackColorProc m_packColorProc;
     mutable sk_sp<SkColorTable> m_table;
 };
@@ -201,12 +215,12 @@ public:
     {
     }
 
-    void addLzwBlock(const void* data, size_t size)
+    void addLzwBlock(size_t position, size_t size)
     {
-        m_lzwBlocks.push_back(SkData::MakeWithCopy(data, size));
+        m_lzwBlocks.push_back(SkGIFLZWBlock(position, size));
     }
 
-    bool decode(SkGifCodec* client, bool* frameDecoded);
+    bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
 
     int frameId() const { return m_frameId; }
     void setRect(unsigned x, unsigned y, unsigned width, unsigned height)
@@ -266,7 +280,9 @@ private:
     unsigned m_delayTime; // Display time, in milliseconds, for this image in a multi-image GIF.
 
     std::unique_ptr<SkGIFLZWContext> m_lzwContext;
-    std::vector<sk_sp<SkData>> m_lzwBlocks; // LZW blocks for this frame.
+    // LZW blocks for this frame.
+    std::vector<SkGIFLZWBlock> m_lzwBlocks;
+
     SkGIFColorMap m_localColorMap;
 
     size_t m_currentLzwBlock;
@@ -359,7 +375,7 @@ public:
     }
 
     // Return the color table for frame index (which may be the global color table).
-    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, size_t index) const;
+    sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, size_t index);
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
 
