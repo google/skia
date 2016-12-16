@@ -12,6 +12,7 @@
 #include "GrTypesPriv.h"
 #include "SkPathEffect.h"
 
+class GrClip;
 class GrDrawOp;
 class GrStyle;
 
