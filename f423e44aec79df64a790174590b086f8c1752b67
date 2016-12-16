@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_4c0dcf19",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:24:17Z",
+      "side": 1,
+      "message": "This looks like 101 columns?",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_2ce7bb28",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:24:17Z",
+      "side": 1,
+      "message": "GrAtlasGlyphCache_DEFINED",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_cc18df5f",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:24:17Z",
+      "side": 1,
+      "message": "\"used to \u003cverb\u003e...\" (\"generate\" most likely)",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0c03d7f1",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:24:17Z",
+      "side": 1,
+      "message": "\"It\u0027s\"\n\nAlso, this comment is generally unsettling.",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
