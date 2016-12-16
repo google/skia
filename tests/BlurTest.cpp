@@ -507,7 +507,7 @@ DEF_TEST(BlurAsABlur, reporter) {
     // Test asABlur for SkBlurMaskFilter
     //
     for (size_t i = 0; i < SK_ARRAY_COUNT(styles); ++i) {
-        const SkBlurStyle style = (SkBlurStyle)styles[i];
+        const SkBlurStyle style = styles[i];
         for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
             const SkScalar sigma = sigmas[j];
             for (int flags = 0; flags <= SkBlurMaskFilter::kAll_BlurFlag; ++flags) {

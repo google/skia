@@ -133,8 +133,14 @@ static inline uint32_t ClipParams_pack(SkClipOp op, bool doAA) {
     return (doAABit << 4) | static_cast<int>(op);
 }
 
-static inline SkClipOp ClipParams_unpackRegionOp(uint32_t packed) {
-    return (SkClipOp)(packed & 0xF);
+static inline SkClipOp ClipParams_unpackRegionOp(SkReadBuffer* buffer, uint32_t packed) {
+    packed &= 0xF;
+
+    if (buffer->validate(packed <= (std::underlying_type<SkClipOp>::type) SkClipOp::kLastClipOp)) {
+        return (SkClipOp) packed;
+    }
+
+    return SkClipOp::kLastClipOp;
 }
 
 static inline bool ClipParams_unpackDoAA(uint32_t packed) {
