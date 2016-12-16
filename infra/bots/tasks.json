@@ -4411,7 +4411,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -4460,7 +4460,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -4509,7 +4509,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -4558,7 +4558,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -4607,7 +4607,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -4656,7 +4656,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8299,7 +8299,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8348,7 +8348,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8397,7 +8397,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8446,7 +8446,7 @@
         "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8495,7 +8495,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"
@@ -8544,7 +8544,7 @@
         "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NRD90R",
+        "device_os:NMF26F",
         "device_type:fugu",
         "os:Android",
         "pool:Skia"

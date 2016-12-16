@@ -30,6 +30,8 @@ TEST_BUILDERS = {
       'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
       'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
+      ('Perf-Android-Clang-NexusPlayer'
+       '-GPU-PowerVR-x86-Release-GN_Android_Vulkan'),
       'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -131,6 +133,10 @@ def nanobench_flags(bot):
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
 
+  if 'Vulkan' in bot and 'NexusPlayer' in bot:
+    # skia:6037
+    match.append('~hardstop')
+
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
   match.append('~inc0.gif')
@@ -193,9 +199,11 @@ def perf_steps(api):
           api.flavor.device_dirs.images_dir, 'nanobench'),
   ]
 
-  # Do not run svgs on Valgrind.
+  # Do not run svgs on Valgrind or Vulkan NexusPlayer.
   if 'Valgrind' not in api.vars.builder_name:
-    args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
+    if ('Vulkan' not in api.vars.builder_name or
+        'NexusPlayer' not in api.vars.builder_name):
+      args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
 
   skip_flag = None
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
