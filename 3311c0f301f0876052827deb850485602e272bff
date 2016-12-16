@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_89f419af",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-16T15:07:15Z",
+      "side": 1,
+      "message": "Oh, all the workarounds for Android\u0027s strange behavior!\n\nDo we also need to do this for SkAndroidCodec tests?",
+      "range": {
+        "startLine": 109,
+        "startChar": 19,
+        "endLine": 109,
+        "endChar": 34
+      },
+      "revId": "3311c0f301f0876052827deb850485602e272bff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
