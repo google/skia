@@ -155,7 +155,14 @@ public:
                                                    sk_sp<SkColorSpace> = nullptr);
 
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
-                                          const SkMatrix*, const SkPaint*);
+                                          const SkMatrix*, const SkPaint*, sk_sp<SkColorSpace>);
+
+#ifdef SK_SUPPORT_LEGACY_PICTURE_IMAGE_WITHOUT_COLORSPACE
+    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
+                                          const SkMatrix* matrix, const SkPaint* paint) {
+        return MakeFromPicture(std::move(picture), dimensions, matrix, paint);
+    }
+#endif
 
     static sk_sp<SkImage> MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
