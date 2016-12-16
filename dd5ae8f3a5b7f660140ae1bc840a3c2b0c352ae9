@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_8c4507ba",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-16T16:24:33Z",
+      "side": 1,
+      "message": "Perhaps add some dox about how we use the colorspace for this image type",
+      "range": {
+        "startLine": 157,
+        "startChar": 10,
+        "endLine": 157,
+        "endChar": 11
+      },
+      "revId": "dd5ae8f3a5b7f660140ae1bc840a3c2b0c352ae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
