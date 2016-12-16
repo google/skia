@@ -106,7 +106,7 @@ struct SkGammas : SkRefCnt {
         SkASSERT(i >= 0 && i < fChannels);
         return fType[i];
     }
-    
+
     uint8_t channels() const { return fChannels; }
 
     SkGammas(uint8_t channels)
@@ -153,11 +153,11 @@ public:
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
     virtual const SkMatrix44* fromXYZD50() const = 0;
-    
+
     virtual bool onGammaCloseToSRGB() const = 0;
-    
+
     virtual bool onGammaIsLinear() const = 0;
-    
+
     /**
      *  Returns a color space with the same gamut as this one, but with a linear gamma.
      *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
