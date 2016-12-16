@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_4cd6afad",
+        "filename": "src/codec/SkStreamBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-16T16:53:17Z",
+      "side": 1,
+      "message": "I almost left off the length parameter. In the case of fHasLengthAndPosition, we need to know the length. The client happens to already keep track of the length, so it seemed easier to let them continue to store it. An alternative would be to have a hashmap of position -\u003e length for fHasLengthAndPosition.",
+      "range": {
+        "startLine": 89,
+        "startChar": 53,
+        "endLine": 89,
+        "endChar": 66
+      },
+      "revId": "392a07d40a44f85681d6c8f363fde2ce911105c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
