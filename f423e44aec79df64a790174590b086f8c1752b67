@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_ef8e7511",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-16T19:09:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_4c0dcf19",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_2ce7bb28",
         "filename": "src/gpu/text/GrAtlasGlyphCache.h",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-16T18:24:17Z",
       "side": 1,
       "message": "GrAtlasGlyphCache_DEFINED",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17fa9e31_fd51477f",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-16T19:09:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_2ce7bb28",
       "revId": "f423e44aec79df64a790174590b086f8c1752b67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "17fa9e31_9d5803a0",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-16T19:09:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_cc18df5f",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_0c03d7f1",
         "filename": "src/gpu/text/GrAtlasGlyphCache.h",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-16T18:24:17Z",
       "side": 1,
       "message": "\"It\u0027s\"\n\nAlso, this comment is generally unsettling.",
+      "revId": "f423e44aec79df64a790174590b086f8c1752b67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_4f8781fa",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-16T19:09:40Z",
+      "side": 1,
+      "message": "Agreed... I\u0027m just going to remove the comment since it isn\u0027t actionable and it isn\u0027t clear why it\u0027d be better to immediately create the texture anyway.",
+      "parentUuid": "9a3953bb_0c03d7f1",
       "revId": "f423e44aec79df64a790174590b086f8c1752b67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
