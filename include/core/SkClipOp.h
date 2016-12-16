@@ -63,4 +63,6 @@ enum class SkClipOp {
     kReplace_private_internal_do_not_use           = 5,
 };
 
+static const int kClipOpMask = 0x5;
+
 #endif
