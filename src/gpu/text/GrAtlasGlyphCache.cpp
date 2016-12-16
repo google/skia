@@ -83,7 +83,7 @@ void GrAtlasGlyphCache::freeAll() {
     }
 }
 
-void GrAtlasGlyphCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
+void GrAtlasGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     GrAtlasGlyphCache* fontCache = reinterpret_cast<GrAtlasGlyphCache*>(ptr);
 
     StrikeHash::Iter iter(&fontCache->fCache);
@@ -183,7 +183,7 @@ void GrAtlasGlyphCache::dump() const {
 }
 #endif
 
-void GrAtlasGlyphCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
+void GrAtlasGlyphCache::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]) {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {
@@ -391,11 +391,11 @@ GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     return glyph;
 }
 
-void GrAtlasTextStrike::removeID(GrBatchAtlas::AtlasID id) {
+void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
         if (id == (*iter).fID) {
-            (*iter).fID = GrBatchAtlas::kInvalidAtlasID;
+            (*iter).fID = GrDrawOpAtlas::kInvalidAtlasID;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
@@ -434,7 +434,7 @@ bool GrAtlasTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {
-        SkASSERT(GrBatchAtlas::kInvalidAtlasID != glyph->fID);
+        SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
         fAtlasedGlyphs++;
     }
     return success;
