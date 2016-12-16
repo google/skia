@@ -21,7 +21,7 @@
 #include "../private/GrSingleOwner.h"
 
 struct GrBatchAtlasConfig;
-class GrBatchFontCache;
+class GrAtlasFontCache;
 struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
@@ -330,7 +330,7 @@ public:
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
-    GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
+    GrAtlasFontCache* getAtlasFontCache() { return fAtlasFontCache; }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
@@ -389,7 +389,7 @@ private:
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
-    GrBatchFontCache*                       fBatchFontCache;
+    GrAtlasFontCache*                       fAtlasFontCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
