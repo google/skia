@@ -16,7 +16,7 @@
 #include "SkTInternalLList.h"
 #include "SkTLList.h"
 #include "SkTextBlob.h"
-#include "batches/GrDrawPathOp.h"
+#include "ops/GrDrawPathOp.h"
 
 class GrAtlasTextContext;
 class GrTextStrike;

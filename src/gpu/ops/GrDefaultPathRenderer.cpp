@@ -21,8 +21,8 @@
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
 
-#include "batches/GrMeshDrawOp.h"
-#include "batches/GrRectOpFactory.h"
+#include "ops/GrMeshDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)

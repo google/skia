@@ -10,8 +10,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTest.h"
-#include "batches/GrAADistanceFieldPathRenderer.h"
 #include "SkPath.h"
+#include "ops/GrAADistanceFieldPathRenderer.h"
 
 // This test case including path coords and matrix taken from crbug.com/627443.
 // Because of inaccuracies in large floating point values this causes the

@@ -15,21 +15,21 @@
 #include "SkTDynamicHash.h"
 #include "SkVarAlloc.h"
 
-class GrBatchFontCache;
+class GrAtlasFontCache;
 class GrGpu;
 
 /**
- *  The GrBatchTextStrike manages a pool of CPU backing memory for GrGlyphs.  This backing memory
+ *  The GrAtlasTextStrike manages a pool of CPU backing memory for GrGlyphs. This backing memory
  *  is indexed by a PackedID and SkGlyphCache. The SkGlyphCache is what actually creates the mask.
- *  The GrBatchTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
+ *  The GrAtlasTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
  *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrBatchTextStrikes are
- *  created by and owned by a GrBatchFontCache.
+ *  created by and owned by a GrAtlasFontCache.
  */
-class GrBatchTextStrike : public SkNVRefCnt<GrBatchTextStrike> {
+class GrAtlasTextStrike : public SkNVRefCnt<GrAtlasTextStrike> {
 public:
     /** Owner is the cache that owns this strike. */
-    GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& fontScalerKey);
-    ~GrBatchTextStrike();
+    GrAtlasTextStrike(GrAtlasFontCache* owner, const SkDescriptor& fontScalerKey);
+    ~GrAtlasTextStrike();
 
     inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                              SkGlyphCache* cache) {
@@ -76,7 +76,7 @@ public:
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
 
-    static const SkDescriptor& GetKey(const GrBatchTextStrike& ts) {
+    static const SkDescriptor& GetKey(const GrAtlasTextStrike& ts) {
         return *ts.fFontScalerKey.getDesc();
     }
 
@@ -87,7 +87,7 @@ private:
     SkAutoDescriptor fFontScalerKey;
     SkVarAlloc fPool;
 
-    GrBatchFontCache* fBatchFontCache;
+    GrAtlasFontCache* fAtlasFontCache;
     int fAtlasedGlyphs;
     bool fIsAbandoned;
 
@@ -99,27 +99,27 @@ private:
 
     GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, SkGlyphCache*);
 
-    friend class GrBatchFontCache;
+    friend class GrAtlasFontCache;
 };
 
 /*
- * GrBatchFontCache manages strikes which are indexed by a SkGlyphCache.  These strikes can then be
- * used to individual Glyph Masks.  The GrBatchFontCache also manages GrBatchAtlases, though this is
+ * GrAtlasFontCache manages strikes which are indexed by a SkGlyphCache. These strikes can then be
+ * used to individual Glyph Masks. The GrAtlasFontCache also manages GrBatchAtlases, though this is
  * more or less transparent to the client(aside from atlasGeneration, described below).
- * Note - we used to initialize the backing atlas for the GrBatchFontCache at initialization time.
- * However, this caused a regression, even when the GrBatchFontCache was unused.  We now initialize
- * the backing atlases lazily.  Its not immediately clear why this improves the situation.
+ * Note - we used to initialize the backing atlas for the GrAtlasFontCache at initialization time.
+ * However, this caused a regression, even when the GrAtlasFontCache was unused. We now initialize
+ * the backing atlases lazily. Its not immediately clear why this improves the situation.
  */
-class GrBatchFontCache {
+class GrAtlasFontCache {
 public:
-    GrBatchFontCache(GrContext*);
-    ~GrBatchFontCache();
+    GrAtlasFontCache(GrContext*);
+    ~GrAtlasFontCache();
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
-    // Therefore, the caller must check GrBatchTextStrike::isAbandoned() if there are other
+    // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline GrBatchTextStrike* getStrike(const SkGlyphCache* cache) {
-        GrBatchTextStrike* strike = fCache.find(cache->getDescriptor());
+    inline GrAtlasTextStrike* getStrike(const SkGlyphCache* cache) {
+        GrAtlasTextStrike* strike = fCache.find(cache->getDescriptor());
         if (nullptr == strike) {
             strike = this->generateStrike(cache);
         }
@@ -129,7 +129,7 @@ public:
     void freeAll();
 
     // if texture returns nullptr, the client must not try to use other functions on the
-    // GrBatchFontCache which use the atlas.  This function *must* be called first, before other
+    // GrAtlasFontCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
     GrTexture* getTexture(GrMaskFormat format) {
         if (this->initAtlas(format)) {
@@ -162,7 +162,7 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,
+    bool addToAtlas(GrAtlasTextStrike* strike, GrBatchAtlas::AtlasID* id,
                     GrDrawOp::Target* target,
                     GrMaskFormat format, int width, int height, const void* image,
                     SkIPoint16* loc) {
@@ -218,8 +218,8 @@ private:
 
     bool initAtlas(GrMaskFormat);
 
-    GrBatchTextStrike* generateStrike(const SkGlyphCache* cache) {
-        GrBatchTextStrike* strike = new GrBatchTextStrike(this, cache->getDescriptor());
+    GrAtlasTextStrike* generateStrike(const SkGlyphCache* cache) {
+        GrAtlasTextStrike* strike = new GrAtlasTextStrike(this, cache->getDescriptor());
         fCache.add(strike);
         return strike;
     }
@@ -232,11 +232,11 @@ private:
 
     static void HandleEviction(GrBatchAtlas::AtlasID, void*);
 
-    using StrikeHash = SkTDynamicHash<GrBatchTextStrike, SkDescriptor>;
+    using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
     GrContext* fContext;
     StrikeHash fCache;
     std::unique_ptr<GrBatchAtlas> fAtlases[kMaskFormatCount];
-    GrBatchTextStrike* fPreserveStrike;
+    GrAtlasTextStrike* fPreserveStrike;
     GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];
 };
 

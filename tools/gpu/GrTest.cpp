@@ -85,7 +85,7 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
 }
 
 void GrContext::setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs) {
-    fBatchFontCache->setAtlasSizes_ForTesting(configs);
+    fAtlasFontCache->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ void GrContext::printGpuStats() const {
 }
 
 GrTexture* GrContext::getFontAtlasTexture(GrMaskFormat format) {
-    GrBatchFontCache* cache = this->getBatchFontCache();
+    GrAtlasFontCache* cache = this->getAtlasFontCache();
 
     return cache->getTexture(format);
 }
