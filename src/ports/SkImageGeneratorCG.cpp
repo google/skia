@@ -60,7 +60,7 @@ SkImageGenerator* SkImageGeneratorCG::NewFromEncodedCG(SkData* data) {
     }
 
     SkAlphaType alphaType = hasAlpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
-    SkImageInfo info = SkImageInfo::Make(width, height, kN32_SkColorType, alphaType);
+    SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
 
     // FIXME: We have the opportunity to extract color space information here,
     //        though I think it makes sense to wait until we understand how
