@@ -85,12 +85,13 @@ const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windi
     return angle;
 }
 
-SkOpSegment* FindUndone(SkOpContourHead* contourList, SkOpSpanBase** startPtr,
-         SkOpSpanBase** endPtr) {
-    SkOpSegment* result;
-    SkOpContour* contour = contourList;
+SkOpSpan* FindUndone(SkOpContourHead* contourHead) {
+    SkOpContour* contour = contourHead;
     do {
-        result = contour->undoneSegment(startPtr, endPtr);
+        if (contour->done()) {
+            continue;
+        }
+        SkOpSpan* result = contour->undoneSpan();
         if (result) {
             return result;
         }

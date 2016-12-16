@@ -162,7 +162,7 @@ bool SkCoincidentSpans::ordered(bool* result) const {
     do {
         const SkOpPtT* opp = next->contains(oppSeg);
         if (!opp) {
-            SkOPOBJASSERT(start, 0);  // may assert if coincident span isn't fully processed
+//            SkOPOBJASSERT(start, 0);  // may assert if coincident span isn't fully processed
             return false;
         }
         if ((oppLastT > opp->fT) != flipped) {

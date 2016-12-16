@@ -31,15 +31,19 @@ void SkOpContour::toReversePath(SkPathWriter* path) const {
     path->assemble();
 }
 
-SkOpSegment* SkOpContour::undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr) {
-    SkOpSegment* segment = &fHead;
+SkOpSpan* SkOpContour::undoneSpan() {
+    SkOpSegment* testSegment = &fHead;
+    bool allDone = true;
     do {
-        if (segment->done()) {
+        if (testSegment->done()) {
             continue;
         }
-        segment->undoneSpan(startPtr, endPtr);
-        return segment;
-    } while ((segment = segment->next()));
+        allDone = false;
+        return testSegment->undoneSpan();
+    } while ((testSegment = testSegment->next()));
+    if (allDone) {
+      fDone = true;
+    }
     return nullptr;
 }
 

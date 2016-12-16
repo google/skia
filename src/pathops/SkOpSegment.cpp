@@ -1619,16 +1619,16 @@ bool SkOpSegment::testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT
     return coincident;
 }
 
-void SkOpSegment::undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end) {
-    SkOpSpan* span = this->head();
+SkOpSpan* SkOpSegment::undoneSpan() {
+    SkOpSpan* span = &fHead;
+    SkOpSpanBase* next;
     do {
+        next = span->next();
         if (!span->done()) {
-            break;
+            return span;
         }
-    } while ((span = span->next()->upCastable()));
-    SkASSERT(span);
-    *start = span;
-    *end = span->next();
+    } while (!next->final() && (span = next->upCast()));
+    return nullptr;
 }
 
 int SkOpSegment::updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const {
