@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrBatchFontCache.h"
+#include "GrAtlasGlyphCache.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
@@ -15,7 +15,7 @@
 
 #include "SkDistanceFieldGen.h"
 
-bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
+bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
         GrPixelConfig config = MaskFormatToPixelConfig(format, *fContext->caps());
@@ -24,10 +24,9 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = fContext->resourceProvider()->makeAtlas(config, width, height,
-                                                                  numPlotsX, numPlotsY,
-                                                                  &GrBatchFontCache::HandleEviction,
-                                                                  (void*)this);
+        fAtlases[index] = fContext->resourceProvider()->makeAtlas(
+                config, width, height, numPlotsX, numPlotsY, &GrAtlasGlyphCache::HandleEviction,
+                (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -35,7 +34,7 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
     return true;
 }
 
-GrBatchFontCache::GrBatchFontCache(GrContext* context)
+GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context)
     : fContext(context)
     , fPreserveStrike(nullptr) {
 
@@ -62,7 +61,7 @@ GrBatchFontCache::GrBatchFontCache(GrContext* context)
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = 256;
 }
 
-GrBatchFontCache::~GrBatchFontCache() {
+GrAtlasGlyphCache::~GrAtlasGlyphCache() {
     StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
@@ -71,7 +70,7 @@ GrBatchFontCache::~GrBatchFontCache() {
     }
 }
 
-void GrBatchFontCache::freeAll() {
+void GrAtlasGlyphCache::freeAll() {
     StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
@@ -84,18 +83,18 @@ void GrBatchFontCache::freeAll() {
     }
 }
 
-void GrBatchFontCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
-    GrBatchFontCache* fontCache = reinterpret_cast<GrBatchFontCache*>(ptr);
+void GrAtlasGlyphCache::HandleEviction(GrBatchAtlas::AtlasID id, void* ptr) {
+    GrAtlasGlyphCache* fontCache = reinterpret_cast<GrAtlasGlyphCache*>(ptr);
 
     StrikeHash::Iter iter(&fontCache->fCache);
     for (; !iter.done(); ++iter) {
-        GrBatchTextStrike* strike = &*iter;
+        GrAtlasTextStrike* strike = &*iter;
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != fontCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            fontCache->fCache.remove(GrBatchTextStrike::GetKey(*strike));
+            fontCache->fCache.remove(GrAtlasTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
             strike->unref();
         }
@@ -161,7 +160,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
     return true;
 }
 
-void GrBatchFontCache::dump() const {
+void GrAtlasGlyphCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
@@ -184,7 +183,7 @@ void GrBatchFontCache::dump() const {
 }
 #endif
 
-void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
+void GrAtlasGlyphCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {
@@ -357,14 +356,14 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
     atlas and a position within that texture.
  */
 
-GrBatchTextStrike::GrBatchTextStrike(GrBatchFontCache* owner, const SkDescriptor& key)
+GrAtlasTextStrike::GrAtlasTextStrike(GrAtlasGlyphCache* owner, const SkDescriptor& key)
     : fFontScalerKey(key)
     , fPool(9/*start allocations at 512 bytes*/)
-    , fBatchFontCache(owner) // no need to ref, it won't go away before we do
+    , fAtlasGlyphCache(owner) // no need to ref, it won't go away before we do
     , fAtlasedGlyphs(0)
     , fIsAbandoned(false) {}
 
-GrBatchTextStrike::~GrBatchTextStrike() {
+GrAtlasTextStrike::~GrAtlasTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).reset();
@@ -372,7 +371,7 @@ GrBatchTextStrike::~GrBatchTextStrike() {
     }
 }
 
-GrGlyph* GrBatchTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
+GrGlyph* GrAtlasTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
                                           SkGlyphCache* cache) {
     SkIRect bounds;
     if (GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(packed)) {
@@ -392,7 +391,7 @@ GrGlyph* GrBatchTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::Packe
     return glyph;
 }
 
-void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
+void GrAtlasTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
     while (!iter.done()) {
         if (id == (*iter).fID) {
@@ -404,7 +403,7 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
+bool GrAtlasTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {
@@ -431,7 +430,7 @@ bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
         }
     }
 
-    bool success = fBatchFontCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
+    bool success = fAtlasGlyphCache->addToAtlas(this, &glyph->fID, target, expectedMaskFormat,
                                                glyph->width(), glyph->height(),
                                                storage.get(), &glyph->fAtlasLocation);
     if (success) {

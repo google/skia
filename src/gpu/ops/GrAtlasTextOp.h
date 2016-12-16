@@ -32,7 +32,7 @@ public:
     };
 
     static sk_sp<GrAtlasTextOp> MakeBitmap(GrMaskFormat maskFormat, int glyphCount,
-                                           GrBatchFontCache* fontCache) {
+                                           GrAtlasGlyphCache* fontCache) {
         sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
@@ -56,7 +56,7 @@ public:
     }
 
     static sk_sp<GrAtlasTextOp> MakeDistanceField(
-            int glyphCount, GrBatchFontCache* fontCache,
+            int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor filteredColor, bool isLCD, bool useBGR) {
         sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
@@ -175,7 +175,7 @@ private:
     } fMaskType;
     bool fUseBGR;  // fold this into the enum?
 
-    GrBatchFontCache* fFontCache;
+    GrAtlasGlyphCache* fFontCache;
 
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
