@@ -25,7 +25,7 @@
 #include "SkTextMapStateProc.h"
 #include "SkTextFormatParams.h"
 
-#include "batches/GrDrawPathOp.h"
+#include "ops/GrDrawPathOp.h"
 
 template<typename Key, typename Val> static void delete_hash_map_entry(const Key&, Val* val) {
     SkASSERT(*val);

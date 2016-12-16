@@ -16,9 +16,9 @@
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawOp.h"
-#include "batches/GrRectOpFactory.h"
 #include "effects/GrTextureDomain.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 /**

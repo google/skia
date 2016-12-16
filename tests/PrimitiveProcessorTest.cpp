@@ -11,18 +11,18 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrOpFlushState.h"
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
+#include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTextureProvider.h"
 #include "SkString.h"
-#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
+#include "ops/GrMeshDrawOp.h"
 
 namespace {
 class Batch : public GrMeshDrawOp {

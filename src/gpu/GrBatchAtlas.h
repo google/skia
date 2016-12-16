@@ -13,7 +13,7 @@
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
-#include "batches/GrDrawOp.h"
+#include "ops/GrDrawOp.h"
 
 class GrRectanizer;
 

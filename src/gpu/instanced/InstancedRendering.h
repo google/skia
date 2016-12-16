@@ -8,12 +8,12 @@
 #ifndef gr_instanced_InstancedRendering_DEFINED
 #define gr_instanced_InstancedRendering_DEFINED
 
+#include "../private/GrInstancedPipelineInfo.h"
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
-#include "batches/GrDrawOp.h"
 #include "instanced/InstancedRenderingTypes.h"
-#include "../private/GrInstancedPipelineInfo.h"
+#include "ops/GrDrawOp.h"
 
 class GrResourceProvider;
 
@@ -23,8 +23,8 @@ class InstanceProcessor;
 
 /**
  * This class serves as a centralized clearinghouse for instanced rendering. It accumulates data for
- * instanced draws into one location, and creates special ops that pull from this data. The nature
- * of instanced rendering allows these ops to combine well and render efficiently.
+ * instanced draws into one location, and creates special ops that pull from this data. The
+ * nature of instanced rendering allows these ops to combine well and render efficiently.
  *
  * During a flush, this class assembles the accumulated draw data into a single vertex and texel
  * buffer, and its subclass draws the ops using backend-specific instanced rendering APIs.

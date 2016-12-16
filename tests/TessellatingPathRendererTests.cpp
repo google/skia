@@ -11,7 +11,7 @@
 #include "GrContext.h"
 #include "GrTest.h"
 #include "Test.h"
-#include "batches/GrTessellatingPathRenderer.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.

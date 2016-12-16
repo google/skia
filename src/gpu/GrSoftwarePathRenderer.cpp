@@ -13,7 +13,7 @@
 #include "GrSWMaskHelper.h"
 #include "GrSurfaceContextPriv.h"
 #include "GrTextureProvider.h"
-#include "batches/GrRectOpFactory.h"
+#include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {

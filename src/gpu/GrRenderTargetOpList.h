@@ -16,7 +16,7 @@
 #include "GrPathRendering.h"
 #include "GrXferProcessor.h"
 
-#include "batches/GrDrawOp.h"
+#include "ops/GrDrawOp.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"

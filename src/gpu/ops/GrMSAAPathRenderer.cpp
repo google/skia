@@ -18,14 +18,14 @@
 #include "GrPipelineBuilder.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
-#include "batches/GrMeshDrawOp.h"
-#include "batches/GrRectOpFactory.h"
 #include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "ops/GrMeshDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 static const float kTolerance = 0.5f;
 

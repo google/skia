@@ -25,10 +25,10 @@
 #include "SkString.h"
 #include "SkTSort.h"
 #include "SkTraceEvent.h"
-#include "batches/GrMeshDrawOp.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
+#include "ops/GrMeshDrawOp.h"
 
 GrPLSPathRenderer::GrPLSPathRenderer() {
 }

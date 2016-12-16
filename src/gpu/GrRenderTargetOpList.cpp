@@ -27,14 +27,14 @@
 
 #include "SkStrokeRec.h"
 
-#include "batches/GrClearOp.h"
-#include "batches/GrClearStencilClipOp.h"
-#include "batches/GrCopySurfaceOp.h"
-#include "batches/GrDiscardOp.h"
-#include "batches/GrDrawOp.h"
-#include "batches/GrDrawPathOp.h"
-#include "batches/GrRectOpFactory.h"
-#include "batches/GrStencilPathOp.h"
+#include "ops/GrClearOp.h"
+#include "ops/GrClearStencilClipOp.h"
+#include "ops/GrCopySurfaceOp.h"
+#include "ops/GrDiscardOp.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrDrawPathOp.h"
+#include "ops/GrRectOpFactory.h"
+#include "ops/GrStencilPathOp.h"
 
 #include "instanced/InstancedRendering.h"
 

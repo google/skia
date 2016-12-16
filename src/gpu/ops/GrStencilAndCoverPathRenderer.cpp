@@ -18,7 +18,7 @@
 #include "GrResourceProvider.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"
-#include "batches/GrRectOpFactory.h"
+#include "ops/GrRectOpFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {

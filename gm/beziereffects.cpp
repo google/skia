@@ -18,7 +18,7 @@
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
 
-#include "batches/GrTestMeshDrawOp.h"
+#include "ops/GrTestMeshDrawOp.h"
 
 #include "effects/GrBezierEffect.h"
 

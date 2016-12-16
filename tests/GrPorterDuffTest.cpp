@@ -14,9 +14,9 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrXferProcessor.h"
-#include "batches/GrMeshDrawOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
+#include "ops/GrMeshDrawOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -16,8 +16,8 @@
 #include "GrSWMaskHelper.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
-#include "batches/GrMeshDrawOp.h"
 #include "effects/GrDistanceFieldGeoProc.h"
+#include "ops/GrMeshDrawOp.h"
 
 #include "SkDistanceFieldGen.h"
 

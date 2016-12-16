@@ -12,8 +12,8 @@
 #include "GrPipeline.h"
 #include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
-#include "batches/GrOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
+#include "ops/GrOp.h"
 
 GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
         : fFlags(0x0)

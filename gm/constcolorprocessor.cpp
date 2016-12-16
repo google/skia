@@ -15,9 +15,9 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawOp.h"
-#include "batches/GrRectOpFactory.h"
 #include "effects/GrConstColorProcessor.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 /**

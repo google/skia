@@ -10,16 +10,16 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "batches/GrDrawOp.h"
-#include "GrRenderTargetContext.h"
 #include "GrPipelineBuilder.h"
+#include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
+#include "ops/GrDrawOp.h"
 
 #include "SkDistanceFieldGen.h"
 
-#include "batches/GrRectOpFactory.h"
+#include "ops/GrRectOpFactory.h"
 
 /*
  * Convert a boolean operation into a transfer mode code

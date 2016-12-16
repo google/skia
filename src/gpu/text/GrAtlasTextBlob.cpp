@@ -16,7 +16,7 @@
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkTextBlobRunIterator.h"
-#include "batches/GrAtlasTextOp.h"
+#include "ops/GrAtlasTextOp.h"
 
 GrAtlasTextBlob* GrAtlasTextBlob::Create(GrMemoryPool* pool, int glyphCount, int runCount) {
     // We allocate size for the GrAtlasTextBlob itself, plus size for the vertices array,

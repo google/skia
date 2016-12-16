@@ -20,7 +20,7 @@
 #include "GrTessellator.h"
 #include "SkGeometry.h"
 
-#include "batches/GrMeshDrawOp.h"
+#include "ops/GrMeshDrawOp.h"
 
 #include <stdio.h>
 

@@ -10,7 +10,7 @@
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
-#include "batches/GrDashOp.h"
+#include "ops/GrDashOp.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];

@@ -22,13 +22,13 @@
 #include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
-#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "ops/GrMeshDrawOp.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }

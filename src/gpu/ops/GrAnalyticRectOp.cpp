@@ -15,7 +15,6 @@
 #include "GrResourceProvider.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
-#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -23,6 +22,7 @@
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "ops/GrMeshDrawOp.h"
 
 namespace {
 

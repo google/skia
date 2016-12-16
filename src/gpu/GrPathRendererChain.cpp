@@ -14,16 +14,16 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 
-#include "batches/GrAAConvexPathRenderer.h"
-#include "batches/GrAADistanceFieldPathRenderer.h"
-#include "batches/GrAAHairLinePathRenderer.h"
-#include "batches/GrAALinearizingConvexPathRenderer.h"
-#include "batches/GrDashLinePathRenderer.h"
-#include "batches/GrDefaultPathRenderer.h"
-#include "batches/GrMSAAPathRenderer.h"
-#include "batches/GrPLSPathRenderer.h"
-#include "batches/GrStencilAndCoverPathRenderer.h"
-#include "batches/GrTessellatingPathRenderer.h"
+#include "ops/GrAAConvexPathRenderer.h"
+#include "ops/GrAADistanceFieldPathRenderer.h"
+#include "ops/GrAAHairLinePathRenderer.h"
+#include "ops/GrAALinearizingConvexPathRenderer.h"
+#include "ops/GrDashLinePathRenderer.h"
+#include "ops/GrDefaultPathRenderer.h"
+#include "ops/GrMSAAPathRenderer.h"
+#include "ops/GrPLSPathRenderer.h"
+#include "ops/GrStencilAndCoverPathRenderer.h"
+#include "ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
     if (!options.fDisableAllPathRenderers) {
