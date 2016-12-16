@@ -10,7 +10,7 @@
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
-#include "effects/GrDashingEffect.h"
+#include "batches/GrDashOp.h"
 
 bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
@@ -21,7 +21,7 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         }
         // We should never have an inverse dashed case.
         SkASSERT(!inverted);
-        return GrDashingEffect::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix);
+        return GrDashOp::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix);
     }
     return false;
 }
@@ -29,24 +29,24 @@ bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
-    GrDashingEffect::AAMode aaMode = GrDashingEffect::AAMode::kNone;
+    GrDashOp::AAMode aaMode = GrDashOp::AAMode::kNone;
     switch (args.fAAType) {
         case GrAAType::kNone:
             break;
         case GrAAType::kCoverage:
         case GrAAType::kMixedSamples:
-            aaMode = GrDashingEffect::AAMode::kCoverage;
+            aaMode = GrDashOp::AAMode::kCoverage;
             break;
         case GrAAType::kMSAA:
             // In this mode we will use aa between dashes but the outer border uses MSAA. Otherwise,
             // we can wind up with external edges antialiased and internal edges unantialiased.
-            aaMode = GrDashingEffect::AAMode::kCoverageWithMSAA;
+            aaMode = GrDashOp::AAMode::kCoverageWithMSAA;
             break;
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    sk_sp<GrDrawOp> op(GrDashingEffect::CreateDashLineBatch(
-            args.fPaint->getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style()));
+    sk_sp<GrDrawOp> op = GrDashOp::MakeDashLineOp(
+            args.fPaint->getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
     if (!op) {
         return false;
     }
