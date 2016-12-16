@@ -368,7 +368,7 @@ public:
 
     void toReversePath(SkPathWriter* path) const;
     void toPath(SkPathWriter* path) const;
-    SkOpSegment* undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr);
+    SkOpSpan* undoneSpan();
 
 protected:
     SkOpGlobalState* fState;
