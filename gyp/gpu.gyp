@@ -80,6 +80,7 @@
         'core.gyp:*',
         'utils.gyp:utils',
         'etc1.gyp:libetc1',
+        'ktx.gyp:libSkKTX',
         'sksl.gyp:sksl',
       ],
       'include_dirs': [
