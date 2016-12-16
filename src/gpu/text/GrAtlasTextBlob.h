@@ -8,8 +8,8 @@
 #ifndef GrAtlasTextBlob_DEFINED
 #define GrAtlasTextBlob_DEFINED
 
+#include "GrAtlasGlyphCache.h"
 #include "GrBatchAtlas.h"
-#include "GrBatchFontCache.h"
 #include "GrColor.h"
 #include "GrMemoryPool.h"
 #include "SkDescriptor.h"
@@ -161,7 +161,7 @@ public:
     void appendGlyph(int runIndex,
                      const SkRect& positions,
                      GrColor color,
-                     GrBatchTextStrike* strike,
+                     GrAtlasTextStrike* strike,
                      GrGlyph* glyph,
                      SkGlyphCache*, const SkGlyph& skGlyph,
                      SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
@@ -264,7 +264,7 @@ public:
      * SkAutoGlyphCache is passed to multiple calls of regenInBatch then it can save the cost of
      * multiple detach/attach operations of SkGlyphCache.
      */
-    void regenInBatch(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+    void regenInBatch(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache,
                       GrBlobRegenHelper *helper, int run, int subRun, SkAutoGlyphCache*,
                       size_t vertexStride, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                       GrColor color, void** vertices, size_t* byteCount, int* glyphCount);
@@ -283,7 +283,7 @@ public:
                                 SkScalar x, SkScalar y, GrColor color, const SkPaint& skPaint,
                                 const SkSurfaceProps& props,
                                 const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                GrBatchFontCache* cache);
+                                GrAtlasGlyphCache* cache);
 
 private:
     GrAtlasTextBlob()
@@ -298,7 +298,7 @@ private:
                          int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                          const SkPaint& skPaint, const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                         GrBatchFontCache* cache);
+                         GrAtlasGlyphCache* cache);
 
     void flushBigGlyphs(GrContext* context, GrRenderTargetContext* rtc,
                         const GrClip& clip, const SkPaint& skPaint,
@@ -396,8 +396,8 @@ private:
             // TODO when this object is more internal, drop the privacy
             void resetBulkUseToken() { fBulkUseToken.reset(); }
             GrBatchAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
-            void setStrike(GrBatchTextStrike* strike) { fStrike.reset(SkRef(strike)); }
-            GrBatchTextStrike* strike() const { return fStrike.get(); }
+            void setStrike(GrAtlasTextStrike* strike) { fStrike.reset(SkRef(strike)); }
+            GrAtlasTextStrike* strike() const { return fStrike.get(); }
 
             void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
             uint64_t atlasGeneration() const { return fAtlasGeneration; }
@@ -452,7 +452,7 @@ private:
 
         private:
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
-            sk_sp<GrBatchTextStrike> fStrike;
+            sk_sp<GrAtlasTextStrike> fStrike;
             SkMatrix fCurrentViewMatrix;
             SkRect fVertexBounds;
             uint64_t fAtlasGeneration;
@@ -496,7 +496,7 @@ private:
     };
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInOp(GrDrawOp::Target* target, GrBatchFontCache* fontCache, GrBlobRegenHelper* helper,
+    void regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
@@ -504,7 +504,7 @@ private:
                                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                   const SkPaint& skPaint, const SkSurfaceProps& props,
                                   const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                  bool useGammaCorrectDistanceTable, GrBatchFontCache* cache);
+                                  bool useGammaCorrectDistanceTable, GrAtlasGlyphCache* cache);
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
