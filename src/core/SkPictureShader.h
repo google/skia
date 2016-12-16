@@ -41,6 +41,7 @@ private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
 
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
+                                    SkColorSpace* dstColorSpace,
                                     const int maxTextureSize = 0) const;
 
     sk_sp<SkPicture>    fPicture;
