@@ -14,6 +14,10 @@ them.
 Quickstart
 ----------
 
+After gclient sync, run `fetch-gn` to make sure you have GN.
+
+    gclient sync && python bin/fetch-gn
+
 Run GN to generate your build files.
 
     gn gen out/Static --args='is_official_build=true'
