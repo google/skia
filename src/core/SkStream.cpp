@@ -657,15 +657,8 @@ public:
 
 class SkBlockMemoryStream : public SkStreamAsset {
 public:
-    SkBlockMemoryStream(SkDynamicMemoryWStream::Block* head, size_t size)
-        : fBlockMemory(new SkBlockMemoryRefCnt(head))
-        , fCurrent(head)
-        , fSize(size)
-        , fOffset(0)
-        , fCurrentOffset(0) {}
-
-    SkBlockMemoryStream(SkBlockMemoryRefCnt* headRef, size_t size)
-        : fBlockMemory(SkRef(headRef)), fCurrent(fBlockMemory->fHead)
+    SkBlockMemoryStream(sk_sp<SkBlockMemoryRefCnt> headRef, size_t size)
+        : fBlockMemory(std::move(headRef)), fCurrent(fBlockMemory->fHead)
         , fSize(size) , fOffset(0), fCurrentOffset(0) { }
 
     size_t read(void* buffer, size_t rawCount) override {
@@ -709,8 +702,7 @@ public:
         size_t currentOffset = fCurrentOffset;
         while (bytesLeftToPeek) {
             SkASSERT(current);
-            size_t bytesFromCurrent =
-                    SkTMin(current->written() - currentOffset, bytesLeftToPeek);
+            size_t bytesFromCurrent = SkTMin(current->written() - currentOffset, bytesLeftToPeek);
             memcpy(buffer, current->start() + currentOffset, bytesFromCurrent);
             bytesLeftToPeek -= bytesFromCurrent;
             buffer += bytesFromCurrent;
@@ -728,7 +720,7 @@ public:
     }
 
     SkBlockMemoryStream* duplicate() const override {
-        return new SkBlockMemoryStream(fBlockMemory.get(), fSize);
+        return new SkBlockMemoryStream(fBlockMemory, fSize);
     }
 
     size_t getPosition() const override {
@@ -769,8 +761,7 @@ public:
     }
 
     const void* getMemoryBase() override {
-        if (nullptr != fBlockMemory->fHead &&
-            nullptr == fBlockMemory->fHead->fNext) {
+        if (fBlockMemory->fHead && !fBlockMemory->fHead->fNext) {
             return fBlockMemory->fHead->start();
         }
         return nullptr;
@@ -785,10 +776,11 @@ private:
 };
 
 SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
-    SkBlockMemoryStream* stream = new SkBlockMemoryStream(fHead, this->bytesWritten());
+    auto stream = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
+                                                          this->bytesWritten());
     fHead = nullptr;    // signal reset() to not free anything
     this->reset();
-    return stream;
+    return stream.release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
