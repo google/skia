@@ -21,9 +21,9 @@
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
 
-#include "batches/GrCopySurfaceOp.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrGammaEffect.h"
+#include "ops/GrCopySurfaceOp.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)

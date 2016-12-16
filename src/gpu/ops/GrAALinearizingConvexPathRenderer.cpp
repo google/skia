@@ -22,8 +22,8 @@
 #include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
-#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
+#include "ops/GrMeshDrawOp.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
 
