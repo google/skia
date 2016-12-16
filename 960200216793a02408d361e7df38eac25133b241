@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_2cedfbd7",
+        "filename": "include/core/SkClipOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-16T18:50:47Z",
+      "side": 1,
+      "message": "what is this?",
+      "range": {
+        "startLine": 66,
+        "startChar": 13,
+        "endLine": 66,
+        "endChar": 16
+      },
+      "revId": "960200216793a02408d361e7df38eac25133b241",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
