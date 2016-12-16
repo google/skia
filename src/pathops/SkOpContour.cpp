@@ -11,6 +11,9 @@
 #include "SkTSort.h"
 
 void SkOpContour::toPath(SkPathWriter* path) const {
+    if (!this->count()) {
+        return;
+    }
     const SkOpSegment* segment = &fHead;
     do {
         SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));

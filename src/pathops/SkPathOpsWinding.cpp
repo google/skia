@@ -381,18 +381,20 @@ SkOpSpan* SkOpSegment::findSortableTop(SkOpContour* contourHead) {
 }
 
 SkOpSpan* SkOpContour::findSortableTop(SkOpContour* contourHead) {
-    SkOpSegment* testSegment = &fHead;
     bool allDone = true;
-    do {
-        if (testSegment->done()) {
-            continue;
-        }
-        allDone = false;
-        SkOpSpan* result = testSegment->findSortableTop(contourHead);
-        if (result) {
-            return result;
-        }
-    } while ((testSegment = testSegment->next()));
+    if (fCount) {
+        SkOpSegment* testSegment = &fHead;
+        do {
+            if (testSegment->done()) {
+                continue;
+            }
+            allDone = false;
+            SkOpSpan* result = testSegment->findSortableTop(contourHead);
+            if (result) {
+                return result;
+            }
+        } while ((testSegment = testSegment->next()));
+    }
     if (allDone) {
       fDone = true;
     }
