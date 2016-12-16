@@ -21,7 +21,7 @@
 #include "SkTLList.h"
 
 #include "batches/GrMeshDrawOp.h"
-#include "batches/GrTestBatch.h"
+#include "batches/GrTestMeshDrawOp.h"
 
 #include "effects/GrConvexPolyEffect.h"
 
@@ -40,18 +40,20 @@ static SkRect sorted_rect(const SkRect& unsorted) {
 }
 
 namespace skiagm {
-class PolyBoundsBatch : public GrTestBatch {
+class PolyBoundsOp : public GrTestMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "PolyBoundsBatch"; }
+    const char* name() const override { return "PolyBoundsOp"; }
 
-    PolyBoundsBatch(const SkRect& rect, GrColor color)
-        : INHERITED(ClassID(), outset(sorted_rect(rect)), color)
-        , fRect(outset(rect)) {
+    static sk_sp<GrDrawOp> Make(const SkRect& rect, GrColor color) {
+        return sk_sp<GrDrawOp>(new PolyBoundsOp(rect, color));
     }
 
 private:
+    PolyBoundsOp(const SkRect& rect, GrColor color)
+            : INHERITED(ClassID(), outset(sorted_rect(rect)), color), fRect(outset(rect)) {}
+
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
@@ -76,7 +78,7 @@ private:
 
     SkRect fRect;
 
-    typedef GrTestBatch INHERITED;
+    typedef GrTestMeshDrawOp INHERITED;
 };
 
 /**
@@ -183,7 +185,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawOp> op(new PolyBoundsBatch(p.getBounds(), 0xff000000));
+                sk_sp<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
 
                 renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                   std::move(op));
@@ -223,7 +225,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawOp> op(new PolyBoundsBatch(rect, 0xff000000));
+                sk_sp<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
 
                 renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                   std::move(op));

@@ -288,6 +288,7 @@ skia_gpu_sources = [
   "$_src/gpu/batches/GrStencilPathOp.h",
   "$_src/gpu/batches/GrTessellatingPathRenderer.cpp",
   "$_src/gpu/batches/GrTessellatingPathRenderer.h",
+  "$_src/gpu/batches/GrTestMeshDrawOp.h",
   "$_src/gpu/batches/GrMeshDrawOp.cpp",
   "$_src/gpu/batches/GrMeshDrawOp.h",
 
