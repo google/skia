@@ -47,15 +47,10 @@ public:
         return nullptr;
     }
 
-    bool onGammaCloseToSRGB() const override {
-        // There is no single gamma curve in an A2B0 profile
-        return false;
-    }
-
-    bool onGammaIsLinear() const override {
-        // There is no single gamma curve in an A2B0 profile
-        return false;
-    }
+    // There is no single gamma curve in an A2B0 profile
+    bool onGammaCloseToSRGB() const override { return false; }
+    bool onGammaIsLinear() const override { return false; }
+    bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override { return false; }
 
     sk_sp<SkColorSpace> makeLinearGamma() override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
