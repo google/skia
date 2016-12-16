@@ -216,8 +216,8 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
         if (regenGlyphs) {
             info->setStrike(strike);
         }
-        info->setAtlasGeneration(brokenRun ? GrBatchAtlas::kInvalidAtlasGeneration :
-                                 fontCache->atlasGeneration(info->maskFormat()));
+        info->setAtlasGeneration(brokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                                           : fontCache->atlasGeneration(info->maskFormat()));
     }
 }
 

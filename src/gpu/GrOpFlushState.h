@@ -121,7 +121,7 @@ private:
  * that case the ASAP upload would happen prior to the previous draw causing the draw to read the
  * new (wrong) texture data. In that case they should schedule an inline upload.
  *
- * Ops, in conjunction with helpers such as GrBatchAtlas, can use the token system to know
+ * Ops, in conjunction with helpers such as GrDrawOpAtlas, can use the token system to know
  * what the most recent draw was that referenced a resource (or portion of a resource). Each draw
  * is assigned a token. A resource (or portion) can be tagged with the most recent draw's
  * token. The target provides a facility for testing whether the draw corresponding to the token
