@@ -120,14 +120,14 @@ GR_STATIC_ASSERT(0 == offsetof(ParamsTexel, fX));
 GR_STATIC_ASSERT(4 * 4 == sizeof(ParamsTexel));
 
 /**
- * Tracks all information needed in order to draw a batch of instances. This struct also serves
- * as an all-in-one shader key for the batch.
+ * Tracks all information needed in order to draw a op of instances. This struct also serves
+ * as an all-in-one shader key for the op.
  */
-struct BatchInfo {
-    BatchInfo() : fData(0) {}
-    explicit BatchInfo(uint32_t data) : fData(data) {}
+struct OpInfo {
+    OpInfo() : fData(0) {}
+    explicit OpInfo(uint32_t data) : fData(data) {}
 
-    static bool CanCombine(const BatchInfo& a, const BatchInfo& b);
+    static bool CanCombine(const OpInfo& a, const OpInfo& b);
 
     bool isSimpleRects() const {
         return !((fShapeTypes & ~kRect_ShapeFlag) | fInnerShapeTypes);
@@ -150,7 +150,7 @@ struct BatchInfo {
     };
 };
 
-inline bool BatchInfo::CanCombine(const BatchInfo& a, const BatchInfo& b) {
+inline bool OpInfo::CanCombine(const OpInfo& a, const OpInfo& b) {
     if (a.fAntialiasMode != b.fAntialiasMode) {
         return false;
     }
@@ -165,13 +165,13 @@ inline bool BatchInfo::CanCombine(const BatchInfo& a, const BatchInfo& b) {
     return true;
 }
 
-inline BatchInfo operator|(const BatchInfo& a, const BatchInfo& b) {
-    SkASSERT(BatchInfo::CanCombine(a, b));
-    return BatchInfo(a.fData | b.fData);
+inline OpInfo operator|(const OpInfo& a, const OpInfo& b) {
+    SkASSERT(OpInfo::CanCombine(a, b));
+    return OpInfo(a.fData | b.fData);
 }
 
 // This is required since all the data must fit into 32 bits of a shader key.
-GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(BatchInfo));
+GR_STATIC_ASSERT(sizeof(uint32_t) == sizeof(OpInfo));
 GR_STATIC_ASSERT(kNumShapeTypes <= 8);
 
 struct IndexRange {
