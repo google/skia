@@ -10,7 +10,9 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
@@ -19,13 +21,25 @@
 #include "sk_tool_utils.h"
 
 DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
-DEFINE_string(output, "output.png", "A path to the output image.");
-DEFINE_bool(sRGB, false, "Draws the sRGB gamut.");
-DEFINE_bool(adobeRGB, false, "Draws the Adobe RGB gamut.");
+DEFINE_string(gamut_output, "gamut_output.png", "A path to the output gamut image.");
+DEFINE_string(gamma_output, "gamma_output.png", "A path to the output gamma image.");
+DEFINE_bool(sRGB_gamut, false, "Draws the sRGB gamut on the gamut visualization.");
+DEFINE_bool(adobeRGB, false, "Draws the Adobe RGB gamut on the gamut visualization.");
+DEFINE_bool(sRGB_gamma, false, "Draws the sRGB gamma on all gamma output images.");
 DEFINE_string(uncorrected, "", "A path to reencode the uncorrected input image.");
 
-static void dump_transfer_fn(SkColorSpace_XYZ* colorSpace) {
-    switch (colorSpace->gammaNamed()) {
+static const char* kRGBChannelNames[3] = {
+    "Red  ", "Green", "Blue "
+};
+
+static const SkColor kRGBChannelColors[3] = {
+    SkColorSetARGB(164, 255, 32, 32),
+    SkColorSetARGB(164, 32, 255, 32),
+    SkColorSetARGB(164, 32, 32, 255)
+};
+
+static void dump_transfer_fn(SkGammaNamed gammaNamed) {
+    switch (gammaNamed) {
         case kSRGB_SkGammaNamed:
             SkDebugf("Transfer Function: sRGB\n");
             return;
@@ -39,37 +53,134 @@ static void dump_transfer_fn(SkColorSpace_XYZ* colorSpace) {
             break;
     }
 
-    static const char* kChannels[] = { "Red  ", "Green", "Blue ", };
-    const SkGammas* gammas = colorSpace->gammas();
-    for (int i = 0; i < 3; i++) {
-        if (gammas->isNamed(i)) {
-            switch (gammas->data(i).fNamed) {
+}
+
+static void dump_transfer_fn(const SkGammas& gammas) {
+    SkASSERT(gammas.channels() == 3);
+    for (int i = 0; i < gammas.channels(); i++) {
+        if (gammas.isNamed(i)) {
+            switch (gammas.data(i).fNamed) {
                 case kSRGB_SkGammaNamed:
-                    SkDebugf("%s Transfer Function: sRGB\n", kChannels[i]);
+                    SkDebugf("%s Transfer Function: sRGB\n", kRGBChannelNames[i]);
                     return;
                 case k2Dot2Curve_SkGammaNamed:
-                    SkDebugf("%s Transfer Function: Exponent 2.2\n", kChannels[i]);
+                    SkDebugf("%s Transfer Function: Exponent 2.2\n", kRGBChannelNames[i]);
                     return;
                 case kLinear_SkGammaNamed:
-                    SkDebugf("%s Transfer Function: Linear\n", kChannels[i]);
+                    SkDebugf("%s Transfer Function: Linear\n", kRGBChannelNames[i]);
                     return;
                 default:
                     SkASSERT(false);
                     continue;
             }
-        } else if (gammas->isValue(i)) {
-            SkDebugf("%s Transfer Function: Exponent %.3f\n", kChannels[i], gammas->data(i).fValue);
-        } else if (gammas->isParametric(i)) {
-            const SkColorSpaceTransferFn& fn = gammas->data(i).params(gammas);
+        } else if (gammas.isValue(i)) {
+            SkDebugf("%s Transfer Function: Exponent %.3f\n", kRGBChannelNames[i],
+                     gammas.data(i).fValue);
+        } else if (gammas.isParametric(i)) {
+            const SkColorSpaceTransferFn& fn = gammas.data(i).params(&gammas);
             SkDebugf("%s Transfer Function: Parametric A = %.3f, B = %.3f, C = %.3f, D = %.3f, "
-                     "E = %.3f, F = %.3f, G = %.3f\n", kChannels[i], fn.fA, fn.fB, fn.fC, fn.fD,
-                     fn.fE, fn.fF, fn.fG);
+                     "E = %.3f, F = %.3f, G = %.3f\n", kRGBChannelNames[i], fn.fA, fn.fB, fn.fC,
+                     fn.fD, fn.fE, fn.fF, fn.fG);
         } else {
-            SkASSERT(gammas->isTable(i));
-            SkDebugf("%s Transfer Function: Table (%d entries)\n", kChannels[i],
-                    gammas->data(i).fTable.fSize);
+            SkASSERT(gammas.isTable(i));
+            SkDebugf("%s Transfer Function: Table (%d entries)\n", kRGBChannelNames[i],
+                    gammas.data(i).fTable.fSize);
         }
     }
+}
+
+static inline float parametric(const SkColorSpaceTransferFn& fn, float x) {
+    return x >= fn.fD ? powf(fn.fA*x + fn.fB, fn.fG) + fn.fC
+                      : fn.fE*x + fn.fF;
+}
+
+static void draw_transfer_fn(SkCanvas* canvas, SkGammaNamed gammaNamed, const SkGammas* gammas,
+                             SkColor color, int col) {
+    SkColorSpaceTransferFn fn[4];
+    struct TableInfo {
+        const float* fTable;
+        int          fSize;
+    };
+    TableInfo table[4];
+    bool isTable[4] = {false, false, false, false};
+    const int channels = gammas ? gammas->channels() : 1;
+    SkASSERT(channels <= 4);
+    if (kNonStandard_SkGammaNamed != gammaNamed) {
+        dump_transfer_fn(gammaNamed);
+        for (int i = 0; i < channels; ++i) {
+            named_to_parametric(&fn[i], gammaNamed);
+        }
+    } else {
+        SkASSERT(gammas);
+        dump_transfer_fn(*gammas);
+        for (int i = 0; i < channels; ++i) {
+            if (gammas->isTable(i)) {
+                table[i].fTable = gammas->table(i);
+                table[i].fSize = gammas->data(i).fTable.fSize;
+                isTable[i] = true;
+            } else {
+                switch (gammas->type(i)) {
+                    case SkGammas::Type::kNamed_Type:
+                        named_to_parametric(&fn[i], gammas->data(i).fNamed);
+                        break;
+                    case SkGammas::Type::kValue_Type:
+                        value_to_parametric(&fn[i], gammas->data(i).fValue);
+                        break;
+                    case SkGammas::Type::kParam_Type:
+                        fn[i] = gammas->params(i);
+                        break;
+                    default:
+                        SkASSERT(false);
+                }
+            }
+        }
+    }
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setColor(color);
+    paint.setStrokeWidth(2.0f);
+    // note: gamma has positive values going up in this image so this origin is
+    //       the bottom left and we must subtract y instead of adding.
+    const float gap         = 16.0f;
+    const float cellWidth   = 500.0f;
+    const float cellHeight  = 500.0f;
+    const float gammaWidth  = cellWidth - 2 * gap;
+    const float gammaHeight = cellHeight - 2 * gap;
+    // gamma origin point
+    const float ox = gap + cellWidth * col;
+    const float oy = gap + gammaHeight;
+    for (int i = 0; i < channels; ++i) {
+        if (kNonStandard_SkGammaNamed == gammaNamed) {
+            paint.setColor(kRGBChannelColors[i]);
+        } else {
+            paint.setColor(color);
+        }
+        if (isTable[i]) {
+            auto tx = [&table,i](int index) {
+                return index / (table[i].fSize - 1.0f);
+            };
+            for (int ti = 1; ti < table[i].fSize; ++ti) {
+                canvas->drawLine(ox + gammaWidth * tx(ti - 1),
+                                 oy - gammaHeight * table[i].fTable[ti - 1],
+                                 ox + gammaWidth * tx(ti),
+                                 oy - gammaHeight * table[i].fTable[ti],
+                                 paint);
+            }
+        } else {
+            const float step = 0.01f;
+            float yPrev = parametric(fn[i], 0.0f);
+            for (float x = step; x <= 1.0f; x += step) {
+                const float y = parametric(fn[i], x);
+                canvas->drawLine(ox + gammaWidth * (x - step), oy - gammaHeight * yPrev,
+                                 ox + gammaWidth * x, oy - gammaHeight * y,
+                                 paint);
+                yPrev = y;
+            }
+        }
+    }
+    paint.setColor(0xFF000000);
+    paint.setStrokeWidth(3.0f);
+    canvas->drawRectCoords(ox, oy - gammaHeight, ox + gammaWidth, oy, paint);
 }
 
 /**
@@ -150,17 +261,19 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(
             "Usage: colorspaceinfo --input <path to input image or icc profile> "
-                                  "--output <path to output image> "
+                                  "--gamma_output <path to output gamma image> "
+                                  "--gamut_output <path to output gamut image>"
                                   "--sRGB <draw canonical sRGB gamut> "
                                   "--adobeRGB <draw canonical Adobe RGB gamut> "
                                   "--uncorrected <path to reencoded, uncorrected input image>\n"
-            "Description: Writes a visualization of the color space to the output image  ."
+            "Description: Writes visualizations of the color space to the output image(s)  ."
                          "Also, if a path is provided, writes uncorrected bytes to an unmarked "
                          "png, for comparison with the input image.\n");
     SkCommandLineFlags::Parse(argc, argv);
     const char* input = FLAGS_input[0];
-    const char* output = FLAGS_output[0];
-    if (!input || !output) {
+    const char* gamut_output = FLAGS_gamut_output[0];
+    const char* gamma_output = FLAGS_gamma_output[0];
+    if (!input || !gamut_output || !gamma_output) {
         SkCommandLineFlags::PrintUsage();
         return -1;
     }
@@ -172,7 +285,8 @@ int main(int argc, char** argv) {
     }
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    if (codec) {
+    const bool isImage = (codec != nullptr);
+    if (isImage) {
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     } else {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
@@ -184,19 +298,23 @@ int main(int argc, char** argv) {
     }
 
     // Load a graph of the CIE XYZ color gamut.
-    SkBitmap gamut;
-    if (!GetResourceAsBitmap("gamut.png", &gamut)) {
+    SkBitmap gamutCanvasBitmap;
+    if (!GetResourceAsBitmap("gamut.png", &gamutCanvasBitmap)) {
         SkDebugf("Program failure.\n");
         return -1;
     }
-    SkCanvas canvas(gamut);
+    SkCanvas gamutCanvas(gamutCanvasBitmap);
+
+    SkBitmap gammaCanvasBitmap;
+    gammaCanvasBitmap.allocN32Pixels(500, 500);
+    SkCanvas gammaCanvas(gammaCanvasBitmap);
 
     // Draw the sRGB gamut if requested.
-    if (FLAGS_sRGB) {
+    if (FLAGS_sRGB_gamut) {
         sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, "sRGB", 0xFFFF9394, false);
+        draw_gamut(&gamutCanvas, *mat, "sRGB", 0xFFFF9394, false);
     }
 
     // Draw the Adobe RGB gamut if requested.
@@ -204,34 +322,60 @@ int main(int argc, char** argv) {
         sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
         const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
+        draw_gamut(&gamutCanvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
     }
 
+    int gammaCol = 0;
     if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type()) {
         const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
         SkASSERT(mat);
-        draw_gamut(&canvas, *mat, input, 0xFF000000, true);
-        dump_transfer_fn((SkColorSpace_XYZ*) colorSpace.get());
+        auto xyz = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
+        draw_gamut(&gamutCanvas, *mat, input, 0xFF000000, true);
+        if (FLAGS_sRGB_gamma) {
+            draw_transfer_fn(&gammaCanvas, kSRGB_SkGammaNamed, nullptr, 0xFFFF9394, gammaCol);
+        }
+        draw_transfer_fn(&gammaCanvas, xyz->gammaNamed(), xyz->gammas(), 0xFF000000, gammaCol++);
     } else {
         SkDebugf("Color space is defined using an A2B tag.  It cannot be represented by "
                  "a transfer function and to D50 matrix.\n");
-    }
-
-    // Finally, encode the result to the output file.
-    sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(gamut, SkEncodedImageFormat::kPNG, 100);
-    if (!out) {
-        SkDebugf("Failed to encode gamut output.\n");
-        return -1;
-    }
-    SkFILEWStream stream(output);
-    bool result = stream.write(out->data(), out->size());
-    if (!result) {
-        SkDebugf("Failed to write gamut output.\n");
         return -1;
     }
 
+    // marker to tell the web-tool the names of all images output
+    SkDebugf("=========\n");
+    auto saveCanvasBitmap = [](const SkBitmap& bitmap, const char *fname) {
+        // Finally, encode the result to the output file.
+        sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG,
+                                                             100);
+        if (!out) {
+            SkDebugf("Failed to encode %s output.\n", fname);
+            return false;
+        }
+        SkFILEWStream stream(fname);
+        if (!stream.write(out->data(), out->size())) {
+            SkDebugf("Failed to write %s output.\n", fname);
+            return false;
+        }
+        // record name of canvas
+        SkDebugf("%s\n", fname);
+        return true;
+    };
+
+    // only XYZ images have a gamut visualization since the matrix in A2B is not
+    // a gamut adjustment from RGB->XYZ always (or ever)
+    if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type() &&
+        !saveCanvasBitmap(gamutCanvasBitmap, gamut_output)) {
+        return -1;
+    }
+    if (gammaCol > 0 && !saveCanvasBitmap(gammaCanvasBitmap, gamma_output)) {
+        return -1;
+    }
+
+    if (isImage) {
+        SkDebugf("%s\n", input);
+    }
     // Also, if requested, decode and reencode the uncorrected input image.
-    if (!FLAGS_uncorrected.isEmpty() && codec) {
+    if (!FLAGS_uncorrected.isEmpty() && isImage) {
         SkBitmap bitmap;
         int width = codec->getInfo().width();
         int height = codec->getInfo().height();
@@ -242,17 +386,18 @@ int main(int argc, char** argv) {
             SkDebugf("Could not decode input image.\n");
             return -1;
         }
-        out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100);
+        sk_sp<SkData> out = sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG,
+                                                             100);
         if (!out) {
             SkDebugf("Failed to encode uncorrected image.\n");
             return -1;
         }
         SkFILEWStream bitmapStream(FLAGS_uncorrected[0]);
-        result = bitmapStream.write(out->data(), out->size());
-        if (!result) {
+        if (!bitmapStream.write(out->data(), out->size())) {
             SkDebugf("Failed to write uncorrected image output.\n");
             return -1;
         }
+        SkDebugf("%s\n", FLAGS_uncorrected[0]);
     }
 
     return 0;
