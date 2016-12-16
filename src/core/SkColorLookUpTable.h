@@ -36,6 +36,11 @@ public:
     int inputChannels() const { return fInputChannels; }
 
     int outputChannels() const { return kOutputChannels; }
+    
+    int gridPoints(int dimension) const {
+        SkASSERT(dimension >= 0 && dimension < inputChannels());
+        return fGridPoints[dimension];
+    }
 
 private:
     const float* table() const {
