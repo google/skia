@@ -86,6 +86,8 @@ BASE_SRCS_ALL = struct(
         "third_party/etc1/*.h",
         "third_party/gif/*.cpp",
         "third_party/gif/*.h",
+        "third_party/ktx/*.cpp",
+        "third_party/ktx/*.h",
     ],
     # Note: PRIVATE_HDRS_INCLUDE_LIST is excluded from BASE_SRCS_ALL here
     # because they are required to appear in srcs for some rules but hdrs for
@@ -383,6 +385,7 @@ INCLUDES = [
     "src/utils",
     "third_party/etc1",
     "third_party/gif",
+    "third_party/ktx",
 ]
 
 ################################################################################
