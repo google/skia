@@ -8,8 +8,8 @@
 #ifndef GrAtlasGlyphCache_DEFINED
 #define GrAtlasGlyphCache_DEFINED
 
-#include "GrDrawOpAtlas.h"
 #include "GrCaps.h"
+#include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
@@ -71,7 +71,7 @@ public:
     int countGlyphs() const { return fCache.count(); }
 
     // remove any references to this plot
-    void removeID(GrBatchAtlas::AtlasID);
+    void removeID(GrDrawOpAtlas::AtlasID);
 
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
@@ -102,9 +102,9 @@ private:
     friend class GrAtlasGlyphCache;
 };
 
-/*
+/**
  * GrAtlasGlyphCache manages strikes which are indexed by a SkGlyphCache. These strikes can then be
- * used to generate individual Glyph Masks. The GrAtlasGlyphCache also manages GrBatchAtlases,
+ * used to generate individual Glyph Masks. The GrAtlasGlyphCache also manages GrDrawOpAtlases,
  * though this is more or less transparent to the client(aside from atlasGeneration, described
  * below).
  */
@@ -141,27 +141,26 @@ public:
         return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
     }
 
-    // To ensure the GrBatchAtlas does not evict the Glyph Mask from its texture backing store,
+    // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current op token along with the GrGlyph.
     // A BulkUseTokenUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                      GrGlyph* glyph, GrDrawOpUploadToken token) {
+    void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater, GrGlyph* glyph,
+                                      GrDrawOpUploadToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
-    void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
+    void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
                          GrDrawOpUploadToken token,
                          GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrAtlasTextStrike* strike, GrBatchAtlas::AtlasID* id,
-                    GrDrawOp::Target* target,
+    bool addToAtlas(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id, GrDrawOp::Target* target,
                     GrMaskFormat format, int width, int height, const void* image,
                     SkIPoint16* loc) {
         fPreserveStrike = strike;
@@ -169,7 +168,7 @@ public:
     }
 
     // Some clients may wish to verify the integrity of the texture backing store of the
-    // GrBatchAtlas. The atlasGeneration returned below is a monotonically increasing number which
+    // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
     // changes every time something is removed from the texture backing store.
     uint64_t atlasGeneration(GrMaskFormat format) const {
         return this->getAtlas(format)->atlasGeneration();
@@ -184,7 +183,7 @@ public:
     void dump() const;
 #endif
 
-    void setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]);
+    void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
 
 private:
     static GrPixelConfig MaskFormatToPixelConfig(GrMaskFormat format, const GrCaps& caps) {
@@ -222,20 +221,20 @@ private:
         return strike;
     }
 
-    GrBatchAtlas* getAtlas(GrMaskFormat format) const {
+    GrDrawOpAtlas* getAtlas(GrMaskFormat format) const {
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);
         return fAtlases[atlasIndex].get();
     }
 
-    static void HandleEviction(GrBatchAtlas::AtlasID, void*);
+    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
     using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
     GrContext* fContext;
     StrikeHash fCache;
-    std::unique_ptr<GrBatchAtlas> fAtlases[kMaskFormatCount];
+    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     GrAtlasTextStrike* fPreserveStrike;
-    GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];
+    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
 };
 
 #endif
