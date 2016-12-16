@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_6c6e131c",
+        "filename": "tests/FakeStreams.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-16T16:53:17Z",
+      "side": 1,
+      "message": "Note: I added overrides for hasLength, getLength and seek to this class. Other than that it is unchanged.",
+      "range": {
+        "startLine": 70,
+        "startChar": 9,
+        "endLine": 70,
+        "endChar": 18
+      },
+      "revId": "b0bb1cee53a110a82e9b34e515279027a25e9b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
