@@ -134,7 +134,6 @@ sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
     if ((unsigned)style > (unsigned)kLastEnum_SkBlurStyle) {
         return nullptr;
     }
-    SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
     flags &= SkBlurMaskFilter::kAll_BlurFlag;
 
     return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, flags));

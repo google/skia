@@ -134,7 +134,7 @@ static inline uint32_t ClipParams_pack(SkClipOp op, bool doAA) {
 }
 
 static inline SkClipOp ClipParams_unpackRegionOp(uint32_t packed) {
-    return (SkClipOp)(packed & 0xF);
+    return (SkClipOp)(packed & kClipOpMask);
 }
 
 static inline bool ClipParams_unpackDoAA(uint32_t packed) {
