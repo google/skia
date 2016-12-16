@@ -7,6 +7,7 @@
 
 # Generate Android.bp for Skia from GN configuration.
 
+import inspect
 import json
 import os
 import pprint
@@ -159,7 +160,7 @@ def get_path_info(path, kind):
 
 builtins = { 'get_path_info': get_path_info }
 defs = {}
-here = os.path.dirname(sys.argv[0])
+here = os.path.dirname(inspect.stack()[0][1])
 execfile(os.path.join(here,                      'opts.gni'), builtins, defs)
 execfile(os.path.join(here, 'android_framework_defines.gni'), builtins, defs)
 
