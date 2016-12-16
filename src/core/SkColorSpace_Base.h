@@ -110,7 +110,7 @@ struct SkGammas : SkRefCnt {
         SkASSERT(i >= 0 && i < fChannels);
         return fType[i];
     }
-    
+
     uint8_t channels() const { return fChannels; }
 
     SkGammas(uint8_t channels)
@@ -209,6 +209,8 @@ private:
      *  Rejected by some parsers because the "profile description" is empty
      */
     sk_sp<SkData> writeToICC() const;
+
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
