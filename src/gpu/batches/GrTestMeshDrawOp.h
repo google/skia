@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTestBatch_DEFINED
-#define GrTestBatch_DEFINED
+#ifndef GrTestMeshDrawOp_DEFINED
+#define GrTestMeshDrawOp_DEFINED
 
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
@@ -17,7 +17,7 @@
  * A simple solid color batch only for testing purposes which actually doesn't batch at all. It
  * saves having to fill out some boiler plate methods.
  */
-class GrTestBatch : public GrMeshDrawOp {
+class GrTestMeshDrawOp : public GrMeshDrawOp {
 public:
     virtual const char* name() const override = 0;
 
@@ -38,9 +38,8 @@ public:
     }
 
 protected:
-    GrTestBatch(uint32_t classID, const SkRect& bounds, GrColor color)
-        : INHERITED(classID)
-        , fColor(color) {
+    GrTestMeshDrawOp(uint32_t classID, const SkRect& bounds, GrColor color)
+            : INHERITED(classID), fColor(color) {
         // Choose some conservative values for aa bloat and zero area.
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
     }
