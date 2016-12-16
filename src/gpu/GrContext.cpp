@@ -68,7 +68,7 @@ GrContext::GrContext() : fUniqueID(next_id()) {
     fCaps = nullptr;
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fBatchFontCache = nullptr;
+    fAtlasGlyphCache = nullptr;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
@@ -104,8 +104,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fDrawingManager.reset(new GrDrawingManager(this, rtOpListOptions, prcOptions,
                                                options.fImmediateMode, &fSingleOwner));
 
-    // GrBatchFontCache will eventually replace GrFontCache
-    fBatchFontCache = new GrBatchFontCache(this);
+    fAtlasGlyphCache = new GrAtlasGlyphCache(this);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
 }
@@ -128,7 +127,7 @@ GrContext::~GrContext() {
 
     delete fResourceProvider;
     delete fResourceCache;
-    delete fBatchFontCache;
+    delete fAtlasGlyphCache;
 
     fGpu->unref();
     fCaps->unref();
@@ -156,7 +155,7 @@ void GrContext::abandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
-    fBatchFontCache->freeAll();
+    fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -174,7 +173,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
-    fBatchFontCache->freeAll();
+    fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
 }
 
@@ -188,7 +187,7 @@ void GrContext::freeGpuResources() {
 
     this->flush();
 
-    fBatchFontCache->freeAll();
+    fAtlasGlyphCache->freeAll();
 
     fDrawingManager->freeGpuResources();
 

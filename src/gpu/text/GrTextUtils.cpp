@@ -7,8 +7,8 @@
 
 #include "GrTextUtils.h"
 
+#include "GrAtlasGlyphCache.h"
 #include "GrAtlasTextBlob.h"
-#include "GrBatchFontCache.h"
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -38,7 +38,7 @@ static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 };
 
 void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
-                              GrBatchFontCache* fontCache,
+                              GrAtlasGlyphCache* fontCache,
                               const SkSurfaceProps& props, const SkPaint& skPaint,
                               GrColor color, uint32_t scalerContextFlags,
                               const SkMatrix& viewMatrix,
@@ -54,7 +54,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
     // Ensure the blob is set for bitmaptext
     blob->setHasBitmap();
 
-    GrBatchTextStrike* currStrike = nullptr;
+    GrAtlasTextStrike* currStrike = nullptr;
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
                                            &viewMatrix);
@@ -75,7 +75,7 @@ void GrTextUtils::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
 }
 
 void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
-                                 GrBatchFontCache* fontCache,
+                                 GrAtlasGlyphCache* fontCache,
                                  const SkSurfaceProps& props, const SkPaint& skPaint,
                                  GrColor color, uint32_t scalerContextFlags,
                                  const SkMatrix& viewMatrix,
@@ -93,7 +93,7 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     // Ensure the blob is set for bitmaptext
     blob->setHasBitmap();
 
-    GrBatchTextStrike* currStrike = nullptr;
+    GrAtlasTextStrike* currStrike = nullptr;
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, skPaint,
                                            &viewMatrix);
@@ -115,8 +115,8 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
 }
 
 void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
-                                 GrBatchFontCache* fontCache,
-                                 GrBatchTextStrike** strike, const SkGlyph& skGlyph,
+                                 GrAtlasGlyphCache* fontCache,
+                                 GrAtlasTextStrike** strike, const SkGlyph& skGlyph,
                                  int vx, int vy, GrColor color, SkGlyphCache* cache) {
     if (!*strike) {
         *strike = fontCache->getStrike(cache);
@@ -241,7 +241,7 @@ void GrTextUtils::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
 }
 
 void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
-                             GrBatchFontCache* fontCache, const SkSurfaceProps& props,
+                             GrAtlasGlyphCache* fontCache, const SkSurfaceProps& props,
                              const SkPaint& skPaint, GrColor color, uint32_t scalerContextFlags,
                              const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength,
@@ -316,7 +316,7 @@ void GrTextUtils::DrawDFText(GrAtlasTextBlob* blob, int runIndex,
 }
 
 void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
-                                GrBatchFontCache* fontCache, const SkSurfaceProps& props,
+                                GrAtlasGlyphCache* fontCache, const SkSurfaceProps& props,
                                 const SkPaint& origPaint,
                                 GrColor color, uint32_t scalerContextFlags,
                                 const SkMatrix& viewMatrix,
@@ -341,7 +341,7 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     blob->setHasDistanceField();
     blob->setSubRunHasDistanceFields(runIndex, origPaint.isLCDRenderText());
 
-    GrBatchTextStrike* currStrike = nullptr;
+    GrAtlasTextStrike* currStrike = nullptr;
 
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
@@ -426,8 +426,8 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     }
 }
 
-bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrBatchFontCache* cache,
-                                GrBatchTextStrike** strike, const SkGlyph& skGlyph,
+bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphCache* cache,
+                                GrAtlasTextStrike** strike, const SkGlyph& skGlyph,
                                 SkScalar sx, SkScalar sy, GrColor color,
                                 SkGlyphCache* glyphCache,
                                 SkScalar textRatio, const SkMatrix& viewMatrix) {

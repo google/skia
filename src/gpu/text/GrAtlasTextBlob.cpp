@@ -71,7 +71,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
 void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   const SkRect& positions,
                                   GrColor color,
-                                  GrBatchTextStrike* strike,
+                                  GrAtlasTextStrike* strike,
                                   GrGlyph* glyph,
                                   SkGlyphCache* cache, const SkGlyph& skGlyph,
                                   SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP) {
@@ -258,7 +258,7 @@ inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color, const SkPaint& skPaint,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
-        bool useGammaCorrectDistanceTable, GrBatchFontCache* cache) {
+        bool useGammaCorrectDistanceTable, GrAtlasGlyphCache* cache) {
     GrMaskFormat format = info.maskFormat();
     GrColor subRunColor;
     if (kARGB_GrMaskFormat == format) {
@@ -303,7 +303,7 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
                                SkScalar y,
                                const SkPaint& skPaint, const SkSurfaceProps& props,
                                const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                               GrBatchFontCache* cache) {
+                               GrAtlasGlyphCache* cache) {
     for (int subRun = 0; subRun < fRuns[run].fSubRunInfo.count(); subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.glyphCount();
@@ -425,7 +425,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
             continue;
         }
         this->flushRun(rtc, grPaint, clip, run, viewMatrix, x, y, skPaint, props,
-                       distanceAdjustTable, context->getBatchFontCache());
+                       distanceAdjustTable, context->getAtlasGlyphCache());
     }
 
     // Now flush big glyphs
@@ -444,7 +444,7 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
                                      SkScalar x, SkScalar y) {
     for (int run = 0; run < fRunCount; run++) {
         this->flushRun(rtc, grPaint, clip, run, viewMatrix, x, y, skPaint, props,
-                       distanceAdjustTable, context->getBatchFontCache());
+                       distanceAdjustTable, context->getAtlasGlyphCache());
     }
 
     // Now flush big glyphs
@@ -456,7 +456,7 @@ sk_sp<GrDrawOp> GrAtlasTextBlob::test_makeOp(int glyphCount, int run, int subRun
                                              GrColor color, const SkPaint& skPaint,
                                              const SkSurfaceProps& props,
                                              const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                             GrBatchFontCache* cache) {
+                                             GrAtlasGlyphCache* cache) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, color, skPaint, props,
                         distanceAdjustTable, false, cache);
@@ -530,8 +530,8 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
 
             if (lSubRun.strike()) {
                 SkASSERT_RELEASE(rSubRun.strike());
-                SkASSERT_RELEASE(GrBatchTextStrike::GetKey(*lSubRun.strike()) ==
-                                 GrBatchTextStrike::GetKey(*rSubRun.strike()));
+                SkASSERT_RELEASE(GrAtlasTextStrike::GetKey(*lSubRun.strike()) ==
+                                 GrAtlasTextStrike::GetKey(*rSubRun.strike()));
 
             } else {
                 SkASSERT_RELEASE(!rSubRun.strike());
