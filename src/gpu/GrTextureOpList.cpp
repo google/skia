@@ -11,7 +11,7 @@
 #include "GrGpu.h"
 #include "GrTextureProxy.h"
 
-#include "batches/GrCopySurfaceOp.h"
+#include "ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 

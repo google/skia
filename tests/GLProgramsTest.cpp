@@ -26,7 +26,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-#include "batches/GrDrawOp.h"
+#include "ops/GrDrawOp.h"
 
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"

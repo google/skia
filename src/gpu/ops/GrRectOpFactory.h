@@ -17,7 +17,7 @@
 #include "GrPaint.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
-#include "batches/GrDrawOp.h"
+#include "ops/GrDrawOp.h"
 
 struct SkRect;
 class SkStrokeRec;

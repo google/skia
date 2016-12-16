@@ -10,7 +10,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
-#include "batches/GrMeshDrawOp.h"
+#include "ops/GrMeshDrawOp.h"
 
 class GrGpuCommandBuffer;
 class GrResourceProvider;
