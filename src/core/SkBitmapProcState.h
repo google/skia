@@ -76,7 +76,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
                                  SkPMColor colors[]);
 
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
-    typedef U16CPU (*FixedTileLowBitsProc)(SkFixed, int);   // returns 0..0xF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
@@ -85,8 +84,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcX; // chooseProcs
-    FixedTileLowBitsProc fTileLowBitsProcY; // chooseProcs
     IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
