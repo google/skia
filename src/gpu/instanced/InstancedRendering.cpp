@@ -21,85 +21,86 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
       fDrawPool(1024, 1024) {
 }
 
-GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, GrAA aa,
-                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                               GrColor color, GrAA aa,
+                                               const GrInstancedPipelineInfo& info,
+                                               GrAAType* aaType) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info, aaType);
 }
 
-GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, const SkRect& localRect, GrAA aa,
-                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                               GrColor color, const SkRect& localRect, GrAA aa,
+                                               const GrInstancedPipelineInfo& info,
+                                               GrAAType* aaType) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, aa, info,
                              aaType);
 }
 
-GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                         GrColor color, const SkMatrix& localMatrix,
-                                         GrAA aa, const GrInstancedPipelineInfo& info,
-                                         GrAAType* aaType) {
+sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                               GrColor color, const SkMatrix& localMatrix, GrAA aa,
+                                               const GrInstancedPipelineInfo& info,
+                                               GrAAType* aaType) {
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
-    if (Batch* batch = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa,
-                                         info, aaType)) {
-        batch->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
-        batch->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
-                                 localMatrix.getTranslateX());
-        batch->appendParamsTexel(localMatrix.getSkewY(), localMatrix.getScaleY(),
-                                 localMatrix.getTranslateY());
-        batch->fInfo.fHasLocalMatrix = true;
-        return batch;
+    if (sk_sp<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info,
+                                         aaType)) {
+        op->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
+        op->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
+                              localMatrix.getTranslateX());
+        op->appendParamsTexel(localMatrix.getSkewY(), localMatrix.getScaleY(),
+                              localMatrix.getTranslateY());
+        op->fInfo.fHasLocalMatrix = true;
+        return std::move(op);
     }
     return nullptr;
 }
 
-GrDrawOp* InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
-                                         GrColor color, GrAA aa,
-                                         const GrInstancedPipelineInfo& info, GrAAType* aaType) {
+sk_sp<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
+                                               GrColor color, GrAA aa,
+                                               const GrInstancedPipelineInfo& info,
+                                               GrAAType* aaType) {
     return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, aa, info, aaType);
 }
 
-GrDrawOp* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
-                                          GrColor color, GrAA aa,
-                                          const GrInstancedPipelineInfo& info, GrAAType* aaType) {
-    if (Batch* batch = this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
+sk_sp<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
+                                                GrColor color, GrAA aa,
+                                                const GrInstancedPipelineInfo& info,
+                                                GrAAType* aaType) {
+    if (sk_sp<Op> op = this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
                                          rrect.rect(), aa, info, aaType)) {
-        batch->appendRRectParams(rrect);
-        return batch;
+        op->appendRRectParams(rrect);
+        return std::move(op);
     }
     return nullptr;
 }
 
-GrDrawOp* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                           const SkMatrix& viewMatrix, GrColor color,
-                                           GrAA aa, const GrInstancedPipelineInfo& info,
-                                           GrAAType* aaType) {
+sk_sp<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
+                                                 const SkMatrix& viewMatrix, GrColor color, GrAA aa,
+                                                 const GrInstancedPipelineInfo& info,
+                                                 GrAAType* aaType) {
     if (inner.getType() > SkRRect::kSimple_Type) {
        return nullptr; // Complex inner round rects are not yet supported.
     }
     if (SkRRect::kEmpty_Type == inner.getType()) {
         return this->recordRRect(outer, viewMatrix, color, aa, info, aaType);
     }
-    if (Batch* batch = this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
+    if (sk_sp<Op> op = this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
                                          outer.rect(), aa, info, aaType)) {
-        batch->appendRRectParams(outer);
+        op->appendRRectParams(outer);
         ShapeType innerShapeType = GetRRectShapeType(inner);
-        batch->fInfo.fInnerShapeTypes |= GetShapeFlag(innerShapeType);
-        batch->getSingleInstance().fInfo |= ((int)innerShapeType << kInnerShapeType_InfoBit);
-        batch->appendParamsTexel(inner.rect().asScalars(), 4);
-        batch->appendRRectParams(inner);
-        return batch;
+        op->fInfo.fInnerShapeTypes |= GetShapeFlag(innerShapeType);
+        op->getSingleInstance().fInfo |= ((int)innerShapeType << kInnerShapeType_InfoBit);
+        op->appendParamsTexel(inner.rect().asScalars(), 4);
+        op->appendRRectParams(inner);
+        return std::move(op);
     }
     return nullptr;
 }
 
-InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const SkRect& bounds,
-                                                           const SkMatrix& viewMatrix,
-                                                           GrColor color, const SkRect& localRect,
-                                                           GrAA aa,
-                                                           const GrInstancedPipelineInfo& info,
-                                                           GrAAType* aaType) {
+sk_sp<InstancedRendering::Op> InstancedRendering::recordShape(
+        ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrColor color,
+        const SkRect& localRect, GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     SkASSERT(State::kRecordingDraws == fState);
 
     if (info.fIsRenderingToFloat && fGpu->caps()->avoidInstancedDrawsToFPTargets()) {
@@ -111,19 +112,17 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
         return nullptr;
     }
 
-    Batch* batch = this->createBatch();
-    batch->fInfo.fAntialiasMode = antialiasMode;
-    batch->fInfo.fShapeTypes = GetShapeFlag(type);
-    batch->fInfo.fCannotDiscard = !info.fCanDiscard;
+    sk_sp<Op> op = this->makeOp();
+    op->fInfo.fAntialiasMode = antialiasMode;
+    op->fInfo.fShapeTypes = GetShapeFlag(type);
+    op->fInfo.fCannotDiscard = !info.fCanDiscard;
 
-    Instance& instance = batch->getSingleInstance();
+    Instance& instance = op->getSingleInstance();
     instance.fInfo = (int)type << kShapeType_InfoBit;
 
-    Batch::HasAABloat aaBloat = (antialiasMode == AntialiasMode::kCoverage)
-                                ? Batch::HasAABloat::kYes
-                                : Batch::HasAABloat::kNo;
-    Batch::IsZeroArea zeroArea = (bounds.isEmpty()) ? Batch::IsZeroArea::kYes
-                                                    : Batch::IsZeroArea::kNo;
+    Op::HasAABloat aaBloat = (antialiasMode == AntialiasMode::kCoverage) ? Op::HasAABloat::kYes
+                                                                         : Op::HasAABloat::kNo;
+    Op::IsZeroArea zeroArea = (bounds.isEmpty()) ? Op::IsZeroArea::kYes : Op::IsZeroArea::kNo;
 
     // The instanced shape renderer draws rectangles of [-1, -1, +1, +1], so we find the matrix that
     // will map this rectangle to the same device coordinates as "viewMatrix * bounds".
@@ -147,18 +146,19 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
         // it's quite simple to find the bounding rectangle:
         float devBoundsHalfWidth = fabsf(m[0]) + fabsf(m[1]);
         float devBoundsHalfHeight = fabsf(m[3]) + fabsf(m[4]);
-        SkRect batchBounds;
-        batchBounds.fLeft = m[2] - devBoundsHalfWidth;
-        batchBounds.fRight = m[2] + devBoundsHalfWidth;
-        batchBounds.fTop = m[5] - devBoundsHalfHeight;
-        batchBounds.fBottom = m[5] + devBoundsHalfHeight;
-        batch->setBounds(batchBounds, aaBloat, zeroArea);
+        SkRect opBounds;
+        opBounds.fLeft = m[2] - devBoundsHalfWidth;
+        opBounds.fRight = m[2] + devBoundsHalfWidth;
+        opBounds.fTop = m[5] - devBoundsHalfHeight;
+        opBounds.fBottom = m[5] + devBoundsHalfHeight;
+        op->setBounds(opBounds, aaBloat, zeroArea);
 
         // TODO: Is this worth the CPU overhead?
-        batch->fInfo.fNonSquare =
-            fabsf(devBoundsHalfHeight - devBoundsHalfWidth) > 0.5f || // Early out.
-            fabs(m[0] * m[3] + m[1] * m[4]) > 1e-3f || // Skew?
-            fabs(m[0] * m[0] + m[1] * m[1] - m[3] * m[3] - m[4] * m[4]) > 1e-2f; // Diff. lengths?
+        op->fInfo.fNonSquare =
+                fabsf(devBoundsHalfHeight - devBoundsHalfWidth) > 0.5f ||  // Early out.
+                fabs(m[0] * m[3] + m[1] * m[4]) > 1e-3f ||                 // Skew?
+                fabs(m[0] * m[0] + m[1] * m[1] - m[3] * m[3] - m[4] * m[4]) >
+                        1e-2f;  // Diff. lengths?
     } else {
         SkMatrix shapeMatrix(viewMatrix);
         shapeMatrix.preTranslate(tx, ty);
@@ -174,12 +174,12 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
         m[5] = SkScalarToFloat(shapeMatrix.getTranslateY());
 
         // Send the perspective column as a param.
-        batch->appendParamsTexel(shapeMatrix[SkMatrix::kMPersp0], shapeMatrix[SkMatrix::kMPersp1],
-                                 shapeMatrix[SkMatrix::kMPersp2]);
-        batch->fInfo.fHasPerspective = true;
+        op->appendParamsTexel(shapeMatrix[SkMatrix::kMPersp0], shapeMatrix[SkMatrix::kMPersp1],
+                              shapeMatrix[SkMatrix::kMPersp2]);
+        op->fInfo.fHasPerspective = true;
 
-        batch->setBounds(bounds, aaBloat, zeroArea);
-        batch->fInfo.fNonSquare = true;
+        op->setBounds(bounds, aaBloat, zeroArea);
+        op->fInfo.fNonSquare = true;
     }
 
     instance.fColor = color;
@@ -187,8 +187,8 @@ InstancedRendering::Batch* InstancedRendering::recordShape(ShapeType type, const
     const float* rectAsFloats = localRect.asScalars(); // Ensure SkScalar == float.
     memcpy(&instance.fLocalRect, rectAsFloats, 4 * sizeof(float));
 
-    batch->fPixelLoad = batch->bounds().height() * batch->bounds().width();
-    return batch;
+    op->fPixelLoad = op->bounds().height() * op->bounds().width();
+    return op;
 }
 
 inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa,
@@ -234,12 +234,12 @@ inline bool InstancedRendering::selectAntialiasMode(const SkMatrix& viewMatrix, 
     return false;
 }
 
-InstancedRendering::Batch::Batch(uint32_t classID, InstancedRendering* ir)
-    : INHERITED(classID),
-      fInstancedRendering(ir),
-      fIsTracked(false),
-      fNumDraws(1),
-      fNumChangesInGeometry(0) {
+InstancedRendering::Op::Op(uint32_t classID, InstancedRendering* ir)
+        : INHERITED(classID)
+        , fInstancedRendering(ir)
+        , fIsTracked(false)
+        , fNumDraws(1)
+        , fNumChangesInGeometry(0) {
     fHeadDraw = fTailDraw = fInstancedRendering->fDrawPool.allocate();
 #ifdef SK_DEBUG
     fHeadDraw->fGeometry = {-1, 0};
@@ -247,9 +247,9 @@ InstancedRendering::Batch::Batch(uint32_t classID, InstancedRendering* ir)
     fHeadDraw->fNext = nullptr;
 }
 
-InstancedRendering::Batch::~Batch() {
+InstancedRendering::Op::~Op() {
     if (fIsTracked) {
-        fInstancedRendering->fTrackedBatches.remove(this);
+        fInstancedRendering->fTrackedOps.remove(this);
     }
 
     Draw* draw = fHeadDraw;
@@ -260,7 +260,7 @@ InstancedRendering::Batch::~Batch() {
     }
 }
 
-void InstancedRendering::Batch::appendRRectParams(const SkRRect& rrect) {
+void InstancedRendering::Op::appendRRectParams(const SkRRect& rrect) {
     SkASSERT(!fIsTracked);
     switch (rrect.getType()) {
         case SkRRect::kSimple_Type: {
@@ -307,7 +307,7 @@ void InstancedRendering::Batch::appendRRectParams(const SkRRect& rrect) {
     }
 }
 
-void InstancedRendering::Batch::appendParamsTexel(const SkScalar* vals, int count) {
+void InstancedRendering::Op::appendParamsTexel(const SkScalar* vals, int count) {
     SkASSERT(!fIsTracked);
     SkASSERT(count <= 4 && count >= 0);
     const float* valsAsFloats = vals; // Ensure SkScalar == float.
@@ -315,7 +315,7 @@ void InstancedRendering::Batch::appendParamsTexel(const SkScalar* vals, int coun
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w) {
+void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w) {
     SkASSERT(!fIsTracked);
     ParamsTexel& texel = fParams.push_back();
     texel.fX = SkScalarToFloat(x);
@@ -325,7 +325,7 @@ void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScal
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
+void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
     SkASSERT(!fIsTracked);
     ParamsTexel& texel = fParams.push_back();
     texel.fX = SkScalarToFloat(x);
@@ -334,9 +334,9 @@ void InstancedRendering::Batch::appendParamsTexel(SkScalar x, SkScalar y, SkScal
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Batch::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                            GrInitInvariantOutput* coverage,
-                                                            GrBatchToXPOverrides* overrides) const {
+void InstancedRendering::Op::computePipelineOptimizations(GrInitInvariantOutput* color,
+                                                          GrInitInvariantOutput* coverage,
+                                                          GrBatchToXPOverrides* overrides) const {
     color->setKnownFourComponents(this->getSingleInstance().fColor);
 
     if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
@@ -348,7 +348,7 @@ void InstancedRendering::Batch::computePipelineOptimizations(GrInitInvariantOutp
     }
 }
 
-void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& overrides) {
+void InstancedRendering::Op::initBatchTracker(const GrXPOverridesForBatch& overrides) {
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
@@ -377,23 +377,23 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     fInfo.fUsesLocalCoords = overrides.readsLocalCoords();
     fInfo.fCannotTweakAlphaForCoverage = !overrides.canTweakAlphaForCoverage();
 
-    fInstancedRendering->fTrackedBatches.addToTail(this);
+    fInstancedRendering->fTrackedOps.addToTail(this);
     fIsTracked = true;
 }
 
-bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
-    Batch* that = static_cast<Batch*>(other);
+bool InstancedRendering::Op::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
+    Op* that = static_cast<Op*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);
     SkASSERT(that->fTailDraw);
 
-    if (!BatchInfo::CanCombine(fInfo, that->fInfo) ||
-        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(),
-                                *that->pipeline(), that->bounds(), caps)) {
+    if (!OpInfo::CanCombine(fInfo, that->fInfo) ||
+        !GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                that->bounds(), caps)) {
         return false;
     }
 
-    BatchInfo combinedInfo = fInfo | that->fInfo;
+    OpInfo combinedInfo = fInfo | that->fInfo;
     if (!combinedInfo.isSimpleRects()) {
         // This threshold was chosen with the "shapes_mixed" bench on a MacBook with Intel graphics.
         // There seems to be a wide range where it doesn't matter if we combine or not. What matters
@@ -411,7 +411,7 @@ bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& c
     fInfo = combinedInfo;
     fPixelLoad += that->fPixelLoad;
 
-    // Adopt the other batch's draws.
+    // Adopt the other op's draws.
     fNumDraws += that->fNumDraws;
     fNumChangesInGeometry += that->fNumChangesInGeometry;
     if (fTailDraw->fGeometry != that->fHeadDraw->fGeometry) {
@@ -429,7 +429,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     SkASSERT(State::kRecordingDraws == fState);
     fState = State::kFlushing;
 
-    if (fTrackedBatches.isEmpty()) {
+    if (fTrackedOps.isEmpty()) {
         return;
     }
 
@@ -461,7 +461,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Batch::onDraw(GrOpFlushState* state, const SkRect& bounds) {
+void InstancedRendering::Op::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
@@ -475,9 +475,9 @@ void InstancedRendering::Batch::onDraw(GrOpFlushState* state, const SkRect& boun
 }
 
 void InstancedRendering::endFlush() {
-    // The caller is expected to delete all tracked batches (i.e. batches whose initBatchTracker
+    // The caller is expected to delete all tracked ops (i.e. ops whose initBatchTracker
     // method has been called) before ending the flush.
-    SkASSERT(fTrackedBatches.isEmpty());
+    SkASSERT(fTrackedOps.isEmpty());
     fParams.reset();
     fParamsBuffer.reset();
     this->onEndFlush();

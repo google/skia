@@ -41,8 +41,7 @@ GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrShaderCaps& sha
     return GrCaps::InstancedSupport::kMixedSampled;
 }
 
-InstanceProcessor::InstanceProcessor(BatchInfo batchInfo, GrBuffer* paramsBuffer)
-    : fBatchInfo(batchInfo) {
+InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer) : fOpInfo(opInfo) {
     this->initClassID<InstanceProcessor>();
 
     this->addVertexAttrib("shapeCoords", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
@@ -62,15 +61,14 @@ InstanceProcessor::InstanceProcessor(BatchInfo batchInfo, GrBuffer* paramsBuffer
     GR_STATIC_ASSERT(6 == (int)Attrib::kLocalRect);
     GR_STATIC_ASSERT(7 == kNumAttribs);
 
-    if (fBatchInfo.fHasParams) {
+    if (fOpInfo.fHasParams) {
         SkASSERT(paramsBuffer);
         fParamsAccess.reset(kRGBA_float_GrPixelConfig, paramsBuffer, kVertex_GrShaderFlag);
         this->addBufferAccess(&fParamsAccess);
     }
 
-    if (fBatchInfo.fAntialiasMode >= AntialiasMode::kMSAA) {
-        if (!fBatchInfo.isSimpleRects() ||
-            AntialiasMode::kMixedSamples == fBatchInfo.fAntialiasMode) {
+    if (fOpInfo.fAntialiasMode >= AntialiasMode::kMSAA) {
+        if (!fOpInfo.isSimpleRects() || AntialiasMode::kMixedSamples == fOpInfo.fAntialiasMode) {
             this->setWillUseSampleLocations();
         }
     }
@@ -139,7 +137,7 @@ private:
 
 class GLSLInstanceProcessor::Backend {
 public:
-    static Backend* SK_WARN_UNUSED_RESULT Create(const GrPipeline&, BatchInfo, const VertexInputs&);
+    static Backend* SK_WARN_UNUSED_RESULT Create(const GrPipeline&, OpInfo, const VertexInputs&);
     virtual ~Backend() {}
 
     void init(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
@@ -160,19 +158,19 @@ public:
                   const char* outColor);
 
 protected:
-    Backend(BatchInfo batchInfo, const VertexInputs& inputs)
-        : fBatchInfo(batchInfo),
-          fInputs(inputs),
-          fModifiesCoverage(false),
-          fModifiesColor(false),
-          fNeedsNeighborRadii(false),
-          fColor(kVec4f_GrSLType),
-          fTriangleIsArc(kInt_GrSLType),
-          fArcCoords(kVec2f_GrSLType),
-          fInnerShapeCoords(kVec2f_GrSLType),
-          fInnerRRect(kVec4f_GrSLType),
-          fModifiedShapeCoords(nullptr) {
-        if (fBatchInfo.fShapeTypes & kRRect_ShapesMask) {
+    Backend(OpInfo opInfo, const VertexInputs& inputs)
+            : fOpInfo(opInfo)
+            , fInputs(inputs)
+            , fModifiesCoverage(false)
+            , fModifiesColor(false)
+            , fNeedsNeighborRadii(false)
+            , fColor(kVec4f_GrSLType)
+            , fTriangleIsArc(kInt_GrSLType)
+            , fArcCoords(kVec2f_GrSLType)
+            , fInnerShapeCoords(kVec2f_GrSLType)
+            , fInnerRRect(kVec4f_GrSLType)
+            , fModifiedShapeCoords(nullptr) {
+        if (fOpInfo.fShapeTypes & kRRect_ShapesMask) {
             fModifiedShapeCoords = "adjustedShapeCoords";
         }
     }
@@ -191,17 +189,17 @@ protected:
     void setupNinePatchRadii(GrGLSLVertexBuilder*);
     void setupComplexRadii(GrGLSLVertexBuilder*);
 
-    const BatchInfo       fBatchInfo;
-    const VertexInputs&   fInputs;
-    bool                  fModifiesCoverage;
-    bool                  fModifiesColor;
-    bool                  fNeedsNeighborRadii;
-    GrGLSLVertToFrag      fColor;
-    GrGLSLVertToFrag      fTriangleIsArc;
-    GrGLSLVertToFrag      fArcCoords;
-    GrGLSLVertToFrag      fInnerShapeCoords;
-    GrGLSLVertToFrag      fInnerRRect;
-    const char*           fModifiedShapeCoords;
+    const OpInfo fOpInfo;
+    const VertexInputs& fInputs;
+    bool fModifiesCoverage;
+    bool fModifiesColor;
+    bool fNeedsNeighborRadii;
+    GrGLSLVertToFrag fColor;
+    GrGLSLVertToFrag fTriangleIsArc;
+    GrGLSLVertToFrag fArcCoords;
+    GrGLSLVertToFrag fInnerShapeCoords;
+    GrGLSLVertToFrag fInnerRRect;
+    const char* fModifiedShapeCoords;
 };
 
 void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
@@ -215,12 +213,12 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(ip);
 
     VertexInputs inputs(ip, v);
-    if (ip.batchInfo().fHasParams) {
+    if (ip.opInfo().fHasParams) {
         SkASSERT(1 == ip.numBuffers());
         inputs.initParams(args.fBufferSamplers[0]);
     }
 
-    if (!ip.batchInfo().fHasPerspective) {
+    if (!ip.opInfo().fHasPerspective) {
         v->codeAppendf("mat2x3 shapeMatrix = mat2x3(%s, %s);",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
     } else {
@@ -235,36 +233,36 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppend ("}");
     }
 
-    bool hasSingleShapeType = SkIsPow2(ip.batchInfo().fShapeTypes);
+    bool hasSingleShapeType = SkIsPow2(ip.opInfo().fShapeTypes);
     if (!hasSingleShapeType) {
         v->defineConstant("SHAPE_TYPE_BIT", kShapeType_InfoBit);
         v->codeAppendf("uint shapeType = %s >> SHAPE_TYPE_BIT;",
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
-    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
+    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.opInfo(), inputs));
     backend->init(varyingHandler, v);
 
     int usedShapeDefinitions = 0;
 
-    if (hasSingleShapeType || !(ip.batchInfo().fShapeTypes & ~kRRect_ShapesMask)) {
-        if (kRect_ShapeFlag == ip.batchInfo().fShapeTypes) {
+    if (hasSingleShapeType || !(ip.opInfo().fShapeTypes & ~kRRect_ShapesMask)) {
+        if (kRect_ShapeFlag == ip.opInfo().fShapeTypes) {
             backend->setupRect(v);
-        } else if (kOval_ShapeFlag == ip.batchInfo().fShapeTypes) {
+        } else if (kOval_ShapeFlag == ip.opInfo().fShapeTypes) {
             backend->setupOval(v);
         } else {
             backend->setupRRect(v, &usedShapeDefinitions);
         }
     } else {
-        if (ip.batchInfo().fShapeTypes & kRRect_ShapesMask) {
+        if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
             v->codeAppend ("if (shapeType >= SIMPLE_R_RECT_SHAPE_TYPE) {");
             backend->setupRRect(v, &usedShapeDefinitions);
             v->codeAppend ("}");
             usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
         }
-        if (ip.batchInfo().fShapeTypes & kOval_ShapeFlag) {
-            if (ip.batchInfo().fShapeTypes & kRect_ShapeFlag) {
-                if (ip.batchInfo().fShapeTypes & kRRect_ShapesMask) {
+        if (ip.opInfo().fShapeTypes & kOval_ShapeFlag) {
+            if (ip.opInfo().fShapeTypes & kRect_ShapeFlag) {
+                if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
                     v->codeAppend ("else ");
                 }
                 v->codeAppend ("if (OVAL_SHAPE_TYPE == shapeType) {");
@@ -275,15 +273,15 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             backend->setupOval(v);
             v->codeAppend ("}");
         }
-        if (ip.batchInfo().fShapeTypes & kRect_ShapeFlag) {
+        if (ip.opInfo().fShapeTypes & kRect_ShapeFlag) {
             v->codeAppend ("else {");
             backend->setupRect(v);
             v->codeAppend ("}");
         }
     }
 
-    if (ip.batchInfo().fInnerShapeTypes) {
-        bool hasSingleInnerShapeType = SkIsPow2(ip.batchInfo().fInnerShapeTypes);
+    if (ip.opInfo().fInnerShapeTypes) {
+        bool hasSingleInnerShapeType = SkIsPow2(ip.opInfo().fInnerShapeTypes);
         if (!hasSingleInnerShapeType) {
             v->defineConstantf("int", "INNER_SHAPE_TYPE_MASK", "0x%x", kInnerShapeType_InfoMask);
             v->defineConstant("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
@@ -306,27 +304,27 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
         backend->initInnerShape(varyingHandler, v);
 
-        SkASSERT(0 == (ip.batchInfo().fInnerShapeTypes & kRRect_ShapesMask) ||
-                 kSimpleRRect_ShapeFlag == (ip.batchInfo().fInnerShapeTypes & kRRect_ShapesMask));
+        SkASSERT(0 == (ip.opInfo().fInnerShapeTypes & kRRect_ShapesMask) ||
+                 kSimpleRRect_ShapeFlag == (ip.opInfo().fInnerShapeTypes & kRRect_ShapesMask));
 
         if (hasSingleInnerShapeType) {
-            if (kRect_ShapeFlag == ip.batchInfo().fInnerShapeTypes) {
+            if (kRect_ShapeFlag == ip.opInfo().fInnerShapeTypes) {
                 backend->setupInnerRect(v);
-            } else if (kOval_ShapeFlag == ip.batchInfo().fInnerShapeTypes) {
+            } else if (kOval_ShapeFlag == ip.opInfo().fInnerShapeTypes) {
                 backend->setupInnerOval(v);
             } else {
                 backend->setupInnerSimpleRRect(v);
             }
         } else {
-            if (ip.batchInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
+            if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
                 v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == innerShapeType) {");
                 backend->setupInnerSimpleRRect(v);
                 v->codeAppend("}");
                 usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
             }
-            if (ip.batchInfo().fInnerShapeTypes & kOval_ShapeFlag) {
-                if (ip.batchInfo().fInnerShapeTypes & kRect_ShapeFlag) {
-                    if (ip.batchInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
+            if (ip.opInfo().fInnerShapeTypes & kOval_ShapeFlag) {
+                if (ip.opInfo().fInnerShapeTypes & kRect_ShapeFlag) {
+                    if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
                         v->codeAppend ("else ");
                     }
                     v->codeAppend ("if (OVAL_SHAPE_TYPE == innerShapeType) {");
@@ -337,7 +335,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                 backend->setupInnerOval(v);
                 v->codeAppend("}");
             }
-            if (ip.batchInfo().fInnerShapeTypes & kRect_ShapeFlag) {
+            if (ip.opInfo().fInnerShapeTypes & kRect_ShapeFlag) {
                 v->codeAppend("else {");
                 backend->setupInnerRect(v);
                 v->codeAppend("}");
@@ -360,17 +358,17 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                       args.fOutputColor);
 
     const char* localCoords = nullptr;
-    if (ip.batchInfo().fUsesLocalCoords) {
+    if (ip.opInfo().fUsesLocalCoords) {
         localCoords = "localCoords";
         v->codeAppendf("vec2 t = 0.5 * (%s + vec2(1));", backend->outShapeCoords());
         v->codeAppendf("vec2 localCoords = (1.0 - t) * %s.xy + t * %s.zw;",
                        inputs.attr(Attrib::kLocalRect), inputs.attr(Attrib::kLocalRect));
     }
-    if (ip.batchInfo().fHasLocalMatrix && ip.batchInfo().fHasParams) {
+    if (ip.opInfo().fHasLocalMatrix && ip.opInfo().fHasParams) {
         v->defineConstantf("int", "LOCAL_MATRIX_FLAG", "0x%x", kLocalMatrix_InfoFlag);
         v->codeAppendf("if (0 != (%s & LOCAL_MATRIX_FLAG)) {",
                        inputs.attr(Attrib::kInstanceInfo));
-        if (!ip.batchInfo().fUsesLocalCoords) {
+        if (!ip.opInfo().fUsesLocalCoords) {
             inputs.skipParams(2);
         } else {
             v->codeAppendf(    "mat2x3 localMatrix;");
@@ -385,7 +383,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppend("}");
     }
 
-    GrSLType positionType = ip.batchInfo().fHasPerspective ? kVec3f_GrSLType : kVec2f_GrSLType;
+    GrSLType positionType = ip.opInfo().fHasPerspective ? kVec3f_GrSLType : kVec2f_GrSLType;
     v->codeAppendf("%s deviceCoords = vec3(%s, 1) * shapeMatrix;",
                    GrGLSLTypeString(positionType), backend->outShapeCoords());
     gpArgs->fPositionVar.set(positionType, "deviceCoords");
@@ -418,7 +416,7 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* use
     v->codeAppend ("mat2 p = ");
     fInputs.fetchNextParam(kMat22f_GrSLType);
     v->codeAppend (";");
-    uint8_t types = fBatchInfo.fShapeTypes & kRRect_ShapesMask;
+    uint8_t types = fOpInfo.fShapeTypes & kRRect_ShapesMask;
     if (0 == (types & (types - 1))) {
         if (kSimpleRRect_ShapeFlag == types) {
             this->setupSimpleRadii(v);
@@ -520,7 +518,7 @@ void GLSLInstanceProcessor::Backend::adjustRRectVertices(GrGLSLVertexBuilder* v)
 
 void GLSLInstanceProcessor::Backend::initInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                     GrGLSLVertexBuilder* v) {
-    SkASSERT(!(fBatchInfo.fInnerShapeTypes & (kNinePatch_ShapeFlag | kComplexRRect_ShapeFlag)));
+    SkASSERT(!(fOpInfo.fInnerShapeTypes & (kNinePatch_ShapeFlag | kComplexRRect_ShapeFlag)));
 
     this->onInitInnerShape(varyingHandler, v);
 
@@ -556,10 +554,9 @@ void GLSLInstanceProcessor::Backend::emitCode(GrGLSLVertexBuilder* v, GrGLSLPPFr
 
 class GLSLInstanceProcessor::BackendNonAA : public Backend {
 public:
-    BackendNonAA(BatchInfo batchInfo, const VertexInputs& inputs)
-        : INHERITED(batchInfo, inputs) {
-        if (fBatchInfo.fCannotDiscard && !fBatchInfo.isSimpleRects()) {
-            fModifiesColor = !fBatchInfo.fCannotTweakAlphaForCoverage;
+    BackendNonAA(OpInfo opInfo, const VertexInputs& inputs) : INHERITED(opInfo, inputs) {
+        if (fOpInfo.fCannotDiscard && !fOpInfo.isSimpleRects()) {
+            fModifiesColor = !fOpInfo.fCannotTweakAlphaForCoverage;
             fModifiesCoverage = !fModifiesColor;
         }
     }
@@ -582,7 +579,7 @@ private:
 
 void GLSLInstanceProcessor::BackendNonAA::onInit(GrGLSLVaryingHandler* varyingHandler,
                                                  GrGLSLVertexBuilder*) {
-    if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
+    if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
         varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
         varyingHandler->addVarying("arcCoords", &fArcCoords, kMedium_GrSLPrecision);
     }
@@ -604,8 +601,8 @@ void GLSLInstanceProcessor::BackendNonAA::setupOval(GrGLSLVertexBuilder* v) {
 void GLSLInstanceProcessor::BackendNonAA::onInitInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                            GrGLSLVertexBuilder*) {
     varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords, kMedium_GrSLPrecision);
-    if (kRect_ShapeFlag != fBatchInfo.fInnerShapeTypes &&
-        kOval_ShapeFlag != fBatchInfo.fInnerShapeTypes) {
+    if (kRect_ShapeFlag != fOpInfo.fInnerShapeTypes &&
+        kOval_ShapeFlag != fOpInfo.fInnerShapeTypes) {
         varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kMedium_GrSLPrecision);
     }
 }
@@ -631,7 +628,7 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
                                                      const char* outCoverage,
                                                      const char* outColor) {
     const char* dropFragment = nullptr;
-    if (!fBatchInfo.fCannotDiscard) {
+    if (!fOpInfo.fCannotDiscard) {
         dropFragment = "discard";
     } else if (fModifiesCoverage) {
         f->codeAppend ("lowp float covered = 1.0;");
@@ -645,13 +642,13 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
         f->codeAppendf("if (%s != 0 && dot(%s, %s) > 1.0) %s;",
                        fTriangleIsArc.fsIn(), fArcCoords.fsIn(), fArcCoords.fsIn(), dropFragment);
     }
-    if (fBatchInfo.fInnerShapeTypes) {
+    if (fOpInfo.fInnerShapeTypes) {
         SkASSERT(dropFragment);
         f->codeAppendf("// Inner shape.\n");
-        if (kRect_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+        if (kRect_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             f->codeAppendf("if (all(lessThanEqual(abs(%s), vec2(1)))) %s;",
                            fInnerShapeCoords.fsIn(), dropFragment);
-        } else if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+        } else if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             f->codeAppendf("if ((dot(%s, %s) <= 1.0)) %s;",
                            fInnerShapeCoords.fsIn(), fInnerShapeCoords.fsIn(), dropFragment);
         } else {
@@ -681,20 +678,19 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
 
 class GLSLInstanceProcessor::BackendCoverage : public Backend {
 public:
-    BackendCoverage(BatchInfo batchInfo, const VertexInputs& inputs)
-        : INHERITED(batchInfo, inputs),
-          fColorTimesRectCoverage(kVec4f_GrSLType),
-          fRectCoverage(kFloat_GrSLType),
-          fEllipseCoords(kVec2f_GrSLType),
-          fEllipseName(kVec2f_GrSLType),
-          fBloatedRadius(kFloat_GrSLType),
-          fDistanceToInnerEdge(kVec2f_GrSLType),
-          fInnerShapeBloatedHalfSize(kVec2f_GrSLType),
-          fInnerEllipseCoords(kVec2f_GrSLType),
-          fInnerEllipseName(kVec2f_GrSLType) {
-        fShapeIsCircle = !fBatchInfo.fNonSquare && !(fBatchInfo.fShapeTypes & kRRect_ShapesMask);
-        fTweakAlphaForCoverage = !fBatchInfo.fCannotTweakAlphaForCoverage &&
-                                 !fBatchInfo.fInnerShapeTypes;
+    BackendCoverage(OpInfo opInfo, const VertexInputs& inputs)
+            : INHERITED(opInfo, inputs)
+            , fColorTimesRectCoverage(kVec4f_GrSLType)
+            , fRectCoverage(kFloat_GrSLType)
+            , fEllipseCoords(kVec2f_GrSLType)
+            , fEllipseName(kVec2f_GrSLType)
+            , fBloatedRadius(kFloat_GrSLType)
+            , fDistanceToInnerEdge(kVec2f_GrSLType)
+            , fInnerShapeBloatedHalfSize(kVec2f_GrSLType)
+            , fInnerEllipseCoords(kVec2f_GrSLType)
+            , fInnerEllipseName(kVec2f_GrSLType) {
+        fShapeIsCircle = !fOpInfo.fNonSquare && !(fOpInfo.fShapeTypes & kRRect_ShapesMask);
+        fTweakAlphaForCoverage = !fOpInfo.fCannotTweakAlphaForCoverage && !fOpInfo.fInnerShapeTypes;
         fModifiesCoverage = !fTweakAlphaForCoverage;
         fModifiesColor = fTweakAlphaForCoverage;
         fModifiedShapeCoords = "bloatedShapeCoords";
@@ -745,11 +741,11 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
     v->codeAppend ("vec2 bloat = 0.5 / shapeHalfSize;");
     v->codeAppendf("bloatedShapeCoords = %s * (1.0 + bloat);", fInputs.attr(Attrib::kShapeCoords));
 
-    if (kOval_ShapeFlag != fBatchInfo.fShapeTypes) {
+    if (kOval_ShapeFlag != fOpInfo.fShapeTypes) {
         if (fTweakAlphaForCoverage) {
             varyingHandler->addVarying("colorTimesRectCoverage", &fColorTimesRectCoverage,
                                        kLow_GrSLPrecision);
-            if (kRect_ShapeFlag == fBatchInfo.fShapeTypes) {
+            if (kRect_ShapeFlag == fOpInfo.fShapeTypes) {
                 fColor = fColorTimesRectCoverage;
             }
         } else {
@@ -757,7 +753,7 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
         }
         v->codeAppend("float rectCoverage = 0.0;");
     }
-    if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
+    if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
         varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
         if (!fShapeIsCircle) {
             varyingHandler->addVarying("ellipseCoords", &fEllipseCoords, kMedium_GrSLPrecision);
@@ -862,7 +858,7 @@ void GLSLInstanceProcessor::BackendCoverage::onInitInnerShape(GrGLSLVaryingHandl
                                                               GrGLSLVertexBuilder* v) {
     v->codeAppend("vec2 innerShapeHalfSize = shapeHalfSize / outer2Inner.xy;");
 
-    if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+    if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
         varyingHandler->addVarying("innerEllipseCoords", &fInnerEllipseCoords,
                                    kMedium_GrSLPrecision);
         varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName, kHigh_GrSLPrecision);
@@ -871,7 +867,7 @@ void GLSLInstanceProcessor::BackendCoverage::onInitInnerShape(GrGLSLVaryingHandl
                                    kMedium_GrSLPrecision);
         varyingHandler->addFlatVarying("innerShapeBloatedHalfSize", &fInnerShapeBloatedHalfSize,
                                        kMedium_GrSLPrecision);
-        if (kRect_ShapeFlag != fBatchInfo.fInnerShapeTypes) {
+        if (kRect_ShapeFlag != fOpInfo.fInnerShapeTypes) {
             varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords,
                                        kMedium_GrSLPrecision);
             varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName,
@@ -926,7 +922,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
     }
 
     SkString coverage("lowp float coverage");
-    if (fBatchInfo.fInnerShapeTypes || (!fTweakAlphaForCoverage && fTriangleIsArc.fsIn())) {
+    if (fOpInfo.fInnerShapeTypes || (!fTweakAlphaForCoverage && fTriangleIsArc.fsIn())) {
         f->codeAppendf("%s;", coverage.c_str());
         coverage = "coverage";
     }
@@ -937,7 +933,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
         if (fShapeIsCircle) {
             this->emitCircle(f, coverage.c_str());
         } else {
-            bool ellipseCoordsMayBeNegative = SkToBool(fBatchInfo.fShapeTypes & kOval_ShapeFlag);
+            bool ellipseCoordsMayBeNegative = SkToBool(fOpInfo.fShapeTypes & kOval_ShapeFlag);
             this->emitArc(f, fEllipseCoords.fsIn(), fEllipseName.fsIn(),
                           true /*ellipseCoordsNeedClamp*/, ellipseCoordsMayBeNegative,
                           coverage.c_str());
@@ -950,10 +946,10 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
         this->emitRect(f, coverage.c_str(), outColor);
     }
 
-    if (fBatchInfo.fInnerShapeTypes) {
+    if (fOpInfo.fInnerShapeTypes) {
         f->codeAppendf("// Inner shape.\n");
         SkString innerCoverageDecl("lowp float innerCoverage");
-        if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+        if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             this->emitArc(f, fInnerEllipseCoords.fsIn(), fInnerEllipseName.fsIn(),
                           true /*ellipseCoordsNeedClamp*/, true /*ellipseCoordsMayBeNegative*/,
                           innerCoverageDecl.c_str());
@@ -962,7 +958,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
                            fDistanceToInnerEdge.vsOut());
             v->codeAppendf("%s = innerShapeHalfSize + 0.5;", fInnerShapeBloatedHalfSize.vsOut());
 
-            if (kRect_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+            if (kRect_ShapeFlag == fOpInfo.fInnerShapeTypes) {
                 this->emitInnerRect(f, innerCoverageDecl.c_str());
             } else {
                 f->codeAppendf("%s = 0.0;", innerCoverageDecl.c_str());
@@ -1003,7 +999,7 @@ void GLSLInstanceProcessor::BackendCoverage::emitRect(GrGLSLPPFragmentBuilder* f
 void GLSLInstanceProcessor::BackendCoverage::emitCircle(GrGLSLPPFragmentBuilder* f,
                                                         const char* outCoverage) {
     // TODO: circleCoords = max(circleCoords, 0) if we decide to do this optimization on rrects.
-    SkASSERT(!(kRRect_ShapesMask & fBatchInfo.fShapeTypes));
+    SkASSERT(!(kRRect_ShapesMask & fOpInfo.fShapeTypes));
     f->codeAppendf("mediump float distanceToEdge = %s - length(%s);",
                    fBloatedRadius.fsIn(), fEllipseCoords.fsIn());
     f->codeAppendf("%s = clamp(distanceToEdge, 0.0, 1.0);", outCoverage);
@@ -1050,24 +1046,24 @@ void GLSLInstanceProcessor::BackendCoverage::emitInnerRect(GrGLSLPPFragmentBuild
 
 class GLSLInstanceProcessor::BackendMultisample : public Backend {
 public:
-    BackendMultisample(BatchInfo batchInfo, const VertexInputs& inputs, int effectiveSampleCnt)
-        : INHERITED(batchInfo, inputs),
-          fEffectiveSampleCnt(effectiveSampleCnt),
-          fShapeCoords(kVec2f_GrSLType),
-          fShapeInverseMatrix(kMat22f_GrSLType),
-          fFragShapeHalfSpan(kVec2f_GrSLType),
-          fArcTest(kVec2f_GrSLType),
-          fArcInverseMatrix(kMat22f_GrSLType),
-          fFragArcHalfSpan(kVec2f_GrSLType),
-          fEarlyAccept(kInt_GrSLType),
-          fInnerShapeInverseMatrix(kMat22f_GrSLType),
-          fFragInnerShapeHalfSpan(kVec2f_GrSLType) {
-        fRectTrianglesMaySplit = fBatchInfo.fHasPerspective;
-        fNeedsNeighborRadii = this->isMixedSampled() && !fBatchInfo.fHasPerspective;
+    BackendMultisample(OpInfo opInfo, const VertexInputs& inputs, int effectiveSampleCnt)
+            : INHERITED(opInfo, inputs)
+            , fEffectiveSampleCnt(effectiveSampleCnt)
+            , fShapeCoords(kVec2f_GrSLType)
+            , fShapeInverseMatrix(kMat22f_GrSLType)
+            , fFragShapeHalfSpan(kVec2f_GrSLType)
+            , fArcTest(kVec2f_GrSLType)
+            , fArcInverseMatrix(kMat22f_GrSLType)
+            , fFragArcHalfSpan(kVec2f_GrSLType)
+            , fEarlyAccept(kInt_GrSLType)
+            , fInnerShapeInverseMatrix(kMat22f_GrSLType)
+            , fFragInnerShapeHalfSpan(kVec2f_GrSLType) {
+        fRectTrianglesMaySplit = fOpInfo.fHasPerspective;
+        fNeedsNeighborRadii = this->isMixedSampled() && !fOpInfo.fHasPerspective;
     }
 
 private:
-    bool isMixedSampled() const { return AntialiasMode::kMixedSamples == fBatchInfo.fAntialiasMode; }
+    bool isMixedSampled() const { return AntialiasMode::kMixedSamples == fOpInfo.fAntialiasMode; }
 
     void onInit(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*) override;
     void setupRect(GrGLSLVertexBuilder*) override;
@@ -1125,50 +1121,50 @@ private:
 void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* varyingHandler,
                                                        GrGLSLVertexBuilder* v) {
     if (!this->isMixedSampled()) {
-        if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
+        if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
             varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
             varyingHandler->addVarying("arcCoords", &fArcCoords, kHigh_GrSLPrecision);
-            if (!fBatchInfo.fHasPerspective) {
+            if (!fOpInfo.fHasPerspective) {
                 varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix,
                                                kHigh_GrSLPrecision);
                 varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan,
                                                kHigh_GrSLPrecision);
             }
-        } else if (!fBatchInfo.fInnerShapeTypes) {
+        } else if (!fOpInfo.fInnerShapeTypes) {
             return;
         }
     } else {
         varyingHandler->addVarying("shapeCoords", &fShapeCoords, kHigh_GrSLPrecision);
-        if (!fBatchInfo.fHasPerspective) {
+        if (!fOpInfo.fHasPerspective) {
             varyingHandler->addFlatVarying("shapeInverseMatrix", &fShapeInverseMatrix,
                                            kHigh_GrSLPrecision);
             varyingHandler->addFlatVarying("fragShapeHalfSpan", &fFragShapeHalfSpan,
                                            kHigh_GrSLPrecision);
         }
-        if (fBatchInfo.fShapeTypes & kRRect_ShapesMask) {
+        if (fOpInfo.fShapeTypes & kRRect_ShapesMask) {
             varyingHandler->addVarying("arcCoords", &fArcCoords, kHigh_GrSLPrecision);
             varyingHandler->addVarying("arcTest", &fArcTest, kHigh_GrSLPrecision);
-            if (!fBatchInfo.fHasPerspective) {
+            if (!fOpInfo.fHasPerspective) {
                 varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix,
                                                kHigh_GrSLPrecision);
                 varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan,
                                                kHigh_GrSLPrecision);
             }
-        } else if (fBatchInfo.fShapeTypes & kOval_ShapeFlag) {
+        } else if (fOpInfo.fShapeTypes & kOval_ShapeFlag) {
             fArcCoords = fShapeCoords;
             fArcInverseMatrix = fShapeInverseMatrix;
             fFragArcHalfSpan = fFragShapeHalfSpan;
-            if (fBatchInfo.fShapeTypes & kRect_ShapeFlag) {
+            if (fOpInfo.fShapeTypes & kRect_ShapeFlag) {
                 varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc,
                                                kLow_GrSLPrecision);
             }
         }
-        if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
-           v->defineConstantf("int", "SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
-           varyingHandler->addFlatVarying("earlyAccept", &fEarlyAccept, kHigh_GrSLPrecision);
+        if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
+            v->defineConstantf("int", "SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
+            varyingHandler->addFlatVarying("earlyAccept", &fEarlyAccept, kHigh_GrSLPrecision);
         }
     }
-    if (!fBatchInfo.fHasPerspective) {
+    if (!fOpInfo.fHasPerspective) {
         v->codeAppend("mat2 shapeInverseMatrix = inverse(mat2(shapeMatrix));");
         v->codeAppend("vec2 fragShapeSpan = abs(vec4(shapeInverseMatrix).xz) + "
                                            "abs(vec4(shapeInverseMatrix).yw);");
@@ -1231,7 +1227,7 @@ void GLSLInstanceProcessor::BackendMultisample::adjustRRectVertices(GrGLSLVertex
         return;
     }
 
-    if (!fBatchInfo.fHasPerspective) {
+    if (!fOpInfo.fHasPerspective) {
         // For the mixed samples algorithm it's best to bloat the corner triangles a bit so that
         // more of the pixels that cross into the arc region are completely inside the shared edges.
         // We also snap to a regular rect if the radii shrink smaller than a pixel.
@@ -1280,7 +1276,7 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupRRect(GrGLSLVertexBuilder
         v->codeAppendf("%s = (cornerSize == vec2(0)) ? vec2(0) : "
                        "cornerSign * %s * mat2(1, cornerSize.x - 1.0, cornerSize.y - 1.0, 1);",
                        fArcTest.vsOut(), fModifiedShapeCoords);
-        if (!fBatchInfo.fHasPerspective) {
+        if (!fOpInfo.fHasPerspective) {
             // Shift the point at which distances to edges are measured from the center of the pixel
             // to the corner. This way the sign of fArcTest will quickly tell us whether a pixel
             // is completely inside the shared edge. Perspective mode will accomplish this same task
@@ -1300,11 +1296,11 @@ void
 GLSLInstanceProcessor::BackendMultisample::onInitInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                             GrGLSLVertexBuilder* v) {
     varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords, kHigh_GrSLPrecision);
-    if (kOval_ShapeFlag != fBatchInfo.fInnerShapeTypes &&
-        kRect_ShapeFlag != fBatchInfo.fInnerShapeTypes) {
+    if (kOval_ShapeFlag != fOpInfo.fInnerShapeTypes &&
+        kRect_ShapeFlag != fOpInfo.fInnerShapeTypes) {
         varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kHigh_GrSLPrecision);
     }
-    if (!fBatchInfo.fHasPerspective) {
+    if (!fOpInfo.fHasPerspective) {
         varyingHandler->addFlatVarying("innerShapeInverseMatrix", &fInnerShapeInverseMatrix,
                                        kHigh_GrSLPrecision);
         v->codeAppendf("%s = shapeInverseMatrix * mat2(outer2Inner.x, 0, 0, outer2Inner.y);",
@@ -1351,7 +1347,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         f->defineConstantf("int", "SAMPLE_MASK_MSB", "0x%x", 1 << (fEffectiveSampleCnt - 1));
     }
 
-    if (kRect_ShapeFlag != (fBatchInfo.fShapeTypes | fBatchInfo.fInnerShapeTypes)) {
+    if (kRect_ShapeFlag != (fOpInfo.fShapeTypes | fOpInfo.fInnerShapeTypes)) {
         GrShaderVar x("x", kVec2f_GrSLType, GrShaderVar::kNonArray, kHigh_GrSLPrecision);
         f->emitFunction(kFloat_GrSLType, "square", 1, &x, "return dot(x, x);", &fSquareFun);
     }
@@ -1365,14 +1361,14 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
     arcCoords.fVarying = &fArcCoords;
     arcCoords.fInverseMatrix = fArcInverseMatrix.fsIn();
     arcCoords.fFragHalfSpan = fFragArcHalfSpan.fsIn();
-    bool clampArcCoords = this->isMixedSampled() && (fBatchInfo.fShapeTypes & kRRect_ShapesMask);
+    bool clampArcCoords = this->isMixedSampled() && (fOpInfo.fShapeTypes & kRRect_ShapesMask);
 
     EmitShapeOpts opts;
     opts.fIsTightGeometry = true;
     opts.fResolveMixedSamples = this->isMixedSampled();
     opts.fInvertCoverage = false;
 
-    if (fBatchInfo.fHasPerspective && fBatchInfo.fInnerShapeTypes) {
+    if (fOpInfo.fHasPerspective && fOpInfo.fInnerShapeTypes) {
         // This determines if the fragment should consider the inner shape in its sample mask.
         // We take the derivative early in case discards may occur before we get to the inner shape.
         f->codeAppendf("highp vec2 fragInnerShapeApproxHalfSpan = 0.5 * fwidth(%s);",
@@ -1389,7 +1385,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         }
     } else {
         const char* arcTest = fArcTest.fsIn();
-        if (arcTest && fBatchInfo.fHasPerspective) {
+        if (arcTest && fOpInfo.fHasPerspective) {
             // The non-perspective version accounts for fwidth() in the vertex shader.
             // We make sure to take the derivative here, before a neighbor pixel may early accept.
             f->codeAppendf("highp vec2 arcTest = %s - 0.5 * fwidth(%s);",
@@ -1414,21 +1410,21 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
             f->codeAppend ("} else {");
             this->emitArc(f, arcCoords, false, clampArcCoords, opts);
             f->codeAppend ("}");
-        } else if (fBatchInfo.fShapeTypes == kOval_ShapeFlag) {
+        } else if (fOpInfo.fShapeTypes == kOval_ShapeFlag) {
             this->emitArc(f, arcCoords, false, clampArcCoords, opts);
         } else {
-            SkASSERT(fBatchInfo.fShapeTypes == kRect_ShapeFlag);
+            SkASSERT(fOpInfo.fShapeTypes == kRect_ShapeFlag);
             this->emitRect(f, shapeCoords, opts);
         }
         f->codeAppend ("}");
     }
 
-    if (fBatchInfo.fInnerShapeTypes) {
+    if (fOpInfo.fInnerShapeTypes) {
         f->codeAppendf("// Inner shape.\n");
 
         EmitShapeCoords innerShapeCoords;
         innerShapeCoords.fVarying = &fInnerShapeCoords;
-        if (!fBatchInfo.fHasPerspective) {
+        if (!fOpInfo.fHasPerspective) {
             innerShapeCoords.fInverseMatrix = fInnerShapeInverseMatrix.fsIn();
             innerShapeCoords.fFragHalfSpan = fFragInnerShapeHalfSpan.fsIn();
         }
@@ -1438,13 +1434,13 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         innerOpts.fResolveMixedSamples = false; // Mixed samples are resolved in the outer shape.
         innerOpts.fInvertCoverage = true;
 
-        if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+        if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             this->emitArc(f, innerShapeCoords, true, false, innerOpts);
         } else {
             f->codeAppendf("if (all(lessThan(abs(%s), 1.0 + %s))) {", fInnerShapeCoords.fsIn(),
-                           !fBatchInfo.fHasPerspective ? innerShapeCoords.fFragHalfSpan
-                                                       : "fragInnerShapeApproxHalfSpan"); // Above.
-            if (kRect_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
+                           !fOpInfo.fHasPerspective ? innerShapeCoords.fFragHalfSpan
+                                                    : "fragInnerShapeApproxHalfSpan");  // Above.
+            if (kRect_ShapeFlag == fOpInfo.fInnerShapeTypes) {
                 this->emitRect(f, innerShapeCoords, innerOpts);
             } else {
                 this->emitSimpleRRect(f, innerShapeCoords, fInnerRRect.fsIn(), innerOpts);
@@ -1606,7 +1602,7 @@ GLSLInstanceProcessor::BackendMultisample::acceptOrRejectWholeFragment(GrGLSLPPF
             // fragment.
             f->codeAppend("if ((gl_SampleMaskIn[0] & SAMPLE_MASK_MSB) == 0) {");
             // Drop this fragment.
-            if (!fBatchInfo.fCannotDiscard) {
+            if (!fOpInfo.fCannotDiscard) {
                 f->codeAppend("discard;");
             } else {
                 f->overrideSampleCoverage("0");
@@ -1617,7 +1613,7 @@ GLSLInstanceProcessor::BackendMultisample::acceptOrRejectWholeFragment(GrGLSLPPF
             f->codeAppend("}");
         }
     } else { // Reject the entire fragment.
-        if (!fBatchInfo.fCannotDiscard) {
+        if (!fOpInfo.fCannotDiscard) {
             f->codeAppend("discard;");
         } else if (opts.fResolveMixedSamples) {
             f->overrideSampleCoverage("0");
@@ -1642,7 +1638,7 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
             SkASSERT(!opts.fInvertCoverage);
             f->codeAppendf("if ((gl_SampleMaskIn[0] & (1 << findMSB(%s))) == 0) {", shapeMask);
             // Drop this fragment.
-            if (!fBatchInfo.fCannotDiscard) {
+            if (!fOpInfo.fCannotDiscard) {
                 f->codeAppend ("discard;");
             } else {
                 f->overrideSampleCoverage("0");
@@ -1661,21 +1657,21 @@ void GLSLInstanceProcessor::BackendMultisample::acceptCoverageMask(GrGLSLPPFragm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GLSLInstanceProcessor::Backend*
-GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo batchInfo,
-                                       const VertexInputs& inputs) {
-    switch (batchInfo.fAntialiasMode) {
+GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline,
+                                                                       OpInfo opInfo,
+                                                                       const VertexInputs& inputs) {
+    switch (opInfo.fAntialiasMode) {
         default:
             SkFAIL("Unexpected antialias mode.");
         case AntialiasMode::kNone:
-            return new BackendNonAA(batchInfo, inputs);
+            return new BackendNonAA(opInfo, inputs);
         case AntialiasMode::kCoverage:
-            return new BackendCoverage(batchInfo, inputs);
+            return new BackendCoverage(opInfo, inputs);
         case AntialiasMode::kMSAA:
         case AntialiasMode::kMixedSamples: {
             const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
             const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
-            return new BackendMultisample(batchInfo, inputs, specs.fEffectiveSampleCnt);
+            return new BackendMultisample(opInfo, inputs, specs.fEffectiveSampleCnt);
         }
     }
 }
