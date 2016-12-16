@@ -8,7 +8,7 @@
 #ifndef GrBatchFontCache_DEFINED
 #define GrBatchFontCache_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrCaps.h"
 #include "GrGlyph.h"
 #include "SkGlyphCache.h"

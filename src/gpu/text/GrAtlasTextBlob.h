@@ -9,7 +9,7 @@
 #define GrAtlasTextBlob_DEFINED
 
 #include "GrAtlasGlyphCache.h"
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrColor.h"
 #include "GrMemoryPool.h"
 #include "SkDescriptor.h"
