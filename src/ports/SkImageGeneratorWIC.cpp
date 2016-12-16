@@ -120,7 +120,7 @@ SkImageGenerator* SkImageGeneratorWIC::NewFromEncodedWIC(SkData* data) {
 
     // FIXME: If we change the implementation to handle swizzling ourselves,
     //        we can support more output formats.
-    SkImageInfo info = SkImageInfo::MakeN32(width, height, alphaType);
+    SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
     return new SkImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(), data);
 }
 
