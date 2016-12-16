@@ -7,7 +7,7 @@
 
 #include "GrTest.h"
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrContextOptions.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrDrawingManager.h"

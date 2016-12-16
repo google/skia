@@ -8,7 +8,7 @@
 #ifndef GrAtlasGlyphCache_DEFINED
 #define GrAtlasGlyphCache_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrCaps.h"
 #include "GrGlyph.h"
 #include "SkGlyphCache.h"
