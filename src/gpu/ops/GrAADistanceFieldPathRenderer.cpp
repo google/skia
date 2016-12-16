@@ -40,7 +40,7 @@ static const int kMediumMIP = 73;
 static const int kLargeMIP = 162;
 
 // Callback to clear out internal path cache when eviction occurs
-void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
+void GrAADistanceFieldPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
     GrAADistanceFieldPathRenderer* dfpr = (GrAADistanceFieldPathRenderer*)pr;
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
@@ -127,7 +127,7 @@ public:
     using ShapeDataList = GrAADistanceFieldPathRenderer::ShapeDataList;
 
     static sk_sp<GrDrawOp> Make(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
-                                GrBatchAtlas* atlas, ShapeCache* shapeCache,
+                                GrDrawOpAtlas* atlas, ShapeCache* shapeCache,
                                 ShapeDataList* shapeList, bool gammaCorrect) {
         return sk_sp<GrDrawOp>(new AADistanceFieldPathOp(color, shape, viewMatrix, atlas,
                                                          shapeCache, shapeList, gammaCorrect));
@@ -154,7 +154,7 @@ public:
 
 private:
     AADistanceFieldPathOp(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
-                          GrBatchAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
+                          GrDrawOpAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
                           bool gammaCorrect)
             : INHERITED(ClassID()) {
         SkASSERT(shape.hasUnstyledKey());
@@ -210,7 +210,7 @@ private:
         FlushInfo flushInfo;
 
         // Setup GrGeometryProcessor
-        GrBatchAtlas* atlas = fAtlas;
+        GrDrawOpAtlas* atlas = fAtlas;
         flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
                                                                         this->viewMatrix(),
                                                                         atlas->getTexture(),
@@ -303,7 +303,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrBatchAtlas* atlas,
+    bool addPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
                         ShapeData* shapeData, const GrShape& shape, uint32_t dimension,
                         SkScalar scale) const {
         const SkRect& bounds = shape.bounds();
@@ -377,7 +377,7 @@ private:
 
         // add to atlas
         SkIPoint16 atlasLocation;
-        GrBatchAtlas::AtlasID id;
+        GrDrawOpAtlas::AtlasID id;
         if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
             if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
@@ -425,13 +425,12 @@ private:
     }
 
     void writePathVertices(GrDrawOp::Target* target,
-                           GrBatchAtlas* atlas,
+                           GrDrawOpAtlas* atlas,
                            intptr_t offset,
                            GrColor color,
                            size_t vertexStride,
                            SkScalar maxScale,
                            const ShapeData* shapeData) const {
-
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
         // vertex positions
@@ -499,7 +498,7 @@ private:
     };
 
     SkSTArray<1, Entry> fShapes;
-    GrBatchAtlas* fAtlas;
+    GrDrawOpAtlas* fAtlas;
     ShapeCache* fShapeCache;
     ShapeDataList* fShapeList;
     bool fGammaCorrect;
@@ -560,7 +559,7 @@ struct PathTestStruct {
         fShapeCache.reset();
     }
 
-    static void HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
+    static void HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
         PathTestStruct* dfpr = (PathTestStruct*)pr;
         // remove any paths that use this plot
         ShapeDataList::Iter iter;
@@ -577,7 +576,7 @@ struct PathTestStruct {
     }
 
     uint32_t fContextID;
-    std::unique_ptr<GrBatchAtlas> fAtlas;
+    std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 };
