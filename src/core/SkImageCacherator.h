@@ -94,13 +94,12 @@ private:
     private:
         explicit SharedGenerator(SkImageGenerator* gen) : fGenerator(gen) { SkASSERT(gen); }
 
-        friend class ScopedGenerator;
         friend class SkImageCacherator;
+        friend class SkScopedImageGenerator;
 
         std::unique_ptr<SkImageGenerator> fGenerator;
         SkMutex                           fMutex;
     };
-    class ScopedGenerator;
 
     struct Validator {
         Validator(sk_sp<SharedGenerator>, const SkIRect* subset);
@@ -141,6 +140,29 @@ private:
     friend class GrImageTextureMaker;
     friend class SkImage;
     friend class SkImage_Generator;
+    friend class SkScopedImageGenerator;
 };
+
+class SkScopedImageGenerator {
+public:
+    SkScopedImageGenerator(SkImageCacherator* cacher)
+    : fSharedGenerator(cacher->fSharedGenerator)
+    , fAutoAquire(cacher->fSharedGenerator->fMutex) {}
+
+    SkImageGenerator* operator->() const {
+        fSharedGenerator->fMutex.assertHeld();
+        return fSharedGenerator->fGenerator.get();
+    }
+
+    operator SkImageGenerator*() const {
+        fSharedGenerator->fMutex.assertHeld();
+        return fSharedGenerator->fGenerator.get();
+    }
+
+private:
+    const sk_sp<SkImageCacherator::SharedGenerator>& fSharedGenerator;
+    SkAutoExclusive fAutoAquire;
+};
+
 
 #endif

@@ -43,6 +43,8 @@ public:
     // Default impl calls onDraw
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const;
+    // Default impl calls getROPixels() and then scales via SkPixmap::scalePixels()
+    virtual bool onScalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint) const;
 
     virtual GrTexture* peekTexture() const { return nullptr; }
 #if SK_SUPPORT_GPU

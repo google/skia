@@ -27,6 +27,7 @@ public:
     }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
+    virtual bool onScalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint) const override;
     SkImageCacherator* peekCacherator() const override { return &fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
@@ -66,6 +67,15 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
+}
+
+bool SkImage_Generator::onScalePixels(const SkPixmap& dst, SkFilterQuality quality,
+                                      CachingHint chint) const {
+    SkScopedImageGenerator generator(&fCache);
+    if (generator->generateScaledPixels({dst.width(), dst.height()}, {0, 0}, dst)) {
+        return true;
+    }
+    return this->INHERITED::onScalePixels(dst, quality, chint);
 }
 
 SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
