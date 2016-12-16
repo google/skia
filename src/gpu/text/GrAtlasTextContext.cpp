@@ -135,7 +135,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
             // but we'd have to clear the subrun information
             cache->remove(cacheBlob.get());
             cacheBlob.reset(SkRef(cache->createCachedBlob(blob, key, blurRec, skPaint)));
-            RegenerateTextBlob(cacheBlob.get(), context->getBatchFontCache(),
+            RegenerateTextBlob(cacheBlob.get(), context->getAtlasGlyphCache(),
                                *context->caps()->shaderCaps(), skPaint, grPaint.getColor(),
                                scalerContextFlags, viewMatrix, props,
                                blob, x, y, drawFilter);
@@ -148,7 +148,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
                 GrTextBlobCache::BlobGlyphCount(&glyphCount, &runCount, blob);
                 sk_sp<GrAtlasTextBlob> sanityBlob(cache->createBlob(glyphCount, runCount));
                 sanityBlob->setupKey(key, blurRec, skPaint);
-                RegenerateTextBlob(sanityBlob.get(), context->getBatchFontCache(),
+                RegenerateTextBlob(sanityBlob.get(), context->getAtlasGlyphCache(),
                                    *context->caps()->shaderCaps(), skPaint,
                                    grPaint.getColor(), scalerContextFlags, viewMatrix, props,
                                    blob, x, y, drawFilter);
@@ -161,7 +161,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
         } else {
             cacheBlob.reset(cache->createBlob(blob));
         }
-        RegenerateTextBlob(cacheBlob.get(), context->getBatchFontCache(),
+        RegenerateTextBlob(cacheBlob.get(), context->getAtlasGlyphCache(),
                            *context->caps()->shaderCaps(), skPaint, grPaint.getColor(),
                            scalerContextFlags, viewMatrix, props,
                            blob, x, y, drawFilter);
@@ -172,7 +172,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
 }
 
 void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
-                                            GrBatchFontCache* fontCache,
+                                            GrAtlasGlyphCache* fontCache,
                                             const GrShaderCaps& shaderCaps,
                                             const SkPaint& skPaint, GrColor color,
                                             uint32_t scalerContextFlags,
@@ -263,7 +263,7 @@ void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
 
 inline GrAtlasTextBlob*
 GrAtlasTextContext::CreateDrawTextBlob(GrTextBlobCache* blobCache,
-                                       GrBatchFontCache* fontCache,
+                                       GrAtlasGlyphCache* fontCache,
                                        const GrShaderCaps& shaderCaps,
                                        const GrPaint& paint,
                                        const SkPaint& skPaint,
@@ -288,7 +288,7 @@ GrAtlasTextContext::CreateDrawTextBlob(GrTextBlobCache* blobCache,
 }
 
 inline GrAtlasTextBlob*
-GrAtlasTextContext::CreateDrawPosTextBlob(GrTextBlobCache* blobCache, GrBatchFontCache* fontCache,
+GrAtlasTextContext::CreateDrawPosTextBlob(GrTextBlobCache* blobCache, GrAtlasGlyphCache* fontCache,
                                           const GrShaderCaps& shaderCaps, const GrPaint& paint,
                                           const SkPaint& skPaint, uint32_t scalerContextFlags,
                                           const SkMatrix& viewMatrix, const SkSurfaceProps& props,
@@ -324,7 +324,7 @@ void GrAtlasTextContext::drawText(GrContext* context,
         return;
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
         sk_sp<GrAtlasTextBlob> blob(
-            CreateDrawTextBlob(context->getTextBlobCache(), context->getBatchFontCache(),
+            CreateDrawTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
                                *context->caps()->shaderCaps(),
                                paint, skPaint,
                                ComputeScalerContextFlags(rtc),
@@ -354,7 +354,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context,
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
         sk_sp<GrAtlasTextBlob> blob(
             CreateDrawPosTextBlob(context->getTextBlobCache(),
-                                  context->getBatchFontCache(),
+                                  context->getAtlasGlyphCache(),
                                   *context->caps()->shaderCaps(),
                                   paint, skPaint,
                                   ComputeScalerContextFlags(rtc),
@@ -421,7 +421,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     // intend to test the batch with this unit test, that is okay.
     sk_sp<GrAtlasTextBlob> blob(
         GrAtlasTextContext::CreateDrawTextBlob(context->getTextBlobCache(),
-                                               context->getBatchFontCache(),
+                                               context->getAtlasGlyphCache(),
                                                *context->caps()->shaderCaps(), grPaint, skPaint,
                                                GrAtlasTextContext::kTextBlobBatchScalerContextFlags,
                                                viewMatrix,
@@ -430,7 +430,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
 
     return blob
             ->test_makeOp(textLen, 0, 0, viewMatrix, x, y, color, skPaint, gSurfaceProps,
-                          gTextContext->dfAdjustTable(), context->getBatchFontCache())
+                          gTextContext->dfAdjustTable(), context->getAtlasGlyphCache())
             .release();
 }
 

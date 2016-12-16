@@ -138,13 +138,13 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrBatchFontCache* fontCache,
+void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache,
                                 GrBlobRegenHelper* helper, Run* run, Run::SubRunInfo* info,
                                 SkAutoGlyphCache* lazyCache, int glyphCount, size_t vertexStride,
                                 GrColor color, SkScalar transX, SkScalar transY) const {
     SkASSERT(lazyCache);
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
-    GrBatchTextStrike* strike = nullptr;
+    GrAtlasTextStrike* strike = nullptr;
     if (regenTexCoords) {
         info->resetBulkUseToken();
 
@@ -242,7 +242,7 @@ enum RegenMask {
                    *glyphCount, vertexStride, color, transX, transY
 
 void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
-                                   GrBatchFontCache* fontCache,
+                                   GrAtlasGlyphCache* fontCache,
                                    GrBlobRegenHelper *helper,
                                    int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,
                                    size_t vertexStride, const SkMatrix& viewMatrix,
@@ -257,7 +257,7 @@ void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
     SkScalar transX, transY;
     info.computeTranslation(viewMatrix, x, y, &transX, &transY);
 
-    // Because the GrBatchFontCache may evict the strike a blob depends on using for
+    // Because the GrAtlasGlyphCache may evict the strike a blob depends on using for
     // generating its texture coords, we have to track whether or not the strike has
     // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
     // otherwise we have to get the new strike, and use that to get the correct glyphs.
