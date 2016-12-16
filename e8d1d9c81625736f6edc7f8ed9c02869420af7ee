@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_cfc1b1eb",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Thank you Cary for the suggestion!\n\nI did try to clean up all those arguments by creating a class called \"EdgeWalker\" that encapsulates all those arguments. However, it becomes much slower somehow (maybe because of some inline functions).\n\nOverall, the performance is quite fragile and sometimes just by re-arranging the statement could have a great impact.  Sometimes, SK_ALWAYS_INLINE can solve the problem, but sometimes I just couldn\u0027t figure out how to fix the performance regression, so I just left the current ugly code...",
+      "parentUuid": "9a3953bb_4f2b01f4",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_0c0917e1",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -42,6 +60,24 @@
         "endLine": 799,
         "endChar": 23
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_cf9371e7",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Yes, I think this is the case where the convex triangles will be 50% slower if we change \"SK_ALWAYS_INLINE\" to \"inline\".\n\nAnd this issue only occurs after I introducing the concave code path, which theoretically is completely independent of the convex code path. I don\u0027t know what happened (except that I do observe that the assembly code is different). And this is the fix I found.",
+      "parentUuid": "9a3953bb_0c0917e1",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_ef53d555",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1265,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_0cf037ad",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_ccd0df0e",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -88,6 +142,24 @@
         "endLine": 1269,
         "endChar": 83
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0f590977",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_ccd0df0e",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_2f56cd45",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_0cbbd7c4",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_6cc29343",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -134,6 +224,24 @@
         "endLine": 1304,
         "endChar": 25
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_8f16d970",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_6cc29343",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -163,6 +271,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_cf20d1c4",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_acb2cbdf",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_6c99b363",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -180,6 +306,24 @@
         "endLine": 1389,
         "endChar": 55
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_6f7d2583",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1389,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Oh, that comment is outdated. I\u0027ve updated it.",
+      "parentUuid": "9a3953bb_6c99b363",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -209,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_8ffdf9fc",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "No different meaning. I just copied them from the supersampling code (I don\u0027t know why it uses two different styles...). I\u0027ll convert this to while (true).",
+      "parentUuid": "9a3953bb_2fac0d6b",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17fa9e31_dd4e8bdf",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -226,6 +388,24 @@
         "endLine": 1442,
         "endChar": 23
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_effcb5fd",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17fa9e31_dd4e8bdf",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -255,6 +435,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_6fe9a539",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Agree. Moved it later.",
+      "parentUuid": "9a3953bb_cf89b10c",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_af4abdc6",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 8
@@ -272,6 +470,24 @@
         "endLine": 1493,
         "endChar": 44
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_af447d6b",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_af4abdc6",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -301,6 +517,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_ef3e75cb",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "This is no longer worth inlining. Thank you!",
+      "parentUuid": "9a3953bb_afbf1d91",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_cc2c5f61",
         "filename": "src/core/SkScan_AntiPath.cpp",
         "patchSetId": 8
@@ -318,6 +552,24 @@
         "endLine": 757,
         "endChar": 32
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_6f836526",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a3953bb_cc2c5f61",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -347,6 +599,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_6f1e0526",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "Comment added.",
+      "parentUuid": "9a3953bb_6c1e1326",
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_4c86af37",
         "filename": "tools/flags/SkCommonFlags.cpp",
         "patchSetId": 8
@@ -364,6 +634,24 @@
         "endLine": 71,
         "endChar": 57
       },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0f3e697b",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-12-16T20:57:26Z",
+      "side": 1,
+      "message": "It means \"its number of points is comparable to its resolution\". I\u0027ve updated the description to make it more informative.",
+      "parentUuid": "9a3953bb_4c86af37",
       "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
