@@ -398,7 +398,7 @@ public:
     bool testForCoincidence(const SkOpPtT* priorPtT, const SkOpPtT* ptT, const SkOpSpanBase* prior,
             const SkOpSpanBase* spanBase, const SkOpSegment* opp) const;
 
-    void undoneSpan(SkOpSpanBase** start, SkOpSpanBase** end);
+    SkOpSpan* undoneSpan();
     int updateOppWinding(const SkOpSpanBase* start, const SkOpSpanBase* end) const;
     int updateOppWinding(const SkOpAngle* angle) const;
     int updateOppWindingReverse(const SkOpAngle* angle) const;

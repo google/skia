@@ -215,9 +215,40 @@ path.close();
     testSimplifyFuzz(reporter, path, filename);
 }
 
+static void kfuzz_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+path.setFillType(SkPath::kWinding_FillType);
+path.moveTo(0, 0);
+path.lineTo(4.913e+30f, -3.5348e+25f);
+path.quadTo(-3.5348e+25f, 4.24756e+30f, -0.00165947f, 4.29307e-32f);
+path.cubicTo(-1.66732e-24f, 4.59017e+27f, 1.75766e-35f, -0.00137331f, 4.80216e+30f, 3.93834e+24f);
+path.quadTo(-4.73049e-24f, 4.59253e+27f, 5.27778e+27f, 4.34035e+27f);
+path.cubicTo(4.5907e+27f, 4.80263e+30f, 1.33183e-07f, -1.03227e-13f, 1.54143e-44f, 4.80215e+30f);
+path.quadTo(4.79953e+30f, -1.69797e-36f, 4.92061e+30f, 5.26941e-38f);
+path.lineTo(3.70974f, -6.49065e+32f);
+path.quadTo(5.75953e+30f, 8.37483e+18f, 4.92059e+30f, -1.19536e-29f);
+path.quadTo(2.66769e-23f, 5.76171e+30f, 2.04463e+15f, 1.67073e+22f);
+path.moveTo(-4.46551e-35f, 1.29604e-11f);
+path.cubicTo(3.15516e+30f, -1.19536e-29f, 2.26755e-07f, 5.7617e+30f, -2.85816e-27f, 9.19316e+30f);
+path.quadTo(1.98075e+31f, -1.91e-28f, 1.23452e-38f, 1.05059e-38f);
+path.quadTo(5.20041e+27f, 1.62703e+10f, 4.5747e+27f, -3.069e+35f);
+path.quadTo(1.28731e+26f, 4.79733e+30f, 1.17553e-38f, 4.13967e+30f);
+path.quadTo(4.10294e-11f, 5.22096e-41f, 1.87716e+23f, 4.4102e+27f);
+path.cubicTo(-4.36083e-38f, -4.63282e-39f, 4.80216e+30f, 4.80214e+30f, 4.59289e+27f, 7.04787e+07f);
+path.lineTo(4.58425e+27f, 4.59251e+27f);
+path.quadTo(4.81129e+30f, 4.69098e+27f, 4.80216e+30f, 4.35767e+30f);
+path.conicTo(4.35762e-38f, 3.81082e-20f, -0.000925323f, 7.73367e-16f, 1.3001e+27f);
+path.lineTo(4.79983e+30f, -6.82428e+16f);
+path.moveTo(1.01193e+31f, 3.68417e+12f);
+path.quadTo(2.70464e-39f, 0, 0, 0);
+    testSimplifyFuzz(reporter, path, filename);
+}
+
+
 #define TEST(test) test(reporter, #test)
 
 DEF_TEST(PathOpsSimplifyFail, reporter) {
+    TEST(kfuzz_1);
     TEST(fuzz763_2);
     TEST(fuzz763_1);
     TEST(fuzz_x2);
