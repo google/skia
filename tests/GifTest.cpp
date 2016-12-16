@@ -273,3 +273,41 @@ DEF_TEST(Codec_GifTruncated, r) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, !codec);
 }
+
+// There was a bug where SkAndroidCodec::computeOutputColorType returned kIndex_8 for
+// GIFs that did not support kIndex_8. Verify that for such an image, the method computes
+// something that it can actually decode to.
+DEF_TEST(Codec_GifIndex8, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("randPixelsOffset.gif"));
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, codec->getInfo().colorType() == kN32_SkColorType);
+    const SkColorType outputColorType = codec->computeOutputColorType(kN32_SkColorType);
+    REPORTER_ASSERT(r, outputColorType == kN32_SkColorType);
+
+    SkAndroidCodec::AndroidOptions options;
+    sk_sp<SkColorTable> colorTable(nullptr);
+    int maxColors = 256;
+    if (kIndex_8_SkColorType == outputColorType) {
+        SkPMColor colors[256];
+        colorTable.reset(new SkColorTable(colors, maxColors));
+        options.fColorPtr = const_cast<SkPMColor*>(colorTable->readColors());
+        options.fColorCount = &maxColors;
+    }
+
+    auto info = codec->getInfo().makeColorType(outputColorType);
+    SkBitmap bm;
+    bm.setInfo(info);
+    bm.allocPixels(colorTable.get());
+
+    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getAndroidPixels(info, bm.getPixels(),
+            bm.rowBytes(), &options));
+}

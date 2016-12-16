@@ -63,13 +63,20 @@ SkAndroidCodec* SkAndroidCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader
 
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
     // The legacy GIF and WBMP decoders always decode to kIndex_8_SkColorType.
-    // We will maintain this behavior.
-    SkEncodedImageFormat format = (SkEncodedImageFormat)this->getEncodedFormat();
-    if (SkEncodedImageFormat::kGIF == format || SkEncodedImageFormat::kWBMP == format) {
-        return kIndex_8_SkColorType;
+    // We will maintain this behavior when we can.
+    const SkColorType suggestedColorType = this->getInfo().colorType();
+    switch ((SkEncodedImageFormat) this->getEncodedFormat()) {
+        case SkEncodedImageFormat::kGIF:
+            if (suggestedColorType == kIndex_8_SkColorType) {
+                return kIndex_8_SkColorType;
+            }
+            break;
+        case SkEncodedImageFormat::kWBMP:
+            return kIndex_8_SkColorType;
+        default:
+            break;
     }
 
-    SkColorType suggestedColorType = this->getInfo().colorType();
     bool highPrecision = fCodec->getEncodedInfo().bitsPerComponent() > 8;
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
