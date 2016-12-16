@@ -55,6 +55,10 @@ struct SkGammas : SkRefCnt {
                    this->fTable.fSize == that.fTable.fSize;
         }
 
+        inline bool operator!=(const Data& that) const {
+            return !(*this == that);
+        }
+
         SkGammaNamed             fNamed;
         float                    fValue;
         Table                    fTable;
@@ -148,11 +152,13 @@ public:
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
     virtual const SkMatrix44* fromXYZD50() const = 0;
-    
+
     virtual bool onGammaCloseToSRGB() const = 0;
-    
+
     virtual bool onGammaIsLinear() const = 0;
-    
+
+    virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
+
     /**
      *  Returns a color space with the same gamut as this one, but with a linear gamma.
      *  For color spaces whose gamut can not be described in terms of XYZ D50, returns

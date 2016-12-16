@@ -23,6 +23,8 @@ public:
 
     bool onGammaIsLinear() const override;
 
+    bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override;
+
     Type type() const override { return Type::kXYZ; }
 
     sk_sp<SkColorSpace> makeLinearGamma() override;

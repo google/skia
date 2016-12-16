@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace_XYZ.h"
 #include "SkChecksum.h"
+#include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXform_Base.h"
 
 static constexpr float gSRGB_toXYZD50[] {
@@ -62,6 +63,29 @@ bool SkColorSpace_XYZ::onGammaCloseToSRGB() const {
 
 bool SkColorSpace_XYZ::onGammaIsLinear() const {
     return kLinear_SkGammaNamed == fGammaNamed;
+}
+
+bool SkColorSpace_XYZ::onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
+    if (named_to_parametric(coeffs, fGammaNamed)) {
+        return true;
+    }
+
+    SkASSERT(fGammas);
+    if (fGammas->data(0) != fGammas->data(1) || fGammas->data(0) != fGammas->data(2)) {
+        return false;
+    }
+
+    if (fGammas->isValue(0)) {
+        value_to_parametric(coeffs, fGammas->data(0).fValue);
+        return true;
+    }
+
+    if (fGammas->isParametric(0)) {
+        *coeffs = fGammas->params(0);
+        return true;
+    }
+
+    return false;
 }
 
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
