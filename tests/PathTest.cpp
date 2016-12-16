@@ -4184,41 +4184,52 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
 
 static void test_dump(skiatest::Reporter* reporter) {
     SkPath p;
-    compare_dump(reporter, p, false, false, "");
-    compare_dump(reporter, p, true, false, "");
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n");
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n");
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
-    compare_dump(reporter, p, true, false,  "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n"
                                             "path.lineTo(1, 2);\n"
                                             "path.close();\n");
     p.reset();
+    p.setFillType(SkPath::kEvenOdd_FillType);
     p.moveTo(1, 2);
     p.quadTo(3, 4, 5, 6);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kEvenOdd_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.quadTo(3, 4, 5, 6);\n");
     p.reset();
+    p.setFillType(SkPath::kInverseWinding_FillType);
     p.moveTo(1, 2);
     p.conicTo(3, 4, 5, 6, 0.5f);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.conicTo(3, 4, 5, 6, 0.5f);\n");
     p.reset();
+    p.setFillType(SkPath::kInverseEvenOdd_FillType);
     p.moveTo(1, 2);
     p.cubicTo(3, 4, 5, 6, 7, 8);
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseEvenOdd_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.cubicTo(3, 4, 5, 6, 7, 8);\n");
     p.reset();
+    p.setFillType(SkPath::kWinding_FillType);
     p.moveTo(1, 2);
     p.lineTo(3, 4);
     compare_dump(reporter, p, false, true,
+                 "path.setFillType(SkPath::kWinding_FillType);\n"
                  "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));  // 1, 2\n"
                  "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));  // 3, 4\n");
     p.reset();
     p.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));
     p.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));
-    compare_dump(reporter, p, false, false, "path.moveTo(1, 2);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
+                                            "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
 }
 
