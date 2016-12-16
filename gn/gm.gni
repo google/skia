@@ -118,6 +118,7 @@ gm_sources = [
   "$_gm/filltypes.cpp",
   "$_gm/filltypespersp.cpp",
   "$_gm/filterbitmap.cpp",
+  "$_gm/filterbug.cpp",
   "$_gm/filterfastbounds.cpp",
   "$_gm/filterindiabox.cpp",
   "$_gm/fontcache.cpp",
