@@ -8,7 +8,7 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrBuffer.h"
 #include "GrGpu.h"
 #include "GrTextureProvider.h"

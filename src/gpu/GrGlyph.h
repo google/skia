@@ -8,7 +8,7 @@
 #ifndef GrGlyph_DEFINED
 #define GrGlyph_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrRect.h"
 #include "GrTypes.h"
 

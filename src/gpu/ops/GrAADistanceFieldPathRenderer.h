@@ -8,7 +8,7 @@
 #ifndef GrAADistanceFieldPathRenderer_DEFINED
 #define GrAADistanceFieldPathRenderer_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrShape.h"
