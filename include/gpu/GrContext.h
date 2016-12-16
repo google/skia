@@ -21,11 +21,11 @@
 #include "../private/GrSingleOwner.h"
 
 class GrAtlasGlyphCache;
-struct GrBatchAtlasConfig;
 struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
+struct GrDrawOpAtlasConfig;
 class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrGpu;
@@ -359,7 +359,7 @@ public:
 
     /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
         to an array of 3 entries */
-    void setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs);
+    void setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs);
 
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
