@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_ac4e4b3a",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:55:07Z",
+      "side": 1,
+      "message": "The name here is strange. I\u0027d expect it to just be Make(), given that it accepts any ICC profile as input, and the output isn\u0027t coerced to be \"RGB\" in any sense, right?",
+      "revId": "36bc73f28089830b915458b7974957707aeac18f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_2cb89bc5",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-16T18:55:07Z",
+      "side": 1,
+      "message": "Interesting note: The comment (and implementation) of parameter evaluation on SkColorSpaceTransferFn uses (Value \u003c D) (not less-than-or-equal). So for inputs of 1.0, this is still going to evaluate (0 * 1 + 0)^0 + 0, which *will* produce the right value, but seems like an accidentally correct value. Do we support setting D larger than 1 to make the whole range linear?",
+      "revId": "36bc73f28089830b915458b7974957707aeac18f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
