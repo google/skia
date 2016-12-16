@@ -127,21 +127,18 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fRects[0].fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fRects[0].fColor);
-        fOverrides = overrides;
-    }
-
 private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
+
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fRects[0].fColor);
+        fOverrides = analysis;
+    }
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
@@ -220,7 +217,7 @@ private:
         SkRect fLocalRect;
     };
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineAnalysisResult fOverrides;
     SkSTArray<1, RectInfo, true> fRects;
     bool fHasLocalMatrix;
     bool fHasLocalRect;

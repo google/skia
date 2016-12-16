@@ -29,7 +29,7 @@ public:
 private:
     DisableColorXP();
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
                                                  const GrCaps& caps) const override {
@@ -95,10 +95,10 @@ GrDisableColorXPFactory::GrDisableColorXPFactory() {
 
 GrXferProcessor*
 GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                               const GrPipelineOptimizations& optimizations,
+                                               const GrPipelineAnalysis& analysis,
                                                bool hasMixedSamples,
                                                const DstTexture* dst) const {
-    SkASSERT(!optimizations.fOverrides.fUsePLSDstRead);
+    SkASSERT(!analysis.fUsesPLSDstRead);
     return DisableColorXP::Create();
 }
 

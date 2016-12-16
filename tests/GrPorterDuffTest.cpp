@@ -67,7 +67,7 @@ class GrPorterDuffTest {
 public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
-               const GrPipelineOptimizations& optimizations) {
+               const GrPipelineAnalysis& optimizations) {
             sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
             sk_sp<GrXferProcessor> xp(
                 xpf->createXferProcessor(optimizations, false, nullptr, caps));
@@ -93,7 +93,7 @@ public:
 };
 
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineOptimizations opt;
+    GrPipelineAnalysis opt;
     opt.fColorPOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false);
     // Setting 2nd to last value to false and last to true will force covPOI to LCD coverage.
     opt.fCoveragePOI.calcWithInitialValues(NULL, 0, 0, kNone_GrColorComponentFlags, false, true);
@@ -284,7 +284,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     }
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineOptimizations optimizations;
+    GrPipelineAnalysis optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
                                                   false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
@@ -478,7 +478,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
 }
 
 static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineOptimizations optimizations;
+    GrPipelineAnalysis optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(229, 0, 154, 0),
                                    kR_GrColorComponentFlag | kB_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
@@ -682,7 +682,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
 }
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineOptimizations optimizations;
+    GrPipelineAnalysis optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                   kA_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, 0, kNone_GrColorComponentFlags,
@@ -881,7 +881,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
 }
 
 static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrPipelineOptimizations optimizations;
+    GrPipelineAnalysis optimizations;
     optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, GrColorPackRGBA(0, 82, 0, 255),
                                    kG_GrColorComponentFlag | kA_GrColorComponentFlag, false);
     optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
@@ -1090,30 +1090,30 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class TestLCDCoverageBatch : public GrMeshDrawOp {
+    class TestLCDCoverageOp : public GrMeshDrawOp {
     public:
         DEFINE_OP_CLASS_ID
 
-        TestLCDCoverageBatch() : INHERITED(ClassID()) {}
-
-    private:
-        void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                          GrInitInvariantOutput* coverage,
-                                          GrBatchToXPOverrides* overrides) const override {
-            color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
-            coverage->setUnknownFourComponents();
-            coverage->setUsingLCDCoverage();        }
+        TestLCDCoverageOp() : INHERITED(ClassID()) {}
 
         const char* name() const override { return "Test LCD Text Batch"; }
-        void initBatchTracker(const GrXPOverridesForBatch&) override {}
+
+    private:
+        void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+            input->pipelineColorInput()->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
+            input->pipelineCoverageInput()->setUnknownFourComponents();
+            input->pipelineCoverageInput()->setUsingLCDCoverage();
+        }
+
+        void applyPipelineAnalysis(const GrPipelineAnalysisResult&) override {}
         bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
         void onPrepareDraws(Target*) const override {}
 
         typedef GrMeshDrawOp INHERITED;
-    } testLCDCoverageBatch;
+    } testLCDCoverageOp;
 
-    GrPipelineOptimizations opts;
-    testLCDCoverageBatch.getPipelineOptimizations(&opts);
+    GrPipelineAnalysis opts;
+    testLCDCoverageOp.initPipelineAnalysis(&opts);
     GrProcOptInfo colorPOI = opts.fColorPOI;
     GrProcOptInfo covPOI = opts.fCoveragePOI;
 
@@ -1181,7 +1181,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(testColors) == SK_ARRAY_COUNT(testColorFlags));
 
     for (size_t c = 0; c < SK_ARRAY_COUNT(testColors); c++) {
-        GrPipelineOptimizations optimizations;
+        GrPipelineAnalysis optimizations;
         optimizations.fColorPOI.calcWithInitialValues(nullptr, 0, testColors[c], testColorFlags[c],
                                                       false);
         for (int f = 0; f <= 1; f++) {

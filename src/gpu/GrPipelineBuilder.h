@@ -165,7 +165,7 @@ public:
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
     bool willXPNeedDstTexture(const GrCaps& caps,
-                              const GrPipelineOptimizations& optimizations) const;
+                              const GrPipelineAnalysis& optimizations) const;
 
     /// @}
 

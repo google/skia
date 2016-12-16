@@ -704,13 +704,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     AAHairlineOp(GrColor color,
                  uint8_t coverage,
@@ -724,14 +717,17 @@ private:
                                    IsZeroArea::kYes);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        if (!analysis.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
-
-        fUsesLocalCoords = overrides.readsLocalCoords();
+        analysis.getOverrideColorIfSet(&fColor);
+        fUsesLocalCoords = analysis.readsLocalCoords();
     }
 
     void onPrepareDraws(Target*) const override;

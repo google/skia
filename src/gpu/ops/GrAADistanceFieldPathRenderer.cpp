@@ -145,13 +145,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fShapes[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     AADistanceFieldPathOp(GrColor color, const GrShape& shape, const SkMatrix& viewMatrix,
                           GrDrawOpAtlas* atlas, ShapeCache* shapeCache, ShapeDataList* shapeList,
@@ -170,16 +163,21 @@ private:
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fShapes[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        // Handle any color analysis
+        if (!analysis.readsColor()) {
             fShapes[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fShapes[0].fColor);
+        analysis.getOverrideColorIfSet(&fShapes[0].fColor);
 
-        fColorIgnored = !overrides.readsColor();
-        fUsesLocalCoords = overrides.readsLocalCoords();
-        fCoverageIgnored = !overrides.readsCoverage();
+        fColorIgnored = !analysis.readsColor();
+        fUsesLocalCoords = analysis.readsLocalCoords();
+        fCoverageIgnored = !analysis.readsCoverage();
     }
 
     struct FlushInfo {

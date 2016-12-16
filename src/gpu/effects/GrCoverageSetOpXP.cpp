@@ -34,7 +34,7 @@ public:
 private:
     CoverageSetOpXP(SkRegion::Op regionOp, bool fInvertCoverage);
 
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* color,
                                                  const GrCaps& caps) const override;
@@ -108,7 +108,7 @@ GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
 }
 
 GrXferProcessor::OptFlags
-CoverageSetOpXP::onGetOptimizations(const GrPipelineOptimizations& optimizations,
+CoverageSetOpXP::onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                     bool doesStencilWrite,
                                     GrColor* color,
                                     const GrCaps& caps) const {
@@ -168,7 +168,7 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations&, bool, GrColor*,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&, bool, GrColor*,
                                                  const GrCaps&) const override {
         // We never look at the color input
         return GrXferProcessor::kIgnoreColor_OptFlag;
@@ -312,7 +312,7 @@ sk_sp<GrXPFactory> GrCoverageSetOpXPFactory::Make(SkRegion::Op regionOp, bool in
 
 GrXferProcessor*
 GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                const GrPipelineOptimizations& optimizations,
+                                                const GrPipelineAnalysis& analysis,
                                                 bool hasMixedSamples,
                                                 const DstTexture* dst) const {
     // We don't support inverting coverage with mixed samples. We don't expect to ever want this in
@@ -323,7 +323,7 @@ GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& caps,
         return nullptr;
     }
 
-    if (optimizations.fOverrides.fUsePLSDstRead) {
+    if (analysis.fUsesPLSDstRead) {
         return new ShaderCSOXferProcessor(dst, hasMixedSamples, fRegionOp, fInvertCoverage);
     }
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);

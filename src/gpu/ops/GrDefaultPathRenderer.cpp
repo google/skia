@@ -118,13 +118,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setKnownSingleComponent(this->coverage());
-    }
-
 private:
     DefaultPathOp(GrColor color, const SkPath& path, SkScalar tolerance, uint8_t coverage,
                   const SkMatrix& viewMatrix, bool isHairline, const SkRect& devBounds)
@@ -139,13 +132,18 @@ private:
                         isHairline ? IsZeroArea::kYes : IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(this->coverage());
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        if (!analysis.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
-        fUsesLocalCoords = overrides.readsLocalCoords();
-        fCoverageIgnored = !overrides.readsCoverage();
+        analysis.getOverrideColorIfSet(&fColor);
+        fUsesLocalCoords = analysis.readsLocalCoords();
+        fCoverageIgnored = !analysis.readsCoverage();
     }
 
     void onPrepareDraws(Target* target) const override {

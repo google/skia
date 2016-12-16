@@ -795,20 +795,17 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one circle.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     CircleOp() : INHERITED(ClassID()) {}
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!overrides.readsLocalCoords()) {
+
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fGeoData[0].fColor);
+        if (!analysis.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }
@@ -1243,23 +1240,19 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called, there is only one ellipse.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     EllipseOp() : INHERITED(ClassID()) {}
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        if (!overrides.readsCoverage()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        if (!analysis.readsCoverage()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
-        if (!overrides.readsLocalCoords()) {
+        if (!analysis.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }
@@ -1464,21 +1457,17 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one ellipse.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     DIEllipseOp() : INHERITED(ClassID()) {}
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        fUsesLocalCoords = overrides.readsLocalCoords();
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fGeoData[0].fColor);
+        fUsesLocalCoords = analysis.readsLocalCoords();
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -1785,19 +1774,15 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one rrect.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
+private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
     }
 
-private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!overrides.readsLocalCoords()) {
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fGeoData[0].fColor);
+        if (!analysis.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }
@@ -2143,21 +2128,17 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one rrect.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     EllipticalRRectOp() : INHERITED(ClassID()) {}
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!overrides.readsLocalCoords()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fGeoData[0].fColor);
+        if (!analysis.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }

@@ -53,15 +53,15 @@ static GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 }
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
-                                      const GrPipelineOptimizations& opt,
+                                      const GrPipelineAnalysis& analysis,
                                       const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
-    if (opt.fOverrides.fUsePLSDstRead) {
+    if (analysis.fUsesPLSDstRead) {
         return false;
     }
-    if (opt.fCoveragePOI.isFourChannelOutput()) {
+    if (analysis.fCoveragePOI.isFourChannelOutput()) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {
@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
@@ -200,7 +200,7 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
     return fMode == s.fMode && fHWBlendEquation == s.fHWBlendEquation;
 }
 
-GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineOptimizations& optimizations,
+GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
                                                        const GrCaps& caps) const {
@@ -333,11 +333,11 @@ public:
 
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineOptimizations& optimizations,
+                                           const GrPipelineAnalysis& optimizations,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override;
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override;
 
     bool onIsEqual(const GrXPFactory& xpfBase) const override {
         const CustomXPFactory& xpf = xpfBase.cast<CustomXPFactory>();
@@ -360,7 +360,7 @@ CustomXPFactory::CustomXPFactory(SkBlendMode mode)
 }
 
 GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                                        const GrPipelineOptimizations& opt,
+                                                        const GrPipelineAnalysis& opt,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     if (can_use_hw_blend_equation(fHWBlendEquation, opt, caps)) {
@@ -371,7 +371,7 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
 }
 
 bool CustomXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                         const GrPipelineOptimizations& optimizations) const {
+                                         const GrPipelineAnalysis& optimizations) const {
     return !can_use_hw_blend_equation(fHWBlendEquation, optimizations, caps);
 }
 

@@ -62,14 +62,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
     static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                                 const SkStrokeRec& stroke, bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
@@ -108,14 +100,19 @@ public:
 private:
     NonAAStrokeRectOp() : INHERITED(ClassID()) {}
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
+    }
+
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(fColor);
-            Coverage coverage(fOverrides.readsCoverage() ? Coverage::kSolid_Type
+            Coverage coverage(fAnalysis.readsCoverage() ? Coverage::kSolid_Type
                                                          : Coverage::kNone_Type);
-            LocalCoords localCoords(fOverrides.readsLocalCoords() ? LocalCoords::kUsePosition_Type
+            LocalCoords localCoords(fAnalysis.readsLocalCoords() ? LocalCoords::kUsePosition_Type
                                                                   : LocalCoords::kUnused_Type);
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
         }
@@ -161,9 +158,9 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fColor);
-        fOverrides = overrides;
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fColor);
+        fAnalysis = analysis;
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
@@ -176,8 +173,7 @@ private:
     SkMatrix fViewMatrix;
     SkRect fRect;
     SkScalar fStrokeWidth;
-
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineAnalysisResult fAnalysis;
 
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;

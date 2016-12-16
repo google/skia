@@ -94,13 +94,13 @@ static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* sto
     GrPipelineBuilder dummyBuilder(GrPaint(), GrAAType::kNone);
     GrScissorState dummyScissor;
     GrWindowRectsState dummyWindows;
-    GrXPOverridesForBatch dummyOverrides;
+    GrPipelineAnalysisResult dummyOverrides;
 
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = &dummyBuilder;
     args.fRenderTargetContext = dc;
     args.fCaps = dc->caps();
-    args.fOpts = GrPipelineOptimizations();
+    args.fAnalysis = GrPipelineAnalysis();
     args.fScissor = &dummyScissor;
     args.fWindowRectsState = &dummyWindows;
     args.fHasStencilClip = false;

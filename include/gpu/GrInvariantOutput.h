@@ -10,8 +10,8 @@
 
 #include "GrColor.h"
 
-struct GrInitInvariantOutput {
-    GrInitInvariantOutput()
+struct GrPipelineInput {
+    GrPipelineInput()
         : fValidFlags(kNone_GrColorComponentFlags)
         , fColor(0)
         , fIsSingleComponent(false)
@@ -64,7 +64,7 @@ public:
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
 
-    GrInvariantOutput(const GrInitInvariantOutput& io)
+    GrInvariantOutput(const GrPipelineInput& io)
         : fColor(io.fColor)
         , fValidFlags(io.fValidFlags)
         , fIsSingleComponent(io.fIsSingleComponent)
@@ -282,7 +282,7 @@ private:
         fWillUseInputColor = true;
     }
 
-    void reset(const GrInitInvariantOutput& io) {
+    void reset(const GrPipelineInput& io) {
         fColor = io.fColor;
         fValidFlags = io.fValidFlags;
         fIsSingleComponent = io.fIsSingleComponent;
