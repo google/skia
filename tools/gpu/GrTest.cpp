@@ -21,7 +21,7 @@
 #include "SkMathPriv.h"
 #include "SkString.h"
 
-#include "text/GrBatchFontCache.h"
+#include "text/GrAtlasGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
@@ -85,7 +85,7 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
 }
 
 void GrContext::setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs) {
-    fBatchFontCache->setAtlasSizes_ForTesting(configs);
+    fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ void GrContext::printGpuStats() const {
 }
 
 GrTexture* GrContext::getFontAtlasTexture(GrMaskFormat format) {
-    GrBatchFontCache* cache = this->getBatchFontCache();
+    GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
     return cache->getTexture(format);
 }

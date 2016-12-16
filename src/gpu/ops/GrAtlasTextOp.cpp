@@ -15,7 +15,7 @@
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
-#include "text/GrBatchFontCache.h"
+#include "text/GrAtlasGlyphCache.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
