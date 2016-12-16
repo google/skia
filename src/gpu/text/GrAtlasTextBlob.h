@@ -9,8 +9,8 @@
 #define GrAtlasTextBlob_DEFINED
 
 #include "GrAtlasGlyphCache.h"
-#include "GrBatchAtlas.h"
 #include "GrColor.h"
+#include "GrDrawOpAtlas.h"
 #include "GrMemoryPool.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
@@ -364,15 +364,15 @@ private:
         }
         struct SubRunInfo {
             SubRunInfo()
-                : fAtlasGeneration(GrBatchAtlas::kInvalidAtlasGeneration)
-                , fVertexStartIndex(0)
-                , fVertexEndIndex(0)
-                , fGlyphStartIndex(0)
-                , fGlyphEndIndex(0)
-                , fColor(GrColor_ILLEGAL)
-                , fMaskFormat(kA8_GrMaskFormat)
-                , fDrawAsDistanceFields(false)
-                , fUseLCDText(false) {
+                    : fAtlasGeneration(GrDrawOpAtlas::kInvalidAtlasGeneration)
+                    , fVertexStartIndex(0)
+                    , fVertexEndIndex(0)
+                    , fGlyphStartIndex(0)
+                    , fGlyphEndIndex(0)
+                    , fColor(GrColor_ILLEGAL)
+                    , fMaskFormat(kA8_GrMaskFormat)
+                    , fDrawAsDistanceFields(false)
+                    , fUseLCDText(false) {
                 fVertexBounds.setLargestInverted();
             }
             SubRunInfo(const SubRunInfo& that)
@@ -395,7 +395,7 @@ private:
 
             // TODO when this object is more internal, drop the privacy
             void resetBulkUseToken() { fBulkUseToken.reset(); }
-            GrBatchAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
+            GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
             void setStrike(GrAtlasTextStrike* strike) { fStrike.reset(SkRef(strike)); }
             GrAtlasTextStrike* strike() const { return fStrike.get(); }
 
@@ -451,7 +451,7 @@ private:
             bool drawAsDistanceFields() const { return fDrawAsDistanceFields; }
 
         private:
-            GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
+            GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
             sk_sp<GrAtlasTextStrike> fStrike;
             SkMatrix fCurrentViewMatrix;
             SkRect fVertexBounds;

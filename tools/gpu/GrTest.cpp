@@ -7,12 +7,12 @@
 
 #include "GrTest.h"
 
-#include "GrBatchAtlas.h"
 #include "GrContextOptions.h"
-#include "GrRenderTargetContextPriv.h"
+#include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 
@@ -28,8 +28,8 @@ namespace GrTest {
 void SetupAlwaysEvictAtlas(GrContext* context) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
-    int dim = GrBatchAtlas::kGlyphMaxDim;
-    GrBatchAtlasConfig configs[3];
+    int dim = GrDrawOpAtlas::kGlyphMaxDim;
+    GrDrawOpAtlasConfig configs[3];
     configs[kA8_GrMaskFormat].fWidth = dim;
     configs[kA8_GrMaskFormat].fHeight = dim;
     configs[kA8_GrMaskFormat].fLog2Width = SkNextLog2(dim);
@@ -84,7 +84,7 @@ void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
     fTextBlobCache->setBudget(bytes);
 }
 
-void GrContext::setTextContextAtlasSizes_ForTesting(const GrBatchAtlasConfig* configs) {
+void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
     fAtlasGlyphCache->setAtlasSizes_ForTesting(configs);
 }
 

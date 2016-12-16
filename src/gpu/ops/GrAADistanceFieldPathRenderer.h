@@ -8,7 +8,7 @@
 #ifndef GrAADistanceFieldPathRenderer_DEFINED
 #define GrAADistanceFieldPathRenderer_DEFINED
 
-#include "GrBatchAtlas.h"
+#include "GrDrawOpAtlas.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrShape.h"
@@ -70,7 +70,7 @@ private:
             SkAutoSTArray<24, uint32_t> fKey;
         };
         Key                   fKey;
-        GrBatchAtlas::AtlasID fID;
+        GrDrawOpAtlas::AtlasID fID;
         SkRect                fBounds;
         SkRect                fTexCoords;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
@@ -84,12 +84,12 @@ private:
         }
     };
 
-    static void HandleEviction(GrBatchAtlas::AtlasID, void*);
+    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    std::unique_ptr<GrBatchAtlas> fAtlas;
+    std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 
