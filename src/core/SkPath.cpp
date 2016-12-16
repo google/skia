@@ -2147,11 +2147,15 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
     SkPoint pts[4];
     Verb    verb;
 
-    if (!wStream) {
-        SkDebugf("path: forceClose=%s\n", forceClose ? "true" : "false");
-    }
     SkString builder;
-
+    char const * const gFillTypeStrs[] = {
+        "Winding",
+        "EvenOdd",
+        "InverseWinding",
+        "InverseEvenOdd",
+    };
+    builder.printf("path.setFillType(SkPath::k%s_FillType);\n",
+            gFillTypeStrs[(int) this->getFillType()]);
     while ((verb = iter.next(pts, false)) != kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
