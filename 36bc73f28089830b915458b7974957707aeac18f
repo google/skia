@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_4f7141f7",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-16T19:45:04Z",
+      "side": 1,
+      "message": "Going with Make().  Seems more flexible.",
+      "parentUuid": "9a3953bb_ac4e4b3a",
+      "revId": "36bc73f28089830b915458b7974957707aeac18f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_2cb89bc5",
         "filename": "src/core/SkColorSpacePriv.h",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-16T18:55:07Z",
       "side": 1,
       "message": "Interesting note: The comment (and implementation) of parameter evaluation on SkColorSpaceTransferFn uses (Value \u003c D) (not less-than-or-equal). So for inputs of 1.0, this is still going to evaluate (0 * 1 + 0)^0 + 0, which *will* produce the right value, but seems like an accidentally correct value. Do we support setting D larger than 1 to make the whole range linear?",
+      "revId": "36bc73f28089830b915458b7974957707aeac18f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_af9e3df0",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-16T19:45:04Z",
+      "side": 1,
+      "message": "Adding a little but of extra room here so the entire function can be linear.",
+      "parentUuid": "9a3953bb_2cb89bc5",
       "revId": "36bc73f28089830b915458b7974957707aeac18f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
