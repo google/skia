@@ -1,0 +1,372 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_4f2b01f4",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "meta-comment\n\nMany functions have common parameters that are passed around a lot.\n\nFor one example, consider isUsingMask. It appears that this is set iff blitter is a MaskAdditiveBlitter. \nThat suggests that isUsingMask could be passed as part of blitter instead. It wouldn\u0027t need to be a virtual if that creates too much overhead.\n\nPerhaps other common parameters could also be moved to class members as well.",
+      "range": {
+        "startLine": 638,
+        "startChar": 35,
+        "endLine": 638,
+        "endChar": 46
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0c0917e1",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "this is a large function to require inlining. Do you see a performance gain here?",
+      "range": {
+        "startLine": 799,
+        "startChar": 7,
+        "endLine": 799,
+        "endChar": 23
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0cf037ad",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1265,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "pass nextNextY by address as last param or return updated value",
+      "range": {
+        "startLine": 1265,
+        "startChar": 34,
+        "endLine": 1265,
+        "endChar": 35
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_ccd0df0e",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1269,
+        "startChar": 74,
+        "endLine": 1269,
+        "endChar": 83
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_0cbbd7c4",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1276,
+        "startChar": 7,
+        "endLine": 1276,
+        "endChar": 11
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_6cc29343",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "I don\u0027t doubt that this works, but it looks like it will hang on bad or corrupt data even in a debug build.\n\nPlease consider adding asserts that would fire if the data could cause this to loop forever\n(e.g., SkASSERT(start !\u003d after))",
+      "range": {
+        "startLine": 1304,
+        "startChar": 20,
+        "endLine": 1304,
+        "endChar": 25
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_acb2cbdf",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "Another possibly less fragile way to write this would be to move the #ifdef SK_DEBUG inside validate_edges_for_y()",
+      "range": {
+        "startLine": 1329,
+        "startChar": 12,
+        "endLine": 1329,
+        "endChar": 32
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_6c99b363",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1389,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "How much later?",
+      "range": {
+        "startLine": 1389,
+        "startChar": 52,
+        "endLine": 1389,
+        "endChar": 55
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_2fac0d6b",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "nit: above you use do() { _ while (true);\nShould I read the different infinitite loop styles as having different meanings?",
+      "range": {
+        "startLine": 1441,
+        "startChar": 13,
+        "endLine": 1441,
+        "endChar": 14
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17fa9e31_dd4e8bdf",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "delete if this has outlived its usefulness",
+      "range": {
+        "startLine": 1442,
+        "startChar": 15,
+        "endLine": 1442,
+        "endChar": 23
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_cf89b10c",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "nit: weird to see this initialized in a bunch of variable declarations",
+      "range": {
+        "startLine": 1452,
+        "startChar": 8,
+        "endLine": 1452,
+        "endChar": 17
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_af4abdc6",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "Hard for me to read this one. Is this the same as\n\n  in_interval \u003d !(w \u0026 windingMask) \u003d\u003d isInverse; \n\n?",
+      "range": {
+        "startLine": 1493,
+        "startChar": 33,
+        "endLine": 1493,
+        "endChar": 44
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_afbf1d91",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "worth always inlining?",
+      "range": {
+        "startLine": 1635,
+        "startChar": 7,
+        "endLine": 1635,
+        "endChar": 23
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_cc2c5f61",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "outdent",
+      "range": {
+        "startLine": 757,
+        "startChar": 11,
+        "endLine": 757,
+        "endChar": 32
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_6c1e1326",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "I can\u0027t imagine that this is right, comparing the number of points with the size of the bounds. If it is right, it needs a comment and test cases.",
+      "range": {
+        "startLine": 764,
+        "startChar": 30,
+        "endLine": 764,
+        "endChar": 31
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_4c86af37",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-16T19:37:13Z",
+      "side": 1,
+      "message": "\"Anti\"\n\nDoes this mean \"Force Analytic Anti-Alias if the path is not convex\" or does \"complicated\" mean something else?",
+      "range": {
+        "startLine": 71,
+        "startChar": 52,
+        "endLine": 71,
+        "endChar": 57
+      },
+      "revId": "e8d1d9c81625736f6edc7f8ed9c02869420af7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
