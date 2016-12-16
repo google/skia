@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_9218c290",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-16T22:49:39Z",
+      "side": 1,
+      "message": "I think sys becomes unused.",
+      "revId": "e906160265d33947d8cd5f7db400705e7380561c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_72e98e39",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-16T22:49:39Z",
+      "side": 1,
+      "message": "Try\n  here \u003d os.path.dirname(__file__)\n?",
+      "revId": "e906160265d33947d8cd5f7db400705e7380561c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
