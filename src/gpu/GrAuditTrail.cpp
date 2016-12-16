@@ -6,7 +6,7 @@
  */
 
 #include "GrAuditTrail.h"
-#include "batches/GrOp.h"
+#include "ops/GrOp.h"
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 

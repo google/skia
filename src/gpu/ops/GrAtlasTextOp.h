@@ -8,7 +8,7 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
-#include "batches/GrMeshDrawOp.h"
+#include "ops/GrMeshDrawOp.h"
 
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"

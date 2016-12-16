@@ -11,7 +11,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
 
-#include "batches/GrMeshDrawOp.h"
+#include "ops/GrMeshDrawOp.h"
 
 /*
  * A simple solid color batch only for testing purposes which actually doesn't batch at all. It

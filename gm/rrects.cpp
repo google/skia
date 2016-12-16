@@ -9,9 +9,9 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "batches/GrDrawOp.h"
-#include "batches/GrRectOpFactory.h"
 #include "effects/GrRRectEffect.h"
+#include "ops/GrDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 #endif
 #include "SkRRect.h"
 
