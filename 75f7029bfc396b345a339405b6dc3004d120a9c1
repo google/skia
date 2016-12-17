@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_1d54e314",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-17T11:31:04Z",
+      "side": 1,
+      "message": "perhaps we should update the public signatures to use uniqe_ptrs",
+      "range": {
+        "startLine": 778,
+        "startChar": 39,
+        "endLine": 778,
+        "endChar": 53
+      },
+      "revId": "75f7029bfc396b345a339405b6dc3004d120a9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
