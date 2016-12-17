@@ -99,6 +99,7 @@ tests_sources = [
   "$_tests/GrTRecorderTest.cpp",
   "$_tests/HashTest.cpp",
   "$_tests/image-bitmap.cpp",
+  "$_tests/ICCTest.cpp",
   "$_tests/ImageCacheTest.cpp",
   "$_tests/ImageFilterCacheTest.cpp",
   "$_tests/ImageFilterTest.cpp",
