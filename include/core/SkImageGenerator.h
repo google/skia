@@ -176,14 +176,7 @@ public:
      *  or the requested scaledSize is not supported, or the generator encounters an error,
      *  this returns false.
      */
-    bool generateScaledPixels(const SkISize& scaledSize, const SkIPoint& subsetOrigin,
-                              const SkPixmap& subsetPixels);
-
-    bool generateScaledPixels(const SkPixmap& scaledPixels) {
-        return this->generateScaledPixels(SkISize::Make(scaledPixels.width(),
-                                                        scaledPixels.height()),
-                                          SkIPoint::Make(0, 0), scaledPixels);
-    }
+    bool generateScaledPixels(const SkPixmap& scaledPixels);
 
     /**
      *  External generator API: provides efficient access to externally-managed image data.
@@ -271,7 +264,7 @@ protected:
     virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
         return false;
     }
-    virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+    virtual bool onGenerateScaledPixels(const SkPixmap&) {
         return false;
     }
 
