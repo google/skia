@@ -5,14 +5,22 @@
  * found in the LICENSE file.
  */
 
+#include <math.h>
+
 #define SkColorSpacePrintf(...)
 
 static inline bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
 }
 
+static inline float add_epsilon(float v) {
+    return v + FLT_MIN;
+}
+
 static inline bool is_zero_to_one(float v) {
-    return (0.0f <= v) && (v <= 1.0f);
+    // Because we allow a value just barely larger than 1, the client can use an
+    // entirely linear transfer function.
+    return (0.0f <= v) && (v <= add_epsilon(1.0f));
 }
 
 static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
@@ -83,4 +91,45 @@ static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
            color_space_almost_equal(0.0f, coeffs.fE) &&
            color_space_almost_equal(0.0f, coeffs.fF) &&
            color_space_almost_equal(2.2f, coeffs.fG);
+}
+
+static inline void value_to_parametric(SkColorSpaceTransferFn* coeffs, float exponent) {
+    coeffs->fA = 1.0f;
+    coeffs->fB = 0.0f;
+    coeffs->fC = 0.0f;
+    coeffs->fD = 0.0f;
+    coeffs->fE = 0.0f;
+    coeffs->fF = 0.0f;
+    coeffs->fG = exponent;
+}
+
+static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
+                                       SkGammaNamed gammaNamed) {
+    switch (gammaNamed) {
+        case kSRGB_SkGammaNamed:
+            coeffs->fA = 1.0f / 1.055f;
+            coeffs->fB = 0.055f / 1.055f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 0.04045f;
+            coeffs->fE = 1.0f / 12.92f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 2.4f;
+            return true;
+        case k2Dot2Curve_SkGammaNamed:
+            value_to_parametric(coeffs, 2.2f);
+            return true;
+        case kLinear_SkGammaNamed:
+            coeffs->fA = 0.0f;
+            coeffs->fB = 0.0f;
+            coeffs->fC = 0.0f;
+            // Make sure that we use the linear segment of the transfer function even
+            // when the x-value is 1.0f.
+            coeffs->fD = add_epsilon(1.0f);
+            coeffs->fE = 1.0f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 0.0f;
+            return true;
+        default:
+            return false;
+    }
 }
