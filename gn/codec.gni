@@ -1,0 +1,63 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
+
+skia_codec_sources = [
+  "$_src/codec/SkAndroidCodec.cpp",
+  "$_src/codec/SkBmpCodec.cpp",
+  "$_src/codec/SkBmpCodec.h",
+  "$_src/codec/SkBmpMaskCodec.cpp",
+  "$_src/codec/SkBmpMaskCodec.h",
+  "$_src/codec/SkBmpRLECodec.cpp",
+  "$_src/codec/SkBmpRLECodec.h",
+  "$_src/codec/SkBmpStandardCodec.cpp",
+  "$_src/codec/SkBmpStandardCodec.h",
+  "$_src/codec/SkCodec.cpp",
+  "$_src/codec/SkCodecAnimation.h",
+  "$_src/codec/SkCodecImageGenerator.cpp",
+  "$_src/codec/SkCodecImageGenerator.h",
+  "$_src/codec/SkCodecPriv.h",
+  "$_src/codec/SkGifCodec.cpp",
+  "$_src/codec/SkGifCodec.h",
+  "$_src/codec/SkIcoCodec.cpp",
+  "$_src/codec/SkIcoCodec.h",
+  "$_src/codec/SkJpegCodec.cpp",
+  "$_src/codec/SkJpegCodec.h",
+  "$_src/codec/SkJpegDecoderMgr.cpp",
+  "$_src/codec/SkJpegDecoderMgr.h",
+  "$_src/codec/SkJpegUtility.cpp",
+  "$_src/codec/SkJpegUtility.h",
+  "$_src/codec/SkMaskSwizzler.cpp",
+  "$_src/codec/SkMaskSwizzler.h",
+  "$_src/codec/SkMasks.cpp",
+  "$_src/codec/SkMasks.h",
+  "$_src/codec/SkPngCodec.cpp",
+  "$_src/codec/SkPngCodec.h",
+  "$_src/codec/SkRawAdapterCodec.cpp",
+  "$_src/codec/SkRawAdapterCodec.h",
+  "$_src/codec/SkRawCodec.cpp",
+  "$_src/codec/SkRawCodec.h",
+  "$_src/codec/SkSampledCodec.cpp",
+  "$_src/codec/SkSampledCodec.h",
+  "$_src/codec/SkSampler.cpp",
+  "$_src/codec/SkSampler.h",
+  "$_src/codec/SkStreamBuffer.cpp",
+  "$_src/codec/SkStreamBuffer.h",
+  "$_src/codec/SkSwizzler.cpp",
+  "$_src/codec/SkSwizzler.h",
+  "$_src/codec/SkWbmpCodec.cpp",
+  "$_src/codec/SkWbmpCodec.h",
+  "$_src/codec/SkWebpAdapterCodec.cpp",
+  "$_src/codec/SkWebpAdapterCodec.h",
+  "$_src/codec/SkWebpCodec.cpp",
+  "$_src/codec/SkWebpCodec.h",
+
+  "$_include/codec/kAndroidCodec.h",
+  "$_include/codec/SkCodec.h",
+  "$_include/codec/SkEncodedInfo.h",
+]
