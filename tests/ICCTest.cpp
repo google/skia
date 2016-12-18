@@ -18,7 +18,7 @@ static bool almost_equal(float a, float b) {
 
 static inline void test_to_xyz_d50(skiatest::Reporter* r, SkICC* icc, bool shouldSucceed,
                                    const float* reference) {
-    SkMatrix44 result;
+    SkMatrix44 result(SkMatrix44::kUninitialized_Constructor);
     REPORTER_ASSERT(r, shouldSucceed == icc->toXYZD50(&result));
     if (shouldSucceed) {
         float resultVals[16];
