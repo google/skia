@@ -227,7 +227,7 @@ void draw_checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
 SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
                               int textSize, const char* str) {
     SkBitmap bitmap;
-    bitmap.allocN32Pixels(w, h);
+    bitmap.allocPixels(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
     SkCanvas canvas(bitmap);
 
     SkPaint paint;
