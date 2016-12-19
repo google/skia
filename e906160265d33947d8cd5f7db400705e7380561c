@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a3953bb_18531188",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-19T13:53:00Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "9a3953bb_9218c290",
+      "revId": "e906160265d33947d8cd5f7db400705e7380561c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a3953bb_72e98e39",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-16T22:49:39Z",
       "side": 1,
       "message": "Try\n  here \u003d os.path.dirname(__file__)\n?",
+      "revId": "e906160265d33947d8cd5f7db400705e7380561c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_f86d5d42",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-19T13:53:00Z",
+      "side": 1,
+      "message": "That was my first thought, too. We\u0027ll run this script from another, once we automate it, and I had been using execfile. In that case, __file__ points to the script that is running it. But if I make the calling script import this one, and then add a main() and call it, using __file__ works.\n\nDone.",
+      "parentUuid": "9a3953bb_72e98e39",
       "revId": "e906160265d33947d8cd5f7db400705e7380561c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
