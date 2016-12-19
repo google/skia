@@ -61,6 +61,8 @@ enum class SkClipOp {
     kXOR_private_internal_do_not_use               = 3,
     kReverseDifference_private_internal_do_not_use = 4,
     kReplace_private_internal_do_not_use           = 5,
+
+    kMax_EnumValue = kReplace_private_internal_do_not_use
 };
 
 #endif
