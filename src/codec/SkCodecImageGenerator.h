@@ -6,6 +6,7 @@
  */
 
 #include "SkCodec.h"
+#include "SkColorTable.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
 
@@ -30,6 +31,10 @@ protected:
 
     bool onGetYUV8Planes(const SkYUVSizeInfo&, void* planes[3]) override;
 
+    bool onComputeScaledDimensions(SkScalar, SupportedSizes*) override;
+
+    bool onGenerateScaledPixels(const SkPixmap&) override;
+
 private:
     /*
      * Takes ownership of codec
@@ -38,6 +43,7 @@ private:
 
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;
+    sk_sp<SkColorTable> fColorTable;
 
     typedef SkImageGenerator INHERITED;
 };
