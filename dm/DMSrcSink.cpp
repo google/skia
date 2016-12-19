@@ -44,6 +44,8 @@
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
+    #include "win/SkHRESULT.h"
+    #include <XpsObjectModel.h> 
 #endif
 
 #if defined(SK_XML)
@@ -1321,7 +1323,26 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 XPSSink::XPSSink() {}
 
 Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst));
+    SkDocument::XPSParameters xpsArgs;
+    #ifdef SK_BUILD_FOR_WIN
+    SkAutoCoInitialize autoCo;
+    if (!autoCo.succeeded()) {
+        return "Could not initialize COM.";
+    }
+    
+    SkTScopedComPtr<IXpsOMObjectFactory> xpsFactory;
+    HRESULT hr = CoCreateInstance(
+             CLSID_XpsOMObjectFactory,
+             nullptr,
+             CLSCTX_INPROC_SERVER,
+             IID_PPV_ARGS(&xpsFactory));
+    if (FAILED(hr)) {
+        SK_TRACEHR(hr, "Could not create XPS factory.");
+        return "Could not create XPS factory.";
+    }
+    xpsArgs.fFactory = xpsFactory.get();
+    #endif
+    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, xpsArgs));
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";
     }
