@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_2f166dc2",
+        "filename": "gm/codec_scaled.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-19T20:23:25Z",
+      "side": 1,
+      "message": "As usual, this code becomes uglier with index 8 support...",
+      "range": {
+        "startLine": 82,
+        "startChar": 18,
+        "endLine": 82,
+        "endChar": 30
+      },
+      "revId": "8cca05eb8a71dbb8259993d9fa7d06a3d8a4344f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_afd01de1",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-19T20:23:25Z",
+      "side": 1,
+      "message": "This is awkward, as I mentioned elsewhere. An alternative would be to just return false for index 8.",
+      "range": {
+        "startLine": 76,
+        "startChar": 8,
+        "endLine": 76,
+        "endChar": 50
+      },
+      "revId": "8cca05eb8a71dbb8259993d9fa7d06a3d8a4344f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
