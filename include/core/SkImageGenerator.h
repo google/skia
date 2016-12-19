@@ -155,7 +155,7 @@ public:
      *  If no native scaling is supported, or scale is invalid (e.g. scale <= 0 || scale > 1)
      *  this will return false, and the supportedsizes will be undefined.
      */
-    bool computeScaledDimensions(SkScalar scale, SupportedSizes*);
+    bool computeScaledDimensions(SkScalar scale, SkFilterQuality, SupportedSizes*);
 
     /**
      *  Copy the pixels from this generator into the provided pixmap, respecting
@@ -170,7 +170,7 @@ public:
      *  Note: this call does NOT allocate the memory for the pixmap; that must be done
      *  by the caller.
      */
-    bool generateScaledPixels(const SkPixmap& scaledPixels);
+    bool generateScaledPixels(const SkPixmap& scaledPixels, SkFilterQuality);
 
     /**
      *  External generator API: provides efficient access to externally-managed image data.
@@ -255,10 +255,10 @@ protected:
         return nullptr;
     }
 
-    virtual bool onComputeScaledDimensions(SkScalar, SupportedSizes*) {
+    virtual bool onComputeScaledDimensions(SkScalar, SkFilterQuality, SupportedSizes*) {
         return false;
     }
-    virtual bool onGenerateScaledPixels(const SkPixmap&) {
+    virtual bool onGenerateScaledPixels(const SkPixmap&, SkFilterQuality) {
         return false;
     }
 

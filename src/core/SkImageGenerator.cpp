@@ -86,18 +86,19 @@ GrTexture* SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& 
     return this->onGenerateTexture(ctx, info, origin);
 }
 
-bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
+bool SkImageGenerator::computeScaledDimensions(SkScalar scale, SkFilterQuality quality,
+                                               SupportedSizes* sizes) {
     if (scale > 0 && scale <= 1) {
-        return this->onComputeScaledDimensions(scale, sizes);
+        return this->onComputeScaledDimensions(scale, quality, sizes);
     }
     return false;
 }
 
-bool SkImageGenerator::generateScaledPixels(const SkPixmap& scaledPixels) {
+bool SkImageGenerator::generateScaledPixels(const SkPixmap& scaledPixels, SkFilterQuality quality) {
     if (scaledPixels.width() <= 0 || scaledPixels.height() <= 0) {
         return false;
     }
-    return this->onGenerateScaledPixels(scaledPixels);
+    return this->onGenerateScaledPixels(scaledPixels, quality);
 }
 
 bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,

@@ -375,15 +375,16 @@ static void show_scaled_generator(SkCanvas* canvas, SkImageGenerator* gen) {
     canvas->translate(110, 0);
 
     const float scales[] = { 0.75f, 0.5f, 0.25f };
+    const SkFilterQuality quality = kMedium_SkFilterQuality;
     for (auto scale : scales) {
         SkImageGenerator::SupportedSizes sizes;
-        if (gen->computeScaledDimensions(scale, &sizes)) {
+        if (gen->computeScaledDimensions(scale, quality, &sizes)) {
             const SkImageInfo info = SkImageInfo::MakeN32Premul(sizes.fSizes[0].width(),
                                                                 sizes.fSizes[0].height());
             bm.allocPixels(info);
             SkPixmap pmap;
             bm.peekPixels(&pmap);
-            if (gen->generateScaledPixels(pmap)) {
+            if (gen->generateScaledPixels(pmap, quality)) {
                 canvas->drawBitmap(bm, 0, SkIntToScalar(genInfo.height() - info.height())/2);
             }
         }

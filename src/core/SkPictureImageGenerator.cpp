@@ -22,8 +22,8 @@ public:
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
                      int* ctableCount) override;
-    bool onComputeScaledDimensions(SkScalar scale, SupportedSizes*) override;
-    bool onGenerateScaledPixels(const SkPixmap&) override;
+    bool onComputeScaledDimensions(SkScalar scale, SkFilterQuality, SupportedSizes*) override;
+    bool onGenerateScaledPixels(const SkPixmap&, SkFilterQuality) override;
 
 #if SK_SUPPORT_GPU
     GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) override;
@@ -95,7 +95,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     return true;
 }
 
-bool SkPictureImageGenerator::onComputeScaledDimensions(SkScalar scale,
+bool SkPictureImageGenerator::onComputeScaledDimensions(SkScalar scale, SkFilterQuality,
                                                         SupportedSizes* sizes) {
     SkASSERT(scale > 0 && scale <= 1);
     const int w = this->getInfo().width();
@@ -110,16 +110,16 @@ bool SkPictureImageGenerator::onComputeScaledDimensions(SkScalar scale,
     return false;
 }
 
-bool SkPictureImageGenerator::onGenerateScaledPixels(const SkPixmap& scaledPixels) {
-    int w = scaledPixels.width();
-    int h = scaledPixels.height();
+bool SkPictureImageGenerator::onGenerateScaledPixels(const SkPixmap& dst, SkFilterQuality) {
+    int w = dst.width();
+    int h = dst.height();
 
     const SkScalar scaleX = SkIntToScalar(w) / this->getInfo().width();
     const SkScalar scaleY = SkIntToScalar(h) / this->getInfo().height();
     SkMatrix matrix = SkMatrix::MakeScale(scaleX, scaleY);
 
     SkBitmap bitmap;
-    if (!bitmap.installPixels(scaledPixels)) {
+    if (!bitmap.installPixels(dst)) {
         return false;
     }
 
