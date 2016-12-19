@@ -231,14 +231,14 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 static inline uint32_t PACK_FILTER_Y_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_Y) {
     unsigned i = TILEY_PROCF(f, max);
-    i = (i << 4) | TILEY_LOW_BITS(f, max);
+    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
     return (i << 14) | (TILEY_PROCF((f + one), max));
 }
 
 static inline uint32_t PACK_FILTER_X_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_X) {
     unsigned i = TILEX_PROCF(f, max);
-    i = (i << 4) | TILEX_LOW_BITS(f, max);
+    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
     return (i << 14) | (TILEX_PROCF((f + one), max));
 }
 
@@ -253,7 +253,7 @@ static inline int32x4_t PACK_FILTER_X4_NAME(int32x4_t f, unsigned max,
     res = TILEX_PROCF_NEON4(f, max);
 
     // Step 2
-    ret = TILEX_LOW_BITS_NEON4(f, max);
+    ret = EXTRACT_LOW_BITS_NEON4(f, max);
     ret = vsliq_n_s32(ret, res, 4);
 
     // Step 3
@@ -274,7 +274,7 @@ static inline int32x4_t PACK_FILTER_Y4_NAME(int32x4_t f, unsigned max,
     res = TILEY_PROCF_NEON4(f, max);
 
     // Step 2
-    ret = TILEY_LOW_BITS_NEON4(f, max);
+    ret = EXTRACT_LOW_BITS_NEON4(f, max);
     ret = vsliq_n_s32(ret, res, 4);
 
     // Step 3
@@ -473,8 +473,7 @@ const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
 #undef TILEY_PROCF_NEON8
 #undef TILEX_PROCF_NEON4
 #undef TILEY_PROCF_NEON4
-#undef TILEX_LOW_BITS_NEON4
-#undef TILEY_LOW_BITS_NEON4
+#undef EXTRACT_LOW_BITS_NEON4
 
 #undef MAKENAME
 #undef TILEX_PROCF
@@ -496,5 +495,4 @@ const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
 #undef PREAMBLE_ARG_X
 #undef PREAMBLE_ARG_Y
 
-#undef TILEX_LOW_BITS
-#undef TILEY_LOW_BITS
+#undef EXTRACT_LOW_BITS
