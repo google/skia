@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_183a3128",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-19T14:12:28Z",
+      "side": 1,
+      "message": "Also don\u0027t need this...",
+      "revId": "894596cf49173a0c0a95216fee5ab8b7095ceca1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_d8aa5923",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-19T14:12:28Z",
+      "side": 1,
+      "message": "Seems unnecessary?  Can\u0027t we just leave the code where it is, called when the other script imports gn_to_bp?  Not sure I get what we need the main() function for.",
+      "revId": "894596cf49173a0c0a95216fee5ab8b7095ceca1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a3953bb_5834a937",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-19T14:12:28Z",
+      "side": 1,
+      "message": "If we care, this breaks the formatting.  I think you just need to leave all these where they were two spaces left.",
+      "revId": "894596cf49173a0c0a95216fee5ab8b7095ceca1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
