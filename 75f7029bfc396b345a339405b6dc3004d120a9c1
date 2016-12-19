@@ -22,6 +22,24 @@
       "revId": "75f7029bfc396b345a339405b6dc3004d120a9c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_8985599c",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T15:58:39Z",
+      "side": 1,
+      "message": "We should. I think there\u0027s one user in Chromium, so this needs to be staged, unfortunately.",
+      "parentUuid": "9a3953bb_1d54e314",
+      "revId": "75f7029bfc396b345a339405b6dc3004d120a9c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
