@@ -7,6 +7,7 @@
 
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkICC.h"
@@ -53,13 +54,13 @@ static constexpr uint32_t kTAG_rXYZ_Offset = kTAG_desc_Offset + kTAG_desc_Bytes;
 static constexpr uint32_t kTAG_gXYZ_Offset = kTAG_rXYZ_Offset + kTAG_XYZ_Bytes;
 static constexpr uint32_t kTAG_bXYZ_Offset = kTAG_gXYZ_Offset + kTAG_XYZ_Bytes;
 
-static constexpr uint32_t kTAG_TRC_Bytes = 14;
+static constexpr uint32_t kTAG_TRC_Bytes = 40;
 static constexpr uint32_t kTAG_rTRC_Offset = kTAG_bXYZ_Offset + kTAG_XYZ_Bytes;
-static constexpr uint32_t kTAG_gTRC_Offset = kTAG_rTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
-static constexpr uint32_t kTAG_bTRC_Offset = kTAG_gTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
+static constexpr uint32_t kTAG_gTRC_Offset = kTAG_rTRC_Offset;
+static constexpr uint32_t kTAG_bTRC_Offset = kTAG_rTRC_Offset;
 
 static constexpr uint32_t kTAG_wtpt = SkSetFourByteTag('w', 't', 'p', 't');
-static constexpr uint32_t kTAG_wtpt_Offset = kTAG_bTRC_Offset + SkAlign4(kTAG_TRC_Bytes);
+static constexpr uint32_t kTAG_wtpt_Offset = kTAG_bTRC_Offset + kTAG_TRC_Bytes;
 
 static constexpr uint32_t kTAG_cprt = SkSetFourByteTag('c', 'p', 'r', 't');
 static constexpr uint32_t kTAG_cprt_Bytes = 12;
@@ -153,39 +154,27 @@ static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int col) {
     ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(2, col)));
 }
 
-static void write_trc_tag(uint32_t* ptr, float value) {
-    ptr[0] = SkEndian_SwapBE32(kTAG_CurveType);
+static void write_trc_tag(uint32_t* ptr, const SkColorSpaceTransferFn& fn) {
+    ptr[0] = SkEndian_SwapBE32(kTAG_ParaCurveType);
     ptr[1] = 0;
-
-    // Gamma will be specified with a single value.
-    ptr[2] = SkEndian_SwapBE32(1);
-
-    // Convert gamma to 16-bit fixed point.
-    uint16_t* ptr16 = (uint16_t*) (ptr + 3);
-    ptr16[0] = SkEndian_SwapBE16((uint16_t) (value * 256.0f));
-
-    // Pad tag with zero.
-    ptr16[1] = 0;
+    ptr[2] = (uint32_t) (SkEndian_SwapBE16(kGABCDEF_ParaCurveType));
+    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(fn.fG));
+    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(fn.fA));
+    ptr[5] = SkEndian_SwapBE32(SkFloatToFixed(fn.fB));
+    ptr[6] = SkEndian_SwapBE32(SkFloatToFixed(fn.fC));
+    ptr[7] = SkEndian_SwapBE32(SkFloatToFixed(fn.fD));
+    ptr[8] = SkEndian_SwapBE32(SkFloatToFixed(fn.fE));
+    ptr[9] = SkEndian_SwapBE32(SkFloatToFixed(fn.fF));
 }
 
-sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
-    // Return if this object was created from a profile, or if we have already serialized
-    // the profile.
-    if (fProfileData) {
-        return fProfileData;
-    }
-    // Profile Data is be mandatory for A2B0 Color Spaces
-    SkASSERT(type() == Type::kXYZ);
+static bool is_3x3(const SkMatrix44& toXYZD50) {
+    return 0.0f == toXYZD50.get(3, 0) && 0.0f == toXYZD50.get(3, 1) && 0.0f == toXYZD50.get(3, 2) &&
+           0.0f == toXYZD50.get(0, 3) && 0.0f == toXYZD50.get(1, 3) && 0.0f == toXYZD50.get(2, 3) &&
+           1.0f == toXYZD50.get(3, 3);
+}
 
-    // The client may create an SkColorSpace using an SkMatrix44, but currently we only
-    // support writing profiles with 3x3 matrices.
-    // TODO (msarett): Fix this!
-    const SkColorSpace_XYZ* thisXYZ = static_cast<const SkColorSpace_XYZ*>(this);
-    const SkMatrix44& toXYZD50 = *thisXYZ->toXYZD50();
-    if (0.0f != toXYZD50.getFloat(3, 0) || 0.0f != toXYZD50.getFloat(3, 1) ||
-        0.0f != toXYZD50.getFloat(3, 2) || 0.0f != toXYZD50.getFloat(0, 3) ||
-        0.0f != toXYZD50.getFloat(1, 3) || 0.0f != toXYZD50.getFloat(2, 3))
-    {
+sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix44& toXYZD50) {
+    if (!is_3x3(toXYZD50) || !is_valid_transfer_fn(fn)) {
         return nullptr;
     }
 
@@ -212,61 +201,23 @@ sk_sp<SkData> SkColorSpace_Base::writeToICC() const {
     write_xyz_tag((uint32_t*) ptr, toXYZD50, 2);
     ptr += kTAG_XYZ_Bytes;
 
-    // Write TRC tags
-    SkGammaNamed gammaNamed = thisXYZ->gammaNamed();
-    if (kNonStandard_SkGammaNamed == gammaNamed) {
-        // FIXME (msarett):
-        // Write the correct gamma representation rather than 2.2f.
-        write_trc_tag((uint32_t*) ptr, 2.2f);
-        ptr += SkAlign4(kTAG_TRC_Bytes);
-        write_trc_tag((uint32_t*) ptr, 2.2f);
-        ptr += SkAlign4(kTAG_TRC_Bytes);
-        write_trc_tag((uint32_t*) ptr, 2.2f);
-        ptr += SkAlign4(kTAG_TRC_Bytes);
-    } else {
-        switch (gammaNamed) {
-            case kSRGB_SkGammaNamed:
-                // FIXME (msarett):
-                // kSRGB cannot be represented by a value.  Here we fall through to 2.2f,
-                // which is a close guess.  To be more accurate, we need to represent sRGB
-                // gamma with a parametric curve.
-            case k2Dot2Curve_SkGammaNamed:
-                write_trc_tag((uint32_t*) ptr, 2.2f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                write_trc_tag((uint32_t*) ptr, 2.2f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                write_trc_tag((uint32_t*) ptr, 2.2f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                break;
-            case kLinear_SkGammaNamed:
-                write_trc_tag((uint32_t*) ptr, 1.0f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                write_trc_tag((uint32_t*) ptr, 1.0f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                write_trc_tag((uint32_t*) ptr, 1.0f);
-                ptr += SkAlign4(kTAG_TRC_Bytes);
-                break;
-            default:
-                SkASSERT(false);
-                break;
-        }
-    }
+    // Write TRC tag
+    write_trc_tag((uint32_t*) ptr, fn);
+    ptr += kTAG_TRC_Bytes;
 
-    // Write white point tag
+    // Write white point tag (must be D50)
     uint32_t* ptr32 = (uint32_t*) ptr;
     ptr32[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr32[1] = 0;
-    // TODO (msarett): These values correspond to the D65 white point.  This may not always be
-    //                 correct.
-    ptr32[2] = SkEndian_SwapBE32(0x0000f351);
+    ptr32[2] = SkEndian_SwapBE32(0x0000f6d6);
     ptr32[3] = SkEndian_SwapBE32(0x00010000);
-    ptr32[4] = SkEndian_SwapBE32(0x000116cc);
+    ptr32[4] = SkEndian_SwapBE32(0x0000d32d);
     ptr += kTAG_XYZ_Bytes;
 
     // Write copyright tag
     memcpy(ptr, gEmptyTextTag, sizeof(gEmptyTextTag));
+    ptr += sizeof(gEmptyTextTag);
 
-    // TODO (msarett): Should we try to hold onto the data so we can return immediately if
-    //                 the client calls again?
+    SkASSERT(kICCProfileSize == ptr - (uint8_t*) profile.get());
     return SkData::MakeFromMalloc(profile.release(), kICCProfileSize);
 }

@@ -200,16 +200,6 @@ protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 
 private:
-
-    /**
-     *  FIXME (msarett):
-     *  Hiding this function until we can determine if we need it.  Known issues include:
-     *  Only writes 3x3 matrices
-     *  Only writes float gammas
-     *  Rejected by some parsers because the "profile description" is empty
-     */
-    sk_sp<SkData> writeToICC() const;
-
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
     sk_sp<SkData> fProfileData;

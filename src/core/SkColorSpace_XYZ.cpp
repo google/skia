@@ -10,12 +10,6 @@
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXform_Base.h"
 
-static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
-    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
-    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
-};
-
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
     : INHERITED(nullptr)
     , fGammaNamed(gammaNamed)
