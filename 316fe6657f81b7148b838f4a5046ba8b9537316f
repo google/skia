@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_4fe8819a",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-19T20:18:44Z",
+      "side": 1,
+      "message": "nit: fq docs",
+      "range": {
+        "startLine": 158,
+        "startChar": 49,
+        "endLine": 158,
+        "endChar": 64
+      },
+      "revId": "316fe6657f81b7148b838f4a5046ba8b9537316f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
