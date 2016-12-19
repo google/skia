@@ -128,14 +128,12 @@ const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
 sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
                                            const SkRect& occluder, uint32_t flags) {
+    SkASSERT(!(flags & ~SkBlurMaskFilter::kAll_BlurFlag));
+    SkASSERT(style <= kLastEnum_SkBlurStyle);
+
     if (!SkScalarIsFinite(sigma) || sigma <= 0) {
         return nullptr;
     }
-    if ((unsigned)style > (unsigned)kLastEnum_SkBlurStyle) {
-        return nullptr;
-    }
-    SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
-    flags &= SkBlurMaskFilter::kAll_BlurFlag;
 
     return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, flags));
 }
@@ -735,7 +733,12 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
 sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar sigma = buffer.readScalar();
     const unsigned style = buffer.readUInt();
-    const unsigned flags = buffer.readUInt();
+    unsigned flags = buffer.readUInt();
+
+    buffer.validate(style <= kLastEnum_SkBlurStyle);
+    buffer.validate(!(flags & ~SkBlurMaskFilter::kAll_BlurFlag));
+
+    flags &= SkBlurMaskFilter::kAll_BlurFlag;
 
     SkRect occluder;
     if (buffer.isVersionLT(SkReadBuffer::kBlurMaskFilterWritesOccluder)) {
