@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a3953bb_d83fb917",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-19T13:57:41Z",
+      "side": 1,
+      "message": "Update the comment to remove references to subsets and the removed parameter scaledSize?",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 178,
+        "endChar": 7
+      },
+      "revId": "5cbc7b913b16adf5d153ccb5febfd53369c653f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
