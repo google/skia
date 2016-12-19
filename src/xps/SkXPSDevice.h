@@ -12,14 +12,17 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
+#include "SkLeanWindows.h"
+
 #include <ObjBase.h>
 #include <XpsObjectModel.h>
 
 #include "SkAutoCoInitialize.h"
-#include "SkBitmapDevice.h"
 #include "SkBitSet.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -37,7 +40,7 @@
 */
 class SkXPSDevice : public SkBitmapDevice {
 public:
-    SK_API SkXPSDevice();
+    SK_API SkXPSDevice(IXpsOMObjectFactory*);
     SK_API virtual ~SkXPSDevice();
 
     virtual bool beginPortfolio(SkWStream* outputStream);
@@ -151,9 +154,6 @@ private:
     };
     friend HRESULT subset_typeface(TypefaceUse* current);
 
-    SkXPSDevice(IXpsOMObjectFactory* xpsFactory);
-
-    SkAutoCoInitialize fAutoCo;
     SkTScopedComPtr<IXpsOMObjectFactory> fXpsFactory;
     SkTScopedComPtr<IStream> fOutputStream;
     SkTScopedComPtr<IXpsOMPackageWriter> fPackageWriter;
@@ -165,6 +165,8 @@ private:
     SkVector fCurrentPixelsPerMeter;
 
     SkTArray<TypefaceUse, true> fTypefaces;
+
+    void createCanvas();
 
     /** Creates a GUID based id and places it into buffer.
         buffer should have space for at least GUID_ID_LEN wide characters.
@@ -314,8 +316,8 @@ private:
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Disable the default copy and assign implementation.
-    SkXPSDevice(const SkXPSDevice&);
-    void operator=(const SkXPSDevice&);
+    SkXPSDevice(const SkXPSDevice&) = delete;
+    void operator=(const SkXPSDevice&) = delete;
 
     typedef SkBitmapDevice INHERITED;
 };
