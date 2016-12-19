@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_29742dac",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-19T16:42:31Z",
+      "side": 1,
+      "message": "Do you want this to be kMaxEnum_SkBlurStyle?",
+      "range": {
+        "startLine": 738,
+        "startChar": 29,
+        "endLine": 738,
+        "endChar": 50
+      },
+      "revId": "85882dc89b5e9762596eab176a8be32b4edde595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
