@@ -399,10 +399,11 @@ static void apply_morphology_rect(GrTextureProvider* provider,
                                   Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(textureProxy->instantiate(provider),
-                                                             direction,
-                                                             radius,
-                                                             morphType,
+    GrTexture* tex = textureProxy->instantiate(provider);
+    if (!tex) {
+        return;
+    }
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(tex, direction, radius, morphType,
                                                              bounds));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
@@ -420,9 +421,11 @@ static void apply_morphology_rect_no_bounds(GrTextureProvider* provider,
                                             Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(textureProxy->instantiate(provider),
-                                                             direction, radius,
-                                                             morphType));
+    GrTexture* tex = textureProxy->instantiate(provider);
+    if (!tex) {
+        return;
+    }
+    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(tex, direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                         SkRect::Make(srcRect));

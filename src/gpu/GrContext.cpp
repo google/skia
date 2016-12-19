@@ -494,6 +494,10 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         }
     }
 
+    if (!surfaceToRead) {
+        return false;
+    }
+
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }

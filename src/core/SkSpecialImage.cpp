@@ -390,6 +390,9 @@ public:
 
         // TODO: add GrTextureProxy-backed SkImage_Gpus
         GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
+        if (!surf) {
+            return;
+        }
 
         // TODO: In this instance we know we're going to draw a sub-portion of the backing
         // texture into the canvas so it is okay to wrap it in an SkImage. This poses
@@ -411,7 +414,9 @@ public:
     // This entry point should go away in favor of asTextureProxy
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         GrSurface* surf = fSurfaceProxy->instantiate(context->textureProvider());
-
+        if (!surf) {
+            return nullptr;
+        }
         return sk_ref_sp(surf->asTexture());
     }
 
@@ -436,6 +441,9 @@ public:
 
         // Reading back to an SkBitmap ends deferral
         GrSurface* surface = fSurfaceProxy->instantiate(fContext->textureProvider());
+        if (!surface) {
+            return false;
+        }
 
         if (!surface->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
                                  dst->getPixels(), dst->rowBytes())) {
@@ -477,6 +485,9 @@ public:
     sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
         // TODO: add GrTextureProxy-backed SkImage_Gpus
         GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
+        if (!surf) {
+            return nullptr;
+        }
 
         if (0 == subset.fLeft && 0 == subset.fTop &&
             fSurfaceProxy->width() == subset.width() &&

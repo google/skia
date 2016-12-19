@@ -92,6 +92,13 @@ void SkColorLookUpTable::interp3D(float dst[3], float src[3]) const {
             }
         }
 
+        // TODO(raftias): Figure out why this is going out of range (up to 1.0359!)
+        if (dst[i] > 1.f) {
+            dst[i] = 1.f;
+        } else if (dst[i] < 0.f) {
+            dst[i] = 0.f;
+        }
+
         // Increment the table ptr in order to handle the next component.
         // Note that this is the how table is designed: all of nXXX
         // variables are multiples of 3 because there are 3 output

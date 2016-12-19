@@ -146,6 +146,9 @@ bool GrRenderTargetContext::copySurface(GrSurface* src, const SkIRect& srcRect,
     // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
 
     return this->getOpList()->copySurface(rt.get(), src, srcRect, dstPoint);
 }
@@ -208,6 +211,9 @@ void GrRenderTargetContext::discard() {
     // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return;
+    }
 
     this->getOpList()->discard(rt.get());
 }
@@ -264,8 +270,13 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         this->drawRect(clip, paint, SkMatrix::I(), clearRect);
     } else if (isFull) {
-        this->getOpList()->fullClear(this->accessRenderTarget(), color);
+        if (this->accessRenderTarget()) {
+            this->getOpList()->fullClear(this->accessRenderTarget(), color);
+        }
     } else {
+        if (!this->accessRenderTarget()) {
+            return;
+        }
         sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
         if (!batch) {
             return;
@@ -592,6 +603,9 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
                               "GrRenderTargetContextPriv::clearStencilClip");
 
     AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    if (!fRenderTargetContext->accessRenderTarget()) {
+        return;
+    }
     fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
                                                         fRenderTargetContext->accessRenderTarget());
 }
@@ -1144,6 +1158,9 @@ void GrRenderTargetContext::prepareForExternalIO() {
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return;
+    }
 
     ASSERT_OWNED_RESOURCE(rt);
 
@@ -1185,6 +1202,9 @@ bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuff
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
 
     return rt->readPixels(x, y, dstInfo.width(), dstInfo.height(),
                           config, dstBuffer, dstRowBytes, flags);
@@ -1205,6 +1225,9 @@ bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* 
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
 
     return rt->writePixels(x, y, srcInfo.width(), srcInfo.height(),
                            config, srcBuffer, srcRowBytes, flags);

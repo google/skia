@@ -46,6 +46,9 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
 
 GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return 0;
+    }
     GrTexture* texture = rt->asTexture();
     if (texture) {
         return texture->getTextureHandle();
@@ -55,6 +58,9 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
 
 bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return false;
+    }
     *obj = rt->getRenderTargetHandle();
     return true;
 }
@@ -77,7 +83,10 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
     GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
-    SkASSERT(rt);
+    if (!rt) {
+        return nullptr;
+    }
+
     GrTexture* tex = rt->asTexture();
     sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
@@ -111,6 +120,9 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
+    if (!rt) {
+        return;
+    }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
@@ -201,7 +213,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -228,7 +240,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -257,7 +269,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;

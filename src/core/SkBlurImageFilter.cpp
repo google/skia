@@ -136,7 +136,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
         sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
-        SkASSERT(inputTexture);
+        if (!inputTexture) {
+            return nullptr;
+        }
 
         if (0 == sigma.x() && 0 == sigma.y()) {
             offset->fX = inputBounds.x();

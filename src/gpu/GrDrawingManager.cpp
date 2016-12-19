@@ -235,6 +235,9 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         rtp->isStencilBufferMultisampled()) {
         // TODO: defer stencil buffer attachment for PathRenderingDrawContext
         sk_sp<GrRenderTarget> rt(sk_ref_sp(rtp->instantiate(fContext->textureProvider())));
+        if (!rt) {
+            return nullptr;
+        }
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(

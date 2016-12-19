@@ -354,6 +354,10 @@ public:
     GrTextureProxy* asDeferredTexture();
 
     sk_sp<GrTexture> asTexture() {
+        if (!this->accessRenderTarget()) {
+            return nullptr;
+        }
+
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         // It's usage should migrate to asDeferredTexture
