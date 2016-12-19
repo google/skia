@@ -158,23 +158,17 @@ public:
     bool computeScaledDimensions(SkScalar scale, SupportedSizes*);
 
     /**
-     *  Scale the generator's pixels to fit into scaledSize.
-     *  This routine also support retrieving only a subset of the pixels. That subset is specified
-     *  by the following rectangle (in the scaled space):
+     *  Copy the pixels from this generator into the provided pixmap, respecting
+     *  all of the pixmap's attributes: dimensions, colortype, alphatype, colorspace.
+     *  returns true on success.
      *
-     *      subset = SkIRect::MakeXYWH(subsetOrigin.x(), subsetOrigin.y(),
-     *                                 subsetPixels.width(), subsetPixels.height())
+     *  Some generators can only scale to certain dimensions (e.g. powers-of-2 smaller).
+     *  Thus a generator may fail (return false) for some sizes but succeed for other sizes.
+     *  Call computeScaledDimensions() to know, for a given requested scale, what output size(s)
+     *  the generator might support.
      *
-     *  If subset is not contained inside the scaledSize, this returns false.
-     *
-     *      whole = SkIRect::MakeWH(scaledSize.width(), scaledSize.height())
-     *      if (!whole.contains(subset)) {
-     *          return false;
-     *      }
-     *
-     *  If the requested colortype/alphatype in pixels is not supported,
-     *  or the requested scaledSize is not supported, or the generator encounters an error,
-     *  this returns false.
+     *  Note: this call does NOT allocate the memory for the pixmap; that must be done
+     *  by the caller.
      */
     bool generateScaledPixels(const SkPixmap& scaledPixels);
 
