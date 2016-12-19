@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_6c6a33ce",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-12-19T19:29:01Z",
+      "side": 1,
+      "message": "Maybe have two kinds of Stages. A version that takes a context, and a version that doesn\u0027t the avoids people make mistakes in the stages, and you won\u0027t have to pass the the ctx thunk around.",
+      "range": {
+        "startLine": 86,
+        "startChar": 8,
+        "endLine": 86,
+        "endChar": 13
+      },
+      "revId": "0907691d450ae59fdcb44eaffdbfc4f0c2035796",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
