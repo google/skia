@@ -240,9 +240,9 @@ DEF_TEST(ColorSpace_Serialize, r) {
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
     fn.fB = 0.0f;
-    fn.fC = 0.0f;
+    fn.fC = 1.0f;
     fn.fD = 0.5f;
-    fn.fE = 1.0f;
+    fn.fE = 0.0f;
     fn.fF = 0.0f;
     fn.fG = 1.0f;
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
@@ -265,9 +265,9 @@ DEF_TEST(ColorSpace_Equals, r) {
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
     fn.fB = 0.0f;
-    fn.fC = 0.0f;
+    fn.fC = 1.0f;
     fn.fD = 0.5f;
-    fn.fE = 1.0f;
+    fn.fE = 0.0f;
     fn.fF = 0.0f;
     fn.fG = 1.0f;
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
