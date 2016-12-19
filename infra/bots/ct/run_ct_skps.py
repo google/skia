@@ -90,6 +90,8 @@ def main():
       '--skps', skps_dir,
       '--failuresJsonPath', failures_json_out,
       '--writeImages', 'false',
+      '--writeFailedImages', 'false',
+      '--testICCSupport',
       '--testDecode',
     ])
 
