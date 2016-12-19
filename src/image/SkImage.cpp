@@ -62,21 +62,7 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     if (this->width() == dst.width() && this->height() == dst.height()) {
         return this->readPixels(dst, 0, 0, chint);
     }
-
-    // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
-    //       can scale more efficiently) we should take advantage of it here.
-    //
-    SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, dst.info().colorSpace(), chint)) {
-        bm.lockPixels();
-        SkPixmap pmap;
-        // Note: By calling the pixmap scaler, we never cache the final result, so the chint
-        //       is (currently) only being applied to the getROPixels. If we get a request to
-        //       also attempt to cache the final (scaled) result, we would add that logic here.
-        //
-        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
-    }
-    return false;
+    return as_IB(this)->onScalePixels(dst, quality, chint);
 }
 
 #ifdef SK_SUPPORT_LEGACY_PREROLL
@@ -254,6 +240,21 @@ bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     canvas.drawImage(this, -SkIntToScalar(srcX), -SkIntToScalar(srcY), &paint);
 
     return true;
+}
+
+bool SkImage_Base::onScalePixels(const SkPixmap& dst, SkFilterQuality quality,
+                                 CachingHint chint) const {
+    SkBitmap bm;
+    if (this->getROPixels(&bm, dst.info().colorSpace(), chint)) {
+        bm.lockPixels();
+        SkPixmap pmap;
+        // Note: By calling the pixmap scaler, we never cache the final result, so the chint
+        //       is (currently) only being applied to the getROPixels. If we get a request to
+        //       also attempt to cache the final (scaled) result, we would add that logic here.
+        //
+        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

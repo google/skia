@@ -33,28 +33,6 @@
 // see skbug.com/ 4971, 5128, ...
 //#define SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
 
-// Helper for exclusive access to a shared generator.
-class SkImageCacherator::ScopedGenerator {
-public:
-    ScopedGenerator(const sk_sp<SharedGenerator>& gen)
-      : fSharedGenerator(gen)
-      , fAutoAquire(gen->fMutex) {}
-
-    SkImageGenerator* operator->() const {
-        fSharedGenerator->fMutex.assertHeld();
-        return fSharedGenerator->fGenerator.get();
-    }
-
-    operator SkImageGenerator*() const {
-        fSharedGenerator->fMutex.assertHeld();
-        return fSharedGenerator->fGenerator.get();
-    }
-
-private:
-    const sk_sp<SharedGenerator>& fSharedGenerator;
-    SkAutoExclusive               fAutoAquire;
-};
-
 SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* subset)
     : fSharedGenerator(std::move(gen)) {
 
@@ -123,7 +101,7 @@ SkImageCacherator::SkImageCacherator(Validator* validator)
 SkImageCacherator::~SkImageCacherator() {}
 
 SkData* SkImageCacherator::refEncoded(GrContext* ctx) {
-    ScopedGenerator generator(fSharedGenerator);
+    SkScopedImageGenerator generator(this);
     return generator->refEncodedData(ctx);
 }
 
@@ -140,7 +118,7 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
 bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& decodeInfo) {
     SkBitmap::Allocator* allocator = SkResourceCache::GetAllocator();
 
-    ScopedGenerator generator(fSharedGenerator);
+    SkScopedImageGenerator generator(this);
     const SkImageInfo& genInfo = generator->getInfo();
     if (decodeInfo.dimensions() == genInfo.dimensions()) {
         SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
@@ -166,7 +144,7 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap, const SkImageInfo& deco
 
 bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
                                              int srcX, int srcY) {
-    ScopedGenerator generator(fSharedGenerator);
+    SkScopedImageGenerator generator(this);
     const SkImageInfo& genInfo = generator->getInfo();
     // Currently generators do not natively handle subsets, so check that first.
     if (srcX || srcY || genInfo.width() != info.width() || genInfo.height() != info.height()) {
@@ -179,7 +157,7 @@ bool SkImageCacherator::directAccessScaledImage(const SkRect& srcRect,
                                                 const SkMatrix& totalMatrix,
                                                 SkFilterQuality fq,
                                                 SkImageGenerator::ScaledImageRec* rec) {
-    return ScopedGenerator(fSharedGenerator)->accessScaledImage(srcRect, totalMatrix, fq, rec);
+    return SkScopedImageGenerator(this)->accessScaledImage(srcRect, totalMatrix, fq, rec);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +210,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     sk_sp<GrTexture> tex;
 
     {
-        ScopedGenerator generator(fSharedGenerator);
+        SkScopedImageGenerator generator(this);
         tex.reset(generator->generateTexture(nullptr, cacheInfo, fOrigin));
     }
     if (!tex) {
@@ -546,7 +524,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 
     // 2. Ask the generator to natively create one
     {
-        ScopedGenerator generator(fSharedGenerator);
+        SkScopedImageGenerator generator(this);
         if (GrTexture* tex = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
@@ -571,7 +549,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 
     // 4. Ask the generator to return YUV planes, which the GPU can convert
     {
-        ScopedGenerator generator(fSharedGenerator);
+        SkScopedImageGenerator generator(this);
         Generator_GrYUVProvider provider(generator);
         sk_sp<GrTexture> tex = provider.refAsTexture(ctx, desc, true);
         if (tex) {
