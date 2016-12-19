@@ -13,6 +13,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLProgramBuilder;
+class GrGLSLColorSpaceXformHelper;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLUniformHandler;
@@ -120,7 +121,8 @@ public:
                            const char* outColor,
                            const SkString& inCoords,
                            GrGLSLFragmentProcessor::SamplerHandle sampler,
-                           const char* inModulateColor = nullptr);
+                           const char* inModulateColor = nullptr,
+                           GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
         /**
          * Call this from GrGLSLFragmentProcessor::setData() to upload uniforms necessary for the
