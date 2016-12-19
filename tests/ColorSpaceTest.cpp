@@ -142,43 +142,6 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
-class ColorSpaceTest {
-public:
-    static sk_sp<SkData> WriteToICC(SkColorSpace* space) {
-        return as_CSB(space)->writeToICC();
-    }
-};
-
-DEF_TEST(ColorSpaceWriteICC, r) {
-    // Test writing a new ICC profile
-    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-    sk_sp<SkData> namedData = ColorSpaceTest::WriteToICC(namedColorSpace.get());
-    sk_sp<SkColorSpace> iccColorSpace = SkColorSpace::MakeICC(namedData->data(), namedData->size());
-    test_space(r, iccColorSpace.get(), g_sRGB_R, g_sRGB_G, g_sRGB_B, k2Dot2Curve_SkGammaNamed);
-    // FIXME (msarett): Test disabled.  sRGB profiles are written approximately as 2.2f curves.
-    // REPORTER_ASSERT(r, iccColorSpace == namedColorSpace);
-
-    // Test saving the original ICC data
-    sk_sp<SkData> monitorData = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
-    REPORTER_ASSERT(r, monitorData);
-    if (!monitorData) {
-        return;
-    }
-    sk_sp<SkColorSpace> monitorSpace = SkColorSpace::MakeICC(monitorData->data(),
-                                                             monitorData->size());
-    sk_sp<SkData> newMonitorData = ColorSpaceTest::WriteToICC(monitorSpace.get());
-    sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::MakeICC(newMonitorData->data(),
-                                                                newMonitorData->size());
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(monitorSpace)->type());
-    SkColorSpace_XYZ* monitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(monitorSpace.get());
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(newMonitorSpace)->type());
-    SkColorSpace_XYZ* newMonitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(newMonitorSpace.get());
-    REPORTER_ASSERT(r, *monitorSpaceXYZ->toXYZD50() == *newMonitorSpaceXYZ->toXYZD50());
-    REPORTER_ASSERT(r, monitorSpaceXYZ->toXYZD50Hash() == newMonitorSpaceXYZ->toXYZD50Hash());
-    REPORTER_ASSERT(r, monitorSpaceXYZ->gammaNamed() == newMonitorSpaceXYZ->gammaNamed());
-}
-
 DEF_TEST(ColorSpace_Named, r) {
     const struct {
         SkColorSpace::Named fNamed;

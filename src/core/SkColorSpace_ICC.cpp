@@ -375,14 +375,6 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
             return SkGammas::Type::kTable_Type;
         }
         case kTAG_ParaCurveType: {
-            enum ParaCurveType {
-                kExponential_ParaCurveType = 0,
-                kGAB_ParaCurveType         = 1,
-                kGABC_ParaCurveType        = 2,
-                kGABDE_ParaCurveType       = 3,
-                kGABCDEF_ParaCurveType     = 4,
-            };
-
             // Determine the format of the parametric curve tag.
             uint16_t format = read_big_endian_u16(src + 8);
             if (format > kGABCDEF_ParaCurveType) {

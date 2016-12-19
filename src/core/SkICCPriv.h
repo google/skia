@@ -35,3 +35,12 @@ static constexpr uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
 
 static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
 static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
+static constexpr uint32_t kTAG_TextType      = SkSetFourByteTag('m', 'l', 'u', 'c');
+
+enum ParaCurveType {
+    kExponential_ParaCurveType = 0,
+    kGAB_ParaCurveType         = 1,
+    kGABC_ParaCurveType        = 2,
+    kGABDE_ParaCurveType       = 3,
+    kGABCDEF_ParaCurveType     = 4,
+};
