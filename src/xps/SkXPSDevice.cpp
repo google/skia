@@ -116,25 +116,18 @@ static SkBitmap make_fake_bitmap(int width, int height) {
     return bitmap;
 }
 
-// TODO: should inherit from SkBaseDevice instead of SkBitmapDevice...
-SkXPSDevice::SkXPSDevice()
+
+XSPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
     : INHERITED(make_fake_bitmap(10000, 10000), SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    , fXpsFactory(SkRefComPtr(xpsFactory))
     , fCurrentPage(0) {
+    SkASSERT(fXpsFactory);
 }
 
-SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
-    : INHERITED(make_fake_bitmap(10000, 10000), SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fCurrentPage(0) {
-
-    HRVM(CoCreateInstance(
-             CLSID_XpsOMObjectFactory,
-             nullptr,
-             CLSCTX_INPROC_SERVER,
-             IID_PPV_ARGS(&this->fXpsFactory)),
-         "Could not create factory for layer.");
-
-    HRVM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
-         "Could not create canvas for layer.");
+void XSPSDevice::createCanvas() {
+    SkASSERT(fXpsFactory);
+    SkASSERT(!fCurrentXpsCanvas);
+    HRVM(fXpsFactory->CreateCanvas(&fCurrentXpsCanvas), "Could not create canvas for layer.");
 }
 
 SkXPSDevice::~SkXPSDevice() {
@@ -187,8 +180,7 @@ bool SkXPSDevice::beginSheet(
     this->fCurrentPixelsPerMeter = pixelsPerMeter;
 
     this->fCurrentXpsCanvas.reset();
-    HRBM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
-         "Could not create base canvas.");
+    this->createCanvas();
 
     return true;
 }
@@ -2270,18 +2262,12 @@ void SkXPSDevice::drawDevice(const SkDraw& d, SkBaseDevice* dev,
 }
 
 SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
-//Conditional for bug compatibility with PDF device.
-#if 0
-    if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
-        return nullptr;
-        //To what stream do we write?
-        //SkXPSDevice* dev = new SkXPSDevice(this);
-        //SkSize s = SkSize::Make(width, height);
-        //dev->BeginCanvas(s, s, SkMatrix::I());
-        //return dev;
-    }
-#endif
-    return new SkXPSDevice(this->fXpsFactory.get());
+    std::unique_ptr<SkXPSDevice> dev(new SkXPSDevice(fXpsFactory.get());)
+    dev->createCanvas();
+    dev->fCurrentCanvasSize = fCurrentCanvasSize;
+    dev->fCurrentUnitsPerMeter = fCurrentUnitsPerMeter;
+    dev->fCurrentPixelsPerMeter = fCurrentPixelsPerMeter;
+    return dev.release();
 }
 
 #endif//defined(SK_BUILD_FOR_WIN32)
