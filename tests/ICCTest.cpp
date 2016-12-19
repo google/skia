@@ -7,9 +7,11 @@
 
 #include "Resources.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkData.h"
 #include "SkICC.h"
 #include "SkMatrix44.h"
+#include "SkStream.h"
 #include "Test.h"
 
 static bool almost_equal(float a, float b) {
@@ -94,4 +96,45 @@ DEF_TEST(ICC_IsNumericalTransferFn, r) {
     data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkICC> upperRight = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, upperRight.get(), false, referenceFn);
+}
+
+static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTransferFn& fn,
+                                  const SkMatrix44& toXYZD50, SkColorSpace* reference,
+                                  bool writeToFile) {
+    sk_sp<SkData> profile = SkICC::WriteToICC(fn, toXYZD50);
+    if (writeToFile) {
+        SkFILEWStream stream("out.icc");
+        stream.write(profile->data(), profile->size());
+    }
+
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(profile->data(), profile->size());
+    REPORTER_ASSERT(r, SkColorSpace::Equals(reference, colorSpace.get()));
+}
+
+DEF_TEST(ICC_WriteICC, r) {
+    SkColorSpaceTransferFn adobeFn;
+    adobeFn.fA = 1.0f;
+    adobeFn.fB = 0.0f;
+    adobeFn.fC = 0.0f;
+    adobeFn.fD = 0.0f;
+    adobeFn.fE = 0.0f;
+    adobeFn.fF = 0.0f;
+    adobeFn.fG = 2.2f;
+    SkMatrix44 adobeMatrix(SkMatrix44::kUninitialized_Constructor);
+    adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
+    test_write_icc(r, adobeFn, adobeMatrix,
+                   SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named).get(), false);
+
+    SkColorSpaceTransferFn srgbFn;
+    srgbFn.fA = 1.0f / 1.055f;
+    srgbFn.fB = 0.055f / 1.055f;
+    srgbFn.fC = 1.0f / 12.92f;
+    srgbFn.fD = 0.04045f;
+    srgbFn.fE = 0.0f;
+    srgbFn.fF = 0.0f;
+    srgbFn.fG = 2.4f;
+    SkMatrix44 srgbMatrix(SkMatrix44::kUninitialized_Constructor);
+    srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
+    test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(),
+                   false);
 }
