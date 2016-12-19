@@ -496,11 +496,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
 
                     // Y = (aX + b)^g + c  for X >= d
                     // Y = eX + f          otherwise
-                    // NOTE: The ICC spec writes "cX" in place of "eX" but I think
-                    //       it's a typo.
-                    c = read_big_endian_16_dot_16(src + 24);
+                    // Note that the strange ordering (e, d, c, f) is intentional here.
+                    // The ICC names |c| and |e| differently than Skia.
+                    e = read_big_endian_16_dot_16(src + 24);
                     d = read_big_endian_16_dot_16(src + 28);
-                    e = read_big_endian_16_dot_16(src + 32);
+                    c = read_big_endian_16_dot_16(src + 32);
                     f = read_big_endian_16_dot_16(src + 36);
                     break;
                 default:
