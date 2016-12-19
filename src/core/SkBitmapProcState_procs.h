@@ -233,10 +233,9 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #include "SkBitmapProcState_sample.h"
 
 
-#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
-#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
-#define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
+#define TILEX_PROCF(fx, max)     SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)     SkClampMax((fy) >> 16, max)
+#define EXTRACT_LOW_BITS(v, max) (((v) >> 12) & 0xF)
 
 #undef FILTER_PROC
 #define FILTER_PROC(x, y, a, b, c, d, dst)   NAME_WRAP(Filter_32_opaque)(x, y, a, b, c, d, dst)

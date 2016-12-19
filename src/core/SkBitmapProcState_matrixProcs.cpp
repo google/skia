@@ -57,11 +57,10 @@ extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
 // Compile non-neon code path if needed
 #if !defined(SK_ARM_HAS_NEON)
-#define MAKENAME(suffix)        ClampX_ClampY ## suffix
-#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
-#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
-#define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
+#define MAKENAME(suffix)         ClampX_ClampY ## suffix
+#define TILEX_PROCF(fx, max)     SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)     SkClampMax((fy) >> 16, max)
+#define EXTRACT_LOW_BITS(v, max) (((v) >> 12) & 0xF)
 #define CHECK_FOR_DECAL
 #include "SkBitmapProcState_matrix.h"
 
@@ -94,11 +93,10 @@ static SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
     ClampX_ClampY_filter_persp
 };
 
-#define MAKENAME(suffix)        RepeatX_RepeatY ## suffix
-#define TILEX_PROCF(fx, max)    SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1))
-#define TILEY_PROCF(fy, max)    SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1))
-#define TILEX_LOW_BITS(fx, max) (((unsigned)((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) (((unsigned)((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define MAKENAME(suffix)         RepeatX_RepeatY ## suffix
+#define TILEX_PROCF(fx, max)     SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1))
+#define TILEY_PROCF(fy, max)     SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1))
+#define EXTRACT_LOW_BITS(v, max) (((unsigned)((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #include "SkBitmapProcState_matrix.h"
 
 struct RepeatTileProcs {
@@ -131,8 +129,7 @@ static SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
 #define PREAMBLE_ARG_Y          , tileProcY
 #define TILEX_PROCF(fx, max)    SK_USHIFT16(tileProcX(fx) * ((max) + 1))
 #define TILEY_PROCF(fy, max)    SK_USHIFT16(tileProcY(fy) * ((max) + 1))
-#define TILEX_LOW_BITS(fx, max) (((fx * (max + 1)) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) (((fy * (max + 1)) >> 12) & 0xF)
+#define EXTRACT_LOW_BITS(v, max) (((v * (max + 1)) >> 12) & 0xF)
 #include "SkBitmapProcState_matrix.h"
 
 struct GeneralTileProcs {
