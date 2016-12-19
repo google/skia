@@ -485,6 +485,10 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
     if (0 == inCount) {
         return true;
     }
+    if (!buffer.validate(SkTFitsIn<int>(inCount))) {
+        return false;
+    }
+
     *outCount = inCount;
     *array = new const T* [*outCount];
     bool success = true;
@@ -519,6 +523,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             }
             break;
         case SK_PICT_PAINT_BUFFER_TAG: {
+            if (!buffer.validate(SkTFitsIn<int>(size))) {
+                return false;
+            }
             const int count = SkToInt(size);
             fPaints.reset(count);
             for (int i = 0; i < count; ++i) {
