@@ -685,8 +685,8 @@ SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
     float result[N];   // Unconstrained powf() doesn't vectorize well...
     for (int i = 0; i < N; i++) {
         float s = v[i];
-        result[i] = (s <= p.fD) ? p.fE * s + p.fF
-                                : powf(s * p.fA + p.fB, p.fG) + p.fC;
+        result[i] = (s <= p.fD) ? p.fC * s + p.fF
+                                : powf(s * p.fA + p.fB, p.fG) + p.fE;
     }
     // Clamp the output to [0, 1].
     // Max(NaN, 0) = 0, but Max(0, NaN) = NaN, so we want this exact order to ensure NaN => 0

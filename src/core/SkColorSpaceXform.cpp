@@ -116,13 +116,13 @@ static void build_table_linear_from_gamma(float* outTable, const float* inTable,
 
 static void build_table_linear_from_gamma(float* outTable, float g, float a, float b, float c,
                                           float d, float e, float f) {
-    // Y = (aX + b)^g + c  for X >= d
-    // Y = eX + f          otherwise
+    // Y = (aX + b)^g + e  for X >= d
+    // Y = cX + f          otherwise
     for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
         if (x >= d) {
-            *outTable++ = clamp_0_1(powf(a * x + b, g) + c);
+            *outTable++ = clamp_0_1(powf(a * x + b, g) + e);
         } else {
-            *outTable++ = clamp_0_1(e * x + f);
+            *outTable++ = clamp_0_1(c * x + f);
         }
     }
 }
@@ -154,26 +154,26 @@ static float inverse_parametric(float x, float g, float a, float b, float c, flo
     // Assume that the gamma function is continuous, or this won't make much sense anyway.
     // Plug in |d| to the first equation to calculate the new piecewise interval.
     // Then simply use the inverse of the original functions.
-    float interval = e * d + f;
+    float interval = c * d + f;
     if (x < interval) {
-        // X = (Y - F) / E
-        if (0.0f == e) {
+        // X = (Y - F) / C
+        if (0.0f == c) {
             // The gamma curve for this segment is constant, so the inverse is undefined.
             // Since this is the lower segment, guess zero.
             return 0.0f;
         }
 
-        return (x - f) / e;
+        return (x - f) / c;
     }
 
-    // X = ((Y - C)^(1 / G) - B) / A
+    // X = ((Y - E)^(1 / G) - B) / A
     if (0.0f == a || 0.0f == g) {
         // The gamma curve for this segment is constant, so the inverse is undefined.
         // Since this is the upper segment, guess one.
         return 1.0f;
     }
 
-    return (powf(x - c, 1.0f / g) - b) / a;
+    return (powf(x - e, 1.0f / g) - b) / a;
 }
 
 static void build_table_linear_to_gamma(uint8_t* outTable, float g, float a,
@@ -237,8 +237,8 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
                     switch (gammas->data(i).fNamed) {
                         case kSRGB_SkGammaNamed:
                             (*fns.fBuildFromParam)(&gammaTableStorage[i * gammaTableSize], 2.4f,
-                                                   (1.0f / 1.055f), (0.055f / 1.055f), 0.0f,
-                                                   0.04045f, (1.0f / 12.92f), 0.0f);
+                                                   (1.0f / 1.055f), (0.055f / 1.055f),
+                                                   (1.0f / 12.92f), 0.04045f, 0.0f, 0.0f);
                             outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
                             break;
                         case k2Dot2Curve_SkGammaNamed:

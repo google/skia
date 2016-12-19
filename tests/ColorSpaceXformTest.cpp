@@ -176,18 +176,18 @@ DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     SkColorSpaceTransferFn* params = SkTAddOffset<SkColorSpaceTransferFn>
             (memory, sizeof(SkGammas));
 
-    // Interval, switch xforms at 0.0031308f
+    // Interval.
     params->fD = 0.04045f;
 
     // First equation:
-    params->fE = 1.0f / 12.92f;
+    params->fC = 1.0f / 12.92f;
     params->fF = 0.0f;
 
     // Second equation:
     // Note that the function is continuous (it's actually sRGB).
     params->fA = 1.0f / 1.055f;
     params->fB = 0.055f / 1.055f;
-    params->fC = 0.0f;
+    params->fE = 0.0f;
     params->fG = 2.4f;
     test_identity_xform(r, gammas, true);
     test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
@@ -239,9 +239,9 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
             sizeof(SkGammas) + sizeof(float) * tableSize);
     params->fA = 1.0f / 1.055f;
     params->fB = 0.055f / 1.055f;
-    params->fC = 0.0f;
+    params->fC = 1.0f / 12.92f;
     params->fD = 0.04045f;
-    params->fE = 1.0f / 12.92f;
+    params->fE = 0.0f;
     params->fF = 0.0f;
     params->fG = 2.4f;
 

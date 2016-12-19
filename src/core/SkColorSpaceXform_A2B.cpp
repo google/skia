@@ -85,49 +85,49 @@ static inline bool gamma_to_parametric(SkColorSpaceTransferFn* coeffs, const SkG
     }
 }
 static inline SkColorSpaceTransferFn invert_parametric(const SkColorSpaceTransferFn& fn) {
-    // Original equation is:       y = (ax + b)^g + c   for x >= d
-    //                             y = ex + f           otherwise
+    // Original equation is:       y = (ax + b)^g + e   for x >= d
+    //                             y = cx + f           otherwise
     //
-    // so 1st inverse is:          (y - c)^(1/g) = ax + b
-    //                             x = ((y - c)^(1/g) - b) / a
+    // so 1st inverse is:          (y - e)^(1/g) = ax + b
+    //                             x = ((y - e)^(1/g) - b) / a
     //
-    // which can be re-written as: x = (1/a)(y - c)^(1/g) - b/a
-    //                             x = ((1/a)^g)^(1/g) * (y - c)^(1/g) - b/a
-    //                             x = ([(1/a)^g]y + [-((1/a)^g)c]) ^ [1/g] + [-b/a]
+    // which can be re-written as: x = (1/a)(y - e)^(1/g) - b/a
+    //                             x = ((1/a)^g)^(1/g) * (y - e)^(1/g) - b/a
+    //                             x = ([(1/a)^g]y + [-((1/a)^g)e]) ^ [1/g] + [-b/a]
     //
-    // and 2nd inverse is:         x = (y - f) / e
-    // which can be re-written as: x = [1/e]y + [-f/e]
+    // and 2nd inverse is:         x = (y - f) / c
+    // which can be re-written as: x = [1/c]y + [-f/c]
     //
     // and now both can be expressed in terms of the same parametric form as the
     // original - parameters are enclosed in square brackets.
 
     // find inverse for linear segment (if possible)
-    float e, f;
-    if (0.f == fn.fE) {
+    float c, f;
+    if (0.f == fn.fC) {
         // otherwise assume it should be 0 as it is the lower segment
         // as y = f is a constant function
-        e = 0.f;
+        c = 0.f;
         f = 0.f;
     } else {
-        e = 1.f / fn.fE;
-        f = -fn.fF / fn.fE;
+        c = 1.f / fn.fC;
+        f = -fn.fF / fn.fC;
     }
     // find inverse for the other segment (if possible)
-    float g, a, b, c;
+    float g, a, b, e;
     if (0.f == fn.fA || 0.f == fn.fG) {
         // otherwise assume it should be 1 as it is the top segment
         // as you can't invert the constant functions y = b^g + c, or y = 1 + c
         g = 1.f;
         a = 0.f;
         b = 0.f;
-        c = 1.f;
+        e = 1.f;
     } else {
         g = 1.f / fn.fG;
         a = powf(1.f / fn.fA, fn.fG);
-        b = -a * fn.fC;
-        c = -fn.fB / fn.fA;
+        b = -a * fn.fE;
+        e = -fn.fB / fn.fA;
     }
-    const float d = fn.fE * fn.fD + fn.fF;
+    const float d = fn.fC * fn.fD + fn.fF;
     return {g, a, b, c, d, e, f};
 }
 
@@ -152,7 +152,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             // CMYK images from JPEGs (the only format that supports it) are actually
             // inverted CMYK, so we need to invert every channel.
             // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
-            this->addTransferFns({1.f, 0.f, 0.f, 0.f, 1.f, -1.f, 1.f}, 4);
+            this->addTransferFns({1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 1.f}, 4);
             break;
         case SkColorSpace_Base::InputColorFormat::kGray:
             currentChannels = 1;

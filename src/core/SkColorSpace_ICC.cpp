@@ -407,8 +407,8 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
             // Here's where the real parametric gammas start.  There are many
             // permutations of the same equations.
             //
-            // Y = (aX + b)^g + c  for X >= d
-            // Y = eX + f          otherwise
+            // Y = (aX + b)^g + e  for X >= d
+            // Y = cX + f          otherwise
             //
             // We will fill in with zeros as necessary to always match the above form.
             if (len < 24) {
@@ -434,11 +434,11 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
                         return SkGammas::Type::kNone_Type;
                     }
 
-                    // Y = (aX + b)^g + c  for X >= -b/a
-                    // Y = c               otherwise
-                    c = read_big_endian_16_dot_16(src + 24);
+                    // Y = (aX + b)^g + e  for X >= -b/a
+                    // Y = e               otherwise
+                    e = read_big_endian_16_dot_16(src + 24);
                     d = -b / a;
-                    f = c;
+                    f = e;
                     break;
                 case kGABDE_ParaCurveType:
                     tagBytes = 12 + 20;
@@ -448,14 +448,9 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
                     }
 
                     // Y = (aX + b)^g  for X >= d
-                    // Y = eX          otherwise
+                    // Y = cX          otherwise
+                    c = read_big_endian_16_dot_16(src + 24);
                     d = read_big_endian_16_dot_16(src + 28);
-
-                    // Not a bug!  We define |e| to always be the coefficient on X in the
-                    // second equation.  The spec calls this |c| in this particular equation.
-                    // We don't follow their convention because then |c| would have a
-                    // different meaning in each of our cases.
-                    e = read_big_endian_16_dot_16(src + 24);
                     break;
                 case kGABCDEF_ParaCurveType:
                     tagBytes = 12 + 28;
@@ -464,10 +459,8 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
                         return SkGammas::Type::kNone_Type;
                     }
 
-                    // Y = (aX + b)^g + c  for X >= d
-                    // Y = eX + f          otherwise
-                    // NOTE: The ICC spec writes "cX" in place of "eX" but I think
-                    //       it's a typo.
+                    // Y = (aX + b)^g + e  for X >= d
+                    // Y = cX + f          otherwise
                     c = read_big_endian_16_dot_16(src + 24);
                     d = read_big_endian_16_dot_16(src + 28);
                     e = read_big_endian_16_dot_16(src + 32);
