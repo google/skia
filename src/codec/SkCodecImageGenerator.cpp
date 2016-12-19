@@ -47,6 +47,43 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, s
     }
 }
 
+bool SkCodecImageGenerator::onComputeScaledDimensions(SkScalar scale, SupportedSizes* sizes) {
+    SkASSERT(scale > 0 && scale <= 1);
+    const auto size = fCodec->getScaledDimensions(SkScalarToFloat(scale));
+    if (size == this->getInfo().dimensions()) {
+        return false;
+    }
+
+    // FIXME: Make SkCodec's API return two potential sizes, like this one. For now, set them both
+    // to be the same.
+    sizes->fSizes[0] = sizes->fSizes[1] = size;
+    return true;
+}
+
+bool SkCodecImageGenerator::onGenerateScaledPixels(const SkPixmap& pixmap) {
+    SkPMColor colorStorage[256];
+    int colorCount = 256;
+    const auto result = fCodec->getPixels(pixmap.info(), pixmap.writable_addr(),
+                                          pixmap.rowBytes(), nullptr, colorStorage, &colorCount);
+    switch (result) {
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+            break;
+        default:
+            return false;
+    }
+
+    if (pixmap.colorType() == kIndex_8_SkColorType) {
+        // SkPixmap does not take ownership, so we need to hang onto this.
+        // FIXME: With a better API on SkCodec, the SkCodec could share its SkColorTable.
+        fColorTable.reset(new SkColorTable(colorStorage, colorCount));
+        const_cast<SkPixmap&>(pixmap).reset(pixmap.info(), pixmap.addr(), pixmap.rowBytes(),
+                                            fColorTable.get());
+    }
+    return true;
+}
+
+
 bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
 {
     return fCodec->queryYUV8(sizeInfo, colorSpace);

@@ -51,6 +51,7 @@ gm_sources = [
   "$_gm/bug615686.cpp",
   "$_gm/cgm.c",
   "$_gm/cgms.cpp",
+  "$_gm/codec_scaled.cpp",
   "$_gm/circles.cpp",
   "$_gm/circulararcs.cpp",
   "$_gm/circularclips.cpp",
