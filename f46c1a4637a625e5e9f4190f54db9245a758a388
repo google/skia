@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_efa4d58e",
+        "filename": "src/core/SkLinearBitmapPipeline_tile.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-19T20:15:45Z",
+      "side": 1,
+      "message": "nit: use a constant to avoid repeating this literal below?",
+      "range": {
+        "startLine": 39,
+        "startChar": 39,
+        "endLine": 39,
+        "endChar": 43
+      },
+      "revId": "f46c1a4637a625e5e9f4190f54db9245a758a388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
