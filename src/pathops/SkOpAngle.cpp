@@ -62,22 +62,9 @@ bool SkOpAngle::after(SkOpAngle* test) {
     SkOpAngle* lh = test;
     SkOpAngle* rh = lh->fNext;
     SkASSERT(lh != rh);
-    fPart.fCurve = fOriginalCurvePart;
-    lh->fPart.fCurve = lh->fOriginalCurvePart;
-    lh->fPart.fCurve.offset(lh->segment()->verb(), fPart.fCurve[0] - lh->fPart.fCurve[0]);
-    rh->fPart.fCurve = rh->fOriginalCurvePart;
-    rh->fPart.fCurve.offset(rh->segment()->verb(), fPart.fCurve[0] - rh->fPart.fCurve[0]);
-
 #if DEBUG_ANGLE
     SkString bugOut;
-    bugOut.printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
-            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
-            lh->fStart->t(), lh->fEnd->t(),
-            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
-            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
-            rh->fStart->t(), rh->fEnd->t());
+    this->debugAfter(lh, rh, &bugOut);
     SkString bugPart[3] = { lh->debugPart(), this->debugPart(), rh->debugPart() };
 #endif
     if (lh->fComputeSector && !lh->computeSector()) {
@@ -90,34 +77,70 @@ bool SkOpAngle::after(SkOpAngle* test) {
         return COMPARE_RESULT(3, true);
     }
 #if DEBUG_ANGLE  // reset bugOut with computed sectors
-    bugOut.printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
-            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
-            lh->fStart->t(), lh->fEnd->t(),
-            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
-            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
-            rh->fStart->t(), rh->fEnd->t());
+    this->debugAfter(lh, rh, &bugOut);
 #endif
-    bool ltrOverlap = (lh->fSectorMask | rh->fSectorMask) & fSectorMask;
-    bool lrOverlap = lh->fSectorMask & rh->fSectorMask;
+    /* If the curve pairs share a point, the computed sector is valid. Otherwise, the sectors must
+       be sufficiently different that translating them won't change the sort order. For instance,
+       curves with different origins may mis-sort if the computed sectors are 1 and 5.
+
+       Curves with different origins have more information though -- there are more ways for their
+       convex hulls not to overlap. Try to resolve different origins directly before translating
+       one curve to share the opposite's origin.
+    */
+    bool lrOverlap, ltrOverlap;
+    SkDVector lhOffset = fOriginalCurvePart[0] - lh->fOriginalCurvePart[0];
+    bool lhHasOffset = lhOffset.fX || lhOffset.fY;
+    SkDVector rhOffset = fOriginalCurvePart[0] - rh->fOriginalCurvePart[0];
+    bool rhHasOffset = rhOffset.fX || rhOffset.fY;
+    if (lhHasOffset || rhHasOffset) {
+        int lhStart, lhEnd, start, end, rhStart, rhEnd;
+        bool lhX0 = lh->sectorRange(&lhStart, &lhEnd);
+        bool x0 = this->sectorRange(&start, &end);
+        bool rhX0 = rh->sectorRange(&rhStart, &rhEnd);
+        lrOverlap = (lhX0 || lhStart <= rhEnd) && (rhX0 || rhStart <= lhEnd);
+        ltrOverlap = ((lhX0 || lhStart <= end) && (x0 || start <= lhEnd))
+                || ((x0 || start <= rhEnd) && (rhX0 || rhStart <= end));
+    } else {
+        lrOverlap = lh->fSectorMask & rh->fSectorMask;
+        ltrOverlap = (lh->fSectorMask | rh->fSectorMask) & fSectorMask;
+    }
+    if (!lrOverlap && !ltrOverlap) {  // no lh/this/rh sector overlap
+        return COMPARE_RESULT(4, (lh->fSectorEnd > rh->fSectorStart)
+                ^ (fSectorStart > lh->fSectorEnd) ^ (fSectorStart > rh->fSectorStart));
+    }
     int lrOrder;  // set to -1 if either order works
-    if (!lrOverlap) {  // no lh/rh sector overlap
-        if (!ltrOverlap) {  // no lh/this/rh sector overlap
-            return COMPARE_RESULT(4,  (lh->fSectorEnd > rh->fSectorStart)
-                    ^ (fSectorStart > lh->fSectorEnd) ^ (fSectorStart > rh->fSectorStart));
+    fPart.fCurve = fOriginalCurvePart;
+    lh->fPart.fCurve = lh->fOriginalCurvePart;
+    rh->fPart.fCurve = rh->fOriginalCurvePart;
+    if (lhHasOffset || rhHasOffset) {
+        // if convex hulls don't overlap, figure order from point cross product
+            // choose inner side of lh, sweep edge most ccw
+            // choose inner side of rh, sweep edge most cw
+            // if lh sweep < this->sweep most cw && this->sweep ccw < rh sweep...
+        if (!fPart.isCurve()) {
+
         }
+        ;
+
+        if (lhHasOffset) {
+            lh->fPart.fCurve.offset(lh->segment()->verb(), lhOffset);
+        }
+        if (rhHasOffset) {
+            rh->fPart.fCurve.offset(rh->segment()->verb(), rhOffset);
+        }
+    }
+    if (!lrOverlap) {  // no lh/rh sector overlap, no offsets
         int lrGap = (rh->fSectorStart - lh->fSectorStart + 32) & 0x1f;
         /* A tiny change can move the start +/- 4. The order can only be determined if
-           lr gap is not 12 to 20 or -12 to -20.
-               -31 ..-21      1
-               -20 ..-12     -1
-               -11 .. -1      0
-                 0          shouldn't get here
+            lr gap is not 12 to 20 or -12 to -20.
+                -31 ..-21      1
+                -20 ..-12     -1
+                -11 .. -1      0
+                    0          shouldn't get here
                 11 ..  1      1
                 12 .. 20     -1
                 21 .. 31      0
-         */
+            */
         lrOrder = lrGap > 20 ? 0 : lrGap > 11 ? -1 : 1;
     } else {
         lrOrder = (int) lh->orderable(rh);
@@ -248,10 +271,10 @@ void SkOpAngle::alignmentSameSide(const SkOpAngle* test, int* order) const {
     }
 }
 
-bool SkOpAngle::checkCrossesZero() const {
-    int start = SkTMin(fSectorStart, fSectorEnd);
-    int end = SkTMax(fSectorStart, fSectorEnd);
-    bool crossesZero = end - start > 16;
+bool SkOpAngle::checkCrossesZero(int* start, int* end) const {
+    *start = SkTMin(fSectorStart, fSectorEnd);
+    *end = SkTMax(fSectorStart, fSectorEnd);
+    bool crossesZero = *end - *start > 16;
     return crossesZero;
 }
 
@@ -849,6 +872,17 @@ SkOpAngle* SkOpAngle::previous() const {
     } while (true);
 }
 
+// returns true if rounded sector range crosses zero
+bool SkOpAngle::sectorRange(int* start, int* end) const {
+    if (checkCrossesZero(start, end)) {
+        SkTSwap(*start, *end);
+    }
+    // round away since the offset curves may swap order
+    *start = (*start + 1 & 0x03) - 1 & 0x1f;
+    *end |= 0x03;
+    return *end < *start;
+}
+
 SkOpSegment* SkOpAngle::segment() const {
     return fStart->segment();
 }
@@ -985,23 +1019,25 @@ deferTilLater:
         fSectorMask = 1 << fSectorStart;
         return;
     }
-    bool crossesZero = this->checkCrossesZero();
-    int start = SkTMin(fSectorStart, fSectorEnd);
-    bool curveBendsCCW = (fSectorStart == start) ^ crossesZero;
-    // bump the start and end of the sector span if they are on exact compass points
-    if ((fSectorStart & 3) == 3) {
-        fSectorStart = (fSectorStart + (curveBendsCCW ? 1 : 31)) & 0x1f;
+    int start, end;
+    bool crossesZero = this->checkCrossesZero(&start, &end);
+    bool bumpStart = (fSectorStart & 3) == 3;
+    bool bumpEnd = (fSectorEnd & 3) == 3;
+    if (bumpStart | bumpEnd) {
+        bool curveBendsCCW = (fSectorStart == start) ^ crossesZero;
+        // bump the start and end of the sector span if they are on exact compass points
+        if (bumpStart) {
+            fSectorStart = (fSectorStart + (curveBendsCCW ? 1 : 31)) & 0x1f;
+        }
+        if (bumpEnd) {
+            fSectorEnd = (fSectorEnd + (curveBendsCCW ? 31 : 1)) & 0x1f;
+        }
+        crossesZero = this->checkCrossesZero(&start, &end);
     }
-    if ((fSectorEnd & 3) == 3) {
-        fSectorEnd = (fSectorEnd + (curveBendsCCW ? 31 : 1)) & 0x1f;
-    }
-    crossesZero = this->checkCrossesZero();
-    start = SkTMin(fSectorStart, fSectorEnd);
-    int end = SkTMax(fSectorStart, fSectorEnd);
     if (!crossesZero) {
         fSectorMask = (unsigned) -1 >> (31 - end + start) << start;
     } else {
-        fSectorMask = (unsigned) -1 >> (31 - start) | ((unsigned) -1 << end);
+        fSectorMask = (unsigned) -1 >> (31 - start) | (unsigned) -1 << end;
     }
 }
 
