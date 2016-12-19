@@ -16,6 +16,24 @@
       "revId": "1064578bf2180fc914349da1b0c34059a780ccdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_4c13ef42",
+        "filename": "tests/ColorSpaceXformTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-19T19:38:19Z",
+      "side": 1,
+      "message": "Oops sorry, already fixed in Patch Set 5.",
+      "parentUuid": "9765aef7_6ca593ec",
+      "revId": "1064578bf2180fc914349da1b0c34059a780ccdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
