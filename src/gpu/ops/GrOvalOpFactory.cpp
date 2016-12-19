@@ -82,7 +82,8 @@ public:
         fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                              kHigh_GrSLPrecision);
         fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kVec4f_GrVertexAttribType);
+        fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kVec4f_GrVertexAttribType,
+                                               kHigh_GrSLPrecision);
         if (clipPlane) {
             fInClipPlane = &this->addVertexAttrib("inClipPlane", kVec3f_GrVertexAttribType);
         } else {
@@ -129,8 +130,9 @@ private:
 
             // emit attributes
             varyingHandler->emitAttributes(cgp);
-            fragBuilder->codeAppend("vec4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge");
+            fragBuilder->codeAppend("highp vec4 circleEdge;");
+            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge",
+                                                    kHigh_GrSLPrecision);
             if (cgp.fInClipPlane) {
                 fragBuilder->codeAppend("vec3 clipPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInClipPlane, "clipPlane");
@@ -161,7 +163,7 @@ private:
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
-            fragBuilder->codeAppend("float d = length(circleEdge.xy);");
+            fragBuilder->codeAppend("highp float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("float distanceToOuterEdge = circleEdge.z * (1.0 - d);");
             fragBuilder->codeAppend("float edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
             if (cgp.fStroke) {
