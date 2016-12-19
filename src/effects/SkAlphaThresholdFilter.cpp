@@ -225,8 +225,9 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     U8CPU outerThreshold = (U8CPU)(fOuterThreshold * 0xFF);
     SkColor* dptr = dst.getAddr32(0, 0);
     int dstWidth = dst.width(), dstHeight = dst.height();
+    SkIPoint srcOffset = { bounds.fLeft - inputOffset.fX, bounds.fTop - inputOffset.fY };
     for (int y = 0; y < dstHeight; ++y) {
-        const SkColor* sptr = inputBM.getAddr32(bounds.fLeft, bounds.fTop+y);
+        const SkColor* sptr = inputBM.getAddr32(srcOffset.fX, srcOffset.fY+y);
 
         for (int x = 0; x < dstWidth; ++x) {
             const SkColor& source = sptr[x];
