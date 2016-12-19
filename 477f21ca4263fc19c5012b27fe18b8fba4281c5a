@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_6cc6b35f",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1327,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "Should outdent this macro.",
+      "range": {
+        "startLine": 1327,
+        "startChar": 4,
+        "endLine": 1327,
+        "endChar": 27
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_cf78f12e",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1345,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "std::move? Seems like that\u0027s used elsewhere. Does it make a difference?",
+      "range": {
+        "startLine": 1345,
+        "startChar": 51,
+        "endLine": 1345,
+        "endChar": 58
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_0f90492a",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "Can this one just be removed?",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 5
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_6f68e563",
+        "filename": "src/xps/SkDocument_XPS.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "Can this just be constexpr (non-static) inside the SkDocument_XPS constructor, since that\u0027s the only place it\u0027s used? This just seems a bit generic and over scoped.",
+      "range": {
+        "startLine": 15,
+        "startChar": 24,
+        "endLine": 15,
+        "endChar": 39
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_0f1ba9e8",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "I assert that these will simply always pass, the first because that is checked in the constructor, the second because at the two call sites one has just called \u0027reset\u0027 and the other on a new device.",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 33
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_af293dfb",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-12-19T20:24:41Z",
+      "side": 1,
+      "message": "Since this is the only line and only used in two places, probably good to just inline so we can keep the error messages different.",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "477f21ca4263fc19c5012b27fe18b8fba4281c5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
