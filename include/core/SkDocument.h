@@ -16,6 +16,14 @@
 #include "SkString.h"
 #include "SkTime.h"
 
+#ifdef SK_BUILD_FOR_WIN
+#include "../private/SkLeanWindows.h"
+struct SkAutoReleaseFunc {
+    template <typename T> void operator()(T* p) { if (p) { p->Release(); } }
+};
+template <typename T> using SkAutoRelease = std::unique_ptr<T, SkAutoReleaseFunc>;
+#endif
+
 class SkCanvas;
 class SkWStream;
 
@@ -145,15 +153,25 @@ public:
      *  Create a XPS-backed document, writing the results into the stream.
      *  Returns NULL if XPS is not supported.
      */
-    static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
-    /**
-     *  Create a XPS-backed document, writing the results into a file.
-     *  Returns NULL if XPS is not supported.
-     */
+    struct XPSParameters {
+        #ifdef SK_BUILD_FOR_WIN
+            SkAutoRelease<IXpsOMObjectFactory> fFactory;
+        #endif
+        SkScalar fRasterPixelsPerInch{SK_ScalarDefaultRasterDPI};
+        SkScalar fCanvasUnitsPerInch{96.0f};
+    }
+    static sk_sp<SkDocument> MakeXPS(SkWStream* dst, XPSParameters parameters);
+
+    #ifdef SK_SUPPORT_LEGACY_XPS_DOCUMENT_FACTORY_FNS
+    static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return nullptr;
     static sk_sp<SkDocument> MakeXPS(const char path[],
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+                                     SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+        return nullptr;
+    }
+    #endif  // SK_SUPPORT_LEGACY_XPS_DOCUMENT_FACTORY_FNS
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw
