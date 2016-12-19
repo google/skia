@@ -292,6 +292,9 @@ public:
     void resetReverse() {
         SkOpContour* next = this;
         do {
+            if (!next->count()) {
+                continue;
+            }
             next->fCcw = -1;
             next->fReverse = false;
         } while ((next = next->next()));
@@ -405,6 +408,9 @@ public:
     void joinAllSegments() {
         SkOpContour* next = this;
         do {
+            if (!next->count()) {
+                continue;
+            }
             next->joinSegments();
         } while ((next = next->next()));
     }
