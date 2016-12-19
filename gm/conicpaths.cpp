@@ -148,6 +148,17 @@ DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
     canvas->drawPath(path, paint);
 }
 
+/* circle should be antialiased */
+DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
+    canvas->translate(50, 100);
+    SkPoint c = { 1052.5390625f, 506.8760978034711f };
+    SkScalar radius = 1096.702150363923f;
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawCircle(c.fX, c.fY, radius, paint);
+}
+
 DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {
     SkPath path;
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
