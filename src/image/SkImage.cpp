@@ -79,20 +79,6 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     return false;
 }
 
-#ifdef SK_SUPPORT_LEGACY_PREROLL
-void SkImage::preroll(GrContext* ctx) const {
-    // For now, and to maintain parity w/ previous pixelref behavior, we just force the image
-    // to produce a cached raster-bitmap form, so that drawing to a raster canvas should be fast.
-    //
-    SkBitmap bm;
-    SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
-        bm.lockPixels();
-        bm.unlockPixels();
-    }
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkAlphaType SkImage::alphaType() const {
