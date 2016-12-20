@@ -7,21 +7,20 @@
 
 #include "UrlHandler.h"
 
-#include "microhttpd.h"
 #include "../Request.h"
 #include "../Response.h"
+#include "microhttpd.h"
 
 using namespace Response;
 
-bool BatchBoundsHandler::canHandle(const char* method, const char* url) {
+bool OpBoundsHandler::canHandle(const char* method, const char* url) {
     static const char* kBasePath = "/batchBounds/";
     return 0 == strcmp(method, MHD_HTTP_METHOD_POST) &&
            0 == strncmp(url, kBasePath, strlen(kBasePath));
 }
 
-int BatchBoundsHandler::handle(Request* request, MHD_Connection* connection,
-                               const char* url, const char* method,
-                               const char* upload_data, size_t* upload_data_size) {
+int OpBoundsHandler::handle(Request* request, MHD_Connection* connection, const char* url,
+                            const char* method, const char* upload_data, size_t* upload_data_size) {
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
@@ -32,6 +31,6 @@ int BatchBoundsHandler::handle(Request* request, MHD_Connection* connection,
     int enabled;
     sscanf(commands[1].c_str(), "%d", &enabled);
 
-    request->fDebugCanvas->setDrawGpuBatchBounds(SkToBool(enabled));
+    request->fDebugCanvas->setDrawGpuOpBounds(SkToBool(enabled));
     return SendOK(connection);
 }
