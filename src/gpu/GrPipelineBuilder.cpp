@@ -43,11 +43,11 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations) const {
+                                             const GrPipelineAnalysis& analysis) const {
     if (this->getXPFactory()) {
-        return this->getXPFactory()->willNeedDstTexture(caps, optimizations);
+        return this->getXPFactory()->willNeedDstTexture(caps, analysis);
     }
-    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, optimizations);
+    return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, analysis);
 }
 
 void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
