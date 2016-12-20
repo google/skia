@@ -204,6 +204,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
 void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(GrTextureDomain::GLDomain::DomainKey(fTextureDomain));
+    b->add32(GrColorSpaceXform::XformKey(this->colorSpaceXform()));
 }
 
 GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
