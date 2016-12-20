@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7bc7298_5f684f63",
+        "filename": "gm/imagealphathreshold.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2016-12-20T15:45:39Z",
+      "side": 1,
+      "message": "This seems pretty generic and possibly useful to other GMs. Should it be in a common file/base class somewhere?",
+      "revId": "54160925f8dd4f97a6c00011108fd351517868b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
