@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_32aa5623",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-20T02:02:35Z",
+      "side": 1,
+      "message": "This is a little odd to be\n- a define, and not a const\n- unscoped\n- undocumented",
+      "revId": "47dc71920cdb8897cdb7706e0eadfad14436e641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_72a0ce44",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-20T02:02:35Z",
+      "side": 1,
+      "message": "We may want a broad discussion, but I\u0027d vote to always use \u003d  when initializing. e.g.\n\nfFactory \u003d nullptr;\n\nor even with { } for aggregates\n\nfFoo \u003d { ... };\n\nrather than\n\nfFoo { ... }",
+      "range": {
+        "startLine": 151,
+        "startChar": 8,
+        "endLine": 151,
+        "endChar": 27
+      },
+      "revId": "47dc71920cdb8897cdb7706e0eadfad14436e641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_52a5ca52",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-20T02:02:35Z",
+      "side": 1,
+      "message": "I need some dox for these, especially since there are two \"resolutions\" fields",
+      "range": {
+        "startLine": 152,
+        "startChar": 17,
+        "endLine": 152,
+        "endChar": 37
+      },
+      "revId": "47dc71920cdb8897cdb7706e0eadfad14436e641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
