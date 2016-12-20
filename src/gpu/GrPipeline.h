@@ -31,17 +31,32 @@ class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
 
-struct GrBatchToXPOverrides {
-    GrBatchToXPOverrides()
-    : fUsePLSDstRead(false) {}
+/**
+ * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
+ * pipeline analysis.
+ */
+class GrPipelineAnalysisDrawOpInput {
+public:
+    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)
+            : fColorInput(color), fCoverageInput(coverage) {}
+    GrPipelineInput* pipelineColorInput() { return fColorInput; }
+    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
 
-    bool fUsePLSDstRead;
+    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+
+    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+
+private:
+    GrPipelineInput* fColorInput;
+    GrPipelineInput* fCoverageInput;
+    bool fUsesPLSDstRead = false;
 };
 
-struct GrPipelineOptimizations {
+/** This is used to track pipeline analysis through the color and coverage fragment processors. */
+struct GrPipelineAnalysis {
     GrProcOptInfo fColorPOI;
     GrProcOptInfo fCoveragePOI;
-    GrBatchToXPOverrides fOverrides;
+    bool fUsesPLSDstRead = false;
 };
 
 /**
@@ -54,18 +69,18 @@ public:
     /// @name Creation
 
     struct CreateArgs {
-        const GrPipelineBuilder*    fPipelineBuilder;
-        GrRenderTargetContext*      fRenderTargetContext;
-        const GrCaps*               fCaps;
-        GrPipelineOptimizations     fOpts;
-        const GrScissorState*       fScissor;
-        const GrWindowRectsState*   fWindowRectsState;
-        bool                        fHasStencilClip;
+        const GrPipelineBuilder* fPipelineBuilder;
+        GrRenderTargetContext* fRenderTargetContext;
+        const GrCaps* fCaps;
+        GrPipelineAnalysis fAnalysis;
+        const GrScissorState* fScissor;
+        const GrWindowRectsState* fWindowRectsState;
+        bool fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
 
     /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrXPOverridesForBatch*);
+    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
 
     /// @}
 
