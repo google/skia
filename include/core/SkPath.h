@@ -16,6 +16,7 @@ class SkReader32;
 class SkWriter32;
 class SkAutoPathBoundsUpdate;
 class SkString;
+class SkReadBuffer;
 class SkRRect;
 class SkWStream;
 
@@ -1086,7 +1087,9 @@ public:
      * @return number of bytes read (must be a multiple of 4) or
      *         0 if there was not enough memory available
      */
-    size_t readFromMemory(const void* buffer, size_t length);
+    size_t readFromMemory1(const void* buffer, size_t length);
+
+    static sk_sp<SkPath> MakeFromBuffer(SkReadBuffer&);
 
     /** Returns a non-zero, globally unique value corresponding to the set of verbs
         and points in the path (but not the fill type [except on Android skbug.com/1762]).

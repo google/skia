@@ -107,7 +107,7 @@ public:
     uint32_t readU32() { return this->readInt(); }
 
     bool readPath(SkPath* path) {
-        return this->readObjectFromMemory(path);
+        return this->readObjectFromMemory1(path);
     }
 
     bool readMatrix(SkMatrix* matrix) {
@@ -146,6 +146,15 @@ public:
 private:
     template <typename T> bool readObjectFromMemory(T* obj) {
         size_t size = obj->readFromMemory(this->peek(), this->available());
+        // If readFromMemory() fails (which means that available() was too small), it returns 0
+        bool success = (size > 0) && (size <= this->available()) && (SkAlign4(size) == size);
+        // In case of failure, we want to skip to the end
+        (void)this->skip(success ? size : this->available());
+        return success;
+    }
+
+    template <typename T> bool readObjectFromMemory1(T* obj) {
+        size_t size = obj->readFromMemory1(this->peek(), this->available());
         // If readFromMemory() fails (which means that available() was too small), it returns 0
         bool success = (size > 0) && (size <= this->available()) && (SkAlign4(size) == size);
         // In case of failure, we want to skip to the end
