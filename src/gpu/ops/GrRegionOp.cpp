@@ -79,22 +79,19 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one region.
-        color->setKnownFourComponents(fRegions[0].fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fRegions[0].fColor);
-        fOverrides = overrides;
-    }
-
 private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fRegions[0].fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fRegions[0].fColor);
+        fOptimizations = optimizations;
+    }
+
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage(), fViewMatrix);
+        sk_sp<GrGeometryProcessor> gp = make_gp(fOptimizations.readsCoverage(), fViewMatrix);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -149,7 +146,7 @@ private:
     };
 
     SkMatrix fViewMatrix;
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
     SkSTArray<1, RegionInfo, true> fRegions;
 
     typedef GrMeshDrawOp INHERITED;
