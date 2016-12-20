@@ -16,12 +16,12 @@
 #include "SkString.h"
 #include "SkTime.h"
 
+struct IXpsOMObjectFactory;
+
 class SkCanvas;
 class SkWStream;
 
-/** SK_ScalarDefaultDPI is 72 DPI.
-*/
-#define SK_ScalarDefaultRasterDPI           72.0f
+#define SK_ScalarDefaultRasterDPI SkDocument::kDefaultiPdfRasterPixelsPerInch
 
 /**
  *  High-level API for creating a document-based canvas. To use..
@@ -129,8 +129,9 @@ public:
                                      sk_sp<SkPixelSerializer> jpegEncoder,
                                      bool pdfa);
 
+    static constexpr SkScalar kDefaultiPdfRasterPixelsPerInch = 72.0f;
     static sk_sp<SkDocument> MakePDF(SkWStream* stream,
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI) {
+                                     SkScalar dpi = kDefaultiPdfRasterPixelsPerInch) {
         return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
                                    nullptr, false);
     }
@@ -139,21 +140,50 @@ public:
      *  Create a PDF-backed document, writing the results into a file.
      */
     static sk_sp<SkDocument> MakePDF(const char outputFilePath[],
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+                                     SkScalar dpi = kDefaultiPdfRasterPixelsPerInch);
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    static constexpr SkScalar kDefaultXpsRasterPixelsPerInch = 96.0f;
+    static constexpr SkScalar kDefaultXpsCanvasUnitsPerInch  = 96.0f;
+
+    struct XPSParameters {
+        /**
+         * Pointer to Windows XPS Factory object (required).
+         */
+        IXpsOMObjectFactory* fFactory = nullptr;
+        /**
+         * The DPI (pixels-per-inch) at which features without
+         * native XPS support will be rasterized (e.g. draw image
+         * with perspective, draw text with perspective, ...)  A
+         * larger DPI would create a XPS that reflects the
+         * original intent with better fidelity, but it can make
+         * for larger files too, which would use more memory
+         * while rendering, and it would be slower to be processed
+         * or sent online or to printer. (Must be > 0.)
+         */
+        SkScalar fRasterPixelsPerInch = kDefaultXpsRasterPixelsPerInch;
+        /**
+         * The native scale of each page canvas. (Must be > 0).
+         */
+        SkScalar fCanvasUnitsPerInch  = kDefaultXpsCanvasUnitsPerInch;
+    };
 
     /**
      *  Create a XPS-backed document, writing the results into the stream.
-     *  Returns NULL if XPS is not supported.
+     *  Returns nullptr if XPS is not supported or if any arguments are
+     *  invalid.
+     *
+     *  @param dst A XPS document will be written to this
+     *         stream.  The document may write to the stream at
+     *         anytime during its lifetime, until either close() is
+     *         called or the document is deleted.
      */
-    static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+    static sk_sp<SkDocument> MakeXPS(SkWStream* dst, XPSParameters);
 
-    /**
-     *  Create a XPS-backed document, writing the results into a file.
-     *  Returns NULL if XPS is not supported.
-     */
-    static sk_sp<SkDocument> MakeXPS(const char path[],
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+    #ifdef SK_SUPPORT_LEGACY_XPS_DOCUMENT_FACTORY_FNS
+    static sk_sp<SkDocument> MakeXPS(SkWStream*, SkScalar dpi = 0.0f) { return nullptr; }
+    #endif
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw
