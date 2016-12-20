@@ -16,8 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "GrAuditTrail.h"
 #include "GrContext.h"
-#include "GrRenderTarget.h"
-#include "SkGpuDevice.h"
+#include "GrRenderTargetContext.h"
 #endif
 
 #define SKDEBUGCANVAS_VERSION                     1
@@ -348,10 +347,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         static const SkColor kOtherBatchBounds = SkColorSetARGB(0xC0, 0xFF, 0x7F, 0x00);
 
         // get the render target of the top device so we can ignore batches drawn offscreen
-        SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
-        SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        GrGpuResource::UniqueID rtID = 
-                            gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
+        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+        GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;

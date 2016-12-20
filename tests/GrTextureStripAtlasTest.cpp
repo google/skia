@@ -13,7 +13,6 @@
 #include "GrGpu.h"
 #include "GrTextureStripAtlas.h"
 #include "GrTypes.h"
-#include "SkGpuDevice.h"
 
 // This tests that GrTextureStripAtlas flushes pending IO on the texture it acquires.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) {

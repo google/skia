@@ -365,7 +365,7 @@ public:
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
     /** Get pointer to atlas texture for given mask format */
-    GrTexture* getFontAtlasTexture(GrMaskFormat format);
+    sk_sp<SkImage> getFontAtlasImage(GrMaskFormat format);
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
