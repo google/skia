@@ -166,11 +166,6 @@ protected:  // Can we make this private?
 #endif
     SkBaseDevice* getDevice() const;
 public:
-    // Still used internally
-    SkBaseDevice* getDevice_just_for_deprecated_compatibility_testing() const {
-        return this->getDevice();
-    }
-
     /**
      *  saveLayer() can create another device (which is later drawn onto
      *  the previous device). getTopDevice() returns the top-most device current
