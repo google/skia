@@ -22,7 +22,7 @@ SkDocument and SkCanvas APIs.
         metadata.fModified.fEnabled = true;
         metadata.fModified.fDateTime = now;
         sk_sp<SkDocument> pdfDocument(SkDocument::MakePDF(
-                outputStream, SK_ScalarDefaultRasterDPI, metadata,
+                outputStream, SkDocument::kDefaultRasterPixelsPerInch, metadata,
                 nullptr, true);
         assert(pdfDocument);
 

@@ -189,7 +189,7 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config,
         pdf_info.fModified.fDateTime = now;
         pdfa = true;
     #endif
-    return SkDocument::MakePDF(wStream, SK_ScalarDefaultRasterDPI, pdf_info,
+    return SkDocument::MakePDF(wStream, SkDocument::kDefaultRasterPixelsPerInch, pdf_info,
                                nullptr, pdfa);
 }
 
