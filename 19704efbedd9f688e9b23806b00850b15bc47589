@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_f8ea5def",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-20T20:28:50Z",
+      "side": 1,
+      "message": "Spurious newline?",
+      "revId": "19704efbedd9f688e9b23806b00850b15bc47589",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
