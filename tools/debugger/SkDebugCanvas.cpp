@@ -251,9 +251,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         // created, so if we allow them to combine, the audit trail will fail to find them.
         canvas->flush();
 
-        GrAuditTrail::AutoCollectBatches* acb = nullptr;
+        GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
-            acb = new GrAuditTrail::AutoCollectBatches(at, i);
+            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
 #endif
 
@@ -351,12 +351,12 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
-        SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
+        SkTArray<GrAuditTrail::OpInfo> childrenBounds;
         if (m == -1) {
             at->getBoundsByClientID(&childrenBounds, index);
         } else {
             // the client wants us to draw the mth batch
-            at->getBoundsByBatchListID(&childrenBounds.push_back(), m);
+            at->getBoundsByOpListID(&childrenBounds.push_back(), m);
         }
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -368,8 +368,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
             }
             paint.setColor(kTotalBounds);
             canvas->drawRect(childrenBounds[i].fBounds, paint);
-            for (int j = 0; j < childrenBounds[i].fBatches.count(); j++) {
-                const GrAuditTrail::BatchInfo::Batch& batch = childrenBounds[i].fBatches[j];
+            for (int j = 0; j < childrenBounds[i].fOps.count(); j++) {
+                const GrAuditTrail::OpInfo::Op& batch = childrenBounds[i].fOps[j];
                 if (batch.fClientID != index) {
                     paint.setColor(kOtherBatchBounds);
                 } else {
@@ -436,7 +436,7 @@ void SkDebugCanvas::drawAndCollectBatches(int n, SkCanvas* canvas) {
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize() && i <= n; i++) {
-            GrAuditTrail::AutoCollectBatches enable(at, i);
+            GrAuditTrail::AutoCollectOps enable(at, i);
             fCommandVector[i]->execute(canvas);
         }
 
@@ -495,7 +495,7 @@ Json::Value SkDebugCanvas::toJSONBatchList(int n, SkCanvas* canvas) {
 #if SK_SUPPORT_GPU
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
-        GrAuditTrail::AutoManageBatchList enable(at);
+        GrAuditTrail::AutoManageOpList enable(at);
         Json::Reader reader;
         SkAssertResult(reader.parse(at->toJson().c_str(), parsedFromString));
     }

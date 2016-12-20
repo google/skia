@@ -10,132 +10,129 @@
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addBatch(const GrOp* batch) {
+void GrAuditTrail::addOp(const GrOp* op) {
     SkASSERT(fEnabled);
-    Batch* auditBatch = new Batch;
-    fBatchPool.emplace_back(auditBatch);
-    auditBatch->fName = batch->name();
-    auditBatch->fBounds = batch->bounds();
-    auditBatch->fClientID = kGrAuditTrailInvalidID;
-    auditBatch->fBatchListID = kGrAuditTrailInvalidID;
-    auditBatch->fChildID = kGrAuditTrailInvalidID;
+    Op* auditOp = new Op;
+    fOpPool.emplace_back(auditOp);
+    auditOp->fName = op->name();
+    auditOp->fBounds = op->bounds();
+    auditOp->fClientID = kGrAuditTrailInvalidID;
+    auditOp->fOpListID = kGrAuditTrailInvalidID;
+    auditOp->fChildID = kGrAuditTrailInvalidID;
 
     // consume the current stack trace if any
-    auditBatch->fStackTrace = fCurrentStackTrace;
+    auditOp->fStackTrace = fCurrentStackTrace;
     fCurrentStackTrace.reset();
 
     if (fClientID != kGrAuditTrailInvalidID) {
-        auditBatch->fClientID = fClientID;
-        Batches** batchesLookup = fClientIDLookup.find(fClientID);
-        Batches* batches = nullptr;
-        if (!batchesLookup) {
-            batches = new Batches;
-            fClientIDLookup.set(fClientID, batches);
+        auditOp->fClientID = fClientID;
+        Ops** opsLookup = fClientIDLookup.find(fClientID);
+        Ops* ops = nullptr;
+        if (!opsLookup) {
+            ops = new Ops;
+            fClientIDLookup.set(fClientID, ops);
         } else {
-            batches = *batchesLookup;
+            ops = *opsLookup;
         }
 
-        batches->push_back(auditBatch);
+        ops->push_back(auditOp);
     }
 
-    // Our algorithm doesn't bother to reorder inside of a BatchNode
-    // so the ChildID will start at 0
-    auditBatch->fBatchListID = fBatchList.count();
-    auditBatch->fChildID = 0;
+    // Our algorithm doesn't bother to reorder inside of an OpNode so the ChildID will start at 0
+    auditOp->fOpListID = fOpList.count();
+    auditOp->fChildID = 0;
 
-    // We use the batch pointer as a key to find the batchnode we are 'glomming' batches onto
-    fIDLookup.set(batch->uniqueID(), auditBatch->fBatchListID);
-    BatchNode* batchNode = new BatchNode(batch->renderTargetUniqueID());
-    batchNode->fBounds = batch->bounds();
-    batchNode->fChildren.push_back(auditBatch);
-    fBatchList.emplace_back(batchNode);
+    // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
+    fIDLookup.set(op->uniqueID(), auditOp->fOpListID);
+    OpNode* opNode = new OpNode(op->renderTargetUniqueID());
+    opNode->fBounds = op->bounds();
+    opNode->fChildren.push_back(auditOp);
+    fOpList.emplace_back(opNode);
 }
 
-void GrAuditTrail::batchingResultCombined(const GrOp* consumer, const GrOp* consumed) {
-    // Look up the batch we are going to glom onto
+void GrAuditTrail::opsCombined(const GrOp* consumer, const GrOp* consumed) {
+    // Look up the op we are going to glom onto
     int* indexPtr = fIDLookup.find(consumer->uniqueID());
     SkASSERT(indexPtr);
     int index = *indexPtr;
-    SkASSERT(index < fBatchList.count() && fBatchList[index]);
-    BatchNode& consumerBatch = *fBatchList[index];
+    SkASSERT(index < fOpList.count() && fOpList[index]);
+    OpNode& consumerOp = *fOpList[index];
 
-    // Look up the batch which will be glommed
+    // Look up the op which will be glommed
     int* consumedPtr = fIDLookup.find(consumed->uniqueID());
     SkASSERT(consumedPtr);
     int consumedIndex = *consumedPtr;
-    SkASSERT(consumedIndex < fBatchList.count() && fBatchList[consumedIndex]);
-    BatchNode& consumedBatch = *fBatchList[consumedIndex];
+    SkASSERT(consumedIndex < fOpList.count() && fOpList[consumedIndex]);
+    OpNode& consumedOp = *fOpList[consumedIndex];
 
-    // steal all of consumed's batches
-    for (int i = 0; i < consumedBatch.fChildren.count(); i++) {
-        Batch* childBatch = consumedBatch.fChildren[i];
+    // steal all of consumed's ops
+    for (int i = 0; i < consumedOp.fChildren.count(); i++) {
+        Op* childOp = consumedOp.fChildren[i];
 
-        // set the ids for the child batch
-        childBatch->fBatchListID = index;
-        childBatch->fChildID = consumerBatch.fChildren.count();
-        consumerBatch.fChildren.push_back(childBatch);
+        // set the ids for the child op
+        childOp->fOpListID = index;
+        childOp->fChildID = consumerOp.fChildren.count();
+        consumerOp.fChildren.push_back(childOp);
     }
 
     // Update the bounds for the combineWith node
-    consumerBatch.fBounds = consumer->bounds();
+    consumerOp.fBounds = consumer->bounds();
 
-    // remove the old node from our batchlist and clear the combinee's lookup
-    // NOTE: because we can't change the shape of the batchlist, we use a sentinel
-    fBatchList[consumedIndex].reset(nullptr);
+    // remove the old node from our opList and clear the combinee's lookup
+    // NOTE: because we can't change the shape of the oplist, we use a sentinel
+    fOpList[consumedIndex].reset(nullptr);
     fIDLookup.remove(consumed->uniqueID());
 }
 
-void GrAuditTrail::copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID) {
-    SkASSERT(batchListID < fBatchList.count());
-    const BatchNode* bn = fBatchList[batchListID].get();
+void GrAuditTrail::copyOutFromOpList(OpInfo* outOpInfo, int opListID) {
+    SkASSERT(opListID < fOpList.count());
+    const OpNode* bn = fOpList[opListID].get();
     SkASSERT(bn);
-    outBatchInfo->fBounds = bn->fBounds;
-    outBatchInfo->fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
+    outOpInfo->fBounds = bn->fBounds;
+    outOpInfo->fRenderTargetUniqueID = bn->fRenderTargetUniqueID;
     for (int j = 0; j < bn->fChildren.count(); j++) {
-        BatchInfo::Batch& outBatch = outBatchInfo->fBatches.push_back();
-        const Batch* currentBatch = bn->fChildren[j];
-        outBatch.fBounds = currentBatch->fBounds;
-        outBatch.fClientID = currentBatch->fClientID;
+        OpInfo::Op& outOp = outOpInfo->fOps.push_back();
+        const Op* currentOp = bn->fChildren[j];
+        outOp.fBounds = currentOp->fBounds;
+        outOp.fClientID = currentOp->fClientID;
     }
 }
 
-void GrAuditTrail::getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID) {
-    Batches** batchesLookup = fClientIDLookup.find(clientID);
-    if (batchesLookup) {
-        // We track which batchlistID we're currently looking at.  If it changes, then we
-        // need to push back a new batch info struct.  We happen to know that batches are
-        // in sequential order in the batchlist, otherwise we'd have to do more bookkeeping
-        int currentBatchListID = kGrAuditTrailInvalidID;
-        for (int i = 0; i < (*batchesLookup)->count(); i++) {
-            const Batch* batch = (**batchesLookup)[i];
+void GrAuditTrail::getBoundsByClientID(SkTArray<OpInfo>* outInfo, int clientID) {
+    Ops** opsLookup = fClientIDLookup.find(clientID);
+    if (opsLookup) {
+        // We track which oplistID we're currently looking at.  If it changes, then we need to push
+        // back a new op info struct.  We happen to know that ops are in sequential order in the
+        // oplist, otherwise we'd have to do more bookkeeping
+        int currentOpListID = kGrAuditTrailInvalidID;
+        for (int i = 0; i < (*opsLookup)->count(); i++) {
+            const Op* op = (**opsLookup)[i];
 
-            // Because we will copy out all of the batches associated with a given
-            // batch list id everytime the id changes, we only have to update our struct
-            // when the id changes.
-            if (kGrAuditTrailInvalidID == currentBatchListID ||
-                batch->fBatchListID != currentBatchListID) {
-                BatchInfo& outBatchInfo = outInfo->push_back();
+            // Because we will copy out all of the ops associated with a given op list id everytime
+            // the id changes, we only have to update our struct when the id changes.
+            if (kGrAuditTrailInvalidID == currentOpListID || op->fOpListID != currentOpListID) {
+                OpInfo& outOpInfo = outInfo->push_back();
 
-                // copy out all of the batches so the client can display them even if
-                // they have a different clientID
-                this->copyOutFromBatchList(&outBatchInfo, batch->fBatchListID);
+                // copy out all of the ops so the client can display them even if they have a
+                // different clientID
+                this->copyOutFromOpList(&outOpInfo, op->fOpListID);
             }
         }
     }
 }
 
-void GrAuditTrail::getBoundsByBatchListID(BatchInfo* outInfo, int batchListID) {
-    this->copyOutFromBatchList(outInfo, batchListID);
+void GrAuditTrail::getBoundsByOpListID(OpInfo* outInfo, int opListID) {
+    this->copyOutFromOpList(outInfo, opListID);
 }
 
 void GrAuditTrail::fullReset() {
     SkASSERT(fEnabled);
-    fBatchList.reset();
+    fOpList.reset();
     fIDLookup.reset();
-    // free all client batches
-    fClientIDLookup.foreach([](const int&, Batches** batches) { delete *batches; });
+    // free all client ops
+    fClientIDLookup.foreach ([](const int&, Ops** ops) { delete *ops; });
     fClientIDLookup.reset();
-    fBatchPool.reset(); // must be last, frees all of the memory
+    fOpPool.reset();  // must be last, frees all of the memory
 }
 
 template <typename T>
@@ -229,7 +226,7 @@ static SkString pretty_print_json(SkString json) {
 SkString GrAuditTrail::toJson(bool prettyPrint) const {
     SkString json;
     json.append("{");
-    JsonifyTArray(&json, "Batches", fBatchList, false);
+    JsonifyTArray(&json, "Batches", fOpList, false);
     json.append("}");
 
     if (prettyPrint) {
@@ -242,9 +239,9 @@ SkString GrAuditTrail::toJson(bool prettyPrint) const {
 SkString GrAuditTrail::toJson(int clientID, bool prettyPrint) const {
     SkString json;
     json.append("{");
-    Batches** batches = fClientIDLookup.find(clientID);
-    if (batches) {
-        JsonifyTArray(&json, "Batches", **batches, false);
+    Ops** ops = fClientIDLookup.find(clientID);
+    if (ops) {
+        JsonifyTArray(&json, "Batches", **ops, false);
     }
     json.appendf("}");
 
@@ -264,12 +261,12 @@ static void skrect_to_json(SkString* json, const char* name, const SkRect& rect)
     json->append("}");
 }
 
-SkString GrAuditTrail::Batch::toJson() const {
+SkString GrAuditTrail::Op::toJson() const {
     SkString json;
     json.append("{");
     json.appendf("\"Name\": \"%s\",", fName.c_str());
     json.appendf("\"ClientID\": \"%d\",", fClientID);
-    json.appendf("\"BatchListID\": \"%d\",", fBatchListID);
+    json.appendf("\"BatchListID\": \"%d\",", fOpListID);
     json.appendf("\"ChildID\": \"%d\",", fChildID);
     skrect_to_json(&json, "Bounds", fBounds);
     if (fStackTrace.count()) {
@@ -286,7 +283,7 @@ SkString GrAuditTrail::Batch::toJson() const {
     return json;
 }
 
-SkString GrAuditTrail::BatchNode::toJson() const {
+SkString GrAuditTrail::OpNode::toJson() const {
     SkString json;
     json.append("{");
     json.appendf("\"RenderTarget\": \"%u\",", fRenderTargetUniqueID.asUInt());
