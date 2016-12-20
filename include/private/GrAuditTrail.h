@@ -49,31 +49,26 @@ public:
         GrAuditTrail* fAuditTrail;
     };
 
-    class AutoManageBatchList {
+    class AutoManageOpList {
     public:
-        AutoManageBatchList(GrAuditTrail* auditTrail)
-            : fAutoEnable(auditTrail)
-            , fAuditTrail(auditTrail) {
-        }
+        AutoManageOpList(GrAuditTrail* auditTrail)
+                : fAutoEnable(auditTrail), fAuditTrail(auditTrail) {}
 
-        ~AutoManageBatchList() {
-            fAuditTrail->fullReset();
-        }
+        ~AutoManageOpList() { fAuditTrail->fullReset(); }
 
     private:
         AutoEnable fAutoEnable;
         GrAuditTrail* fAuditTrail;
     };
 
-    class AutoCollectBatches {
+    class AutoCollectOps {
     public:
-        AutoCollectBatches(GrAuditTrail* auditTrail, int clientID)
-            : fAutoEnable(auditTrail)
-            , fAuditTrail(auditTrail) {
+        AutoCollectOps(GrAuditTrail* auditTrail, int clientID)
+                : fAutoEnable(auditTrail), fAuditTrail(auditTrail) {
             fAuditTrail->setClientID(clientID);
         }
 
-        ~AutoCollectBatches() { fAuditTrail->setClientID(kGrAuditTrailInvalidID); }
+        ~AutoCollectOps() { fAuditTrail->setClientID(kGrAuditTrailInvalidID); }
 
     private:
         AutoEnable fAutoEnable;
@@ -85,19 +80,19 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addBatch(const GrOp* batch);
+    void addOp(const GrOp*);
 
-    void batchingResultCombined(const GrOp* consumer, const GrOp* consumed);
+    void opsCombined(const GrOp* consumer, const GrOp* consumed);
 
-    // Because batching is heavily dependent on sequence of draw calls, these calls will only
-    // produce valid information for the given draw sequence which preceeded them.
-    // Specifically, future draw calls may change the batching and thus would invalidate
-    // the json.  What this means is that for some sequence of draw calls N, the below toJson
-    // calls will only produce JSON which reflects N draw calls.  This JSON may or may not be
-    // accurate for N + 1 or N - 1 draws depending on the actual batching algorithm used.
+    // Because op combining is heavily dependent on sequence of draw calls, these calls will only
+    // produce valid information for the given draw sequence which preceeded them. Specifically, ops
+    // of future draw calls may combine with previous ops and thus would invalidate the json. What
+    // this means is that for some sequence of draw calls N, the below toJson calls will only
+    // produce JSON which reflects N draw calls. This JSON may or may not be accurate for N + 1 or
+    // N - 1 draws depending on the actual combining algorithm used.
     SkString toJson(bool prettyPrint = false) const;
 
-    // returns a json string of all of the batches associated with a given client id
+    // returns a json string of all of the ops associated with a given client id
     SkString toJson(int clientID, bool prettyPrint = false) const;
 
     bool isEnabled() { return fEnabled; }
@@ -107,19 +102,19 @@ public:
 
     // We could just return our internal bookkeeping struct if copying the data out becomes
     // a performance issue, but until then its nice to decouple
-    struct BatchInfo {
-        SkRect                  fBounds;
+    struct OpInfo {
+        SkRect fBounds;
         // TODO: switch over to GrSurfaceProxy::UniqueID
         GrGpuResource::UniqueID fRenderTargetUniqueID;
-        struct Batch {
+        struct Op {
             int fClientID;
             SkRect fBounds;
         };
-        SkTArray<Batch>                 fBatches;
+        SkTArray<Op> fOps;
     };
 
-    void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
-    void getBoundsByBatchListID(BatchInfo* outInfo, int batchListID);
+    void getBoundsByClientID(SkTArray<OpInfo>* outInfo, int clientID);
+    void getBoundsByOpListID(OpInfo* outInfo, int opListID);
 
     void fullReset();
 
@@ -127,41 +122,41 @@ public:
 
 private:
     // TODO if performance becomes an issue, we can move to using SkVarAlloc
-    struct Batch {
+    struct Op {
         SkString toJson() const;
         SkString fName;
         SkTArray<SkString> fStackTrace;
         SkRect fBounds;
         int fClientID;
-        int fBatchListID;
+        int fOpListID;
         int fChildID;
     };
-    typedef SkTArray<std::unique_ptr<Batch>, true> BatchPool;
+    typedef SkTArray<std::unique_ptr<Op>, true> OpPool;
 
-    typedef SkTArray<Batch*> Batches;
+    typedef SkTArray<Op*> Ops;
 
-    struct BatchNode {
-        BatchNode(const GrGpuResource::UniqueID& id) : fRenderTargetUniqueID(id) { }
+    struct OpNode {
+        OpNode(const GrGpuResource::UniqueID& id) : fRenderTargetUniqueID(id) {}
         SkString toJson() const;
         SkRect                         fBounds;
-        Batches                        fChildren;
+        Ops fChildren;
         const GrGpuResource::UniqueID  fRenderTargetUniqueID;
     };
-    typedef SkTArray<std::unique_ptr<BatchNode>, true> BatchList;
+    typedef SkTArray<std::unique_ptr<OpNode>, true> OpList;
 
-    void copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID);
+    void copyOutFromOpList(OpInfo* outOpInfo, int opListID);
 
     template <typename T>
     static void JsonifyTArray(SkString* json, const char* name, const T& array,
                               bool addComma);
 
-    BatchPool fBatchPool;
+    OpPool fOpPool;
     SkTHashMap<uint32_t, int> fIDLookup;
-    SkTHashMap<int, Batches*> fClientIDLookup;
-    BatchList fBatchList;
+    SkTHashMap<int, Ops*> fClientIDLookup;
+    OpList fOpList;
     SkTArray<SkString> fCurrentStackTrace;
 
-    // The client cas pass in an optional client ID which we will use to mark the batches
+    // The client can pass in an optional client ID which we will use to mark the ops
     int fClientID;
     bool fEnabled;
 };
@@ -177,13 +172,11 @@ private:
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
-#define GR_AUDIT_TRAIL_ADDBATCH(audit_trail, batch) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addBatch, batch);
+#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op) GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op);
 
-#define GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(audit_trail, combineWith, batch) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, batchingResultCombined, combineWith, batch);
+#define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op);
 
-#define GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(audit_trail, batch) \
-    // Doesn't do anything now, one day... 
+#define GR_AUDIT_TRAIL_OP_RESULT_NEW(audit_trail, op) // Doesn't do anything now, one day...
 
 #endif

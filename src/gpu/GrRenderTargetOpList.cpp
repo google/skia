@@ -463,7 +463,7 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, op.get());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get());
     GrOP_INFO("Re-Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
@@ -489,7 +489,7 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
             if (candidate->combineIfPossible(op.get(), *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, op.get());
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate, op.get());
                 join(&fRecordedOps.fromBack(i).fClippedBounds,
                      fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
                 return candidate;
@@ -510,7 +510,7 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
     } else {
         GrOP_INFO("\t\tFirstOp\n");
     }
-    GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, op);
+    GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds});
     fLastFullClearOp = nullptr;
     return fRecordedOps.back().fOp.get();
@@ -540,7 +540,7 @@ void GrRenderTargetOpList::forwardCombine() {
             } else if (op->combineIfPossible(candidate, *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
                           candidate->uniqueID());
-                GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, op, candidate);
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate);
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
                 join(&fRecordedOps[j].fClippedBounds, fRecordedOps[j].fClippedBounds, opBounds);
                 break;
