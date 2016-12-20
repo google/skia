@@ -559,6 +559,7 @@ component("skia") {
   sources += skia_effects_sources
   sources += skia_sksl_sources
   sources += skia_utils_sources
+  sources += skia_xps_sources
   sources += [
     "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
@@ -608,8 +609,6 @@ component("skia") {
       "src/ports/SkScalerContext_win_dw.cpp",
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
-      "src/xps/SkDocument_XPS.cpp",
-      "src/xps/SkXPSDevice.cpp",
     ]
     if (skia_use_gdi) {
       sources += [ "src/ports/SkFontMgr_win_gdi_factory.cpp" ]
@@ -633,7 +632,6 @@ component("skia") {
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
-      "src/xps/SkDocument_XPS_None.cpp",
     ]
   }
 
