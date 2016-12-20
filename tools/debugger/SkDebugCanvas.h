@@ -47,11 +47,9 @@ public:
 
     SkColor getClipVizColor() const { return fClipVizColor; }
 
-    void setDrawGpuBatchBounds(bool drawGpuBatchBounds) {
-        fDrawGpuBatchBounds = drawGpuBatchBounds;
-    }
+    void setDrawGpuOpBounds(bool drawGpuOpBounds) { fDrawGpuOpBounds = drawGpuOpBounds; }
 
-    bool getDrawGpuBatchBounds() const { return fDrawGpuBatchBounds; }
+    bool getDrawGpuOpBounds() const { return fDrawGpuOpBounds; }
 
     bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
@@ -72,7 +70,7 @@ public:
         Executes the draw calls up to the specified index.
         @param canvas  The canvas being drawn to
         @param index  The index of the final command being executed
-        @param m an optional Mth gpu batch to highlight, or -1
+        @param m an optional Mth gpu op to highlight, or -1
      */
     void drawTo(SkCanvas *canvas, int index, int m = -1);
 
@@ -164,11 +162,11 @@ public:
      */
     Json::Value toJSON(UrlDataManager &urlDataManager, int n, SkCanvas *);
 
-    Json::Value toJSONBatchList(int n, SkCanvas *);
+    Json::Value toJSONOpList(int n, SkCanvas*);
 
-////////////////////////////////////////////////////////////////////////////////
-// Inherited from SkCanvas
-////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    // Inherited from SkCanvas
+    ////////////////////////////////////////////////////////////////////////////////
 
     static const int kVizImageHeight = 256;
     static const int kVizImageWidth = 256;
@@ -286,7 +284,7 @@ private:
     bool fOverrideFilterQuality;
     SkFilterQuality fFilterQuality;
     SkColor fClipVizColor;
-    bool fDrawGpuBatchBounds;
+    bool fDrawGpuOpBounds;
 
     /**
         The active saveLayer commands at a given point in the renderering.
@@ -318,7 +316,7 @@ private:
 
     GrAuditTrail* getAuditTrail(SkCanvas*);
 
-    void drawAndCollectBatches(int n, SkCanvas*);
+    void drawAndCollectOps(int n, SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 
     typedef SkCanvas INHERITED;
