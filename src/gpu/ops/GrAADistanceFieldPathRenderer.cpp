@@ -7,9 +7,9 @@
 
 #include "GrAADistanceFieldPathRenderer.h"
 
-#include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrContext.h"
+#include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
@@ -581,7 +581,7 @@ struct PathTestStruct {
     ShapeDataList fShapeList;
 };
 
-DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathOp) {
+DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {
@@ -608,8 +608,7 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathOp) {
                                        gTestStruct.fAtlas.get(),
                                        &gTestStruct.fShapeCache,
                                        &gTestStruct.fShapeList,
-                                       gammaCorrect)
-            .release();
+                                       gammaCorrect);
 }
 
 #endif

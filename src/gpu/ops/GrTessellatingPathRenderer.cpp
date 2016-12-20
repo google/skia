@@ -8,9 +8,9 @@
 #include "GrTessellatingPathRenderer.h"
 
 #include "GrAuditTrail.h"
-#include "GrBatchTest.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
@@ -376,7 +376,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(TesselatingPathOp) {
+DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);
@@ -389,7 +389,7 @@ DRAW_BATCH_TEST_DEFINE(TesselatingPathOp) {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
     GrShape shape(path, style);
-    return TessellatingPathOp::Make(color, shape, viewMatrix, devClipBounds, antiAlias).release();
+    return TessellatingPathOp::Make(color, shape, viewMatrix, devClipBounds, antiAlias);
 }
 
 #endif
