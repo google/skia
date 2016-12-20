@@ -7,7 +7,7 @@
 
 #include "GrOvalOpFactory.h"
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
@@ -2425,7 +2425,7 @@ sk_sp<GrDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatrix& viewMa
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(CircleOp) {
+DRAW_OP_TEST_DEFINE(CircleOp) {
     do {
         SkScalar rotate = random->nextSScalar1() * 360.f;
         SkScalar translateX = random->nextSScalar1() * 1000.f;
@@ -2451,32 +2451,31 @@ DRAW_BATCH_TEST_DEFINE(CircleOp) {
         sk_sp<GrDrawOp> op = CircleOp::Make(color, viewMatrix, center, radius,
                                             GrStyle(stroke, nullptr), arcParams);
         if (op) {
-            return op.release();
+            return op;
         }
     } while (true);
 }
 
-DRAW_BATCH_TEST_DEFINE(EllipseOp) {
+DRAW_OP_TEST_DEFINE(EllipseOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
-    return EllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random)).release();
+    return EllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
-DRAW_BATCH_TEST_DEFINE(DIEllipseOp) {
+DRAW_OP_TEST_DEFINE(DIEllipseOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect ellipse = GrTest::TestSquare(random);
-    return DIEllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random)).release();
+    return DIEllipseOp::Make(color, viewMatrix, ellipse, GrTest::TestStrokeRec(random));
 }
 
-DRAW_BATCH_TEST_DEFINE(RRectOp) {
+DRAW_OP_TEST_DEFINE(RRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
     bool needsDistance = random->nextBool();
-    return make_rrect_op(color, needsDistance, viewMatrix, rrect, GrTest::TestStrokeRec(random))
-            .release();
+    return make_rrect_op(color, needsDistance, viewMatrix, rrect, GrTest::TestStrokeRec(random));
 }
 
 #endif

@@ -8,9 +8,9 @@
 #include "GrAALinearizingConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
@@ -374,7 +374,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathOp) {
+DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPath path = GrTest::TestPathConvex(random);
@@ -400,8 +400,7 @@ DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathOp) {
     }
 
     return AAFlatteningConvexPathOp::Make(color, viewMatrix, path, strokeWidth, style, join,
-                                          miterLimit)
-            .release();
+                                          miterLimit);
 }
 
 #endif
