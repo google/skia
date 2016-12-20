@@ -387,7 +387,13 @@ static void check(skiatest::Reporter* r,
                                                         &opts, nullptr, nullptr);
 
         if (supportsSubsetDecoding) {
-            REPORTER_ASSERT(r, result == expectedResult);
+            if (expectedResult == SkCodec::kSuccess) {
+                REPORTER_ASSERT(r, result == expectedResult);
+            } else {
+                SkASSERT(expectedResult == SkCodec::kIncompleteInput);
+                REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput
+                                || result == SkCodec::kSuccess);
+            }
             // Webp is the only codec that supports subsets, and it will have modified the subset
             // to have even left/top.
             REPORTER_ASSERT(r, SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
