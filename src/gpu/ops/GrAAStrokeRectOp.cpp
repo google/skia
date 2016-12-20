@@ -260,6 +260,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
     sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
                                                         this->viewMatrix(),
                                                         this->usesLocalCoords(),
+
                                                         this->coverageIgnored()));
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -610,9 +611,9 @@ sk_sp<GrDrawOp> Make(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 
-DRAW_BATCH_TEST_DEFINE(AAStrokeRectOp) {
+DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     bool miterStroke = random->nextBool();
 
     // Create either a empty rect or a non-empty rect.
@@ -628,7 +629,7 @@ DRAW_BATCH_TEST_DEFINE(AAStrokeRectOp) {
     rec.setStrokeParams(SkPaint::kButt_Cap,
                         miterStroke ? SkPaint::kMiter_Join : SkPaint::kBevel_Join, 1.f);
     SkMatrix matrix = GrTest::TestMatrixRectStaysRect(random);
-    return GrAAStrokeRectOp::Make(color, matrix, rect, rec).release();
+    return GrAAStrokeRectOp::Make(color, matrix, rect, rec);
 }
 
 #endif

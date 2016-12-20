@@ -7,9 +7,9 @@
 
 #include "GrNonAAStrokeRectOp.h"
 
-#include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "SkRandom.h"
@@ -198,7 +198,7 @@ sk_sp<GrDrawOp> Make(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectOp) {
+DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
@@ -208,8 +208,7 @@ DRAW_BATCH_TEST_DEFINE(NonAAStrokeRectOp) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeJoin(SkPaint::kMiter_Join);
     SkStrokeRec strokeRec(paint);
-    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, random->nextBool())
-            .release();
+    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, random->nextBool());
 }
 
 #endif

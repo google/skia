@@ -7,11 +7,11 @@
 
 #include "GrDashOp.h"
 
-#include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
@@ -1210,7 +1210,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(DashOp) {
+DRAW_OP_TEST_DEFINE(DashOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     AAMode aaMode = static_cast<AAMode>(random->nextULessThan(GrDashOp::kAAModeCnt));
@@ -1275,7 +1275,7 @@ DRAW_BATCH_TEST_DEFINE(DashOp) {
 
     GrStyle style(p);
 
-    return GrDashOp::MakeDashLineOp(color, viewMatrix, pts, aaMode, style).release();
+    return GrDashOp::MakeDashLineOp(color, viewMatrix, pts, aaMode, style);
 }
 
 #endif
