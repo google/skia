@@ -311,7 +311,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         return sk_ref_sp(fInflator->getTypeface(this->read32()));
     }
 
-    uint32_t index = fReader.readU32();
+    uint32_t index = this->readUInt();
     if (0 == index || index > (unsigned)fTFCount) {
         return nullptr;
     } else {

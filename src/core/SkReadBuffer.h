@@ -106,8 +106,6 @@ public:
     bool isPtr64Bit() const { return SkToBool(fFlags & kPtrIs64Bit_Flag); }
     bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
 
-    SkReader32* getReader32() { return &fReader; }
-
     size_t size() { return fReader.size(); }
     size_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
