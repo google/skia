@@ -61,13 +61,13 @@ cc_library {
 
         mips: {
             srcs: [
-                $mips_srcs
+                $none_srcs
             ],
         },
 
         mips64: {
             srcs: [
-                $mips64_srcs
+                $none_srcs
             ],
         },
 
@@ -199,8 +199,7 @@ with open('Android.bp', 'w') as f:
     'arm_neon_srcs': bpfmt(20, scrub(defs['neon'])),
     'arm64_srcs':    bpfmt(16, scrub(defs['arm64'] +
                                      defs['crc32'])),
-    'mips_srcs':     bpfmt(16, scrub(defs['mips_dsp'])),
-    'mips64_srcs':   bpfmt(16, scrub(defs['none'])),
+    'none_srcs':     bpfmt(16, scrub(defs['none'])),
     'x86_srcs':      bpfmt(16, scrub(defs['sse2'] +
                                      defs['ssse3'] +
                                      defs['sse41'] +
