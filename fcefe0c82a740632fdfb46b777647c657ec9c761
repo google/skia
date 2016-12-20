@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f777cabe_7411a8c8",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-20T18:26:40Z",
+      "side": 1,
+      "message": "why do we need this anymore? (I like the document:: version)",
+      "range": {
+        "startLine": 24,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 33
+      },
+      "revId": "fcefe0c82a740632fdfb46b777647c657ec9c761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f777cabe_141634c2",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-20T18:26:40Z",
+      "side": 1,
+      "message": "Not sure what \"native\" means in the dox, but let me ask a broader question: why is this here at all? I presume PDF thinks one canvas unit \u003d\u003d 1/72 of an inch, so why do we parameterize this here but not there? Does this just boil down to some setting in a matrix?",
+      "range": {
+        "startLine": 169,
+        "startChar": 17,
+        "endLine": 169,
+        "endChar": 36
+      },
+      "revId": "fcefe0c82a740632fdfb46b777647c657ec9c761",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
