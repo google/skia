@@ -16,8 +16,6 @@
 #include <type_traits>
 #include <utility>
 
-#define SK_SUPPORT_TRANSITION_TO_SP_INTERFACES
-
 /** \class SkRefCntBase
 
     SkRefCntBase is the base class for objects that may be shared by multiple
@@ -413,20 +411,14 @@ sk_sp<T> sk_make_sp(Args&&... args) {
     return sk_sp<T>(new T(std::forward<Args>(args)...));
 }
 
-#ifdef SK_SUPPORT_TRANSITION_TO_SP_INTERFACES
-
 /*
  *  Returns a sk_sp wrapping the provided ptr AND calls ref on it (if not null).
  *
  *  This is different than the semantics of the constructor for sk_sp, which just wraps the ptr,
  *  effectively "adopting" it.
- *
- *  This function may be helpful while we convert callers from ptr-based to sk_sp-based parameters.
  */
 template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
     return sk_sp<T>(SkSafeRef(obj));
 }
-
-#endif
 
 #endif
