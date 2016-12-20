@@ -233,7 +233,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             const SkColor& source = sptr[x];
             SkColor outputColor(source);
             SkPoint position;
-            localInverse.mapXY((SkScalar)x + bounds.fLeft, (SkScalar)y + bounds.fTop, &position);
+            localInverse.mapXY((SkScalar)x + srcOffset.fX, (SkScalar)y + srcOffset.fY, &position);
             if (fRegion.contains((int32_t)position.x(), (int32_t)position.y())) {
                 if (SkColorGetA(source) < innerThreshold) {
                     U8CPU alpha = SkColorGetA(source);
