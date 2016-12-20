@@ -62,16 +62,19 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setUnknownFourComponents();
-        coverage->setKnownSingleComponent(0xff);
+private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
     }
 
-private:
+    void applyPipelineOptimizations(const GrPipelineOptimizations& analysioptimizations) override {
+        analysioptimizations.getOverrideColorIfSet(&fPatches[0].fColor);
+        fOptimizations = analysioptimizations;
+    }
+
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
+        sk_sp<GrGeometryProcessor> gp(create_gp(fOptimizations.readsCoverage()));
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -135,11 +138,6 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fPatches[0].fColor);
-        fOverrides = overrides;
-    }
-
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -152,8 +150,9 @@ private:
 
         // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
         // tweaking.
-        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
-            fOverrides = that->fOverrides;
+        if (fOptimizations.canTweakAlphaForCoverage() &&
+            !that->fOptimizations.canTweakAlphaForCoverage()) {
+            fOptimizations = that->fOptimizations;
         }
 
         fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
@@ -168,7 +167,7 @@ private:
         GrColor fColor;
     };
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
     int fImageWidth;
     int fImageHeight;
     SkSTArray<1, Patch, true> fPatches;

@@ -246,14 +246,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one path.
-        color->setKnownFourComponents(fPaths[0].fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
 private:
     MSAAPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
                const SkRect& devBounds, int maxLineVertices, int maxQuadVertices, bool isIndexed)
@@ -266,12 +258,16 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fPaths[0].fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        if (!optimizations.readsColor()) {
             fPaths[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fPaths[0].fColor);
+        optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 
     static void ComputeWorstCasePointCount(const SkPath& path, int* subpaths,
