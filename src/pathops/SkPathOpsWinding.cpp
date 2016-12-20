@@ -249,6 +249,9 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
     }
     SkOpContour* contour = contourHead;
     do {
+        if (!contour->count()) {
+            continue;
+        }
         contour->rayCheck(hitBase, dir, &hitHead, &allocator);
     } while ((contour = contour->next()));
     // sort hits
