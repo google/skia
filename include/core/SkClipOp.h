@@ -56,13 +56,19 @@ enum class SkClipOp {
 
 
     // Private Internal enums -- do not use -- destined to be removed at any moment!
+    kUnion_deprecated             = 2,
+    kXOR_deprecated               = 3,
+    kReverseDifference_deprecated = 4,
+    kReplace_deprecated           = 5,
 
-    kUnion_private_internal_do_not_use             = 2,
-    kXOR_private_internal_do_not_use               = 3,
-    kReverseDifference_private_internal_do_not_use = 4,
-    kReplace_private_internal_do_not_use           = 5,
+    kMax_EnumValue = kReplace_deprecated,
 
-    kMax_EnumValue = kReplace_private_internal_do_not_use
+#ifdef SK_SUPPORT_LEGACY_CLIPOP_EXOTIC_NAMES
+    kUnion_private_internal_do_not_use             = kUnion_deprecated,
+    kXOR_private_internal_do_not_use               = kXOR_deprecated,
+    kReverseDifference_private_internal_do_not_use = kReverseDifference_deprecated,
+    kReplace_private_internal_do_not_use           = kReplace_deprecated,
+#endif
 };
 
 #endif

@@ -54,7 +54,7 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, SkClipOp::kReplace_private_internal_do_not_use, false);
+            this->initCommon(0, SkClipOp::kReplace_deprecated, false);
             this->setEmpty();
         }
 
@@ -226,7 +226,7 @@ public:
         int                     fGenID;
 
         Element(int saveCount) {
-            this->initCommon(saveCount, SkClipOp::kReplace_private_internal_do_not_use, false);
+            this->initCommon(saveCount, SkClipOp::kReplace_deprecated, false);
             this->setEmpty();
         }
 
@@ -516,7 +516,7 @@ private:
     void restoreTo(int saveCount);
 
     inline bool hasClipRestriction(SkClipOp op) {
-        return op >= SkClipOp::kUnion_private_internal_do_not_use && !fClipRestrictionRect.isEmpty();
+        return op >= SkClipOp::kUnion_deprecated && !fClipRestrictionRect.isEmpty();
     }
 
     /**
