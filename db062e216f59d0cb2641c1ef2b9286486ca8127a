@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_a3315649",
+        "filename": "include/gpu/GrInvariantOutput.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-20T22:14:06Z",
+      "side": 1,
+      "message": "describes",
+      "range": {
+        "startLine": 61,
+        "startChar": 9,
+        "endLine": 61,
+        "endChar": 18
+      },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_83a09245",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-20T22:14:06Z",
+      "side": 1,
+      "message": "nit extra spaces here that always existed",
+      "range": {
+        "startLine": 230,
+        "startChar": 0,
+        "endLine": 230,
+        "endChar": 3
+      },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_a3ba7669",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-20T22:14:06Z",
+      "side": 1,
+      "message": "extra spaces",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_83c9b215",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-20T22:14:06Z",
+      "side": 1,
+      "message": "should this be a ref?",
+      "range": {
+        "startLine": 33,
+        "startChar": 34,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_03ddc2c9",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-12-20T22:14:06Z",
+      "side": 1,
+      "message": "should htis be private like most other op classes?",
+      "range": {
+        "startLine": 167,
+        "startChar": 3,
+        "endLine": 167,
+        "endChar": 62
+      },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
