@@ -10,10 +10,6 @@
 
 #include "GrColor.h"
 
-/**
- * This describes the color or coverage input that will be seen by the first color or coverage stage
- * of a GrPipeline. This is also the GrPrimitiveProcessor color or coverage *output*.
- */
 struct GrPipelineInput {
     GrPipelineInput()
             : fValidFlags(kNone_GrColorComponentFlags)
@@ -58,7 +54,6 @@ struct GrPipelineInput {
                                             // updated
 };
 
-/** This sescribes the output of a GrFragmentProcessor in a GrPipeline. */
 class GrInvariantOutput {
 public:
     GrInvariantOutput(GrColor color, GrColorComponentFlags flags, bool isSingleComponent)
@@ -69,13 +64,13 @@ public:
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
 
-    GrInvariantOutput(const GrPipelineInput& input)
-            : fColor(input.fColor)
-            , fValidFlags(input.fValidFlags)
-            , fIsSingleComponent(input.fIsSingleComponent)
+    GrInvariantOutput(const GrPipelineInput& io)
+            : fColor(io.fColor)
+            , fValidFlags(io.fValidFlags)
+            , fIsSingleComponent(io.fIsSingleComponent)
             , fNonMulStageFound(false)
             , fWillUseInputColor(false)
-            , fIsLCDCoverage(input.fIsLCDCoverage) {}
+            , fIsLCDCoverage(io.fIsLCDCoverage) {}
 
     virtual ~GrInvariantOutput() {}
 

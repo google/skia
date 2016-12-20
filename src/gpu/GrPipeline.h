@@ -31,10 +31,6 @@ class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
 
-/**
- * This Describes aspects of the GrPrimitiveProcessor produced by a GrDrawOp that are used in
- * pipeline analysis.
- */
 class GrPipelineAnalysisDrawOpInput {
 public:
     GrPipelineAnalysisDrawOpInput(GrPipelineInput* color, GrPipelineInput* coverage)

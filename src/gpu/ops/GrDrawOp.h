@@ -12,6 +12,8 @@
 #include "GrOp.h"
 #include "GrPipeline.h"
 
+// class GrPipelineInput;
+
 /**
  * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
  * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is

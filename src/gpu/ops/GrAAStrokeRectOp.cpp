@@ -94,16 +94,12 @@ static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* 
 
 static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCoverage,
                                                         const SkMatrix& viewMatrix,
-                                                        bool usesLocalCoords,
-                                                        bool coverageIgnored) {
+                                                        bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
 
     Color color(Color::kAttribute_Type);
     Coverage::Type coverageType;
-    // TODO remove coverage if coverage is ignored
-    /*if (coverageIgnored) {
-        coverageType = Coverage::kNone_Type;
-    } else*/ if (tweakAlphaForCoverage) {
+    if (tweakAlphaForCoverage) {
         coverageType = Coverage::kSolid_Type;
     } else {
         coverageType = Coverage::kAttribute_Type;
@@ -124,7 +120,7 @@ public:
         SkASSERT(!devOutside.isEmpty());
         SkASSERT(!devInside.isEmpty());
 
-        fGeoData.emplace_back(Geometry{color, devOutside, devOutside, devInside, false});
+        fRects.emplace_back(RectInfo{color, devOutside, devOutside, devInside, false});
         this->setBounds(devOutside, HasAABloat::kYes, IsZeroArea::kNo);
         fMiterStroke = true;
     }
@@ -138,7 +134,7 @@ public:
 
         AAStrokeRectOp* op = new AAStrokeRectOp();
         op->fMiterStroke = isMiter;
-        Geometry& geo = op->fGeoData.push_back();
+        RectInfo& geo = op->fRects.push_back();
         compute_rects(&geo.fDevOutside, &geo.fDevOutsideAssist, &geo.fDevInside, &geo.fDegenerate,
                       viewMatrix, rect, stroke.getWidth(), isMiter);
         geo.fColor = color;
@@ -151,7 +147,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        for (const auto& geo : fGeoData) {
+        for (const auto& geo : fRects) {
             string.appendf(
                     "Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
@@ -168,7 +164,7 @@ public:
     }
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
         input->pipelineCoverageInput()->setUnknownSingleComponent();
     }
 
@@ -188,11 +184,8 @@ private:
 
     static const GrBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider, bool miterStroke);
 
-    GrColor color() const { return fBatch.fColor; }
-    bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fBatch.fCanTweakAlphaForCoverage; }
-    bool colorIgnored() const { return fBatch.fColorIgnored; }
-    bool coverageIgnored() const { return fBatch.fCoverageIgnored; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
+    bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
 
@@ -211,16 +204,8 @@ private:
                                       bool degenerate,
                                       bool tweakAlphaForCoverage) const;
 
-    struct BatchTracker {
-        GrColor fColor;
-        bool fUsesLocalCoords;
-        bool fColorIgnored;
-        bool fCoverageIgnored;
-        bool fCanTweakAlphaForCoverage;
-    };
-
     // TODO support AA rotated stroke rects by copying around view matrices
-    struct Geometry {
+    struct RectInfo {
         GrColor fColor;
         SkRect fDevOutside;
         SkRect fDevOutsideAssist;
@@ -228,8 +213,9 @@ private:
         bool fDegenerate;
     };
 
-    BatchTracker fBatch;
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkSTArray<1, RectInfo, true> fRects;
+    bool fUsesLocalCoords;
+    bool fCanTweakAlphaForCoverage;
     SkMatrix fViewMatrix;
     bool fMiterStroke;
 
@@ -238,16 +224,13 @@ private:
 
 void AAStrokeRectOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
     if (!optimizations.readsColor()) {
-        fGeoData[0].fColor = GrColor_ILLEGAL;
+        fRects[0].fColor = GrColor_ILLEGAL;
     }
-    optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
+    optimizations.getOverrideColorIfSet(&fRects[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !optimizations.readsColor();
-    fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = optimizations.readsLocalCoords();
-    fBatch.fCoverageIgnored = !optimizations.readsCoverage();
-    fBatch.fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+    fUsesLocalCoords = optimizations.readsLocalCoords();
+    fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
 }
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) const {
@@ -255,8 +238,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
 
     sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(canTweakAlphaForCoverage,
                                                         this->viewMatrix(),
-                                                        this->usesLocalCoords(),
-                                                        this->coverageIgnored()));
+                                                        this->usesLocalCoords()));
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
         return;
@@ -271,7 +253,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
     int outerVertexNum = this->miterStroke() ? 4 : 8;
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
-    int instanceCount = fGeoData.count();
+    int instanceCount = fRects.count();
 
     const sk_sp<const GrBuffer> indexBuffer(
             GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
@@ -285,7 +267,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
     }
 
     for (int i = 0; i < instanceCount; i++) {
-        const Geometry& args = fGeoData[i];
+        const RectInfo& args = fRects[i];
         this->generateAAStrokeRectGeometry(vertices,
                                            i * verticesPerInstance * vertexStride,
                                            vertexStride,
@@ -419,13 +401,10 @@ bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
     // tweaking.
     if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-        fBatch.fCanTweakAlphaForCoverage = false;
+        fCanTweakAlphaForCoverage = false;
     }
 
-    if (this->color() != that->color()) {
-        fBatch.fColor = GrColor_ILLEGAL;
-    }
-    fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+    fRects.push_back_n(that->fRects.count(), that->fRects.begin());
     this->joinBounds(*that);
     return true;
 }
