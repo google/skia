@@ -16,6 +16,24 @@
       "revId": "54160925f8dd4f97a6c00011108fd351517868b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_1d92c3a4",
+        "filename": "gm/imagealphathreshold.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-12-20T15:49:49Z",
+      "side": 1,
+      "message": "Yep - we\u0027re trying out here and will then propagate the pattern if like it. The litmus test is going to be the PDF backend.",
+      "parentUuid": "b7bc7298_5f684f63",
+      "revId": "54160925f8dd4f97a6c00011108fd351517868b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
