@@ -37,12 +37,6 @@ arm64 = [
 
 crc32 = [ "$_src/opts/SkOpts_crc32.cpp" ]
 
-mips_dsp = [
-  "$_src/opts/SkBitmapProcState_opts_mips_dsp.cpp",
-  "$_src/opts/SkBlitMask_opts_none.cpp",
-  "$_src/opts/SkBlitRow_opts_mips_dsp.cpp",
-]
-
 sse2 = [
   "$_src/opts/SkBitmapProcState_opts_SSE2.cpp",
   "$_src/opts/SkBlitRow_opts_SSE2.cpp",

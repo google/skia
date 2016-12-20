@@ -274,12 +274,6 @@ opts("hsw") {
   }
 }
 
-opts("dsp") {
-  enabled = current_cpu == "mipsel"
-  sources = skia_opts.mips_dsp_sources
-  cflags = []
-}
-
 # Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
   if (invoker.enabled) {
@@ -528,7 +522,6 @@ component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
-    ":dsp",
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_fontconfig",
