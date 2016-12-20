@@ -121,9 +121,6 @@ public:
 
     bool onAccessPixels(SkPixmap*) override;
 
-    // for debugging purposes only
-    void drawTexture(GrTexture*, const SkRect& dst, const SkPaint&);
-
 protected:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
