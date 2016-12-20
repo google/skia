@@ -246,9 +246,9 @@ sk_sp<GrDrawOp> MakeWithPerspective(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 
-DRAW_BATCH_TEST_DEFINE(NonAAFillRectPerspectiveOp) {
+DRAW_OP_TEST_DEFINE(NonAAFillRectPerspectiveOp) {
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
@@ -263,8 +263,7 @@ DRAW_BATCH_TEST_DEFINE(NonAAFillRectPerspectiveOp) {
     bool hasLocalRect = random->nextBool();
     return GrNonAAFillRectOp::MakeWithPerspective(color, viewMatrix, rect,
                                                   hasLocalRect ? &localRect : nullptr,
-                                                  hasLocalMatrix ? &localMatrix : nullptr)
-            .release();
+                                                  hasLocalMatrix ? &localMatrix : nullptr);
 }
 
 #endif

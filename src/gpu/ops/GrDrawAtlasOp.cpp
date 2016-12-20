@@ -6,7 +6,7 @@
  */
 
 #include "GrDrawAtlasOp.h"
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "SkGr.h"
 #include "SkRSXform.h"
@@ -235,7 +235,7 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
     }
 }
 
-DRAW_BATCH_TEST_DEFINE(GrDrawAtlasOp) {
+DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
     SkTArray<SkRSXform> xforms(spriteCount);
@@ -250,8 +250,7 @@ DRAW_BATCH_TEST_DEFINE(GrDrawAtlasOp) {
 
     GrColor color = GrRandomColor(random);
     return GrDrawAtlasOp::Make(color, viewMatrix, spriteCount, xforms.begin(), texRects.begin(),
-                               hasColors ? colors.begin() : nullptr)
-            .release();
+                               hasColors ? colors.begin() : nullptr);
 }
 
 #endif
