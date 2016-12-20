@@ -156,21 +156,6 @@ public:
     SkISize getDeviceSize() const { return this->getBaseLayerSize(); }
 
     /**
-     *  DEPRECATED.
-     *  Return the canvas' device object, which may be null. The device holds
-     *  the bitmap of the pixels that the canvas draws into. The reference count
-     *  of the returned device is not changed by this call.
-     */
-#ifndef SK_SUPPORT_LEGACY_GETDEVICE
-protected:  // Can we make this private?
-#endif
-    SkBaseDevice* getDevice() const;
-public:
-    SkBaseDevice* getDevice_just_for_deprecated_compatibility_testing() const {
-        return this->getDevice();
-    }
-
-    /**
      *  saveLayer() can create another device (which is later drawn onto
      *  the previous device). getTopDevice() returns the top-most device current
      *  installed. Note that this can change on other calls like save/restore,
@@ -1544,6 +1529,8 @@ private:
         kNotOpaque_ShaderOverrideOpacity,   //!< the overriding shader may not be opaque
     };
 
+    SkBaseDevice* getDevice() const;
+
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify(bool willOverwritesEntireSurface = false);
@@ -1689,7 +1676,10 @@ private:
     void validateClip() const {}
 #endif
 
-    typedef SkRefCnt INHERITED;
+public:
+    SkBaseDevice* getDevice_just_for_deprecated_compatibility_testing() const {
+        return this->getDevice();
+    }
 };
 
 /** Stack helper class to automatically call restoreToCount() on the canvas
