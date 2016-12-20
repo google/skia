@@ -200,22 +200,6 @@ public:
      */
     bool peekPixels(SkPixmap* pixmap) const;
 
-#ifdef SK_SUPPORT_LEGACY_PREROLL
-    /**
-     *  Some images have to perform preliminary work in preparation for drawing. This can be
-     *  decoding, uploading to a GPU, or other tasks. These happen automatically when an image
-     *  is drawn, and often they are cached so that the cost is only paid the first time.
-     *
-     *  Preroll() can be called before drawing to try to perform this prepatory work ahead of time.
-     *  For images that have no such work, this returns instantly. Others may do some thing to
-     *  prepare their cache and then return.
-     *
-     *  If the image will drawn to a GPU-backed canvas or surface, pass the associated GrContext.
-     *  If the image will be drawn to any other type of canvas or surface, pass null.
-     */
-    void preroll(GrContext* = nullptr) const;
-#endif
-
     // DEPRECATED - currently used by Canvas2DLayerBridge in Chromium.
     GrTexture* getTexture() const;
 
