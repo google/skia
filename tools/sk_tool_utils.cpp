@@ -14,6 +14,7 @@
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
+#include "SkPixelRef.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
@@ -239,7 +240,12 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     canvas.clear(0x00000000);
     canvas.drawText(str, strlen(str), SkIntToScalar(x), SkIntToScalar(y), paint);
 
-    return bitmap;
+    // Tag data as sRGB (without doing any color space conversion). Color-space aware configs
+    // will process this correctly but legacy configs will render as if this returned N32.
+    SkBitmap result;
+    result.setInfo(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
+    result.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
+    return result;
 }
 
 void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
