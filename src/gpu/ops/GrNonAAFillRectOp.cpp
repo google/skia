@@ -203,9 +203,9 @@ sk_sp<GrDrawOp> Make(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 
-DRAW_BATCH_TEST_DEFINE(NonAAFillRectOp) {
+DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
@@ -218,8 +218,7 @@ DRAW_BATCH_TEST_DEFINE(NonAAFillRectOp) {
                                    viewMatrix,
                                    rect,
                                    hasLocalRect ? &localRect : nullptr,
-                                   hasLocalMatrix ? &localMatrix : nullptr)
-            .release();
+                                   hasLocalMatrix ? &localMatrix : nullptr);
 }
 
 #endif

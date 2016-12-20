@@ -7,7 +7,7 @@
 
 #include "GrShadowRRectOp.h"
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "GrStyle.h"
@@ -931,7 +931,7 @@ sk_sp<GrDrawOp> Make(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(ShadowCircleOp) {
+DRAW_OP_TEST_DEFINE(ShadowCircleOp) {
     do {
         SkScalar rotate = random->nextSScalar1() * 360.f;
         SkScalar translateX = random->nextSScalar1() * 1000.f;
@@ -950,19 +950,18 @@ DRAW_BATCH_TEST_DEFINE(ShadowCircleOp) {
         sk_sp<GrDrawOp> op = ShadowCircleOp::Make(color, viewMatrix, center, radius, blurRadius,
                                                   GrStyle(stroke, nullptr));
         if (op) {
-            return op.release();
+            return op;
         }
     } while (true);
 }
 
-DRAW_BATCH_TEST_DEFINE(ShadowRRectOp) {
+DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
     SkScalar blurRadius = random->nextSScalar1() * 72.f;
     return make_shadow_rrect_batch(color, viewMatrix, rrect, blurRadius,
-                                   GrTest::TestStrokeRec(random))
-            .release();
+                                   GrTest::TestStrokeRec(random));
 }
 
 #endif

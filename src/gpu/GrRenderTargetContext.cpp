@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrBatchTest.h"
-#include "GrColor.h"
 #include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
+#include "GrColor.h"
+#include "GrDrawOpTest.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPathRenderer.h"
 #include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
 #include "SkSurfacePriv.h"

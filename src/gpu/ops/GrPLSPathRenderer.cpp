@@ -7,10 +7,10 @@
 
 #include "GrPLSPathRenderer.h"
 
-#include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrPLSGeometryProcessor.h"
@@ -948,12 +948,12 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(PLSPathOp) {
+DRAW_OP_TEST_DEFINE(PLSPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix vm = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
 
-    return PLSPathOp::Make(color, path, vm).release();
+    return PLSPathOp::Make(color, path, vm);
 }
 
 #endif

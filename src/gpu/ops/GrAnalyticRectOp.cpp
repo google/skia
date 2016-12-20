@@ -7,7 +7,7 @@
 
 #include "GrAnalyticRectOp.h"
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
@@ -390,13 +390,13 @@ sk_sp<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AnalyticRectOp) {
+DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrColor color = GrRandomColor(random);
     SkRect rect = GrTest::TestSquare(random);
     SkRect croppedRect = GrTest::TestSquare(random);
     SkRect bounds = GrTest::TestSquare(random);
-    return new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds);
+    return sk_sp<GrDrawOp>(new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
 #endif

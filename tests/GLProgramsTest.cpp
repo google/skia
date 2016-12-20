@@ -12,13 +12,13 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "GrAutoLocaleSetter.h"
-#include "GrBatchTest.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrRenderTargetContextPriv.h"
+#include "GrDrawOpTest.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrXferProcessor.h"
@@ -327,7 +327,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        sk_sp<GrDrawOp> op(GrRandomDrawBatch(&random, context));
+        sk_sp<GrDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
@@ -363,7 +363,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            sk_sp<GrDrawOp> op(GrRandomDrawBatch(&random, context));
+            sk_sp<GrDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);

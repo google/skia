@@ -376,7 +376,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context,
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
+DRAW_OP_TEST_DEFINE(TextBlobOp) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = nullptr;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -419,19 +419,14 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
 
     // right now we don't handle textblobs, nor do we handle drawPosText.  Since we only
     // intend to test the batch with this unit test, that is okay.
-    sk_sp<GrAtlasTextBlob> blob(
-        GrAtlasTextContext::CreateDrawTextBlob(context->getTextBlobCache(),
-                                               context->getAtlasGlyphCache(),
-                                               *context->caps()->shaderCaps(), grPaint, skPaint,
-                                               GrAtlasTextContext::kTextBlobBatchScalerContextFlags,
-                                               viewMatrix,
-                                               gSurfaceProps, text,
-                                               static_cast<size_t>(textLen), x, y));
+    sk_sp<GrAtlasTextBlob> blob(GrAtlasTextContext::CreateDrawTextBlob(
+            context->getTextBlobCache(), context->getAtlasGlyphCache(),
+            *context->caps()->shaderCaps(), grPaint, skPaint,
+            GrAtlasTextContext::kTextBlobOpScalerContextFlags, viewMatrix, gSurfaceProps, text,
+            static_cast<size_t>(textLen), x, y));
 
-    return blob
-            ->test_makeOp(textLen, 0, 0, viewMatrix, x, y, color, skPaint, gSurfaceProps,
-                          gTextContext->dfAdjustTable(), context->getAtlasGlyphCache())
-            .release();
+    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, color, skPaint, gSurfaceProps,
+                             gTextContext->dfAdjustTable(), context->getAtlasGlyphCache());
 }
 
 #endif

@@ -7,11 +7,11 @@
 
 #include "GrAAHairLinePathRenderer.h"
 
-#include "GrBatchTest.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
@@ -972,14 +972,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAHairlineOp) {
+DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
-    return AAHairlineOp::Make(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds)
-            .release();
+    return AAHairlineOp::Make(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds);
 }
 
 #endif

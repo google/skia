@@ -7,9 +7,9 @@
 
 #include "GrDefaultPathRenderer.h"
 
-#include "GrBatchTest.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
@@ -618,7 +618,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(DefaultPathOp) {
+DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 
@@ -634,8 +634,7 @@ DRAW_BATCH_TEST_DEFINE(DefaultPathOp) {
 
     viewMatrix.mapRect(&bounds);
     uint8_t coverage = GrRandomCoverage(random);
-    return DefaultPathOp::Make(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds)
-            .release();
+    return DefaultPathOp::Make(color, path, srcSpaceTol, coverage, viewMatrix, true, bounds);
 }
 
 #endif

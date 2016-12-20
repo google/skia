@@ -386,23 +386,23 @@ sk_sp<GrDrawOp> MakeWithLocalRect(GrColor color,
 
 #ifdef GR_TEST_UTILS
 
-#include "GrBatchTest.h"
+#include "GrDrawOpTest.h"
 
-DRAW_BATCH_TEST_DEFINE(AAFillRectOp) {
+DRAW_OP_TEST_DEFINE(AAFillRectOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect devRect = GrTest::TestRect(random);
-    return GrAAFillRectOp::Make(color, viewMatrix, rect, devRect).release();
+    return GrAAFillRectOp::Make(color, viewMatrix, rect, devRect);
 }
 
-DRAW_BATCH_TEST_DEFINE(AAFillRectOpLocalMatrix) {
+DRAW_OP_TEST_DEFINE(AAFillRectOpLocalMatrix) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkMatrix localMatrix = GrTest::TestMatrix(random);
     SkRect rect = GrTest::TestRect(random);
     SkRect devRect = GrTest::TestRect(random);
-    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect).release();
+    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
 #endif

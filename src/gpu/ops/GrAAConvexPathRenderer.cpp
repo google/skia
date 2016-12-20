@@ -8,10 +8,10 @@
 #include "GrAAConvexPathRenderer.h"
 
 #include "GrAAConvexTessellator.h"
-#include "GrBatchTest.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
@@ -1007,12 +1007,12 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #ifdef GR_TEST_UTILS
 
-DRAW_BATCH_TEST_DEFINE(AAConvexPathOp) {
+DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
 
-    return AAConvexPathOp::Make(color, viewMatrix, path).release();
+    return AAConvexPathOp::Make(color, viewMatrix, path);
 }
 
 #endif
