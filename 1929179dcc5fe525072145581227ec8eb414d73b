@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_c3856af4",
+        "filename": "include/private/GrAuditTrail.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-20T21:14:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_98c0013b",
+      "revId": "1929179dcc5fe525072145581227ec8eb414d73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_f8a25d90",
         "filename": "src/gpu/GrAuditTrail.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-20T21:10:30Z",
       "side": 1,
       "message": "I assume that the Batch references in the json are linked to the parsing logic in skiaserve?",
+      "revId": "1929179dcc5fe525072145581227ec8eb414d73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_8391b234",
+        "filename": "src/gpu/GrAuditTrail.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-20T21:14:48Z",
+      "side": 1,
+      "message": "Yes, working on that now as a follow on CL.",
+      "parentUuid": "9765aef7_f8a25d90",
       "revId": "1929179dcc5fe525072145581227ec8eb414d73b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
