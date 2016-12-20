@@ -239,7 +239,14 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     canvas.clear(0x00000000);
     canvas.drawText(str, strlen(str), SkIntToScalar(x), SkIntToScalar(y), paint);
 
-    return bitmap;
+    // Copy the pixels (without doing any color space conversion) to an sRGB bitmap, so that
+    // color-space aware configs will process this correctly (but legacy configs will render
+    // just like they did when we returned N32).
+    SkBitmap result;
+    result.allocPixels(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
+    memcpy(result.getPixels(), bitmap.getPixels(), result.getSize());
+
+    return result;
 }
 
 void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
