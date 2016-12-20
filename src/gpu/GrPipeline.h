@@ -31,17 +31,29 @@ class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetContext;
 
-struct GrBatchToXPOverrides {
-    GrBatchToXPOverrides()
-    : fUsePLSDstRead(false) {}
+class GrPipelineAnalysisDrawOpInput {
+public:
+    GrPipelineAnalysisDrawOpInput(GrPipelineInput* color,
+                                  GrPipelineInput* coverage) : fColorInput(color), fCoverageInput(coverage) {}
+    GrPipelineInput* pipelineColorInput() { return fColorInput; }
+    GrPipelineInput* pipelineCoverageInput() { return fCoverageInput; }
 
-    bool fUsePLSDstRead;
+    void setUsesPLSDstRead() { fUsesPLSDstRead = true; }
+
+    bool usesPLSDstRead() const { return fUsesPLSDstRead; }
+
+private:
+    GrPipelineInput* fColorInput;
+    GrPipelineInput* fCoverageInput;
+    bool fUsesPLSDstRead = false;
 };
 
-struct GrPipelineOptimizations {
+
+/** Used to track pipeline analysis through the color and coverage fragment processors */
+struct GrPipelineAnalysis {
     GrProcOptInfo fColorPOI;
     GrProcOptInfo fCoveragePOI;
-    GrBatchToXPOverrides fOverrides;
+    bool fUsesPLSDstRead;
 };
 
 /**
@@ -57,7 +69,7 @@ public:
         const GrPipelineBuilder*    fPipelineBuilder;
         GrRenderTargetContext*      fRenderTargetContext;
         const GrCaps*               fCaps;
-        GrPipelineOptimizations     fOpts;
+        GrPipelineAnalysis          fAnalysis;
         const GrScissorState*       fScissor;
         const GrWindowRectsState*   fWindowRectsState;
         bool                        fHasStencilClip;
@@ -65,7 +77,7 @@ public:
     };
 
     /** Creates a pipeline into a pre-allocated buffer */
-    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrXPOverridesForBatch*);
+    static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineAnalysisResult*);
 
     /// @}
 

@@ -152,7 +152,7 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis& optimizations,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
@@ -248,7 +248,7 @@ void ArithmeticXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKe
 GrGLSLXferProcessor* ArithmeticXP::createGLSLInstance() const { return new GLArithmeticXP(*this); }
 
 GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(
-                                                       const GrPipelineOptimizations& optimizations,
+                                                       const GrPipelineAnalysis& optimizations,
                                                        bool doesStencilWrite,
                                                        GrColor* overrideColor,
                                                        const GrCaps& caps) const {
@@ -265,7 +265,7 @@ GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float
 
 GrXferProcessor*
 GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations,
+                                             const GrPipelineAnalysis& optimizations,
                                              bool hasMixedSamples,
                                              const DstTexture* dstTexture) const {
     return new ArithmeticXP(dstTexture, hasMixedSamples, fK1, fK2, fK3, fK4, fEnforcePMColor);

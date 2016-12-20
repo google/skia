@@ -334,21 +334,19 @@ void InstancedRendering::Op::appendParamsTexel(SkScalar x, SkScalar y, SkScalar 
     fInfo.fHasParams = true;
 }
 
-void InstancedRendering::Op::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                          GrInitInvariantOutput* coverage,
-                                                          GrBatchToXPOverrides* overrides) const {
-    color->setKnownFourComponents(this->getSingleInstance().fColor);
+void InstancedRendering::Op::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
+    input->pipelineColorInput()->setKnownFourComponents(this->getSingleInstance().fColor);
 
     if (AntialiasMode::kCoverage == fInfo.fAntialiasMode ||
         (AntialiasMode::kNone == fInfo.fAntialiasMode &&
          !fInfo.isSimpleRects() && fInfo.fCannotDiscard)) {
-        coverage->setUnknownSingleComponent();
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
     } else {
-        coverage->setKnownSingleComponent(255);
+        input->pipelineCoverageInput()->setKnownSingleComponent(255);
     }
 }
 
-void InstancedRendering::Op::initBatchTracker(const GrXPOverridesForBatch& overrides) {
+void InstancedRendering::Op::applyPipelineAnalysis(const GrPipelineAnalysisResult &analysis) {
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());
     SkASSERT(SkIsPow2(fInfo.fShapeTypes));
@@ -370,12 +368,12 @@ void InstancedRendering::Op::initBatchTracker(const GrXPOverridesForBatch& overr
     }
 
     GrColor overrideColor;
-    if (overrides.getOverrideColorIfSet(&overrideColor)) {
+    if (analysis.getOverrideColorIfSet(&overrideColor)) {
         SkASSERT(State::kRecordingDraws == fInstancedRendering->fState);
         this->getSingleInstance().fColor = overrideColor;
     }
-    fInfo.fUsesLocalCoords = overrides.readsLocalCoords();
-    fInfo.fCannotTweakAlphaForCoverage = !overrides.canTweakAlphaForCoverage();
+    fInfo.fUsesLocalCoords = analysis.readsLocalCoords();
+    fInfo.fCannotTweakAlphaForCoverage = !analysis.canTweakAlphaForCoverage();
 
     fInstancedRendering->fTrackedOps.addToTail(this);
     fIsTracked = true;
@@ -475,7 +473,7 @@ void InstancedRendering::Op::onDraw(GrOpFlushState* state, const SkRect& bounds)
 }
 
 void InstancedRendering::endFlush() {
-    // The caller is expected to delete all tracked ops (i.e. ops whose initBatchTracker
+    // The caller is expected to delete all tracked ops (i.e. ops whose applyPipelineAnalysis
     // method has been called) before ending the flush.
     SkASSERT(fTrackedOps.isEmpty());
     fParams.reset();

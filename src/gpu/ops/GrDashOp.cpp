@@ -276,13 +276,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     DashOp(const LineData& geometry, GrColor color, SkPaint::Cap cap, AAMode aaMode, bool fullDash)
             : INHERITED(ClassID()), fColor(color), fCap(cap), fAAMode(aaMode), fFullDash(fullDash) {
@@ -304,15 +297,20 @@ private:
         this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        // Handle any color analysis
+        if (!analysis.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
+        analysis.getOverrideColorIfSet(&fColor);
 
-        fUsesLocalCoords = overrides.readsLocalCoords();
-        fCoverageIgnored = !overrides.readsCoverage();
+        fUsesLocalCoords = analysis.readsLocalCoords();
+        fCoverageIgnored = !analysis.readsCoverage();
     }
 
     struct DashDraw {

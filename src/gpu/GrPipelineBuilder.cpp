@@ -43,7 +43,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
 //////////////////////////////////////////////////////////////////////////////s
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations) const {
+                                             const GrPipelineAnalysis& optimizations) const {
     if (this->getXPFactory()) {
         return this->getXPFactory()->willNeedDstTexture(caps, optimizations);
     }

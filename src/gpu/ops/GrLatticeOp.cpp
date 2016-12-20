@@ -62,14 +62,17 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setUnknownFourComponents();
-        coverage->setKnownSingleComponent(0xff);
+private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
     }
 
-private:
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        analysis.getOverrideColorIfSet(&fPatches[0].fColor);
+        fOverrides = analysis;
+    }
+
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp(create_gp(fOverrides.readsCoverage()));
         if (!gp) {
@@ -135,11 +138,6 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fPatches[0].fColor);
-        fOverrides = overrides;
-    }
-
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -168,7 +166,7 @@ private:
         GrColor fColor;
     };
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineAnalysisResult fOverrides;
     int fImageWidth;
     int fImageHeight;
     SkSTArray<1, Patch, true> fPatches;

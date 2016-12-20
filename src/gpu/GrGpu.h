@@ -19,7 +19,6 @@
 #include "SkTArray.h"
 #include <map>
 
-class GrBatchTracker;
 class GrBuffer;
 class GrContext;
 struct GrContextOptions;

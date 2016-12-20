@@ -15,21 +15,24 @@ GrDrawOp::~GrDrawOp() {
     }
 }
 
-void GrDrawOp::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
-    GrInitInvariantOutput color;
-    GrInitInvariantOutput coverage;
-    this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
-    opt->fColorPOI.initUsingInvariantOutput(color);
-    opt->fCoveragePOI.initUsingInvariantOutput(coverage);
+// CAll this in install pipeline directly?
+void GrDrawOp::initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
+    GrPipelineInput color;
+    GrPipelineInput coverage;
+    GrPipelineAnalysisDrawOpInput input(&color, &coverage);
+    this->getPipelineAnalysisInput(&input);
+    analysis->fColorPOI.initUsingInvariantOutput(color);
+    analysis->fCoveragePOI.initUsingInvariantOutput(coverage);
+    analysis->fUsesPLSDstRead = input.usesPLSDstRead();
 }
 
 bool GrDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
-    GrXPOverridesForBatch overrides;
+    GrPipelineAnalysisResult analysis;
     void* location = fPipelineStorage.get();
-    if (!GrPipeline::CreateAt(location, args, &overrides)) {
+    if (!GrPipeline::CreateAt(location, args, &analysis)) {
         return false;
     }
     fPipelineInstalled = true;
-    this->initBatchTracker(overrides);
+    this->applyPipelineAnalysis(analysis);
     return true;
 }

@@ -179,21 +179,18 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
+private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
     }
 
-private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void applyPipelineAnalysis(const GrPipelineAnalysisResult& analysis) override {
+        if (!analysis.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
-        fPipelineInfo = overrides;
+        analysis.getOverrideColorIfSet(&fColor);
+        fPipelineInfo = analysis;
     }
 
     SkPath getPath() const {
@@ -349,7 +346,7 @@ private:
     SkMatrix                fViewMatrix;
     SkIRect                 fDevClipBounds;
     bool                    fAntiAlias;
-    GrXPOverridesForBatch   fPipelineInfo;
+    GrPipelineAnalysisResult   fPipelineInfo;
 
     typedef GrMeshDrawOp INHERITED;
 };
