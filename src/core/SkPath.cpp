@@ -2053,7 +2053,62 @@ size_t SkPath::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
-size_t SkPath::readFromMemory(const void* storage, size_t length) {
+#include "SkReadBuffer.h"
+
+sk_sp<SkPath> SkPath::MakeFromBuffer(SkReadBuffer& reader) {
+
+    int32_t packed = reader.readInt();
+    if (!reader.isValid()) {
+        return nullptr;
+    }
+
+    sk_sp<SkPath> result = sk_make_sp<SkPath>();
+
+    unsigned version = packed & 0xFF;
+    if (version >= kPathPrivLastMoveToIndex_Version) {
+        result->fLastMoveToIndex = reader.readInt();
+        if (!reader.isValid()) {
+            return nullptr;
+        }
+    }
+
+    result->fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
+    result->fFillType = (packed >> kFillType_SerializationShift) & 0x3;
+    Direction dir = (Direction)((packed >> kDirection_SerializationShift) & 0x3);
+    result->fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
+
+    sk_sp<SkPathRef> pathRef(SkPathRef::MakeFromBuffer(reader));
+    if (!pathRef) {
+        return nullptr;
+    }
+
+    result->fPathRef = pathRef;
+    SkDEBUGCODE(result->validate();)
+    //reader.skip
+
+    // compatibility check
+    if (version < kPathPrivFirstDirection_Version) {
+        switch (dir) {  // old values
+            case 0:
+                result->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                break;
+            case 1:
+                result->fFirstDirection = SkPathPriv::kCW_FirstDirection;
+                break;
+            case 2:
+                result->fFirstDirection = SkPathPriv::kCCW_FirstDirection;
+                break;
+            default:
+                SkASSERT(false);
+        }
+    } else {
+        result->fFirstDirection = dir;
+    }
+
+    return result;
+}
+
+size_t SkPath::readFromMemory1(const void* storage, size_t length) {
     SkRBufferWithSizeCheck buffer(storage, length);
 
     int32_t packed;
@@ -2070,7 +2125,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     fFillType = (packed >> kFillType_SerializationShift) & 0x3;
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
-    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
+    SkPathRef* pathRef = SkPathRef::CreateFromBuffer1(&buffer);
     if (!pathRef) {
         return 0;
     }

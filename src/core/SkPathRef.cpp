@@ -186,7 +186,12 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
     SkDEBUGCODE((*dst)->validate();)
 }
 
-SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
+sk_sp<SkPathRef> SkPathRef::MakeFromBuffer(SkReadBuffer& reader) {
+
+    return nullptr;
+}
+
+SkPathRef* SkPathRef::CreateFromBuffer1(SkRBuffer* buffer) {
     SkPathRef* ref = new SkPathRef;
 
     int32_t packed;

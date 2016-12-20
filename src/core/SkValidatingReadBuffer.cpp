@@ -172,14 +172,17 @@ void SkValidatingReadBuffer::readRegion(SkRegion* region) {
 }
 
 void SkValidatingReadBuffer::readPath(SkPath* path) {
+#if 1
     size_t size = 0;
     if (!fError) {
-        size = path->readFromMemory(fReader.peek(), fReader.available());
+        size = path->readFromMemory1(fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
         (void)this->skip(size);
     }
+#endif
+    
 }
 
 bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
