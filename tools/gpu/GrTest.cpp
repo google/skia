@@ -16,8 +16,8 @@
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 
-#include "SkGpuDevice.h"
 #include "SkGrPriv.h"
+#include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
 
@@ -138,31 +138,15 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-GrTexture* GrContext::getFontAtlasTexture(GrMaskFormat format) {
+sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
     GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
-    return cache->getTexture(format);
+    GrTexture* tex = cache->getTexture(format);
+    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+                                         kNeedNewImageUniqueID, kPremul_SkAlphaType,
+                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+    return image;
 }
-
-void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& paint) {
-    GrPaint grPaint;
-    SkMatrix mat;
-    mat.reset();
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), paint, mat, &grPaint)) {
-        return;
-    }
-    SkMatrix textureMat;
-    textureMat.reset();
-    textureMat[SkMatrix::kMScaleX] = 1.0f/dst.width();
-    textureMat[SkMatrix::kMScaleY] = 1.0f/dst.height();
-    textureMat[SkMatrix::kMTransX] = -dst.fLeft/dst.width();
-    textureMat[SkMatrix::kMTransY] = -dst.fTop/dst.height();
-
-    grPaint.addColorTextureProcessor(tex, nullptr, textureMat);
-
-    fRenderTargetContext->drawRect(GrNoClip(), grPaint, GrAA::kNo, mat, dst);
-}
-
 
 #if GR_GPU_STATS
 void GrGpu::Stats::dump(SkString* out) {
