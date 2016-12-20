@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_bd6737ff",
+        "filename": "tools/sk_tool_utils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-20T15:51:15Z",
+      "side": 1,
+      "message": "As a Skia user, I think I\u0027m going to try to avoid the copy, writing something like\n\n  SkBitmap result;\n  result.setInfo(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));\n  result.setPixelRef(sk_ref_sp(bitmap.pixelRef());\n  return result;\n\nDoes that work?  Does it make sense?",
+      "revId": "91271c484c40077f76764272eff5be0fa9cb5192",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
