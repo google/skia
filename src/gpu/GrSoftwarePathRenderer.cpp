@@ -32,6 +32,14 @@ static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix&
     }
     SkRect shapeDevBounds;
     matrix.mapRect(&shapeDevBounds, shapeBounds);
+    // Even though these are "unclipped" bounds we still clip to the int32_t range.
+    // This is the largest int32_t that is representable exactly as a float. The next 63 larger ints
+    // would round down to this value when cast to a float, but who really cares.
+    // INT32_MIN is exactly representable.
+    static constexpr int32_t kMaxInt = 2147483520;
+    if (!shapeDevBounds.intersect(SkRect::MakeLTRB(INT32_MIN, INT32_MIN, kMaxInt, kMaxInt))) {
+        return false;
+    }
     shapeDevBounds.roundOut(devBounds);
     return true;
 }
