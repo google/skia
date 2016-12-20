@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_1df40363",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-20T14:34:43Z",
+      "side": 1,
+      "message": "I was going to comment on the magic numbers in the middle of the code. This is much better (named, commented constants for the bytesarrays).",
+      "revId": "18e9962a9904f16b3f8c2a0181316e3e586f037f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
