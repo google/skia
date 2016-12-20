@@ -317,8 +317,8 @@ private:
         scaledBounds.fBottom *= scale;
         // subtract out integer portion of origin
         // (SDF created will be placed with fractional offset burnt in)
-        SkScalar dx = SkScalarFloorToInt(scaledBounds.fLeft);
-        SkScalar dy = SkScalarFloorToInt(scaledBounds.fTop);
+        SkScalar dx = SkScalarFloorToScalar(scaledBounds.fLeft);
+        SkScalar dy = SkScalarFloorToScalar(scaledBounds.fTop);
         scaledBounds.offset(-dx, -dy);
         // get integer boundary
         SkIRect devPathBounds;
