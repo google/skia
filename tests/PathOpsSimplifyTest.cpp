@@ -7680,7 +7680,7 @@ testSimplify(reporter, path, filename);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = joel_9;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {

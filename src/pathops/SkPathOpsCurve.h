@@ -87,6 +87,7 @@ public:
     bool isCurve() const { return fIsCurve; }
     bool isOrdered() const { return fOrdered; }
     void setCurveHullSweep(SkPath::Verb verb);
+    bool sweepsCCW() const {  return fSweep[0].crossCheck(fSweep[1]) < 0; }
 
     SkDCurve fCurve;
     SkDVector fSweep[2];
