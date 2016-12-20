@@ -14,14 +14,18 @@
 
 class SkDocument_XPS : public SkDocument {
 public:
-    SkDocument_XPS(SkWStream* stream,
-                   void (*doneProc)(SkWStream*, bool),
-                   SkScalar dpi)
-        : SkDocument(stream, doneProc) {
-        const SkScalar kPointsPerMeter = SkDoubleToScalar(360000.0 / 127.0);
-        fUnitsPerMeter.set(kPointsPerMeter, kPointsPerMeter);
-        SkScalar pixelsPerMeterScale = SkDoubleToScalar(dpi * 5000.0 / 127.0);
+    SkDocument_XPS(SkWStream* stream, SkDocument::XPSParameters args)
+        : SkDocument(stream, nullptr), fDevice(args.fFactory)
+    {
+        constexpr double kInchesPerMeter = 10000.0 / 254.0;
+
+        SkScalar pointsPerMeter = SkDoubleToScalar(72.0 * kInchesPerMeter);
+        fUnitsPerMeter.set(pointsPerMeter, pointsPerMeter);
+
+        SkScalar pixelsPerMeterScale =
+                SkDoubleToScalar(args.fRasterPixelsPerInch * kInchesPerMeter);
         fPixelsPerMeter.set(pixelsPerMeterScale, pixelsPerMeterScale);
+
         fDevice.beginPortfolio(stream);
     }
 
@@ -65,18 +69,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream, SkScalar dpi) {
-    return stream ? sk_make_sp<SkDocument_XPS>(stream, nullptr, dpi) : nullptr;
-}
-
-static void delete_wstream(SkWStream* stream, bool aborted) { delete stream; }
-
-sk_sp<SkDocument> SkDocument::MakeXPS(const char path[], SkScalar dpi) {
-    std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
-    if (!stream->isValid()) {
+sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* dst, SkDocument::XPSParameters args) {
+    if (!dst || !args.fFactory || args.fRasterPixelsPerInch <= 0.0f) {
         return nullptr;
     }
-    return sk_make_sp<SkDocument_XPS>(stream.release(), delete_wstream, dpi);
+    return sk_make_sp<SkDocument_XPS>(dst, std::move(args));
 }
 
 #endif//defined(SK_BUILD_FOR_WIN32)

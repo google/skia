@@ -52,7 +52,7 @@ public:
      *         for larger PDF files too, which would use more memory
      *         while rendering, and it would be slower to be processed
      *         or sent online or to printer.  A good choice is
-     *         SK_ScalarDefaultRasterDPI(72.0f).
+     *         SkDocument::kDefaultRasterPixelsPerInch (72.0f).
      *  @param SkPDFDocument.  A non-null pointer back to the
      *         document.  The document is repsonsible for
      *         de-duplicating across pages (via the SkPDFCanon) and
