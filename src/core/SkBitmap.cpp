@@ -951,6 +951,10 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     SkImageInfo info;
     info.unflatten(*buffer);
 
+    if (info.width() < 0 || info.height() < 0) {
+        return false;
+    }
+
     // If there was an error reading "info" or if it is bogus,
     // don't use it to compute minRowBytes()
     if (!buffer->validate(SkColorTypeValidateAlphaType(info.colorType(),
