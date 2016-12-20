@@ -138,10 +138,16 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-GrTexture* GrContext::getFontAtlasTexture(GrMaskFormat format) {
+#include "SkImage_Gpu.h"
+
+sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
     GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
-    return cache->getTexture(format);
+    GrTexture* tex = cache->getTexture(format);
+    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+                                         kNeedNewImageUniqueID, kPremul_SkAlphaType,
+                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+    return image;
 }
 
 void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& paint) {
