@@ -167,19 +167,16 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one rect.
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
     }
 
 private:
     AAStrokeRectOp() : INHERITED(ClassID()) {}
 
     void onPrepareDraws(Target*) const override;
-    void initBatchTracker(const GrXPOverridesForBatch&) override;
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -239,19 +236,18 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
-    // Handle any color overrides
-    if (!overrides.readsColor()) {
+void AAStrokeRectOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+    if (!optimizations.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+    optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
 
     // setup batch properties
-    fBatch.fColorIgnored = !overrides.readsColor();
+    fBatch.fColorIgnored = !optimizations.readsColor();
     fBatch.fColor = fGeoData[0].fColor;
-    fBatch.fUsesLocalCoords = overrides.readsLocalCoords();
-    fBatch.fCoverageIgnored = !overrides.readsCoverage();
-    fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+    fBatch.fUsesLocalCoords = optimizations.readsLocalCoords();
+    fBatch.fCoverageIgnored = !optimizations.readsCoverage();
+    fBatch.fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
 }
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) const {

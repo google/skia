@@ -134,16 +134,6 @@ protected:
     protected:
         Op(uint32_t classID, InstancedRendering* ir);
 
-        void initBatchTracker(const GrXPOverridesForBatch&) override;
-        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
-
-        void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                          GrInitInvariantOutput* coverage,
-                                          GrBatchToXPOverrides*) const override;
-
-        void onPrepare(GrOpFlushState*) override {}
-        void onDraw(GrOpFlushState*, const SkRect& bounds) override;
-
         InstancedRendering* const fInstancedRendering;
         OpInfo fInfo;
         SkScalar fPixelLoad;
@@ -153,6 +143,13 @@ protected:
         int fNumChangesInGeometry;
         Draw* fHeadDraw;
         Draw* fTailDraw;
+
+    private:
+        void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
+        void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
+        void onPrepare(GrOpFlushState*) override {}
+        void onDraw(GrOpFlushState*, const SkRect& bounds) override;
 
         typedef GrDrawOp INHERITED;
 

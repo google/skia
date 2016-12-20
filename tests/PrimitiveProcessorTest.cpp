@@ -30,14 +30,6 @@ public:
     DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "Dummy Batch"; }
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setUnknownFourComponents();
-        coverage->setUnknownSingleComponent();
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {}
 
     Batch(int numAttribs)
         : INHERITED(ClassID())
@@ -46,6 +38,12 @@ public:
     }
 
 private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override {}
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {

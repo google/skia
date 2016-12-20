@@ -127,25 +127,22 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fRects[0].fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fRects[0].fColor);
-        fOverrides = overrides;
-    }
-
 private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fRects[0].fColor);
+        fOptimizations = optimizations;
+    }
+
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
-                                                      fOverrides.readsCoverage(),
+                                                      fOptimizations.readsCoverage(),
                                                       fHasLocalRect,
                                                       fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {
@@ -205,8 +202,9 @@ private:
 
         // In the event of two batches, one who can tweak, one who cannot, we just fall back to
         // not tweaking
-        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
-            fOverrides = that->fOverrides;
+        if (fOptimizations.canTweakAlphaForCoverage() &&
+            !that->fOptimizations.canTweakAlphaForCoverage()) {
+            fOptimizations = that->fOptimizations;
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
@@ -220,7 +218,7 @@ private:
         SkRect fLocalRect;
     };
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
     SkSTArray<1, RectInfo, true> fRects;
     bool fHasLocalMatrix;
     bool fHasLocalRect;

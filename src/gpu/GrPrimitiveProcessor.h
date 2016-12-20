@@ -25,21 +25,9 @@
  * might be useful for correctness / optimization decisions.  The GrPrimitiveProcessor seeds these
  * loops, one with initial color and one with initial coverage, in its
  * onComputeInvariantColor / Coverage calls.  These seed values are processed by the subsequent
- * stages of the rendering pipeline and the output is then fed back into the GrPrimitiveProcessor in
- * the initBatchTracker call, where the GrPrimitiveProcessor can then initialize the GrBatchTracker
- * struct with the appropriate values.
- *
- * We are evolving this system to move towards generating geometric meshes and their associated
- * vertex data after we have batched and reordered draws.  This system, known as 'deferred geometry'
- * will allow the GrPrimitiveProcessor much greater control over how data is transmitted to shaders.
- *
- * In a deferred geometry world, the GrPrimitiveProcessor can always 'batch'  To do this, each
- * primitive type is associated with one GrPrimitiveProcessor, who has complete control of how
- * it draws.  Each primitive draw will bundle all required data to perform the draw, and these
- * bundles of data will be owned by an instance of the associated GrPrimitiveProcessor.  Bundles
- * can be updated alongside the GrBatchTracker struct itself, ultimately allowing the
- * GrPrimitiveProcessor complete control of how it gets data into the fragment shader as long as
- * it emits the appropriate color, or none at all, as directed.
+ * stages of the rendering pipeline and the output is then fed back into the GrDrawOp in
+ * the applyPipelineOptimizations call, where the op can use the information to inform decisions
+ * about GrPrimitiveProcessor creation.
  */
 
 class GrGLSLPrimitiveProcessor;
@@ -57,15 +45,16 @@ enum GrPixelLocalStorageState {
 };
 
 /*
- * This class allows the GrPipeline to communicate information about the pipeline to a
- * GrOp which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
- * These are not properly part of the pipeline because they assume the specific inputs
- * that the batch provided when it created the pipeline. Identical pipelines may be
- * created by different batches with different input assumptions and therefore different
- * computed optimizations. It is the batch-specific optimizations that allow the pipelines
- * to be equal.
+ * This class allows the GrPipeline to communicate information about the pipeline to a GrOp which
+ * inform its decisions for GrPrimitiveProcessor setup. These are not properly part of the pipeline
+ * because they reflect the specific inputs that the op provided to perform the analysis (e.g. that
+ * the GrGeometryProcessor would output an opaque color).
+ *
+ * The pipeline analysis that produced this may have decided to elide some GrProcessors. However,
+ * those elisions may depend upon changing the color output by the GrGeometryProcessor used by the
+ * GrDrawOp. The op must check getOverrideColorIfSet() for this.
  */
-class GrXPOverridesForBatch {
+class GrPipelineOptimizations {
 public:
     /** Does the pipeline require the GrPrimitiveProcessor's color? */
     bool readsColor() const { return SkToBool(kReadsColor_Flag & fFlags); }
@@ -104,7 +93,7 @@ public:
      * can conflate coverage and color, so the destination color may still bleed into pixels that
      * have partial coverage, even if this function returns false.
      *
-     * The above comment seems incorrect for the use case. This funciton is used to turn two
+     * The above comment seems incorrect for the use case. This function is used to turn two
      * overlapping draws into a single draw (really to stencil multiple paths and do a single
      * cover). It seems that what really matters is whether the dst is read for color OR for
      * coverage.
