@@ -10,12 +10,12 @@
 
 #include "GrColor.h"
 
-struct GrInitInvariantOutput {
-    GrInitInvariantOutput()
-        : fValidFlags(kNone_GrColorComponentFlags)
-        , fColor(0)
-        , fIsSingleComponent(false)
-        , fIsLCDCoverage(false) {}
+struct GrPipelineInput {
+    GrPipelineInput()
+            : fValidFlags(kNone_GrColorComponentFlags)
+            , fColor(0)
+            , fIsSingleComponent(false)
+            , fIsLCDCoverage(false) {}
 
     void setKnownFourComponents(GrColor color) {
         fColor = color;
@@ -64,13 +64,13 @@ public:
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
 
-    GrInvariantOutput(const GrInitInvariantOutput& io)
-        : fColor(io.fColor)
-        , fValidFlags(io.fValidFlags)
-        , fIsSingleComponent(io.fIsSingleComponent)
-        , fNonMulStageFound(false)
-        , fWillUseInputColor(false)
-        , fIsLCDCoverage(io.fIsLCDCoverage) {}
+    GrInvariantOutput(const GrPipelineInput& io)
+            : fColor(io.fColor)
+            , fValidFlags(io.fValidFlags)
+            , fIsSingleComponent(io.fIsSingleComponent)
+            , fNonMulStageFound(false)
+            , fWillUseInputColor(false)
+            , fIsLCDCoverage(io.fIsLCDCoverage) {}
 
     virtual ~GrInvariantOutput() {}
 
@@ -282,7 +282,7 @@ private:
         fWillUseInputColor = true;
     }
 
-    void reset(const GrInitInvariantOutput& io) {
+    void reset(const GrPipelineInput& io) {
         fColor = io.fColor;
         fValidFlags = io.fValidFlags;
         fIsSingleComponent = io.fIsSingleComponent;

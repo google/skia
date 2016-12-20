@@ -31,7 +31,7 @@ void GrDrawPathOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     GrProgramDesc desc;
 
     sk_sp<GrPathProcessor> pathProc(
-            GrPathProcessor::Create(this->color(), this->overrides(), this->viewMatrix()));
+            GrPathProcessor::Create(this->color(), this->optimizations(), this->viewMatrix()));
     state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
                                             this->stencilPassSettings(), fPath.get());
 }
@@ -100,10 +100,10 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     // combined. (Glyphs in the same font tend to wind the same direction so it works out OK.)
     if (GrPathRendering::kWinding_FillType != this->fillType() ||
         GrPathRendering::kWinding_FillType != that->fillType() ||
-        this->overrides().willColorBlendWithDst()) {
+        this->optimizations().willColorBlendWithDst()) {
         return false;
     }
-    SkASSERT(!that->overrides().willColorBlendWithDst());
+    SkASSERT(!that->optimizations().willColorBlendWithDst());
     fTotalPathCount += that->fTotalPathCount;
     while (Draw* head = that->fDraws.head()) {
         Draw* draw = fDraws.addToTail();
@@ -128,7 +128,7 @@ void GrDrawPathRangeOp::onDraw(GrOpFlushState* state, const SkRect& bounds) {
     localMatrix.preTranslate(head.fX, head.fY);
 
     sk_sp<GrPathProcessor> pathProc(
-            GrPathProcessor::Create(this->color(), this->overrides(), drawMatrix, localMatrix));
+            GrPathProcessor::Create(this->color(), this->optimizations(), drawMatrix, localMatrix));
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;
