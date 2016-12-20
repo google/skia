@@ -7,20 +7,19 @@
 
 #include "UrlHandler.h"
 
-#include "microhttpd.h"
 #include "../Request.h"
 #include "../Response.h"
+#include "microhttpd.h"
 
 using namespace Response;
 
-bool BatchesHandler::canHandle(const char* method, const char* url) {
+bool OpsHandler::canHandle(const char* method, const char* url) {
     const char* kBasePath = "/batches";
     return 0 == strncmp(url, kBasePath, strlen(kBasePath));
 }
 
-int BatchesHandler::handle(Request* request, MHD_Connection* connection,
-                           const char* url, const char* method,
-                           const char* upload_data, size_t* upload_data_size) {
+int OpsHandler::handle(Request* request, MHD_Connection* connection, const char* url,
+                       const char* method, const char* upload_data, size_t* upload_data_size) {
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
@@ -32,7 +31,7 @@ int BatchesHandler::handle(Request* request, MHD_Connection* connection,
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
         int n = request->getLastOp();
 
-        sk_sp<SkData> data(request->getJsonBatchList(n));
+        sk_sp<SkData> data(request->getJsonOpList(n));
         return SendData(connection, data.get(), "application/json");
     }
 
