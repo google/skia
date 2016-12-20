@@ -10,6 +10,7 @@ import("opts.gni")
 import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
+import("xps.gni")
 
 skia_opts = {
   none_sources = none
