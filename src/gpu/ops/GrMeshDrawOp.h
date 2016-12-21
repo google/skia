@@ -64,7 +64,7 @@ protected:
 
 private:
     void onPrepare(GrOpFlushState* state) final;
-    void onDraw(GrOpFlushState* state, const SkRect& bounds) final;
+    void onExecute(GrOpFlushState* state, const SkRect& bounds) final;
 
     virtual void onPrepareDraws(Target*) const = 0;
 

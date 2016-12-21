@@ -201,7 +201,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
-        fRecordedOps[i].fOp->draw(flushState, fRecordedOps[i].fClippedBounds);
+        fRecordedOps[i].fOp->execute(flushState, fRecordedOps[i].fClippedBounds);
     }
     if (commandBuffer) {
         commandBuffer->end();

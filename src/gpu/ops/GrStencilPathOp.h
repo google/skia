@@ -69,7 +69,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onDraw(GrOpFlushState* state, const SkRect& bounds) override {
+    void onExecute(GrOpFlushState* state, const SkRect& bounds) override {
         GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix,
                                               &fScissor, &fStencil);
         state->gpu()->pathRendering()->stencilPath(args, fPath.get());

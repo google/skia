@@ -460,7 +460,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Op::onDraw(GrOpFlushState* state, const SkRect& bounds) {
+void InstancedRendering::Op::onExecute(GrOpFlushState* state, const SkRect& bounds) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
