@@ -13,8 +13,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "../private/GrGLSL.h"
 
-#define DS(x) SkDoubleToScalar(x)
-
 /*
  * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
  * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
@@ -30,14 +28,16 @@
  * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as their
  * favorite overall spline - this is now commonly known as the Mitchell filter, and is the source
  * of the specific weights below.
+ *
+ * These weights are in column-major order (ie this matrix is transposed from what you'd expect),
+ * so we can upload them directly via setMatrix4f.
  */
-const SkScalar GrBicubicEffect::gMitchellCoefficients[16] = {
-    DS( 1.0 / 18.0), DS(-9.0 / 18.0), DS( 15.0 / 18.0), DS( -7.0 / 18.0),
-    DS(16.0 / 18.0), DS( 0.0 / 18.0), DS(-36.0 / 18.0), DS( 21.0 / 18.0),
-    DS( 1.0 / 18.0), DS( 9.0 / 18.0), DS( 27.0 / 18.0), DS(-21.0 / 18.0),
-    DS( 0.0 / 18.0), DS( 0.0 / 18.0), DS( -6.0 / 18.0), DS(  7.0 / 18.0),
+static constexpr float kMitchellCoefficients[16] = {
+     1.0f / 18.0f,  16.0f / 18.0f,   1.0f / 18.0f,  0.0f / 18.0f,
+    -9.0f / 18.0f,   0.0f / 18.0f,   9.0f / 18.0f,  0.0f / 18.0f,
+    15.0f / 18.0f, -36.0f / 18.0f,  27.0f / 18.0f, -6.0f / 18.0f,
+    -7.0f / 18.0f,  21.0f / 18.0f, -21.0f / 18.0f,  7.0f / 18.0f,
 };
-
 
 class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
@@ -148,46 +148,31 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    pdman.setMatrix4f(fCoefficientsUni, bicubicEffect.coefficients());
+    pdman.setMatrix4f(fCoefficientsUni, kMitchellCoefficients);
     fDomain.setData(pdman, bicubicEffect.domain(), texture->origin());
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
         pdman.setSkMatrix44(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
     }
 }
 
-static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float dst[16],
-                                                                          const SkScalar src[16]) {
-    for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 4; x++) {
-            dst[x * 4 + y] = SkScalarToFloat(src[y * 4 + x]);
-        }
-    }
-}
-
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, nullptr, matrix,
+  : INHERITED(texture, std::move(colorSpaceXform), matrix,
               GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
-  , fDomain(GrTextureDomain::IgnoredDomain())
-  , fColorSpaceXform(std::move(colorSpaceXform)) {
+  , fDomain(GrTextureDomain::IgnoredDomain()) {
     this->initClassID<GrBicubicEffect>();
-    convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
                                  const SkRect& domain)
-  : INHERITED(texture, nullptr, matrix,
+  : INHERITED(texture, std::move(colorSpaceXform), matrix,
               GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-  , fDomain(domain, GrTextureDomain::kClamp_Mode)
-  , fColorSpaceXform(std::move(colorSpaceXform)) {
+  , fDomain(domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
-    convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
 GrBicubicEffect::~GrBicubicEffect() {
@@ -204,8 +189,7 @@ GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
-    return !memcmp(fCoefficients, s.coefficients(), 16) &&
-           fDomain == s.fDomain;
+    return fDomain == s.fDomain;
 }
 
 void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -218,12 +202,12 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
-    SkScalar coefficients[16];
-    for (int i = 0; i < 16; i++) {
-        coefficients[i] = d->fRandom->nextSScalar1();
-    }
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform, coefficients);
+    static const SkShader::TileMode kClampClamp[] =
+        { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+    return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform,
+                                 GrCoordTransform::MakeDivByTextureWHMatrix(d->fTextures[texIdx]),
+                                 kClampClamp);
 }
 
 //////////////////////////////////////////////////////////////////////////////
