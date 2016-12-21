@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_7511d3c8",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "SkFDot6 diffY \u003d SkFixedToFDot6(newy - fSnappedY);",
+      "range": {
+        "startLine": 97,
+        "startChar": 33,
+        "endLine": 97,
+        "endChar": 38
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_5516cfc2",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "SkFDot6 diffY \u003d SkFixedToFDot6(newy - fSnappedY);",
+      "range": {
+        "startLine": 106,
+        "startChar": 24,
+        "endLine": 106,
+        "endChar": 30
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_1520570f",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "SkFDot6 diffY \u003d SkFixedToFDot6(newSnappedY - fSnappedY);",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 64
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_d5299ffa",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "slope \u003d diffY ? QuickSkFDot6Div(SkFixedToFDot6(newx - fSnappedX), diffY) : SK_MaxS32;",
+      "range": {
+        "startLine": 110,
+        "startChar": 32,
+        "endLine": 110,
+        "endChar": 47
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_959b2702",
+        "filename": "src/core/SkScan.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "Seems like a fragile place to define this. I\u0027m also confused what the purpose of this is. If SK_SUPPORT_LEGACY_AAA is already defined, this leaves it alone. If it  isn\u0027t defined, it defines it. This appears to turn subsequent #ifdef SK_SUPPORT_LEGACY_AAA brackets into #if true since there\u0027s no way not to define it.\n\nSorry for the complicated comment, but I\u0027m suggesting the #ifndef serves no purpose. The #define part is OK.",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 33
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_f53dc3ed",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "int width \u003d SkFixedFloorToInt(rightClip - leftClip);",
+      "range": {
+        "startLine": 1429,
+        "startChar": 21,
+        "endLine": 1429,
+        "endChar": 41
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_d53abff3",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "blitter-\u003egetRealBlitter()-\u003eblitRect(SkFixedFloorToInt(leftClip), start_y,",
+      "range": {
+        "startLine": 1431,
+        "startChar": 12,
+        "endLine": 1431,
+        "endChar": 72
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_751b139a",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "blit_full_alpha(blitter, start_y, SkFixedFloorToInt(leftClip), width,",
+      "range": {
+        "startLine": 1437,
+        "startChar": 8,
+        "endLine": 1437,
+        "endChar": 87
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_f506e33f",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "still useful?",
+      "range": {
+        "startLine": 1443,
+        "startChar": 21,
+        "endLine": 1443,
+        "endChar": 23
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_d513df7b",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "initialization buried in variable decls",
+      "range": {
+        "startLine": 1452,
+        "startChar": 8,
+        "endLine": 1452,
+        "endChar": 17
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_f5ef033e",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-12-21T21:10:10Z",
+      "side": 1,
+      "message": "outdent",
+      "range": {
+        "startLine": 757,
+        "startChar": 11,
+        "endLine": 757,
+        "endChar": 32
+      },
+      "revId": "57f09882dbc5dcf19207ffd0ba474a378f7ad0c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
