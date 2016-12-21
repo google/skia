@@ -10,6 +10,7 @@
 
 #include "SkSize.h"
 #include "SkImageInfo.h"
+#include "SkImage.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
@@ -32,7 +33,9 @@ class SkStreamRewindable;
  *
  *  On failure, return false, and leave bitmap unchanged.
  */
-SK_API bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef src, SkISize* scaleToFit = NULL);
+SK_API bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef src);
+
+SK_API sk_sp<SkImage> SkMakeImageFromCGImage(CGImageRef);
 
 /**
  *  Copy the pixels from src into the memory specified by info/rowBytes/dstPixels. On failure,
