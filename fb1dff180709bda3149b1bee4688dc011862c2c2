@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_d2b775b4",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T15:42:55Z",
+      "side": 1,
+      "message": "This whole thing could use a rewrite. It\u0027s out of data and not very clear. I expect I\u0027ll be touching this as I defer pipeline creation.",
+      "range": {
+        "startLine": 16,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 39
+      },
+      "revId": "fb1dff180709bda3149b1bee4688dc011862c2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
