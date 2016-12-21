@@ -199,9 +199,10 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
 
     SkBitmap bm2;
     SkCreateBitmapFromCGImage(&bm2, image);
-    CGImageRelease(image);
-
     canvas->drawBitmap(bm2, 10, 120);
+    canvas->drawImage(SkMakeImageFromCGImage(image), 10, 120 + bm2.height() + 10);
+
+    CGImageRelease(image);
 }
 
 class CGImageGM : public skiagm::GM {
@@ -243,10 +244,7 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-
-#if 0 // Disabled pending fix from reed@
-DEF_GM( return new CGImageGM; )
-#endif
+//DEF_GM( return new CGImageGM; )
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
