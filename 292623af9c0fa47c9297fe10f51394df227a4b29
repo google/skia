@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_929b3d02",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-21T16:36:01Z",
+      "side": 1,
+      "message": "nit: \"op\" -\u003e \"ops\"",
+      "revId": "292623af9c0fa47c9297fe10f51394df227a4b29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
