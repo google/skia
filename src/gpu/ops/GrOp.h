@@ -120,12 +120,14 @@ public:
     }
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
-    /** Called prior to drawing. The op should perform any resource creation necessary to
-        to quickly issue its draw when draw is called. */
+    /**
+     * Called prior to executing. The op should perform any resource creation or data transfers
+     * necessary before execute() is called.
+     */
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
-    void draw(GrOpFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
+    void execute(GrOpFlushState* state, const SkRect& bounds) { this->onExecute(state, bounds); }
 
     /** Used to block combining across render target changes. Remove this once we store
         GrOps for different RTs in different targets. */
@@ -189,7 +191,7 @@ private:
     virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
 
     virtual void onPrepare(GrOpFlushState*) = 0;
-    virtual void onDraw(GrOpFlushState*, const SkRect& bounds) = 0;
+    virtual void onExecute(GrOpFlushState*, const SkRect& bounds) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // The atomic inc returns the old value not the incremented value. So we add
