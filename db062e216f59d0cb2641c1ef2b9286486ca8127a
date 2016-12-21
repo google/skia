@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_9e834926",
+        "filename": "include/gpu/GrInvariantOutput.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_a3315649",
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_83a09245",
         "filename": "include/gpu/GrXferProcessor.h",
         "patchSetId": 7
@@ -42,6 +60,24 @@
         "endLine": 230,
         "endChar": 3
       },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_7e79b56c",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_83a09245",
       "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_5e7ef156",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_a3ba7669",
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_83c9b215",
         "filename": "src/gpu/GrProcOptInfo.h",
         "patchSetId": 7
@@ -94,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_1e787965",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done, also renamed to initFromPipelineInput and inlined.",
+      "parentUuid": "9765aef7_83c9b215",
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_03ddc2c9",
         "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
         "patchSetId": 7
@@ -111,6 +183,42 @@
         "endLine": 167,
         "endChar": 62
       },
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_fe8c8559",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_03ddc2c9",
+      "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_be860d36",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T14:28:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_03ddc2c9",
       "revId": "db062e216f59d0cb2641c1ef2b9286486ca8127a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
