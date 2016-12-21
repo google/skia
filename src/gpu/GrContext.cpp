@@ -94,9 +94,9 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fDidTestPMConversions = false;
 
     GrRenderTargetOpList::Options rtOpListOptions;
-    rtOpListOptions.fClipBatchToBounds = options.fClipBatchToBounds;
-    rtOpListOptions.fMaxBatchLookback = options.fMaxBatchLookback;
-    rtOpListOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
+    rtOpListOptions.fClipDrawOpsToBounds = options.fClipDrawOpsToBounds;
+    rtOpListOptions.fMaxOpCombineLookback = options.fMaxOpCombineLookback;
+    rtOpListOptions.fMaxOpCombineLookahead = options.fMaxOpCombineLookahead;
     GrPathRendererChain::Options prcOptions;
     prcOptions.fDisableDistanceFieldRenderer = options.fDisableDistanceFieldPaths;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;

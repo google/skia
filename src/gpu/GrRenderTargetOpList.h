@@ -41,13 +41,9 @@ class GrRenderTargetOpList final : public GrOpList {
 public:
     /** Options for GrRenderTargetOpList behavior. */
     struct Options {
-        Options ()
-            : fClipBatchToBounds(false)
-            , fMaxBatchLookback(-1)
-            , fMaxBatchLookahead(-1) {}
-        bool fClipBatchToBounds;
-        int  fMaxBatchLookback;
-        int  fMaxBatchLookahead;
+        bool fClipDrawOpsToBounds = false;
+        int fMaxOpCombineLookback = -1;
+        int fMaxOpCombineLookahead = -1;
     };
 
     GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
@@ -150,7 +146,7 @@ private:
     // a texture copy could not be made.
     void setupDstTexture(GrRenderTarget*,
                          const GrClip&,
-                         const SkRect& drawOpBounds,
+                         const SkRect& opBounds,
                          GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.

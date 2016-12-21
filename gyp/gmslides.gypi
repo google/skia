@@ -22,7 +22,6 @@
         '<!@(python find.py "*.c*" ../gm)',
 
         # Files needed by particular GMs
-        '../src/gpu/batches/GrTestBatch.h',
         '../tools/debugger/SkDrawCommand.h',
         '../tools/debugger/SkDrawCommand.cpp',
         '../tools/debugger/SkDebugCanvas.h',

@@ -64,7 +64,6 @@ protected:
      * 1) LocalCoordTransform * Position - in Shader
      * 2) LocalCoordTransform * ExplicitLocalCoords- in Shader
      * 3) A transformation on the CPU uploaded via vertex attribute
-     * TODO make this GrBatches responsibility
      */
     enum LocalCoordsType {
         kUnused_LocalCoordsType,

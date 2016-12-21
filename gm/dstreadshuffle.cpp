@@ -156,8 +156,8 @@ protected:
                             SkPaint p;
                             p.setAntiAlias(true);
                             p.setColor(color);
-                            // In order to get some batching on the GPU backend we do 2 src over for
-                            // each xfer mode which requires a dst read
+                            // In order to get some op combining on the GPU backend we do 2 src over
+                            // for each xfer mode which requires a dst read
                             p.setBlendMode(r % 3 == 0 ? SkBlendMode::kLighten :
                                                         SkBlendMode::kSrcOver);
                             SetStyle(&p, style, width);
