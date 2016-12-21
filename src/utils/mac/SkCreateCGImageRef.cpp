@@ -212,9 +212,9 @@ SK_API bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, vo
     return true;
 }
 
-bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image, SkISize* scaleToFit) {
-    const int width = scaleToFit ? scaleToFit->width() : SkToInt(CGImageGetWidth(image));
-    const int height = scaleToFit ? scaleToFit->height() : SkToInt(CGImageGetHeight(image));
+bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image) {
+    const int width = SkToInt(CGImageGetWidth(image));
+    const int height = SkToInt(CGImageGetHeight(image));
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
     SkBitmap tmp;
@@ -243,6 +243,16 @@ bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image, SkISize* scaleTo
 
     *dst = tmp;
     return true;
+}
+
+sk_sp<SkImage> SkMakeImageFromCGImage(CGImageRef src) {
+    SkBitmap bm;
+    if (!SkCreateBitmapFromCGImage(&bm, src)) {
+        return nullptr;
+    }
+
+    bm.setImmutable();
+    return SkImage::MakeFromBitmap(bm);
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
