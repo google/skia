@@ -22,6 +22,24 @@
       "revId": "b6891050c3259ba56e8836e9729d4c1df7a2d415",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_5ef951a3",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-21T14:32:41Z",
+      "side": 1,
+      "message": "I came to realize that MakePDF() had too many parameters, and most clients only wanted to set one or two to non-default values.  This seemed the most future-proof way to structure MakeXPS().",
+      "parentUuid": "573c16f2_ebcffcba",
+      "revId": "b6891050c3259ba56e8836e9729d4c1df7a2d415",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
