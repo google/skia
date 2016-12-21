@@ -22,7 +22,7 @@ constexpr SkRect kSrcImageClip{75, 75, 275, 275};
  *
  * The test creates an image of a green square surrounded by red background, then draws this image
  * in various ways with the red clipped out. The test is successful if there is no visible red
- * background, scissor is never used, and ideally, all the rectangles draw in one batch.
+ * background, scissor is never used, and ideally, all the rectangles draw in one GrDrawOp.
  */
 class CroppedRectsGM : public GM {
 private:
@@ -95,7 +95,7 @@ private:
             canvas->drawPath(path, paint);
         }
 
-        // TODO: assert the draw target only has one batch in the post-MDB world.
+        // TODO: assert the draw target only has one op in the post-MDB world.
     }
 
     sk_sp<SkImage> fSrcImage;

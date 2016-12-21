@@ -1222,17 +1222,16 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
     , fThreaded(threaded) {}
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
-DEFINE_bool(batchClip, false, "Clip each GrOp to its device bounds for testing.");
-DEFINE_int32(batchLookback, -1, "Maximum GrOp lookback for combining, negative means default.");
-DEFINE_int32(batchLookahead, -1, "Maximum GrOp lookahead for combining, negative means "
-                                 "default.");
+DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
+DEFINE_int32(opLookback, -1, "Maximum GrOp lookback for combining, negative means default.");
+DEFINE_int32(opLookahead, -1, "Maximum GrOp lookahead for combining, negative means default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
     grOptions.fImmediateMode = FLAGS_imm;
-    grOptions.fClipBatchToBounds = FLAGS_batchClip;
-    grOptions.fMaxBatchLookback = FLAGS_batchLookback;
-    grOptions.fMaxBatchLookahead = FLAGS_batchLookahead;
+    grOptions.fClipDrawOpsToBounds = FLAGS_drawOpClip;
+    grOptions.fMaxOpCombineLookback = FLAGS_opLookback;
+    grOptions.fMaxOpCombineLookahead = FLAGS_opLookahead;
 
     src.modifyGrContextOptions(&grOptions);
 
