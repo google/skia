@@ -40,6 +40,24 @@
       "revId": "b6891050c3259ba56e8836e9729d4c1df7a2d415",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_be116d06",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-21T14:42:17Z",
+      "side": 1,
+      "message": "Hmmm, not really skia\u0027s pattern, plus the struct is on XPS, not PDF",
+      "parentUuid": "9765aef7_5ef951a3",
+      "revId": "b6891050c3259ba56e8836e9729d4c1df7a2d415",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
