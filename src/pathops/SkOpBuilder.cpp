@@ -92,6 +92,9 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
     SkPathWriter woundPath(empty);
     SkOpContour* test = &contourHead;
     do {
+        if (!test->count()) {
+            continue;
+        }
         if (test->reversed()) {
             test->toReversePath(&woundPath);
         } else {
