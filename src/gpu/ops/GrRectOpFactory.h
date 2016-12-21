@@ -23,7 +23,7 @@ struct SkRect;
 class SkStrokeRec;
 
 /**
- * A factory for returning batches which can draw rectangles.
+ * A factory for returning GrDrawOps which can draw rectangles.
  */
 namespace GrRectOpFactory {
 

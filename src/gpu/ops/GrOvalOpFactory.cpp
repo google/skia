@@ -69,7 +69,7 @@ static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarit
  * Additional clip planes are supported for rendering circular arcs. The additional planes are
  * either intersected or unioned together. Up to three planes are supported (an initial plane,
  * a plane intersected with the initial plane, and a plane unioned with the first two). Only two
- * are useful for any given arc, but having all three in one instance allows batching different
+ * are useful for any given arc, but having all three in one instance allows combining different
  * types of arcs.
  */
 
@@ -2275,8 +2275,8 @@ static sk_sp<GrDrawOp> make_rrect_op(GrColor color,
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
 
-    // RRect batchs only handle simple, but not too simple, rrects
-    // do any matrix crunching before we reset the draw state for device coords
+    // RRect ops only handle simple, but not too simple, rrects.
+    // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
     SkRect bounds;
     viewMatrix.mapRect(&bounds, rrectBounds);

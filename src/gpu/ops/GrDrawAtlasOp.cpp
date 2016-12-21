@@ -27,7 +27,6 @@ void GrDrawAtlasOp::applyPipelineOptimizations(const GrPipelineOptimizations& op
         }
     }
 
-    // setup batch properties
     fColorIgnored = !optimizations.readsColor();
     fColor = fGeoData[0].fColor;
     // We'd like to assert this, but we can't because of GLPrograms test

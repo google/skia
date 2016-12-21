@@ -49,7 +49,7 @@ class NonAAStrokeRectOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "NonAAStrokeRectBatch"; }
+    const char* name() const override { return "NonAAStrokeRectOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -165,8 +165,8 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
-        // NonAA stroke rects cannot batch right now
-        // TODO make these batchable
+        // NonAA stroke rects cannot combine right now
+        // TODO make these combinable.
         return false;
     }
 

@@ -182,7 +182,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# batched: %d\n", fRectCnt);
+        str.appendf("# combined: %d\n", fRectCnt);
         const RectInfo* info = this->first();
         for (int i = 0; i < fRectCnt; ++i) {
             const SkRect& rect = info->rect();
