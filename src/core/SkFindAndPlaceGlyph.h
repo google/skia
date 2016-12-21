@@ -436,6 +436,9 @@ private:
 
         SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
+            if (!SkScalarsAreFinite(position.fX, position.fY)) {
+                return position;
+            }
             SkPoint finalPosition = position;
             if (kTextAlignment != SkPaint::kLeft_Align) {
                 // Get the width of an un-sub-pixel positioned glyph for calculating the
