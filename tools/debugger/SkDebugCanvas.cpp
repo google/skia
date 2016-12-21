@@ -223,10 +223,11 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         canvas->clipRect(windowRect, kReplace_SkClipOp);
     }
     this->applyUserTransform(canvas);
-
+#if 0
     DebugPaintFilterCanvas fPaintFilterCanvas(canvas, fOverdrawViz,
                                               fOverrideFilterQuality, fFilterQuality);
     canvas = &fPaintFilterCanvas;
+#endif
 
     if (fMegaVizMode) {
         this->markActiveCommands(index);
