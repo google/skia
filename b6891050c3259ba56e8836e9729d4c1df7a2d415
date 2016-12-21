@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "573c16f2_ebcffcba",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-21T13:56:23Z",
+      "side": 1,
+      "message": "1. Nice comment -- seems like that could be in a more central spot (perhaps above the kDefault const) since it logically applies to PDF and XPS.\n\n2. Why does XPS take a 2-field struct for params (but a separate stream) while PDF takes N parameters? Seems like we\u0027re on track to make this header much cleaner, so I\u0027d like to consider this sort of consistency issue as well.",
+      "range": {
+        "startLine": 153,
+        "startChar": 31,
+        "endLine": 153,
+        "endChar": 35
+      },
+      "revId": "b6891050c3259ba56e8836e9729d4c1df7a2d415",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
