@@ -1249,6 +1249,17 @@ void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan* span, int
    This checks the distance between start points; the distance between
 */
 #if DEBUG_ANGLE
+void SkOpAngle::debugAfter(const SkOpAngle* lh, const SkOpAngle* rh, SkString* bugOut) const {
+        bugOut->printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
+                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
+                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
+            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
+            lh->fStart->t(), lh->fEnd->t(),
+            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
+            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
+            rh->fStart->t(), rh->fEnd->t());
+}
+
 void SkOpAngle::debugCheckNearCoincidence() const {
     const SkOpAngle* test = this;
     do {

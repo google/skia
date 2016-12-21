@@ -41,8 +41,12 @@ public:
 #endif
 
 #if DEBUG_ANGLE
+    void debugAfter(const SkOpAngle* lh, const SkOpAngle* rh, SkString* bugOut) const;
     bool debugCheckCoincidence() const { return fCheckCoincidence; }
     void debugCheckNearCoincidence() const;
+#endif
+    SkDPoint* debugFirstPt() { return &fOriginalCurvePart.fLine.fPts[0]; }
+#if DEBUG_ANGLE
     SkString debugPart() const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
@@ -99,7 +103,8 @@ private:
     bool after(SkOpAngle* test);
     void alignmentSameSide(const SkOpAngle* test, int* order) const;
     int allOnOneSide(const SkOpAngle* test);
-    bool checkCrossesZero() const;
+    bool ccwOf(const SkOpAngle* rh, bool rhCW, bool thisCCW) const;
+    bool checkCrossesZero(int* start, int* end) const;
     bool checkParallel(SkOpAngle* );
     bool computeSector();
     int convexHullOverlaps(const SkOpAngle* );
@@ -112,6 +117,7 @@ private:
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
     bool oppositePlanes(const SkOpAngle* rh) const;
     bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
+    bool sectorRange(int* start, int* end, bool roundOut) const;
     void setSector();
     void setSpans();
     bool tangentsDiverge(const SkOpAngle* rh, double s0xt0);

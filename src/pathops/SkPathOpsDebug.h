@@ -19,10 +19,10 @@ class SkOpContourHead;
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
-#define DEBUG_UNDER_DEVELOPMENT 0
+#define DEBUG_UNDER_DEVELOPMENT 01
 
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
