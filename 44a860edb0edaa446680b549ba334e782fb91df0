@@ -63,6 +63,24 @@
       "revId": "44a860edb0edaa446680b549ba334e782fb91df0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_721b299a",
+        "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-21T17:01:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_128f4dbe",
+      "revId": "44a860edb0edaa446680b549ba334e782fb91df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
