@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f777cabe_3481f099",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-21T02:44:26Z",
+      "side": 1,
+      "message": "Add some context for what this number means? e.g.\n\n\"The image in testcase [i] was expected to [expection] but did not.\"\n\nBut this change seems completely unrelated to the change in GIF. Submit it as a separate CL?",
+      "range": {
+        "startLine": 894,
+        "startChar": 74,
+        "endLine": 894,
+        "endChar": 75
+      },
+      "revId": "76e6aaf61476be983ed1fe8bf72682131ff3dd8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
