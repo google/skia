@@ -30,7 +30,7 @@ public:
 
     void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
                                GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
-    void initUsingInvariantOutput(GrInitInvariantOutput invOutput);
+    void initFromPipelineInput(const GrPipelineInput& input) { fInOut.reset(input); }
     void completeCalculations(const GrFragmentProcessor * const processors[], int cnt);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }

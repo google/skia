@@ -19,14 +19,14 @@
 #include "ops/GrOp.h"
 
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
-                                 GrXPOverridesForBatch* overrides) {
+                                 GrPipelineOptimizations* optimizations) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
     const GrUserStencilSettings* userStencil = builder.getUserStencil();
     GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
     if (!rt) {
         return nullptr;
     }
-    
+
     GrPipeline* pipeline = new (memory) GrPipeline;
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
@@ -64,10 +64,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXPFactory* xpFactory = builder.getXPFactory();
     sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
-        xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
-                                                           hasMixedSamples,
-                                                           &args.fDstTexture,
-                                                           *args.fCaps));
+        xferProcessor.reset(xpFactory->createXferProcessor(
+                args.fAnalysis, hasMixedSamples, &args.fDstTexture, *args.fCaps));
         if (!xferProcessor) {
             pipeline->~GrPipeline();
             return nullptr;
@@ -75,21 +73,18 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     } else {
         // This may return nullptr in the common case of src-over implemented using hw blending.
         xferProcessor.reset(GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
-                                                                        *args.fCaps,
-                                                                        args.fOpts,
-                                                                        hasMixedSamples,
-                                                                        &args.fDstTexture));
+                *args.fCaps, args.fAnalysis, hasMixedSamples, &args.fDstTexture));
     }
     GrColor overrideColor = GrColor_ILLEGAL;
-    if (args.fOpts.fColorPOI.firstEffectiveProcessorIndex() != 0) {
-        overrideColor = args.fOpts.fColorPOI.inputColorToFirstEffectiveProccesor();
+    if (args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex() != 0) {
+        overrideColor = args.fAnalysis.fColorPOI.inputColorToFirstEffectiveProccesor();
     }
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
-    optFlags = xpForOpts->getOptimizations(args.fOpts,
+    optFlags = xpForOpts->getOptimizations(args.fAnalysis,
                                            userStencil->doesWrite(args.fHasStencilClip),
                                            &overrideColor,
                                            *args.fCaps);
@@ -109,15 +104,15 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     pipeline->fXferProcessor.reset(xferProcessor.get());
 
-    int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
+    int firstColorProcessorIdx = args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex();
 
     // TODO: Once we can handle single or four channel input into coverage GrFragmentProcessors
     // then we can use GrPipelineBuilder's coverageProcInfo (like color above) to set this initial
     // information.
     int firstCoverageProcessorIdx = 0;
 
-    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fOpts.fColorPOI,
-                                             args.fOpts.fCoveragePOI, &firstColorProcessorIdx,
+    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fAnalysis.fColorPOI,
+                                             args.fAnalysis.fCoveragePOI, &firstColorProcessorIdx,
                                              &firstCoverageProcessorIdx);
 
     bool usesLocalCoords = false;
@@ -143,35 +138,35 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
-    overrides->fFlags = 0;
+    optimizations->fFlags = 0;
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
-        overrides->fFlags |= GrXPOverridesForBatch::kReadsColor_Flag;
+        optimizations->fFlags |= GrPipelineOptimizations::kReadsColor_Flag;
     }
     if (GrColor_ILLEGAL != overrideColor) {
-        overrides->fFlags |= GrXPOverridesForBatch::kUseOverrideColor_Flag;
-        overrides->fOverrideColor = overrideColor;
+        optimizations->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
+        optimizations->fOverrideColor = overrideColor;
     }
     if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        overrides->fFlags |= GrXPOverridesForBatch::kReadsCoverage_Flag;
+        optimizations->fFlags |= GrPipelineOptimizations::kReadsCoverage_Flag;
     }
     if (usesLocalCoords) {
-        overrides->fFlags |= GrXPOverridesForBatch::kReadsLocalCoords_Flag;
+        optimizations->fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
     if (SkToBool(optFlags & GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag)) {
-        overrides->fFlags |= GrXPOverridesForBatch::kCanTweakAlphaForCoverage_Flag;
+        optimizations->fFlags |= GrPipelineOptimizations::kCanTweakAlphaForCoverage_Flag;
     }
 
     GrXPFactory::InvariantBlendedColor blendedColor;
     if (xpFactory) {
-        xpFactory->getInvariantBlendedColor(args.fOpts.fColorPOI, &blendedColor);
+        xpFactory->getInvariantBlendedColor(args.fAnalysis.fColorPOI, &blendedColor);
     } else {
-        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fOpts.fColorPOI.color(),
-                                                            args.fOpts.fColorPOI.validFlags(),
-                                                            args.fOpts.fColorPOI.isOpaque(),
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fAnalysis.fColorPOI.color(),
+                                                            args.fAnalysis.fColorPOI.validFlags(),
+                                                            args.fAnalysis.fColorPOI.isOpaque(),
                                                             &blendedColor);
     }
     if (blendedColor.fWillBlendWithDst) {
-        overrides->fFlags |= GrXPOverridesForBatch::kWillColorBlendWithDst_Flag;
+        optimizations->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;
     }
 
     return pipeline;

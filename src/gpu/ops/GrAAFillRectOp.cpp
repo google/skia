@@ -52,7 +52,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkRect& devRect,
-                                           const GrXPOverridesForBatch& overrides,
+                                           const GrPipelineOptimizations& optimizations,
                                            const SkMatrix* localMatrix) {
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
     SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
@@ -115,7 +115,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
     }
 
-    bool tweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+    bool tweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs
     // values.
@@ -195,30 +195,27 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one rect
-        color->setKnownFourComponents(this->first()->color());
-        coverage->setUnknownSingleComponent();
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         GrColor color;
-        if (overrides.getOverrideColorIfSet(&color)) {
+        if (optimizations.getOverrideColorIfSet(&color)) {
             this->first()->setColor(color);
         }
-        fOverrides = overrides;
+        fOptimizations = optimizations;
     }
 
 private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(this->first()->color());
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
     void onPrepareDraws(Target* target) const override {
-        bool needLocalCoords = fOverrides.readsLocalCoords();
+        bool needLocalCoords = fOptimizations.readsLocalCoords();
         using namespace GrDefaultGeoProcFactory;
 
         Color color(Color::kAttribute_Type);
         Coverage::Type coverageType;
-        if (fOverrides.canTweakAlphaForCoverage()) {
+        if (fOptimizations.canTweakAlphaForCoverage()) {
             coverageType = Coverage::kSolid_Type;
         } else {
             coverageType = Coverage::kAttribute_Type;
@@ -258,7 +255,8 @@ private:
                 }
             }
             generate_aa_fill_rect_geometry(verts, vertexStride, info->color(), info->viewMatrix(),
-                                           info->rect(), info->devRect(), fOverrides, localMatrix);
+                                           info->rect(), info->devRect(), fOptimizations,
+                                           localMatrix);
             info = this->next(info);
         }
         helper.recordDraw(target, gp.get());
@@ -273,8 +271,9 @@ private:
 
         // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
         // tweaking.
-        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
-            fOverrides = that->fOverrides;
+        if (fOptimizations.canTweakAlphaForCoverage() &&
+            !that->fOptimizations.canTweakAlphaForCoverage()) {
+            fOptimizations = that->fOptimizations;
         }
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
@@ -335,7 +334,7 @@ private:
         return reinterpret_cast<const RectInfo*>(next);
     }
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
     SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
     int fRectCnt;
 

@@ -92,13 +92,9 @@ public:
 
     SkString dumpInfo() const override;
 
-protected:
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override;
-
 private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const override;
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
 
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;

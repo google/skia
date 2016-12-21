@@ -15,21 +15,23 @@ GrDrawOp::~GrDrawOp() {
     }
 }
 
-void GrDrawOp::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
-    GrInitInvariantOutput color;
-    GrInitInvariantOutput coverage;
-    this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
-    opt->fColorPOI.initUsingInvariantOutput(color);
-    opt->fCoveragePOI.initUsingInvariantOutput(coverage);
+void GrDrawOp::initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
+    GrPipelineInput color;
+    GrPipelineInput coverage;
+    GrPipelineAnalysisDrawOpInput input(&color, &coverage);
+    this->getPipelineAnalysisInput(&input);
+    analysis->fColorPOI.initFromPipelineInput(color);
+    analysis->fCoveragePOI.initFromPipelineInput(coverage);
+    analysis->fUsesPLSDstRead = input.usesPLSDstRead();
 }
 
 bool GrDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
-    GrXPOverridesForBatch overrides;
+    GrPipelineOptimizations optimizations;
     void* location = fPipelineStorage.get();
-    if (!GrPipeline::CreateAt(location, args, &overrides)) {
+    if (!GrPipeline::CreateAt(location, args, &optimizations)) {
         return false;
     }
     fPipelineInstalled = true;
-    this->initBatchTracker(overrides);
+    this->applyPipelineOptimizations(optimizations);
     return true;
 }

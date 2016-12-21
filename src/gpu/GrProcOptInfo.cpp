@@ -17,17 +17,13 @@ void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const proc
                                           GrColorComponentFlags flags,
                                           bool areCoverageStages,
                                           bool isLCD) {
-    GrInitInvariantOutput out;
+    GrPipelineInput out;
     out.fIsSingleComponent = areCoverageStages;
     out.fColor = startColor;
     out.fValidFlags = flags;
     out.fIsLCDCoverage = isLCD;
     fInOut.reset(out);
     this->internalCalc(processors, cnt);
-}
-
-void GrProcOptInfo::initUsingInvariantOutput(GrInitInvariantOutput invOutput) {
-    fInOut.reset(invOutput);
 }
 
 void GrProcOptInfo::completeCalculations(const GrFragmentProcessor * const processors[], int cnt) {
