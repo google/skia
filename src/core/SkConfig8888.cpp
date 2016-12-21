@@ -330,6 +330,18 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return false;   // can't convert from alpha to non-alpha
     }
 
+    if (kOpaque_SkAlphaType != srcInfo.alphaType() &&
+        kOpaque_SkAlphaType == dstInfo.alphaType())
+    {
+        return false;   // converting from non-opaque to opaque is not well-defined
+    }
+
+    if (kGray_8_SkColorType != srcInfo.alphaType() &&
+        kGray_8_SkColorType == dstInfo.alphaType())
+    {
+        return false;   // cannot convert from non-gray to gray
+    }
+
     const int width = srcInfo.width();
     const int height = srcInfo.height();
 
