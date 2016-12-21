@@ -372,6 +372,11 @@ private:
     }
 
     void addFrameIfNecessary();
+    // Must be called *after* the SkGIFFrameContext's color table (if any) has been parsed.
+    void setRequiredFrame(SkGIFFrameContext*);
+    // This method is sometimes called before creating a SkGIFFrameContext, so it cannot rely
+    // on SkGIFFrameContext::localColorMap().
+    bool hasTransparentPixel(size_t frameIndex, bool hasLocalColorMap, size_t localMapColors);
     bool currentFrameIsFirstFrame() const
     {
         return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());
