@@ -142,8 +142,8 @@ struct SkGIFLZWBlock {
   SkGIFLZWBlock(size_t position, size_t size)
       : blockPosition(position), blockSize(size) {}
 
-  const size_t blockPosition;
-  const size_t blockSize;
+  size_t blockPosition;
+  size_t blockSize;
 };
 
 class SkGIFColorMap final {
