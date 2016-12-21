@@ -54,7 +54,7 @@ private:
     void onPrepareDraws(Target*) const override;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
-    bool batchablePrimitiveType() const {
+    bool combinablePrimitive() const {
         return kTriangles_GrPrimitiveType == fPrimitiveType ||
                kLines_GrPrimitiveType == fPrimitiveType ||
                kPoints_GrPrimitiveType == fPrimitiveType;

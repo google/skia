@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVertexBatch_DEFINED
-#define GrVertexBatch_DEFINED
+#ifndef GrMeshDrawOp_DEFINED
+#define GrMeshDrawOp_DEFINED
 
 #include "GrDrawOp.h"
 #include "GrGeometryProcessor.h"
@@ -28,7 +28,7 @@ public:
 
 protected:
     /** Helper for rendering instances using an instanced index index buffer. This class creates the
-        space for the vertices and flushes the draws to the batch target. */
+        space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class InstancedHelper {
     public:
         InstancedHelper() {}
@@ -37,7 +37,7 @@ protected:
         void* init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
                    int verticesPerInstance, int indicesPerInstance, int instancesToDraw);
 
-        /** Call after init() to issue draws to the batch target.*/
+        /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, const GrGeometryProcessor*);
 
     private:
@@ -69,7 +69,7 @@ private:
     virtual void onPrepareDraws(Target*) const = 0;
 
     // A set of contiguous draws that share a draw token and primitive processor. The draws all use
-    // the batch's pipeline. The meshes for the draw are stored in the fMeshes array and each
+    // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each
     // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
     // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
     // the shared state once and then issue draws for each mesh.
@@ -78,8 +78,8 @@ private:
         GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
     };
 
-    // All draws in all the vertex batches have implicit tokens based on the order they are
-    // enqueued globally across all batches. This is the offset of the first entry in fQueuedDraws.
+    // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
+    // globally across all ops. This is the offset of the first entry in fQueuedDraws.
     // fQueuedDraws[i]'s token is fBaseDrawToken + i.
     GrDrawOpUploadToken fBaseDrawToken;
 

@@ -826,12 +826,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrDrawOp> make_shadow_circle_batch(GrColor color,
-                                         const SkMatrix& viewMatrix,
-                                         const SkRect& oval,
-                                         SkScalar blurRadius,
-                                         const SkStrokeRec& stroke,
-                                         const GrShaderCaps* shaderCaps) {
+sk_sp<GrDrawOp> make_shadow_circle_op(GrColor color,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRect& oval,
+                                      SkScalar blurRadius,
+                                      const SkStrokeRec& stroke,
+                                      const GrShaderCaps* shaderCaps) {
     // we can only draw circles
     SkScalar width = oval.width();
     SkASSERT(SkScalarNearlyEqual(width, oval.height()) && viewMatrix.isSimilarity());
@@ -840,17 +840,17 @@ sk_sp<GrDrawOp> make_shadow_circle_batch(GrColor color,
                                 GrStyle(stroke, nullptr));
 }
 
-static sk_sp<GrDrawOp> make_shadow_rrect_batch(GrColor color,
-                                               const SkMatrix& viewMatrix,
-                                               const SkRRect& rrect,
-                                               SkScalar blurRadius,
-                                               const SkStrokeRec& stroke) {
+static sk_sp<GrDrawOp> make_shadow_rrect_op(GrColor color,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRRect& rrect,
+                                            SkScalar blurRadius,
+                                            const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
 
-    // Shadow rrect batchs only handle simple circular rrects
-    // do any matrix crunching before we reset the draw state for device coords
+    // Shadow rrect ops only handle simple circular rrects.
+    // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
     SkRect bounds;
     viewMatrix.mapRect(&bounds, rrectBounds);
@@ -909,15 +909,15 @@ sk_sp<GrDrawOp> Make(GrColor color,
                      const SkStrokeRec& stroke,
                      const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
-        return make_shadow_circle_batch(color, viewMatrix, rrect.getBounds(), blurRadius, stroke,
-                                        shaderCaps);
+        return make_shadow_circle_op(color, viewMatrix, rrect.getBounds(), blurRadius, stroke,
+                                     shaderCaps);
     }
 
     if (!viewMatrix.rectStaysRect() || !rrect.isSimple()) {
         return nullptr;
     }
 
-    return make_shadow_rrect_batch(color, viewMatrix, rrect, blurRadius, stroke);
+    return make_shadow_rrect_op(color, viewMatrix, rrect, blurRadius, stroke);
 }
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -953,8 +953,8 @@ DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
     SkScalar blurRadius = random->nextSScalar1() * 72.f;
-    return make_shadow_rrect_batch(color, viewMatrix, rrect, blurRadius,
-                                   GrTest::TestStrokeRec(random));
+    return make_shadow_rrect_op(color, viewMatrix, rrect, blurRadius,
+                                GrTest::TestStrokeRec(random));
 }
 
 #endif

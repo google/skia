@@ -18,7 +18,7 @@
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
 
-/** We always use per-vertex colors so that rects can be batched across color changes. Sometimes
+/** We always use per-vertex colors so that rects can be combined across color changes. Sometimes
     we  have explicit local coords and sometimes not. We *could* always provide explicit local
     coords and just duplicate the positions when the caller hasn't provided a local coord rect,
     but we haven't seen a use case which frequently switches between local rect and no local
@@ -88,7 +88,7 @@ static void tesselate(intptr_t vertices,
     }
 }
 
-// We handle perspective in the local matrix or viewmatrix with special batches
+// We handle perspective in the local matrix or viewmatrix with special ops.
 class NonAAFillRectPerspectiveOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -111,11 +111,11 @@ public:
         this->setTransformedBounds(rect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "NonAAFillRectPerspectiveBatch"; }
+    const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# batched: %d\n", fRects.count());
+        str.appendf("# combined: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
             const RectInfo& geo = fRects[0];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
@@ -189,7 +189,7 @@ private:
             return false;
         }
 
-        // We could batch across perspective vm changes if we really wanted to
+        // We could combine across perspective vm changes if we really wanted to.
         if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
             return false;
         }
@@ -200,8 +200,8 @@ private:
             return false;
         }
 
-        // In the event of two batches, one who can tweak, one who cannot, we just fall back to
-        // not tweaking
+        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
+        // tweaking.
         if (fOptimizations.canTweakAlphaForCoverage() &&
             !that->fOptimizations.canTweakAlphaForCoverage()) {
             fOptimizations = that->fOptimizations;

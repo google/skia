@@ -754,8 +754,8 @@ private:
             return false;
         }
 
-        // TODO we can actually batch hairlines if they are the same color in a kind of bulk method
-        // but we haven't implemented this yet
+        // TODO we can actually combine hairlines if they are the same color in a kind of bulk
+        // method but we haven't implemented this yet
         // TODO investigate going to vertex color and coverage?
         if (this->coverage() != that->coverage()) {
             return false;

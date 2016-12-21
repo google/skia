@@ -252,7 +252,7 @@ public:
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "AnalyticRectBatch"; }
+    const char* name() const override { return "AnalyticRectOp"; }
 
     SkString dumpInfo() const override {
         SkString string;

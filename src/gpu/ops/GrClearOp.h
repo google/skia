@@ -60,7 +60,7 @@ private:
         , fColor(color) {
         SkIRect rtRect = SkIRect::MakeWH(rt->width(), rt->height());
         if (fClip.scissorEnabled()) {
-            // Don't let scissors extend outside the RT. This may improve batching.
+            // Don't let scissors extend outside the RT. This may improve op combining.
             if (!fClip.intersect(rtRect)) {
                 return;
             }

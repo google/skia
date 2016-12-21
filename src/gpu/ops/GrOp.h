@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrBatch_DEFINED
-#define GrBatch_DEFINED
+#ifndef GrOp_DEFINED
+#define GrOp_DEFINED
 
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
@@ -22,10 +22,11 @@ class GrGpuCommandBuffer;
 class GrOpFlushState;
 
 /**
- * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reorderable
- * batching, Ganesh does not generate geometry inline with draw calls. Instead, it captures the
- * arguments to the draw and then generates the geometry on demand. This gives GrOp subclasses
- * complete freedom to decide how/what they can batch.
+ * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
+ * minimize draw calls, Ganesh does not generate geometry inline with draw calls. Instead, it
+ * captures the arguments to the draw and then generates the geometry when flushing. This gives GrOp
+ * subclasses complete freedom to decide how/when to combine in order to produce fewer draw calls
+ * and minimize state changes.
  *
  * Ops of the same subclass may be merged using combineIfPossible. When two ops merge, one
  * takes on the union of the data and the other is left empty. The merged op becomes responsible
@@ -126,7 +127,7 @@ public:
     /** Issues the op's commands to GrGpu. */
     void draw(GrOpFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
 
-    /** Used to block batching across render target changes. Remove this once we store
+    /** Used to block combining across render target changes. Remove this once we store
         GrOps for different RTs in different targets. */
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;

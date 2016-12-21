@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawBatch_DEFINED
-#define GrDrawBatch_DEFINED
+#ifndef GrDrawOp_DEFINED
+#define GrDrawOp_DEFINED
 
 #include <functional>
 #include "GrOp.h"
@@ -40,7 +40,7 @@ private:
 };
 
 /**
- * Base class for GrOps that draw. These batches have a GrPipeline installed by GrOpList.
+ * Base class for GrOps that draw. These ops have a GrPipeline installed by GrOpList.
  */
 class GrDrawOp : public GrOp {
 public:
