@@ -620,8 +620,8 @@ DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
 
-    // For now just hairlines because the other types of draws require two batches.
-    // TODO we should figure out a way to combine the stencil and cover steps into one batch
+    // For now just hairlines because the other types of draws require two ops.
+    // TODO we should figure out a way to combine the stencil and cover steps into one op.
     GrStyle style(SkStrokeRec::kHairline_InitStyle);
     SkPath path = GrTest::TestPath(random);
 

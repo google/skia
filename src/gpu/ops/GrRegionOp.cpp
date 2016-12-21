@@ -68,7 +68,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# batched: %d\n", fRegions.count());
+        str.appendf("# combined: %d\n", fRegions.count());
         for (int i = 0; i < fRegions.count(); ++i) {
             const RegionInfo& info = fRegions[i];
             str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor,
