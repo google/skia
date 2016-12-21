@@ -7,10 +7,13 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkConfig8888.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 
@@ -63,6 +66,11 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
             break;
         default:
             return false;   // src colortype unsupported
+    }
+
+    float matrix[12];
+    if (!append_gamut_transform(&pipeline, matrix, srcInfo.colorSpace(), dstInfo.colorSpace())) {
+        return false;
     }
 
     SkAlphaType sat = srcInfo.alphaType();
@@ -317,6 +325,77 @@ static bool extract_alpha(void* dst, size_t dstRB, const void* src, size_t srcRB
     return true;
 }
 
+static inline bool can_use_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+    if (kUnpremul_SkAlphaType == dstInfo.alphaType() && kPremul_SkAlphaType == srcInfo.alphaType())
+    {
+        return false;
+    }
+
+    switch (dstInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
+            break;
+        default:
+            return false;
+    }
+
+    switch (srcInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            break;
+        default:
+            return false;
+    }
+
+    return true;
+}
+
+static inline bool apply_xform(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                               const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
+    SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+    SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(srcInfo.colorType());
+    SkAlphaType xformAlpha;
+    switch (srcInfo.alphaType()) {
+        case kOpaque_SkAlphaType:
+            xformAlpha = kOpaque_SkAlphaType;
+            break;
+        case kPremul_SkAlphaType:
+            SkASSERT(kPremul_SkAlphaType == dstInfo.alphaType());
+
+            // This signal means: copy the src alpha to the dst, do not premultiply (in this
+            // case because the pixels are already premultiplied).
+            xformAlpha = kUnpremul_SkAlphaType;
+            break;
+        case kUnpremul_SkAlphaType:
+            SkASSERT(kPremul_SkAlphaType == dstInfo.alphaType() ||
+                     kUnpremul_SkAlphaType == dstInfo.alphaType());
+
+            xformAlpha = dstInfo.alphaType();
+            break;
+        default:
+            SkASSERT(false);
+            xformAlpha = kUnpremul_SkAlphaType;
+            break;
+    }
+
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcInfo.colorSpace(),
+                                                                      dstInfo.colorSpace());
+    if (!xform) {
+        // Unsupported dst color space.
+        return false;
+    }
+
+    for (int y = 0; y < dstInfo.height(); y++) {
+        SkAssertResult(xform->apply(dstFormat, dstPixels, srcFormat, srcPixels, dstInfo.width(),
+                       xformAlpha));
+        dstPixels = SkTAddOffset<void>(dstPixels, dstRB);
+        srcPixels = SkTAddOffset<const void>(srcPixels, srcRB);
+    }
+
+    return true;
+}
+
 bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                              const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
                              SkColorTable* ctable) {
@@ -344,8 +423,14 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return true;
     }
 
+    // FIXME (msarett):
+    // We also need to transform to a linear space to perform color correct premultiplies
+    // and unpremultiplies.
+    const bool needsColorXform = srcInfo.colorSpace() && dstInfo.colorSpace() &&
+            !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+
     // Handle fancy alpha swizzling if both are ARGB32
-    if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel()) {
+    if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel() && !needsColorXform) {
         SkDstPixelInfo dstPI;
         dstPI.fColorType = dstInfo.colorType();
         dstPI.fAlphaType = dstInfo.alphaType();
@@ -361,9 +446,13 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return srcPI.convertPixelsTo(&dstPI, width, height);
     }
 
+    if (needsColorXform && can_use_xform(dstInfo, srcInfo)) {
+        return apply_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+    }
+
     // If they agree on colorType and the alphaTypes are compatible, then we just memcpy.
     // Note: we've already taken care of 32bit colortypes above.
-    if (srcInfo.colorType() == dstInfo.colorType()) {
+    if (srcInfo.colorType() == dstInfo.colorType() && !needsColorXform) {
         switch (srcInfo.colorType()) {
             case kIndex_8_SkColorType:
             case kARGB_4444_SkColorType:
@@ -387,7 +476,8 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
      *  are supported.
      */
 
-    if (kGray_8_SkColorType == srcInfo.colorType() && 4 == dstInfo.bytesPerPixel()) {
+    if (kGray_8_SkColorType == srcInfo.colorType() && 4 == dstInfo.bytesPerPixel())
+    {
         copy_g8_to_32(dstPixels, dstRB, srcPixels, srcRB, width, height);
         return true;
     }

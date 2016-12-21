@@ -63,7 +63,7 @@ void ColorCodecBench::xformOnly() {
 void ColorCodecBench::onDelayedSetup() {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
-    fDstInfo = fSrcInfo;
+    fDstInfo = fSrcInfo.makeAlphaType(kPremul_SkAlphaType);
 
     fDstSpace = nullptr;
     if (FLAGS_srgb) {
