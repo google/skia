@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_b26c0122",
+        "filename": "include/utils/mac/SkCGUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-21T16:39:25Z",
+      "side": 1,
+      "message": "Prolly not worth reshuffling the API, but could this not return the SkBitmap instead?",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 37
+      },
+      "revId": "44a860edb0edaa446680b549ba334e782fb91df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_128f4dbe",
+        "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-21T16:39:25Z",
+      "side": 1,
+      "message": "Stray tab?",
+      "range": {
+        "startLine": 253,
+        "startChar": 2,
+        "endLine": 253,
+        "endChar": 3
+      },
+      "revId": "44a860edb0edaa446680b549ba334e782fb91df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
