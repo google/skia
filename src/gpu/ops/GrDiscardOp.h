@@ -39,7 +39,10 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
+        // Post-MDB this could be return true since the discards would be known to be to the same
+        // render target. However, we probably won't need this class then and can just use a load
+        // op.
+        return false;
     }
 
     void onPrepare(GrOpFlushState*) override {}
