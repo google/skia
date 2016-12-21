@@ -49,3 +49,4 @@ void SkFallbackAlloc::reset() {
     }
     fFixedAlloc->reset();
 }
+
