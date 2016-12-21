@@ -878,6 +878,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     };
 
 
+    int i = 0;
     for (auto testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
         if (!image) {
@@ -890,9 +891,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                                                          nullptr, nullptr);
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
-            ERRORF(reporter,  "This image was expected to %s but did not.",
-                   kFS[testCase.fExpectation]);
+            ERRORF(reporter,  "This image was expected to %s but did not. %d",
+                   kFS[testCase.fExpectation], i);
         }
+        i++;
         if (size) {
             void* buffer = sk_malloc_throw(size);
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
