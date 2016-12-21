@@ -74,6 +74,12 @@ static sk_sp<SkImage> create_image() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
+static sk_sp<SkImage> create_image_premul() {
+    const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kPremul_SkAlphaType);
+    auto surface(SkSurface::MakeRaster(info));
+    draw_image_test_pattern(surface->getCanvas());
+    return surface->makeImageSnapshot();
+}
 static sk_sp<SkData> create_image_data(SkImageInfo* info) {
     *info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     const size_t rowBytes = info->minRowBytes();
@@ -588,6 +594,20 @@ static void test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
     REPORTER_ASSERT(reporter, pixels[0] == expected);
     REPORTER_ASSERT(reporter, has_pixels(&pixels[1], w*h - 1, notExpected));
 }
+static void test_read_pixels_raster(skiatest::Reporter* reporter) {
+    const int w = 2, h = 2;
+    const size_t rowBytes = w * sizeof(SkPMColor);
+    SkPMColor pixels[w*h];
+
+    // non-gray to gray should fail
+    SkImageInfo grayInfo = SkImageInfo::Make(w, h, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    REPORTER_ASSERT(reporter, !create_image()->readPixels(grayInfo, pixels, rowBytes, 0, 0));
+
+    // non-opaque to opaque should fail
+    SkImageInfo opaqueInfo = grayInfo.makeColorType(kN32_SkColorType);
+    REPORTER_ASSERT(reporter,
+            !create_image_premul()->readPixels(opaqueInfo, pixels, rowBytes, 0, 0));
+}
 DEF_TEST(ImageReadPixels, reporter) {
     sk_sp<SkImage> image(create_image());
     test_read_pixels(reporter, image.get());
@@ -603,6 +623,8 @@ DEF_TEST(ImageReadPixels, reporter) {
 
     image = create_codec_image();
     test_read_pixels(reporter, image.get());
+
+    test_read_pixels_raster(reporter);
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
