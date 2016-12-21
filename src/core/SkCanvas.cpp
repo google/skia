@@ -648,7 +648,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     fIsScaleTranslate = true;
 }
 
-SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
+SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags, void* extCtx) {
     if (device && device->forceConservativeRasterClip()) {
         flags = InitFlags(flags | kConservativeRasterClip_InitFlag);
     }
@@ -772,14 +772,16 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
     this->init(device.get(), kDefault_InitFlags);
 }
 
-SkCanvas::SkCanvas(const SkBitmap& bitmap)
+SkCanvas::SkCanvas(const SkBitmap& bitmap, SkCanvasExternalAllocator* alloc,
+                   SkCanvasExternalAllocator::Handle hndl)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
     , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
+    , fAllocator(alloc)
     , fConservativeRasterClip(false)
 {
     inc_canvas();
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps, hndl));
     this->init(device.get(), kDefault_InitFlags);
 }
 
@@ -1260,7 +1262,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const SkBaseDevice::CreateInfo createInfo = SkBaseDevice::CreateInfo(info, usage, geo,
-                                                                             preserveLCDText);
+                                                                             preserveLCDText,
+                                                                             fAllocator);
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
             return;
@@ -3404,3 +3407,53 @@ static_assert((int)SkRegion::kUnion_Op              == (int)kUnion_SkClipOp, "")
 static_assert((int)SkRegion::kXOR_Op                == (int)kXOR_SkClipOp, "");
 static_assert((int)SkRegion::kReverseDifference_Op  == (int)kReverseDifference_SkClipOp, "");
 static_assert((int)SkRegion::kReplace_Op            == (int)kReplace_SkClipOp, "");
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void* SkCanvas::accessTopHandle() const {
+    if (fAllocator && fMCRec->fTopLayer->fDevice) {
+        const SkBaseDevice* dev = fMCRec->fTopLayer->fDevice;
+        SkCanvasExternalAllocator::Handle handle = dev->getExternalHandle();
+        SkIPoint origin = dev->getOrigin();
+        SkMatrix ctm = this->getTotalMatrix();
+        ctm.preTranslate(SkIntToScalar(-origin.x()), SkIntToScalar(-origin.y()));
+        
+        SkIRect clip = fMCRec->fRasterClip.getBounds();
+        clip.offset(-origin.x(), -origin.y());
+        if (clip.intersect(0, 0, dev->width(), dev->height())) {
+            clip.setEmpty();
+        }
+
+        fAllocator->updateHandle(handle, ctm, clip);
+        return handle;
+    }
+    return nullptr;
+}
+
+static bool install(SkBitmap* bm, const SkImageInfo& info,
+                    const SkCanvasExternalAllocator::Rec& rec) {
+    return bm->installPixels(info, rec.fPixels, rec.fRowBytes, nullptr,
+                             rec.fReleaseProc, rec.fReleaseCtx);
+}
+
+SkCanvasExternalAllocator::Handle SkCanvasExternalAllocator::allocBitmap(const SkImageInfo& info,
+                                                                         SkBitmap* bm) {
+    SkCanvasExternalAllocator::Rec rec;
+    if (!this->allocHandle(info, &rec) || !install(bm, info, rec)) {
+        return nullptr;
+    }
+    return rec.fHandle;
+}
+
+std::unique_ptr<SkCanvas> SkCanvasExternalAllocator::makeCanvas(const SkImageInfo& info,
+                                                                const Rec* rec) {
+    SkBitmap bm;
+    Handle hndl;
+    
+    if (rec) {
+        hndl = install(&bm, info, *rec) ? rec->fHandle : nullptr;
+    } else {
+        hndl = this->allocBitmap(info, &bm);
+    }
+    return hndl ? skstd::make_unique<SkCanvas>(bm, this, hndl) : nullptr;
+}

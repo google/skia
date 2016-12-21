@@ -42,6 +42,28 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+
+class SkCanvasExternalAllocator {
+public:
+    virtual ~SkCanvasExternalAllocator() {}
+
+    typedef void* Handle;
+
+    struct Rec {
+        void    (*fReleaseProc)(void* pixels, void* ctx);
+        void*   fReleaseCtx;
+        void*   fPixels;
+        size_t  fRowBytes;
+        Handle  fHandle;
+    };
+
+    virtual bool allocHandle(const SkImageInfo&, Rec*) = 0;
+    virtual void updateHandle(void* ctx, const SkMatrix&, const SkIRect&) = 0;
+
+    std::unique_ptr<SkCanvas> makeCanvas(const SkImageInfo&, const Rec*);
+    Handle allocBitmap(const SkImageInfo&, SkBitmap*);
+};
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -108,7 +130,7 @@ public:
         @param bitmap   Specifies a bitmap for the canvas to draw into. Its
                         structure are copied to the canvas.
     */
-    explicit SkCanvas(const SkBitmap& bitmap);
+    SkCanvas(const SkBitmap& bitmap, SkCanvasExternalAllocator* = nullptr, void* ctx = nullptr);
 
     /** Construct a canvas with the specified bitmap to draw into.
         @param bitmap   Specifies a bitmap for the canvas to draw into. Its
@@ -217,6 +239,8 @@ public:
      *  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
      */
     void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL);
+
+    void* accessTopHandle() const;
 
     /**
      *  If the canvas has readable pixels in its base layer (and is not recording to a picture
@@ -1570,6 +1594,7 @@ private:
     int         fSaveCount;         // value returned by getSaveCount()
 
     SkMetaData* fMetaData;
+    SkCanvasExternalAllocator* fAllocator = nullptr;
 
     SkSurface_Base*  fSurfaceBase;
     SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
@@ -1618,7 +1643,7 @@ private:
     //  - internalSaveLayer
     void setupDevice(SkBaseDevice*);
 
-    SkBaseDevice* init(SkBaseDevice*, InitFlags);
+    SkBaseDevice* init(SkBaseDevice*, InitFlags, void* extCtx = nullptr);
 
     /**
      * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
