@@ -206,26 +206,27 @@ void SkDebugCanvas::markActiveCommands(int index) {
 
 }
 
-void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
+void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
 
-    int saveCount = originalCanvas->save();
+    int saveCount = canvas->save();
 
-    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
-                                       SkIntToScalar(originalCanvas->getBaseLayerSize().height()));
+    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(canvas->getBaseLayerSize().width()),
+                                       SkIntToScalar(canvas->getBaseLayerSize().height()));
 
     bool pathOpsMode = getAllowSimplifyClip();
-    originalCanvas->setAllowSimplifyClip(pathOpsMode);
-    originalCanvas->clear(SK_ColorWHITE);
-    originalCanvas->resetMatrix();
+    canvas->setAllowSimplifyClip(pathOpsMode);
+    canvas->clear(SK_ColorWHITE);
+    canvas->resetMatrix();
     if (!windowRect.isEmpty()) {
-        originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
+        canvas->clipRect(windowRect, kReplace_SkClipOp);
     }
-    this->applyUserTransform(originalCanvas);
+    this->applyUserTransform(canvas);
 
-    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz, fOverrideFilterQuality,
-                                        fFilterQuality);
+    DebugPaintFilterCanvas fPaintFilterCanvas(canvas, fOverdrawViz,
+                                              fOverrideFilterQuality, fFilterQuality);
+    canvas = &fPaintFilterCanvas;
 
     if (fMegaVizMode) {
         this->markActiveCommands(index);
@@ -235,21 +236,20 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
-        // The audit trail must be obtained from the original canvas.
-        at = this->getAuditTrail(originalCanvas);
+        at = this->getAuditTrail(canvas);
     }
 #endif
 
     for (int i = 0; i <= index; i++) {
         if (i == index && fFilter) {
-            filterCanvas.clear(0xAAFFFFFF);
+            canvas->clear(0xAAFFFFFF);
         }
 
 #if SK_SUPPORT_GPU
         // We need to flush any pending operations, or they might combine with commands below.
         // Previous operations were not registered with the audit trail when they were
         // created, so if we allow them to combine, the audit trail will fail to find them.
-        filterCanvas.flush();
+        canvas->flush();
 
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
@@ -263,10 +263,10 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
                 //     All active saveLayers get replaced with saves so all draws go to the
                 //     visible canvas.
                 //     All active culls draw their cull box
-                fCommandVector[i]->vizExecute(&filterCanvas);
+                fCommandVector[i]->vizExecute(canvas);
             } else {
                 fCommandVector[i]->setUserMatrix(fUserMatrix);
-                fCommandVector[i]->execute(&filterCanvas);
+                fCommandVector[i]->execute(canvas);
             }
         }
 #if SK_SUPPORT_GPU
@@ -277,37 +277,36 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
-        filterCanvas.save();
+        canvas->save();
         #define LARGE_COORD 1000000000
-        filterCanvas.clipRect(
-                SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
-                kReverseDifference_SkClipOp);
+        canvas->clipRect(SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
+                       kReverseDifference_SkClipOp);
         SkPaint clipPaint;
         clipPaint.setColor(fClipVizColor);
-        filterCanvas.drawPaint(clipPaint);
-        filterCanvas.restore();
+        canvas->drawPaint(clipPaint);
+        canvas->restore();
     }
 
     if (fMegaVizMode) {
-        filterCanvas.save();
+        canvas->save();
         // nuke the CTM
-        filterCanvas.resetMatrix();
+        canvas->resetMatrix();
         // turn off clipping
         if (!windowRect.isEmpty()) {
             SkRect r = windowRect;
             r.outset(SK_Scalar1, SK_Scalar1);
-            filterCanvas.clipRect(r, kReplace_SkClipOp);
+            canvas->clipRect(r, kReplace_SkClipOp);
         }
         // visualize existing clips
-        SkDebugClipVisitor visitor(&filterCanvas);
+        SkDebugClipVisitor visitor(canvas);
 
-        filterCanvas.replayClips(&visitor);
+        canvas->replayClips(&visitor);
 
-        filterCanvas.restore();
+        canvas->restore();
     }
     if (pathOpsMode) {
         this->resetClipStackData();
-        const SkClipStack* clipStack = filterCanvas.getClipStack();
+        const SkClipStack* clipStack = canvas->getClipStack();
         SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
         const SkClipStack::Element* element;
         SkPath devPath;
@@ -327,12 +326,12 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         }
         this->lastClipStackData(devPath);
     }
-    fMatrix = filterCanvas.getTotalMatrix();
-    if (!filterCanvas.getClipDeviceBounds(&fClip)) {
+    fMatrix = canvas->getTotalMatrix();
+    if (!canvas->getClipDeviceBounds(&fClip)) {
         fClip.setEmpty();
     }
 
-    filterCanvas.restoreToCount(saveCount);
+    canvas->restoreToCount(saveCount);
 
 #if SK_SUPPORT_GPU
     // draw any ops if required and issue a full reset onto GrAuditTrail
@@ -340,17 +339,15 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
         GrAuditTrail::AutoEnable ae(at);
-        filterCanvas.flush();
+        canvas->flush();
 
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
         static const SkColor kCommandOpBounds = SkColorSetARGB(0xC0, 0xE3, 0x1A, 0x1C);
         static const SkColor kOtherOpBounds = SkColorSetARGB(0xC0, 0xFF, 0x7F, 0x00);
 
-        // get the render target of the top device (from the original canvas) so we can ignore ops
-        // drawn offscreen
-        GrRenderTargetContext* rtc =
-                originalCanvas->internal_private_accessTopLayerRenderTargetContext();
+        // get the render target of the top device so we can ignore ops drawn offscreen
+        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
         GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
@@ -370,7 +367,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
                 continue;
             }
             paint.setColor(kTotalBounds);
-            filterCanvas.drawRect(childrenBounds[i].fBounds, paint);
+            canvas->drawRect(childrenBounds[i].fBounds, paint);
             for (int j = 0; j < childrenBounds[i].fOps.count(); j++) {
                 const GrAuditTrail::OpInfo::Op& op = childrenBounds[i].fOps[j];
                 if (op.fClientID != index) {
@@ -378,12 +375,12 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
                 } else {
                     paint.setColor(kCommandOpBounds);
                 }
-                filterCanvas.drawRect(op.fBounds, paint);
+                canvas->drawRect(op.fBounds, paint);
             }
         }
     }
 #endif
-    this->cleanupAuditTrail(originalCanvas);
+    this->cleanupAuditTrail(canvas);
 }
 
 void SkDebugCanvas::deleteDrawCommandAt(int index) {
