@@ -31,8 +31,10 @@ class GrAuditTrail;
 class GrClearOp;
 class GrClip;
 class GrCaps;
+class GrDrawOp;
 class GrPath;
 class GrDrawPathOpBase;
+class GrMeshDrawOp;
 class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
@@ -78,8 +80,9 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   sk_sp<GrDrawOp>);
+    void addMeshDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
+                       sk_sp<GrMeshDrawOp>);
+    void addDrawOp(GrRenderTargetContext*, const GrClip&, sk_sp<GrDrawOp>);
 
     void addOp(sk_sp<GrOp> op) { this->recordOp(std::move(op)); }
 

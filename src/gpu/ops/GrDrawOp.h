@@ -12,6 +12,8 @@
 #include "GrOp.h"
 #include "GrPipeline.h"
 
+class GrAppliedClip;
+
 /**
  * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
  * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
@@ -57,21 +59,18 @@ public:
     GrDrawOp(uint32_t classID);
     ~GrDrawOp() override;
 
-    /**
-     * Gets the inputs to pipeline analysis from the GrDrawOp.
-     */
-    void initPipelineAnalysis(GrPipelineAnalysis*) const;
-
-    bool installPipeline(const GrPipeline::CreateArgs&);
 
     // TODO no GrPrimitiveProcessors yet read fragment position
-    bool willReadFragmentPosition() const { return false; }
+//    bool willReadFragmentPosition() const { return false; }
+
+    virtual GrAAType aaType() const;
+    virtual bool hasUserStencilSettings();
+    virtual bool willXPNeedDstTexture(const GrCaps&) const;
+    virtual bool finalize(const GrAppliedClip&, const GrXferProcessor::DstTexture&) const;
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     // This is a bit more exciting than the other call sites since it uses the pipeline
-    GrGpuResource::UniqueID renderTargetUniqueID() const final {
-        return this->pipeline()->getRenderTarget()->uniqueID();
-    }
+    GrGpuResource::UniqueID renderTargetUniqueID() const final { return fRenderTargetUniqueID; }
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
@@ -105,38 +104,18 @@ protected:
         return string;
     }
 
-    const GrPipeline* pipeline() const {
-        SkASSERT(fPipelineInstalled);
-        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
-    }
-
-private:
-    /**
-     * Provides information about the GrPrimitiveProccesor that will be used to issue draws by this
-     * op to GrPipeline analysis.
-     */
-    virtual void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const = 0;
-
-    /**
-     * After GrPipeline analysis is complete this is called so that the op can use the analysis
-     * results when constructing its GrPrimitiveProcessor.
-     */
-    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
-
-protected:
     struct QueuedUpload {
         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
             : fUpload(std::move(upload))
             , fUploadBeforeToken(token) {}
-        DeferredUploadFn    fUpload;
+        DeferredUploadFn fUpload;
         GrDrawOpUploadToken fUploadBeforeToken;
     };
 
-    SkTArray<QueuedUpload>                          fInlineUploads;
+    SkTArray<QueuedUpload> fInlineUploads;
 
 private:
-    SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
-    bool                                            fPipelineInstalled;
+    GrGpuResource::UniqueID fRenderTargetUniqueID;
     typedef GrOp INHERITED;
 };
 

@@ -261,10 +261,10 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
+void GrRenderTargetOpList::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     sk_sp<GrDrawOp> op) {
+                                     sk_sp<GrMeshDrawOp> op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
@@ -343,6 +343,49 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
 
 #ifdef ENABLE_MDB
+    SkASSERT(fSurface);
+    op->pipeline()->addDependenciesTo(fSurface);
+#endif
+    this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
+}
+
+void GrRenderTargetOpList::addDrawOp(GrRenderTargetContext* renderTargetContext,
+                                     const GrClip& clip,
+                                     sk_sp<GrDrawOp> op) {
+    // Setup clip
+    SkRect bounds;
+    op_bounds(&bounds, op.get());
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, renderTargetContext, GrAATypeIsHW(op->aaType()),
+                    op->hasUserStencilSettings(), &appliedClip)) {
+        return;
+    }
+
+
+    if (op->hasUserStencilSettings() || appliedClip.hasStencilClip()) {
+        if (!renderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
+        if (!fResourceProvider->attachStencilAttachment(
+                renderTargetContext->accessRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
+    }
+
+
+    GrXferProcessor::DstTexture dstTexture;
+    if (op->willXPNeedDstTexture(*this->caps())) {
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+                              &dstTexture);
+        if (!dstTexture.texture()) {
+            return;
+        }
+    }
+
+#ifdef ENABLE_MDB
+    // ???
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif

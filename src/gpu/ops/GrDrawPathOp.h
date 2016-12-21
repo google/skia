@@ -36,6 +36,7 @@ protected:
     GrPathRendering::FillType fillType() const { return fFillType; }
 
 private:
+#if 0
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
         input->pipelineColorInput()->setKnownFourComponents(fColor);
         input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
@@ -45,6 +46,7 @@ private:
         optimizations.getOverrideColorIfSet(&fColor);
         fOptimizations = optimizations;
     }
+#endif
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
 
