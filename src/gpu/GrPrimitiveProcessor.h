@@ -18,7 +18,7 @@
  * responsible for providing a color and coverage input into the Ganesh rendering pipeline.  Through
  * optimization, Ganesh may decide a different color, no color, and / or no coverage are required
  * from the GrPrimitiveProcessor, so the GrPrimitiveProcessor must be able to support this
- * functionality.  We also use the GrPrimitiveProcessor to make batching decisions.
+ * functionality.
  *
  * There are two feedback loops between the GrFragmentProcessors, the GrXferProcessor, and the
  * GrPrimitiveProcessor.  These loops run on the CPU and compute any invariant components which

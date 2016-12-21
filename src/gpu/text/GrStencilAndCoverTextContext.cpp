@@ -629,7 +629,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         // the entire dst. Realistically this is a moot point, because any context that supports
         // NV_path_rendering will also support NV_blend_equation_advanced.
         // For clipping we'll just skip any optimizations based on the bounds. This does, however,
-        // hurt batching.
+        // hurt GrOp combining.
         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
                                               renderTargetContext->height());
 

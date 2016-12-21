@@ -39,14 +39,14 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging purposes turn each GrOp's bounds into a clip rect. This is used to
+    /** For debugging purposes turn each GrDrawOp's bounds into a clip rect. This is used to
         verify that the clip bounds are conservative. */
-    bool fClipBatchToBounds = false;
+    bool fClipDrawOpsToBounds = false;
 
     /** For debugging, override the default maximum look-back or look-ahead window for GrOp
         combining. */
-    int fMaxBatchLookback = -1;
-    int fMaxBatchLookahead = -1;
+    int fMaxOpCombineLookback = -1;
+    int fMaxOpCombineLookahead = -1;
 
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
