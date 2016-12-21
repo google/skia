@@ -43,18 +43,15 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override;
-
 private:
     GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
                      const SkPoint* positions, int vertexCount, const uint16_t* indices,
                      int indexCount, const GrColor* colors, const SkPoint* localCoords,
                      const SkRect& bounds);
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
-    void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool batchablePrimitiveType() const {
@@ -78,7 +75,7 @@ private:
     bool fVariableColor;
     int fVertexCount;
     int fIndexCount;
-    bool fCoverageIgnored;  // comes from initBatchTracker.
+    bool fCoverageIgnored;  // comes from applyPipelineOptimizations.
 
     SkSTArray<1, Mesh, true> fMeshes;
 

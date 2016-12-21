@@ -110,24 +110,21 @@ public:
         return str;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one rect.
-        color->setKnownFourComponents(fRects[0].fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fRects[0].fColor);
-        fOverrides = overrides;
-    }
-
 private:
     NonAAFillRectOp() : INHERITED(ClassID()) {}
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fRects[0].fColor);
+        fOptimizations = optimizations;
+    }
+
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fOverrides.readsCoverage());
+        sk_sp<GrGeometryProcessor> gp = make_gp(fOptimizations.readsCoverage());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -166,8 +163,9 @@ private:
 
         // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
         // tweaking.
-        if (fOverrides.canTweakAlphaForCoverage() && !that->fOverrides.canTweakAlphaForCoverage()) {
-            fOverrides = that->fOverrides;
+        if (fOptimizations.canTweakAlphaForCoverage() &&
+            !that->fOptimizations.canTweakAlphaForCoverage()) {
+            fOptimizations = that->fOptimizations;
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
@@ -182,7 +180,7 @@ private:
         GrQuad fLocalQuad;
     };
 
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
     SkSTArray<1, RectInfo, true> fRects;
 
     typedef GrMeshDrawOp INHERITED;

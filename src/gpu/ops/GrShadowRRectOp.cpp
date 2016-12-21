@@ -114,8 +114,8 @@ public:
         SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                                             center.fX + outerRadius, center.fY + outerRadius);
 
-        op->fGeoData.emplace_back(
-                Geometry{color, outerRadius, innerRadius, blurRadius, devBounds, stroked});
+        op->fCircles.emplace_back(
+                Circle{color, outerRadius, innerRadius, blurRadius, devBounds, stroked});
 
         // Use the original radius and stroke radius for the bounds so that it does not include the
         // AA bloat.
@@ -132,33 +132,30 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fGeoData.count(); ++i) {
+        for (int i = 0; i < fCircles.count(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                     "OuterRad: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",
-                    fGeoData[i].fColor, fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
-                    fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
-                    fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
+                    fCircles[i].fColor, fCircles[i].fDevBounds.fLeft, fCircles[i].fDevBounds.fTop,
+                    fCircles[i].fDevBounds.fRight, fCircles[i].fDevBounds.fBottom,
+                    fCircles[i].fOuterRadius, fCircles[i].fInnerRadius, fCircles[i].fBlurRadius);
         }
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     ShadowCircleOp() : INHERITED(ClassID()) {}
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!overrides.readsLocalCoords()) {
+
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fCircles[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fCircles[0].fColor);
+        if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }
@@ -180,7 +177,7 @@ private:
             SkScalar fBlurRadius;
         };
 
-        int instanceCount = fGeoData.count();
+        int instanceCount = fCircles.count();
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(CircleVertex));
 
@@ -203,14 +200,14 @@ private:
 
         int currStartVertex = 0;
         for (int i = 0; i < instanceCount; i++) {
-            const Geometry& geom = fGeoData[i];
+            const Circle& circle = fCircles[i];
 
-            GrColor color = geom.fColor;
-            SkScalar outerRadius = geom.fOuterRadius;
-            SkScalar innerRadius = geom.fInnerRadius;
-            SkScalar blurRadius = geom.fBlurRadius;
+            GrColor color = circle.fColor;
+            SkScalar outerRadius = circle.fOuterRadius;
+            SkScalar innerRadius = circle.fInnerRadius;
+            SkScalar blurRadius = circle.fBlurRadius;
 
-            const SkRect& bounds = geom.fDevBounds;
+            const SkRect& bounds = circle.fDevBounds;
             CircleVertex* ov0 = reinterpret_cast<CircleVertex*>(vertices + 0 * vertexStride);
             CircleVertex* ov1 = reinterpret_cast<CircleVertex*>(vertices + 1 * vertexStride);
             CircleVertex* ov2 = reinterpret_cast<CircleVertex*>(vertices + 2 * vertexStride);
@@ -275,7 +272,7 @@ private:
             ov7->fOuterRadius = outerRadius;
             ov7->fBlurRadius = blurRadius;
 
-            if (geom.fStroked) {
+            if (circle.fStroked) {
                 // compute the inner ring
                 CircleVertex* iv0 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
                 CircleVertex* iv1 = reinterpret_cast<CircleVertex*>(vertices + 9 * vertexStride);
@@ -289,7 +286,7 @@ private:
                 // cosine and sine of pi/8
                 SkScalar c = 0.923579533f;
                 SkScalar s = 0.382683432f;
-                SkScalar r = geom.fInnerRadius;
+                SkScalar r = circle.fInnerRadius;
 
                 iv0->fPos = center + SkPoint::Make(-s * r, -c * r);
                 iv0->fColor = color;
@@ -348,14 +345,14 @@ private:
                 iv->fBlurRadius = blurRadius;
             }
 
-            const uint16_t* primIndices = circle_type_to_indices(geom.fStroked);
-            const int primIndexCount = circle_type_to_index_count(geom.fStroked);
+            const uint16_t* primIndices = circle_type_to_indices(circle.fStroked);
+            const int primIndexCount = circle_type_to_index_count(circle.fStroked);
             for (int i = 0; i < primIndexCount; ++i) {
                 *indices++ = primIndices[i] + currStartVertex;
             }
 
-            currStartVertex += circle_type_to_vert_count(geom.fStroked);
-            vertices += circle_type_to_vert_count(geom.fStroked) * vertexStride;
+            currStartVertex += circle_type_to_vert_count(circle.fStroked);
+            vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
         GrMesh mesh;
@@ -375,14 +372,14 @@ private:
             return false;
         }
 
-        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
+        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
         this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         return true;
     }
 
-    struct Geometry {
+    struct Circle {
         GrColor fColor;
         SkScalar fOuterRadius;
         SkScalar fInnerRadius;
@@ -391,7 +388,7 @@ private:
         bool fStroked;
     };
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    SkSTArray<1, Circle, true> fCircles;
     SkMatrix fViewMatrixIfUsingLocalCoords;
     int fVertCount;
     int fIndexCount;
@@ -584,19 +581,15 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fGeoData[0].fColor);
-        coverage->setUnknownSingleComponent();
+private:
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
     }
 
-private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any overrides that affect our GP.
-        overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!overrides.readsLocalCoords()) {
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
+        if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
     }

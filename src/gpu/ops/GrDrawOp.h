@@ -12,8 +12,6 @@
 #include "GrOp.h"
 #include "GrPipeline.h"
 
-struct GrInitInvariantOutput;
-
 /**
  * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
  * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
@@ -60,9 +58,9 @@ public:
     ~GrDrawOp() override;
 
     /**
-     * Fills in a structure informing the XP of overrides to its normal behavior.
+     * Gets the inputs to pipeline analysis from the GrDrawOp.
      */
-    void getPipelineOptimizations(GrPipelineOptimizations* override) const;
+    void initPipelineAnalysis(GrPipelineAnalysis*) const;
 
     bool installPipeline(const GrPipeline::CreateArgs&);
 
@@ -112,16 +110,18 @@ protected:
         return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
     }
 
-    virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                              GrInitInvariantOutput* coverage,
-                                              GrBatchToXPOverrides* overrides) const = 0;
-
 private:
     /**
-     * initBatchTracker is a hook for the some additional overrides / optimization possibilities
-     * from the GrXferProcessor.
+     * Provides information about the GrPrimitiveProccesor that will be used to issue draws by this
+     * op to GrPipeline analysis.
      */
-    virtual void initBatchTracker(const GrXPOverridesForBatch&) = 0;
+    virtual void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput*) const = 0;
+
+    /**
+     * After GrPipeline analysis is complete this is called so that the op can use the analysis
+     * results when constructing its GrPrimitiveProcessor.
+     */
+    virtual void applyPipelineOptimizations(const GrPipelineOptimizations&) = 0;
 
 protected:
     struct QueuedUpload {

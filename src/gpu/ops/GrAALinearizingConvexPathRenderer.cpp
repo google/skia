@@ -152,14 +152,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one path.
-        color->setKnownFourComponents(fPaths[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     AAFlatteningConvexPathOp(GrColor color,
                              const SkMatrix& viewMatrix,
@@ -186,18 +178,22 @@ private:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fPaths[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        if (!optimizations.readsColor()) {
             fPaths[0].fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fPaths[0].fColor);
+        optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
 
         // setup batch properties
         fColor = fPaths[0].fColor;
-        fUsesLocalCoords = overrides.readsLocalCoords();
-        fCoverageIgnored = !overrides.readsCoverage();
-        fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+        fUsesLocalCoords = optimizations.readsLocalCoords();
+        fCoverageIgnored = !optimizations.readsCoverage();
+        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
 
     void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,

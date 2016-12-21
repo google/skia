@@ -163,18 +163,15 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fRects[0].fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     AAStrokeRectOp() : INHERITED(ClassID()) {}
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
-    void initBatchTracker(const GrXPOverridesForBatch&) override;
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -224,15 +221,15 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
-    if (!overrides.readsColor()) {
+void AAStrokeRectOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+    if (!optimizations.readsColor()) {
         fRects[0].fColor = GrColor_ILLEGAL;
     }
-    overrides.getOverrideColorIfSet(&fRects[0].fColor);
+    optimizations.getOverrideColorIfSet(&fRects[0].fColor);
 
-    // setup batch properties
-    fUsesLocalCoords = overrides.readsLocalCoords();
-    fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+    fUsesLocalCoords = optimizations.readsLocalCoords();
+    fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+    fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
 }
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) const {

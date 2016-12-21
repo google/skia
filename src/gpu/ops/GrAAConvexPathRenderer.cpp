@@ -749,13 +749,6 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
 private:
     AAConvexPathOp(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
             : INHERITED(ClassID()), fColor(color) {
@@ -763,17 +756,21 @@ private:
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        if (!optimizations.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
+        optimizations.getOverrideColorIfSet(&fColor);
 
-        fUsesLocalCoords = overrides.readsLocalCoords();
-        fCoverageIgnored = !overrides.readsCoverage();
+        fUsesLocalCoords = optimizations.readsLocalCoords();
+        fCoverageIgnored = !optimizations.readsCoverage();
         fLinesOnly = SkPath::kLine_SegmentMask == fPaths[0].fPath.getSegmentMasks();
-        fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
+        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
 
     void prepareLinesOnlyDraws(Target* target) const {

@@ -19,14 +19,6 @@
 #include "SkTLList.h"
 
 class GrDrawPathOpBase : public GrDrawOp {
-public:
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setKnownSingleComponent(0xff);
-    }
-
 protected:
     GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrColor initialColor,
                      GrPathRendering::FillType fill)
@@ -36,15 +28,22 @@ protected:
         SkASSERT(!fStencilPassSettings.isDisabled());  // This shouldn't be called before onPrepare.
         return fStencilPassSettings;
     }
-    const GrXPOverridesForBatch& overrides() const { return fOverrides; }
+
+protected:
+    const GrPipelineOptimizations& optimizations() const { return fOptimizations; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
 
 private:
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fColor);
-        fOverrides = overrides;
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fColor);
+        fOptimizations = optimizations;
     }
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
@@ -53,7 +52,7 @@ private:
     GrColor fColor;
     GrPathRendering::FillType fFillType;
     GrStencilSettings fStencilPassSettings;
-    GrXPOverridesForBatch fOverrides;
+    GrPipelineOptimizations fOptimizations;
 
     typedef GrDrawOp INHERITED;
 };

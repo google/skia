@@ -71,28 +71,25 @@ GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
     this->setBounds(bounds, HasAABloat::kNo, zeroArea);
 }
 
-void GrDrawVerticesOp::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                    GrInitInvariantOutput* coverage,
-                                                    GrBatchToXPOverrides* overrides) const {
-    // When this is called there is only one mesh.
+void GrDrawVerticesOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
     if (fVariableColor) {
-        color->setUnknownFourComponents();
+        input->pipelineColorInput()->setUnknownFourComponents();
     } else {
-        color->setKnownFourComponents(fMeshes[0].fColor);
+        input->pipelineColorInput()->setKnownFourComponents(fMeshes[0].fColor);
     }
-    coverage->setKnownSingleComponent(0xff);
+    input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
 }
 
-void GrDrawVerticesOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
+void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
     SkASSERT(fMeshes.count() == 1);
     GrColor overrideColor;
-    if (overrides.getOverrideColorIfSet(&overrideColor)) {
+    if (optimizations.getOverrideColorIfSet(&overrideColor)) {
         fMeshes[0].fColor = overrideColor;
         fMeshes[0].fColors.reset();
         fVariableColor = false;
     }
-    fCoverageIgnored = !overrides.readsCoverage();
-    if (!overrides.readsLocalCoords()) {
+    fCoverageIgnored = !optimizations.readsCoverage();
+    if (!optimizations.readsLocalCoords()) {
         fMeshes[0].fLocalCoords.reset();
     }
 }

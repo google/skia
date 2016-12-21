@@ -780,22 +780,27 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
-        overrides->fUsePLSDstRead = true;
+private:
+    PLSPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
+            : INHERITED(ClassID()), fColor(color), fPath(path), fViewMatrix(viewMatrix) {
+        // compute bounds
+        this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kNo);
     }
 
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        // Handle any color overrides
-        if (!overrides.readsColor()) {
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->setUsesPLSDstRead();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        if (!optimizations.readsColor()) {
             fColor = GrColor_ILLEGAL;
         }
-        overrides.getOverrideColorIfSet(&fColor);
+        optimizations.getOverrideColorIfSet(&fColor);
 
-        fUsesLocalCoords = overrides.readsLocalCoords();
+        fUsesLocalCoords = optimizations.readsLocalCoords();
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -904,14 +909,6 @@ public:
         mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex,
                   kRectVertexCount);
         target->draw(finishProcessor.get(), mesh);
-    }
-
-private:
-    PLSPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
-            : INHERITED(ClassID()), fColor(color), fPath(path), fViewMatrix(viewMatrix) {
-        // compute bounds
-        this->setTransformedBounds(path.getBounds(), fViewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kNo);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

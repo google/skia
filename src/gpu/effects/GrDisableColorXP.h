@@ -28,11 +28,11 @@ private:
     GrDisableColorXPFactory();
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineOptimizations& optimizations,
+                                           const GrPipelineAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
 
-    bool onWillReadDstColor(const GrCaps&, const GrPipelineOptimizations&) const override {
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override {
         return false;
     }
 

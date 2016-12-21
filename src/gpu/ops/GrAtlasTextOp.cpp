@@ -45,40 +45,37 @@ SkString GrAtlasTextOp::dumpInfo() const {
     return str;
 }
 
-void GrAtlasTextOp::computePipelineOptimizations(GrInitInvariantOutput* color,
-                                                 GrInitInvariantOutput* coverage,
-                                                 GrBatchToXPOverrides* overrides) const {
+void GrAtlasTextOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
     if (kColorBitmapMask_MaskType == fMaskType) {
-        color->setUnknownFourComponents();
+        input->pipelineColorInput()->setUnknownFourComponents();
     } else {
-        color->setKnownFourComponents(fColor);
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
     }
     switch (fMaskType) {
         case kGrayscaleDistanceField_MaskType:
         case kGrayscaleCoverageMask_MaskType:
-            coverage->setUnknownSingleComponent();
+            input->pipelineCoverageInput()->setUnknownSingleComponent();
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
-            coverage->setUnknownOpaqueFourComponents();
-            coverage->setUsingLCDCoverage();
+            input->pipelineCoverageInput()->setUnknownOpaqueFourComponents();
+            input->pipelineCoverageInput()->setUsingLCDCoverage();
             break;
         case kColorBitmapMask_MaskType:
-            coverage->setKnownSingleComponent(0xff);
+            input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
     }
 }
 
-void GrAtlasTextOp::initBatchTracker(const GrXPOverridesForBatch& overrides) {
-    // Handle any color overrides
-    if (!overrides.readsColor()) {
+void GrAtlasTextOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
+    if (!optimizations.readsColor()) {
         fGeoData[0].fColor = GrColor_ILLEGAL;
     }
-    overrides.getOverrideColorIfSet(&fGeoData[0].fColor);
+    optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
 
-    fColorIgnored = !overrides.readsColor();
+    fColorIgnored = !optimizations.readsColor();
     fColor = fGeoData[0].fColor;
-    fUsesLocalCoords = overrides.readsLocalCoords();
-    fCoverageIgnored = !overrides.readsCoverage();
+    fUsesLocalCoords = optimizations.readsLocalCoords();
+    fCoverageIgnored = !optimizations.readsCoverage();
 }
 
 void GrAtlasTextOp::onPrepareDraws(Target* target) const {

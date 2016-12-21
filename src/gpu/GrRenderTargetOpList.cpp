@@ -297,8 +297,8 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     args.fPipelineBuilder = &pipelineBuilder;
     args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
-    op->getPipelineOptimizations(&args.fOpts);
-    if (args.fOpts.fOverrides.fUsePLSDstRead || fClipOpToBounds) {
+    op->initPipelineAnalysis(&args.fAnalysis);
+    if (args.fAnalysis.fUsesPLSDstRead || fClipOpToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
@@ -317,12 +317,12 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
             return;
         }
     }
-    args.fOpts.fColorPOI.completeCalculations(
-        sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
-        pipelineBuilder.numColorFragmentProcessors());
-    args.fOpts.fCoveragePOI.completeCalculations(
-        sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
-        pipelineBuilder.numCoverageFragmentProcessors());
+    args.fAnalysis.fColorPOI.completeCalculations(
+            sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
+            pipelineBuilder.numColorFragmentProcessors());
+    args.fAnalysis.fCoveragePOI.completeCalculations(
+            sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
+            pipelineBuilder.numCoverageFragmentProcessors());
     args.fScissor = &appliedClip.scissorState();
     args.fWindowRectsState = &appliedClip.windowRectsState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
@@ -330,7 +330,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
-    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fOpts)) {
+    if (pipelineBuilder.willXPNeedDstTexture(*this->caps(), args.fAnalysis)) {
         this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
                               &args.fDstTexture);
         if (!args.fDstTexture.texture()) {

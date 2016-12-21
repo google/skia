@@ -152,7 +152,7 @@ public:
     bool enforcePMColor() const { return fEnforcePMColor; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineOptimizations& optimizations,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&,
                                                  bool doesStencilWrite,
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
@@ -247,12 +247,11 @@ void ArithmeticXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKe
 
 GrGLSLXferProcessor* ArithmeticXP::createGLSLInstance() const { return new GLArithmeticXP(*this); }
 
-GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(
-                                                       const GrPipelineOptimizations& optimizations,
-                                                       bool doesStencilWrite,
-                                                       GrColor* overrideColor,
-                                                       const GrCaps& caps) const {
-   return GrXferProcessor::kNone_OptFlags;
+GrXferProcessor::OptFlags ArithmeticXP::onGetOptimizations(const GrPipelineAnalysis&,
+                                                           bool doesStencilWrite,
+                                                           GrColor* overrideColor,
+                                                           const GrCaps& caps) const {
+    return GrXferProcessor::kNone_OptFlags;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,11 +262,10 @@ GrArithmeticXPFactory::GrArithmeticXPFactory(float k1, float k2, float k3, float
     this->initClassID<GrArithmeticXPFactory>();
 }
 
-GrXferProcessor*
-GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
-                                             const GrPipelineOptimizations& optimizations,
-                                             bool hasMixedSamples,
-                                             const DstTexture* dstTexture) const {
+GrXferProcessor* GrArithmeticXPFactory::onCreateXferProcessor(const GrCaps& caps,
+                                                              const GrPipelineAnalysis&,
+                                                              bool hasMixedSamples,
+                                                              const DstTexture* dstTexture) const {
     return new ArithmeticXP(dstTexture, hasMixedSamples, fK1, fK2, fK3, fK4, fEnforcePMColor);
 }
 

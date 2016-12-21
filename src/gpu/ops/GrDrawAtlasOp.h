@@ -35,25 +35,22 @@ public:
         return string;
     }
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called there is only one atlas draw.
-        if (this->hasColors()) {
-            color->setUnknownFourComponents();
-        } else {
-            color->setKnownFourComponents(fGeoData[0].fColor);
-        }
-        coverage->setKnownSingleComponent(0xff);
-    }
-
 private:
     GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
                   const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
 
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        if (this->hasColors()) {
+            input->pipelineColorInput()->setUnknownFourComponents();
+        } else {
+            input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+        }
+        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    }
+
     void onPrepareDraws(Target*) const override;
 
-    void initBatchTracker(const GrXPOverridesForBatch&) override;
+    void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
 
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return fColorIgnored; }

@@ -10,12 +10,16 @@
 
 #include "GrColor.h"
 
-struct GrInitInvariantOutput {
-    GrInitInvariantOutput()
-        : fValidFlags(kNone_GrColorComponentFlags)
-        , fColor(0)
-        , fIsSingleComponent(false)
-        , fIsLCDCoverage(false) {}
+/**
+ * This describes the color or coverage input that will be seen by the first color or coverage stage
+ * of a GrPipeline. This is also the GrPrimitiveProcessor color or coverage *output*.
+ */
+struct GrPipelineInput {
+    GrPipelineInput()
+            : fValidFlags(kNone_GrColorComponentFlags)
+            , fColor(0)
+            , fIsSingleComponent(false)
+            , fIsLCDCoverage(false) {}
 
     void setKnownFourComponents(GrColor color) {
         fColor = color;
@@ -54,6 +58,7 @@ struct GrInitInvariantOutput {
                                             // updated
 };
 
+/** This describes the output of a GrFragmentProcessor in a GrPipeline. */
 class GrInvariantOutput {
 public:
     GrInvariantOutput(GrColor color, GrColorComponentFlags flags, bool isSingleComponent)
@@ -64,13 +69,13 @@ public:
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
 
-    GrInvariantOutput(const GrInitInvariantOutput& io)
-        : fColor(io.fColor)
-        , fValidFlags(io.fValidFlags)
-        , fIsSingleComponent(io.fIsSingleComponent)
-        , fNonMulStageFound(false)
-        , fWillUseInputColor(false)
-        , fIsLCDCoverage(io.fIsLCDCoverage) {}
+    GrInvariantOutput(const GrPipelineInput& input)
+            : fColor(input.fColor)
+            , fValidFlags(input.fValidFlags)
+            , fIsSingleComponent(input.fIsSingleComponent)
+            , fNonMulStageFound(false)
+            , fWillUseInputColor(false)
+            , fIsLCDCoverage(input.fIsLCDCoverage) {}
 
     virtual ~GrInvariantOutput() {}
 
@@ -282,13 +287,13 @@ private:
         fWillUseInputColor = true;
     }
 
-    void reset(const GrInitInvariantOutput& io) {
-        fColor = io.fColor;
-        fValidFlags = io.fValidFlags;
-        fIsSingleComponent = io.fIsSingleComponent;
+    void reset(const GrPipelineInput& input) {
+        fColor = input.fColor;
+        fValidFlags = input.fValidFlags;
+        fIsSingleComponent = input.fIsSingleComponent;
         fNonMulStageFound = false;
         fWillUseInputColor = true;
-        fIsLCDCoverage = io.fIsLCDCoverage;
+        fIsLCDCoverage = input.fIsLCDCoverage;
     }
 
     void internalSetToTransparentBlack() {

@@ -13,7 +13,6 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
-class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLPPFragmentBuilder;
 class GrGLSLGeometryBuilder;

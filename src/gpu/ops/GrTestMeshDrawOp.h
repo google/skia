@@ -21,27 +21,24 @@ class GrTestMeshDrawOp : public GrMeshDrawOp {
 public:
     virtual const char* name() const override = 0;
 
-    void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                      GrInitInvariantOutput* coverage,
-                                      GrBatchToXPOverrides* overrides) const override {
-        // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fColor);
-        coverage->setUnknownSingleComponent();
-    }
-
-    void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fColor);
-
-        fOptimizations.fColorIgnored = !overrides.readsColor();
-        fOptimizations.fUsesLocalCoords = overrides.readsLocalCoords();
-        fOptimizations.fCoverageIgnored = !overrides.readsCoverage();
-    }
-
 protected:
     GrTestMeshDrawOp(uint32_t classID, const SkRect& bounds, GrColor color)
             : INHERITED(classID), fColor(color) {
         // Choose some conservative values for aa bloat and zero area.
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
+    }
+
+    void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
+        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineCoverageInput()->setUnknownSingleComponent();
+    }
+
+    void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fColor);
+
+        fOptimizations.fColorIgnored = !optimizations.readsColor();
+        fOptimizations.fUsesLocalCoords = optimizations.readsLocalCoords();
+        fOptimizations.fCoverageIgnored = !optimizations.readsCoverage();
     }
 
     struct Optimizations {
