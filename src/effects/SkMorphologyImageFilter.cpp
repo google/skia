@@ -13,6 +13,7 @@
 #include "SkReadBuffer.h"
 #include "SkRect.h"
 #include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -492,6 +493,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
 
+    // We force the inputs to this filter into the destination color space in the calling code.
+    SkASSERT(input->getColorSpace() == colorSpace.get());
+
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));
 
@@ -507,7 +511,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
             return nullptr;
         }
 
-        apply_morphology_pass(context->textureProvider(), 
+        apply_morphology_pass(context->textureProvider(),
                               dstRTContext.get(), clip, srcTexture.get(),
                               srcRect, dstRect, radius.fWidth, morphType,
                               Gr1DKernelEffect::kX_Direction);
@@ -541,6 +545,23 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                                kNeedNewImageUniqueID_SpecialImage,
                                                std::move(srcTexture), std::move(colorSpace),
                                                &input->props());
+}
+
+// Return a copy of 'src' transformed to the output's color space
+static sk_sp<SkSpecialImage> image_to_color_space(SkSpecialImage* src,
+                                                  const SkImageFilter::OutputProperties& outProps) {
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(
+        outProps, SkISize::Make(src->width(), src->height())));
+    if (!surf) {
+        return sk_ref_sp(src);
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    src->draw(canvas, 0, 0, nullptr);
+
+    return surf->makeImageSnapshot();
 }
 #endif
 
@@ -581,6 +602,16 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
+
+        // If the input is not yet already in the destination color space, do an explicit up-front
+        // conversion. This is extremely unlikely (maybe even impossible). Typically, applyCropRect
+        // will have called pad_image to account for our dilation of bounds, so the result will
+        // already be moved to the destination color space. If someone makes a filter DAG that
+        // avoids that, then we use this fall-back, which saves us from having to do the xform
+        // during the filter itself.
+        if (input->getColorSpace() != ctx.outputProperties().colorSpace()) {
+            input = image_to_color_space(input.get(), ctx.outputProperties());
+        }
 
         auto type = (kDilate_Op == this->op()) ? GrMorphologyEffect::kDilate_MorphologyType
                                                : GrMorphologyEffect::kErode_MorphologyType;
