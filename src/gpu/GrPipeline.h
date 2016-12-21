@@ -96,9 +96,9 @@ public:
     static bool AreEqual(const GrPipeline& a, const GrPipeline& b);
 
     /**
-     * Allows a GrOp subclass to determine whether two GrBatches can combine. This is a stricter
-     * test than isEqual because it also considers blend barriers when the two batches' bounds
-     * overlap
+     * Allows a GrOp subclass to determine whether two GrOp instances can combine. This is a
+     * stricter test than isEqual because it also considers blend barriers when the two ops'
+     * bounds overlap
      */
     static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
                            const GrPipeline& b, const SkRect& bBounds,

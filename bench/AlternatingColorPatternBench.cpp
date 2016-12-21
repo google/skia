@@ -70,8 +70,8 @@ static void makebm(SkBitmap* bm, int w, int h) {
  *
  * The bench is used to test a few things. First it can test any optimizations made for a specific
  * color pattern (for example drawing an opaque bitmap versus one with partial alpha). Also it can
- * be used to test the cost of program switching and/or batching when alternating between different
- * patterns when on the gpu.
+ * be used to test the cost of program switching and/or GrDrawOp combining when alternating between
+ * different patterns when on the gpu.
  */
 class AlternatingColorPatternBench : public Benchmark {
 public:

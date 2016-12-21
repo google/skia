@@ -121,7 +121,7 @@ public:
          */
         kOverrideColor_OptFlag            = 0x8,
         /**
-         * Can tweak alpha for coverage. Currently this flag should only be used by a batch
+         * Can tweak alpha for coverage. Currently this flag should only be used by a GrDrawOp.
          */
         kCanTweakAlphaForCoverage_OptFlag = 0x20,
     };

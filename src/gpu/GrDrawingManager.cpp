@@ -83,7 +83,7 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
         fOpLists[i]->prepareOps(&fFlushState);
     }
 
-    // Enable this to print out verbose batching information
+    // Enable this to print out verbose GrOp information
 #if 0
     for (int i = 0; i < fOpLists.count(); ++i) {
         SkDEBUGCODE(fOpLists[i]->dump();)

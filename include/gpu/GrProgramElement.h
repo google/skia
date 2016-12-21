@@ -27,7 +27,7 @@ class GrGpuResourceRef;
  * While a GrProgramElement is ref'ed any resources it owns are also ref'ed. However, once it gets
  * into the state where it has pending executions AND no refs then it converts its ownership of
  * its GrGpuResources from refs to pending IOs. The pending IOs allow the cache to track when it is
- * safe to recycle a resource even though we still have buffered GrBatches that read or write to the
+ * safe to recycle a resource even though we still have buffered GrOps that read or write to the
  * the resource.
  *
  * To make this work all GrGpuResource objects owned by a GrProgramElement or derived classes

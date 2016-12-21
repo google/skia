@@ -292,7 +292,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool usePLSDstRead(const GrDrawOp* batch) const;
+    bool usePLSDstRead(const GrDrawOp*) const;
 
 private:
     // Some of the auto restore objects assume that no effects are removed during their lifetime.

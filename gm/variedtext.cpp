@@ -13,7 +13,7 @@
 
 /**
  * Draws text with random parameters. The text draws each get their own clip rect. It is also
- * used as a bench to measure how well the GPU backend batches text draws.
+ * used as a bench to measure how well the GPU backend combines draw ops for text draws.
  */
 
 class VariedTextGM : public skiagm::GM {

@@ -12,7 +12,7 @@
 #include "SkView.h"
 
 /**
- * Animated sample used to develop batched rect implementation in GrBufferedDrawTarget.
+ * Animated sample used to develop an early version of GrDrawOp merging.
  */
 class ManyRectsView : public SampleView {
 private:
@@ -44,8 +44,6 @@ protected:
             canvas->save();
 
             canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-            // Rotation messes up the GPU batching because of the clip below. We don't notice
-            // that the rect is inside the clip so the clip changes interrupt batching.
             if (false) {
                 SkMatrix rotate;
                 rotate.setRotate(fRandom.nextUScalar1() * 360,
@@ -54,7 +52,7 @@ protected:
                 canvas->concat(rotate);
             }
             SkRect clipRect = rect;
-            // This clip will always contain the entire rect. It's here to give the GPU batching
+            // This clip will always contain the entire rect. It's here to give the GPU op combining
             // code a little more challenge.
             clipRect.outset(10, 10);
             canvas->clipRect(clipRect);
