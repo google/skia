@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_15ae1765",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-21T20:23:36Z",
+      "side": 1,
+      "message": "I think we\u0027d normally do \"static const\" or maybe even \"static constexpr\" rather than a namespace",
+      "revId": "4a29d5fc01282e8fe955bcc5b94ac24cc647df42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
