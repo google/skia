@@ -14,7 +14,7 @@
 using namespace Response;
 
 bool OpsHandler::canHandle(const char* method, const char* url) {
-    const char* kBasePath = "/batches";
+    const char* kBasePath = "/ops";
     return 0 == strncmp(url, kBasePath, strlen(kBasePath));
 }
 
@@ -27,7 +27,7 @@ int OpsHandler::handle(Request* request, MHD_Connection* connection, const char*
         return MHD_NO;
     }
 
-    // /batches
+    // /ops
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
         int n = request->getLastOp();
 
