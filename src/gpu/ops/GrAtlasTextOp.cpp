@@ -131,9 +131,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
         size_t byteCount;
         void* blobVertices;
         int subRunGlyphCount;
-        blob->regenInBatch(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
-                           vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                           &blobVertices, &byteCount, &subRunGlyphCount);
+        blob->regenInOp(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
+                        vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                        &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices
         memcpy(currVertex, blobVertices, byteCount);

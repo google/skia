@@ -152,10 +152,10 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                           const SkMatrix& srcToDstMatrix,
                                           const GrClip& clip,
                                           const SkPaint& paint) {
-    // Specifying the texture coords as local coordinates is an attempt to enable more batching
-    // by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture FP. In
-    // the future this should be an opaque optimization enabled by the combination of batch/GP and
-    // FP.
+    // Specifying the texture coords as local coordinates is an attempt to enable more GrDrawOp
+    // combining by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture
+    // FP. In the future this should be an opaque optimization enabled by the combination of
+    // GrDrawOp/GP and FP.
     const SkMaskFilter* mf = paint.getMaskFilter();
     // The shader expects proper local coords, so we can't replace local coords with texture coords
     // if the shader will be used. If we have a mask filter we will change the underlying geometry

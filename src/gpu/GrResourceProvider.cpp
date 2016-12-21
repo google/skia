@@ -33,7 +33,7 @@ const GrBuffer* GrResourceProvider::createInstancedIndexBuffer(const uint16_t* p
                                                                const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
-    // This is typically used in GrBatchs, so we assume kNoPendingIO.
+    // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
     GrBuffer* buffer = this->createBuffer(bufferSize, kIndex_GrBufferType, kStatic_GrAccessPattern,
                                           kNoPendingIO_Flag);
     if (!buffer) {

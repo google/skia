@@ -102,7 +102,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             check_refs(reporter, sProxy.get(), 1, 1, 0, 1);
 
-            // In the deferred case, the discard batch created on instantiation adds an
+            // In the deferred case, the discard op created on instantiation adds an
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
@@ -122,7 +122,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             check_refs(reporter, sProxy.get(), 1, 1, 1, 0);
 
-            // In the deferred case, the discard batch created on instantiation adds an
+            // In the deferred case, the discard op created on instantiation adds an
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
@@ -142,7 +142,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             check_refs(reporter, sProxy.get(), 1, 1, 1, 1);
 
-            // In the deferred case, the discard batch created on instantiation adds an
+            // In the deferred case, the discard op created on instantiation adds an
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
@@ -150,7 +150,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             sProxy->instantiate(provider);
 
-            // In the deferred case, this checks that the refs transfered to the GrSurface
+            // In the deferred case, this checks that the refs transferred to the GrSurface
             check_refs(reporter, sProxy.get(), 1, 1, 1, expectedWrites);
         }
 
@@ -168,7 +168,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
             sProxy->instantiate(provider);
 
-            // In the deferred case, this checks that the refs transfered to the GrSurface
+            // In the deferred case, this checks that the refs transferred to the GrSurface
             check_refs(reporter, sProxy.get(), 3, 3, 0, expectedWrites);
 
             sProxy->unref();

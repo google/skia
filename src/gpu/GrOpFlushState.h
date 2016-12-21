@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrBatchBuffer_DEFINED
-#define GrBatchBuffer_DEFINED
+#ifndef GrOpFlushState_DEFINED
+#define GrOpFlushState_DEFINED
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"

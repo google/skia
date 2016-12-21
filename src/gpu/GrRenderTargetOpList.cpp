@@ -42,9 +42,9 @@ using gr_instanced::InstancedRendering;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Experimentally we have found that most batching occurs within the first 10 comparisons.
-static const int kDefaultMaxBatchLookback  = 10;
-static const int kDefaultMaxBatchLookahead = 10;
+// Experimentally we have found that most combining occurs within the first 10 comparisons.
+static const int kDefaultMaxOpLookback = 10;
+static const int kDefaultMaxOpLookahead = 10;
 
 GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
@@ -57,11 +57,11 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
-    fClipOpToBounds = options.fClipBatchToBounds;
-    fMaxOpLookback = (options.fMaxBatchLookback < 0) ? kDefaultMaxBatchLookback :
-                                                          options.fMaxBatchLookback;
-    fMaxOpLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
-                                                           options.fMaxBatchLookahead;
+    fClipOpToBounds = options.fClipDrawOpsToBounds;
+    fMaxOpLookback = (options.fMaxOpCombineLookback < 0) ? kDefaultMaxOpLookback
+                                                         : options.fMaxOpCombineLookback;
+    fMaxOpLookahead = (options.fMaxOpCombineLookahead < 0) ? kDefaultMaxOpLookahead
+                                                           : options.fMaxOpCombineLookahead;
 
     if (GrCaps::InstancedSupport::kNone != this->caps()->instancedSupport()) {
         fInstancedRendering.reset(fGpu->createInstancedRendering());
@@ -98,9 +98,9 @@ void GrRenderTargetOpList::dump() const {
 
 void GrRenderTargetOpList::setupDstTexture(GrRenderTarget* rt,
                                            const GrClip& clip,
-                                           const SkRect& batchBounds,
+                                           const SkRect& opBounds,
                                            GrXferProcessor::DstTexture* dstTexture) {
-    SkRect bounds = batchBounds;
+    SkRect bounds = opBounds;
     bounds.outset(0.5f, 0.5f);
 
     if (this->caps()->textureBarrierSupport()) {
@@ -235,10 +235,10 @@ void GrRenderTargetOpList::freeGpuResources() {
     }
 }
 
-static void batch_bounds(SkRect* bounds, const GrOp* batch) {
-    *bounds = batch->bounds();
-    if (batch->hasZeroArea()) {
-        if (batch->hasAABloat()) {
+static void op_bounds(SkRect* bounds, const GrOp* op) {
+    *bounds = op->bounds();
+    if (op->hasZeroArea()) {
+        if (op->hasAABloat()) {
             bounds->outset(0.5f, 0.5f);
         } else {
             // We don't know which way the particular GPU will snap lines or points at integer
@@ -267,7 +267,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      sk_sp<GrDrawOp> op) {
     // Setup clip
     SkRect bounds;
-    batch_bounds(&bounds, op.get());
+    op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(bounds);
     if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
@@ -554,7 +554,7 @@ void GrRenderTargetOpList::forwardCombine() {
             }
             ++j;
             if (j > maxCandidateIdx) {
-                GrOP_INFO("\t\tReached max lookahead or end of batch array %d\n", i);
+                GrOP_INFO("\t\tReached max lookahead or end of op array %d\n", i);
                 break;
             }
         }

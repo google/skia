@@ -436,10 +436,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the
     // threshold to the maximum unless the client gives us a hint that map memory is cheap.
     if (fBufferMapThreshold < 0) {
-        // We think mapping on Chromium will be cheaper once we know ahead of time how much space
-        // we will use for all GrBatchs. Right now we might wind up mapping a large buffer and using
-        // a small subset.
 #if 0
+        // We think mapping on Chromium will be cheaper once we know ahead of time how much space
+        // we will use for all GrMeshDrawOps. Right now we might wind up mapping a large buffer and
+        // using a small subset.
         fBufferMapThreshold = kChromium_GrGLDriver == ctxInfo.driver() ? 0 : SK_MaxS32;
 #else
         fBufferMapThreshold = SK_MaxS32;

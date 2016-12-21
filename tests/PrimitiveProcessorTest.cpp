@@ -25,19 +25,19 @@
 #include "ops/GrMeshDrawOp.h"
 
 namespace {
-class Batch : public GrMeshDrawOp {
+class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "Dummy Batch"; }
+    const char* name() const override { return "Dummy Op"; }
 
-    Batch(int numAttribs)
-        : INHERITED(ClassID())
-        , fNumAttribs(numAttribs) {
+    static sk_sp<GrDrawOp> Make(int numAttribs) { return sk_sp<GrDrawOp>(new Op(numAttribs)); }
+
+private:
+    Op(int numAttribs) : INHERITED(ClassID()), fNumAttribs(numAttribs) {
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
         input->pipelineColorInput()->setUnknownFourComponents();
         input->pipelineCoverageInput()->setUnknownSingleComponent();
@@ -121,20 +121,18 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
-    sk_sp<GrDrawOp> op;
     GrPaint grPaint;
     // This one should succeed.
-    op.reset(new Batch(attribCnt));
-    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone, std::move(op));
+    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+                                                      Op::Make(attribCnt));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
     context->resetGpuStats();
-    // This one should fail.
-    op.reset(new Batch(attribCnt+1));
-    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone, std::move(op));
+    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+                                                      Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);

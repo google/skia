@@ -241,13 +241,13 @@ enum RegenMask {
 #define REGEN_ARGS target, fontCache, helper, &run, &info, lazyCache, \
                    *glyphCount, vertexStride, color, transX, transY
 
-void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
-                                   GrAtlasGlyphCache* fontCache,
-                                   GrBlobRegenHelper *helper,
-                                   int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,
-                                   size_t vertexStride, const SkMatrix& viewMatrix,
-                                   SkScalar x, SkScalar y, GrColor color,
-                                   void** vertices, size_t* byteCount, int* glyphCount) {
+void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target,
+                                GrAtlasGlyphCache* fontCache,
+                                GrBlobRegenHelper* helper,
+                                int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,
+                                size_t vertexStride, const SkMatrix& viewMatrix,
+                                SkScalar x, SkScalar y, GrColor color,
+                                void** vertices, size_t* byteCount, int* glyphCount) {
     Run& run = fRuns[runIndex];
     Run::SubRunInfo& info = run.fSubRunInfo[subRunIndex];
 

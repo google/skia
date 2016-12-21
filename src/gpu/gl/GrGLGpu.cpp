@@ -2810,7 +2810,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
                                                 sizeof(uint16_t) * nonInstMesh->startIndex());
                 // info.startVertex() was accounted for by setupGeometry.
                 if (this->glCaps().drawRangeElementsSupport()) {
-                    // We assume here that the batch that generated the mesh used the full
+                    // We assume here that the GrMeshDrawOps that generated the mesh used the full
                     // 0..vertexCount()-1 range.
                     int start = 0;
                     int end = nonInstMesh->vertexCount() - 1;

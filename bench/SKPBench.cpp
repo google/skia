@@ -120,7 +120,7 @@ void SKPBench::onDraw(int loops, SkCanvas* canvas) {
             break;
         }
 #if SK_SUPPORT_GPU
-        // Ensure the GrContext doesn't batch across draw loops.
+        // Ensure the GrContext doesn't combine ops across draw loops.
         if (GrContext* context = canvas->getGrContext()) {
             context->flush();
         }

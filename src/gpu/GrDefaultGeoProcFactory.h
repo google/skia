@@ -12,9 +12,7 @@
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
- * view matrix and wire through color, coverage, UV coords if requested.  Right now this is only
- * used in the creation of optimized draw states because adding default GPs to the drawstate can
- * interfere with batching due to updating the drawstate.
+ * view matrix and wire through color, coverage, UV coords if requested.
  */
 namespace GrDefaultGeoProcFactory {
     // Structs for adding vertex attributes

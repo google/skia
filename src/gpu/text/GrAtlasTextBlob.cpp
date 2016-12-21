@@ -268,7 +268,7 @@ inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
         subRunColor = color;
     }
 
-    sk_sp<GrAtlasTextOp> batch;
+    sk_sp<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         SkColor filteredColor;
         SkColorFilter* colorFilter = skPaint.getColorFilter();
@@ -278,13 +278,13 @@ inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
             filteredColor = skPaint.getColor();
         }
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        batch = GrAtlasTextOp::MakeDistanceField(glyphCount, cache, distanceAdjustTable,
-                                                 useGammaCorrectDistanceTable, filteredColor,
-                                                 info.hasUseLCDText(), useBGR);
+        op = GrAtlasTextOp::MakeDistanceField(glyphCount, cache, distanceAdjustTable,
+                                              useGammaCorrectDistanceTable, filteredColor,
+                                              info.hasUseLCDText(), useBGR);
     } else {
-        batch = GrAtlasTextOp::MakeBitmap(format, glyphCount, cache);
+        op = GrAtlasTextOp::MakeBitmap(format, glyphCount, cache);
     }
-    GrAtlasTextOp::Geometry& geometry = batch->geometry();
+    GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
     geometry.fBlob = SkRef(this);
     geometry.fRun = run;
@@ -292,9 +292,9 @@ inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
     geometry.fColor = subRunColor;
     geometry.fX = x;
     geometry.fY = y;
-    batch->init();
+    op->init();
 
-    return std::move(batch);
+    return std::move(op);
 }
 
 inline

@@ -24,7 +24,7 @@ struct SkRect;
 /**
  * The GrGpuCommandBuffer is a series of commands (draws, clears, and discards), which all target
  * the same render target. It is possible that these commands execute immediately (GL), or get
- * buffered up for later execution (Vulkan). GrBatches will execute their draw commands into a
+ * buffered up for later execution (Vulkan). GrOps will execute their draw commands into a
  * GrGpuCommandBuffer.
  *
  * Ideally we'd know the GrRenderTarget, or at least its properties when the GrGpuCommandBuffer, is

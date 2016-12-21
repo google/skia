@@ -1094,7 +1094,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 
         TestLCDCoverageOp() : INHERITED(ClassID()) {}
 
-        const char* name() const override { return "Test LCD Text Batch"; }
+        const char* name() const override { return "Test LCD Text Op"; }
 
     private:
         void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {

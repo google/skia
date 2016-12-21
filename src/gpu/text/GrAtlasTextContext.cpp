@@ -417,8 +417,8 @@ DRAW_OP_TEST_DEFINE(TextBlobOp) {
     SkScalar x = SkIntToScalar(xInt);
     SkScalar y = SkIntToScalar(yInt);
 
-    // right now we don't handle textblobs, nor do we handle drawPosText.  Since we only
-    // intend to test the batch with this unit test, that is okay.
+    // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
+    // test the text op with this unit test, that is okay.
     sk_sp<GrAtlasTextBlob> blob(GrAtlasTextContext::CreateDrawTextBlob(
             context->getTextBlobCache(), context->getAtlasGlyphCache(),
             *context->caps()->shaderCaps(), grPaint, skPaint,
