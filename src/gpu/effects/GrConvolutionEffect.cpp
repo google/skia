@@ -150,7 +150,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
                                          const float* kernel,
                                          bool useBounds,
                                          float bounds[2])
-    : INHERITED(texture, direction, radius), fUseBounds(useBounds) {
+    : INHERITED(texture, nullptr, direction, radius), fUseBounds(useBounds) {
     this->initClassID<GrConvolutionEffect>();
     SkASSERT(radius <= kMaxKernelRadius);
     SkASSERT(kernel);
@@ -167,7 +167,7 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
                                          float gaussianSigma,
                                          bool useBounds,
                                          float bounds[2])
-    : INHERITED(texture, direction, radius), fUseBounds(useBounds) {
+    : INHERITED(texture, nullptr, direction, radius), fUseBounds(useBounds) {
     this->initClassID<GrConvolutionEffect>();
     SkASSERT(radius <= kMaxKernelRadius);
     int width = this->width();
