@@ -29,9 +29,11 @@ public:
     };
 
     Gr1DKernelEffect(GrTexture* texture,
+                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                      Direction direction,
                      int radius)
-        : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(texture, std::move(colorSpaceXform),
+                    GrCoordTransform::MakeDivByTextureWHMatrix(texture))
         , fDirection(direction)
         , fRadius(radius) {}
 
