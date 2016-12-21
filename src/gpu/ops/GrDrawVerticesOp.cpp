@@ -175,7 +175,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (!this->batchablePrimitiveType() || this->primitiveType() != that->primitiveType()) {
+    if (!this->combinablePrimitive() || this->primitiveType() != that->primitiveType()) {
         return false;
     }
 

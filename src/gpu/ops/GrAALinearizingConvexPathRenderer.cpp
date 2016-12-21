@@ -189,7 +189,6 @@ private:
         }
         optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
 
-        // setup batch properties
         fColor = fPaths[0].fColor;
         fUsesLocalCoords = optimizations.readsLocalCoords();
         fCoverageIgnored = !optimizations.readsCoverage();

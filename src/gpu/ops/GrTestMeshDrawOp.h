@@ -14,8 +14,8 @@
 #include "ops/GrMeshDrawOp.h"
 
 /*
- * A simple solid color batch only for testing purposes which actually doesn't batch at all. It
- * saves having to fill out some boiler plate methods.
+ * A simple solid color GrMeshDrawOp for testing purposes which actually doesn't batch at all. Using
+ * this in tests saves having to fill out some boiler plate methods.
  */
 class GrTestMeshDrawOp : public GrMeshDrawOp {
 public:
@@ -28,6 +28,17 @@ protected:
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kYes);
     }
 
+    GrColor color() const { return fColor; }
+
+    struct Optimizations {
+        bool fColorIgnored = false;
+        bool fUsesLocalCoords = false;
+        bool fCoverageIgnored = false;
+    };
+
+    const Optimizations optimizations() const { return fOptimizations; }
+
+private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
         input->pipelineColorInput()->setKnownFourComponents(fColor);
         input->pipelineCoverageInput()->setUnknownSingleComponent();
@@ -40,15 +51,6 @@ protected:
         fOptimizations.fUsesLocalCoords = optimizations.readsLocalCoords();
         fOptimizations.fCoverageIgnored = !optimizations.readsCoverage();
     }
-
-    struct Optimizations {
-        bool fColorIgnored = false;
-        bool fUsesLocalCoords = false;
-        bool fCoverageIgnored = false;
-    };
-
-    GrColor color() const { return fColor; }
-    const Optimizations optimizations() const { return fOptimizations; }
 
 private:
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
