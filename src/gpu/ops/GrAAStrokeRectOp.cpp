@@ -385,13 +385,13 @@ bool AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    // TODO batch across miterstroke changes
+    // TODO combine across miterstroke changes
     if (this->miterStroke() != that->miterStroke()) {
         return false;
     }
 
     // We apply the viewmatrix to the rect points on the cpu.  However, if the pipeline uses
-    // local coords then we won't be able to batch.  We could actually upload the viewmatrix
+    // local coords then we won't be able to combine.  We could actually upload the viewmatrix
     // using vertex attributes in these cases, but haven't investigated that
     if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
