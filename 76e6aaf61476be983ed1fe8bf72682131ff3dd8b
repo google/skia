@@ -22,6 +22,24 @@
       "revId": "76e6aaf61476be983ed1fe8bf72682131ff3dd8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "573c16f2_b4d396ed",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2016-12-21T02:59:59Z",
+      "side": 1,
+      "message": "Whoops. This wasn\u0027t supposed to be here.\nThank you for catching it.",
+      "parentUuid": "f777cabe_3481f099",
+      "revId": "76e6aaf61476be983ed1fe8bf72682131ff3dd8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
