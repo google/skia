@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_4bef4c93",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-22T13:48:39Z",
+      "side": 1,
+      "message": "Hmmm, didn\u0027t notice this before it landed. Why do we think its safe to modify a const parameter?",
+      "range": {
+        "startLine": 80,
+        "startChar": 19,
+        "endLine": 80,
+        "endChar": 27
+      },
+      "revId": "20a7ecc49b9fe22b1a44629d717d1a51746773ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
