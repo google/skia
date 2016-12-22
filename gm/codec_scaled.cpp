@@ -79,13 +79,10 @@ private:
             return;
         }
 
-        SkPMColor colorStorage[256];
-        int colorCount = 256;
-        sk_sp<SkColorTable> ctable(new SkColorTable(colorStorage, colorCount));
-
         SkAutoCanvasRestore acr(canvas, true);
         for (float scale : { 1.0f, .875f, .750f, .625f, .5f, .375f, .25f, .125f }) {
-            const auto info = fGenerator->getInfo();
+            // generateScaledPixels does not support index8
+            const auto info = fGenerator->getInfo().makeColorType(kN32_SkColorType);
             auto scaledInfo = info;
             SkImageGenerator::SupportedSizes sizes;
             if (fGenerator->computeScaledDimensions(scale, &sizes)) {
@@ -93,23 +90,14 @@ private:
             }
 
             SkBitmap bm;
-            bm.setInfo(scaledInfo);
-            SkColorTable* ctablePtr = info.colorType() == kIndex_8_SkColorType ? ctable.get()
-                                                                               : nullptr;
-            bm.allocPixels(ctablePtr);
-            SkPixmap pixmap(scaledInfo, bm.getPixels(), bm.rowBytes(), ctablePtr);
+            bm.allocPixels(scaledInfo);
+            SkPixmap pixmap(scaledInfo, bm.getPixels(), bm.rowBytes());
             if (fGenerator->generateScaledPixels(pixmap)) {
-                // If there's a color table, we need to use it.
-                SkBitmap bm2;
-                bm2.installPixels(pixmap);
-                canvas->drawBitmap(bm2, 0, 0);
+                canvas->drawBitmap(bm, 0, 0);
             }
 
-            bm.setInfo(info);
-            bm.allocPixels(ctablePtr);
-            colorCount = 256;
-            if (fGenerator->getPixels(info, bm.getPixels(), bm.rowBytes(),
-                    const_cast<SkPMColor*>(ctable->readColors()), &colorCount)) {
+            bm.allocPixels(info);
+            if (fGenerator->getPixels(info, bm.getPixels(), bm.rowBytes())) {
                 SkAutoCanvasRestore acr2(canvas, true);
                 canvas->translate(0, SkIntToScalar(info.height()));
                 canvas->scale(SkFloatToScalar(scale), SkFloatToScalar(scale));
