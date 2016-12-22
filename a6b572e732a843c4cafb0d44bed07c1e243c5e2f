@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_ebef203e",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-22T15:32:34Z",
+      "side": 1,
+      "message": "Yes, done.",
+      "parentUuid": "9765aef7_4b7cecd3",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_ab85a89b",
         "filename": "gm/readpixels.cpp",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-22T14:59:59Z",
       "side": 1,
       "message": "You could hoist this to the calling code, and reuse the image across 6 tests (the inner two loops).",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_8b18a48e",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-22T15:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_ab85a89b",
       "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9765aef7_6b1d707c",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-22T15:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9765aef7_cb6fbc15",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9765aef7_eb060040",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-22T14:59:59Z",
       "side": 1,
       "message": "Planning to add F16 src support?",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_0bf3942c",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-22T15:32:34Z",
+      "side": 1,
+      "message": "If it becomes important performance-wise, I will add it. Right now, this will fallback to the raster pipeline implementation and work just fine.",
+      "parentUuid": "9765aef7_eb060040",
       "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
