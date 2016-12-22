@@ -7,6 +7,9 @@
 
 #include "SkBitmap.h"
 #include "SkCodec.h"
+#include "SkCommonFlags.h"
+#include "SkImageEncoder.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 
 #include "Resources.h"
@@ -14,6 +17,19 @@
 
 #include <initializer_list>
 #include <vector>
+
+static void write_bm(const char* name, const SkBitmap& bm) {
+    if (FLAGS_writePath.isEmpty()) {
+        return;
+    }
+
+    SkString filename = SkOSPath::Join(FLAGS_writePath[0], name);
+    filename.appendf(".png");
+    SkFILEWStream file(filename.c_str());
+    if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {
+        SkDebugf("failed to write '%s'\n", filename.c_str());
+    }
+}
 
 DEF_TEST(Codec_frames, r) {
     static const struct {
@@ -27,6 +43,13 @@ DEF_TEST(Codec_frames, r) {
         std::vector<size_t> fDurations;
         int                 fRepetitionCount;
     } gRecs[] = {
+        { "randPixelsAnim.gif", 13,
+            // required frames
+            { SkCodec::kNone, 1, 2, 3, 4, 4, 6, 7, 7, 7, 7, 7 },
+            // durations
+            { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
+            // repetition count
+            0 },
         { "box.gif", 1, {}, {}, 0 },
         { "color_wheel.gif", 1, {}, {}, 0 },
         { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 },
@@ -87,7 +110,10 @@ DEF_TEST(Codec_frames, r) {
         // From here on, we are only concerned with animated images.
         REPORTER_ASSERT(r, frameInfos[0].fRequiredFrame == SkCodec::kNone);
         for (size_t i = 1; i < frameCount; i++) {
-            REPORTER_ASSERT(r, rec.fRequiredFrames[i-1] == frameInfos[i].fRequiredFrame);
+            if (rec.fRequiredFrames[i-1] != frameInfos[i].fRequiredFrame) {
+                ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
+                       rec.fName, i, rec.fRequiredFrames[i-1], frameInfos[i].fRequiredFrame);
+            }
         }
 
         // Compare decoding in two ways:
@@ -132,6 +158,10 @@ DEF_TEST(Codec_frames, r) {
                 SkASSERT(uncachedAddr != nullptr);
                 const bool lineMatches = memcmp(cachedAddr, uncachedAddr, rowLen) == 0;
                 if (!lineMatches) {
+                    SkString name = SkStringPrintf("cached_%i", i);
+                    write_bm(name.c_str(), cachedFrame);
+                    name = SkStringPrintf("uncached_%i", i);
+                    write_bm(name.c_str(), uncachedFrame);
                     ERRORF(r, "%s's frame %i is different depending on caching!", rec.fName, i);
                     break;
                 }
@@ -145,7 +175,10 @@ DEF_TEST(Codec_frames, r) {
         }
 
         for (size_t i = 0; i < frameCount; i++) {
-            REPORTER_ASSERT(r, rec.fDurations[i] == frameInfos[i].fDuration);
+            if (rec.fDurations[i] != frameInfos[i].fDuration) {
+                ERRORF(r, "%s frame %i's durations do not match! expected: %i\tactual: %i",
+                       rec.fName, i, rec.fDurations[i], frameInfos[i].fDuration);
+            }
         }
     }
 }

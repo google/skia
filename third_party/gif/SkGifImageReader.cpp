@@ -312,17 +312,15 @@ sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkStreamBuffer* streamBuffer, SkCo
         return nullptr;
 
     const PackColorProc proc = choose_pack_color_proc(false, colorType);
-    if (m_table) {
-        if (transparentPixel > (unsigned) m_table->count()
-                || m_table->operator[](transparentPixel) == SK_ColorTRANSPARENT) {
-            if (proc == m_packColorProc) {
-                // This SkColorTable has already been built with the same transparent color and
-                // packing proc. Reuse it.
-                return m_table;
-            }
-        }
+    if (m_table && proc == m_packColorProc && m_transPixel == transparentPixel) {
+        SkASSERT(transparentPixel > (unsigned) m_table->count()
+                || m_table->operator[](transparentPixel) == SK_ColorTRANSPARENT);
+        // This SkColorTable has already been built with the same transparent color and
+        // packing proc. Reuse it.
+        return m_table;
     }
     m_packColorProc = proc;
+    m_transPixel = transparentPixel;
 
     const size_t bytes = m_colors * SK_BYTES_PER_COLORMAP_ENTRY;
     sk_sp<SkData> rawData(streamBuffer->getDataAtPosition(m_position, bytes));
@@ -458,7 +456,10 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
         }
         case SkGIFLZWStart: {
             SkASSERT(!m_frames.empty());
-            m_frames.back()->setDataSize(this->getOneByte());
+            auto* currentFrame = m_frames.back().get();
+            setRequiredFrame(currentFrame);
+
+            currentFrame->setDataSize(this->getOneByte());
             GETN(1, SkGIFSubBlock);
             break;
         }
@@ -755,33 +756,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             // The three low-order bits of currentComponent[8] specify the bits per pixel.
             const size_t numColors = 2 << (currentComponent[8] & 0x7);
             if (currentFrameIsFirstFrame()) {
-                bool hasTransparentPixel;
-                if (m_frames.size() == 0) {
-                    // We did not see a Graphics Control Extension, so no transparent
-                    // pixel was specified. But if there is no color table, this frame is
-                    // still transparent.
-                    hasTransparentPixel = !isLocalColormapDefined
-                                          && m_globalColorMap.numColors() == 0;
-                } else {
-                    // This means we did see a Graphics Control Extension, which specifies
-                    // the transparent pixel
-                    const size_t transparentPixel = m_frames[0]->transparentPixel();
-                    if (isLocalColormapDefined) {
-                        hasTransparentPixel = transparentPixel < numColors;
-                    } else {
-                        const size_t globalColors = m_globalColorMap.numColors();
-                        if (!globalColors) {
-                            // No color table for this frame, so the frame is empty.
-                            // This is technically different from having a transparent
-                            // pixel, but we'll treat it the same - nothing to draw here.
-                            hasTransparentPixel = true;
-                        } else {
-                            hasTransparentPixel = transparentPixel < globalColors;
-                        }
-                    }
-                }
-
-                if (hasTransparentPixel) {
+                if (hasTransparentPixel(0, isLocalColormapDefined, numColors)) {
                     m_firstFrameHasAlpha = true;
                     m_firstFrameSupportsIndex8 = true;
                 } else {
@@ -874,41 +849,94 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
     return true;
 }
 
+bool SkGifImageReader::hasTransparentPixel(size_t i, bool isLocalColormapDefined,
+                                           size_t localColors) {
+    if (m_frames.size() <= i) {
+        // This should only happen when parsing the first frame.
+        SkASSERT(0 == i);
+
+        // We did not see a Graphics Control Extension, so no transparent
+        // pixel was specified. But if there is no color table, this frame is
+        // still transparent.
+        return !isLocalColormapDefined && m_globalColorMap.numColors() == 0;
+    }
+
+    const size_t transparentPixel = m_frames[i]->transparentPixel();
+    if (isLocalColormapDefined) {
+        return transparentPixel < localColors;
+    }
+
+    const size_t globalColors = m_globalColorMap.numColors();
+    if (!globalColors) {
+        // No color table for this frame, so the frame is empty.
+        // This is technically different from having a transparent
+        // pixel, but we'll treat it the same - nothing to draw here.
+        return true;
+    }
+
+    // If there is a global color table, it will be parsed before reaching
+    // here. If its numColors is set, it will be defined.
+    SkASSERT(m_globalColorMap.isDefined());
+    return transparentPixel < globalColors;
+}
+
 void SkGifImageReader::addFrameIfNecessary()
 {
     if (m_frames.empty() || m_frames.back()->isComplete()) {
         const size_t i = m_frames.size();
         std::unique_ptr<SkGIFFrameContext> frame(new SkGIFFrameContext(i));
-        if (0 == i) {
-            frame->setRequiredFrame(SkCodec::kNone);
-        } else {
-            // FIXME: We could correct these after decoding (i.e. some frames may turn out to be
-            // independent although we did not determine that here).
-            const SkGIFFrameContext* prevFrameContext = m_frames[i - 1].get();
-            switch (prevFrameContext->getDisposalMethod()) {
-                case SkCodecAnimation::Keep_DisposalMethod:
-                    frame->setRequiredFrame(i - 1);
-                    break;
-                case SkCodecAnimation::RestorePrevious_DisposalMethod:
-                    frame->setRequiredFrame(prevFrameContext->getRequiredFrame());
-                    break;
-                case SkCodecAnimation::RestoreBGColor_DisposalMethod:
-                    // If the prior frame covers the whole image
-                    if (prevFrameContext->frameRect() == SkIRect::MakeWH(m_screenWidth,
-                                                                         m_screenHeight)
-                            // Or the prior frame was independent
-                            || prevFrameContext->getRequiredFrame() == SkCodec::kNone)
-                    {
-                        // This frame is independent, since we clear everything
-                        // prior frame to the BG color
-                        frame->setRequiredFrame(SkCodec::kNone);
-                    } else {
-                        frame->setRequiredFrame(i - 1);
-                    }
-                    break;
-            }
-        }
         m_frames.push_back(std::move(frame));
+    }
+}
+
+void SkGifImageReader::setRequiredFrame(SkGIFFrameContext* frame) {
+    const size_t i = frame->frameId();
+    if (0 == i) {
+        frame->setRequiredFrame(SkCodec::kNone);
+        return;
+    }
+
+    const SkGIFFrameContext* prevFrame = m_frames[i - 1].get();
+    if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
+        frame->setRequiredFrame(prevFrame->getRequiredFrame());
+        return;
+    }
+
+    // Note: We could correct these after decoding - i.e. some frames may turn out to be
+    // independent if they do not use the transparent pixel, but that would require
+    // checking whether each pixel used the transparent pixel.
+    const SkGIFColorMap& localMap = frame->localColorMap();
+    const bool transValid = hasTransparentPixel(i, localMap.isDefined(), localMap.numColors());
+
+    const SkIRect prevFrameRect = prevFrame->frameRect();
+    const bool frameCoversPriorFrame = frame->frameRect().contains(prevFrameRect);
+
+    if (!transValid && frameCoversPriorFrame) {
+        frame->setRequiredFrame(prevFrame->getRequiredFrame());
+        return;
+    }
+
+    switch (prevFrame->getDisposalMethod()) {
+        case SkCodecAnimation::Keep_DisposalMethod:
+            frame->setRequiredFrame(i - 1);
+            break;
+        case SkCodecAnimation::RestorePrevious_DisposalMethod:
+            // This was already handled above.
+            SkASSERT(false);
+            break;
+        case SkCodecAnimation::RestoreBGColor_DisposalMethod:
+            // If the prior frame covers the whole image
+            if (prevFrameRect == SkIRect::MakeWH(m_screenWidth, m_screenHeight)
+                    // Or the prior frame was independent
+                    || prevFrame->getRequiredFrame() == SkCodec::kNone)
+            {
+                // This frame is independent, since we clear everything in the
+                // prior frame to the BG color
+                frame->setRequiredFrame(SkCodec::kNone);
+            } else {
+                frame->setRequiredFrame(i - 1);
+            }
+            break;
     }
 }
 

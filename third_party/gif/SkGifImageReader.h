@@ -148,10 +148,13 @@ struct SkGIFLZWBlock {
 
 class SkGIFColorMap final {
 public:
+    static constexpr size_t kNotFound = static_cast<size_t>(-1);
+
     SkGIFColorMap()
         : m_isDefined(false)
         , m_position(0)
         , m_colors(0)
+        , m_transPixel(kNotFound)
         , m_packColorProc(nullptr)
     {
     }
@@ -182,6 +185,8 @@ private:
     bool m_isDefined;
     size_t m_position;
     size_t m_colors;
+    // Cached values. If these match on a new request, we can reuse m_table.
+    mutable size_t m_transPixel;
     mutable PackColorProc m_packColorProc;
     mutable sk_sp<SkColorTable> m_table;
 };
@@ -195,7 +200,7 @@ public:
         , m_yOffset(0)
         , m_width(0)
         , m_height(0)
-        , m_transparentPixel(kNotFound)
+        , m_transparentPixel(SkGIFColorMap::kNotFound)
         , m_disposalMethod(SkCodecAnimation::Keep_DisposalMethod)
         , m_requiredFrame(SkCodec::kNone)
         , m_dataSize(0)
@@ -208,8 +213,6 @@ public:
         , m_isDataSizeDefined(false)
     {
     }
-
-    static constexpr size_t kNotFound = static_cast<size_t>(-1);
 
     ~SkGIFFrameContext()
     {
@@ -388,6 +391,11 @@ private:
     }
 
     void addFrameIfNecessary();
+    // Must be called *after* the SkGIFFrameContext's color table (if any) has been parsed.
+    void setRequiredFrame(SkGIFFrameContext*);
+    // This method is sometimes called before creating a SkGIFFrameContext, so it cannot rely
+    // on SkGIFFrameContext::localColorMap().
+    bool hasTransparentPixel(size_t frameIndex, bool hasLocalColorMap, size_t localMapColors);
     bool currentFrameIsFirstFrame() const
     {
         return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());
