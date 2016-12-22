@@ -33,11 +33,6 @@ public:
 
     const char* name() const override { return "StencilPathOp"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.printf("PATH: 0x%p, AA:%d", fPath.get(), fUseHWAA);

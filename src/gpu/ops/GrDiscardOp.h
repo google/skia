@@ -20,11 +20,6 @@ public:
 
     const char* name() const override { return "Discard"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
@@ -39,7 +34,10 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
+        // Post-MDB this could be return true since the discards would be known to be to the same
+        // render target. However, we probably won't need this class then and can just use a load
+        // op.
+        return false;
     }
 
     void onPrepare(GrOpFlushState*) override {}
