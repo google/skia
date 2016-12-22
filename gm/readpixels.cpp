@@ -63,7 +63,7 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType, SkAlphaType alpha
 }
 
 static sk_sp<SkColorSpace> make_srgb_transfer_fn(const SkColorSpacePrimaries& primaries) {
-    SkMatrix44 toXYZD50;
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     SkAssertResult(primaries.toXYZD50(&toXYZD50));
     return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
 }
