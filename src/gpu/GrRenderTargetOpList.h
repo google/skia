@@ -81,7 +81,9 @@ public:
     void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
                    sk_sp<GrDrawOp>);
 
-    void addOp(sk_sp<GrOp> op) { this->recordOp(std::move(op)); }
+    void addOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+        this->recordOp(std::move(op), renderTargetContext);
+    }
 
     /**
      * Draws the path into user stencil bits. Upon return, all user stencil values
@@ -97,10 +99,10 @@ public:
                      const GrPath*);
 
     /** Clears the entire render target */
-    void fullClear(GrRenderTarget*, GrColor color);
+    void fullClear(GrRenderTargetContext*, GrColor color);
 
     /** Discards the contents render target. */
-    void discard(GrRenderTarget*);
+    void discard(GrRenderTargetContext*);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -131,13 +133,13 @@ private:
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(sk_sp<GrOp> op) {
+    GrOp* recordOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         SkRect bounds = op->bounds();
-        return this->recordOp(std::move(op), bounds);
+        return this->recordOp(std::move(op), renderTargetContext, bounds);
     }
 
     // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(sk_sp<GrOp>, const SkRect& clippedBounds);
+    GrOp* recordOp(sk_sp<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
 
     void forwardCombine();
 
@@ -150,14 +152,19 @@ private:
                          GrXferProcessor::DstTexture*);
 
     // Used only via GrRenderTargetContextPriv.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     struct RecordedOp {
         sk_sp<GrOp> fOp;
         SkRect fClippedBounds;
+        // TODO: Use proxy ID instead of instantiated render target ID.
+        GrGpuResource::UniqueID fRenderTargetID;
     };
     SkSTArray<256, RecordedOp, true> fRecordedOps;
-    GrClearOp* fLastFullClearOp;
+
+    GrClearOp* fLastFullClearOp = nullptr;
+    GrGpuResource::UniqueID fLastFullClearRenderTargetID = GrGpuResource::UniqueID::InvalidID();
+
     // The context is only in service of the GrClip, remove once it doesn't need this.
     GrContext* fContext;
     GrGpu* fGpu;

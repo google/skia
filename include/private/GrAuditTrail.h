@@ -80,7 +80,7 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addOp(const GrOp*);
+    void addOp(const GrOp*, GrGpuResource::UniqueID renderTargetID);
 
     void opsCombined(const GrOp* consumer, const GrOp* consumed);
 
@@ -172,7 +172,8 @@ private:
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
-#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op) GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op);
+#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op, rt_id) \
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op, rt_id);
 
 #define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op);

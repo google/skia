@@ -67,12 +67,6 @@ public:
     // TODO no GrPrimitiveProcessors yet read fragment position
     bool willReadFragmentPosition() const { return false; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    // This is a bit more exciting than the other call sites since it uses the pipeline
-    GrGpuResource::UniqueID renderTargetUniqueID() const final {
-        return this->pipeline()->getRenderTarget()->uniqueID();
-    }
-
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
         SkString string;

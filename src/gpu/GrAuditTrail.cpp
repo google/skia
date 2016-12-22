@@ -10,7 +10,7 @@
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addOp(const GrOp* op) {
+void GrAuditTrail::addOp(const GrOp* op, GrGpuResource::UniqueID renderTargetID) {
     SkASSERT(fEnabled);
     Op* auditOp = new Op;
     fOpPool.emplace_back(auditOp);
@@ -44,7 +44,7 @@ void GrAuditTrail::addOp(const GrOp* op) {
 
     // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
     fIDLookup.set(op->uniqueID(), auditOp->fOpListID);
-    OpNode* opNode = new OpNode(op->renderTargetUniqueID());
+    OpNode* opNode = new OpNode(renderTargetID);
     opNode->fBounds = op->bounds();
     opNode->fChildren.push_back(auditOp);
     fOpList.emplace_back(opNode);

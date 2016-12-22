@@ -32,14 +32,6 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        // Copy surface doesn't work through a GrGpuCommandBuffer. By returning an invalid RT ID we
-        // force the caller to end the previous command buffer and execute this copy before
-        // beginning a new one.
-        return GrGpuResource::UniqueID::InvalidID();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.printf(

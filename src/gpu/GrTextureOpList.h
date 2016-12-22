@@ -8,6 +8,7 @@
 #ifndef GrTexureOpList_DEFINED
 #define GrTexureOpList_DEFINED
 
+#include "GrGpuResource.h"
 #include "GrOpList.h"
 
 #include "SkTArray.h"
@@ -26,7 +27,7 @@ public:
     ~GrTextureOpList() override;
 
     /**
-     * Empties the draw buffer of any queued up draws.
+     * Empties the draw buffer of any queued ops.
      */
     void reset() override;
 
@@ -34,8 +35,8 @@ public:
     void freeGpuResources() override {}
 
     /**
-     * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
-     * of drawOps() indicates whether any commands were actually issued to the GPU.
+     * Together these two functions flush all queued ops to GrGpuCommandBuffer. The return value
+     * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
     void prepareOps(GrOpFlushState* flushState) override;
     bool executeOps(GrOpFlushState* flushState) override;
@@ -60,7 +61,8 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    void recordOp(sk_sp<GrOp>);
+    // The unique ID is only needed for the audit trail. This should be removed with MDB.
+    void recordOp(sk_sp<GrOp>, GrGpuResource::UniqueID renderTargetID);
 
     SkSTArray<2, sk_sp<GrOp>, true> fRecordedOps;
     GrGpu*                          fGpu;

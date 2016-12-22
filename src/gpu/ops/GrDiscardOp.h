@@ -20,11 +20,6 @@ public:
 
     const char* name() const override { return "Discard"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
@@ -39,7 +34,7 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
-        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
+        return fRenderTarget.get() == that->cast<GrDiscardOp>()->fRenderTarget.get();
     }
 
     void onPrepare(GrOpFlushState*) override {}

@@ -10,7 +10,7 @@
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
 #include "GrTextureProxy.h"
-
+#include "SkStringUtils.h"
 #include "ops/GrCopySurfaceOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,15 +90,16 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
     this->addDependency(src);
 #endif
 
-    this->recordOp(std::move(op));
+    // See the comment in GrRenderTargetOpList about why we pass the invalid ID here.
+    this->recordOp(std::move(op), GrGpuResource::UniqueID::InvalidID());
     return true;
 }
 
-void GrTextureOpList::recordOp(sk_sp<GrOp> op) {
+void GrTextureOpList::recordOp(sk_sp<GrOp> op, GrGpuResource::UniqueID renderTargetID) {
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTargetID);
     GrOP_INFO("Re-Recording (%s, B%u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         op->name(),
