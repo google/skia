@@ -183,6 +183,8 @@ var (
 		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
 		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
 		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug-Vulkan",
+		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release-Vulkan",
 		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
 		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
 		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
@@ -278,6 +280,8 @@ var (
 		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
 		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
 		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug-Vulkan",
+		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release-Vulkan",
 		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
 		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
 		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
@@ -369,13 +373,12 @@ func swarmDimensions(parts map[string]string) []string {
 			d["os"] = map[string]string{
 				"AMDHD7770": "Windows-10-14393",
 				// In Chrome Golo; won't be updated.
-				"GT610":       "Windows-10-10586",
-				"GTX1070":     "Windows-10-14393",
-				"GTX660":      "Windows-10-14393",
-				"GTX960":      "Windows-10-14393",
-				"IntelHD4600": "Windows-10-14393",
-				// Crashing with new image.
-				"iHD530":        "Windows-10-10586",
+				"GT610":         "Windows-10-10586",
+				"GTX1070":       "Windows-10-14393",
+				"GTX660":        "Windows-10-14393",
+				"GTX960":        "Windows-10-14393",
+				"IntelHD4600":   "Windows-10-14393",
+				"iHD530":        "Windows-10-14393",
 				"IntelIris540":  "Windows-10-14393",
 				"IntelIris6100": "Windows-10-14393",
 			}[parts["cpu_or_gpu_value"]]
