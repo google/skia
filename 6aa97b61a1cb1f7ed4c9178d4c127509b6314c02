@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_4bc62cad",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-22T16:11:37Z",
+      "side": 1,
+      "message": "This same comment appears in other functions in this class where we do this so I placed it here. AFAICT these aren\u0027t necessary. I think we could remove the instantiations in this class and make the OpList record proxy IDs instead of RT IDs. I may try that as a separate CL or just wait for Rob\u0027s wisdom. In that world early GrPipeline creations by GrDrawOps would still wind up triggering early instantiation for any proxy that was rendered to anyway...",
+      "range": {
+        "startLine": 647,
+        "startChar": 4,
+        "endLine": 647,
+        "endChar": 88
+      },
+      "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
