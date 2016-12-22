@@ -112,6 +112,8 @@ public:
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
 
+    virtual SkRasterAllocator::Handle getRasterHandle() const { return nullptr; }
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -292,15 +294,18 @@ protected:
         CreateInfo(const SkImageInfo& info,
                    TileUsage tileUsage,
                    SkPixelGeometry geo,
-                   bool preserveLCDText)
+                   bool preserveLCDText,
+                   SkRasterAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
+            , fAllocator(allocator)
         {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        SkRasterAllocator*      fAllocator = nullptr;
     };
 
     /**

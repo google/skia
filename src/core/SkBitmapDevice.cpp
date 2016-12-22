@@ -79,26 +79,35 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
     return Create(info, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
 }
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps)
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
+                               SkRasterAllocator::Handle hndl)
     : INHERITED(bitmap.info(), surfaceProps)
     , fBitmap(bitmap)
+    , fRasterHandle(hndl)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
-                                       const SkSurfaceProps& surfaceProps) {
+                                       const SkSurfaceProps& surfaceProps,
+                                       SkRasterAllocator* allocator) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
         return nullptr;
     }
 
+    SkRasterAllocator::Handle hndl = nullptr;
     const SkImageInfo info = origInfo.makeAlphaType(newAT);
     SkBitmap bitmap;
-
+    
     if (kUnknown_SkColorType == info.colorType()) {
         if (!bitmap.setInfo(info)) {
+            return nullptr;
+        }
+    } else if (allocator) {
+        hndl = allocator->allocBitmap(info, &bitmap);
+        if (!hndl) {
             return nullptr;
         }
     } else if (info.isOpaque()) {
@@ -116,7 +125,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    return new SkBitmapDevice(bitmap, surfaceProps);
+    return new SkBitmapDevice(bitmap, surfaceProps, hndl);
 }
 
 void SkBitmapDevice::setNewSize(const SkISize& size) {
@@ -135,7 +144,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
 
 SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps);
+    return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps, cinfo.fAllocator);
 }
 
 const SkBitmap& SkBitmapDevice::onAccessBitmap() {
