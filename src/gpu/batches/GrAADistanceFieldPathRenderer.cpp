@@ -145,6 +145,11 @@ public:
 
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        // There is currently an issue where we may produce 2 pixels worth of AA around the path.
+        // A workaround is to outset the bounds by 1 in device space. (skbug.com/5989)
+        SkRect bounds = this->bounds();
+        bounds.outset(1.f, 1.f);
+        this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
