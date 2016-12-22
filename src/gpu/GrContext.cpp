@@ -889,7 +889,14 @@ void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes
 
 void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
     ASSERT_SINGLE_OWNER
-    fResourceCache->setLimits(maxTextures, maxTextureBytes);
+    fResourceCache->setLimits(maxTextures, maxTextureBytes, fResourceCache->getMaxUnusedFlushes());
+}
+
+void GrContext::setMaxUnusedResourceFlushes(int maxFlushes) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->setLimits(fResourceCache->getMaxResourceCount(),
+                              fResourceCache->getMaxResourceBytes(),
+                              maxFlushes);
 }
 
 //////////////////////////////////////////////////////////////////////////////
