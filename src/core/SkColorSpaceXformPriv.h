@@ -81,4 +81,24 @@ static inline void invert_table_gamma(float* outTableFloat, uint8_t* outTableByt
     }
 }
 
+static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        case kBGRA_8888_SkColorType:
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        case kRGBA_F16_SkColorType:
+            return SkColorSpaceXform::kRGBA_F16_ColorFormat;
+        case kIndex_8_SkColorType:
+#ifdef SK_PMCOLOR_IS_RGBA
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+#else
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+#endif
+        default:
+            SkASSERT(false);
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+    }
+}
+
 #endif
