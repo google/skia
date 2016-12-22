@@ -1286,8 +1286,8 @@ bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuff
         return false;
     }
 
-    return rt->readPixels(x, y, dstInfo.width(), dstInfo.height(),
-                          config, dstBuffer, dstRowBytes, flags);
+    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+                          config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
 }
 
 bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -1309,8 +1309,8 @@ bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* 
         return false;
     }
 
-    return rt->writePixels(x, y, srcInfo.width(), srcInfo.height(),
-                           config, srcBuffer, srcRowBytes, flags);
+    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+                           config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
