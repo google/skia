@@ -61,26 +61,13 @@ bool SkCodecImageGenerator::onComputeScaledDimensions(SkScalar scale, SupportedS
 }
 
 bool SkCodecImageGenerator::onGenerateScaledPixels(const SkPixmap& pixmap) {
-    SkPMColor colorStorage[256];
-    int colorCount = 256;
-    const auto result = fCodec->getPixels(pixmap.info(), pixmap.writable_addr(),
-                                          pixmap.rowBytes(), nullptr, colorStorage, &colorCount);
-    switch (result) {
-        case SkCodec::kSuccess:
-        case SkCodec::kIncompleteInput:
-            break;
-        default:
-            return false;
+    if (pixmap.colorType() == kIndex_8_SkColorType) {
+        // There is no way to tell the client about the color table with this API.
+        return false;
     }
 
-    if (pixmap.colorType() == kIndex_8_SkColorType) {
-        // SkPixmap does not take ownership, so we need to hang onto this.
-        // FIXME: With a better API on SkCodec, the SkCodec could share its SkColorTable.
-        fColorTable.reset(new SkColorTable(colorStorage, colorCount));
-        const_cast<SkPixmap&>(pixmap).reset(pixmap.info(), pixmap.addr(), pixmap.rowBytes(),
-                                            fColorTable.get());
-    }
-    return true;
+    return this->onGetPixels(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes(),
+                             nullptr, nullptr);
 }
 
 
