@@ -10,6 +10,7 @@
 
 #include "SkColorPriv.h"
 #include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
@@ -113,26 +114,6 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
  */
 static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
-}
-
-static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType colorType) {
-    switch (colorType) {
-        case kRGBA_8888_SkColorType:
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-        case kBGRA_8888_SkColorType:
-            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
-        case kRGBA_F16_SkColorType:
-            return SkColorSpaceXform::kRGBA_F16_ColorFormat;
-        case kIndex_8_SkColorType:
-#ifdef SK_PMCOLOR_IS_RGBA
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-#else
-            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
-#endif
-        default:
-            SkASSERT(false);
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-    }
 }
 
 /*

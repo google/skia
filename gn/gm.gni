@@ -228,6 +228,7 @@ gm_sources = [
   "$_gm/poly2poly.cpp",
   "$_gm/polygons.cpp",
   "$_gm/quadpaths.cpp",
+  "$_gm/readpixels.cpp",
   "$_gm/recordopts.cpp",
   "$_gm/rectangletexture.cpp",
   "$_gm/rects.cpp",
