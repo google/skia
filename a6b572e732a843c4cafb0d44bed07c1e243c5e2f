@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9765aef7_4b7cecd3",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T14:59:59Z",
+      "side": 1,
+      "message": "I\u0027m guessing this comment is wrong?",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_ab85a89b",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T14:59:59Z",
+      "side": 1,
+      "message": "You could hoist this to the calling code, and reuse the image across 6 tests (the inner two loops).",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_cb6fbc15",
+        "filename": "gm/readpixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T14:59:59Z",
+      "side": 1,
+      "message": "Wow. Might be worth using smaller tiles to keep the output more manageable?",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_eb060040",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T14:59:59Z",
+      "side": 1,
+      "message": "Planning to add F16 src support?",
+      "revId": "a6b572e732a843c4cafb0d44bed07c1e243c5e2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
