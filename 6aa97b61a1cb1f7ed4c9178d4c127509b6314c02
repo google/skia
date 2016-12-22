@@ -22,6 +22,74 @@
       "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_6b133043",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T16:34:53Z",
+      "side": 1,
+      "message": "remove \"with\"",
+      "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_ebfe00b9",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T16:34:53Z",
+      "side": 1,
+      "message": "candidate-\u003efOp-\u003ename(), candidate-\u003efOp-\u003euniqueID()",
+      "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_cb0b3c05",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T16:34:53Z",
+      "side": 1,
+      "message": "candidate-\u003efOp-\u003ename(), candidate-\u003efOp-\u003euniqueID()",
+      "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_8bf784db",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-22T16:34:53Z",
+      "side": 1,
+      "message": "candidate.fOp ...\n\nProbably worth compiling with GrOP_INFO enabled. Looks like several more of these here.",
+      "revId": "6aa97b61a1cb1f7ed4c9178d4c127509b6314c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
