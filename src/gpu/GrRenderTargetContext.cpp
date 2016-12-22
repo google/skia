@@ -148,7 +148,7 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
         return false;
     }
 
-    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
+    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
     if (!rt) {
@@ -213,14 +213,14 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(fDrawingManager);
 
-    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
+    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
     if (!rt) {
         return;
     }
 
-    this->getOpList()->discard(rt.get());
+    this->getOpList()->discard(this);
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -289,7 +289,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         if (!op) {
             return;
         }
-        fRenderTargetContext->getOpList()->addOp(std::move(op));
+        fRenderTargetContext->getOpList()->addOp(std::move(op), fRenderTargetContext);
     }
 }
 
@@ -334,7 +334,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         this->drawRect(clip, paint, GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
         if (this->accessRenderTarget()) {
-            this->getOpList()->fullClear(this->accessRenderTarget(), color);
+            this->getOpList()->fullClear(this, color);
         }
     } else {
         if (!this->accessRenderTarget()) {
@@ -344,7 +344,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(op));
+        this->getOpList()->addOp(std::move(op), this);
     }
 }
 
@@ -644,11 +644,12 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
                               "GrRenderTargetContextPriv::clearStencilClip");
 
     AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
+    // TODO: This needs to be fixed up since it ends the deferral of the GrRenderTarget.
     if (!fRenderTargetContext->accessRenderTarget()) {
         return;
     }
     fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
-                                                        fRenderTargetContext->accessRenderTarget());
+                                                        fRenderTargetContext);
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,

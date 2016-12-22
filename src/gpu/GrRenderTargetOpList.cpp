@@ -50,7 +50,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail, const Options& options)
     : INHERITED(rtp, auditTrail)
-    , fLastFullClearOp(nullptr)
     , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fLastClipStackGenID(SK_InvalidUniqueID) {
@@ -185,13 +184,13 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fOp->renderTargetUniqueID() != currentRTID) {
+        if (fRecordedOps[i].fRenderTargetID != currentRTID) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRTID = fRecordedOps[i].fOp->renderTargetUniqueID();
+            currentRTID = fRecordedOps[i].fRenderTargetID;
             if (!currentRTID.isInvalid()) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
@@ -215,6 +214,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
 void GrRenderTargetOpList::reset() {
     fLastFullClearOp = nullptr;
+    fLastFullClearRenderTargetID.makeInvalid();
     fRecordedOps.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
@@ -346,7 +346,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif
-    this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
 }
 
 void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
@@ -392,16 +392,16 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
                                            appliedClip.scissorState(),
                                            renderTargetContext->accessRenderTarget(),
                                            path);
-    this->recordOp(std::move(op), appliedClip.clippedDrawBounds());
+    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
 }
 
-void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color) {
+void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext, GrColor color) {
+    GrRenderTarget* renderTarget = renderTargetContext->accessRenderTarget();
     // Currently this just inserts or updates the last clear op. However, once in MDB this can
     // remove all the previously recorded ops and change the load op to clear with supplied
     // color.
     // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
-    if (fLastFullClearOp &&
-        fLastFullClearOp->renderTargetUniqueID() == renderTarget->uniqueID()) {
+    if (fLastFullClearRenderTargetID == renderTarget->uniqueID()) {
         // As currently implemented, fLastFullClearOp should be the last op because we would
         // have cleared it when another op was recorded.
         SkASSERT(fRecordedOps.back().fOp.get() == fLastFullClearOp);
@@ -409,17 +409,19 @@ void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color
         return;
     }
     sk_sp<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, renderTarget));
-    if (GrOp* clearOp = this->recordOp(std::move(op))) {
+    if (GrOp* clearOp = this->recordOp(std::move(op), renderTargetContext)) {
         // This is either the clear op we just created or another one that it combined with.
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
+        fLastFullClearRenderTargetID = renderTarget->uniqueID();
     }
 }
 
-void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
+void GrRenderTargetOpList::discard(GrRenderTargetContext* renderTargetContext) {
     // Currently this just inserts a discard op. However, once in MDB this can remove all the
     // previously recorded ops and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        this->recordOp(GrDiscardOp::Make(renderTarget));
+        this->recordOp(GrDiscardOp::Make(renderTargetContext->accessRenderTarget()),
+                       renderTargetContext);
     }
 }
 
@@ -437,7 +439,10 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
     this->addDependency(src);
 #endif
 
-    this->recordOp(std::move(op));
+    // Copy surface doesn't work through a GrGpuCommandBuffer. By passing nullptr for the context we
+    // force this to occur between command buffers and execute directly on GrGpu. This workaround
+    // goes away with MDB.
+    this->recordOp(std::move(op), nullptr);
     return true;
 }
 
@@ -455,7 +460,13 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds) {
+GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext,
+                                     const SkRect& clippedBounds) {
+    // TODO: Should be proxy ID.
+    GrGpuResource::UniqueID renderTargetID =
+            renderTargetContext ? renderTargetContext->accessRenderTarget()->uniqueID()
+                                : GrGpuResource::UniqueID::InvalidID();
+
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
@@ -463,7 +474,7 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
     // 1) check every op
     // 2) intersect with something
     // 3) find a 'blocker'
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get());
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTargetID);
     GrOP_INFO("Re-Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
@@ -476,29 +487,30 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
               clippedBounds.fBottom);
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxOpLookback, fRecordedOps.count());
-    if (maxCandidates) {
+    // If we don't have a valid destination render target ID then we cannot reorder.
+    if (maxCandidates && !renderTargetID.isInvalid()) {
         int i = 0;
         while (true) {
-            GrOp* candidate = fRecordedOps.fromBack(i).fOp.get();
+            const RecordedOp& candidate = fRecordedOps.fromBack(i);
             // We cannot continue to search backwards if the render target changes
-            if (candidate->renderTargetUniqueID() != op->renderTargetUniqueID()) {
-                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
-                          candidate->name(), candidate->uniqueID());
+            if (candidate.fRenderTargetID != renderTargetID) {
+                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
                 break;
             }
-            if (candidate->combineIfPossible(op.get(), *this->caps())) {
-                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
-                          candidate->uniqueID());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate, op.get());
+            if (candidate.fOp->combineIfPossible(op.get(), *this->caps())) {
+                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
                 join(&fRecordedOps.fromBack(i).fClippedBounds,
                      fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
-                return candidate;
+                return candidate.fOp.get();
             }
             // Stop going backwards if we would cause a painter's order violation.
             const SkRect& candidateBounds = fRecordedOps.fromBack(i).fClippedBounds;
             if (!can_reorder(candidateBounds, clippedBounds)) {
-                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
-                          candidate->uniqueID());
+                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
                 break;
             }
             ++i;
@@ -511,8 +523,9 @@ GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, const SkRect& clippedBounds
         GrOP_INFO("\t\tFirstOp\n");
     }
     GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
-    fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds});
+    fRecordedOps.emplace_back(RecordedOp{std::move(op), clippedBounds, renderTargetID});
     fLastFullClearOp = nullptr;
+    fLastFullClearRenderTargetID.makeInvalid();
     return fRecordedOps.back().fOp.get();
 }
 
@@ -522,25 +535,30 @@ void GrRenderTargetOpList::forwardCombine() {
     }
     for (int i = 0; i < fRecordedOps.count() - 2; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
+        GrGpuResource::UniqueID renderTargetID = fRecordedOps[i].fRenderTargetID;
+        // If we don't have a valid destination render target ID then we cannot reorder.
+        if (renderTargetID.isInvalid()) {
+            continue;
+        }
         const SkRect& opBounds = fRecordedOps[i].fClippedBounds;
         int maxCandidateIdx = SkTMin(i + fMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {
-            GrOp* candidate = fRecordedOps[j].fOp.get();
+            const RecordedOp& candidate = fRecordedOps[j];
             // We cannot continue to search if the render target changes
-            if (candidate->renderTargetUniqueID() != op->renderTargetUniqueID()) {
-                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
-                          candidate->name(), candidate->uniqueID());
+            if (candidate.fRenderTargetID != renderTargetID) {
+                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
                 break;
             }
             if (j == i +1) {
                 // We assume op would have combined with candidate when the candidate was added
                 // via backwards combining in recordOp.
-                SkASSERT(!op->combineIfPossible(candidate, *this->caps()));
-            } else if (op->combineIfPossible(candidate, *this->caps())) {
-                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
-                          candidate->uniqueID());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate);
+                SkASSERT(!op->combineIfPossible(candidate.fOp.get(), *this->caps()));
+            } else if (op->combineIfPossible(candidate.fOp.get(), *this->caps())) {
+                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
                 fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
                 join(&fRecordedOps[j].fClippedBounds, fRecordedOps[j].fClippedBounds, opBounds);
                 break;
@@ -548,8 +566,8 @@ void GrRenderTargetOpList::forwardCombine() {
             // Stop going traversing if we would cause a painter's order violation.
             const SkRect& candidateBounds = fRecordedOps[j].fClippedBounds;
             if (!can_reorder(candidateBounds, opBounds)) {
-                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
-                          candidate->uniqueID());
+                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate.fOp->name(),
+                          candidate.fOp->uniqueID());
                 break;
             }
             ++j;
@@ -565,6 +583,8 @@ void GrRenderTargetOpList::forwardCombine() {
 
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
-                                            GrRenderTarget* rt) {
-    this->recordOp(GrClearStencilClipOp::Make(clip, insideStencilMask, rt));
+                                            GrRenderTargetContext* renderTargetContext) {
+    this->recordOp(GrClearStencilClipOp::Make(clip, insideStencilMask,
+                                              renderTargetContext->accessRenderTarget()),
+                   renderTargetContext);
 }
