@@ -161,6 +161,12 @@ var (
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
 		"Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
 		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
@@ -173,6 +179,12 @@ var (
 		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
 		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
 		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
+		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
 		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
 		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
 		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
@@ -245,6 +257,12 @@ var (
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
 		"Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
 		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
@@ -256,6 +274,12 @@ var (
 		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
 		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
 		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
+		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
 		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
 		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
 		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
@@ -334,11 +358,28 @@ func swarmDimensions(parts map[string]string) []string {
 			"Mac":     "Mac-10.11",
 			"Ubuntu":  DEFAULT_OS_LINUX,
 			"Win":     "Windows-2008ServerR2-SP1",
-			"Win10":   "Windows-10-10586",
+			"Win10":   "Windows-10-14393",
 			"Win2k8":  "Windows-2008ServerR2-SP1",
 			"Win8":    "Windows-8.1-SP0",
 			"iOS":     "iOS-9.3.1",
 		}[os]
+		if parts["cpu_or_gpu"] == "GPU" && os == "Win10" {
+			// We're in the process of moving Windows Skolo bots to
+			// a new Windows image.
+			d["os"] = map[string]string{
+				// In Chrome Golo; won't be updated.
+				"GT610":   "Windows-10-10586",
+				"GTX1070": "Windows-10-14393",
+				"GTX660":  "Windows-10-14393",
+				"GTX960":  "Windows-10-14393",
+				"HD4600":  "Windows-10-14393",
+				"HD7770":  "Windows-10-14393",
+				// Crashing with new image.
+				"iHD530":        "Windows-10-10586",
+				"IntelIris540":  "Windows-10-14393",
+				"IntelIris6100": "Windows-10-14393",
+			}[parts["cpu_or_gpu_value"]]
+		}
 	} else {
 		d["os"] = DEFAULT_OS
 	}
@@ -386,6 +427,7 @@ func swarmDimensions(parts map[string]string) []string {
 			d["gpu"] = map[string]string{
 				"GeForce320M":   "10de:08a4",
 				"GT610":         "10de:104a",
+				"GTX1070":       "10de:1ba1",
 				"GTX550Ti":      "10de:1244",
 				"GTX660":        "10de:11c0",
 				"GTX960":        "10de:1401",
@@ -393,6 +435,7 @@ func swarmDimensions(parts map[string]string) []string {
 				"HD4600":        "8086:0412",
 				"HD7770":        "1002:683d",
 				"iHD530":        "8086:1912",
+				"IntelIris540":  "8086:1926",
 				"IntelIris6100": "8086:162b",
 			}[parts["cpu_or_gpu_value"]]
 		}
