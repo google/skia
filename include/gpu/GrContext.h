@@ -260,11 +260,13 @@ public:
     /**
      * Reads a rectangle of pixels from a surface.
      * @param surface       the surface to read from.
+     * @param srcColorSpace color space of the surface
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
      * @param width         width of rectangle to read in pixels.
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
+     * @param dstColorSpace color space of the destination buffer
      * @param buffer        memory to read the rectangle into.
      * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
      *                      packed.
@@ -273,20 +275,22 @@ public:
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
      *         pixel configs
      */
-    bool readSurfacePixels(GrSurface* surface,
+    bool readSurfacePixels(GrSurface* surface, SkColorSpace* srcColorSpace,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, void* buffer,
+                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0,
                            uint32_t pixelOpsFlags = 0);
 
     /**
      * Writes a rectangle of pixels to a surface.
      * @param surface       the surface to write to.
+     * @param dstColorSpace color space of the surface
      * @param left          left edge of the rectangle to write (inclusive)
      * @param top           top edge of the rectangle to write (inclusive)
      * @param width         width of rectangle to write in pixels.
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
+     * @param srcColorSpace color space of the source buffer
      * @param buffer        memory to read pixels from
      * @param rowBytes      number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
@@ -294,9 +298,9 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurface* surface,
+    bool writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
-                            GrPixelConfig config, const void* buffer,
+                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
 
