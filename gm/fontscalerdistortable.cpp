@@ -33,48 +33,50 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
-        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
+        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        paint.setSubpixelText(true);
+        paint.setHinting(SkPaint::kNo_Hinting);
 
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
+        std::unique_ptr<SkStreamAsset> distortable(
+                GetResourceAsStream("/fonts/DistortableAdvance.ttf"));
         if (!distortable) {
             return;
         }
-        const char* text = "abc";
-        const size_t textLen = strlen(text);
+        paint.setTextSize(100);
+        uint32_t character = 0x0061; // A
+        SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
 
-        for (int j = 0; j < 2; ++j) {
-            for (int i = 0; i < 5; ++i) {
-                SkScalar x = SkIntToScalar(10);
-                SkScalar y = SkIntToScalar(20);
 
-                SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
-                SkScalar styleValue = SkDoubleToScalar(0.5 + (5*j + i) * ((2.0 - 0.5) / (2 * 5)));
-                SkFontMgr::FontParameters::Axis axes[] = { { tag, styleValue } };
-                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
-                        distortable->duplicate(), SkFontMgr::FontParameters().setAxes(axes, 1))));
+        SkScalar thinStyleValue = 0.5;
+        SkFontMgr::FontParameters::Axis thinAxes[] = { { tag, thinStyleValue } };
+        paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
+            distortable->duplicate(), SkFontMgr::FontParameters().setAxes(thinAxes, 1))));
 
-                SkAutoCanvasRestore acr(canvas, true);
-                canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));
-                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
+        SkScalar thinAdvance;
+        paint.getTextWidths(&character, sizeof(character), &thinAdvance, nullptr);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawText(&character, 1, 10, 150, paint);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawRect(SkRect::MakeXYWH(10, 150, thinAdvance, 4), paint);
 
-                {
-                    SkPaint p;
-                    p.setAntiAlias(true);
-                    SkRect r;
-                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
-                          x - SkIntToScalar(1), SkIntToScalar(280));
-                    canvas->drawRect(r, p);
-                }
 
-                for (int ps = 6; ps <= 22; ps++) {
-                    paint.setTextSize(SkIntToScalar(ps));
-                    canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(nullptr);
-                }
-            }
-            canvas->translate(0, SkIntToScalar(360));
-            paint.setSubpixelText(true);
-        }
+        SkScalar heavyStyleValue = 2.0;
+        SkFontMgr::FontParameters::Axis heavyAxes[] = { { tag, heavyStyleValue } };
+        paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
+            distortable->duplicate(), SkFontMgr::FontParameters().setAxes(heavyAxes, 1))));
+
+        SkScalar heavyAdvance;
+        paint.getTextWidths(&character, sizeof(character), &heavyAdvance, nullptr);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawText(&character, 1, 10, 400, paint);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawRect(SkRect::MakeXYWH(10, 400, heavyAdvance, 4), paint);
+
+
+        paint.setColor(SK_ColorRED);
+        canvas->drawRect(SkRect::MakeXYWH(10 + thinAdvance, 145, 2, 263), paint);
+        canvas->drawRect(SkRect::MakeXYWH(10 + heavyAdvance, 145, 2, 263), paint);
     }
 
 private:
