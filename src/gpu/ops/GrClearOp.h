@@ -34,11 +34,6 @@ public:
 
     const char* name() const override { return "Clear"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
-    }
-
     SkString dumpInfo() const override {
         SkString string("Scissor [");
         if (fClip.scissorEnabled()) {
