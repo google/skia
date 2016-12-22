@@ -22,6 +22,24 @@
       "revId": "20a7ecc49b9fe22b1a44629d717d1a51746773ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9765aef7_2b4658c3",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-22T14:12:24Z",
+      "side": 1,
+      "message": "We\u0027re relying on our internal knowledge of pixmap. This is the ugly part about supporting index8. The only thing we\u0027re truly modifying is the color table, since there is no way for the client to know the color table ahead of time, and we do not have another way to give them this information.\n\nInstead, we can return false for index 8 in this version.",
+      "parentUuid": "9765aef7_4bef4c93",
+      "revId": "20a7ecc49b9fe22b1a44629d717d1a51746773ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
