@@ -23,7 +23,10 @@
 
 class SkBitmap;
 class SkData;
+class SkPixmap;
 class SkStreamRewindable;
+
+SK_API CGContextRef SkCreateCGContext(const SkPixmap&);
 
 /**
  *  Given a CGImage, allocate an SkBitmap and copy the image's pixels into it. If scaleToFit is not
