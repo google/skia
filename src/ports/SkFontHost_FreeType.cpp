@@ -86,7 +86,10 @@ FT_MemoryRec_ gFTMemory = { nullptr, sk_ft_alloc, sk_ft_free, sk_ft_realloc };
 
 class FreeTypeLibrary : SkNoncopyable {
 public:
-    FreeTypeLibrary() : fLibrary(nullptr), fIsLCDSupported(false), fLCDExtra(0) {
+    FreeTypeLibrary()
+        : fLibrary(nullptr), fIsLCDSupported(false), fLCDExtra(0)
+        , fVariationFontLinearMetricsAreBogus(this->isBefore(2, 7, 1))
+    {
         if (FT_New_Library(&gFTMemory, &fLibrary)) {
             return;
         }
@@ -129,14 +132,27 @@ public:
         }
     }
 
-    FT_Library library() { return fLibrary; }
-    bool isLCDSupported() { return fIsLCDSupported; }
-    int lcdExtra() { return fLCDExtra; }
+    bool isBefore(int major, int minor, int patch) const {
+        FT_Int runtimeMajor;
+        FT_Int runtimeMinor;
+        FT_Int runtimePatch;
+        FT_Library_Version(fLibrary, &runtimeMajor, &runtimeMinor, &runtimePatch);
+        return (runtimeMajor < major || (runtimeMajor == major &&
+               (runtimeMinor < minor || (runtimeMinor == minor &&
+               (runtimePatch < patch)))));
+    }
+
+    FT_Library library() const { return fLibrary; }
+    bool isLCDSupported() const { return fIsLCDSupported; }
+    int lcdExtra() const { return fLCDExtra; }
+    bool variationFontLinearMetricsAreBogus() const { return fVariationFontLinearMetricsAreBogus; }
 
 private:
     FT_Library fLibrary;
     bool fIsLCDSupported;
     int fLCDExtra;
+    /** FreeType before 2.7.1 does not vary the linear metrics of variation fonts. */
+    bool fVariationFontLinearMetricsAreBogus;
 
     // FT_Library_SetLcdFilterWeights was introduced in FreeType 2.4.0.
     // The following platforms provide FreeType of at least 2.4.0.
@@ -863,6 +879,11 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
             SkDEBUGF(("FT_Set_CharSize(%s, %f, %f) returned 0x%x.\n",
                       ftFace->family_name, fScale.fX, fScale.fY, err));
             return;
+        }
+        if (gFTLibrary->variationFontLinearMetricsAreBogus() &&
+           (ftFace->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS))
+        {
+            linearMetrics = false;
         }
     } else if (FT_HAS_FIXED_SIZES(ftFace)) {
         fStrikeIndex = chooseBitmapStrike(ftFace.get(), scaleY);
