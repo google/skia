@@ -244,10 +244,12 @@ bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t
     return srcPI.convertPixelsTo(&dstPI, width, height);
 }
 
-bool GrContext::writeSurfacePixels(GrSurface* surface,
+bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
                                    int left, int top, int width, int height,
-                                   GrPixelConfig srcConfig, const void* buffer, size_t rowBytes,
-                                   uint32_t pixelOpsFlags) {
+                                   GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
+                                   const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags) {
+    // TODO: Color space conversion
+
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(surface);
@@ -389,10 +391,12 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
     return true;
 }
 
-bool GrContext::readSurfacePixels(GrSurface* src,
+bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                                   int left, int top, int width, int height,
-                                  GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
-                                  uint32_t flags) {
+                                  GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
+                                  void* buffer, size_t rowBytes, uint32_t flags) {
+    // TODO: Color space conversion
+
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     ASSERT_OWNED_RESOURCE(src);

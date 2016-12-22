@@ -246,9 +246,10 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     }
 
     const uint32_t pixelOpsFlags = 0;
-    if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(),
+    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
                          SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
-                         bitmap->getPixels(), bitmap->rowBytes(), pixelOpsFlags)) {
+                         cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes(),
+                         pixelOpsFlags)) {
         bitmap->reset();
         return false;
     }

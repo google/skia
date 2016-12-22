@@ -130,8 +130,8 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t row
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(srcX, srcY, info.width(), info.height(), config,
-                              pixels, rowBytes, flags)) {
+    if (!fTexture->readPixels(fColorSpace.get(), srcX, srcY, info.width(), info.height(), config,
+                              info.colorSpace(), pixels, rowBytes, flags)) {
         return false;
     }
     // do we have to manually fix-up the alpha channel?
