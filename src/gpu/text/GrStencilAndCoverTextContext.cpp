@@ -349,7 +349,7 @@ private:
 
     void flush();
 
-    std::unique_ptr<SkTextBlobBuilder> fBuilder;
+    sk_up<SkTextBlobBuilder>           fBuilder;
     SkPaint                            fFont;
     int                                fBuffIdx;
     int                                fCount;

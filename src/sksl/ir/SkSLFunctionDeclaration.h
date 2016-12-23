@@ -67,7 +67,7 @@ struct FunctionDeclaration : public Symbol {
      * indicates that an attempt should be made. If false is returned, the state of
      * outParameterTypes and outReturnType are undefined.
      */
-    bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
+    bool determineFinalTypes(const std::vector<sk_up<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
         assert(arguments.size() == fParameters.size());

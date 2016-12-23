@@ -769,7 +769,7 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         return true;
     }
 
-    std::unique_ptr<uint8_t[]> profile(ComputeBlurProfile(sigma));
+    sk_up<uint8_t[]> profile(ComputeBlurProfile(sigma));
 
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {

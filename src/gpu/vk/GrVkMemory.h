@@ -157,11 +157,11 @@ private:
                      uint32_t memoryTypeIndex, uint32_t heapIndex,
                      GrVkAlloc* alloc);
 
-    const GrVkGpu*         fGpu;
-    VkDeviceSize           fSubHeapSize;
-    VkDeviceSize           fAllocSize;
-    VkDeviceSize           fUsedSize;
-    AllocFunc              fAllocFunc;
-    SkTArray<std::unique_ptr<GrVkSubHeap>> fSubHeaps;
+    const GrVkGpu*               fGpu;
+    VkDeviceSize                 fSubHeapSize;
+    VkDeviceSize                 fAllocSize;
+    VkDeviceSize                 fUsedSize;
+    AllocFunc                    fAllocFunc;
+    SkTArray<sk_up<GrVkSubHeap>> fSubHeaps;
 };
 #endif

@@ -77,16 +77,16 @@ private:
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
     SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-            SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs, sk_sp<SkColorSpace> colorSpace);
+               SkTArray<sk_up<SkCodec>, true>* embeddedCodecs, sk_sp<SkColorSpace> colorSpace);
 
-    std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
+    sk_up<SkTArray<sk_up<SkCodec>, true>> fEmbeddedCodecs;
 
     // Only used by the scanline decoder.  onStartScanlineDecode() will set
     // fCurrScanlineCodec to one of the fEmbeddedCodecs, if it can find a
     // codec of the appropriate size.  We will use fCurrScanlineCodec for
     // subsequent calls to onGetScanlines() or onSkipScanlines().
     // fCurrScanlineCodec is owned by this class, but should not be an
-    // std::unique_ptr.  It will be deleted by the destructor of fEmbeddedCodecs.
+    // sk_up.  It will be deleted by the destructor of fEmbeddedCodecs.
     SkCodec* fCurrScanlineCodec;
 
     // Only used by incremental decoder.  onStartIncrementalDecode() will set
@@ -94,7 +94,7 @@ private:
     // codec of the appropriate size.  We will use fCurrIncrementalCodec for
     // subsequent calls to incrementalDecode().
     // fCurrIncrementalCodec is owned by this class, but should not be an
-    // std::unique_ptr.  It will be deleted by the destructor of fEmbeddedCodecs.
+    // sk_up.  It will be deleted by the destructor of fEmbeddedCodecs.
     SkCodec* fCurrIncrementalCodec;
 
     typedef SkCodec INHERITED;

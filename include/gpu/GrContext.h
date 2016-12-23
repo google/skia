@@ -396,7 +396,7 @@ private:
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrAtlasGlyphCache*                      fAtlasGlyphCache;
-    std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
+    sk_up<GrTextBlobCache>                  fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
     int                                     fPMToUPMConversion;
@@ -416,7 +416,7 @@ private:
 
     const uint32_t                          fUniqueID;
 
-    std::unique_ptr<GrDrawingManager>       fDrawingManager;
+    sk_up<GrDrawingManager> fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
 

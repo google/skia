@@ -47,9 +47,9 @@ Error ViaAndroidSDK::draw(const Src& src,
 
         Error draw(SkCanvas* canvas) const override {
             // Pass through HWUI's upper layers to get operational transforms
-            std::unique_ptr<android::Canvas> ac(android::Canvas::create_canvas(canvas));
-            std::unique_ptr<android::uirenderer::SkiaCanvasProxy> scProxy
-                (new android::uirenderer::SkiaCanvasProxy(ac.get()));
+            sk_up<android::Canvas> ac(android::Canvas::create_canvas(canvas));
+            sk_up<android::uirenderer::SkiaCanvasProxy> scProxy(
+                    new android::uirenderer::SkiaCanvasProxy(ac.get()));
 
             // Pass through another proxy to get paint transforms
             SkAndroidSDKCanvas fc;

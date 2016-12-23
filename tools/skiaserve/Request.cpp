@@ -56,7 +56,7 @@ SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
 
 sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
-    std::unique_ptr<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
+    sk_up<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
 
     // Convert to format suitable for PNG output
@@ -303,7 +303,7 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
 SkColor Request::getPixel(int x, int y) {
     SkCanvas* canvas = this->getCanvas();
     canvas->flush();
-    std::unique_ptr<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
+    sk_up<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
     SkASSERT(bitmap);
 
     // Convert to format suitable for inspection

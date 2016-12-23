@@ -52,7 +52,7 @@ void SkAnimatorView::setURIBase(const char dir[]) {
 }
 
 bool SkAnimatorView::decodeFile(const char path[]) {
-    std::unique_ptr<SkStream> is = SkStream::MakeFromFile(path);
+    sk_up<SkStream> is = SkStream::MakeFromFile(path);
     return is && this->decodeStream(is.get());
 }
 

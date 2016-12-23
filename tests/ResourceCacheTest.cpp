@@ -1375,7 +1375,7 @@ static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
 
     int mipLevelCount = mipmaps->countLevels() + 1;
 
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+    sk_up<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
     texels[0].fPixels = bm.getPixels();
     texels[0].fRowBytes = bm.rowBytes();

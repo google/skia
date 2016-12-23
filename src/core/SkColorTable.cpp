@@ -101,7 +101,7 @@ SkColorTable* SkColorTable::Create(SkReadBuffer& buffer) {
     }
 
     const size_t allocSize = count * sizeof(SkPMColor);
-    std::unique_ptr<SkPMColor> colors((SkPMColor*)sk_malloc_throw(allocSize));
+    sk_up<SkPMColor> colors((SkPMColor*)sk_malloc_throw(allocSize));
     if (!buffer.readColorArray(colors.get(), count)) {
         return nullptr;
     }

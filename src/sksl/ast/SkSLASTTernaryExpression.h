@@ -16,22 +16,21 @@ namespace SkSL {
  * A ternary expression (test ? ifTrue : ifFalse).
  */
 struct ASTTernaryExpression : public ASTExpression {
-    ASTTernaryExpression(std::unique_ptr<ASTExpression> test,
-                         std::unique_ptr<ASTExpression> ifTrue,
-                         std::unique_ptr<ASTExpression> ifFalse)
-    : INHERITED(test->fPosition, kTernary_Kind)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {}
+    ASTTernaryExpression(
+            sk_up<ASTExpression> test, sk_up<ASTExpression> ifTrue, sk_up<ASTExpression> ifFalse)
+            : INHERITED(test->fPosition, kTernary_Kind)
+            , fTest(std::move(test))
+            , fIfTrue(std::move(ifTrue))
+            , fIfFalse(std::move(ifFalse)) {}
 
     SkString description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";        
     }
 
-    const std::unique_ptr<ASTExpression> fTest;
-    const std::unique_ptr<ASTExpression> fIfTrue;
-    const std::unique_ptr<ASTExpression> fIfFalse;
+    const sk_up<ASTExpression> fTest;
+    const sk_up<ASTExpression> fIfTrue;
+    const sk_up<ASTExpression> fIfFalse;
 
     typedef ASTExpression INHERITED;
 };

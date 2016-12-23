@@ -361,7 +361,7 @@ static void emit_image_xobject(SkWStream* stream,
         bitmap_to_pdf_pixels(bitmap, &deflateWStream);
     }
     deflateWStream.finalize();  // call before detachAsStream().
-    std::unique_ptr<SkStreamAsset> asset(buffer.detachAsStream());
+    sk_up<SkStreamAsset> asset(buffer.detachAsStream());
 
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");

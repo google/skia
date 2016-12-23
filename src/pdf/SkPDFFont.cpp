@@ -289,7 +289,7 @@ void SkPDFType0Font::emitObject(SkWStream* stream,
 
 #ifdef SK_PDF_USE_SFNTLY
 // if possible, make no copy.
-static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
+static sk_sp<SkData> stream_to_data(sk_up<SkStreamAsset> stream) {
     SkASSERT(stream);
     (void)stream->rewind();
     SkASSERT(stream->hasLength());
@@ -302,11 +302,10 @@ static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
     return SkData::MakeFromStream(stream.get(), size);
 }
 
-static sk_sp<SkPDFStream> get_subset_font_stream(
-        std::unique_ptr<SkStreamAsset> fontAsset,
-        const SkBitSet& glyphUsage,
-        const char* fontName,
-        int ttcIndex) {
+static sk_sp<SkPDFStream> get_subset_font_stream(sk_up<SkStreamAsset> fontAsset,
+                                                 const SkBitSet& glyphUsage,
+                                                 const char* fontName,
+                                                 int ttcIndex) {
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
     SkTDArray<unsigned> subset;
@@ -367,7 +366,7 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     add_common_font_descriptor_entries(descriptor.get(), metrics, 0);
 
     int ttcIndex;
-    std::unique_ptr<SkStreamAsset> fontAsset(face->openStream(&ttcIndex));
+    sk_up<SkStreamAsset> fontAsset(face->openStream(&ttcIndex));
     size_t fontSize = fontAsset ? fontAsset->getLength() : 0;
     if (0 == fontSize) {
         SkDebugf("Error: (SkTypeface)(%p)::openStream() returned "
@@ -480,7 +479,7 @@ static sk_sp<SkPDFDict> make_type1_font_descriptor(
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    std::unique_ptr<SkStreamAsset> rawFontData(typeface->openStream(&ttcIndex));
+    sk_up<SkStreamAsset> rawFontData(typeface->openStream(&ttcIndex));
     sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
                                                          &header, &data, &trailer);
     if (fontData) {
@@ -653,13 +652,12 @@ static void add_type3_font_info(SkPDFCanon* canon,
                 SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(),
                                       &content);
                 charProcs->insertObjRef(
-                    characterName, sk_make_sp<SkPDFStream>(
-                            std::unique_ptr<SkStreamAsset>(content.detachAsStream())));
+                        characterName,
+                        sk_make_sp<SkPDFStream>(sk_up<SkStreamAsset>(content.detachAsStream())));
             } else {
                 if (!emptyStream) {
                     emptyStream = sk_make_sp<SkPDFStream>(
-                            std::unique_ptr<SkStreamAsset>(
-                                    new SkMemoryStream((size_t)0)));
+                            sk_up<SkStreamAsset>(new SkMemoryStream((size_t)0)));
                 }
                 charProcs->insertObjRef(characterName, emptyStream);
             }

@@ -240,7 +240,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
-    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.opInfo(), inputs));
+    sk_up<Backend> backend(Backend::Create(pipeline, ip.opInfo(), inputs));
     backend->init(varyingHandler, v);
 
     int usedShapeDefinitions = 0;

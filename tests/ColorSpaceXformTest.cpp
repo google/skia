@@ -20,7 +20,7 @@ static constexpr int kChannels = 3;
 
 class ColorSpaceXformTest {
 public:
-    static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
+    static sk_up<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
         // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
         sk_sp<SkColorSpace> space(new SkColorSpace_XYZ(
                 kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
@@ -29,8 +29,8 @@ public:
         return SlowIdentityXform(static_cast<SkColorSpace_XYZ*>(space.get()));
     }
 
-    static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform_A2B(
-            SkGammaNamed gammaNamed, const sk_sp<SkGammas>& gammas) {
+    static sk_up<SkColorSpaceXform> CreateIdentityXform_A2B(SkGammaNamed gammaNamed,
+                                                            const sk_sp<SkGammas>& gammas) {
         std::vector<SkColorSpace_A2B::Element> srcElements;
         // sRGB
         const float values[16] = {
@@ -81,7 +81,7 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
     uint32_t dstPixels[width];
 
     // Create and perform an identity xform.
-    std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
+    sk_up<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
     bool result = xform->apply(select_xform_format(kN32_SkColorType), dstPixels,
                                SkColorSpaceXform::kBGRA_8888_ColorFormat, srcPixels, width,
                                kOpaque_SkAlphaType);

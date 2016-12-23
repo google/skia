@@ -14,7 +14,6 @@
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
@@ -243,11 +242,11 @@ struct SkFaceRec {
     SkFaceRec* fNext;
     FT_Face fFace;
     FT_StreamRec fFTStream;
-    std::unique_ptr<SkStreamAsset> fSkStream;
+    sk_up<SkStreamAsset> fSkStream;
     uint32_t fRefCnt;
     uint32_t fFontID;
 
-    SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID);
+    SkFaceRec(sk_up<SkStreamAsset> stream, uint32_t fontID);
 };
 
 extern "C" {
@@ -270,9 +269,8 @@ extern "C" {
     static void sk_ft_stream_close(FT_Stream) {}
 }
 
-SkFaceRec::SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID)
-        : fNext(nullptr), fSkStream(std::move(stream)), fRefCnt(1), fFontID(fontID)
-{
+SkFaceRec::SkFaceRec(sk_up<SkStreamAsset> stream, uint32_t fontID)
+        : fNext(nullptr), fSkStream(std::move(stream)), fRefCnt(1), fFontID(fontID) {
     sk_bzero(&fFTStream, sizeof(fFTStream));
     fFTStream.size = fSkStream->getLength();
     fFTStream.descriptor.pointer = fSkStream.get();
@@ -327,7 +325,7 @@ static FT_Face ref_ft_face(const SkTypeface* typeface) {
         rec = rec->fNext;
     }
 
-    std::unique_ptr<SkFontData> data = typeface->makeFontData();
+    sk_up<SkFontData> data = typeface->makeFontData();
     if (nullptr == data || !data->hasStream()) {
         return nullptr;
     }
@@ -621,8 +619,8 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
 
 SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                             const SkDescriptor* desc) const {
-    auto c = skstd::make_unique<SkScalerContext_FreeType>(
-            sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
+    auto c = sk_make_up<SkScalerContext_FreeType>(sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)),
+                                                  effects, desc);
     if (!c->success()) {
         return nullptr;
     }
@@ -750,7 +748,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     // load the font file
     using UnrefFTFace = SkFunctionWrapper<void, skstd::remove_pointer_t<FT_Face>, unref_ft_face>;
     using FT_FaceRef = skstd::remove_pointer_t<FT_Face>;
-    std::unique_ptr<FT_FaceRef, UnrefFTFace> ftFace(ref_ft_face(this->getTypeface()));
+    sk_up<FT_FaceRef, UnrefFTFace> ftFace(ref_ft_face(this->getTypeface()));
     if (nullptr == ftFace) {
         SkDEBUGF(("Could not create FT_Face.\n"));
         return;
@@ -837,7 +835,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     }
 
     using DoneFTSize = SkFunctionWrapper<FT_Error, skstd::remove_pointer_t<FT_Size>, FT_Done_Size>;
-    std::unique_ptr<skstd::remove_pointer_t<FT_Size>, DoneFTSize> ftSize([&ftFace]() -> FT_Size {
+    sk_up<skstd::remove_pointer_t<FT_Size>, DoneFTSize> ftSize([&ftFace]() -> FT_Size {
         FT_Size size;
         FT_Error err = FT_New_Size(ftFace.get(), &size);
         if (err != 0) {

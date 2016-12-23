@@ -17,7 +17,6 @@
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilterCache.h"
-#include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
@@ -1527,7 +1526,7 @@ sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
     return mediaBox;
 }
 
-std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
+sk_up<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, &buffer);
@@ -1547,9 +1546,9 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     }
     gsState.drainStack();
     if (buffer.bytesWritten() > 0) {
-        return std::unique_ptr<SkStreamAsset>(buffer.detachAsStream());
+        return sk_up<SkStreamAsset>(buffer.detachAsStream());
     } else {
-        return skstd::make_unique<SkMemoryStream>();
+        return sk_make_up<SkMemoryStream>();
     }
 }
 

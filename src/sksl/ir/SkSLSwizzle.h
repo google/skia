@@ -61,10 +61,10 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
  * Represents a vector swizzle operation such as 'vec2(1, 2, 3).zyx'.
  */
 struct Swizzle : public Expression {
-    Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fPosition, kSwizzle_Kind, get_type(context, *base, components.size()))
-    , fBase(std::move(base))
-    , fComponents(std::move(components)) {
+    Swizzle(const Context& context, sk_up<Expression> base, std::vector<int> components)
+            : INHERITED(base->fPosition, kSwizzle_Kind, get_type(context, *base, components.size()))
+            , fBase(std::move(base))
+            , fComponents(std::move(components)) {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
     }
 
@@ -76,7 +76,7 @@ struct Swizzle : public Expression {
         return result;
     }
 
-    const std::unique_ptr<Expression> fBase;
+    const sk_up<Expression> fBase;
     const std::vector<int> fComponents;
 
     typedef Expression INHERITED;

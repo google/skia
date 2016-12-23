@@ -22,9 +22,9 @@ struct ASTIndexSuffix : public ASTSuffix {
     : INHERITED(position, ASTSuffix::kIndex_Kind)
     , fExpression(nullptr) {}
 
-    ASTIndexSuffix(std::unique_ptr<ASTExpression> expression) 
-    : INHERITED(expression ? expression->fPosition : Position(), ASTSuffix::kIndex_Kind)
-    , fExpression(std::move(expression)) {}
+    ASTIndexSuffix(sk_up<ASTExpression> expression)
+            : INHERITED(expression ? expression->fPosition : Position(), ASTSuffix::kIndex_Kind)
+            , fExpression(std::move(expression)) {}
 
     SkString description() const override {
         if (fExpression) {
@@ -35,7 +35,7 @@ struct ASTIndexSuffix : public ASTSuffix {
     }
 
     // may be null
-    std::unique_ptr<ASTExpression> fExpression;
+    sk_up<ASTExpression> fExpression;
 
     typedef ASTSuffix INHERITED;
 };

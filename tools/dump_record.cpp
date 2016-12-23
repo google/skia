@@ -46,7 +46,7 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(FLAGS_skps[i]);
+        sk_up<SkStream> stream = SkStream::MakeFromFile(FLAGS_skps[i]);
         if (!stream) {
             SkDebugf("Could not read %s.\n", FLAGS_skps[i]);
             return 1;

@@ -380,8 +380,8 @@ protected:
                                                          clipCenter.fX + curSize,
                                                          clipCenter.fY + curSize);
 
-                std::unique_ptr<Object> clipObj((*clipMakes[x])(clipRect));
-                std::unique_ptr<Object> drawObj((*drawMakes[y])(cell));
+                sk_up<Object> clipObj((*clipMakes[x])(clipRect));
+                sk_up<Object> drawObj((*drawMakes[y])(cell));
 
                 // The goal is to replace this clipped draw (which clips the 
                 // shadow) with a draw using the geometric clip

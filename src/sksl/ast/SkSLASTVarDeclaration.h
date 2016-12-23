@@ -23,11 +23,9 @@ namespace SkSL {
  */
 struct ASTVarDeclaration {
     ASTVarDeclaration(const SkString name,
-                      std::vector<std::unique_ptr<ASTExpression>> sizes,
-                      std::unique_ptr<ASTExpression> value)
-    : fName(name)
-    , fSizes(std::move(sizes))
-    , fValue(std::move(value)) {}
+                      std::vector<sk_up<ASTExpression>> sizes,
+                      sk_up<ASTExpression> value)
+            : fName(name), fSizes(std::move(sizes)), fValue(std::move(value)) {}
 
     SkString description() const {
         SkString result = fName;
@@ -47,23 +45,22 @@ struct ASTVarDeclaration {
     SkString fName;
 
     // array sizes, if any. e.g. 'foo[3][]' has sizes [3, null]
-    std::vector<std::unique_ptr<ASTExpression>> fSizes;
+    std::vector<sk_up<ASTExpression>> fSizes;
 
     // initial value, may be null
-    std::unique_ptr<ASTExpression> fValue;
+    sk_up<ASTExpression> fValue;
 };
 
 /**
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct ASTVarDeclarations : public ASTDeclaration {
-    ASTVarDeclarations(Modifiers modifiers,
-                       std::unique_ptr<ASTType> type,
-                       std::vector<ASTVarDeclaration> vars)
-    : INHERITED(type->fPosition, kVar_Kind)
-    , fModifiers(modifiers)
-    , fType(std::move(type))
-    , fVars(std::move(vars)) {}
+    ASTVarDeclarations(
+            Modifiers modifiers, sk_up<ASTType> type, std::vector<ASTVarDeclaration> vars)
+            : INHERITED(type->fPosition, kVar_Kind)
+            , fModifiers(modifiers)
+            , fType(std::move(type))
+            , fVars(std::move(vars)) {}
 
     SkString description() const override {
         SkString result = fModifiers.description() + fType->description() + " ";
@@ -77,7 +74,7 @@ struct ASTVarDeclarations : public ASTDeclaration {
     }
 
     const Modifiers fModifiers;
-    const std::unique_ptr<ASTType> fType;
+    const sk_up<ASTType> fType;
     const std::vector<ASTVarDeclaration> fVars;
 
     typedef ASTDeclaration INHERITED;

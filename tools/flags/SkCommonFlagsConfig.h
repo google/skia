@@ -75,7 +75,7 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
 };
 #endif
 
-typedef SkTArray<std::unique_ptr<SkCommandLineConfig>, true> SkCommandLineConfigArray;
+typedef SkTArray<sk_up<SkCommandLineConfig>, true> SkCommandLineConfigArray;
 void ParseConfigs(const SkCommandLineFlags::StringArray& configList,
                   SkCommandLineConfigArray* outResult);
 

@@ -91,7 +91,7 @@ public:
 private:
     static constexpr size_t kMaxSize = 256 * 3;
 
-    std::unique_ptr<SkStream>   fStream;
+    sk_up<SkStream>             fStream;
     size_t                      fPosition;
     char                        fBuffer[kMaxSize];
     size_t                      fBytesBuffered;

@@ -12,7 +12,6 @@
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
@@ -860,13 +859,12 @@ protected:
 
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
-std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
-    const SkScalerContextEffects& effects, const SkDescriptor* desc, bool allowFailure) const
-{
-    std::unique_ptr<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
+sk_up<SkScalerContext> SkTypeface::createScalerContext(
+        const SkScalerContextEffects& effects, const SkDescriptor* desc, bool allowFailure) const {
+    sk_up<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
     if (!c && !allowFailure) {
-        c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
-                                                      effects, desc);
+        c = sk_make_up<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)), effects,
+                                              desc);
     }
     return c;
 }

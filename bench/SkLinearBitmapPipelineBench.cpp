@@ -109,7 +109,7 @@ struct CommonBitmapFPBenchmark : public Benchmark {
     SkShader::TileMode fXTile;
     SkShader::TileMode fYTile;
     SkImageInfo fInfo;
-    std::unique_ptr<uint32_t[]> fBitmap;
+    sk_up<uint32_t[]> fBitmap;
 };
 
 struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {

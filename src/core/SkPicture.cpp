@@ -171,8 +171,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer
     if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
         return nullptr;
     }
-    std::unique_ptr<SkPictureData> data(
-            SkPictureData::CreateFromStream(stream, info, factory, typefaces));
+    sk_up<SkPictureData> data(SkPictureData::CreateFromStream(stream, info, factory, typefaces));
     return Forwardport(info, data.get(), nullptr);
 }
 
@@ -181,7 +180,7 @@ sk_sp<SkPicture> SkPicture::MakeFromBuffer(SkReadBuffer& buffer) {
     if (!InternalOnly_BufferIsSKP(&buffer, &info) || !buffer.readBool()) {
         return nullptr;
     }
-    std::unique_ptr<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
+    sk_up<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
     return Forwardport(info, data.get(), &buffer);
 }
 
@@ -208,7 +207,7 @@ void SkPicture::serialize(SkWStream* stream,
                           SkPixelSerializer* pixelSerializer,
                           SkRefCntSet* typefaceSet) const {
     SkPictInfo info = this->createHeader();
-    std::unique_ptr<SkPictureData> data(this->backport());
+    sk_up<SkPictureData> data(this->backport());
 
     stream->write(&info, sizeof(info));
     if (data) {
@@ -221,7 +220,7 @@ void SkPicture::serialize(SkWStream* stream,
 
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkPictInfo info = this->createHeader();
-    std::unique_ptr<SkPictureData> data(this->backport());
+    sk_up<SkPictureData> data(this->backport());
 
     buffer.writeByteArray(&info.fMagic, sizeof(info.fMagic));
     buffer.writeUInt(info.getVersion());

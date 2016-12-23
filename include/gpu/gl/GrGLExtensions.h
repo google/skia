@@ -68,7 +68,7 @@ public:
 
 private:
     bool                                fInitialized;
-    std::unique_ptr<SkTArray<SkString>> fStrings;
+    sk_up<SkTArray<SkString>>           fStrings;
 };
 
 #endif

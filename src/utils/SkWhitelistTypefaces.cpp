@@ -63,7 +63,7 @@ static int whitelist_name_index(const SkTypeface* tf) {
 }
 
 static uint32_t compute_checksum(const SkTypeface* tf) {
-    std::unique_ptr<SkFontData> fontData = tf->makeFontData();
+    sk_up<SkFontData> fontData = tf->makeFontData();
     if (!fontData) {
         return 0;
     }
@@ -190,7 +190,7 @@ sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
         return nullptr;
     }
 
-    std::unique_ptr<SkFontData> data = desc.detachFontData();
+    sk_up<SkFontData> data = desc.detachFontData();
     if (data) {
         sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(std::move(data)));
         if (typeface) {

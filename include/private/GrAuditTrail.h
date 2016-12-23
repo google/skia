@@ -131,7 +131,7 @@ private:
         int fOpListID;
         int fChildID;
     };
-    typedef SkTArray<std::unique_ptr<Op>, true> OpPool;
+    typedef SkTArray<sk_up<Op>, true> OpPool;
 
     typedef SkTArray<Op*> Ops;
 
@@ -142,7 +142,7 @@ private:
         Ops fChildren;
         const GrGpuResource::UniqueID  fRenderTargetUniqueID;
     };
-    typedef SkTArray<std::unique_ptr<OpNode>, true> OpList;
+    typedef SkTArray<sk_up<OpNode>, true> OpList;
 
     void copyOutFromOpList(OpInfo* outOpInfo, int opListID);
 

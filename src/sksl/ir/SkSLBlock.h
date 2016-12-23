@@ -17,11 +17,11 @@ namespace SkSL {
  * A block of multiple statements functioning as a single statement.
  */
 struct Block : public Statement {
-    Block(Position position, std::vector<std::unique_ptr<Statement>> statements,
+    Block(Position position, std::vector<sk_up<Statement>> statements,
           const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(position, kBlock_Kind)
-    , fStatements(std::move(statements))
-    , fSymbols(std::move(symbols)) {}
+            : INHERITED(position, kBlock_Kind)
+            , fStatements(std::move(statements))
+            , fSymbols(std::move(symbols)) {}
 
     SkString description() const override {
         SkString result("{");
@@ -33,7 +33,7 @@ struct Block : public Statement {
         return result;
     }
 
-    const std::vector<std::unique_ptr<Statement>> fStatements;
+    const std::vector<sk_up<Statement>> fStatements;
     const std::shared_ptr<SymbolTable> fSymbols;
 
     typedef Statement INHERITED;

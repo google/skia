@@ -154,7 +154,7 @@ private:
     const uint16_t              fBitsPerPixel;
     const SkScanlineOrder       fRowOrder;
     const size_t                fSrcRowBytes;
-    std::unique_ptr<uint32_t[]> fXformBuffer;
+    sk_up<uint32_t[]>           fXformBuffer;
 
     typedef SkCodec INHERITED;
 };

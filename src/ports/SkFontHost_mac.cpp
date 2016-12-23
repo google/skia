@@ -28,7 +28,6 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMathPriv.h"
 #include "SkMutex.h"
@@ -67,8 +66,8 @@ struct CFSafeRelease {
       }
     }
 };
-template <typename CFRef> using UniqueCFRef =
-        std::unique_ptr<skstd::remove_pointer_t<CFRef>, CFSafeRelease>;
+template <typename CFRef>
+using UniqueCFRef = sk_up<skstd::remove_pointer_t<CFRef>, CFSafeRelease>;
 
 static UniqueCFRef<CFStringRef> make_CFString(const char str[]) {
     return UniqueCFRef<CFStringRef>(CFStringCreateWithCString(nullptr, str, kCFStringEncodingUTF8));
@@ -390,7 +389,7 @@ public:
 protected:
     int onGetUPEM() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
+    sk_up<SkFontData> onMakeFontData() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
@@ -1613,17 +1612,16 @@ static bool get_variations(CTFontRef fFontRef, CFIndex* cgAxisCount,
 
     return true;
 }
-std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
+sk_up<SkFontData> SkTypeface_Mac::onMakeFontData() const {
     int index;
-    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
+    sk_up<SkStreamAsset> stream(this->onOpenStream(&index));
 
     CFIndex cgAxisCount;
     SkAutoSTMalloc<4, SkFixed> axisValues;
     if (get_variations(fFontRef.get(), &cgAxisCount, &axisValues)) {
-        return skstd::make_unique<SkFontData>(std::move(stream), index,
-                                              axisValues.get(), cgAxisCount);
+        return sk_make_up<SkFontData>(std::move(stream), index, axisValues.get(), cgAxisCount);
     }
-    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    return sk_make_up<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2111,7 +2109,7 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        sk_up<SkStreamAsset> stream(bareStream);
         UniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromStream(std::move(stream)));
         if (!pr) {
             return nullptr;
@@ -2233,7 +2231,7 @@ protected:
         return std::move(dict);
     }
     SkTypeface* onCreateFromStream(SkStreamAsset* bs, const FontParameters& params) const override {
-        std::unique_ptr<SkStreamAsset> s(bs);
+        sk_up<SkStreamAsset> s(bs);
         UniqueCFRef<CGDataProviderRef> provider(SkCreateDataProviderFromStream(std::move(s)));
         if (!provider) {
             return nullptr;
@@ -2315,7 +2313,7 @@ protected:
         }
         return std::move(dict);
     }
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+    SkTypeface* onCreateFromFontData(sk_up<SkFontData> fontData) const override {
         UniqueCFRef<CGDataProviderRef> provider(
                 SkCreateDataProviderFromStream(fontData->detachStream()));
         if (!provider) {

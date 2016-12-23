@@ -17,21 +17,21 @@ namespace SkSL {
  * A binary operation. 
  */
 struct BinaryExpression : public Expression {
-    BinaryExpression(Position position, std::unique_ptr<Expression> left, Token::Kind op,
-                     std::unique_ptr<Expression> right, const Type& type)
-    : INHERITED(position, kBinary_Kind, type)
-    , fLeft(std::move(left))
-    , fOperator(op)
-    , fRight(std::move(right)) {}
+    BinaryExpression(Position position, sk_up<Expression> left, Token::Kind op,
+                     sk_up<Expression> right, const Type& type)
+            : INHERITED(position, kBinary_Kind, type)
+            , fLeft(std::move(left))
+            , fOperator(op)
+            , fRight(std::move(right)) {}
 
     virtual SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
 
-    const std::unique_ptr<Expression> fLeft;
+    const sk_up<Expression> fLeft;
     const Token::Kind fOperator;
-    const std::unique_ptr<Expression> fRight;
+    const sk_up<Expression> fRight;
 
     typedef Expression INHERITED;
 };

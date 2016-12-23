@@ -12,7 +12,6 @@
 #include "SkDocument.h"
 #include "SkDeflate.h"
 #include "SkImageEncoder.h"
-#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
@@ -76,8 +75,7 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
-    auto streamData = skstd::make_unique<SkMemoryStream>(
-            streamBytes, strlen(streamBytes), true);
+    auto streamData = sk_make_up<SkMemoryStream>(streamBytes, strlen(streamBytes), true);
     auto stream = sk_make_sp<SkPDFStream>(std::move(streamData));
     assert_emit_eq(reporter,
                    *stream,

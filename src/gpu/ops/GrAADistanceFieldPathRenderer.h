@@ -89,7 +89,7 @@ private:
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
+    sk_up<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 

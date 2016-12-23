@@ -7,22 +7,17 @@
  */
 
 #include "SkDebugger.h"
-#include "SkMakeUnique.h"
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 
-
-SkDebugger::SkDebugger()
-    : fDebugCanvas(skstd::make_unique<SkDebugCanvas>(0, 0))
-    , fIndex(-1) { }
+SkDebugger::SkDebugger() : fDebugCanvas(sk_make_up<SkDebugCanvas>(0, 0)), fIndex(-1) {}
 
 SkDebugger::~SkDebugger() {}
 
 void SkDebugger::loadPicture(SkPicture* picture) {
     fPicture = sk_ref_sp(picture);
-    fDebugCanvas = skstd::make_unique<SkDebugCanvas>(
-        SkScalarCeilToInt(this->pictureCull().width()),
-        SkScalarCeilToInt(this->pictureCull().height()));
+    fDebugCanvas = sk_make_up<SkDebugCanvas>(SkScalarCeilToInt(this->pictureCull().width()),
+                                             SkScalarCeilToInt(this->pictureCull().height()));
     fDebugCanvas->setPicture(picture);
     picture->playback(fDebugCanvas.get());
     fDebugCanvas->setPicture(nullptr);

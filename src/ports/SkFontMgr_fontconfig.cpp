@@ -12,7 +12,6 @@
 #include "SkFontHost_FreeType_common.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
-#include "SkMakeUnique.h"
 #include "SkMath.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
@@ -406,10 +405,8 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 class SkTypeface_stream : public SkTypeface_FreeType {
 public:
     /** @param data takes ownership of the font data.*/
-    SkTypeface_stream(std::unique_ptr<SkFontData> data, const SkFontStyle& style, bool fixedWidth)
-        : INHERITED(style, fixedWidth)
-        , fData(std::move(data))
-    { }
+    SkTypeface_stream(sk_up<SkFontData> data, const SkFontStyle& style, bool fixedWidth)
+            : INHERITED(style, fixedWidth), fData(std::move(data)) {}
 
     void onGetFamilyName(SkString* familyName) const override {
         familyName->reset();
@@ -424,12 +421,10 @@ public:
         return fData->getStream()->duplicate();
     }
 
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return skstd::make_unique<SkFontData>(*fData);
-    }
+    sk_up<SkFontData> onMakeFontData() const override { return sk_make_up<SkFontData>(*fData); }
 
 private:
-    const std::unique_ptr<const SkFontData> fData;
+    const sk_up<const SkFontData> fData;
 
     typedef SkTypeface_FreeType INHERITED;
 };
@@ -879,7 +874,7 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        sk_up<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {
             return nullptr;
@@ -891,13 +886,13 @@ protected:
             return nullptr;
         }
 
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto data = sk_make_up<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
         return new SkTypeface_stream(std::move(data), style, isFixedWidth);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
+        sk_up<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -913,8 +908,8 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
-                                                   axisValues.get(), axisDefinitions.count());
+        auto data = sk_make_up<SkFontData>(std::move(stream), params.getCollectionIndex(),
+                                           axisValues.get(), axisDefinitions.count());
         return new SkTypeface_stream(std::move(data), style, isFixedPitch);
     }
 
@@ -926,7 +921,7 @@ protected:
         return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
     }
 
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+    SkTypeface* onCreateFromFontData(sk_up<SkFontData> fontData) const override {
         SkStreamAsset* stream(fontData->getStream());
         const size_t length = stream->getLength();
         if (length <= 0 || (1u << 30) < length) {

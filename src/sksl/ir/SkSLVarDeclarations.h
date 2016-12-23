@@ -20,12 +20,9 @@ namespace SkSL {
  * instances.
  */
 struct VarDeclaration {
-    VarDeclaration(const Variable* var,
-                   std::vector<std::unique_ptr<Expression>> sizes,
-                   std::unique_ptr<Expression> value)
-    : fVar(var)
-    , fSizes(std::move(sizes))
-    , fValue(std::move(value)) {}
+    VarDeclaration(
+            const Variable* var, std::vector<sk_up<Expression>> sizes, sk_up<Expression> value)
+            : fVar(var), fSizes(std::move(sizes)), fValue(std::move(value)) {}
 
     SkString description() const {
         SkString result = fVar->fName;
@@ -43,8 +40,8 @@ struct VarDeclaration {
     }
 
     const Variable* fVar;
-    std::vector<std::unique_ptr<Expression>> fSizes;
-    std::unique_ptr<Expression> fValue;
+    std::vector<sk_up<Expression>> fSizes;
+    sk_up<Expression> fValue;
 };
 
 /**

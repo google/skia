@@ -287,8 +287,8 @@ class ImageCacheratorGM : public skiagm::GM {
     SkString                         fName;
     SkImageGenerator*                (*fFactory)(GrContext*, SkPicture*);
     sk_sp<SkPicture>                 fPicture;
-    std::unique_ptr<SkImageCacherator> fCache;
-    std::unique_ptr<SkImageCacherator> fCacheSubset;
+    sk_up<SkImageCacherator>         fCache;
+    sk_up<SkImageCacherator>         fCacheSubset;
 
 public:
     ImageCacheratorGM(const char suffix[], SkImageGenerator* (*factory)(GrContext*, SkPicture*))

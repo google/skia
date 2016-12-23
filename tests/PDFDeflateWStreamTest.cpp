@@ -125,8 +125,8 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
             }
             REPORTER_ASSERT(r, deflateWStream.bytesWritten() == size);
         }
-        std::unique_ptr<SkStreamAsset> compressed(dynamicMemoryWStream.detachAsStream());
-        std::unique_ptr<SkStreamAsset> decompressed(stream_inflate(r, compressed.get()));
+        sk_up<SkStreamAsset> compressed(dynamicMemoryWStream.detachAsStream());
+        sk_up<SkStreamAsset> decompressed(stream_inflate(r, compressed.get()));
 
         if (!decompressed) {
             ERRORF(r, "Decompression failed.");

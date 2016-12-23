@@ -209,8 +209,8 @@ private:
     int fStartDS;
     int fDSCount;
 
-    std::unique_ptr<GrVkUniformBuffer> fVertexUniformBuffer;
-    std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
+    sk_up<GrVkUniformBuffer> fVertexUniformBuffer;
+    sk_up<GrVkUniformBuffer> fFragmentUniformBuffer;
 
     // GrVkResources used for sampling textures
     SkTDArray<GrVkSampler*> fSamplers;
@@ -222,8 +222,8 @@ private:
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     // Processors in the GrVkPipelineState
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
-    std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
+    sk_up<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    sk_up<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
     Desc fDesc;

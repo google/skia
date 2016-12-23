@@ -42,7 +42,7 @@ public:
     /**
      *  Attempts to open the specified file as a stream, returns nullptr on failure.
      */
-    static std::unique_ptr<SkStreamAsset> MakeFromFile(const char path[]);
+    static sk_up<SkStreamAsset> MakeFromFile(const char path[]);
 
     /** Reads or skips size number of bytes.
      *  If buffer == NULL, skip size bytes, return how many were skipped.

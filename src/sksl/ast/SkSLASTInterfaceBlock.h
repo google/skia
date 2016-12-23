@@ -27,12 +27,13 @@ struct ASTInterfaceBlock : public ASTDeclaration {
                       Modifiers modifiers,
                       SkString interfaceName,
                       SkString valueName,
-                      std::vector<std::unique_ptr<ASTVarDeclarations>> declarations)
-    : INHERITED(position, kInterfaceBlock_Kind)
-    , fModifiers(modifiers)
-    , fInterfaceName(std::move(interfaceName))
-    , fValueName(std::move(valueName))
-    , fDeclarations(std::move(declarations)) {}
+                      std::vector<sk_up<ASTVarDeclarations>>
+                              declarations)
+            : INHERITED(position, kInterfaceBlock_Kind)
+            , fModifiers(modifiers)
+            , fInterfaceName(std::move(interfaceName))
+            , fValueName(std::move(valueName))
+            , fDeclarations(std::move(declarations)) {}
 
     SkString description() const override {
         SkString result = fModifiers.description() + fInterfaceName + " {\n";
@@ -49,7 +50,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     const Modifiers fModifiers;
     const SkString fInterfaceName;
     const SkString fValueName;
-    const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
+    const std::vector<sk_up<ASTVarDeclarations>> fDeclarations;
 
     typedef ASTDeclaration INHERITED;
 };

@@ -43,11 +43,10 @@ static const Type& index_type(const Context& context, const Type& type) {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
-    IndexExpression(const Context& context, std::unique_ptr<Expression> base, 
-                    std::unique_ptr<Expression> index)
-    : INHERITED(base->fPosition, kIndex_Kind, index_type(context, base->fType))
-    , fBase(std::move(base))
-    , fIndex(std::move(index)) {
+    IndexExpression(const Context& context, sk_up<Expression> base, sk_up<Expression> index)
+            : INHERITED(base->fPosition, kIndex_Kind, index_type(context, base->fType))
+            , fBase(std::move(base))
+            , fIndex(std::move(index)) {
         ASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
     }
 
@@ -55,8 +54,8 @@ struct IndexExpression : public Expression {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
 
-    const std::unique_ptr<Expression> fBase;
-    const std::unique_ptr<Expression> fIndex;
+    const sk_up<Expression> fBase;
+    const sk_up<Expression> fIndex;
 
     typedef Expression INHERITED;
 };

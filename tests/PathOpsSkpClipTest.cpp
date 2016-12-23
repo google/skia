@@ -881,8 +881,8 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
     const int firstDirNo = gDirs.next();
     const int lastDirNo = gDirs.last();
     int dirCount = lastDirNo - firstDirNo + 1;
-    std::unique_ptr<SkTDArray<TestResult>[]> tests(new SkTDArray<TestResult>[dirCount]);
-    std::unique_ptr<SkTDArray<SortByName*>[]> sorted(new SkTDArray<SortByName*>[dirCount]);
+    sk_up<SkTDArray<TestResult>[]> tests(new SkTDArray<TestResult>[ dirCount ]);
+    sk_up<SkTDArray<SortByName*>[]> sorted(new SkTDArray<SortByName*>[ dirCount ]);
     if (!buildTests(tests.get(), sorted.get())) {
         return;
     }
@@ -920,7 +920,7 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
 
     }
     testRunner.render();
-    std::unique_ptr<SkTDArray<TestResult>[]> results(new SkTDArray<TestResult>[dirCount]);
+    sk_up<SkTDArray<TestResult>[]> results(new SkTDArray<TestResult>[ dirCount ]);
     if (!buildTests(results.get(), nullptr)) {
         return;
     }
@@ -1073,7 +1073,7 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     Test* test;
     while ((test = iter.next()) != nullptr) {
-        std::unique_ptr<Test> owned(test);
+        sk_up<Test> owned(test);
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             test->run();
         }

@@ -1087,7 +1087,7 @@ DEF_TEST(Picture_preserveCullRect, r) {
     SkDynamicMemoryWStream wstream;
     picture->serialize(&wstream);
 
-    std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+    sk_up<SkStream> rstream(wstream.detachAsStream());
     sk_sp<SkPicture> deserializedPicture(SkPicture::MakeFromStream(rstream.get()));
 
     REPORTER_ASSERT(r, deserializedPicture != nullptr);

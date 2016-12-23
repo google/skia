@@ -113,7 +113,7 @@ protected:
     SkColor fColors[4];
 };
 
-static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRenderer>>& renderers) {
+static void draw_gamut_grid(SkCanvas* canvas, SkTArray<sk_up<CellRenderer>>& renderers) {
     // We want our colors in our wide gamut to be obviously visibly distorted from sRGB, so we use
     // Wide Gamut RGB (with sRGB gamma, for HW acceleration) as the working space for this test:
     const float gWideGamutRGB_toXYZD50[]{
@@ -199,7 +199,7 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
 }
 
 DEF_SIMPLE_GM_BG(gamut, canvas, gTestWidth, gTestHeight, SK_ColorBLACK) {
-    SkTArray<std::unique_ptr<CellRenderer>> renderers;
+    SkTArray<sk_up<CellRenderer>> renderers;
 
     // sRGB primaries, rendered as paint color
     renderers.emplace_back(new PaintColorCellRenderer(SK_ColorRED));

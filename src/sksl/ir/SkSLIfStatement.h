@@ -17,12 +17,12 @@ namespace SkSL {
  * An 'if' statement.
  */
 struct IfStatement : public Statement {
-    IfStatement(Position position, std::unique_ptr<Expression> test, 
-                std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(position, kIf_Kind)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {}
+    IfStatement(Position position, sk_up<Expression> test, sk_up<Statement> ifTrue,
+                sk_up<Statement> ifFalse)
+            : INHERITED(position, kIf_Kind)
+            , fTest(std::move(test))
+            , fIfTrue(std::move(ifTrue))
+            , fIfFalse(std::move(ifFalse)) {}
 
     SkString description() const override {
         SkString result = "if (" + fTest->description() + ") " + fIfTrue->description();
@@ -32,9 +32,9 @@ struct IfStatement : public Statement {
         return result;
     }
 
-    const std::unique_ptr<Expression> fTest;
-    const std::unique_ptr<Statement> fIfTrue;
-    const std::unique_ptr<Statement> fIfFalse;
+    const sk_up<Expression> fTest;
+    const sk_up<Statement> fIfTrue;
+    const sk_up<Statement> fIfFalse;
 
     typedef Statement INHERITED;
 };

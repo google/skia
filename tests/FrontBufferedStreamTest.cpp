@@ -56,7 +56,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     // deleted yet (and we only call const methods in it).
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
 
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // First, test reading less than the max buffer size.
@@ -83,7 +83,7 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
 
 static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Read exactly the amount that fits in the buffer.
@@ -102,7 +102,7 @@ static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t buf
 
 static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Skip half the buffer.
@@ -156,7 +156,7 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
             new AndroidLikeMemoryStream((void*)gAbcs, bufferSize, false);
 
     // Create a buffer that matches the length of the stream.
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
 
     // Attempt to read one more than the bufferSize
@@ -203,7 +203,7 @@ static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) 
         for (int hasPos = 0; hasPos <= 1; hasPos++) {
             LengthOptionalStream* stream =
                     new LengthOptionalStream(SkToBool(hasLen), SkToBool(hasPos));
-            std::unique_ptr<SkStream> buffered(SkFrontBufferedStream::Create(stream, bufferSize));
+            sk_up<SkStream> buffered(SkFrontBufferedStream::Create(stream, bufferSize));
             test_hasLength(reporter, *buffered.get(), *stream);
         }
     }
@@ -217,7 +217,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     // the stream it wraps.
     const size_t arbitraryOffset = 17;
     memStream->skip(arbitraryOffset);
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
 
     // Since SkMemoryStream has a length, bufferedStream must also.
     REPORTER_ASSERT(reporter, bufferedStream->hasLength());
@@ -281,9 +281,9 @@ private:
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
     FailingStream* failingStream = new FailingStream;
-    std::unique_ptr<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
+    sk_up<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
 
     // This will fail to create a codec.  However, what we really want to test is that we
     // won't read past the end of the stream.
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    sk_up<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 }

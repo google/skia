@@ -355,7 +355,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         sk_throw();
     }
 
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
+    sk_up<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -368,7 +368,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
     const bool isMipMapped = mipLevelCount > 1;
     desc.fIsMipMapped = isMipMapped;
 
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+    sk_up<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
     texels[0].fPixels = pixmap.addr();
     texels[0].fRowBytes = pixmap.rowBytes();

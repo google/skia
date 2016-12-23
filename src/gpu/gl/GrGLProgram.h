@@ -136,8 +136,8 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
-    std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
+    sk_up<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    sk_up<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
     GrProgramDesc fDesc;

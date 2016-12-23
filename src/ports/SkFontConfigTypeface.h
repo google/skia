@@ -17,7 +17,7 @@ class SkTypeface_FCI : public SkTypeface_FreeType {
     sk_sp<SkFontConfigInterface> fFCI;
     SkFontConfigInterface::FontIdentity fIdentity;
     SkString fFamilyName;
-    std::unique_ptr<SkFontData> fFontData;
+    sk_up<SkFontData> fFontData;
 
 public:
     static SkTypeface_FCI* Create(sk_sp<SkFontConfigInterface> fci,
@@ -28,9 +28,7 @@ public:
         return new SkTypeface_FCI(std::move(fci), fi, familyName, style);
     }
 
-    static SkTypeface_FCI* Create(std::unique_ptr<SkFontData> data,
-                                  SkFontStyle style, bool isFixedPitch)
-    {
+    static SkTypeface_FCI* Create(sk_up<SkFontData> data, SkFontStyle style, bool isFixedPitch) {
         return new SkTypeface_FCI(std::move(data), style, isFixedPitch);
     }
 
@@ -49,10 +47,8 @@ protected:
             , fFamilyName(familyName)
             , fFontData(nullptr) {}
 
-    SkTypeface_FCI(std::unique_ptr<SkFontData> data, SkFontStyle style, bool isFixedPitch)
-            : INHERITED(style, isFixedPitch)
-            , fFontData(std::move(data))
-    {
+    SkTypeface_FCI(sk_up<SkFontData> data, SkFontStyle style, bool isFixedPitch)
+            : INHERITED(style, isFixedPitch), fFontData(std::move(data)) {
         SkASSERT(fFontData);
         fIdentity.fTTCIndex = fFontData->getIndex();
     }
@@ -60,7 +56,7 @@ protected:
     void onGetFamilyName(SkString* familyName) const override { *familyName = fFamilyName; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
+    sk_up<SkFontData> onMakeFontData() const override;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

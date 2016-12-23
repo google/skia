@@ -322,7 +322,7 @@ private:
         return fStreamBuffer.write(tempBuffer.get(), bytesRead);
     }
 
-    std::unique_ptr<SkStream> fStream;
+    sk_up<SkStream> fStream;
     bool fWholeStreamRead;
 
     // Use a size-limited stream to avoid holding too huge buffer.
@@ -396,7 +396,7 @@ public:
         }
     }
 private:
-    std::unique_ptr<SkStream> fStream;
+    sk_up<SkStream> fStream;
 };
 
 class SkPiexStream : public ::piex::StreamInterface {
@@ -446,7 +446,7 @@ public:
      * Note: this will take the ownership of the stream.
      */
     static SkDngImage* NewFromStream(SkRawStream* stream) {
-        std::unique_ptr<SkDngImage> dngImage(new SkDngImage(stream));
+        sk_up<SkDngImage> dngImage(new SkDngImage(stream));
         if (!dngImage->isTiffHeaderValid()) {
             return nullptr;
         }
@@ -479,10 +479,10 @@ public:
         const int preferredSize = SkTMax(width, height);
         try {
             // render() takes ownership of fHost, fInfo, fNegative and fDngStream when available.
-            std::unique_ptr<dng_host> host(fHost.release());
-            std::unique_ptr<dng_info> info(fInfo.release());
-            std::unique_ptr<dng_negative> negative(fNegative.release());
-            std::unique_ptr<dng_stream> dngStream(fDngStream.release());
+            sk_up<dng_host> host(fHost.release());
+            sk_up<dng_info> info(fInfo.release());
+            sk_up<dng_negative> negative(fNegative.release());
+            sk_up<dng_stream> dngStream(fDngStream.release());
 
             host->SetPreferredSize(preferredSize);
             host->ValidateSizes();
@@ -617,11 +617,11 @@ private:
     {}
 
     SkDngMemoryAllocator fAllocator;
-    std::unique_ptr<SkRawStream> fStream;
-    std::unique_ptr<dng_host> fHost;
-    std::unique_ptr<dng_info> fInfo;
-    std::unique_ptr<dng_negative> fNegative;
-    std::unique_ptr<dng_stream> fDngStream;
+    sk_up<SkRawStream> fStream;
+    sk_up<dng_host> fHost;
+    sk_up<dng_info> fInfo;
+    sk_up<dng_negative> fNegative;
+    sk_up<dng_stream> fDngStream;
 
     int fWidth;
     int fHeight;
@@ -636,7 +636,7 @@ private:
  * fallback to create SkRawCodec for DNG images.
  */
 SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
-    std::unique_ptr<SkRawStream> rawStream;
+    sk_up<SkRawStream> rawStream;
     if (is_asset_stream(*stream)) {
         rawStream.reset(new SkRawAssetStream(stream));
     } else {
@@ -666,7 +666,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     }
 
     // Takes the ownership of the rawStream.
-    std::unique_ptr<SkDngImage> dngImage(SkDngImage::NewFromStream(rawStream.release()));
+    sk_up<SkDngImage> dngImage(SkDngImage::NewFromStream(rawStream.release()));
     if (!dngImage) {
         return nullptr;
     }
@@ -685,19 +685,19 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
     static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
     SkImageInfo swizzlerInfo = dstInfo;
-    std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
+    sk_up<uint32_t[]> xformBuffer = nullptr;
     if (this->colorXform()) {
         swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
         xformBuffer.reset(new uint32_t[dstInfo.width()]);
     }
 
-    std::unique_ptr<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
-            this->getEncodedInfo(), nullptr, swizzlerInfo, options));
+    sk_up<SkSwizzler> swizzler(
+            SkSwizzler::CreateSwizzler(this->getEncodedInfo(), nullptr, swizzlerInfo, options));
     SkASSERT(swizzler);
 
     const int width = dstInfo.width();
     const int height = dstInfo.height();
-    std::unique_ptr<dng_image> image(fDngImage->render(width, height));
+    sk_up<dng_image> image(fDngImage->render(width, height));
     if (!image) {
         return kInvalidInput;
     }

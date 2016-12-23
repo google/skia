@@ -91,7 +91,7 @@ public:
 private:
     SkChunkAlloc                 fAlloc;
     Node*                        fRoot;
-    std::unique_ptr<SkDOMParser> fParser;
+    sk_up<SkDOMParser>           fParser;
 
     typedef SkNoncopyable INHERITED;
 };

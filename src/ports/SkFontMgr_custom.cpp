@@ -10,7 +10,6 @@
 #include "SkFontMgr.h"
 #include "SkFontMgr_custom.h"
 #include "SkFontStyle.h"
-#include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkRefCnt.h"
@@ -76,12 +75,10 @@ private:
 /** The stream SkTypeface implementation for the custom font manager. */
 class SkTypeface_Stream : public SkTypeface_Custom {
 public:
-    SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
-                      const SkFontStyle& style, bool isFixedPitch, bool sysFont,
-                      const SkString familyName)
-        : INHERITED(style, isFixedPitch, sysFont, familyName, fontData->getIndex())
-        , fData(std::move(fontData))
-    { }
+    SkTypeface_Stream(sk_up<SkFontData> fontData, const SkFontStyle& style, bool isFixedPitch,
+                      bool sysFont, const SkString familyName)
+            : INHERITED(style, isFixedPitch, sysFont, familyName, fontData->getIndex())
+            , fData(std::move(fontData)) {}
 
 protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
@@ -89,12 +86,10 @@ protected:
         return fData->getStream()->duplicate();
     }
 
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return skstd::make_unique<SkFontData>(*fData);
-    }
+    sk_up<SkFontData> onMakeFontData() const override { return sk_make_up<SkFontData>(*fData); }
 
 private:
-    const std::unique_ptr<const SkFontData> fData;
+    const sk_up<const SkFontData> fData;
 
     typedef SkTypeface_Custom INHERITED;
 };
@@ -272,7 +267,7 @@ protected:
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
+        sk_up<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -288,12 +283,12 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
-                                                   axisValues.get(), axisDefinitions.count());
+        auto data = sk_make_up<SkFontData>(std::move(stream), params.getCollectionIndex(),
+                                           axisValues.get(), axisDefinitions.count());
         return new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name);
     }
 
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> data) const override {
+    SkTypeface* onCreateFromFontData(sk_up<SkFontData> data) const override {
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -306,7 +301,7 @@ protected:
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
+        sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(path);
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
@@ -372,7 +367,7 @@ private:
 
         while (iter.next(&name, false)) {
             SkString filename(SkOSPath::Join(directory.c_str(), name.c_str()));
-            std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(filename.c_str());
+            sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(filename.c_str());
             if (!stream) {
                 SkDebugf("---- failed to open <%s>\n", filename.c_str());
                 continue;
@@ -464,7 +459,7 @@ private:
                                    const uint8_t* data, size_t size, int index,
                                    SkFontMgr_Custom::Families* families)
     {
-        auto stream = skstd::make_unique<SkMemoryStream>(data, size, false);
+        auto stream = sk_make_up<SkMemoryStream>(data, size, false);
 
         int numFaces;
         if (!scanner.recognizedFont(stream.get(), &numFaces)) {
@@ -488,7 +483,7 @@ private:
                 addTo = new SkFontStyleSet_Custom(realname);
                 families->push_back().reset(addTo);
             }
-            auto data = skstd::make_unique<SkFontData>(std::move(stream), faceIndex, nullptr, 0);
+            auto data = sk_make_up<SkFontData>(std::move(stream), faceIndex, nullptr, 0);
             addTo->appendTypeface(sk_make_sp<SkTypeface_Stream>(std::move(data),
                                                                 style, isFixedPitch,
                                                                 true, realname));

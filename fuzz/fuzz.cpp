@@ -141,7 +141,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
     // This is mostly copied from DMSrcSink's CodecSrc::draw method.
     SkDebugf("Decoding\n");
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(bytes));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(bytes));
     if (nullptr == codec.get()) {
         SkDebugf("[terminated] Couldn't create codec.\n");
         return 3;
@@ -447,9 +447,8 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                              SkString((const char*) bytes->data()),
-                                                              settings);
+    sk_up<SkSL::Program> program = compiler.convertProgram(
+            SkSL::Program::kFragment_Kind, SkString((const char*)bytes->data()), settings);
     if (!program || !compiler.toGLSL(*program, &output)) {
         SkDebugf("[terminated] Couldn't compile input.\n");
         return 1;

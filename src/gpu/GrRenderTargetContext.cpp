@@ -1214,7 +1214,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                              const SkMatrix& viewMatrix,
                                              int imageWidth,
                                              int imageHeight,
-                                             std::unique_ptr<SkLatticeIter> iter,
+                                             sk_up<SkLatticeIter> iter,
                                              const SkRect& dst) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED

@@ -71,7 +71,7 @@ void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
  *  Return a provider that wraps the specified stream.
  *  When the provider is finally deleted, it will delete the stream.
  */
-CGDataProviderRef SkCreateDataProviderFromStream(std::unique_ptr<SkStreamRewindable>);
+CGDataProviderRef SkCreateDataProviderFromStream(sk_up<SkStreamRewindable>);
 
 CGDataProviderRef SkCreateDataProviderFromData(sk_sp<SkData>);
 

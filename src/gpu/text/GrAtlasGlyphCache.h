@@ -232,7 +232,7 @@ private:
     using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
     GrContext* fContext;
     StrikeHash fCache;
-    std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
+    sk_up<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     GrAtlasTextStrike* fPreserveStrike;
     GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
 };

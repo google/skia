@@ -573,7 +573,7 @@ struct PathTestStruct {
     }
 
     uint32_t fContextID;
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
+    sk_up<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 };

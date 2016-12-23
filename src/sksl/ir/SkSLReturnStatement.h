@@ -20,9 +20,8 @@ struct ReturnStatement : public Statement {
     ReturnStatement(Position position)
     : INHERITED(position, kReturn_Kind) {}
 
-    ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fPosition, kReturn_Kind) 
-    , fExpression(std::move(expression)) {}
+    ReturnStatement(sk_up<Expression> expression)
+            : INHERITED(expression->fPosition, kReturn_Kind), fExpression(std::move(expression)) {}
 
     SkString description() const override {
         if (fExpression) {
@@ -32,7 +31,7 @@ struct ReturnStatement : public Statement {
         }
     }
 
-    const std::unique_ptr<Expression> fExpression;
+    const sk_up<Expression> fExpression;
 
     typedef Statement INHERITED;
 };

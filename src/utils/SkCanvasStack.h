@@ -22,7 +22,7 @@ public:
     SkCanvasStack(int width, int height);
     virtual ~SkCanvasStack();
 
-    void pushCanvas(std::unique_ptr<SkCanvas>, const SkIPoint& origin);
+    void pushCanvas(sk_up<SkCanvas>, const SkIPoint& origin);
     void removeAll() override;
 
     /*
@@ -48,7 +48,7 @@ private:
     struct CanvasData {
         SkIPoint origin;
         SkRegion requiredClip;
-        std::unique_ptr<SkCanvas> ownedCanvas;
+        sk_up<SkCanvas> ownedCanvas;
     };
 
     SkTArray<CanvasData> fCanvasData;

@@ -48,7 +48,7 @@ static void release_info_proc(void* info) {
     delete (SkStream*)info;
 }
 
-CGDataProviderRef SkCreateDataProviderFromStream(std::unique_ptr<SkStreamRewindable> stream) {
+CGDataProviderRef SkCreateDataProviderFromStream(sk_up<SkStreamRewindable> stream) {
     // TODO: Replace with SkStream::getData() when that is added. Then we only
     // have one version of CGDataProviderCreateWithData (i.e. same release proc)
     const void* addr = stream->getMemoryBase();

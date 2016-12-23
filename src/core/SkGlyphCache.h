@@ -192,7 +192,7 @@ private:
         SkPackedGlyphID fPackedGlyphID;
     };
 
-    SkGlyphCache(const SkDescriptor*, std::unique_ptr<SkScalerContext>);
+    SkGlyphCache(const SkDescriptor*, sk_up<SkScalerContext>);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the
@@ -226,24 +226,24 @@ private:
     static const SkGlyph::Intercept* MatchBounds(const SkGlyph* glyph,
                                                  const SkScalar bounds[2]);
 
-    SkGlyphCache*          fNext;
-    SkGlyphCache*          fPrev;
-    const std::unique_ptr<SkDescriptor> fDesc;
-    const std::unique_ptr<SkScalerContext> fScalerContext;
-    SkPaint::FontMetrics   fFontMetrics;
+    SkGlyphCache* fNext;
+    SkGlyphCache* fPrev;
+    const sk_up<SkDescriptor> fDesc;
+    const sk_up<SkScalerContext> fScalerContext;
+    SkPaint::FontMetrics fFontMetrics;
 
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
     SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
 
-    SkChunkAlloc           fGlyphAlloc;
+    SkChunkAlloc fGlyphAlloc;
 
-    std::unique_ptr<CharGlyphRec[]> fPackedUnicharIDToPackedGlyphID;
+    sk_up<CharGlyphRec[]> fPackedUnicharIDToPackedGlyphID;
 
     // used to track (approx) how much ram is tied-up in this cache
-    size_t                 fMemoryUsed;
+    size_t fMemoryUsed;
 };
 
-class SkAutoGlyphCache : public std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
+class SkAutoGlyphCache : public sk_up<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
 public:
     /** deprecated: use get() */
     SkGlyphCache* getCache() const { return this->get(); }
@@ -268,7 +268,7 @@ public:
         : INHERITED(paint.detachCache(surfaceProps, scalerContextFlags, matrix))
     {}
 private:
-    using INHERITED = std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
+    using INHERITED = sk_up<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;
 };
 
 class SkAutoGlyphCacheNoGamma : public SkAutoGlyphCache {

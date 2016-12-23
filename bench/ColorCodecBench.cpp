@@ -34,7 +34,7 @@ bool ColorCodecBench::isSuitableFor(Backend backend) {
 }
 
 void ColorCodecBench::decodeAndXform() {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     SkASSERT(codec);
 
 #ifdef SK_DEBUG
@@ -45,8 +45,7 @@ void ColorCodecBench::decodeAndXform() {
 }
 
 void ColorCodecBench::xformOnly() {
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(fSrcSpace.get(),
-                                                                      fDstSpace.get());
+    sk_up<SkColorSpaceXform> xform = SkColorSpaceXform::New(fSrcSpace.get(), fDstSpace.get());
     SkASSERT(xform);
 
     void* dst = fDst.get();
@@ -61,7 +60,7 @@ void ColorCodecBench::xformOnly() {
 }
 
 void ColorCodecBench::onDelayedSetup() {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
     fDstInfo = fSrcInfo;
 

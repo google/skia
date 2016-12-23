@@ -250,7 +250,7 @@ private:
     GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
-    std::unique_ptr<GrVkHeap>              fHeaps[kHeapCount];
+    sk_up<GrVkHeap>                        fHeaps[kHeapCount];
 
     GrVkCopyManager                        fCopyManager;
 

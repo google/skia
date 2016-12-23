@@ -280,9 +280,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
 
     SkBitmapProvider provider(fImage.get(), dst);
     SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
-    std::unique_ptr<SkBitmapController::State> state {
-        controller.requestBitmap(provider, matrix, quality)
-    };
+    sk_up<SkBitmapController::State> state{controller.requestBitmap(provider, matrix, quality)};
     if (!state) {
         return false;
     }

@@ -296,7 +296,7 @@ private:
             }
         };
 
-        SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<GrProgramDesc, sk_up<Entry>, DescHash> fMap;
 
         GrGLGpu*                    fGpu;
 #ifdef PROGRAM_CACHE_STATS

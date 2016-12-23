@@ -56,11 +56,11 @@ public:
     }
 
 private:
-    static std::unique_ptr<GrMemoryPool> gPool;
+    static sk_up<GrMemoryPool> gPool;
     char fChar;
 };
 
-std::unique_ptr<GrMemoryPool> A::gPool;
+sk_up<GrMemoryPool> A::gPool;
 
 class B : public A {
 public:

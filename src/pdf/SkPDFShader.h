@@ -53,8 +53,8 @@ public:
     public:
         SkShader::GradientType fType;
         SkShader::GradientInfo fInfo;
-        std::unique_ptr<SkColor[]> fColors;
-        std::unique_ptr<SkScalar[]> fStops;
+        sk_up<SkColor[]> fColors;
+        sk_up<SkScalar[]> fStops;
         SkMatrix fCanvasTransform;
         SkMatrix fShaderTransform;
         SkIRect fBBox;

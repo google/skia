@@ -48,7 +48,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        sk_up<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
         if (!program || !compiler.toSPIRV(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
@@ -60,7 +60,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        sk_up<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
         if (!program || !compiler.toGLSL(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);

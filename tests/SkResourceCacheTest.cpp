@@ -38,7 +38,7 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
     SkResourceCache::DiscardableFactory factory = SkResourceCache::GetDiscardableFactory();
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
 
-    std::unique_ptr<SkResourceCache> cache;
+    sk_up<SkResourceCache> cache;
     if (factory) {
         cache.reset(new SkResourceCache(factory));
     } else {

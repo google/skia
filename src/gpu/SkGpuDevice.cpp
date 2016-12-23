@@ -1474,7 +1474,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
         return;
     }
 
-    std::unique_ptr<SkLatticeIter> iter(
+    sk_up<SkLatticeIter> iter(
             new SkLatticeIter(producer->width(), producer->height(), center, dst));
     fRenderTargetContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
                                            producer->height(), std::move(iter), dst);
@@ -1527,8 +1527,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
         return;
     }
 
-    std::unique_ptr<SkLatticeIter> iter(
-            new SkLatticeIter(lattice, dst));
+    sk_up<SkLatticeIter> iter(new SkLatticeIter(lattice, dst));
     fRenderTargetContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
                                            producer->height(), std::move(iter), dst);
 }
@@ -1615,7 +1614,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         //number of indices for lines per triangle with kLines
         indexCount = triangleCount * 6;
 
-        std::unique_ptr<uint16_t[]> lineIndices(new uint16_t[indexCount]);
+        sk_up<uint16_t[]> lineIndices(new uint16_t[indexCount]);
         int i = 0;
         while (vertProc(&state)) {
             lineIndices[i]     = state.f0;

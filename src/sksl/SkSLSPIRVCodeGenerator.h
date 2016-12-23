@@ -130,7 +130,7 @@ private:
 
     SpvId writeVariableReference(const VariableReference& ref, SkWStream& out);
 
-    std::unique_ptr<LValue> getLValue(const Expression& value, SkWStream& out);
+    sk_up<LValue> getLValue(const Expression& value, SkWStream& out);
 
     SpvId writeExpression(const Expression& expr, SkWStream& out);
     

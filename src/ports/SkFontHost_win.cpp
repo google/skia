@@ -16,7 +16,6 @@
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
-#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
 #include "SkOTTable_maxp.h"
@@ -363,7 +362,7 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         return;
     }
 
-    std::unique_ptr<BYTE[]> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
+    sk_up<BYTE[]> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
     GLYPHSET* glyphSet =
         reinterpret_cast<LPGLYPHSET>(glyphSetBuffer.get());
     if (GetFontUnicodeRanges(fontHdc, glyphSet) != glyphSetBufferSize) {
@@ -2257,8 +2256,8 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                         const SkDescriptor* desc) const {
-    auto ctx = skstd::make_unique<SkScalerContext_GDI>(
-            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+    auto ctx = sk_make_up<SkScalerContext_GDI>(sk_ref_sp(const_cast<LogFontTypeface*>(this)),
+                                               effects, desc);
     if (!ctx->isValid()) {
         return nullptr;
     }
@@ -2454,7 +2453,7 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        sk_up<SkStreamAsset> stream(bareStream);
         return create_from_stream(stream.get());
     }
 

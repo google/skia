@@ -14,7 +14,6 @@
 
 #ifdef SK_DEBUG
     #include "SkMutex.h"
-    #include <memory>
 #endif  // SK_DEBUG
 
 // There are two shared lock implementations one debug the other is high performance. They implement
@@ -50,9 +49,9 @@ public:
 private:
 #ifdef SK_DEBUG
     class ThreadIDSet;
-    std::unique_ptr<ThreadIDSet> fCurrentShared;
-    std::unique_ptr<ThreadIDSet> fWaitingExclusive;
-    std::unique_ptr<ThreadIDSet> fWaitingShared;
+    sk_up<ThreadIDSet> fCurrentShared;
+    sk_up<ThreadIDSet> fWaitingExclusive;
+    sk_up<ThreadIDSet> fWaitingShared;
     int fSharedQueueSelect{0};
     mutable SkMutex fMu;
     SkSemaphore fSharedQueue[2];

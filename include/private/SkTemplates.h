@@ -57,10 +57,10 @@ template <typename R, typename T, R (*P)(T*)> struct SkFunctionWrapper {
     reference is null when the destructor is called, we do not call the
     function.
 */
-template <typename T, void (*P)(T*)> class SkAutoTCallVProc
-    : public std::unique_ptr<T, SkFunctionWrapper<void, T, P>> {
+template <typename T, void (*P)(T*)>
+class SkAutoTCallVProc : public sk_up<T, SkFunctionWrapper<void, T, P>> {
 public:
-    SkAutoTCallVProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<void, T, P>>(obj) {}
+    SkAutoTCallVProc(T* obj) : sk_up<T, SkFunctionWrapper<void, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
 };
@@ -73,10 +73,10 @@ If release() is called, the object reference is set to null. If the object
 reference is null when the destructor is called, we do not call the
 function.
 */
-template <typename T, int (*P)(T*)> class SkAutoTCallIProc
-    : public std::unique_ptr<T, SkFunctionWrapper<int, T, P>> {
+template <typename T, int (*P)(T*)>
+class SkAutoTCallIProc : public sk_up<T, SkFunctionWrapper<int, T, P>> {
 public:
-    SkAutoTCallIProc(T* obj): std::unique_ptr<T, SkFunctionWrapper<int, T, P>>(obj) {}
+    SkAutoTCallIProc(T* obj) : sk_up<T, SkFunctionWrapper<int, T, P>>(obj) {}
 
     operator T*() const { return this->get(); }
 };

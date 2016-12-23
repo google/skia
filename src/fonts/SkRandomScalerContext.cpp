@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkRandomScalerContext.h"
 #include "SkRasterizer.h"
@@ -32,7 +31,7 @@ private:
     SkRandomTypeface* getRandomTypeface() const {
         return static_cast<SkRandomTypeface*>(this->getTypeface());
     }
-    std::unique_ptr<SkScalerContext> fProxy;
+    sk_up<SkScalerContext> fProxy;
     bool fFakeIt;
 };
 

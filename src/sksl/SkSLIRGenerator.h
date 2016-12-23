@@ -80,13 +80,12 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
-    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
-                                                            Variable::Storage storage);
-    std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
-    std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
-    std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
-    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
-                                                                  const ASTModifiersDeclaration& m);
+    sk_up<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
+                                                  Variable::Storage storage);
+    sk_up<FunctionDefinition> convertFunction(const ASTFunction& f);
+    sk_up<Statement> convertStatement(const ASTStatement& statement);
+    sk_up<Expression> convertExpression(const ASTExpression& expression);
+    sk_up<ModifiersDeclaration> convertModifiersDeclaration(const ASTModifiersDeclaration& m);
 
     Program::Inputs fInputs;
 
@@ -106,49 +105,44 @@ private:
     void popSymbolTable();
 
     const Type* convertType(const ASTType& type);
-    std::unique_ptr<Expression> call(Position position,
-                                     const FunctionDeclaration& function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
+    sk_up<Expression> call(Position position,
+                           const FunctionDeclaration& function,
+                           std::vector<sk_up<Expression>>
+                                   arguments);
     bool determineCallCost(const FunctionDeclaration& function,
-                           const std::vector<std::unique_ptr<Expression>>& arguments,
+                           const std::vector<sk_up<Expression>>& arguments,
                            int* outCost);
-    std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
-    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
-    std::unique_ptr<Block> convertBlock(const ASTBlock& block);
-    std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
-    std::unique_ptr<Expression> convertConstructor(Position position,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
-    std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
-    std::unique_ptr<Statement> convertDo(const ASTDoStatement& d);
-    std::unique_ptr<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
+    sk_up<Expression> call(Position position, sk_up<Expression> function,
+                           std::vector<sk_up<Expression>> arguments);
+    sk_up<Expression> coerce(sk_up<Expression> expr, const Type& type);
+    sk_up<Block> convertBlock(const ASTBlock& block);
+    sk_up<Statement> convertBreak(const ASTBreakStatement& b);
+    sk_up<Expression> convertConstructor(
+            Position position, const Type& type, std::vector<sk_up<Expression>> params);
+    sk_up<Statement> convertContinue(const ASTContinueStatement& c);
+    sk_up<Statement> convertDiscard(const ASTDiscardStatement& d);
+    sk_up<Statement> convertDo(const ASTDoStatement& d);
+    sk_up<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
     // Returns null if it cannot fold the expression. Note that unlike most other functions here, a
     // null return does not represent a compilation error.
-    std::unique_ptr<Expression> constantFold(const Expression& left,
-                                             Token::Kind op,
-                                             const Expression& right);
-    std::unique_ptr<Extension> convertExtension(const ASTExtension& e);
-    std::unique_ptr<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
-    std::unique_ptr<Statement> convertFor(const ASTForStatement& f);
-    std::unique_ptr<Expression> convertIdentifier(const ASTIdentifier& identifier);
-    std::unique_ptr<Statement> convertIf(const ASTIfStatement& s);
-    std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
-                                             const ASTExpression& index);
-    std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTInterfaceBlock& s);
+    sk_up<Expression> constantFold(const Expression& left, Token::Kind op, const Expression& right);
+    sk_up<Extension> convertExtension(const ASTExtension& e);
+    sk_up<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
+    sk_up<Statement> convertFor(const ASTForStatement& f);
+    sk_up<Expression> convertIdentifier(const ASTIdentifier& identifier);
+    sk_up<Statement> convertIf(const ASTIfStatement& s);
+    sk_up<Expression> convertIndex(sk_up<Expression> base, const ASTExpression& index);
+    sk_up<InterfaceBlock> convertInterfaceBlock(const ASTInterfaceBlock& s);
     Modifiers convertModifiers(const Modifiers& m);
-    std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
-    std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
-    std::unique_ptr<Expression> getCap(Position position, SkString name);
-    std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
-    std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             const SkString& field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               const SkString& fields);
-    std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
-    std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
-    std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
+    sk_up<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
+    sk_up<Statement> convertReturn(const ASTReturnStatement& r);
+    sk_up<Expression> getCap(Position position, SkString name);
+    sk_up<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
+    sk_up<Expression> convertField(sk_up<Expression> base, const SkString& field);
+    sk_up<Expression> convertSwizzle(sk_up<Expression> base, const SkString& fields);
+    sk_up<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
+    sk_up<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
+    sk_up<Statement> convertWhile(const ASTWhileStatement& w);
 
     void checkValid(const Expression& expr);
     void markReadFrom(const Variable& var);

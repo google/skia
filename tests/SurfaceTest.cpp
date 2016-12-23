@@ -710,7 +710,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {
     const int kWidth = 10;
     const int kHeight = 10;
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+    sk_up<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
     GrBackendTextureDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -733,7 +733,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {
     const int kWidth = 10;
     const int kHeight = 10;
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+    sk_up<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
     GrBackendTextureDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -762,7 +762,7 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     }
     int w = surface->width();
     int h = surface->height();
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
+    sk_up<uint32_t[]> pixels(new uint32_t[w * h]);
     sk_memset32(pixels.get(), ~expectedValue, w * h);
 
     sk_sp<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
@@ -831,7 +831,7 @@ static void test_surface_draw_partially(
     paint.setColor(kRectColor);
     surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
                                    paint);
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kW * kH]);
+    sk_up<uint32_t[]> pixels(new uint32_t[kW * kH]);
     sk_memset32(pixels.get(), ~origColor, kW * kH);
     // Read back RGBA to avoid format conversions that may not be supported on all platforms.
     SkImageInfo readInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

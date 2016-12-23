@@ -81,8 +81,8 @@ public:
     virtual void finish() = 0;
 
 protected:
-    std::unique_ptr<FenceSync> fFenceSync;
-    std::unique_ptr<GpuTimer>  fGpuTimer;
+    sk_up<FenceSync> fFenceSync;
+    sk_up<GpuTimer> fGpuTimer;
 
     TestContext();
 

@@ -17,21 +17,20 @@ namespace SkSL {
  * Represents a binary operation, with the operator represented by the token's type. 
  */
 struct ASTBinaryExpression : public ASTExpression {
-    ASTBinaryExpression(std::unique_ptr<ASTExpression> left, Token op,
-                        std::unique_ptr<ASTExpression> right)
-    : INHERITED(op.fPosition, kBinary_Kind)
-    , fLeft(std::move(left))
-    , fOperator(op.fKind)
-    , fRight(std::move(right)) {}
+    ASTBinaryExpression(sk_up<ASTExpression> left, Token op, sk_up<ASTExpression> right)
+            : INHERITED(op.fPosition, kBinary_Kind)
+            , fLeft(std::move(left))
+            , fOperator(op.fKind)
+            , fRight(std::move(right)) {}
 
     SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
 
-    const std::unique_ptr<ASTExpression> fLeft;
+    const sk_up<ASTExpression> fLeft;
     const Token::Kind fOperator;
-    const std::unique_ptr<ASTExpression> fRight;
+    const sk_up<ASTExpression> fRight;
 
     typedef ASTExpression INHERITED;
 };

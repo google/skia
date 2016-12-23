@@ -341,9 +341,9 @@ private:
 
     SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
 
-    SkXMLWriter*               fWriter;
-    ResourceBucket*            fResourceBucket;
-    std::unique_ptr<AutoElement> fClipGroup;
+    SkXMLWriter*       fWriter;
+    ResourceBucket*    fResourceBucket;
+    sk_up<AutoElement> fClipGroup;
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {

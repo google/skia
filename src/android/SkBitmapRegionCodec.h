@@ -29,8 +29,7 @@ public:
     SkEncodedImageFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
 
 private:
-
-    std::unique_ptr<SkAndroidCodec> fCodec;
+    sk_up<SkAndroidCodec> fCodec;
 
     typedef SkBitmapRegionDecoder INHERITED;
 

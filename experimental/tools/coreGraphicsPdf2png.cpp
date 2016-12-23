@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     CGBitmapInfo info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
     CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
     ASSERT(cs);
-    std::unique_ptr<uint32_t[]> bitmap(new uint32_t[w * h]);
+    sk_up<uint32_t[]> bitmap(new uint32_t[w * h]);
     memset(bitmap.get(), 0xFF, 4 * w * h);
     CGContextRef ctx = CGBitmapContextCreate(bitmap.get(), w, h, 8, w * 4, cs, info);
     ASSERT(ctx);

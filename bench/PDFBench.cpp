@@ -137,14 +137,13 @@ protected:
         if (!fAsset) { return; }
         while (loops-- > 0) {
             sk_sp<SkPDFObject> object =
-                sk_make_sp<SkPDFSharedStream>(
-                        std::unique_ptr<SkStreamAsset>(fAsset->duplicate()));
+                    sk_make_sp<SkPDFSharedStream>(sk_up<SkStreamAsset>(fAsset->duplicate()));
             test_pdf_object_serialization(object);
         }
     }
 
 private:
-    std::unique_ptr<SkStreamAsset> fAsset;
+    sk_up<SkStreamAsset> fAsset;
 };
 
 // Test speed of SkPDFUtils::FloatToDecimal for typical floats that
@@ -208,7 +207,7 @@ struct PDFShaderBench : public Benchmark {
 };
 
 struct WStreamWriteTextBenchmark : public Benchmark {
-    std::unique_ptr<SkWStream> fWStream;
+    sk_up<SkWStream> fWStream;
     WStreamWriteTextBenchmark() : fWStream(new NullWStream) {}
     const char* onGetName() override { return "WStreamWriteText"; }
     bool isSuitableFor(Backend backend) override {
@@ -224,7 +223,7 @@ struct WStreamWriteTextBenchmark : public Benchmark {
 };
 
 struct WritePDFTextBenchmark : public Benchmark {
-    std::unique_ptr<SkWStream> fWStream;
+    sk_up<SkWStream> fWStream;
     WritePDFTextBenchmark() : fWStream(new NullWStream) {}
     const char* onGetName() override { return "WritePDFText"; }
     bool isSuitableFor(Backend backend) override {

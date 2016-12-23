@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         return;
     }
 
-    std::unique_ptr<GLTestContext> glCtx1 = glCtx0->makeNew();
+    sk_up<GLTestContext> glCtx1 = glCtx0->makeNew();
     if (!glCtx1) {
         return;
     }

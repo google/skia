@@ -38,8 +38,8 @@ public:
 
     ~Compiler();
 
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text,
-                                            const Program::Settings& settings);
+    sk_up<Program> convertProgram(Program::Kind kind, SkString text,
+                                  const Program::Settings& settings);
 
     bool toSPIRV(const Program& program, SkWStream& out);
 
@@ -72,7 +72,7 @@ private:
 
     void internalConvertProgram(SkString text,
                                 Modifiers::Flag* defaultPrecision,
-                                std::vector<std::unique_ptr<ProgramElement>>* result);
+                                std::vector<sk_up<ProgramElement>>* result);
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;

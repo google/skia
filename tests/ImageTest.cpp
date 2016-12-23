@@ -299,7 +299,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
         picture->serialize(&wstream, serializers[i]);
         REPORTER_ASSERT(reporter, serializers[i]->didEncode());
 
-        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+        sk_up<SkStream> rstream(wstream.detachAsStream());
         sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream.get()));
         REPORTER_ASSERT(reporter, deserialized);
         REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
@@ -737,7 +737,7 @@ struct TextureReleaseChecker {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
-    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
+    sk_up<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     GrBackendTextureDesc backendDesc;
     backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;

@@ -20,9 +20,9 @@ public:
         return sizeof(SkDescriptor) + entryCount * sizeof(Entry);
     }
 
-    static std::unique_ptr<SkDescriptor> Alloc(size_t length) {
+    static sk_up<SkDescriptor> Alloc(size_t length) {
         SkASSERT(SkAlign4(length) == length);
-        return std::unique_ptr<SkDescriptor>(static_cast<SkDescriptor*>(::operator new (length)));
+        return sk_up<SkDescriptor>(static_cast<SkDescriptor*>(::operator new(length)));
     }
 
     // Ensure the unsized delete is called.
@@ -78,8 +78,8 @@ public:
         return nullptr;
     }
 
-    std::unique_ptr<SkDescriptor> copy() const {
-        std::unique_ptr<SkDescriptor> desc = SkDescriptor::Alloc(fLength);
+    sk_up<SkDescriptor> copy() const {
+        sk_up<SkDescriptor> desc = SkDescriptor::Alloc(fLength);
         memcpy(desc.get(), this, fLength);
         return desc;
     }

@@ -297,7 +297,7 @@ private:
  */
 class SkPDFSharedStream final : public SkPDFObject {
 public:
-    SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data);
+    SkPDFSharedStream(sk_up<SkStreamAsset> data);
     ~SkPDFSharedStream();
     SkPDFDict* dict() { return &fDict; }
     void emitObject(SkWStream*,
@@ -306,7 +306,7 @@ public:
     void drop() override;
 
 private:
-    std::unique_ptr<SkStreamAsset> fAsset;
+    sk_up<SkStreamAsset> fAsset;
     SkPDFDict fDict;
     typedef SkPDFObject INHERITED;
 };
@@ -326,7 +326,7 @@ public:
      *  @param data   The data part of the stream.
      *  @param stream The data part of the stream. */
     explicit SkPDFStream(sk_sp<SkData> data);
-    explicit SkPDFStream(std::unique_ptr<SkStreamAsset> stream);
+    explicit SkPDFStream(sk_up<SkStreamAsset> stream);
     virtual ~SkPDFStream();
 
     SkPDFDict* dict() { return &fDict; }
@@ -343,10 +343,10 @@ protected:
     SkPDFStream();
 
     /** Only call this function once. */
-    void setData(std::unique_ptr<SkStreamAsset> stream);
+    void setData(sk_up<SkStreamAsset> stream);
 
 private:
-    std::unique_ptr<SkStreamAsset> fCompressedData;
+    sk_up<SkStreamAsset> fCompressedData;
     SkPDFDict fDict;
 
     typedef SkPDFDict INHERITED;

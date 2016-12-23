@@ -33,14 +33,14 @@ bool SkIcoCodec::IsIco(const void* buffer, size_t bytesRead) {
  */
 SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     // Ensure that we do not leak the input stream
-    std::unique_ptr<SkStream> inputStream(stream);
+    sk_up<SkStream> inputStream(stream);
 
     // Header size constants
     static const uint32_t kIcoDirectoryBytes = 6;
     static const uint32_t kIcoDirEntryBytes = 16;
 
     // Read the directory header
-    std::unique_ptr<uint8_t[]> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
+    sk_up<uint8_t[]> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
@@ -55,7 +55,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
 
     // Ensure that we can read all of indicated directory entries
-    std::unique_ptr<uint8_t[]> entryBuffer(new uint8_t[numImages * kIcoDirEntryBytes]);
+    sk_up<uint8_t[]> entryBuffer(new uint8_t[numImages * kIcoDirEntryBytes]);
     if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
         SkCodecPrintf("Error: unable to read ico directory entries.\n");
@@ -69,7 +69,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         uint32_t offset;
         uint32_t size;
     };
-    std::unique_ptr<Entry[]> directoryEntries(new Entry[numImages]);
+    sk_up<Entry[]> directoryEntries(new Entry[numImages]);
 
     // Iterate over directory entries
     for (uint32_t i = 0; i < numImages; i++) {
@@ -107,8 +107,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
     // Now will construct a candidate codec for each of the embedded images
     uint32_t bytesRead = kIcoDirectoryBytes + numImages * kIcoDirEntryBytes;
-    std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> codecs(
-            new (SkTArray<std::unique_ptr<SkCodec>, true>)(numImages));
+    sk_up<SkTArray<sk_up<SkCodec>, true>> codecs(new (SkTArray<sk_up<SkCodec>, true>)(numImages));
     for (uint32_t i = 0; i < numImages; i++) {
         uint32_t offset = directoryEntries.get()[i].offset;
         uint32_t size = directoryEntries.get()[i].size;
@@ -133,7 +132,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
-        std::unique_ptr<SkMemoryStream> embeddedStream(new SkMemoryStream(data));
+        sk_up<SkMemoryStream> embeddedStream(new SkMemoryStream(data));
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec
@@ -183,13 +182,11 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
  * Called only by NewFromStream
  */
 SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-                       SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
-                       sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, nullptr, std::move(colorSpace))
-    , fEmbeddedCodecs(codecs)
-    , fCurrScanlineCodec(nullptr)
-    , fCurrIncrementalCodec(nullptr)
-{}
+                       SkTArray<sk_up<SkCodec>, true>* codecs, sk_sp<SkColorSpace> colorSpace)
+        : INHERITED(width, height, info, nullptr, std::move(colorSpace))
+        , fEmbeddedCodecs(codecs)
+        , fCurrScanlineCodec(nullptr)
+        , fCurrIncrementalCodec(nullptr) {}
 
 /*
  * Chooses the best dimensions given the desired scale

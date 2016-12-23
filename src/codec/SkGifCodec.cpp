@@ -72,7 +72,7 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
-    std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
+    sk_up<SkGifImageReader> reader(new SkGifImageReader(stream));
     if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
         // Fatal error occurred.
         return nullptr;

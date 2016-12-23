@@ -13,7 +13,6 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkLightingShader.h"
-#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
 #include "SkNormalSource.h"
 #include "SkOSFile.h"
@@ -357,7 +356,7 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
-    std::unique_ptr<SkStream> inputStream(stream.detachAsStream());
+    sk_up<SkStream> inputStream(stream.detachAsStream());
     sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
@@ -380,13 +379,13 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
 
     {
         // Load typeface as stream to create with axis settings.
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        sk_up<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
             sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
+                    sk_make_up<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
@@ -647,7 +646,7 @@ DEF_TEST(Serialization, reporter) {
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
     src->serialize(&wstream);
-    std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
+    sk_up<SkStreamAsset> rstream(wstream.detachAsStream());
     return SkPicture::MakeFromStream(rstream.get());
 }
 

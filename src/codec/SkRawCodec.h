@@ -53,7 +53,7 @@ private:
      */
     SkRawCodec(SkDngImage* dngImage);
 
-    std::unique_ptr<SkDngImage> fDngImage;
+    sk_up<SkDngImage> fDngImage;
 
     typedef SkCodec INHERITED;
 };

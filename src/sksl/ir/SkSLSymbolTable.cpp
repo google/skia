@@ -60,11 +60,11 @@ const Symbol* SymbolTable::operator[](const SkString& name) {
 }
 
 Symbol* SymbolTable::takeOwnership(Symbol* s) {
-    fOwnedPointers.push_back(std::unique_ptr<Symbol>(s));
+    fOwnedPointers.push_back(sk_up<Symbol>(s));
     return s;
 }
 
-void SymbolTable::add(const SkString& name, std::unique_ptr<Symbol> symbol) {
+void SymbolTable::add(const SkString& name, sk_up<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
     fOwnedPointers.push_back(std::move(symbol));
 }

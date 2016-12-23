@@ -52,9 +52,9 @@ private:
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
 
-    std::unique_ptr<SkMasks>        fMasks;
-    std::unique_ptr<SkMaskSwizzler> fMaskSwizzler;
-    std::unique_ptr<uint8_t[]>      fSrcBuffer;
+    sk_up<SkMasks>        fMasks;
+    sk_up<SkMaskSwizzler> fMaskSwizzler;
+    sk_up<uint8_t[]>      fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;
 };

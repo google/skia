@@ -51,7 +51,7 @@ public:
         return S_OK;
     }
 
-    std::unique_ptr<SkStreamAsset> fStream;
+    sk_up<SkStreamAsset> fStream;
 
 private:
     StreamFontFileLoader(SkStreamAsset* stream) : fStream(stream), fRefCount(1) { }

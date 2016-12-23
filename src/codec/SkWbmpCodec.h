@@ -49,7 +49,7 @@ private:
     const size_t                fSrcRowBytes;
 
     // Used for scanline decodes:
-    std::unique_ptr<SkSwizzler> fSwizzler;
+    sk_up<SkSwizzler>           fSwizzler;
     sk_sp<SkColorTable>         fColorTable;
     SkAutoTMalloc<uint8_t>      fSrcBuffer;
 

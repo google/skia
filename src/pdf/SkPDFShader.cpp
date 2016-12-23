@@ -624,8 +624,7 @@ static void populate_tiling_pattern_dict(SkPDFDict* pattern,
  * @param gsIndex A graphics state resource index to apply, or <0 if no
  * graphics state to apply.
  */
-static std::unique_ptr<SkStreamAsset> create_pattern_fill_content(
-        int gsIndex, SkRect& bounds) {
+static sk_up<SkStreamAsset> create_pattern_fill_content(int gsIndex, SkRect& bounds) {
     SkDynamicMemoryWStream content;
     if (gsIndex >= 0) {
         SkPDFUtils::ApplyGraphicState(gsIndex, &content);
@@ -635,7 +634,7 @@ static std::unique_ptr<SkStreamAsset> create_pattern_fill_content(
     SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kEvenOdd_FillType,
                           &content);
 
-    return std::unique_ptr<SkStreamAsset>(content.detachAsStream());
+    return sk_up<SkStreamAsset>(content.detachAsStream());
 }
 
 /**
@@ -651,7 +650,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
             get_pdf_shader_by_state(doc, dpi, state.MakeAlphaToLuminosityState(),
                                     SkBitmap()));
 
-    std::unique_ptr<SkStreamAsset> alphaStream(create_pattern_fill_content(-1, bbox));
+    sk_up<SkStreamAsset> alphaStream(create_pattern_fill_content(-1, bbox));
 
     sk_sp<SkPDFDict> resources =
         get_gradient_resource_dict(luminosityShader.get(), nullptr);
@@ -688,8 +687,7 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
     sk_sp<SkPDFDict> resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
 
-    std::unique_ptr<SkStreamAsset> colorStream(
-            create_pattern_fill_content(0, bbox));
+    sk_up<SkStreamAsset> colorStream(create_pattern_fill_content(0, bbox));
     auto alphaFunctionShader = sk_make_sp<SkPDFStream>(std::move(colorStream));
 
     populate_tiling_pattern_dict(alphaFunctionShader->dict(), bbox,
@@ -748,9 +746,7 @@ sk_sp<SkPDFArray> SkPDFShader::MakeRangeObject() {
 }
 
 static sk_sp<SkPDFStream> make_ps_function(
-        std::unique_ptr<SkStreamAsset> psCode,
-        sk_sp<SkPDFArray> domain,
-        sk_sp<SkPDFObject> range) {
+        sk_up<SkStreamAsset> psCode, sk_sp<SkPDFArray> domain, sk_sp<SkPDFObject> range) {
     auto result = sk_make_sp<SkPDFStream>(std::move(psCode));
     result->dict()->insertInt("FunctionType", 4);
     result->dict()->insertObject("Domain", std::move(domain));
@@ -934,8 +930,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         // Call canon->makeRangeObject() instead of
         // SkPDFShader::MakeRangeObject() so that the canon can
         // deduplicate.
-        std::unique_ptr<SkStreamAsset> functionStream(
-                functionCode.detachAsStream());
+        sk_up<SkStreamAsset> functionStream(functionCode.detachAsStream());
         sk_sp<SkPDFStream> function = make_ps_function(std::move(functionStream),
                                                        std::move(domain),
                                                        canon->makeRangeObject());

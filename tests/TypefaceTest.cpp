@@ -71,7 +71,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                     newStyle.width() == 5);
 }
 DEF_TEST(TypefaceStyle, reporter) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/Em.ttf"));
+    sk_up<SkStreamAsset> stream(GetResourceAsStream("/fonts/Em.ttf"));
     if (!stream) {
         REPORT_FAILURE(reporter, "/fonts/Em.ttf", SkString("Cannot load resource"));
         return;

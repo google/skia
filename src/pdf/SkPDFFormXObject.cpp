@@ -9,9 +9,11 @@
 #include "SkPDFFormXObject.h"
 #include "SkPDFUtils.h"
 
-sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
-                                        sk_sp<SkPDFArray> mediaBox,
-                                        sk_sp<SkPDFDict> resourceDict,
+sk_sp<SkPDFObject> SkPDFMakeFormXObject(sk_up<SkStreamAsset> content,
+                                        sk_sp<SkPDFArray>
+                                                mediaBox,
+                                        sk_sp<SkPDFDict>
+                                                resourceDict,
                                         const SkMatrix& inverseTransform,
                                         const char* colorSpace) {
     auto form = sk_make_sp<SkPDFStream>(std::move(content));

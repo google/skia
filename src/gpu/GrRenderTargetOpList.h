@@ -174,7 +174,7 @@ private:
     int fMaxOpLookback;
     int fMaxOpLookahead;
 
-    std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
+    sk_up<gr_instanced::InstancedRendering> fInstancedRendering;
 
     int32_t fLastClipStackGenID;
     SkIRect fLastClipStackRect;

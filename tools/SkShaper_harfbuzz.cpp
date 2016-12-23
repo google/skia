@@ -19,9 +19,9 @@ struct HBFBlobDel {
     void operator()(hb_blob_t* b) { hb_blob_destroy(b); }
 };
 
-std::unique_ptr<hb_blob_t, HBFBlobDel> stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
+sk_up<hb_blob_t, HBFBlobDel> stream_to_blob(sk_up<SkStreamAsset> asset) {
     size_t size = asset->getLength();
-    std::unique_ptr<hb_blob_t, HBFBlobDel> blob;
+    sk_up<hb_blob_t, HBFBlobDel> blob;
     if (const void* base = asset->getMemoryBase()) {
         blob.reset(hb_blob_create((char*)base, SkToUInt(size),
                                   HB_MEMORY_MODE_READONLY, asset.release(),
@@ -44,25 +44,23 @@ struct SkShaper::Impl {
     struct HBFontDel {
         void operator()(hb_font_t* f) { hb_font_destroy(f); }
     };
-    std::unique_ptr<hb_font_t, HBFontDel> fHarfBuzzFont;
+    sk_up<hb_font_t, HBFontDel> fHarfBuzzFont;
     struct HBBufDel {
         void operator()(hb_buffer_t* b) { hb_buffer_destroy(b); }
     };
-    std::unique_ptr<hb_buffer_t, HBBufDel> fBuffer;
+    sk_up<hb_buffer_t, HBBufDel> fBuffer;
     sk_sp<SkTypeface> fTypeface;
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     int index;
-    std::unique_ptr<hb_blob_t, HBFBlobDel> blob(
-            stream_to_blob(std::unique_ptr<SkStreamAsset>(
-                                   fImpl->fTypeface->openStream(&index))));
+    sk_up<hb_blob_t, HBFBlobDel> blob(
+            stream_to_blob(sk_up<SkStreamAsset>(fImpl->fTypeface->openStream(&index))));
     struct HBFaceDel {
         void operator()(hb_face_t* f) { hb_face_destroy(f); }
     };
-    std::unique_ptr<hb_face_t, HBFaceDel> face(
-            hb_face_create(blob.get(), (unsigned)index));
+    sk_up<hb_face_t, HBFaceDel> face(hb_face_create(blob.get(), (unsigned)index));
     SkASSERT(face);
     if (!face) {
         return;

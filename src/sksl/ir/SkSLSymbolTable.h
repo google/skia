@@ -33,7 +33,7 @@ public:
 
     const Symbol* operator[](const SkString& name);
 
-    void add(const SkString& name, std::unique_ptr<Symbol> symbol);
+    void add(const SkString& name, sk_up<Symbol> symbol);
 
     void addWithoutOwnership(const SkString& name, const Symbol* symbol);
 
@@ -46,7 +46,7 @@ public:
 private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
+    std::vector<sk_up<Symbol>> fOwnedPointers;
 
     std::unordered_map<SkString, const Symbol*> fSymbols;
 

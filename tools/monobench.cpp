@@ -37,14 +37,14 @@ int main(int argc, char** argv) {
     if (argc > 2) { limit = atoi(argv[2]); }
 
     struct Bench {
-        std::unique_ptr<Benchmark> b;
+        sk_up<Benchmark>           b;
         std::string                name;
         ns                         best;
     };
     std::vector<Bench> benches;
 
     for (auto r = BenchRegistry::Head(); r; r = r->next()) {
-        std::unique_ptr<Benchmark> bench{ r->factory()(nullptr) };
+        sk_up<Benchmark> bench{r->factory()(nullptr)};
 
         std::string name = bench->getName();
         if (std::regex_search(name, pattern) &&

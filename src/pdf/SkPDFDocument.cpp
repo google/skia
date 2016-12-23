@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
@@ -445,7 +444,7 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
 
 sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    auto stream = skstd::make_unique<SkFILEWStream>(path);
+    auto stream = sk_make_up<SkFILEWStream>(path);
     return stream->isValid()
                    ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi,
                                        SkDocument::PDFMetadata(), nullptr,

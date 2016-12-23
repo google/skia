@@ -63,7 +63,7 @@
     #include "gl/GrGLUtil.h"
     using sk_gpu_test::GrContextFactory;
     using sk_gpu_test::TestContext;
-    std::unique_ptr<GrContextFactory> gGrFactory;
+    sk_up<GrContextFactory> gGrFactory;
 #endif
 
     struct GrContextOptions;
@@ -529,7 +529,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 
 static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
-    std::unique_ptr<SkBitmapRegionDecoder> brd(
+    sk_up<SkBitmapRegionDecoder> brd(
             SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
@@ -646,7 +646,7 @@ public:
             return nullptr;
         }
 
-        std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
+        sk_up<SkStream> stream = SkStream::MakeFromFile(path);
         if (!stream) {
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
@@ -681,7 +681,7 @@ public:
     }
 
     Benchmark* next() {
-        std::unique_ptr<Benchmark> bench;
+        sk_up<Benchmark> bench;
         do {
             bench.reset(this->rawNext());
             if (!bench) {
@@ -702,7 +702,7 @@ public:
         }
 
         while (fGMs) {
-            std::unique_ptr<skiagm::GM> gm(fGMs->factory()(nullptr));
+            sk_up<skiagm::GM> gm(fGMs->factory()(nullptr));
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";
@@ -814,7 +814,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+            sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -898,7 +898,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+            sk_up<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -1135,7 +1135,7 @@ int nanobench_main() {
         }
     }
 
-    std::unique_ptr<ResultsWriter> log(new ResultsWriter);
+    sk_up<ResultsWriter> log(new ResultsWriter);
     if (!FLAGS_outResultsFile.isEmpty()) {
 #if defined(SK_RELEASE)
         log.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
@@ -1200,7 +1200,7 @@ int nanobench_main() {
     int runs = 0;
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
-        std::unique_ptr<Benchmark> bench(b);
+        sk_up<Benchmark> bench(b);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }

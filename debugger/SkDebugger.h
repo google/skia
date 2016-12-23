@@ -123,7 +123,7 @@ public:
     void getClipStackText(SkString* clipStack);
 
 private:
-    std::unique_ptr<SkDebugCanvas>  fDebugCanvas;
+    sk_up<SkDebugCanvas>            fDebugCanvas;
     sk_sp<SkPicture>                fPicture;
 
     int fIndex;

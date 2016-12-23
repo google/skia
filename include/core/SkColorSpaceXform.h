@@ -22,7 +22,7 @@ public:
      *  @param dstSpace The destination color space.
      *
      */
-    static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace);
+    static sk_up<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace);
 
     enum ColorFormat {
         kRGBA_8888_ColorFormat,

@@ -78,10 +78,10 @@ public:
      *  Note: it is valid to request a supported ImageInfo, but with zero
      *  dimensions.
      */
-    static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t);
+    static sk_up<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t);
 
-    static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
-                                                         size_t rowBytes) {
+    static sk_up<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+                                               size_t rowBytes) {
         return MakeRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
     }
 

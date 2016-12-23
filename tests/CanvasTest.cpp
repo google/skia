@@ -542,7 +542,7 @@ static void test_newraster(skiatest::Reporter* reporter) {
     SkPMColor* baseAddr = storage.get();
     sk_bzero(baseAddr, size);
 
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes);
+    sk_up<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes);
     REPORTER_ASSERT(reporter, canvas);
 
     SkPixmap pmap;
@@ -763,9 +763,8 @@ DEF_TEST(NWayCanvas, r) {
     }
     REPORTER_ASSERT(r, !life[0]);
 
-
-    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
-    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    sk_up<SkCanvas> c0 = sk_up<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    sk_up<SkCanvas> c1 = sk_up<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
     REPORTER_ASSERT(r, life[0]);
     REPORTER_ASSERT(r, life[1]);
 
@@ -786,8 +785,8 @@ DEF_TEST(CanvasStack, r) {
     const int w = 10;
     const int h = 10;
     bool life[2];
-    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
-    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    sk_up<SkCanvas> c0 = sk_up<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    sk_up<SkCanvas> c1 = sk_up<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
     REPORTER_ASSERT(r, life[0]);
     REPORTER_ASSERT(r, life[1]);
 

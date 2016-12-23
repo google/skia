@@ -21,7 +21,7 @@ class CodecScaledGM : public skiagm::GM {
 private:
     // FIXME: Once generateScaledPixels is plumbed to SkImage, store an SkImage
     // and call SkImage::scalePixels.
-    std::unique_ptr<SkImageGenerator>   fGenerator;
+    sk_up<SkImageGenerator> fGenerator;
 
 public:
     CodecScaledGM()
