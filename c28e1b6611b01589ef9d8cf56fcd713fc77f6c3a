@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_39ff87f4",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-23T17:42:58Z",
+      "side": 1,
+      "message": "can this be private?",
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
