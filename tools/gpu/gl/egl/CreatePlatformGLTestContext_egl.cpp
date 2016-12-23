@@ -22,7 +22,7 @@ namespace {
 // TODO: Share this class with ANGLE if/when it gets support for EGL_KHR_fence_sync.
 class EGLFenceSync : public sk_gpu_test::FenceSync {
 public:
-    static std::unique_ptr<EGLFenceSync> MakeIfSupported(EGLDisplay);
+    static sk_up<EGLFenceSync> MakeIfSupported(EGLDisplay);
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(sk_gpu_test::PlatformFence fence) const override;
@@ -44,7 +44,7 @@ public:
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
     void destroyEGLImage(GrEGLImage) const override;
     GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
-    std::unique_ptr<sk_gpu_test::GLTestContext> makeNew() const override;
+    sk_up<sk_gpu_test::GLTestContext> makeNew() const override;
 
 private:
     void destroyGLContext();
@@ -255,8 +255,8 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     return texID;
 }
 
-std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
-    std::unique_ptr<sk_gpu_test::GLTestContext> ctx(new EGLGLTestContext(this->gl()->fStandard));
+sk_up<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
+    sk_up<sk_gpu_test::GLTestContext> ctx(new EGLGLTestContext(this->gl()->fStandard));
     if (ctx) {
         ctx->makeCurrent();
     }
@@ -294,11 +294,11 @@ static bool supports_egl_extension(EGLDisplay display, const char* extension) {
     return false;
 }
 
-std::unique_ptr<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
+sk_up<EGLFenceSync> EGLFenceSync::MakeIfSupported(EGLDisplay display) {
     if (!display || !supports_egl_extension(display, "EGL_KHR_fence_sync")) {
         return nullptr;
     }
-    return std::unique_ptr<EGLFenceSync>(new EGLFenceSync(display));
+    return sk_up<EGLFenceSync>(new EGLFenceSync(display));
 }
 
 sk_gpu_test::PlatformFence EGLFenceSync::insertFence() const {

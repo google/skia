@@ -16,16 +16,16 @@ namespace SkSL {
  * An expression modified by a unary operator appearing before it, such as '!flag'.
  */
 struct PrefixExpression : public Expression {
-    PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-    : INHERITED(operand->fPosition, kPrefix_Kind, operand->fType)
-    , fOperand(std::move(operand))
-    , fOperator(op) {}
+    PrefixExpression(Token::Kind op, sk_up<Expression> operand)
+            : INHERITED(operand->fPosition, kPrefix_Kind, operand->fType)
+            , fOperand(std::move(operand))
+            , fOperator(op) {}
 
     virtual SkString description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 
-    const std::unique_ptr<Expression> fOperand;
+    const sk_up<Expression> fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;

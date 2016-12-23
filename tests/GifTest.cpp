@@ -195,7 +195,7 @@ DEF_TEST(Gif, reporter) {
     // Likewise, incremental decoding should succeed here.
     {
         sk_sp<SkData> data = SkData::MakeWithoutCopy(gGIFDataNoColormap, 31);
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        sk_up<SkCodec> codec(SkCodec::NewFromData(data));
         REPORTER_ASSERT(reporter, codec);
         if (codec) {
             auto info = codec->getInfo().makeColorType(kN32_SkColorType);
@@ -225,14 +225,13 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    std::unique_ptr<SkFILEStream> stream(
-            new SkFILEStream(GetResourcePath("test640x479.gif").c_str()));
+    sk_up<SkFILEStream> stream(new SkFILEStream(GetResourcePath("test640x479.gif").c_str()));
     REPORTER_ASSERT(r, stream->isValid());
     if (!stream->isValid()) {
         return;
     }
 
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    sk_up<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -270,7 +269,7 @@ DEF_TEST(Codec_GifTruncated, r) {
 
     // This is right before the header for the first image.
     data = SkData::MakeSubset(data.get(), 0, 446);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, !codec);
 }
 
@@ -278,12 +277,12 @@ DEF_TEST(Codec_GifTruncated, r) {
 // GIFs that did not support kIndex_8. Verify that for such an image, the method computes
 // something that it can actually decode to.
 DEF_TEST(Codec_GifIndex8, r) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("randPixelsOffset.gif"));
+    sk_up<SkStream> stream(GetResourceAsStream("randPixelsOffset.gif"));
     if (!stream) {
         return;
     }
 
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    sk_up<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;

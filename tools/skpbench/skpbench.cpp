@@ -251,7 +251,7 @@ int main(int argc, char** argv) {
         skpname = "warmup";
     } else {
         const char* skpfile = FLAGS_skp[0];
-        std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
+        sk_up<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
         if (!skpstream) {
             exitf(ExitErr::kIO, "failed to open skp file %s", skpfile);
         }

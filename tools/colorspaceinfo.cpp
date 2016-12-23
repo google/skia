@@ -283,7 +283,7 @@ int main(int argc, char** argv) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(data));
     sk_sp<SkColorSpace> colorSpace = nullptr;
     const bool isImage = (codec != nullptr);
     if (isImage) {

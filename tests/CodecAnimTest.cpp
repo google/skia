@@ -45,7 +45,7 @@ DEF_TEST(Codec_frames, r) {
     };
 
     for (auto rec : gRecs) {
-        std::unique_ptr<SkStream> stream(GetResourceAsStream(rec.fName));
+        sk_up<SkStream> stream(GetResourceAsStream(rec.fName));
         if (!stream) {
             // Useful error statement, but sometimes people run tests without
             // resources, and they do not want to see these messages.
@@ -53,7 +53,7 @@ DEF_TEST(Codec_frames, r) {
             continue;
         }
 
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+        sk_up<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
         if (!codec) {
             ERRORF(r, "Failed to create an SkCodec from '%s'", rec.fName);
             continue;

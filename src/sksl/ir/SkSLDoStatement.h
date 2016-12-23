@@ -17,18 +17,17 @@ namespace SkSL {
  * A 'do' statement.
  */
 struct DoStatement : public Statement {
-    DoStatement(Position position, std::unique_ptr<Statement> statement,
-                std::unique_ptr<Expression> test)
-    : INHERITED(position, kDo_Kind)
-    , fStatement(std::move(statement))
-    , fTest(std::move(test)) {}
+    DoStatement(Position position, sk_up<Statement> statement, sk_up<Expression> test)
+            : INHERITED(position, kDo_Kind)
+            , fStatement(std::move(statement))
+            , fTest(std::move(test)) {}
 
     SkString description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }
 
-    const std::unique_ptr<Statement> fStatement;
-    const std::unique_ptr<Expression> fTest;
+    const sk_up<Statement> fStatement;
+    const sk_up<Expression> fTest;
 
     typedef Statement INHERITED;
 };

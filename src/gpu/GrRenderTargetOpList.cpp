@@ -179,7 +179,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     // Draw all the generated geometry.
     SkRandom random;
     GrGpuResource::UniqueID currentRTID = GrGpuResource::UniqueID::InvalidID();
-    std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
+    sk_up<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (!fRecordedOps[i].fOp) {
             continue;

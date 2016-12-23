@@ -414,7 +414,7 @@ protected:
             gen_raster, gen_picture, gen_png, gen_jpg,
         };
         for (auto& proc : procs) {
-            std::unique_ptr<SkImageGenerator> gen(proc(info));
+            sk_up<SkImageGenerator> gen(proc(info));
             if (gen) {
                 show_scaled_generator(canvas, gen.get());
             }

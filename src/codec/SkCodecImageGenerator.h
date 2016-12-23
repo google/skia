@@ -41,7 +41,7 @@ private:
      */
     SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData>);
 
-    std::unique_ptr<SkCodec> fCodec;
+    sk_up<SkCodec> fCodec;
     sk_sp<SkData> fData;
     sk_sp<SkColorTable> fColorTable;
 

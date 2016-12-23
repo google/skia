@@ -86,7 +86,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
-    std::unique_ptr<SkReadBuffer> reader;
+    sk_up<SkReadBuffer> reader;
     if (buffer) {
         reader.reset(buffer->clone(fPictureData->opData()->bytes(),
                                    fPictureData->opData()->size()));

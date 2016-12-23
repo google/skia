@@ -77,7 +77,7 @@ private:
     mutable SkOnce                       fAnalysisOnce;
     mutable Analysis                     fAnalysis;
     sk_sp<const SkRecord>                fRecord;
-    std::unique_ptr<const SnapshotArray> fDrawablePicts;
+    sk_up<const SnapshotArray> fDrawablePicts;
     sk_sp<const SkBBoxHierarchy>         fBBH;
 };
 

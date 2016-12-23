@@ -21,8 +21,7 @@
   Type 1 font may be in binary or ASCII hexadecimal format, PDF
   supports only the binary format."
 */
-sk_sp<SkData> SkPDFConvertType1FontStream(
-        std::unique_ptr<SkStreamAsset> srcStream, size_t* headerLen,
-        size_t* dataLen, size_t* trailerLen);
+sk_sp<SkData> SkPDFConvertType1FontStream(sk_up<SkStreamAsset> srcStream, size_t* headerLen,
+                                          size_t* dataLen, size_t* trailerLen);
 
 #endif  // SkPDFConvertType1FontStream_DEFINED

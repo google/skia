@@ -41,7 +41,7 @@ public:
 
 private:
     class Impl;
-    std::unique_ptr<Impl> fImpl;
+    sk_up<Impl> fImpl;
 };
 
 class SkPipeDeserializer {
@@ -74,7 +74,7 @@ public:
 
 private:
     class Impl;
-    std::unique_ptr<Impl> fImpl;
+    sk_up<Impl> fImpl;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

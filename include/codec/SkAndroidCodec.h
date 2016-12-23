@@ -274,6 +274,6 @@ private:
     // embedded SkCodec.
     const SkImageInfo& fInfo;
 
-    std::unique_ptr<SkCodec> fCodec;
+    sk_up<SkCodec> fCodec;
 };
 #endif // SkAndroidCodec_DEFINED

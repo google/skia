@@ -366,7 +366,7 @@ DEF_TEST(RWBuffer_noAppend, r) {
         REPORTER_ASSERT(r, !iter.next());
     }
 
-    std::unique_ptr<SkStream> stream(buffer.newStreamSnapshot());
+    sk_up<SkStream> stream(buffer.newStreamSnapshot());
     REPORTER_ASSERT(r, stream);
     if (stream) {
         REPORTER_ASSERT(r, stream->hasLength());

@@ -83,14 +83,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
         return;
     }
 
-    std::unique_ptr<uint32_t[]> data(new uint32_t[kS * kS]);
+    sk_up<uint32_t[]> data(new uint32_t[kS * kS]);
     for (int j = 0; j < kS; ++j) {
         for (int i = 0; i < kS; ++i) {
             data[i + kS * j] = GrColorPackRGBA(i, j, 0, 0);
         }
     }
 
-    std::unique_ptr<uint32_t[]> idata(new uint32_t[kS * kS]);
+    sk_up<uint32_t[]> idata(new uint32_t[kS * kS]);
     for (int j = 0; j < kS; ++j) {
         for (int i = 0; i < kS; ++i) {
             int8_t r = i - 128;
@@ -109,7 +109,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
     desc.fHeight = kS;
     struct {
         GrPixelConfig fConfig;
-        std::unique_ptr<uint32_t[]> fData;
+        sk_up<uint32_t[]> fData;
     } tests[] = {
         {
            kRGBA_8888_GrPixelConfig,
@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.addColorFragmentProcessor(TestFP::Make(imageStorageTexture, mm, restrict));
                 rtContext->drawPaint(GrNoClip(), paint, SkMatrix::I());
-                std::unique_ptr<uint32_t[]> readData(new uint32_t[kS * kS]);
+                sk_up<uint32_t[]> readData(new uint32_t[kS * kS]);
                 SkImageInfo info = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                      kPremul_SkAlphaType);
                 rtContext->readPixels(info, readData.get(), 0, 0, 0);

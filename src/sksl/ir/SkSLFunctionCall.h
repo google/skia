@@ -18,10 +18,10 @@ namespace SkSL {
  */
 struct FunctionCall : public Expression {
     FunctionCall(Position position, const Type& type, const FunctionDeclaration& function,
-                 std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(position, kFunctionCall_Kind, type)
-    , fFunction(std::move(function))
-    , fArguments(std::move(arguments)) {}
+                 std::vector<sk_up<Expression>> arguments)
+            : INHERITED(position, kFunctionCall_Kind, type)
+            , fFunction(std::move(function))
+            , fArguments(std::move(arguments)) {}
 
     SkString description() const override {
         SkString result = fFunction.fName + "(";
@@ -36,7 +36,7 @@ struct FunctionCall : public Expression {
     }
 
     const FunctionDeclaration& fFunction;
-    const std::vector<std::unique_ptr<Expression>> fArguments;
+    const std::vector<sk_up<Expression>> fArguments;
 
     typedef Expression INHERITED;
 };

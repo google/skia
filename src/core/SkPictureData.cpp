@@ -584,7 +584,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
                                                SkImageDeserializer* factory,
                                                SkTypefacePlayback* topLevelTFPlayback) {
-    std::unique_ptr<SkPictureData> data(new SkPictureData(info));
+    sk_up<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
@@ -597,7 +597,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
 
 SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
                                                const SkPictInfo& info) {
-    std::unique_ptr<SkPictureData> data(new SkPictureData(info));
+    sk_up<SkPictureData> data(new SkPictureData(info));
     buffer.setVersion(info.getVersion());
 
     if (!data->parseBuffer(buffer)) {

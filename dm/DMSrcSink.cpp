@@ -62,24 +62,24 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    sk_up<skiagm::GM> gm(fFactory(nullptr));
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     return "";
 }
 
 SkISize GMSrc::size() const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    sk_up<skiagm::GM> gm(fFactory(nullptr));
     return gm->getISize();
 }
 
 Name GMSrc::name() const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    sk_up<skiagm::GM> gm(fFactory(nullptr));
     return gm->getName();
 }
 
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
-    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
+    sk_up<skiagm::GM> gm(fFactory(nullptr));
     gm->modifyGrContextOptions(options);
 }
 
@@ -136,7 +136,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             break;
     }
 
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    sk_up<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (nullptr == brd.get()) {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
@@ -234,7 +234,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize BRDSrc::size() const {
-    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    sk_up<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (brd) {
         return SkISize::Make(SkTMax(1, brd->width() / (int) fSampleSize),
                 SkTMax(1, brd->height() / (int) fSampleSize));
@@ -388,7 +388,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -730,7 +730,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -783,7 +783,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    sk_up<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
@@ -836,7 +836,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize AndroidCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    sk_up<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -888,7 +888,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     }
 #endif
 
-    std::unique_ptr<SkImageGenerator> gen(nullptr);
+    sk_up<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
             gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded.get()));
@@ -943,7 +943,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
 SkISize ImageGenSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -984,7 +984,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -1047,7 +1047,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize ColorCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    sk_up<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -1065,7 +1065,7 @@ static const SkRect kSKPViewport = {0,0, 1000,1000};
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
+    sk_up<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
@@ -1081,7 +1081,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize SKPSrc::size() const {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
+    sk_up<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkISize::Make(0,0);
     }
@@ -1164,7 +1164,7 @@ bool SVGSrc::veto(SinkFlags flags) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
-    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
+    sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
     (void)fReader.init(stream.get());
 }
 
@@ -1175,7 +1175,7 @@ SkISize MSKPSrc::size(int i) const { return fReader.pageSize(i).toCeil(); }
 
 Error MSKPSrc::draw(SkCanvas* c) const { return this->draw(0, c); }
 Error MSKPSrc::draw(int i, SkCanvas* canvas) const {
-    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
+    sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkStringPrintf("Unable to open file: %s", fPath.c_str());
     }
@@ -1359,7 +1359,7 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
     if (!err.isEmpty()) {
         return err;
     }
-    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
+    sk_up<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
     Json::Value json = debugCanvas.toJSON(
             dataManager, debugCanvas.getSize(), nullCanvas.get());
@@ -1373,7 +1373,7 @@ SVGSink::SVGSink() {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
-    std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
+    sk_up<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
     return src.draw(SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
                                                      SkIntToScalar(src.size().height())),
                                       xmlWriter.get()).get());
@@ -1725,7 +1725,7 @@ Error ViaSingletonPictures::draw(
         SkCanvas* macroCanvas = macroRec.beginRecording(SkIntToScalar(size.width()),
                                                         SkIntToScalar(size.height()));
 
-        std::unique_ptr<SkDrawableList> drawables(recorder.detachDrawableList());
+        sk_up<SkDrawableList> drawables(recorder.detachDrawableList());
         const SkDrawableList empty;
 
         DrawsAsSingletonPictures drawsAsSingletonPictures = {

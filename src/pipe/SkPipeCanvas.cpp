@@ -991,7 +991,7 @@ int SkPipeDeduper::findOrDefineFactory(SkFlattenable* flattenable) {
 class SkPipeSerializer::Impl {
 public:
     SkPipeDeduper   fDeduper;
-    std::unique_ptr<SkPipeCanvas> fCanvas;
+    sk_up<SkPipeCanvas> fCanvas;
 };
 
 SkPipeSerializer::SkPipeSerializer() : fImpl(new Impl) {}

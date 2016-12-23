@@ -16,14 +16,13 @@ namespace SkSL {
  * A 'for' loop. 
  */
 struct ASTForStatement : public ASTStatement {
-    ASTForStatement(Position position, std::unique_ptr<ASTStatement> initializer, 
-                   std::unique_ptr<ASTExpression> test, std::unique_ptr<ASTExpression> next,
-                   std::unique_ptr<ASTStatement> statement)
-    : INHERITED(position, kFor_Kind)
-    , fInitializer(std::move(initializer))
-    , fTest(std::move(test))
-    , fNext(std::move(next))
-    , fStatement(std::move(statement)) {}
+    ASTForStatement(Position position, sk_up<ASTStatement> initializer, sk_up<ASTExpression> test,
+                    sk_up<ASTExpression> next, sk_up<ASTStatement> statement)
+            : INHERITED(position, kFor_Kind)
+            , fInitializer(std::move(initializer))
+            , fTest(std::move(test))
+            , fNext(std::move(next))
+            , fStatement(std::move(statement)) {}
 
     SkString description() const override {
         SkString result("for (");
@@ -43,10 +42,10 @@ struct ASTForStatement : public ASTStatement {
         return result;
     }
 
-    const std::unique_ptr<ASTStatement> fInitializer;
-    const std::unique_ptr<ASTExpression> fTest;
-    const std::unique_ptr<ASTExpression> fNext;
-    const std::unique_ptr<ASTStatement> fStatement;
+    const sk_up<ASTStatement> fInitializer;
+    const sk_up<ASTExpression> fTest;
+    const sk_up<ASTExpression> fNext;
+    const sk_up<ASTStatement> fStatement;
 
     typedef ASTStatement INHERITED;
 };

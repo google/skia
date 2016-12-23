@@ -68,7 +68,7 @@ private:
     float                     fSrcToDst[16];
 
     friend class SkColorSpaceXform;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
+    friend sk_up<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 struct LoadTablesContext {
@@ -109,10 +109,10 @@ private:
     DstGamma                  fDstGamma;
 
     friend class SkColorSpaceXform;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
+    friend sk_up<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
-std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
+sk_up<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 
 #endif

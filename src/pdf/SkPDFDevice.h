@@ -143,7 +143,7 @@ public:
 
     /** Returns a SkStream with the page contents.
      */
-    std::unique_ptr<SkStreamAsset> content() const;
+    sk_up<SkStreamAsset> content() const;
 
     SkPDFCanon* getCanon() const;
 

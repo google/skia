@@ -17,7 +17,7 @@
 // Otherwise, completely uninteresting.
 
 struct SkImageShaderContext {
-    std::unique_ptr<SkBitmapController::State> state;
+    sk_up<SkBitmapController::State> state;
 
     const void*   pixels;
     SkColorTable* ctable;

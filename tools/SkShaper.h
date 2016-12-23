@@ -39,7 +39,7 @@ private:
     SkShaper& operator=(const SkShaper&) = delete;
 
     struct Impl;
-    std::unique_ptr<Impl> fImpl;
+    sk_up<Impl> fImpl;
 };
 
 #endif  // SkShaper_DEFINED

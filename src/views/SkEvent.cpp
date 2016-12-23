@@ -415,7 +415,7 @@ SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
 #include "SkEventSink.h"
 
 bool SkEvent::ProcessEvent() {
-    std::unique_ptr<SkEvent> evt(SkEvent::Dequeue());
+    sk_up<SkEvent> evt(SkEvent::Dequeue());
     bool                     again = false;
 
     EVENT_LOGN("ProcessEvent", (int32_t)evt);

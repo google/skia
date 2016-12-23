@@ -964,7 +964,7 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
     GrTexture *blurProfile = textureProvider->findAndRefTextureByUniqueKey(key);
 
     if (!blurProfile) {
-        std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
+        sk_up<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
         blurProfile = textureProvider->createTexture(texDesc, SkBudgeted::kYes, profile.get(), 0);
         if (blurProfile) {

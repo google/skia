@@ -378,8 +378,8 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
             break;
     }
 
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcInfo.colorSpace(),
-                                                                      dstInfo.colorSpace());
+    sk_up<SkColorSpaceXform> xform =
+            SkColorSpaceXform::New(srcInfo.colorSpace(), dstInfo.colorSpace());
     SkASSERT(xform);
 
     for (int y = 0; y < dstInfo.height(); y++) {
@@ -557,7 +557,7 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         if (!bm.installPixels(srcInfo, const_cast<void*>(srcPixels), srcRB, ctable, nullptr, nullptr)) {
             return false;
         }
-        std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(dstInfo, dstPixels, dstRB);
+        sk_up<SkCanvas> canvas = SkCanvas::MakeRasterDirect(dstInfo, dstPixels, dstRB);
         if (!canvas) {
             return false;
         }

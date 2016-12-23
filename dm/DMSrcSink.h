@@ -397,7 +397,7 @@ public:
         return flags;
     }
 protected:
-    std::unique_ptr<Sink> fSink;
+    sk_up<Sink> fSink;
 };
 
 class ViaMatrix : public Via {
@@ -446,7 +446,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int                   fW, fH;
-    std::unique_ptr<SkBBHFactory> fFactory;
+    sk_up<SkBBHFactory> fFactory;
 };
 
 class ViaSecondPicture : public Via {

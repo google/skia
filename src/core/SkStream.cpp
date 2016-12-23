@@ -10,7 +10,6 @@
 #include "SkStreamPriv.h"
 #include "SkData.h"
 #include "SkFixed.h"
-#include "SkMakeUnique.h"
 #include "SkString.h"
 #include "SkOSFile.h"
 #include "SkTypes.h"
@@ -219,7 +218,7 @@ SkStreamAsset* SkFILEStream::duplicate() const {
     }
 
     if (!fName.isEmpty()) {
-        std::unique_ptr<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+        sk_up<SkFILEStream> that(new SkFILEStream(fName.c_str()));
         if (sk_fidentical(that->fFILE, this->fFILE)) {
             return that.release();
         }
@@ -245,7 +244,7 @@ bool SkFILEStream::move(long offset) {
 }
 
 SkStreamAsset* SkFILEStream::fork() const {
-    std::unique_ptr<SkStreamAsset> that(this->duplicate());
+    sk_up<SkStreamAsset> that(this->duplicate());
     that->seek(this->getPosition());
     return that.release();
 }
@@ -367,7 +366,7 @@ bool SkMemoryStream::move(long offset) {
 }
 
 SkMemoryStream* SkMemoryStream::fork() const {
-    std::unique_ptr<SkMemoryStream> that(this->duplicate());
+    sk_up<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
     return that.release();
 }
@@ -749,7 +748,7 @@ public:
     }
 
     SkBlockMemoryStream* fork() const override {
-        std::unique_ptr<SkBlockMemoryStream> that(this->duplicate());
+        sk_up<SkBlockMemoryStream> that(this->duplicate());
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
@@ -776,8 +775,8 @@ private:
 };
 
 SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
-    auto stream = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
-                                                          this->bytesWritten());
+    auto stream = sk_make_up<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
+                                                  this->bytesWritten());
     fHead = nullptr;    // signal reset() to not free anything
     this->reset();
     return stream.release();
@@ -821,14 +820,14 @@ static sk_sp<SkData> mmap_filename(const char path[]) {
     return data;
 }
 
-std::unique_ptr<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
+sk_up<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
     auto data(mmap_filename(path));
     if (data) {
-        return skstd::make_unique<SkMemoryStream>(std::move(data));
+        return sk_make_up<SkMemoryStream>(std::move(data));
     }
 
     // If we get here, then our attempt at using mmap failed, so try normal file access.
-    auto stream = skstd::make_unique<SkFILEStream>(path);
+    auto stream = sk_make_up<SkFILEStream>(path);
     if (!stream->isValid()) {
         return nullptr;
     }

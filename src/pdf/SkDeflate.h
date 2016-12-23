@@ -47,7 +47,7 @@ public:
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> fImpl;
+    sk_up<Impl> fImpl;
 };
 
 #endif  // SkFlate_DEFINED

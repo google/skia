@@ -15,7 +15,6 @@
 #include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
 #include "SkFontStyle.h"
-#include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
@@ -74,10 +73,10 @@ public:
         }
     }
 
-    std::unique_ptr<SkStreamAsset> makeStream() const {
+    sk_up<SkStreamAsset> makeStream() const {
         if (fFile) {
             sk_sp<SkData> data(SkData::MakeFromFILE(fFile));
-            return data ? skstd::make_unique<SkMemoryStream>(std::move(data)) : nullptr;
+            return data ? sk_make_up<SkMemoryStream>(std::move(data)) : nullptr;
         }
         return SkStream::MakeFromFile(fPathName.c_str());
     }
@@ -93,9 +92,8 @@ public:
         *ttcIndex = fIndex;
         return this->makeStream().release();
     }
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return skstd::make_unique<SkFontData>(this->makeStream(), fIndex,
-                                              fAxes.begin(), fAxes.count());
+    sk_up<SkFontData> onMakeFontData() const override {
+        return sk_make_up<SkFontData>(this->makeStream(), fIndex, fAxes.begin(), fAxes.count());
     }
 
     const SkString fPathName;
@@ -110,13 +108,11 @@ public:
 
 class SkTypeface_AndroidStream : public SkTypeface_Android {
 public:
-    SkTypeface_AndroidStream(std::unique_ptr<SkFontData> data,
+    SkTypeface_AndroidStream(sk_up<SkFontData> data,
                              const SkFontStyle& style,
                              bool isFixedPitch,
                              const SkString& familyName)
-        : INHERITED(style, isFixedPitch, familyName)
-        , fData(std::move(data))
-    { }
+            : INHERITED(style, isFixedPitch, familyName), fData(std::move(data)) {}
 
     virtual void onGetFontDescriptor(SkFontDescriptor* desc,
                                      bool* serialize) const override {
@@ -131,12 +127,10 @@ public:
         return fData->getStream()->duplicate();
     }
 
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return skstd::make_unique<SkFontData>(*fData);
-    }
+    sk_up<SkFontData> onMakeFontData() const override { return sk_make_up<SkFontData>(*fData); }
 
 private:
-    const std::unique_ptr<const SkFontData> fData;
+    const sk_up<const SkFontData> fData;
     typedef SkTypeface_Android INHERITED;
 };
 
@@ -157,7 +151,7 @@ public:
             SkString pathName(family.fBasePath);
             pathName.append(fontFile.fFileName);
 
-            std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(pathName.c_str());
+            sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(pathName.c_str());
             if (!stream) {
                 SkDEBUGF(("Requested font file %s does not exist or cannot be opened.\n",
                           pathName.c_str()));
@@ -412,25 +406,25 @@ protected:
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
+        sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(path);
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        sk_up<SkStreamAsset> stream(bareStream);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
         if (!fScanner.scanFont(stream.get(), ttcIndex, &name, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto data = sk_make_up<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
         return new SkTypeface_AndroidStream(std::move(data), style, isFixedPitch, name);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
+        sk_up<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -446,12 +440,12 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
-                                                   axisValues.get(), axisDefinitions.count());
+        auto data = sk_make_up<SkFontData>(std::move(stream), params.getCollectionIndex(),
+                                           axisValues.get(), axisDefinitions.count());
         return new SkTypeface_AndroidStream(std::move(data), style, isFixedPitch, name);
     }
 
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> data) const override {
+    SkTypeface* onCreateFromFontData(sk_up<SkFontData> data) const override {
         SkStreamAsset* stream(data->getStream());
         bool isFixedPitch;
         SkFontStyle style;

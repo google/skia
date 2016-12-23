@@ -162,6 +162,6 @@ private:
     VkDeviceSize           fAllocSize;
     VkDeviceSize           fUsedSize;
     AllocFunc              fAllocFunc;
-    SkTArray<std::unique_ptr<GrVkSubHeap>> fSubHeaps;
+    SkTArray<sk_up<GrVkSubHeap>> fSubHeaps;
 };
 #endif

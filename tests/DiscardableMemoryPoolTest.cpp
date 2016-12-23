@@ -14,15 +14,14 @@ DEF_TEST(DiscardableMemoryPool, reporter) {
     pool->setRAMBudget(3);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
-    std::unique_ptr<SkDiscardableMemory> dm1(pool->create(100));
+    sk_up<SkDiscardableMemory> dm1(pool->create(100));
     REPORTER_ASSERT(reporter, dm1->data() != nullptr);
     REPORTER_ASSERT(reporter, 100 == pool->getRAMUsed());
     dm1->unlock();
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
     REPORTER_ASSERT(reporter, !dm1->lock());
 
-
-    std::unique_ptr<SkDiscardableMemory> dm2(pool->create(200));
+    sk_up<SkDiscardableMemory> dm2(pool->create(200));
     REPORTER_ASSERT(reporter, 200 == pool->getRAMUsed());
     pool->setRAMBudget(400);
     dm2->unlock();

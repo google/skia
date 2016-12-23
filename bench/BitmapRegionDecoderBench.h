@@ -35,7 +35,7 @@ protected:
 
 private:
     SkString                                       fName;
-    std::unique_ptr<SkBitmapRegionDecoder>         fBRD;
+    sk_up<SkBitmapRegionDecoder> fBRD;
     sk_sp<SkData>                                  fData;
     const SkColorType                              fColorType;
     const uint32_t                                 fSampleSize;

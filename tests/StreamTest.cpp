@@ -62,7 +62,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        std::unique_ptr<SkStreamAsset> stream2(stream.duplicate());
+        sk_up<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 
@@ -72,7 +72,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        std::unique_ptr<SkStreamAsset> stream2(stream.duplicate());
+        sk_up<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 }
@@ -95,15 +95,15 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
 
     {
-        std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
+        sk_up<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
         REPORTER_ASSERT(reporter, ds.bytesWritten() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());
+        sk_up<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
 
-        std::unique_ptr<SkStreamAsset> stream3(stream->fork());
+        sk_up<SkStreamAsset> stream3(stream->fork());
         REPORTER_ASSERT(reporter, stream3->isAtEnd());
         char tmp;
         size_t bytes = stream->read(&tmp, 1);
@@ -119,11 +119,11 @@ static void TestWStream(skiatest::Reporter* reporter) {
 
     {
         // Test that this works after a snapshot.
-        std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
+        sk_up<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.bytesWritten() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());
+        sk_up<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
     delete[] dst;
@@ -230,7 +230,7 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
                                                size_t bufferSize) {
     SkStream* dupe = original.duplicate();
     REPORTER_ASSERT(r, dupe != nullptr);
-    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
+    sk_up<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
     REPORTER_ASSERT(r, bufferedStream != nullptr);
 
     size_t peeked = 0;
@@ -357,7 +357,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
         totalWritten += size;
         REPORTER_ASSERT(rep, totalWritten == dynamicMemoryWStream.bytesWritten());
     }
-    std::unique_ptr<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
+    sk_up<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
     sk_sp<SkData> expected(SkData::MakeUninitialized(asset->getLength()));
     uint8_t* expectedPtr = static_cast<uint8_t*>(expected->writable_data());
     valueSource.setSeed(kSeed);  // reseed.
@@ -427,6 +427,6 @@ DEF_TEST(StreamCopy, reporter) {
 
 DEF_TEST(StreamEmptyStreamMemoryBase, r) {
     SkDynamicMemoryWStream tmp;
-    std::unique_ptr<SkStreamAsset> asset(tmp.detachAsStream());
+    sk_up<SkStreamAsset> asset(tmp.detachAsStream());
     REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
 }

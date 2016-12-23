@@ -9,7 +9,6 @@
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
-#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkOTTable_OS_2.h"
 #include "SkOnce.h"
@@ -151,7 +150,7 @@ sk_sp<SkTypeface> SkTypeface::MakeFromStream(SkStreamAsset* stream, int index) {
     return sk_sp<SkTypeface>(fm->createFromStream(stream, index));
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeFromFontData(std::unique_ptr<SkFontData> data) {
+sk_sp<SkTypeface> SkTypeface::MakeFromFontData(sk_up<SkFontData> data) {
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->createFromFontData(std::move(data)));
 }
@@ -189,7 +188,7 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         return nullptr;
     }
 
-    std::unique_ptr<SkFontData> data = desc.detachFontData();
+    sk_up<SkFontData> data = desc.detachFontData();
     if (data) {
         sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(std::move(data)));
         if (typeface) {
@@ -228,15 +227,13 @@ SkStreamAsset* SkTypeface::openStream(int* ttcIndex) const {
     return this->onOpenStream(ttcIndex);
 }
 
-std::unique_ptr<SkFontData> SkTypeface::makeFontData() const {
-    return this->onMakeFontData();
-}
+sk_up<SkFontData> SkTypeface::makeFontData() const { return this->onMakeFontData(); }
 
 // This implementation is temporary until this method can be made pure virtual.
-std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
+sk_up<SkFontData> SkTypeface::onMakeFontData() const {
     int index;
-    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
-    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    sk_up<SkStreamAsset> stream(this->onOpenStream(&index));
+    return sk_make_up<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
@@ -346,7 +343,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
 
     SkScalerContextEffects noeffects;
-    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, desc, true);
+    sk_up<SkScalerContext> ctx = this->createScalerContext(noeffects, desc, true);
     if (!ctx) {
         return false;
     }

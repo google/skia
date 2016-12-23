@@ -14,7 +14,7 @@ namespace {
 
 class GLFenceSync : public sk_gpu_test::FenceSync {
 public:
-    static std::unique_ptr<GLFenceSync> MakeIfSupported(const sk_gpu_test::GLTestContext*);
+    static sk_up<GLFenceSync> MakeIfSupported(const sk_gpu_test::GLTestContext*);
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(sk_gpu_test::PlatformFence fence) const override;
@@ -43,8 +43,8 @@ private:
     typedef FenceSync INHERITED;
 };
 
-std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-    std::unique_ptr<GLFenceSync> ret;
+sk_up<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    sk_up<GLFenceSync> ret;
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
             return nullptr;
@@ -85,7 +85,7 @@ void GLFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
 
 class GLGpuTimer : public sk_gpu_test::GpuTimer {
 public:
-    static std::unique_ptr<GLGpuTimer> MakeIfSupported(const sk_gpu_test::GLTestContext*);
+    static sk_up<GLGpuTimer> MakeIfSupported(const sk_gpu_test::GLTestContext*);
 
     QueryStatus checkQueryStatus(sk_gpu_test::PlatformTimerQuery) override;
     std::chrono::nanoseconds getTimeElapsed(sk_gpu_test::PlatformTimerQuery) override;
@@ -124,8 +124,8 @@ private:
     typedef sk_gpu_test::GpuTimer INHERITED;
 };
 
-std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-    std::unique_ptr<GLGpuTimer> ret;
+sk_up<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    sk_up<GLGpuTimer> ret;
     const GrGLInterface* gl = ctx->gl();
     if (gl->fExtensions.has("GL_EXT_disjoint_timer_query")) {
         ret.reset(new GLGpuTimer(true, ctx, "EXT"));
@@ -225,7 +225,7 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, std::unique_ptr<FenceSync> fenceSync) {
+void GLTestContext::init(const GrGLInterface* gl, sk_up<FenceSync> fenceSync) {
     SkASSERT(!fGL.get());
     fGL.reset(gl);
     fFenceSync = fenceSync ? std::move(fenceSync) : GLFenceSync::MakeIfSupported(this);

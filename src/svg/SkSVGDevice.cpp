@@ -343,7 +343,7 @@ private:
 
     SkXMLWriter*               fWriter;
     ResourceBucket*            fResourceBucket;
-    std::unique_ptr<AutoElement> fClipGroup;
+    sk_up<AutoElement> fClipGroup;
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {

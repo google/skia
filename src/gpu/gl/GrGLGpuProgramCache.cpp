@@ -79,7 +79,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
         return nullptr;
     }
     desc.finalize();
-    std::unique_ptr<Entry>* entry = fMap.find(desc);
+    sk_up<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
@@ -89,7 +89,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
         if (nullptr == program) {
             return nullptr;
         }
-        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(sk_sp<GrGLProgram>(program))));
+        entry = fMap.insert(desc, sk_up<Entry>(new Entry(sk_sp<GrGLProgram>(program))));
     }
 
     return SkRef((*entry)->fProgram.get());

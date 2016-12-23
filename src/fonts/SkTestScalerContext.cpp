@@ -11,7 +11,6 @@
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
-#include "SkMakeUnique.h"
 #include "SkMask.h"
 #include "SkScalerContext.h"
 #include "SkTestScalerContext.h"

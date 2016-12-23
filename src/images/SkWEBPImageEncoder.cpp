@@ -208,7 +208,7 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
     // Import (for each scanline) the bit-map image (in appropriate color-space)
     // to RGB color space.
-    std::unique_ptr<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
+    sk_up<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
     for (int y = 0; y < pic.height; ++y) {
         scanline_import(src + y * rowBytes, &rgb[y * rgbStride], pic.width, colors);
     }

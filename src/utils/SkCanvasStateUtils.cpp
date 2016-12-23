@@ -199,7 +199,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         return nullptr;
     }
 
-    std::unique_ptr<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
+    sk_up<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
 
     // decompose the total matrix and clip
     setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(),
@@ -279,8 +279,7 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     canvas->clipRegion(clip, kReplace_SkClipOp);
 }
 
-static std::unique_ptr<SkCanvas>
-make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
+static sk_up<SkCanvas> make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
     SkASSERT(kRaster_CanvasBackend == layerState.type);
 
     SkBitmap bitmap;
@@ -300,7 +299,7 @@ make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
     SkASSERT(!bitmap.empty());
     SkASSERT(!bitmap.isNull());
 
-    std::unique_ptr<SkCanvas> canvas(new SkCanvas(bitmap));
+    sk_up<SkCanvas> canvas(new SkCanvas(bitmap));
 
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
@@ -308,7 +307,7 @@ make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
     return canvas;
 }
 
-std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvasState* state) {
+sk_up<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvasState* state) {
     SkASSERT(state);
     // Currently there is only one possible version.
     SkASSERT(SkCanvasState_v1::kVersion == state->version);
@@ -319,14 +318,14 @@ std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvas
         return nullptr;
     }
 
-    std::unique_ptr<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
+    sk_up<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
 
     // setup the matrix and clip on the n-way canvas
     setup_canvas_from_MC_state(state_v1->mcState, canvas.get());
 
     // Iterate over the layers and add them to the n-way canvas
     for (int i = state_v1->layerCount - 1; i >= 0; --i) {
-        std::unique_ptr<SkCanvas> canvasLayer = make_canvas_from_canvas_layer(state_v1->layers[i]);
+        sk_up<SkCanvas> canvasLayer = make_canvas_from_canvas_layer(state_v1->layers[i]);
         if (!canvasLayer.get()) {
             return nullptr;
         }

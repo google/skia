@@ -23,7 +23,6 @@
 #include "builders/GrGLShaderStringBuilder.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
 #include "instanced/GLInstancedRendering.h"
-#include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
@@ -2528,7 +2527,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         }
         if (kAlpha_8_GrPixelConfig == config &&
             this->readPixelsSupported(surface, tempConfig)) {
-            std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
+            sk_up<uint32_t[]> temp(new uint32_t[width * height * 4]);
             if (this->onReadPixels(surface, left, top, width, height, tempConfig, temp.get(),
                                    width*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
@@ -4622,7 +4621,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     if (!this->caps()->isConfigTexturable(config)) {
         return false;
     }
-    std::unique_ptr<GrGLTextureInfo> info = skstd::make_unique<GrGLTextureInfo>();
+    sk_up<GrGLTextureInfo> info = sk_make_up<GrGLTextureInfo>();
     info->fTarget = GR_GL_TEXTURE_2D;
     info->fID = 0;
     GL_CALL(GenTextures(1, &info->fID));
@@ -4660,7 +4659,7 @@ bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) {
-    std::unique_ptr<const GrGLTextureInfo> info(reinterpret_cast<const GrGLTextureInfo*>(id));
+    sk_up<const GrGLTextureInfo> info(reinterpret_cast<const GrGLTextureInfo*>(id));
     GrGLuint texID = info->fID;
 
     if (!abandonTexture) {

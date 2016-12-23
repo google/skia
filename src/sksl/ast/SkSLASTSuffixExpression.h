@@ -17,17 +17,17 @@ namespace SkSL {
  * An expression with an associated suffix.
  */
 struct ASTSuffixExpression : public ASTExpression {
-    ASTSuffixExpression(std::unique_ptr<ASTExpression> base, std::unique_ptr<ASTSuffix> suffix)
-    : INHERITED(base->fPosition, kSuffix_Kind)
-    , fBase(std::move(base))
-    , fSuffix(std::move(suffix)) {}
+    ASTSuffixExpression(sk_up<ASTExpression> base, sk_up<ASTSuffix> suffix)
+            : INHERITED(base->fPosition, kSuffix_Kind)
+            , fBase(std::move(base))
+            , fSuffix(std::move(suffix)) {}
 
     SkString description() const override {
         return fBase->description() + fSuffix->description();
     }
 
-    const std::unique_ptr<ASTExpression> fBase;
-    const std::unique_ptr<ASTSuffix> fSuffix;
+    const sk_up<ASTExpression> fBase;
+    const sk_up<ASTSuffix> fSuffix;
 
     typedef ASTExpression INHERITED;
 };

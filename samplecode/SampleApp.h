@@ -170,12 +170,12 @@ private:
 
     int fCurrIndex;
 
-    std::unique_ptr<SkDynamicMemoryWStream> fPipeStream;
+    sk_up<SkDynamicMemoryWStream> fPipeStream;
     SkPipeSerializer        fPipeSerializer;
     SkPipeDeserializer      fPipeDeserializer;
 
     SkPictureRecorder fRecorder;
-    std::unique_ptr<SkCanvas> fFlagsFilterCanvas;
+    sk_up<SkCanvas> fFlagsFilterCanvas;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;

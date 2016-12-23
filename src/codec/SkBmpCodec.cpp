@@ -151,7 +151,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Bmps embedded in Icos skip the first Bmp header
     if (!inIco) {
         // Read the first header and the size of the second header
-        std::unique_ptr<uint8_t[]> hBuffer(new uint8_t[kBmpHeaderBytesPlusFour]);
+        sk_up<uint8_t[]> hBuffer(new uint8_t[kBmpHeaderBytesPlusFour]);
         if (stream->read(hBuffer.get(), kBmpHeaderBytesPlusFour) !=
                 kBmpHeaderBytesPlusFour) {
             SkCodecPrintf("Error: unable to read first bitmap header.\n");
@@ -185,7 +185,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         offset = 0;
 
         // Read the size of the second header
-        std::unique_ptr<uint8_t[]> hBuffer(new uint8_t[4]);
+        sk_up<uint8_t[]> hBuffer(new uint8_t[4]);
         if (stream->read(hBuffer.get(), 4) != 4) {
             SkCodecPrintf("Error: unable to read size of second bitmap header.\n");
             return false;
@@ -207,7 +207,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     const uint32_t infoBytesRemaining = infoBytes - 4;
 
     // Read the second header
-    std::unique_ptr<uint8_t[]> iBuffer(new uint8_t[infoBytesRemaining]);
+    sk_up<uint8_t[]> iBuffer(new uint8_t[infoBytesRemaining]);
     if (stream->read(iBuffer.get(), infoBytesRemaining) != infoBytesRemaining) {
         SkCodecPrintf("Error: unable to read second bitmap header.\n");
         return false;
@@ -331,7 +331,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             switch (headerType) {
                 case kInfoV1_BmpHeaderType: {
                     // The V1 header stores the bit masks after the header
-                    std::unique_ptr<uint8_t[]> mBuffer(new uint8_t[kBmpMaskBytes]);
+                    sk_up<uint8_t[]> mBuffer(new uint8_t[kBmpMaskBytes]);
                     if (stream->read(mBuffer.get(), kBmpMaskBytes) !=
                             kBmpMaskBytes) {
                         SkCodecPrintf("Error: unable to read bit inputMasks.\n");
@@ -514,7 +514,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
             if (codecOut) {
                 // Check that input bit masks are valid and create the masks object
-                std::unique_ptr<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
+                sk_up<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
                 if (nullptr == masks) {
                     SkCodecPrintf("Error: invalid input masks.\n");
                     return false;
@@ -580,7 +580,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
+    sk_up<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream, inIco, &codec)) {
         // codec has taken ownership of stream, so we do not need to

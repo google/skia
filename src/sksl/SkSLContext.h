@@ -148,123 +148,122 @@ public:
         return { &t, &t, &t, &t };
     }
 
-    const std::unique_ptr<Type> fInvalid_Type;
-    const std::unique_ptr<Type> fVoid_Type;
+    const sk_up<Type> fInvalid_Type;
+    const sk_up<Type> fVoid_Type;
 
-    const std::unique_ptr<Type> fDouble_Type;
-    const std::unique_ptr<Type> fDVec2_Type;
-    const std::unique_ptr<Type> fDVec3_Type;
-    const std::unique_ptr<Type> fDVec4_Type;
+    const sk_up<Type> fDouble_Type;
+    const sk_up<Type> fDVec2_Type;
+    const sk_up<Type> fDVec3_Type;
+    const sk_up<Type> fDVec4_Type;
 
-    const std::unique_ptr<Type> fFloat_Type;
-    const std::unique_ptr<Type> fVec2_Type;
-    const std::unique_ptr<Type> fVec3_Type;
-    const std::unique_ptr<Type> fVec4_Type;
+    const sk_up<Type> fFloat_Type;
+    const sk_up<Type> fVec2_Type;
+    const sk_up<Type> fVec3_Type;
+    const sk_up<Type> fVec4_Type;
 
-    const std::unique_ptr<Type> fUInt_Type;
-    const std::unique_ptr<Type> fUVec2_Type;
-    const std::unique_ptr<Type> fUVec3_Type;
-    const std::unique_ptr<Type> fUVec4_Type;
+    const sk_up<Type> fUInt_Type;
+    const sk_up<Type> fUVec2_Type;
+    const sk_up<Type> fUVec3_Type;
+    const sk_up<Type> fUVec4_Type;
 
-    const std::unique_ptr<Type> fInt_Type;
-    const std::unique_ptr<Type> fIVec2_Type;
-    const std::unique_ptr<Type> fIVec3_Type;
-    const std::unique_ptr<Type> fIVec4_Type;
+    const sk_up<Type> fInt_Type;
+    const sk_up<Type> fIVec2_Type;
+    const sk_up<Type> fIVec3_Type;
+    const sk_up<Type> fIVec4_Type;
 
-    const std::unique_ptr<Type> fBool_Type;
-    const std::unique_ptr<Type> fBVec2_Type;
-    const std::unique_ptr<Type> fBVec3_Type;
-    const std::unique_ptr<Type> fBVec4_Type;
+    const sk_up<Type> fBool_Type;
+    const sk_up<Type> fBVec2_Type;
+    const sk_up<Type> fBVec3_Type;
+    const sk_up<Type> fBVec4_Type;
 
-    const std::unique_ptr<Type> fMat2x2_Type;
-    const std::unique_ptr<Type> fMat2x3_Type;
-    const std::unique_ptr<Type> fMat2x4_Type;
-    const std::unique_ptr<Type> fMat3x2_Type;
-    const std::unique_ptr<Type> fMat3x3_Type;
-    const std::unique_ptr<Type> fMat3x4_Type;
-    const std::unique_ptr<Type> fMat4x2_Type;
-    const std::unique_ptr<Type> fMat4x3_Type;
-    const std::unique_ptr<Type> fMat4x4_Type;
+    const sk_up<Type> fMat2x2_Type;
+    const sk_up<Type> fMat2x3_Type;
+    const sk_up<Type> fMat2x4_Type;
+    const sk_up<Type> fMat3x2_Type;
+    const sk_up<Type> fMat3x3_Type;
+    const sk_up<Type> fMat3x4_Type;
+    const sk_up<Type> fMat4x2_Type;
+    const sk_up<Type> fMat4x3_Type;
+    const sk_up<Type> fMat4x4_Type;
 
-    const std::unique_ptr<Type> fDMat2x2_Type;
-    const std::unique_ptr<Type> fDMat2x3_Type;
-    const std::unique_ptr<Type> fDMat2x4_Type;
-    const std::unique_ptr<Type> fDMat3x2_Type;
-    const std::unique_ptr<Type> fDMat3x3_Type;
-    const std::unique_ptr<Type> fDMat3x4_Type;
-    const std::unique_ptr<Type> fDMat4x2_Type;
-    const std::unique_ptr<Type> fDMat4x3_Type;
-    const std::unique_ptr<Type> fDMat4x4_Type;
+    const sk_up<Type> fDMat2x2_Type;
+    const sk_up<Type> fDMat2x3_Type;
+    const sk_up<Type> fDMat2x4_Type;
+    const sk_up<Type> fDMat3x2_Type;
+    const sk_up<Type> fDMat3x3_Type;
+    const sk_up<Type> fDMat3x4_Type;
+    const sk_up<Type> fDMat4x2_Type;
+    const sk_up<Type> fDMat4x3_Type;
+    const sk_up<Type> fDMat4x4_Type;
 
-    const std::unique_ptr<Type> fSampler1D_Type;
-    const std::unique_ptr<Type> fSampler2D_Type;
-    const std::unique_ptr<Type> fSampler3D_Type;
-    const std::unique_ptr<Type> fSamplerExternalOES_Type;
-    const std::unique_ptr<Type> fSamplerCube_Type;
-    const std::unique_ptr<Type> fSampler2DRect_Type;
-    const std::unique_ptr<Type> fSampler1DArray_Type;
-    const std::unique_ptr<Type> fSampler2DArray_Type;
-    const std::unique_ptr<Type> fSamplerCubeArray_Type;
-    const std::unique_ptr<Type> fSamplerBuffer_Type;
-    const std::unique_ptr<Type> fSampler2DMS_Type;
-    const std::unique_ptr<Type> fSampler2DMSArray_Type;
-    const std::unique_ptr<Type> fSampler1DShadow_Type;
-    const std::unique_ptr<Type> fSampler2DShadow_Type;
-    const std::unique_ptr<Type> fSamplerCubeShadow_Type;
-    const std::unique_ptr<Type> fSampler2DRectShadow_Type;
-    const std::unique_ptr<Type> fSampler1DArrayShadow_Type;
-    const std::unique_ptr<Type> fSampler2DArrayShadow_Type;
-    const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
+    const sk_up<Type> fSampler1D_Type;
+    const sk_up<Type> fSampler2D_Type;
+    const sk_up<Type> fSampler3D_Type;
+    const sk_up<Type> fSamplerExternalOES_Type;
+    const sk_up<Type> fSamplerCube_Type;
+    const sk_up<Type> fSampler2DRect_Type;
+    const sk_up<Type> fSampler1DArray_Type;
+    const sk_up<Type> fSampler2DArray_Type;
+    const sk_up<Type> fSamplerCubeArray_Type;
+    const sk_up<Type> fSamplerBuffer_Type;
+    const sk_up<Type> fSampler2DMS_Type;
+    const sk_up<Type> fSampler2DMSArray_Type;
+    const sk_up<Type> fSampler1DShadow_Type;
+    const sk_up<Type> fSampler2DShadow_Type;
+    const sk_up<Type> fSamplerCubeShadow_Type;
+    const sk_up<Type> fSampler2DRectShadow_Type;
+    const sk_up<Type> fSampler1DArrayShadow_Type;
+    const sk_up<Type> fSampler2DArrayShadow_Type;
+    const sk_up<Type> fSamplerCubeArrayShadow_Type;
 
+    const sk_up<Type> fISampler2D_Type;
 
-    const std::unique_ptr<Type> fISampler2D_Type;
+    const sk_up<Type> fImage2D_Type;
+    const sk_up<Type> fIImage2D_Type;
 
-    const std::unique_ptr<Type> fImage2D_Type;
-    const std::unique_ptr<Type> fIImage2D_Type;
+    const sk_up<Type> fSubpassInput_Type;
+    const sk_up<Type> fSubpassInputMS_Type;
 
-    const std::unique_ptr<Type> fSubpassInput_Type;
-    const std::unique_ptr<Type> fSubpassInputMS_Type;
+    const sk_up<Type> fGSampler1D_Type;
+    const sk_up<Type> fGSampler2D_Type;
+    const sk_up<Type> fGSampler3D_Type;
+    const sk_up<Type> fGSamplerCube_Type;
+    const sk_up<Type> fGSampler2DRect_Type;
+    const sk_up<Type> fGSampler1DArray_Type;
+    const sk_up<Type> fGSampler2DArray_Type;
+    const sk_up<Type> fGSamplerCubeArray_Type;
+    const sk_up<Type> fGSamplerBuffer_Type;
+    const sk_up<Type> fGSampler2DMS_Type;
+    const sk_up<Type> fGSampler2DMSArray_Type;
+    const sk_up<Type> fGSampler2DArrayShadow_Type;
+    const sk_up<Type> fGSamplerCubeArrayShadow_Type;
 
-    const std::unique_ptr<Type> fGSampler1D_Type;
-    const std::unique_ptr<Type> fGSampler2D_Type;
-    const std::unique_ptr<Type> fGSampler3D_Type;
-    const std::unique_ptr<Type> fGSamplerCube_Type;
-    const std::unique_ptr<Type> fGSampler2DRect_Type;
-    const std::unique_ptr<Type> fGSampler1DArray_Type;
-    const std::unique_ptr<Type> fGSampler2DArray_Type;
-    const std::unique_ptr<Type> fGSamplerCubeArray_Type;
-    const std::unique_ptr<Type> fGSamplerBuffer_Type;
-    const std::unique_ptr<Type> fGSampler2DMS_Type;
-    const std::unique_ptr<Type> fGSampler2DMSArray_Type;
-    const std::unique_ptr<Type> fGSampler2DArrayShadow_Type;
-    const std::unique_ptr<Type> fGSamplerCubeArrayShadow_Type;
+    const sk_up<Type> fGenType_Type;
+    const sk_up<Type> fGenDType_Type;
+    const sk_up<Type> fGenIType_Type;
+    const sk_up<Type> fGenUType_Type;
+    const sk_up<Type> fGenBType_Type;
 
-    const std::unique_ptr<Type> fGenType_Type;
-    const std::unique_ptr<Type> fGenDType_Type;
-    const std::unique_ptr<Type> fGenIType_Type;
-    const std::unique_ptr<Type> fGenUType_Type;
-    const std::unique_ptr<Type> fGenBType_Type;
+    const sk_up<Type> fMat_Type;
 
-    const std::unique_ptr<Type> fMat_Type;
+    const sk_up<Type> fVec_Type;
 
-    const std::unique_ptr<Type> fVec_Type;
+    const sk_up<Type> fGVec_Type;
+    const sk_up<Type> fGVec2_Type;
+    const sk_up<Type> fGVec3_Type;
+    const sk_up<Type> fGVec4_Type;
+    const sk_up<Type> fDVec_Type;
+    const sk_up<Type> fIVec_Type;
+    const sk_up<Type> fUVec_Type;
 
-    const std::unique_ptr<Type> fGVec_Type;
-    const std::unique_ptr<Type> fGVec2_Type;
-    const std::unique_ptr<Type> fGVec3_Type;
-    const std::unique_ptr<Type> fGVec4_Type;
-    const std::unique_ptr<Type> fDVec_Type;
-    const std::unique_ptr<Type> fIVec_Type;
-    const std::unique_ptr<Type> fUVec_Type;
+    const sk_up<Type> fBVec_Type;
 
-    const std::unique_ptr<Type> fBVec_Type;
-
-    const std::unique_ptr<Type> fSkCaps_Type;
+    const sk_up<Type> fSkCaps_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it 
     // could have several different values, or the analyzer is otherwise unable to assign it a
     // specific expression)
-    const std::unique_ptr<Expression> fDefined_Expression;
+    const sk_up<Expression> fDefined_Expression;
 
 private:    
     class Defined : public Expression {

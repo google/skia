@@ -45,16 +45,16 @@ static void test_dm(skiatest::Reporter* reporter,
 }
 
 DEF_TEST(DiscardableMemory_global, reporter) {
-    std::unique_ptr<SkDiscardableMemory> dm(SkDiscardableMemory::Create(kTestStringLength));
+    sk_up<SkDiscardableMemory> dm(SkDiscardableMemory::Create(kTestStringLength));
     // lock() test is allowed to fail, since other threads could be
     // using global pool.
     test_dm(reporter, dm.get(), false);
 }
 
 DEF_TEST(DiscardableMemory_nonglobal, reporter) {
-    std::unique_ptr<SkDiscardableMemoryPool> pool(
-        SkDiscardableMemoryPool::Create(1024, /* mutex = */ nullptr));
-    std::unique_ptr<SkDiscardableMemory> dm(pool->create(kTestStringLength));
+    sk_up<SkDiscardableMemoryPool> pool(
+            SkDiscardableMemoryPool::Create(1024, /* mutex = */ nullptr));
+    sk_up<SkDiscardableMemory> dm(pool->create(kTestStringLength));
     test_dm(reporter, dm.get(), true);
 }
     

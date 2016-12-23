@@ -11,7 +11,6 @@
 #include "SkFontMgr.h"
 #include "SkFontMgr_FontConfigInterface.h"
 #include "SkFontStyle.h"
-#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkString.h"
 #include "SkTypeface.h"
@@ -32,14 +31,14 @@ SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     return fFCI->openStream(this->getIdentity());
 }
 
-std::unique_ptr<SkFontData> SkTypeface_FCI::onMakeFontData() const {
+sk_up<SkFontData> SkTypeface_FCI::onMakeFontData() const {
     if (fFontData) {
-        return skstd::make_unique<SkFontData>(*fFontData);
+        return sk_make_up<SkFontData>(*fFontData);
     }
 
     const SkFontConfigInterface::FontIdentity& id = this->getIdentity();
-    return skstd::make_unique<SkFontData>(std::unique_ptr<SkStreamAsset>(fFCI->openStream(id)),
-                                          id.fTTCIndex, nullptr, 0);
+    return sk_make_up<SkFontData>(sk_up<SkStreamAsset>(fFCI->openStream(id)), id.fTTCIndex, nullptr,
+                                  0);
 }
 
 void SkTypeface_FCI::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocalStream) const {
@@ -113,7 +112,7 @@ private:
         const char* getCategory() const override { return "request_cache"; }
         SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
-        std::unique_ptr<Request> fRequest;
+        sk_up<Request> fRequest;
         sk_sp<SkTypeface> fFace;
     };
 
@@ -202,7 +201,7 @@ protected:
     SkTypeface* onCreateFromData(SkData*, int ttcIndex) const override { return nullptr; }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        sk_up<SkStreamAsset> stream(bareStream);
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -218,13 +217,13 @@ protected:
             return nullptr;
         }
 
-        auto fontData = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto fontData = sk_make_up<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
         return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
+        sk_up<SkStreamAsset> stream(s);
         const size_t length = stream->getLength();
         if (!length) {
             return nullptr;
@@ -248,15 +247,15 @@ protected:
         SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, paramAxes, paramAxisCount, axisValues, name);
 
-        auto fontData = skstd::make_unique<SkFontData>(std::move(stream),
-                                                       params.getCollectionIndex(),
-                                                       axisValues.get(),
-                                                       axisDefinitions.count());
+        auto fontData = sk_make_up<SkFontData>(std::move(stream),
+                                               params.getCollectionIndex(),
+                                               axisValues.get(),
+                                               axisDefinitions.count());
         return SkTypeface_FCI::Create(std::move(fontData), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
+        sk_up<SkStreamAsset> stream = SkStream::MakeFromFile(path);
         return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
     }
 
@@ -267,7 +266,7 @@ protected:
 
         // Check if this request is already in the request cache.
         using Request = SkFontRequestCache::Request;
-        std::unique_ptr<Request> request(Request::Create(requestedFamilyName, requestedStyle));
+        sk_up<Request> request(Request::Create(requestedFamilyName, requestedStyle));
         SkTypeface* face = fCache.findAndRef(request.get());
         if (face) {
             return face;

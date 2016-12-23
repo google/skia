@@ -48,8 +48,8 @@ static const int kWidth = 64;
 static const int kHeight = 64;
 
 static sk_sp<SkImage> make_raster_image(SkColorType colorType, SkAlphaType alphaType) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("google_chrome.ico"));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    sk_up<SkStream> stream(GetResourceAsStream("google_chrome.ico"));
+    sk_up<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)

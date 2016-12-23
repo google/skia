@@ -17,15 +17,14 @@ namespace SkSL {
  * A variable declaration appearing as a statement within a function.
  */
 struct ASTVarDeclarationStatement : public ASTStatement {
-    ASTVarDeclarationStatement(std::unique_ptr<ASTVarDeclarations> decl)
-    : INHERITED(decl->fPosition, kVarDeclaration_Kind)
-    , fDeclarations(std::move(decl)) {}
+    ASTVarDeclarationStatement(sk_up<ASTVarDeclarations> decl)
+            : INHERITED(decl->fPosition, kVarDeclaration_Kind), fDeclarations(std::move(decl)) {}
 
     SkString description() const override {
         return fDeclarations->description() + ";";
     }
 
-    std::unique_ptr<ASTVarDeclarations> fDeclarations;
+    sk_up<ASTVarDeclarations> fDeclarations;
 
     typedef ASTStatement INHERITED;
 };

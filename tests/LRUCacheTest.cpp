@@ -27,10 +27,10 @@ DEF_TEST(LRUCacheSequential, r) {
     int instances = 0;
     {
         static const int kSize = 100;
-        SkLRUCache<int, std::unique_ptr<Value>> test(kSize);
+        SkLRUCache<int, sk_up<Value>> test(kSize);
         for (int i = 1; i < kSize * 2; i++) {
             REPORTER_ASSERT(r, !test.find(i));
-            test.insert(i, std::unique_ptr<Value>(new Value(i * i, &instances)));
+            test.insert(i, sk_up<Value>(new Value(i * i, &instances)));
             REPORTER_ASSERT(r, test.find(i));
             REPORTER_ASSERT(r, i * i == (*test.find(i))->fValue);
             if (i > kSize) {
@@ -51,11 +51,11 @@ DEF_TEST(LRUCacheRandom, r) {
         int seq[] = { 0, 1, 2, 3, 4, 1, 6, 2, 7, 5, 3, 2, 2, 3, 1, 7 };
         int expected[] = { 7, 1, 3, 2, 5 };
         static const int kSize = 5;
-        SkLRUCache<int, std::unique_ptr<Value>> test(kSize);
+        SkLRUCache<int, sk_up<Value>> test(kSize);
         for (int i = 0; i < (int) (sizeof(seq) / sizeof(int)); i++) {
             int k = seq[i];
             if (!test.find(k)) {
-                test.insert(k, std::unique_ptr<Value>(new Value(k, &instances)));
+                test.insert(k, sk_up<Value>(new Value(k, &instances)));
             }
         }
         REPORTER_ASSERT(r, kSize == instances);

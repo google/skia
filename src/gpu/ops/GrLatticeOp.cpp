@@ -31,7 +31,7 @@ public:
     static const int kIndicesPerRect = 6;
 
     NonAALatticeOp(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                   std::unique_ptr<SkLatticeIter> iter, const SkRect& dst)
+                   sk_up<SkLatticeIter> iter, const SkRect& dst)
             : INHERITED(ClassID()) {
         Patch& patch = fPatches.push_back();
         patch.fViewMatrix = viewMatrix;
@@ -162,7 +162,7 @@ private:
 
     struct Patch {
         SkMatrix fViewMatrix;
-        std::unique_ptr<SkLatticeIter> fIter;
+        sk_up<SkLatticeIter> fIter;
         SkRect fDst;
         GrColor fColor;
     };
@@ -177,7 +177,7 @@ private:
 
 namespace GrLatticeOp {
 sk_sp<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+                          int imageHeight, sk_up<SkLatticeIter> iter, const SkRect& dst) {
     return sk_sp<GrDrawOp>(
             new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
 }

@@ -138,7 +138,7 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int 
 }
 
 static void test_fontstream(skiatest::Reporter* reporter) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
+    sk_up<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
     if (!stream) {
         SkDebugf("Skipping FontHostTest::test_fontstream\n");
         return;

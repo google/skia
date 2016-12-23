@@ -305,7 +305,8 @@ public:
                           const SkMatrix& viewMatrix,
                           int imageWidth,
                           int imageHeight,
-                          std::unique_ptr<SkLatticeIter> iter,
+                          sk_up<SkLatticeIter>
+                                  iter,
                           const SkRect& dst);
 
     /**

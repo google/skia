@@ -2039,7 +2039,7 @@ void SkPaint::toString(SkString* str) const {
     if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
-        std::unique_ptr<SkStreamAsset> istream(ostream.detachAsStream());
+        sk_up<SkStreamAsset> istream(ostream.detachAsStream());
 
         SkFontDescriptor descriptor;
         if (!SkFontDescriptor::Deserialize(istream.get(), &descriptor)) {

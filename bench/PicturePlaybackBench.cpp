@@ -163,7 +163,7 @@ public:
     SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
 
     void onDelayedSetup() override {
-        std::unique_ptr<SkBBHFactory> factory;
+        sk_up<SkBBHFactory> factory;
         switch (fBBH) {
             case kNone:                                                 break;
             case kRTree:    factory.reset(new SkRTreeFactory);          break;

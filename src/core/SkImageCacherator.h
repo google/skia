@@ -97,7 +97,7 @@ private:
         friend class ScopedGenerator;
         friend class SkImageCacherator;
 
-        std::unique_ptr<SkImageGenerator> fGenerator;
+        sk_up<SkImageGenerator> fGenerator;
         SkMutex                           fMutex;
     };
     class ScopedGenerator;

@@ -614,7 +614,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
                       "offsetof, which we use below, requires the type have a standard layout");
 
-        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
+        sk_up<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
         // SkMipMap holds only the mipmap levels it generates.
         // A programmer can use the data they provided to SkMipMap::Build as level 0.
         // So the SkMipMap provides levels 1-x but it stores them in its own
@@ -680,7 +680,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
                      dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
         return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
     } else {
-        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+        sk_up<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
         for (int i = 0; i < mipLevelCount; i++) {
             texels[i].fPixels = dti->fMipMapLevelData[i].fPixelData;
             texels[i].fRowBytes = dti->fMipMapLevelData[i].fRowBytes;

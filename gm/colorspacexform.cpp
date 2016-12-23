@@ -38,8 +38,7 @@ protected:
         sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         sk_sp<SkColorSpace> dstSpace =
                 SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, wideGamut);
-        std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
-                                                                          dstSpace.get());
+        sk_up<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
 
         xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors,
                      SkColorSpaceXform::kBGRA_8888_ColorFormat, colors, kNumColors,

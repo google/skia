@@ -198,7 +198,7 @@ private:
             return nullptr;
         }
 
-        std::unique_ptr<SkBBHFactory> factory;
+        sk_up<SkBBHFactory> factory;
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary

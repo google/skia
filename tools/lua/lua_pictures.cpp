@@ -40,7 +40,7 @@ static DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 static DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
 static sk_sp<SkPicture> load_picture(const char path[]) {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
+    sk_up<SkStream> stream = SkStream::MakeFromFile(path);
     if (stream) {
         return SkPicture::MakeFromStream(stream.get());
     }
@@ -145,10 +145,9 @@ int tool_main(int argc, char** argv) {
 
             auto pic(load_picture(path));
             if (pic.get()) {
-                std::unique_ptr<SkLuaCanvas> canvas(
-                                    new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()),
-                                                    SkScalarCeilToInt(pic->cullRect().height()),
-                                                    L.get(), gAccumulateFunc));
+                sk_up<SkLuaCanvas> canvas(new SkLuaCanvas(
+                        SkScalarCeilToInt(pic->cullRect().width()),
+                        SkScalarCeilToInt(pic->cullRect().height()), L.get(), gAccumulateFunc));
 
                 call_canvas(L.get(), canvas.get(), path, gStartCanvasFunc);
                 canvas->drawPicture(pic);

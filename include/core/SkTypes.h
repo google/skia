@@ -23,15 +23,15 @@
  && ((defined(__arm__) && (defined(__ARM_NEON__) || defined(__ARM_NEON))) || defined(__aarch64__)) \
  && defined(_LIBCPP_VERSION)
     typedef float float32_t;
-    #include <memory>
 #endif
-
 #include "SkPreConfig.h"
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
+
 #include <stddef.h>
 #include <stdint.h>
-// IWYU pragma: end_exports
+#include <memory>
+    // IWYU pragma: end_exports
 
 #include <string.h>
 
@@ -491,6 +491,20 @@ template <typename Dst> Dst SkTCast(const void* ptr) {
     } data;
     data.src = ptr;
     return data.dst;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * A type alias for sk_up. This exists mostly for shortening types
+ * in signatures, but also could be used as a hook for debugging, logging, etc.
+ */
+template <typename T, typename Deleter = std::default_delete<T>>
+using sk_up = std::unique_ptr<T, Deleter>;
+
+template <typename T, typename... Args>
+sk_up<T> sk_make_up(Args&&... args) {
+    return sk_up<T>(new T(std::forward<Args>(args)...));
 }
 
 //////////////////////////////////////////////////////////////////////////////

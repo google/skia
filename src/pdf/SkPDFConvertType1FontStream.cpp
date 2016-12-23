@@ -119,9 +119,8 @@ static int8_t hexToBin(uint8_t c) {
     return -1;
 }
 
-sk_sp<SkData> SkPDFConvertType1FontStream(
-        std::unique_ptr<SkStreamAsset> srcStream, size_t* headerLen,
-        size_t* dataLen, size_t* trailerLen) {
+sk_sp<SkData> SkPDFConvertType1FontStream(sk_up<SkStreamAsset> srcStream, size_t* headerLen,
+                                          size_t* dataLen, size_t* trailerLen) {
     size_t srcLen = srcStream ? srcStream->getLength() : 0;
     SkASSERT(srcLen);
     if (!srcLen) {

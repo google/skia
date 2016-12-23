@@ -16,9 +16,8 @@
 class SkFontData {
 public:
     /** Makes a copy of the data in 'axis'. */
-    SkFontData(std::unique_ptr<SkStreamAsset> stream, int index, const SkFixed axis[],int axisCount)
-        : fStream(std::move(stream)), fIndex(index), fAxisCount(axisCount), fAxis(axisCount)
-    {
+    SkFontData(sk_up<SkStreamAsset> stream, int index, const SkFixed axis[], int axisCount)
+            : fStream(std::move(stream)), fIndex(index), fAxisCount(axisCount), fAxis(axisCount) {
         for (int i = 0; i < axisCount; ++i) {
             fAxis[i] = axis[i];
         }
@@ -34,7 +33,7 @@ public:
         }
     }
     bool hasStream() const { return fStream.get() != nullptr; }
-    std::unique_ptr<SkStreamAsset> detachStream() { return std::move(fStream); }
+    sk_up<SkStreamAsset> detachStream() { return std::move(fStream); }
     SkStreamAsset* getStream() { return fStream.get(); }
     SkStreamAsset const* getStream() const { return fStream.get(); }
     int getIndex() const { return fIndex; }
@@ -42,7 +41,7 @@ public:
     const SkFixed* getAxis() const { return fAxis.get(); }
 
 private:
-    std::unique_ptr<SkStreamAsset> fStream;
+    sk_up<SkStreamAsset> fStream;
     int fIndex;
     int fAxisCount;
     SkAutoSTMalloc<4, SkFixed> fAxis;
@@ -63,19 +62,19 @@ public:
     const char* getFullName() const { return fFullName.c_str(); }
     const char* getPostscriptName() const { return fPostscriptName.c_str(); }
     bool hasFontData() const { return fFontData.get() != nullptr; }
-    std::unique_ptr<SkFontData> detachFontData() { return std::move(fFontData); }
+    sk_up<SkFontData> detachFontData() { return std::move(fFontData); }
 
     void setFamilyName(const char* name) { fFamilyName.set(name); }
     void setFullName(const char* name) { fFullName.set(name); }
     void setPostscriptName(const char* name) { fPostscriptName.set(name); }
     /** Set the font data only if it is necessary for serialization. */
-    void setFontData(std::unique_ptr<SkFontData> data) { fFontData = std::move(data); }
+    void setFontData(sk_up<SkFontData> data) { fFontData = std::move(data); }
 
 private:
     SkString fFamilyName;
     SkString fFullName;
     SkString fPostscriptName;
-    std::unique_ptr<SkFontData> fFontData;
+    sk_up<SkFontData> fFontData;
 
     SkFontStyle fStyle;
 };

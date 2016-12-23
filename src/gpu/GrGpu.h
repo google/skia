@@ -515,7 +515,7 @@ protected:
     void didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels = 1) const;
 
     Stats                            fStats;
-    std::unique_ptr<GrPathRendering> fPathRendering;
+    sk_up<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
     sk_sp<const GrCaps>              fCaps;
 

@@ -85,7 +85,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Read the color table from the stream
         colorBytes = numColorsToRead * fBytesPerColor;
-        std::unique_ptr<uint8_t[]> cBuffer(new uint8_t[colorBytes]);
+        sk_up<uint8_t[]> cBuffer(new uint8_t[colorBytes]);
         if (stream()->read(cBuffer.get(), colorBytes) != colorBytes) {
             SkCodecPrintf("Error: unable to read color table.\n");
             return false;

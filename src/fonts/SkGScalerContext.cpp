@@ -10,7 +10,6 @@
 #include "SkGScalerContext.h"
 #include "SkGlyph.h"
 #include "SkPath.h"
-#include "SkMakeUnique.h"
 
 #define STD_SIZE    1
 
@@ -57,7 +56,7 @@ protected:
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
-    std::unique_ptr<SkScalerContext> fProxy;
+    sk_up<SkScalerContext> fProxy;
     SkMatrix         fMatrix;
 };
 

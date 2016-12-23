@@ -81,7 +81,7 @@ sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer) {
     info.setVersion(buffer.getVersion());
     info.fCullRect = bounds;
     info.fFlags = 0;    // ???
-    std::unique_ptr<SkPictureData> pictureData(SkPictureData::CreateFromBuffer(buffer, info));
+    sk_up<SkPictureData> pictureData(SkPictureData::CreateFromBuffer(buffer, info));
     if (!pictureData) {
         return nullptr;
     }

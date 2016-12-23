@@ -798,13 +798,13 @@ protected:
 private:
     const SkEncodedInfo                fEncodedInfo;
     const SkImageInfo                  fSrcInfo;
-    std::unique_ptr<SkStream>          fStream;
+    sk_up<SkStream> fStream;
     bool                               fNeedsRewind;
     const Origin                       fOrigin;
 
     SkImageInfo                        fDstInfo;
     SkCodec::Options                   fOptions;
-    std::unique_ptr<SkColorSpaceXform> fColorXform;
+    sk_up<SkColorSpaceXform> fColorXform;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;

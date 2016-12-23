@@ -64,9 +64,9 @@ public:
     bool isEqualTo(const SkDescriptor& desc) const override { return *fDesc == desc; }
 #endif
 private:
-    const std::unique_ptr<SkScalerContext> fScalerContext;
+    const sk_up<SkScalerContext> fScalerContext;
 #ifdef SK_DEBUG
-    const std::unique_ptr<SkDescriptor> fDesc;
+    const sk_up<SkDescriptor> fDesc;
 #endif
 };
 

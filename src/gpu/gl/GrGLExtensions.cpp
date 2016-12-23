@@ -9,7 +9,6 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
-#include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 

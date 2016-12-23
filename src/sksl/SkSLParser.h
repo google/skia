@@ -57,7 +57,7 @@ public:
      * the ErrorReporter; the return value may contain some declarations even when errors have
      * occurred.
      */
-    std::vector<std::unique_ptr<ASTDeclaration>> file();
+    std::vector<sk_up<ASTDeclaration>> file();
 
 private:
     /**
@@ -102,23 +102,22 @@ private:
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
 
-    std::unique_ptr<ASTDeclaration> precision();
+    sk_up<ASTDeclaration> precision();
 
-    std::unique_ptr<ASTDeclaration> directive();
+    sk_up<ASTDeclaration> directive();
 
-    std::unique_ptr<ASTDeclaration> declaration();
+    sk_up<ASTDeclaration> declaration();
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarations();
+    sk_up<ASTVarDeclarations> varDeclarations();
 
-    std::unique_ptr<ASTType> structDeclaration();
+    sk_up<ASTType> structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
+    sk_up<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
-                                                          std::unique_ptr<ASTType> type,
-                                                          SkString name);
+    sk_up<ASTVarDeclarations> varDeclarationEnd(
+            Modifiers modifiers, sk_up<ASTType> type, SkString name);
 
-    std::unique_ptr<ASTParameter> parameter();
+    sk_up<ASTParameter> parameter();
 
     int layoutInt();
    
@@ -128,67 +127,67 @@ private:
 
     Modifiers modifiersWithDefaults(int defaultFlags);
 
-    std::unique_ptr<ASTStatement> statement();
+    sk_up<ASTStatement> statement();
 
-    std::unique_ptr<ASTType> type();
+    sk_up<ASTType> type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
+    sk_up<ASTDeclaration> interfaceBlock(Modifiers mods);
 
-    std::unique_ptr<ASTIfStatement> ifStatement();
+    sk_up<ASTIfStatement> ifStatement();
 
-    std::unique_ptr<ASTDoStatement> doStatement();
+    sk_up<ASTDoStatement> doStatement();
 
-    std::unique_ptr<ASTWhileStatement> whileStatement();
+    sk_up<ASTWhileStatement> whileStatement();
 
-    std::unique_ptr<ASTForStatement> forStatement();
+    sk_up<ASTForStatement> forStatement();
 
-    std::unique_ptr<ASTReturnStatement> returnStatement();
+    sk_up<ASTReturnStatement> returnStatement();
 
-    std::unique_ptr<ASTBreakStatement> breakStatement();
+    sk_up<ASTBreakStatement> breakStatement();
 
-    std::unique_ptr<ASTContinueStatement> continueStatement();
+    sk_up<ASTContinueStatement> continueStatement();
 
-    std::unique_ptr<ASTDiscardStatement> discardStatement();
+    sk_up<ASTDiscardStatement> discardStatement();
 
-    std::unique_ptr<ASTBlock> block();
+    sk_up<ASTBlock> block();
 
-    std::unique_ptr<ASTExpressionStatement> expressionStatement();
+    sk_up<ASTExpressionStatement> expressionStatement();
 
-    std::unique_ptr<ASTExpression> expression();
+    sk_up<ASTExpression> expression();
 
-    std::unique_ptr<ASTExpression> assignmentExpression();
-   
-    std::unique_ptr<ASTExpression> ternaryExpression();
+    sk_up<ASTExpression> assignmentExpression();
 
-    std::unique_ptr<ASTExpression> logicalOrExpression();
+    sk_up<ASTExpression> ternaryExpression();
 
-    std::unique_ptr<ASTExpression> logicalXorExpression();
+    sk_up<ASTExpression> logicalOrExpression();
 
-    std::unique_ptr<ASTExpression> logicalAndExpression();
+    sk_up<ASTExpression> logicalXorExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseOrExpression();
+    sk_up<ASTExpression> logicalAndExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseXorExpression();
+    sk_up<ASTExpression> bitwiseOrExpression();
 
-    std::unique_ptr<ASTExpression> bitwiseAndExpression();
+    sk_up<ASTExpression> bitwiseXorExpression();
 
-    std::unique_ptr<ASTExpression> equalityExpression();
+    sk_up<ASTExpression> bitwiseAndExpression();
 
-    std::unique_ptr<ASTExpression> relationalExpression();
+    sk_up<ASTExpression> equalityExpression();
 
-    std::unique_ptr<ASTExpression> shiftExpression();
+    sk_up<ASTExpression> relationalExpression();
 
-    std::unique_ptr<ASTExpression> additiveExpression();
+    sk_up<ASTExpression> shiftExpression();
 
-    std::unique_ptr<ASTExpression> multiplicativeExpression();
+    sk_up<ASTExpression> additiveExpression();
 
-    std::unique_ptr<ASTExpression> unaryExpression();
+    sk_up<ASTExpression> multiplicativeExpression();
 
-    std::unique_ptr<ASTExpression> postfixExpression();
+    sk_up<ASTExpression> unaryExpression();
 
-    std::unique_ptr<ASTSuffix> suffix();
+    sk_up<ASTExpression> postfixExpression();
 
-    std::unique_ptr<ASTExpression> term();
+    sk_up<ASTSuffix> suffix();
+
+    sk_up<ASTExpression> term();
 
     bool intLiteral(int64_t* dest);
 

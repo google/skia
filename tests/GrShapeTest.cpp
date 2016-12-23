@@ -1839,8 +1839,8 @@ static void test_short_path_keys(skiatest::Reporter* r) {
 }
 
 DEF_TEST(GrShape, reporter) {
-    SkTArray<std::unique_ptr<Geo>> geos;
-    SkTArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
+    SkTArray<sk_up<Geo>> geos;
+    SkTArray<sk_up<RRectPathGeo>> rrectPathGeos;
 
     for (auto r : { SkRect::MakeWH(10, 20),
                     SkRect::MakeWH(-10, -20),

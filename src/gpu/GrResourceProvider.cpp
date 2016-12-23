@@ -135,11 +135,9 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config, int width,
-                                                             int height, int numPlotsX,
-                                                             int numPlotsY,
-                                                             GrDrawOpAtlas::EvictionFunc func,
-                                                             void* data) {
+sk_up<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config, int width, int height,
+                                                   int numPlotsX, int numPlotsY,
+                                                   GrDrawOpAtlas::EvictionFunc func, void* data) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = width;
@@ -154,8 +152,7 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig confi
     if (!texture) {
         return nullptr;
     }
-    std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(std::move(texture), numPlotsX, numPlotsY));
+    sk_up<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(std::move(texture), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }

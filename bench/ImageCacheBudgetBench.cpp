@@ -145,7 +145,7 @@ private:
     bool                        fShuffle;
     SkString                    fName;
     sk_sp<SkImage>              fImages[kImagesToDraw];
-    std::unique_ptr<int[]>      fIndices;
+    sk_up<int[]> fIndices;
     size_t                      fOldBytes;
     int                         fOldCount;
 

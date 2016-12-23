@@ -131,7 +131,7 @@ public:
     /** Return a new typeface given font data and configuration. If the data
         is not valid font data, returns nullptr.
     */
-    static sk_sp<SkTypeface> MakeFromFontData(std::unique_ptr<SkFontData>);
+    static sk_sp<SkTypeface> MakeFromFontData(sk_up<SkFontData>);
 
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
@@ -280,16 +280,16 @@ public:
     /**
      *  Return the font data, or nullptr on failure.
      */
-    std::unique_ptr<SkFontData> makeFontData() const;
+    sk_up<SkFontData> makeFontData() const;
 
     /**
      *  Return a scalercontext for the given descriptor. If this fails, then
      *  if allowFailure is true, this returns NULL, else it returns a
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
-    std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
-                                                         const SkDescriptor*,
-                                                         bool allowFailure = false) const;
+    sk_up<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
+                                               const SkDescriptor*,
+                                               bool allowFailure = false) const;
 
     /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
@@ -339,7 +339,7 @@ protected:
 
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
-    virtual std::unique_ptr<SkFontData> onMakeFontData() const;
+    virtual sk_up<SkFontData> onMakeFontData() const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 

@@ -102,7 +102,7 @@ struct FamilyData {
 
     XML_Parser fParser;                         // The expat parser doing the work, owned by caller
     SkTDArray<FontFamily*>& fFamilies;          // The array to append families, owned by caller
-    std::unique_ptr<FontFamily> fCurrentFamily; // The family being created, owned by this
+    sk_up<FontFamily> fCurrentFamily;           // The family being created, owned by this
     FontFileInfo* fCurrentFontInfo;             // The info being created, owned by fCurrentFamily
     int fVersion;                               // The version of the file parsed.
     const SkString& fBasePath;                  // The current base path.

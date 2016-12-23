@@ -126,9 +126,9 @@ private:
      */
     SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*);
 
-    std::unique_ptr<SkGifImageReader>   fReader;
-    std::unique_ptr<uint8_t[]>          fTmpBuffer;
-    std::unique_ptr<SkSwizzler>         fSwizzler;
+    sk_up<SkGifImageReader> fReader;
+    sk_up<uint8_t[]> fTmpBuffer;
+    sk_up<SkSwizzler> fSwizzler;
     sk_sp<SkColorTable>                 fCurrColorTable;
     // We may create a dummy table if there is not a Map in the input data. In
     // that case, we set this value to false, and we can skip a lot of decoding
@@ -147,7 +147,7 @@ private:
     // Updated inside haveDecodedRow when rows are decoded, unless we filled
     // the background, in which case it is set once and left alone.
     int                                 fRowsDecoded;
-    std::unique_ptr<uint32_t[]>         fXformBuffer;
+    sk_up<uint32_t[]> fXformBuffer;
     bool                                fXformOnDecode;
 
     typedef SkCodec INHERITED;

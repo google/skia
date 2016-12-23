@@ -34,7 +34,7 @@ protected:
         : INHERITED(ctx, mgr, std::move(rtp), std::move(colorSpace), surfaceProps, at, so) {}
 
 private:
-    std::unique_ptr<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;
+    sk_up<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;
 
     friend class GrDrawingManager; // for ctor
 

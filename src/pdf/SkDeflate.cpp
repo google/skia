@@ -8,7 +8,6 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkMakeUnique.h"
 
 #include "zlib.h"
 
@@ -60,10 +59,8 @@ struct SkDeflateWStream::Impl {
     z_stream fZStream;
 };
 
-SkDeflateWStream::SkDeflateWStream(SkWStream* out,
-                                   int compressionLevel,
-                                   bool gzip)
-    : fImpl(skstd::make_unique<SkDeflateWStream::Impl>()) {
+SkDeflateWStream::SkDeflateWStream(SkWStream* out, int compressionLevel, bool gzip)
+        : fImpl(sk_make_up<SkDeflateWStream::Impl>()) {
     fImpl->fOut = out;
     fImpl->fInBufferIndex = 0;
     if (!fImpl->fOut) {

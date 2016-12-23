@@ -18,15 +18,15 @@ namespace SkSL {
  * A 'for' statement.
  */
 struct ForStatement : public Statement {
-    ForStatement(Position position, std::unique_ptr<Statement> initializer, 
-                 std::unique_ptr<Expression> test, std::unique_ptr<Expression> next, 
-                 std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(position, kFor_Kind)
-    , fInitializer(std::move(initializer))
-    , fTest(std::move(test))
-    , fNext(std::move(next))
-    , fStatement(std::move(statement))
-    , fSymbols(symbols) {}
+    ForStatement(Position position, sk_up<Statement> initializer, sk_up<Expression> test,
+                 sk_up<Expression> next, sk_up<Statement> statement,
+                 std::shared_ptr<SymbolTable> symbols)
+            : INHERITED(position, kFor_Kind)
+            , fInitializer(std::move(initializer))
+            , fTest(std::move(test))
+            , fNext(std::move(next))
+            , fStatement(std::move(statement))
+            , fSymbols(symbols) {}
 
     SkString description() const override {
         SkString result("for (");
@@ -45,10 +45,10 @@ struct ForStatement : public Statement {
         return result;
     }
 
-    const std::unique_ptr<Statement> fInitializer;
-    const std::unique_ptr<Expression> fTest;
-    const std::unique_ptr<Expression> fNext;
-    const std::unique_ptr<Statement> fStatement;
+    const sk_up<Statement> fInitializer;
+    const sk_up<Expression> fTest;
+    const sk_up<Expression> fNext;
+    const sk_up<Statement> fStatement;
     const std::shared_ptr<SymbolTable> fSymbols;
 
     typedef Statement INHERITED;

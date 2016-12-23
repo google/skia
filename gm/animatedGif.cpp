@@ -33,7 +33,7 @@ namespace {
 
 class AnimatedGifGM : public skiagm::GM {
 private:
-    std::unique_ptr<SkCodec>        fCodec;
+    sk_up<SkCodec> fCodec;
     size_t                          fFrame;
     double                          fNextUpdate;
     size_t                          fTotalFrames;
@@ -117,7 +117,7 @@ private:
             return false;
         }
 
-        std::unique_ptr<SkStream> stream(GetResourceAsStream(FLAGS_animatedGif[0]));
+        sk_up<SkStream> stream(GetResourceAsStream(FLAGS_animatedGif[0]));
         if (!stream) {
             return false;
         }

@@ -16,16 +16,16 @@ namespace SkSL {
  * An expression modified by a unary operator appearing after it, such as 'i++'.
  */
 struct PostfixExpression : public Expression {
-    PostfixExpression(std::unique_ptr<Expression> operand, Token::Kind op)
-    : INHERITED(operand->fPosition, kPostfix_Kind, operand->fType)
-    , fOperand(std::move(operand))
-    , fOperator(op) {}
+    PostfixExpression(sk_up<Expression> operand, Token::Kind op)
+            : INHERITED(operand->fPosition, kPostfix_Kind, operand->fType)
+            , fOperand(std::move(operand))
+            , fOperator(op) {}
 
     virtual SkString description() const override {
         return fOperand->description() + Token::OperatorName(fOperator);
     }
 
-    const std::unique_ptr<Expression> fOperand;
+    const sk_up<Expression> fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;

@@ -279,7 +279,7 @@ private:
 
     SkTDArray<EvictionData> fEvictionCallbacks;
     // allocated array of Plots
-    std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
+    sk_up<sk_sp<Plot>[]> fPlotArray;
     // LRU list of Plots (MRU at head - LRU at tail)
     PlotList fPlotList;
 };

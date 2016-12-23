@@ -17,12 +17,12 @@ namespace SkSL {
  * A ternary expression (test ? ifTrue : ifFalse).
  */
 struct TernaryExpression : public Expression {
-    TernaryExpression(Position position, std::unique_ptr<Expression> test,
-                      std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-    : INHERITED(position, kTernary_Kind, ifTrue->fType)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {
+    TernaryExpression(Position position, sk_up<Expression> test, sk_up<Expression> ifTrue,
+                      sk_up<Expression> ifFalse)
+            : INHERITED(position, kTernary_Kind, ifTrue->fType)
+            , fTest(std::move(test))
+            , fIfTrue(std::move(ifTrue))
+            , fIfFalse(std::move(ifFalse)) {
         ASSERT(fIfTrue->fType == fIfFalse->fType);
     }
 
@@ -31,9 +31,9 @@ struct TernaryExpression : public Expression {
                fIfFalse->description() + ")";
     }
 
-    const std::unique_ptr<Expression> fTest;
-    const std::unique_ptr<Expression> fIfTrue;
-    const std::unique_ptr<Expression> fIfFalse;
+    const sk_up<Expression> fTest;
+    const sk_up<Expression> fIfTrue;
+    const sk_up<Expression> fIfFalse;
 
     typedef Expression INHERITED;
 };

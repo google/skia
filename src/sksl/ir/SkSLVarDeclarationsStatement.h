@@ -17,9 +17,8 @@ namespace SkSL {
  * One or more variable declarations appearing as a statement within a function.
  */
 struct VarDeclarationsStatement : public Statement {
-    VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
-    : INHERITED(decl->fPosition, kVarDeclarations_Kind) 
-    , fDeclaration(std::move(decl)) {}
+    VarDeclarationsStatement(sk_up<VarDeclarations> decl)
+            : INHERITED(decl->fPosition, kVarDeclarations_Kind), fDeclaration(std::move(decl)) {}
 
     SkString description() const override {
         return fDeclaration->description();

@@ -7,7 +7,6 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkMakeUnique.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
@@ -437,8 +436,7 @@ void SkPDFDict::insertString(const char key[], const SkString& value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFSharedStream::SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data)
-    : fAsset(std::move(data)) {
+SkPDFSharedStream::SkPDFSharedStream(sk_up<SkStreamAsset> data) : fAsset(std::move(data)) {
     SkASSERT(fAsset);
 }
 
@@ -454,7 +452,7 @@ void SkPDFSharedStream::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap) const {
     SkASSERT(fAsset);
-    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
+    sk_up<SkStreamAsset> dup(fAsset->duplicate());
     SkASSERT(dup && dup->hasLength());
     size_t length = dup->getLength();
     stream->writeText("<<");
@@ -475,7 +473,7 @@ void SkPDFSharedStream::emitObject(
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
     // Since emitObject is const, this function doesn't change the dictionary.
-    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
+    sk_up<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
     SkASSERT(dup);
     SkStreamCopy(&deflateWStream, dup.get());
     deflateWStream.finalize();
@@ -507,12 +505,10 @@ void SkPDFSharedStream::addResources(
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFStream:: SkPDFStream(sk_sp<SkData> data) {
-    this->setData(skstd::make_unique<SkMemoryStream>(std::move(data)));
+    this->setData(sk_make_up<SkMemoryStream>(std::move(data)));
 }
 
-SkPDFStream::SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {
-    this->setData(std::move(stream));
-}
+SkPDFStream::SkPDFStream(sk_up<SkStreamAsset> stream) { this->setData(std::move(stream)); }
 
 SkPDFStream::SkPDFStream() {}
 
@@ -533,7 +529,7 @@ void SkPDFStream::emitObject(SkWStream* stream,
     SkASSERT(fCompressedData);
     fDict.emitObject(stream, objNumMap);
     // duplicate (a cheap operation) preserves const on fCompressedData.
-    std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
+    sk_up<SkStreamAsset> dup(fCompressedData->duplicate());
     SkASSERT(dup);
     SkASSERT(dup->hasLength());
     stream->writeText(" stream\n");
@@ -541,7 +537,7 @@ void SkPDFStream::emitObject(SkWStream* stream,
     stream->writeText("\nendstream");
 }
 
-void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
+void SkPDFStream::setData(sk_up<SkStreamAsset> stream) {
     SkASSERT(!fCompressedData);  // Only call this function once.
     SkASSERT(stream);
     // Code assumes that the stream starts at the beginning.

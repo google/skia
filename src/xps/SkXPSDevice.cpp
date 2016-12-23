@@ -428,7 +428,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         fontPackageBuffer.realloc(bytesWritten);
     }
 
-    std::unique_ptr<SkMemoryStream> newStream(new SkMemoryStream());
+    sk_up<SkMemoryStream> newStream(new SkMemoryStream());
     newStream->setMemoryOwned(fontPackageBuffer.release(), bytesWritten + extra);
 
     SkTScopedComPtr<IStream> newIStream;

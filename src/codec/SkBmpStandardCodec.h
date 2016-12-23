@@ -89,8 +89,8 @@ private:
     const uint32_t              fNumColors;
     const uint32_t              fBytesPerColor;
     const uint32_t              fOffset;
-    std::unique_ptr<SkSwizzler> fSwizzler;
-    std::unique_ptr<uint8_t[]>  fSrcBuffer;
+    sk_up<SkSwizzler> fSwizzler;
+    sk_up<uint8_t[]> fSrcBuffer;
     const bool                  fIsOpaque;
     const bool                  fInIco;
     const size_t                fAndMaskRowBytes; // only used for fInIco decodes

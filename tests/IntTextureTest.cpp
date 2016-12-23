@@ -41,7 +41,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     desc.fHeight = kS;
     sk_sp<GrTexture> texture;
 
-    std::unique_ptr<int32_t[]> testData(new int32_t[kS * kS]);
+    sk_up<int32_t[]> testData(new int32_t[kS * kS]);
     for (int j = 0; j < kS; ++j) {
         for (int i = 0; i < kS; ++i) {
             uint32_t r = i - INT8_MIN;
@@ -72,10 +72,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
 
     // Test that reading to a non-integer config fails.
-    std::unique_ptr<int32_t[]> readData(new int32_t[kS * kS]);
+    sk_up<int32_t[]> readData(new int32_t[kS * kS]);
     bool success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, !success);
-    std::unique_ptr<uint16_t[]> halfData(new uint16_t[4 * kS * kS]);
+    sk_up<uint16_t[]> halfData(new uint16_t[4 * kS * kS]);
     success = texture->readPixels(0, 0, kS, kS, kRGBA_half_GrPixelConfig, halfData.get());
     REPORTER_ASSERT(reporter, !success);
 
@@ -167,7 +167,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     if (!success) {
         return;
     }
-    std::unique_ptr<int32_t[]> overwrittenTestData(new int32_t[kS * kS]);
+    sk_up<int32_t[]> overwrittenTestData(new int32_t[kS * kS]);
     memcpy(overwrittenTestData.get(), testData.get(), sizeof(int32_t) * kS * kS);
     char* dst = (char*)overwrittenTestData.get();
     char* src = (char*)(testData.get() + kS/2 * kS + kS/2);
@@ -181,8 +181,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     // Test drawing from the integer texture to a fixed point texture. To avoid any premul issues
     // we init the int texture with 0s and 1s and make alpha always be 1. We expect that 1s turn
     // into 0xffs and zeros stay zero.
-    std::unique_ptr<uint32_t[]> expectedData(new uint32_t[kS * kS]);
-    std::unique_ptr<uint32_t[]> actualData(new uint32_t[kS * kS]);
+    sk_up<uint32_t[]> expectedData(new uint32_t[kS * kS]);
+    sk_up<uint32_t[]> actualData(new uint32_t[kS * kS]);
     for (int i = 0; i < kS*kS; ++i) {
         int32_t a = 0x1;
         int32_t b = ((i & 0x1) ? 1 : 0);

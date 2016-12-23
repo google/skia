@@ -24,18 +24,17 @@ struct FieldAccess : public Expression {
         kAnonymousInterfaceBlock_OwnerKind
     };
 
-    FieldAccess(std::unique_ptr<Expression> base, int fieldIndex, 
-                OwnerKind ownerKind = kDefault_OwnerKind)
-    : INHERITED(base->fPosition, kFieldAccess_Kind, *base->fType.fields()[fieldIndex].fType)
-    , fBase(std::move(base))
-    , fFieldIndex(fieldIndex)
-    , fOwnerKind(ownerKind) {}
+    FieldAccess(sk_up<Expression> base, int fieldIndex, OwnerKind ownerKind = kDefault_OwnerKind)
+            : INHERITED(base->fPosition, kFieldAccess_Kind, *base->fType.fields()[fieldIndex].fType)
+            , fBase(std::move(base))
+            , fFieldIndex(fieldIndex)
+            , fOwnerKind(ownerKind) {}
 
     virtual SkString description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
 
-    const std::unique_ptr<Expression> fBase;
+    const sk_up<Expression> fBase;
     const int fFieldIndex;
     const OwnerKind fOwnerKind;
 

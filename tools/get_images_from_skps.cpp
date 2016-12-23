@@ -63,7 +63,7 @@ struct Sniffer : public SkPixelSerializer {
         gSeen.add(digest);
 
         sk_sp<SkData> data(SkData::MakeWithoutCopy(ptr, len));
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        sk_up<SkCodec> codec(SkCodec::NewFromData(data));
         if (!codec) {
             // FIXME: This code is currently unreachable because we create an empty generator when
             //        we fail to create a codec.
@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
 
     SkOSFile::Iter iter(inputs, "skp");
     for (SkString file; iter.next(&file); ) {
-        std::unique_ptr<SkStream> stream =
+        sk_up<SkStream> stream =
                 SkStream::MakeFromFile(SkOSPath::Join(inputs, file.c_str()).c_str());
         sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
 

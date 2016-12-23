@@ -1345,7 +1345,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*c.fArguments[0], out);
-            std::vector<std::unique_ptr<Expression>> args;
+            std::vector<sk_up<Expression>> args;
             args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
             args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
             Constructor ctor(Position(), *fContext.fVec2_Type, std::move(args));
@@ -1381,7 +1381,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, SkWStream& ou
         return this->writeIntrinsicCall(c, out);
     }
     // stores (variable, type, lvalue) pairs to extract and save after the function call is complete
-    std::vector<std::tuple<SpvId, SpvId, std::unique_ptr<LValue>>> lvalues;
+    std::vector<std::tuple<SpvId, SpvId, sk_up<LValue>>> lvalues;
     std::vector<SpvId> arguments;
     for (size_t i = 0; i < c.fArguments.size(); i++) {
         // id of temporary variable that we will use to hold this argument, or 0 if it is being
@@ -1390,7 +1390,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, SkWStream& ou
         // if we need a temporary var to store this argument, this is the value to store in the var
         SpvId tmpValueId;
         if (is_out(*c.fFunction.fParameters[i])) {
-            std::unique_ptr<LValue> lv = this->getLValue(*c.fArguments[i], out);
+            sk_up<LValue> lv = this->getLValue(*c.fArguments[i], out);
             SpvId ptr = lv->getPointer();
             if (ptr) {
                 arguments.push_back(ptr);
@@ -1772,17 +1772,15 @@ private:
     const Type& fSwizzleType;
 };
 
-std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const Expression& expr,
-                                                                          SkWStream& out) {
+sk_up<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const Expression& expr,
+                                                                SkWStream& out) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
             auto entry = fVariableMap.find(&var);
             ASSERT(entry != fVariableMap.end());
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                       *this,
-                                                                       entry->second,
-                                                                       this->getType(expr.fType)));
+            return sk_up<SPIRVCodeGenerator::LValue>(
+                    new PointerLValue(*this, entry->second, this->getType(expr.fType)));
         }
         case Expression::kIndex_Kind: // fall through
         case Expression::kFieldAccess_Kind: {
@@ -1794,10 +1792,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             for (SpvId idx : chain) {
                 this->writeWord(idx, out);
             }
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                       *this,
-                                                                       member,
-                                                                       this->getType(expr.fType)));
+            return sk_up<SPIRVCodeGenerator::LValue>(
+                    new PointerLValue(*this, member, this->getType(expr.fType)));
         }
 
         case Expression::kSwizzle_Kind: {
@@ -1815,17 +1811,11 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                        base,
                                        this->writeIntLiteral(index),
                                        out);
-                return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                       *this,
-                                                                       member,
-                                                                       this->getType(expr.fType)));
+                return sk_up<SPIRVCodeGenerator::LValue>(
+                        new PointerLValue(*this, member, this->getType(expr.fType)));
             } else {
-                return std::unique_ptr<SPIRVCodeGenerator::LValue>(new SwizzleLValue(
-                                                                              *this,
-                                                                              base,
-                                                                              swizzle.fComponents,
-                                                                              swizzle.fBase->fType,
-                                                                              expr.fType));
+                return sk_up<SPIRVCodeGenerator::LValue>(new SwizzleLValue(
+                        *this, base, swizzle.fComponents, swizzle.fBase->fType, expr.fType));
             }
         }
 
@@ -1839,10 +1829,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             this->writeInstruction(SpvOpVariable, type, result, SpvStorageClassFunction,
                                    fVariableBuffer);
             this->writeInstruction(SpvOpStore, result, this->writeExpression(expr, out), out);
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                       *this,
-                                                                       result,
-                                                                       this->getType(expr.fType)));
+            return sk_up<SPIRVCodeGenerator::LValue>(
+                    new PointerLValue(*this, result, this->getType(expr.fType)));
     }
 }
 
@@ -1995,7 +1983,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, SkWSt
 
     // "normal" operators
     const Type& resultType = b.fType;
-    std::unique_ptr<LValue> lvalue;
+    sk_up<LValue> lvalue;
     SpvId lhs;
     if (is_assignment(b.fOperator)) {
         lvalue = this->getLValue(*b.fLeft, out);
@@ -2244,12 +2232,12 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, SkW
     return result;
 }
 
-std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
+sk_up<Expression> create_literal_1(const Context& context, const Type& type) {
     if (type == *context.fInt_Type) {
-        return std::unique_ptr<Expression>(new IntLiteral(context, Position(), 1));
+        return sk_up<Expression>(new IntLiteral(context, Position(), 1));
     }
     else if (type == *context.fFloat_Type) {
-        return std::unique_ptr<Expression>(new FloatLiteral(context, Position(), 1.0));
+        return sk_up<Expression>(new FloatLiteral(context, Position(), 1.0));
     } else {
         ABORT("math is unsupported on type '%s'")
     }
@@ -2273,7 +2261,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, SkWSt
         case Token::PLUS:
             return this->writeExpression(*p.fOperand, out);
         case Token::PLUSPLUS: {
-            std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
+            sk_up<LValue> lv = this->getLValue(*p.fOperand, out);
             SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
             SpvId result = this->writeBinaryOperation(p.fType, p.fType, lv->load(out), one,
                                                       SpvOpFAdd, SpvOpIAdd, SpvOpIAdd, SpvOpUndef,
@@ -2282,7 +2270,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, SkWSt
             return result;
         }
         case Token::MINUSMINUS: {
-            std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
+            sk_up<LValue> lv = this->getLValue(*p.fOperand, out);
             SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
             SpvId result = this->writeBinaryOperation(p.fType, p.fType, lv->load(out), one,
                                                       SpvOpFSub, SpvOpISub, SpvOpISub, SpvOpUndef,
@@ -2309,7 +2297,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, SkWSt
 }
 
 SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, SkWStream& out) {
-    std::unique_ptr<LValue> lv = this->getLValue(*p.fOperand, out);
+    sk_up<LValue> lv = this->getLValue(*p.fOperand, out);
     SpvId result = lv->load(out);
     SpvId one = this->writeExpression(*create_literal_1(fContext, p.fType), out);
     switch (p.fOperator) {

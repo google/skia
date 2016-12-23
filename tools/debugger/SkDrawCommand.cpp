@@ -848,7 +848,7 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     sk_sp<SkData> encoded(SkData::MakeWithoutCopy(data, size));
     sk_sp<SkImage> image(SkImage::MakeFromEncoded(std::move(encoded), nullptr));
 
-    std::unique_ptr<SkBitmap> bitmap(new SkBitmap());
+    sk_up<SkBitmap> bitmap(new SkBitmap());
     if (nullptr != image) {
         if (!image->asLegacyBitmap(bitmap.get(), SkImage::kRW_LegacyBitmapMode)) {
             SkDebugf("image decode failed\n");
@@ -2791,8 +2791,7 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
     , fXPos(x)
     , fYPos(y)
     , fPaint(paint) {
-
-    std::unique_ptr<SkString> runsStr(new SkString);
+    sk_up<SkString> runsStr(new SkString);
     fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
     fInfo.push(SkObjectParser::ScalarToString(y, "YPOS: "));
     fInfo.push(SkObjectParser::RectToString(fBlob->bounds(), "Bounds: "));
@@ -2803,7 +2802,7 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
     SkPaint runPaint(paint);
     SkTextBlobRunIterator iter(fBlob.get());
     while (!iter.done()) {
-        std::unique_ptr<SkString> tmpStr(new SkString);
+        sk_up<SkString> tmpStr(new SkString);
         tmpStr->printf("==== Run [%d] ====", runs++);
         fInfo.push(tmpStr.release());
 

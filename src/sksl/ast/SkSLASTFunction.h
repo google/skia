@@ -19,14 +19,13 @@ namespace SkSL {
  * A function declaration or definition. The fBody field will be null for declarations. 
  */
 struct ASTFunction : public ASTDeclaration {
-    ASTFunction(Position position, std::unique_ptr<ASTType> returnType, SkString name,
-                std::vector<std::unique_ptr<ASTParameter>> parameters, 
-                std::unique_ptr<ASTBlock> body)
-    : INHERITED(position, kFunction_Kind)
-    , fReturnType(std::move(returnType))
-    , fName(std::move(name))
-    , fParameters(std::move(parameters))
-    , fBody(std::move(body)) {}
+    ASTFunction(Position position, sk_up<ASTType> returnType, SkString name,
+                std::vector<sk_up<ASTParameter>> parameters, sk_up<ASTBlock> body)
+            : INHERITED(position, kFunction_Kind)
+            , fReturnType(std::move(returnType))
+            , fName(std::move(name))
+            , fParameters(std::move(parameters))
+            , fBody(std::move(body)) {}
 
     SkString description() const override {
         SkString result = fReturnType->description() + " " + fName + "(";
@@ -44,10 +43,10 @@ struct ASTFunction : public ASTDeclaration {
         return result;        
     }
 
-    const std::unique_ptr<ASTType> fReturnType;
+    const sk_up<ASTType> fReturnType;
     const SkString fName;
-    const std::vector<std::unique_ptr<ASTParameter>> fParameters;
-    const std::unique_ptr<ASTBlock> fBody;
+    const std::vector<sk_up<ASTParameter>> fParameters;
+    const sk_up<ASTBlock> fBody;
 
     typedef ASTDeclaration INHERITED;
 };

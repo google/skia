@@ -29,7 +29,7 @@ public:
     SkStreamRewindable* duplicate() const override { return nullptr; }
 
 private:
-    std::unique_ptr<SkStream> fStream;
+    sk_up<SkStream> fStream;
     const bool                fHasLength;
     const size_t              fLength;
     // Current offset into the stream. Always >= 0.

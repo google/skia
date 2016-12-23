@@ -16,18 +16,17 @@ namespace SkSL {
  * A 'do' loop. 
  */
 struct ASTDoStatement : public ASTStatement {
-    ASTDoStatement(Position position, std::unique_ptr<ASTStatement> statement,
-                   std::unique_ptr<ASTExpression> test)
-    : INHERITED(position, kDo_Kind)
-    , fStatement(std::move(statement))
-    , fTest(std::move(test)) {}
+    ASTDoStatement(Position position, sk_up<ASTStatement> statement, sk_up<ASTExpression> test)
+            : INHERITED(position, kDo_Kind)
+            , fStatement(std::move(statement))
+            , fTest(std::move(test)) {}
 
     SkString description() const override {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }
 
-    const std::unique_ptr<ASTStatement> fStatement;
-    const std::unique_ptr<ASTExpression> fTest;
+    const sk_up<ASTStatement> fStatement;
+    const sk_up<ASTExpression> fTest;
 
     typedef ASTStatement INHERITED;
 };

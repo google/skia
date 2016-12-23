@@ -13,7 +13,7 @@ SkCanvasStack::~SkCanvasStack() {
     this->removeAll();
 }
 
-void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint& origin) {
+void SkCanvasStack::pushCanvas(sk_up<SkCanvas> canvas, const SkIPoint& origin) {
     if (canvas) {
         // compute the bounds of this canvas
         const SkIRect canvasBounds = SkIRect::MakeSize(canvas->getDeviceSize());
