@@ -16,6 +16,42 @@
       "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_5c77d140",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-24T12:18:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_39ff87f4",
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_7c728d52",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-12-24T12:18:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_39ff87f4",
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
