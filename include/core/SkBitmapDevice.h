@@ -28,6 +28,7 @@ class SkPaint;
 class SkPath;
 class SkPixelRef;
 class SkPixmap;
+class SkRasterHandleAllocator;
 class SkRRect;
 class SkSurface;
 struct SkPoint;
@@ -54,12 +55,15 @@ public:
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
      */
-    SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps);
+    SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
+                   void* externalHandle = nullptr);
 
-    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&);
+    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
+                                  SkRasterHandleAllocator* = nullptr);
 
 protected:
     bool onShouldDisableLCD(const SkPaint&) const override;
+    void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -172,6 +176,7 @@ private:
     SkImageFilterCache* getImageFilterCache() override;
 
     SkBitmap    fBitmap;
+    void*       fRasterHandle = nullptr;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 

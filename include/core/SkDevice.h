@@ -21,6 +21,7 @@ class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
 class SkMetaData;
+class SkRasterHandleAllocator;
 class SkRegion;
 class SkSpecialImage;
 class GrRenderTarget;
@@ -292,15 +293,18 @@ protected:
         CreateInfo(const SkImageInfo& info,
                    TileUsage tileUsage,
                    SkPixelGeometry geo,
-                   bool preserveLCDText)
+                   bool preserveLCDText,
+                   SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
+            , fAllocator(allocator)
         {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        SkRasterHandleAllocator* fAllocator = nullptr;
     };
 
     /**
@@ -315,8 +319,10 @@ protected:
      *  it could not call drawDevice with it (but it could call drawSprite or drawBitmap).
      */
     virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
-        return NULL;
+        return nullptr;
     }
+
+    virtual void* getRasterHandle() const { return nullptr; }
 
     // A helper function used by derived classes to log the scale factor of a bitmap or image draw.
     static void LogDrawScaleFactor(const SkMatrix&, SkFilterQuality);
