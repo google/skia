@@ -11,10 +11,14 @@ A few build configurations remain unported to GN, so you may see some `.gyp`
 files laying around left over from when we used GYP.  Don't bother looking at
 them.
 
+We test with several recent Clangs and GCC 4.8 on Linux. Windows 10, Ubuntu
+14.04, and Mac 10.12 are officially supported. 
+
 Quickstart
 ----------
 
-After gclient sync, run `fetch-gn` to make sure you have GN.
+After gclient sync, run `fetch-gn` inside the skia source directory to make sure
+you have GN.
 
     gclient sync && python bin/fetch-gn
 
@@ -44,6 +48,16 @@ Having generated your build files, run Ninja to compile and link Skia.
     ninja -C out/Clang
     ninja -C out/Cached
     ninja -C out/RTTI
+
+`ninja --help` documents other features, like targets.
+
+    ninja -C out/Clang skia
+
+(re)computes enough to create a static library. You can run
+
+    ninja -C out/Clang -t targets
+
+for a list, which comes from the `gn/BUILD.gn` file.
 
 Android
 -------
