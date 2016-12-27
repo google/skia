@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_07e5061f",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-12-27T18:05:37Z",
+      "side": 1,
+      "message": "Is this how we expect an external client to do this?",
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
