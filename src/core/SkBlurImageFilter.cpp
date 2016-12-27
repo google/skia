@@ -11,6 +11,7 @@
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
+#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -110,6 +111,25 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
     }
 }
 
+#if SK_SUPPORT_GPU
+// Return a copy of 'src' transformed to the output's color space
+static sk_sp<SkSpecialImage> image_to_color_space(SkSpecialImage* src,
+                                                  const SkImageFilter::OutputProperties& outProps) {
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(
+        outProps, SkISize::Make(src->width(), src->height())));
+    if (!surf) {
+        return sk_ref_sp(src);
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    src->draw(canvas, 0, 0, nullptr);
+
+    return surf->makeImageSnapshot();
+}
+#endif
+
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
                                                            SkIPoint* offset) const {
@@ -136,6 +156,16 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         GrContext* context = source->getContext();
+
+        // If the input is not yet in the destination color space, do an explicit conversion.
+        // This is extremely unlikely (or impossible?). Typically, applyCropRect will have called
+        // pad_image to account for our dilation of bounds, so the result will already be moved to
+        // the destination color space. If a filter DAG avoids that, then we use this fall-back,
+        // which saves us from having to do the xform during the filter itself.
+        if (input->getColorSpace() != ctx.outputProperties().colorSpace()) {
+            input = image_to_color_space(input.get(), ctx.outputProperties());
+        }
+
         sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
         if (!inputTexture) {
             return nullptr;
@@ -152,13 +182,10 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         offset->fY = dstBounds.fTop;
         inputBounds.offset(-inputOffset);
         dstBounds.offset(-inputOffset);
-        // We intentionally use the source's color space, not the destination's (from ctx). We
-        // always blur in the source's config, so we need a compatible color space. We also want to
-        // avoid doing gamut conversion on every fetch of the texture.
         sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                                                                 context,
                                                                 inputTexture.get(),
-                                                                sk_ref_sp(source->getColorSpace()),
+                                                                sk_ref_sp(input->getColorSpace()),
                                                                 dstBounds,
                                                                 &inputBounds,
                                                                 sigma.x(),
@@ -167,11 +194,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
             return nullptr;
         }
 
-        // TODO: Get the colorSpace from the renderTargetContext (once it has one)
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
                                            renderTargetContext->asTexture(),
-                                           sk_ref_sp(input->getColorSpace()), &source->props());
+                                           sk_ref_sp(renderTargetContext->getColorSpace()),
+                                           &source->props());
     }
 #endif
 
