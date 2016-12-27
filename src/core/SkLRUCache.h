@@ -17,6 +17,17 @@
  */
 template <typename K, typename V, typename HashK = SkGoodHash>
 class SkLRUCache : public SkNoncopyable {
+    struct Entry {
+        Entry(const K& key, V&& value)
+        : fKey(key)
+        , fValue(std::move(value)) {}
+
+        K fKey;
+        V fValue;
+
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
+    };
+
 public:
     explicit SkLRUCache(int maxCount)
     : fMaxCount(maxCount) {}
@@ -57,18 +68,46 @@ public:
         return fMap.count();
     }
 
-private:
-    struct Entry {
-        Entry(const K& key, V&& value)
-        : fKey(key)
-        , fValue(std::move(value)) {}
+    class Iter {
+    public:
+        V* get() {
+            Entry* entry = fBaseIter.get();
+            if (entry) {
+                return &entry->fValue;
+            }
+            return nullptr;
+        }
 
-        K fKey;
-        V fValue;
+        V* next() {
+            Entry* entry = fBaseIter.next();
+            if (entry) {
+                return &entry->fValue;
+            }
+            return nullptr;
+        }
 
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
+    private:
+        Iter(typename SkTInternalLList<Entry>::Iter baseIter)
+        : fBaseIter(baseIter) {}
+
+        typename SkTInternalLList<Entry>::Iter fBaseIter;
+
+        friend class SkLRUCache;
     };
 
+    Iter entries() {
+        typename SkTInternalLList<Entry>::Iter baseIter;
+        baseIter.init(fLRU, SkTInternalLList<Entry>::Iter::kHead_IterStart);
+        return Iter(baseIter);
+    }
+
+    void reset() {
+        while (this->count()) {
+            this->remove(fLRU.head()->fKey);
+        }
+    }
+
+private:
     struct Traits {
         static const K& GetKey(Entry* e) {
             return e->fKey;
@@ -92,6 +131,8 @@ private:
     int                             fMaxCount;
     SkTHashTable<Entry*, K, Traits> fMap;
     SkTInternalLList<Entry>         fLRU;
+
+    friend class Iter;
 };
 
 #endif
