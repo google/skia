@@ -120,7 +120,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 <a name="tree_closers"></a>
 ### Compile bot failures automatically close the tree
 
-A failure of the build steps in all compile bots automatically closes the tree. Sheriffs will have to manually reopen the tree manually when they deem the problem fixed.
+A failure of the build steps in all compile bots automatically closes the tree. Sheriffs will have to manually reopen the tree when they deem the problem fixed.
 
 Note: The tree is not closed automatically if the last run of the failed compile builder had the same failing step. The tree is also not closed if the tree was automatically closed less than 10 mins ago. If the tree is already closed then no action is taken.
 
@@ -149,7 +149,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
   * Description:
       * DEPS roll #,
       * Helpful message about what went wrong (e.g., “Changes to how lighting is scaled in Skia r#### changed the following images:”)
-      * Layout tests effected
+      * Layout tests affected
       * You should copy the list of affected from stdio of the failing bot
   * Status: Assigned
   * Owner: yourself
