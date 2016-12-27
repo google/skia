@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_074fc683",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-27T16:14:06Z",
+      "side": 1,
+      "message": "To see this in action, check out: https://www.desmos.com/calculator/k6yagr6cpl\n\nThat has adjustable sliders for gain and bias (normalized to [0,1]). It also has plots of the resulting sRGB values when applying the gain/bias in legacy and our newer color-correct modes.",
+      "revId": "f49b14de29729e1359e9ad4de9a016f506e80cd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
