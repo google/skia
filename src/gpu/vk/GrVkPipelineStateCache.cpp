@@ -22,25 +22,22 @@ static const bool c_DisplayVkPipelineCache{false};
 #endif
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {
+    Entry(GrVkGpu* gpu, sk_sp<GrVkPipelineState> pipelineState)
+    : fGpu(gpu)
+    , fPipelineState(pipelineState) {}
 
-    Entry() : fPipelineState(nullptr) {}
-
-    static const GrVkPipelineState::Desc& GetKey(const Entry* entry) {
-        return entry->fPipelineState->getDesc();
+    ~Entry() {
+        if (fPipelineState) {
+            fPipelineState->freeGPUResources(fGpu);
+        }
     }
 
-    static uint32_t Hash(const GrVkPipelineState::Desc& key) {
-        return key.getChecksum();
-    }
-
+    GrVkGpu* fGpu;
     sk_sp<GrVkPipelineState> fPipelineState;
-
-private:
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 };
 
 GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
-    : fCount(0)
+    : fMap(kMaxEntries)
     , fGpu(gpu)
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     , fTotalRequests(0)
@@ -49,7 +46,7 @@ GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
 {}
 
 GrVkResourceProvider::PipelineStateCache::~PipelineStateCache() {
-    SkASSERT(0 == fCount);
+    SkASSERT(0 == fMap.count());
     // dump stats
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     if (c_DisplayVkPipelineCache) {
@@ -64,30 +61,16 @@ GrVkResourceProvider::PipelineStateCache::~PipelineStateCache() {
 #endif
 }
 
-void GrVkResourceProvider::PipelineStateCache::reset() {
-    fHashTable.foreach([](Entry** entry) {
-        delete *entry;
-    });
-    fHashTable.reset();
-    fCount = 0;
-}
-
 void GrVkResourceProvider::PipelineStateCache::abandon() {
-    fHashTable.foreach([](Entry** entry) {
-        SkASSERT((*entry)->fPipelineState.get());
-        (*entry)->fPipelineState->abandonGPUResources();
+    fMap.foreach([](std::unique_ptr<Entry>* e) {
+        (*e)->fPipelineState->abandonGPUResources();
+        (*e)->fPipelineState = nullptr;
     });
-
-    this->reset();
+    fMap.reset();
 }
 
 void GrVkResourceProvider::PipelineStateCache::release() {
-    fHashTable.foreach([this](Entry** entry) {
-        SkASSERT((*entry)->fPipelineState.get());
-        (*entry)->fPipelineState->freeGPUResources(fGpu);
-    });
-
-    this->reset();
+    fMap.reset();
 }
 
 sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineState(
@@ -116,11 +99,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
     }
     desc.finalize();
 
-    Entry* entry = nullptr;
-    if (Entry** entryptr = fHashTable.find(desc)) {
-        SkASSERT(*entryptr);
-        entry = *entryptr;
-    }
+    std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
@@ -136,23 +115,9 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
         if (nullptr == pipelineState) {
             return nullptr;
         }
-        if (fCount < kMaxEntries) {
-            entry = new Entry;
-            fCount++;
-        } else {
-            SkASSERT(fCount == kMaxEntries);
-            entry = fLRUList.head();
-            fLRUList.remove(entry);
-            entry->fPipelineState->freeGPUResources(fGpu);
-            fHashTable.remove(entry->fPipelineState->getDesc());
-        }
-        entry->fPipelineState = std::move(pipelineState);
-        fHashTable.set(entry);
-        fLRUList.addToTail(entry);
-        return entry->fPipelineState;
-    } else {
-        fLRUList.remove(entry);
-        fLRUList.addToTail(entry);
+        entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu,
+                                                                   std::move(pipelineState))));
+        return (*entry)->fPipelineState;
     }
-    return entry->fPipelineState;
+    return (*entry)->fPipelineState;
 }
