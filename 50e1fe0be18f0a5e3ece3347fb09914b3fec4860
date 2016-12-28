@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_c263fcc3",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-28T17:42:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_8222a4b9",
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_02be9460",
         "filename": "src/core/SkLRUCache.h",
         "patchSetId": 1
@@ -36,6 +54,24 @@
       "writtenOn": "2016-12-28T05:04:10Z",
       "side": 1,
       "message": "Can you replace this with a foreach() method?  It\u0027s tricky to maintain iterator types and their invariants.  With a foreach() function taking a callback, you control the scope.",
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_a26080b8",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-28T17:42:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_02be9460",
       "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
         "endLine": 106,
         "endChar": 44
       },
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_4279ac6c",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-28T17:42:14Z",
+      "side": 1,
+      "message": "Didn\u0027t end up using a foreach, but it\u0027ll be more efficient now.",
+      "parentUuid": "d760061e_c22bfc92",
       "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -99,6 +153,24 @@
         "endLine": 32,
         "endChar": 9
       },
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_a289a048",
+        "filename": "src/gpu/vk/GrVkPipelineStateCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-12-28T17:42:14Z",
+      "side": 1,
+      "message": "The current GrVkPipelineStateCache implementation manually calls freeGPUResources when throwing elements away due to being over capacity.\n\nSwitching over to SkLRUCache means we will simply let the cache call the destructor on elements being purged from the cache when it goes over capacity, so the destructor needs to call freeGPUResources. I don\u0027t think I can do things the way you\u0027re suggesting and still properly clean up elements during automatic purges.",
+      "parentUuid": "d760061e_a2288097",
       "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
