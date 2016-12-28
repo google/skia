@@ -12,6 +12,7 @@ if (!defined(is_skia_standalone)) {
 
 declare_args() {
   skia_use_angle = false
+  skia_use_discrete_gpu = true
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -147,6 +148,9 @@ config("skia_private") {
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
+  }
+  if (skia_use_discrete_gpu) {
+    defines += [ "SK_USE_DISCRETE_GPU" ]
   }
 }
 
