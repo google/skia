@@ -393,7 +393,7 @@ func swarmDimensions(parts map[string]string) []string {
 				"GalaxyTab3":    {"goyawifi", "JDQ39"},
 				"NVIDIA_Shield": {"foster", "MRA58K"},
 				"Nexus10":       {"manta", "LMY49J"},
-				"Nexus5":        {"hammerhead", "MOB31E"},
+				"Nexus5":        {"hammerhead", "M4B30Z"},
 				"Nexus6":        {"shamu", "M"},
 				"Nexus6p":       {"angler", "NMF26C"},
 				"Nexus7":        {"grouper", "LMY47V"},
