@@ -16,6 +16,24 @@
       "revId": "29437eb5c782ff49b9c2a23ef5dd4a54e9e45c44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_e2e9d839",
+        "filename": "src/effects/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-28T14:08:20Z",
+      "side": 1,
+      "message": "Yup. And I may be needing it in a third place, so yes - I\u0027ll move it to SkImageFilter, I think.",
+      "parentUuid": "d760061e_821624c0",
+      "revId": "29437eb5c782ff49b9c2a23ef5dd4a54e9e45c44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
