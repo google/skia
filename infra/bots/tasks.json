@@ -4139,7 +4139,7 @@
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
-        "device_os:MOB31E",
+        "device_os:M4B30Z",
         "device_type:hammerhead",
         "os:Android",
         "pool:Skia"
@@ -4188,7 +4188,7 @@
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
-        "device_os:MOB31E",
+        "device_os:M4B30Z",
         "device_type:hammerhead",
         "os:Android",
         "pool:Skia"
@@ -8505,7 +8505,7 @@
         "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
-        "device_os:MOB31E",
+        "device_os:M4B30Z",
         "device_type:hammerhead",
         "os:Android",
         "pool:Skia"
@@ -8554,7 +8554,7 @@
         "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
-        "device_os:MOB31E",
+        "device_os:M4B30Z",
         "device_type:hammerhead",
         "os:Android",
         "pool:Skia"
