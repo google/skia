@@ -39,7 +39,11 @@ static FILE* ios_open_from_bundle(const char path[], const char* perm) {
     
     // Convert the string reference into a C string
     const char *finalPath = CFStringGetCStringPtr(imagePath, encodingMethod);
-   
+
+    CFRelease(pathRef);
+    CFRelease(imageURL);
+    CFRelease(imagePath);
+
     return fopen(finalPath, perm);
 }
 #endif
