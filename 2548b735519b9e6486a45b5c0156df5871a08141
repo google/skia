@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_62a4a8ee",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T16:02:37Z",
+      "side": 1,
+      "message": "We\u0027ve typically kept skia_use_foo to mean, build Skia against the optional third-party code foo, and skia_enable_foo to mean, build Skia with the optional Skia feature foo enabled.\n\nThis one seems more enable than use, sort of like skia_enable_vulkan_debug_layers?",
+      "revId": "2548b735519b9e6486a45b5c0156df5871a08141",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_a2b52018",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T16:02:37Z",
+      "side": 1,
+      "message": "If all you need to do is define this, it may be simpler to just do it with extra_cflags?",
+      "revId": "2548b735519b9e6486a45b5c0156df5871a08141",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
