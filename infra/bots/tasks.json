@@ -4727,7 +4727,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:sailfish",
         "os:Android",
         "pool:Skia"
@@ -4776,7 +4776,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:sailfish",
         "os:Android",
         "pool:Skia"
@@ -4825,7 +4825,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:sailfish",
         "os:Android",
         "pool:Skia"
@@ -4874,7 +4874,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:sailfish",
         "os:Android",
         "pool:Skia"
@@ -9191,7 +9191,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -9240,7 +9240,7 @@
         "Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -9289,7 +9289,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -9338,7 +9338,7 @@
         "Build-Ubuntu-Clang-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
-        "device_os:NMF25",
+        "device_os:NMF26Q",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
