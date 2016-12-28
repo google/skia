@@ -24,6 +24,20 @@
 #include "gl/GrGLGpu.h"
 #include "GrCaps.h"
 
+#if defined(SK_BUILD_FOR_WIN32) && defined(SK_ENABLE_DISCRETE_GPU)
+extern "C" {
+    // NVIDIA documents that the presence and value of this symbol programmatically enable the high
+    // performance GPU in laptops with switchable graphics.
+    //   https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
+    // From testing, including this symbol, even if it is set to 0, we still get the NVIDIA GPU.
+    _declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+
+    // AMD has a similar mechanism, although I don't have an AMD laptop, so this is untested.
+    //   https://community.amd.com/thread/169965
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 namespace sk_gpu_test {
 GrContextFactory::GrContextFactory() { }
 

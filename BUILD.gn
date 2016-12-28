@@ -26,6 +26,7 @@ declare_args() {
   skia_use_zlib = true
 
   skia_enable_android_framework_defines = false
+  skia_enable_discrete_gpu = true
   skia_enable_gpu = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
@@ -147,6 +148,9 @@ config("skia_private") {
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
+  }
+  if (skia_enable_discrete_gpu) {
+    defines += [ "SK_ENABLE_DISCRETE_GPU" ]
   }
 }
 
