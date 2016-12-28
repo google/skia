@@ -46,8 +46,8 @@ public:
 
     const char* name() const override { return "PolyBoundsOp"; }
 
-    static sk_sp<GrDrawOp> Make(const SkRect& rect, GrColor color) {
-        return sk_sp<GrDrawOp>(new PolyBoundsOp(rect, color));
+    static std::unique_ptr<GrDrawOp> Make(const SkRect& rect, GrColor color) {
+        return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(rect, color));
     }
 
 private:
@@ -185,7 +185,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
 
                 renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                   std::move(op));
@@ -225,7 +225,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
 
                 renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
                                                                   std::move(op));

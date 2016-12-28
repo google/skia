@@ -19,8 +19,9 @@ class GrClearStencilClipOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt) {
-        return sk_sp<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, rt));
+    static std::unique_ptr<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask,
+                                      GrRenderTarget* rt) {
+        return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, rt));
     }
 
     const char* name() const override { return "ClearStencilClip"; }

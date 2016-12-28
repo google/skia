@@ -19,9 +19,9 @@ class SkStrokeRec;
 
 namespace GrShadowRRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
-                     const SkScalar blurRadius, const SkStrokeRec& stroke,
-                     const GrShaderCaps* shaderCaps);
+std::unique_ptr<GrDrawOp> Make(GrColor, const SkMatrix& viewMatrix, const SkRRect& rrect,
+                               const SkScalar blurRadius, const SkStrokeRec& stroke,
+                               const GrShaderCaps* shaderCaps);
 }
 
 #endif

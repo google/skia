@@ -17,17 +17,17 @@ struct SkRect;
 
 namespace GrNonAAFillRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect,
-                     const SkRect* localRect,
-                     const SkMatrix* localMatrix);
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const SkRect* localRect,
+                               const SkMatrix* localMatrix);
 
-sk_sp<GrDrawOp> MakeWithPerspective(GrColor color,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRect& rect,
-                                    const SkRect* localRect,
-                                    const SkMatrix* localMatrix);
+std::unique_ptr<GrDrawOp> MakeWithPerspective(GrColor color,
+                                              const SkMatrix& viewMatrix,
+                                              const SkRect& rect,
+                                              const SkRect* localRect,
+                                              const SkMatrix* localMatrix);
 };
 
 #endif

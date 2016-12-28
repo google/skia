@@ -264,7 +264,8 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     sk_sp<GrDrawOp> op) {
+                                     std::unique_ptr<GrDrawOp>
+                                             op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
@@ -384,14 +385,14 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
         return;
     }
 
-    sk_sp<GrOp> op = GrStencilPathOp::Make(viewMatrix,
-                                           useHWAA,
-                                           path->getFillType(),
-                                           appliedClip.hasStencilClip(),
-                                           stencilAttachment->bits(),
-                                           appliedClip.scissorState(),
-                                           renderTargetContext->accessRenderTarget(),
-                                           path);
+    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
+                                                     useHWAA,
+                                                     path->getFillType(),
+                                                     appliedClip.hasStencilClip(),
+                                                     stencilAttachment->bits(),
+                                                     appliedClip.scissorState(),
+                                                     renderTargetContext->accessRenderTarget(),
+                                                     path);
     this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
 }
 
@@ -408,7 +409,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTargetContext* renderTargetContext,
         fLastFullClearOp->setColor(color);
         return;
     }
-    sk_sp<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, renderTarget));
+    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, renderTarget));
     if (GrOp* clearOp = this->recordOp(std::move(op), renderTargetContext)) {
         // This is either the clear op we just created or another one that it combined with.
         fLastFullClearOp = static_cast<GrClearOp*>(clearOp);
@@ -431,7 +432,7 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    sk_sp<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -460,7 +461,8 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-GrOp* GrRenderTargetOpList::recordOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext,
+GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
+                                     GrRenderTargetContext* renderTargetContext,
                                      const SkRect& clippedBounds) {
     // TODO: Should be proxy ID.
     GrGpuResource::UniqueID renderTargetID =
