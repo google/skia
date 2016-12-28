@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d760061e_0220545d",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-28T17:32:23Z",
+      "side": 1,
+      "message": "What if instead you use...?\n\nfBitmap.setInfo(\u003cget info from canvas\u003e)\nfBitmap.allocPixels()",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 41
+      },
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_07e5061f",
         "filename": "gm/matrixconvolution.cpp",
         "patchSetId": 4
@@ -31,6 +54,47 @@
       "side": 1,
       "message": "I\u0027m not sure, honestly. This is the fastest (zero copy) way to achieve this result. There are slower methods that are less fiddly at the API level (memcpy of .pixels()). It\u0027s also not clear that clients should be doing this, at all. In an ideal world, the original bitmap would be sRGB, but that produces values that make PDF unhappy, and it alters the GM output in legacy configs like 8888. Most clients are doing something simpler like saveLayer when they want to apply a filter like this to a collection of content, and never encounter this idiom. (The saveLayer approach will adopt the color space of the original canvas, so it does the right thing in all cases).",
       "parentUuid": "d760061e_07e5061f",
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_a2124018",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-28T17:32:23Z",
+      "side": 1,
+      "message": "My two cents is...\n(1) Changing the image decode behavior (and therefore GM output) for the 8888 config is fine.\n(2) This is purely a workaround for pdf.",
+      "parentUuid": "d760061e_47509eee",
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_42224c6e",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-28T17:32:23Z",
+      "side": 1,
+      "message": "nit: spelling?",
+      "range": {
+        "startLine": 70,
+        "startChar": 64,
+        "endLine": 70,
+        "endChar": 80
+      },
       "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
