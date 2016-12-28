@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_02be9460",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T05:04:10Z",
+      "side": 1,
+      "message": "Can you replace this with a foreach() method?  It\u0027s tricky to maintain iterator types and their invariants.  With a foreach() function taking a callback, you control the scope.",
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_a2b0808e",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T05:04:10Z",
+      "side": 1,
+      "message": "Should be you never need this.  Nested classes are friends of their parents.",
+      "revId": "50e1fe0be18f0a5e3ece3347fb09914b3fec4860",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
