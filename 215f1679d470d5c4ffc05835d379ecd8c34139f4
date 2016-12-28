@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_a25a4037",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T15:20:25Z",
+      "side": 1,
+      "message": "This seems like the sort of thing that\u0027ll get out of date really easily.  Further, I don\u0027t think I\u0027m willing to commit us to officially supporting any platform.  How about we write something like this instead?\n\nYou can visit [Skia Status](https://status.skia.org/?filter\u003dall) to see our continuous builds.",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_c25dbc33",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T15:20:25Z",
+      "side": 1,
+      "message": "How about we update these to be \"ninja -C out/Something skia\" instead of writing as a separate note?",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_e26438fc",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T15:20:25Z",
+      "side": 1,
+      "message": "No, this list comes from BUILD.gn at the top level.",
+      "range": {
+        "startLine": 60,
+        "startChar": 34,
+        "endLine": 60,
+        "endChar": 45
+      },
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_828d8488",
+        "filename": "site/user/download.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T15:20:25Z",
+      "side": 1,
+      "message": "Please undo these whitespace and prettify changes.",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_c2865c69",
+        "filename": "site/user/download.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-28T15:20:25Z",
+      "side": 1,
+      "message": "Might replace \"and invoked by\" with \"as\".",
+      "range": {
+        "startLine": 19,
+        "startChar": 71,
+        "endLine": 20,
+        "endChar": 10
+      },
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
