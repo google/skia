@@ -19,7 +19,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
     Create a new sk_picture_recorder_t.  Its resources should be
     released with a call to sk_picture_recorder_delete().
 */
-sk_picture_recorder_t* sk_picture_recorder_new();
+sk_picture_recorder_t* sk_picture_recorder_new(void);
 /**
     Release the memory and other resources used by this
     sk_picture_recorder_t.

@@ -19,7 +19,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
     Returns a new empty sk_data_t.  This call must be balanced with a call to
     sk_data_unref().
 */
-SK_API sk_data_t* sk_data_new_empty();
+SK_API sk_data_t* sk_data_new_empty(void);
 /**
     Returns a new sk_data_t by copying the specified source data.
     This call must be balanced with a call to sk_data_unref().
