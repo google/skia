@@ -8,6 +8,7 @@
 #include "SkImageFilter.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkFuzzLogging.h"
 #include "SkImageFilterCache.h"
 #include "SkLocalMatrixImageFilter.h"
@@ -343,6 +344,35 @@ bool SkImageFilter::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
     // at the full crop rect size in every tile.
     return dstBounds->intersect(ctx.clipBounds());
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
+                                                       const OutputProperties& outProps) {
+    // There are several conditions that determine if we actually need to convert the source to the
+    // destination's color space. Rather than duplicate that logic here, just try to make an xform
+    // object. If that produces something, then both are tagged, and the source is in a different
+    // gamut than the dest. There is some overhead to making the xform, but those are cached, and
+    // if we get one back, that means we're about to use it during the conversion anyway.
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),
+                                                                       outProps.colorSpace());
+
+    if (!colorSpaceXform) {
+        // No xform needed, just return the original image
+        return sk_ref_sp(src);
+    }
+
+    sk_sp<SkSpecialSurface> surf(src->makeSurface(outProps,
+                                                  SkISize::Make(src->width(), src->height())));
+    if (!surf) {
+        return sk_ref_sp(src);
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+    src->draw(canvas, 0, 0, nullptr);
+    return surf->makeImageSnapshot();
+}
+#endif
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
