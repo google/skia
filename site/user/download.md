@@ -3,12 +3,12 @@ How to download Skia
 
 Install depot_tools and Git
 ---------------------------
+	
+<!--?prettify lang=sh?-->
 
 Follow the instructions on [Installing Chromium's
 depot_tools](http://www.chromium.org/developers/how-tos/install-depot-tools)
 to download depot_tools (which includes gclient, git-cl, and Ninja).
-
-<!--?prettify lang=sh?-->
 
     git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
     export PATH="${PWD}/depot_tools:${PATH}"
@@ -16,9 +16,12 @@ to download depot_tools (which includes gclient, git-cl, and Ninja).
 depot_tools will also install Git on your system, if it wasn't installed
 already.
 
+depot_tools and Skia's build system require that Python 2 is available and
+invoked by the `python` command.
+
 Clone the Skia repository
 -------------------------
-
+	
 <!--?prettify lang=sh?-->
 
     mkdir $SRC
