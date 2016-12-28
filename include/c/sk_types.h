@@ -81,7 +81,7 @@ typedef enum {
 /**
     Return the default sk_colortype_t; this is operating-system dependent.
 */
-SK_API sk_colortype_t sk_colortype_get_default_8888();
+SK_API sk_colortype_t sk_colortype_get_default_8888(void);
 
 typedef struct {
     int32_t         width;
