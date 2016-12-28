@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_22cbd064",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-28T18:15:57Z",
+      "side": 1,
+      "message": "I could do that. It still requires a fallback, because the image info from the canvas is invalid when using a recording canvas. Actually, I think Rob added a helper to encapsulate this behavior, so let me investigate that.",
+      "parentUuid": "d760061e_0220545d",
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_07e5061f",
         "filename": "gm/matrixconvolution.cpp",
         "patchSetId": 4
@@ -95,6 +113,24 @@
         "endLine": 70,
         "endChar": 80
       },
+      "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_82d0e40d",
+        "filename": "gm/matrixconvolution.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-28T18:15:57Z",
+      "side": 1,
+      "message": "This is the SVG element name: https://www.w3.org/TR/SVG/filters.html#feConvolveMatrixElement",
+      "parentUuid": "d760061e_42224c6e",
       "revId": "878df6dd03d1e5b8c018f803eff5b4736af399f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
