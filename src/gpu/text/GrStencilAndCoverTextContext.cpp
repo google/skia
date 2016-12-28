@@ -633,10 +633,10 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
                                               renderTargetContext->height());
 
-        sk_sp<GrDrawOp> op = GrDrawPathRangeOp::Make(viewMatrix, fTextRatio, fTextInverseRatio * x,
-                                                     fTextInverseRatio * y, grPaint.getColor(),
-                                                     GrPathRendering::kWinding_FillType,
-                                                     glyphs.get(), fInstanceData.get(), bounds);
+        std::unique_ptr<GrDrawOp> op = GrDrawPathRangeOp::Make(
+                viewMatrix, fTextRatio, fTextInverseRatio * x, fTextInverseRatio * y,
+                grPaint.getColor(), GrPathRendering::kWinding_FillType, glyphs.get(),
+                fInstanceData.get(), bounds);
 
         // The run's "font" overrides the anti-aliasing of the passed in SkPaint!
         GrAAType aaType = GrAAType::kNone;

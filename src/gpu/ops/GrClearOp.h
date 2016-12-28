@@ -19,17 +19,18 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrClearOp> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
-        sk_sp<GrClearOp> op(new GrClearOp(clip, color, rt));
+    static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
+                                           GrRenderTarget* rt) {
+        std::unique_ptr<GrClearOp> op(new GrClearOp(clip, color, rt));
         if (!op->fRenderTarget) {
             return nullptr; // The clip did not contain any pixels within the render target.
         }
         return op;
     }
 
-    static sk_sp<GrClearOp> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt,
-                                    bool fullScreen) {
-        return sk_sp<GrClearOp>(new GrClearOp(rect, color, rt, fullScreen));
+    static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color, GrRenderTarget* rt,
+                                           bool fullScreen) {
+        return std::unique_ptr<GrClearOp>(new GrClearOp(rect, color, rt, fullScreen));
     }
 
     const char* name() const override { return "Clear"; }

@@ -22,14 +22,14 @@ class GrDrawVerticesOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
-                                const SkMatrix& viewMatrix, const SkPoint* positions,
-                                int vertexCount, const uint16_t* indices, int indexCount,
-                                const GrColor* colors, const SkPoint* localCoords,
-                                const SkRect& bounds) {
-        return sk_sp<GrDrawOp>(new GrDrawVerticesOp(color, primitiveType, viewMatrix, positions,
-                                                    vertexCount, indices, indexCount, colors,
-                                                    localCoords, bounds));
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
+                                          const SkMatrix& viewMatrix, const SkPoint* positions,
+                                          int vertexCount, const uint16_t* indices, int indexCount,
+                                          const GrColor* colors, const SkPoint* localCoords,
+                                          const SkRect& bounds) {
+        return std::unique_ptr<GrDrawOp>(
+                new GrDrawVerticesOp(color, primitiveType, viewMatrix, positions, vertexCount,
+                                     indices, indexCount, colors, localCoords, bounds));
     }
 
     const char* name() const override { return "DrawVerticesOp"; }

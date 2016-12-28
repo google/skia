@@ -190,7 +190,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                      maskMatrix,
                                                      GrSamplerParams::kNone_FilterMode));
 
-    sk_sp<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(), dstRect,
-                                                        nullptr, &invert);
+    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
+                                                                  dstRect, nullptr, &invert);
     renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 }

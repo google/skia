@@ -176,9 +176,10 @@ private:
 };
 
 namespace GrLatticeOp {
-sk_sp<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
-    return sk_sp<GrDrawOp>(
+std::unique_ptr<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+                                    int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                                    const SkRect& dst) {
+    return std::unique_ptr<GrDrawOp>(
             new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
 }
 };

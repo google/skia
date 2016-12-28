@@ -56,7 +56,7 @@ class GrOpFlushState;
         return kClassID; \
     }
 
-class GrOp : public GrNonAtomicRef<GrOp> {
+class GrOp : private SkNoncopyable {
 public:
     GrOp(uint32_t classID);
     virtual ~GrOp();

@@ -18,11 +18,11 @@ class SkMatrix;
 
 namespace GrNonAAStrokeRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect,
-                     const SkStrokeRec&,
-                     bool snapToPixelCenters);
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const SkStrokeRec&,
+                               bool snapToPixelCenters);
 }
 
 #endif

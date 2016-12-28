@@ -16,7 +16,9 @@
 class GrDiscardOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrOp> Make(GrRenderTarget* rt) { return sk_sp<GrOp>(new GrDiscardOp(rt)); }
+    static std::unique_ptr<GrOp> Make(GrRenderTarget* rt) {
+        return std::unique_ptr<GrOp>(new GrDiscardOp(rt));
+    }
 
     const char* name() const override { return "Discard"; }
 

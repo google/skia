@@ -60,7 +60,9 @@ inline GrGLGpu* GLInstancedRendering::glGpu() const {
     return static_cast<GrGLGpu*>(this->gpu());
 }
 
-sk_sp<InstancedRendering::Op> GLInstancedRendering::makeOp() { return sk_sp<Op>(new GLOp(this)); }
+std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp() {
+    return std::unique_ptr<Op>(new GLOp(this));
+}
 
 void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
     // Count what there is to draw.
