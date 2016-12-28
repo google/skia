@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_821624c0",
+        "filename": "src/effects/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-28T00:49:04Z",
+      "side": 1,
+      "message": "Is this pretty much the same function as in the morphology filter? If so, perhaps this should be a protected static helper function on SkImageFilter or SkSpecialImage.",
+      "revId": "29437eb5c782ff49b9c2a23ef5dd4a54e9e45c44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
