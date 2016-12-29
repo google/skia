@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "GrBlend.h"
+#include "GrSamplerParams.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkXfermodePriv.h"
@@ -100,6 +101,13 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,
+                                        const GrCaps&);
+
+static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.colorSpace(), caps);
+}
+
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
 bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
@@ -109,6 +117,11 @@ bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
     format, but we want to preserve the color space of that source. This picks an appropriate format
     to use. */
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
+
+GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                            const SkMatrix& viewM,
+                                                            const SkMatrix& localM,
+                                                            bool* doBicubic);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns

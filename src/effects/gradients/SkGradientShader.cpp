@@ -8,11 +8,12 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
+#include "SkGrPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
 #include "SkRadialGradient.h"
-#include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
+#include "SkTwoPointConicalGradient.h"
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
