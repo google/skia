@@ -17,7 +17,6 @@
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
 
 /** \class NormalBevelFP
  *

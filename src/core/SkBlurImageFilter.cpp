@@ -16,7 +16,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #endif
 
 class SkBlurImageFilterImpl : public SkImageFilter {

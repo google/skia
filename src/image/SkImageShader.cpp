@@ -180,7 +180,6 @@ void SkImageShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"

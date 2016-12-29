@@ -239,7 +239,6 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 

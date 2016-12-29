@@ -10,7 +10,6 @@
 
 #include "SkBitmap.h"
 #include "SkOpts.h"
-#include "SkGr.h"
 #include "SkTDArray.h"
 #include "SkTDynamicHash.h"
 #include "SkTypes.h"

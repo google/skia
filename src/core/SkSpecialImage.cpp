@@ -21,7 +21,6 @@
 #include "GrTexture.h"
 #include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
 

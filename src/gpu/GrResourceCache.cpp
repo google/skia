@@ -11,7 +11,6 @@
 #include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrTracing.h"
-#include "SkGr.h"
 #include "SkMessageBus.h"
 #include "SkOpts.h"
 #include "SkTSort.h"

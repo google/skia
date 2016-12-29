@@ -13,7 +13,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #endif
 
 #include <initializer_list>

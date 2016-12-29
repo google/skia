@@ -8,11 +8,12 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
+#include "SkGrPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
 #include "SkRadialGradient.h"
-#include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
+#include "SkTwoPointConicalGradient.h"
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
@@ -1117,7 +1118,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "SkGr.h"
 
 static inline bool close_to_one_half(const SkFixed& val) {
     return SkScalarNearlyEqual(SkFixedToScalar(val), SK_ScalarHalf);
