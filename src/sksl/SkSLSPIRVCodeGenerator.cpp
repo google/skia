@@ -1879,12 +1879,15 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
                                result, 0, out);
         IntLiteral fieldIndex(fContext, Position(), fRTHeightFieldIndex);
         SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
-        SpvId heightRead = this->nextId();
+        SpvId heightPtr = this->nextId();
         this->writeOpCode(SpvOpAccessChain, 5, out);
         this->writeWord(this->getPointerType(*fContext.fFloat_Type, SpvStorageClassUniform), out);
-        this->writeWord(heightRead, out);
+        this->writeWord(heightPtr, out);
         this->writeWord(fRTHeightStructId, out);
         this->writeWord(fieldIndexId, out);
+        SpvId heightRead = this->nextId();
+        this->writeInstruction(SpvOpLoad, this->getType(*fContext.fFloat_Type), heightRead,
+                               heightPtr, out);
         SpvId rawYId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), rawYId,
                                result, 1, out);
