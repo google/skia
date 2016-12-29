@@ -10,6 +10,7 @@
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
@@ -26,7 +27,7 @@
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
-#include "SkImage_Base.h"
+#include "SkImage_Gpu.h"
 #include "SkLatticeIter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
@@ -1832,6 +1833,45 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
                                        fRenderTargetContext->desc().fSampleCnt,
                                        fRenderTargetContext->origin(), &props);
+}
+
+sk_sp<SkImage> SkGpuDevice::makeImageSnapshot(SkBudgeted budgeted, bool forceCopy) {
+    GrRenderTargetContext* rtc = this->accessRenderTargetContext();
+    if (!rtc) {
+        return nullptr;
+    }
+
+    GrContext* ctx = this->context();
+    GrSurfaceProxy* srcProxy = rtc->asDeferredSurface();
+    sk_sp<GrSurfaceContext> copyCtx;
+    // If the original render target is a buffer originally created by the client, then we don't
+    // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
+    // copy-on-write.
+    if (forceCopy || !srcProxy || rtc->priv().refsWrappedObjects()) {
+        GrSurfaceDesc desc = rtc->desc();
+        desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
+
+        copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(desc,
+                                                                SkBackingFit::kExact,
+                                                                budgeted);
+        if (!copyCtx || !copyCtx->copy(srcProxy)) {
+            return nullptr;
+        }
+
+        srcProxy = copyCtx->asDeferredSurface();
+    }
+
+    // TODO: add proxy-backed SkImage_Gpu
+    GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
+
+    const SkImageInfo info = this->imageInfo();
+    sk_sp<SkImage> image;
+    if (tex) {
+        image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
+                                        info.alphaType(), sk_ref_sp(tex),
+                                        sk_ref_sp(info.colorSpace()), budgeted);
+    }
+    return image;
 }
 
 SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
