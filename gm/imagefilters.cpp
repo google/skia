@@ -68,7 +68,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
 }
 
 static sk_sp<SkImage> make_image(SkCanvas* canvas) {
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+    const SkImageInfo info = SkImageInfo::MakeS32(100, 100, kPremul_SkAlphaType);
     auto surface(canvas->makeSurface(info));
     if (!surface) {
         surface = SkSurface::MakeRaster(info);
