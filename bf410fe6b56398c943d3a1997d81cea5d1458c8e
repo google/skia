@@ -58,6 +58,24 @@
       "revId": "bf410fe6b56398c943d3a1997d81cea5d1458c8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_0d20855d",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-29T14:01:35Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d760061e_6d3139b3",
+      "revId": "bf410fe6b56398c943d3a1997d81cea5d1458c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
