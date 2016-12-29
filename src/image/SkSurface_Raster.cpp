@@ -155,7 +155,7 @@ void SkSurface_Raster::onRestoreBackingMutability() {
 
 void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing pixelrefs with the image?
-    sk_sp<SkImage> cached(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
+    sk_sp<SkImage> cached(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(cached);
     if (SkBitmapImageGetPixelRef(cached.get()) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
