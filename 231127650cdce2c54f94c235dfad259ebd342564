@@ -22,6 +22,24 @@
       "revId": "231127650cdce2c54f94c235dfad259ebd342564",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_4850abee",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-12-29T21:28:45Z",
+      "side": 1,
+      "message": "I realized that \"Golo\" is part of the builder name, so I made the check a bit more direct.",
+      "parentUuid": "d760061e_28fc4fbc",
+      "revId": "231127650cdce2c54f94c235dfad259ebd342564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
