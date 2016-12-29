@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkGrPriv.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"

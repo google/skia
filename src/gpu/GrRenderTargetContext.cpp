@@ -17,6 +17,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
+#include "SkGrPriv.h"
 #include "SkSurfacePriv.h"
 
 #include "ops/GrClearOp.h"
