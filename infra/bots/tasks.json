@@ -7095,7 +7095,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
-        "os:Windows-10-10586",
+        "os:Windows-10-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7143,7 +7143,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
-        "os:Windows-10-10586",
+        "os:Windows-10-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11565,7 +11565,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
-        "os:Windows-10-10586",
+        "os:Windows-10-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11613,7 +11613,7 @@
       ],
       "dimensions": [
         "gpu:8086:1912",
-        "os:Windows-10-10586",
+        "os:Windows-10-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
