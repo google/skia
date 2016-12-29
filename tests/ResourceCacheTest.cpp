@@ -21,7 +21,6 @@
 #include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "SkCanvas.h"
-#include "SkGr.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkSurface.h"

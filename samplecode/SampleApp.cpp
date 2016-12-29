@@ -49,7 +49,6 @@
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
 #   include "GrContext.h"
-#   include "SkGr.h"
 #   if SK_ANGLE
 #       include "gl/angle/GLTestContext_angle.h"
 #   endif

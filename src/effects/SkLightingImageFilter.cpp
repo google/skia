@@ -23,7 +23,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrTextureDomain.h"

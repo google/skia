@@ -15,7 +15,6 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkGr.h"
 
 void application_init() {
     SkGraphics::Init();

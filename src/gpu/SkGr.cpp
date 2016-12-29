@@ -6,7 +6,6 @@
  */
 
 
-#include "SkGr.h"
 #include "SkGrPriv.h"
 
 #include "GrBitmapTextureMaker.h"
@@ -550,6 +549,12 @@ static inline bool blend_requires_shader(const SkBlendMode mode, bool primitiveI
     } else {
         return SkBlendMode::kDst != mode;
     }
+}
+
+/** Replicates the SkColor's alpha to all four channels of the GrColor. */
+static inline GrColor SkColorAlphaToGrColor(SkColor c) {
+    U8CPU a = SkColorGetA(c);
+    return GrColorPackRGBA(a, a, a, a);
 }
 
 static inline bool skpaint_to_grpaint_impl(GrContext* context,

@@ -12,7 +12,6 @@
 #include "GrTexture.h"
 #include "GrGpuResourcePriv.h"
 #include "SkBitmap.h"
-#include "SkGr.h"
 #include "SkImage_Base.h"
 #include "SkImagePriv.h"
 #include "SkSurface.h"

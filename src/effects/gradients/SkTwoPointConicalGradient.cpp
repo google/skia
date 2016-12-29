@@ -354,7 +354,6 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
 #include "SkTwoPointConicalGradient_gpu.h"
 
 sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(

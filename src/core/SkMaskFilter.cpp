@@ -18,7 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #endif
 
 SkMaskFilter::NinePatch::~NinePatch() {

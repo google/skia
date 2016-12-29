@@ -58,7 +58,6 @@ private:
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "SkGr.h"
 #include "SkGrPriv.h"
 
 class GaussianEdgeFP : public GrFragmentProcessor {

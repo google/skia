@@ -342,7 +342,6 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 #include "GrColorSpaceXform.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
 
 /////////////////////////////////////////////////////////////////////
 
