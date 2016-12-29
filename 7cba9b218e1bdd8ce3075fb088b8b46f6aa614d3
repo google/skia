@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_ad123118",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1853,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-12-29T14:01:35Z",
+      "side": 1,
+      "message": "nit: stray tabs (below too)",
+      "range": {
+        "startLine": 1853,
+        "startChar": 6,
+        "endLine": 1853,
+        "endChar": 7
+      },
+      "revId": "7cba9b218e1bdd8ce3075fb088b8b46f6aa614d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
