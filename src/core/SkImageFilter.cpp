@@ -369,7 +369,9 @@ sk_sp<SkSpecialImage> SkImageFilter::ImageToColorSpace(SkSpecialImage* src,
 
     SkCanvas* canvas = surf->getCanvas();
     SkASSERT(canvas);
-    src->draw(canvas, 0, 0, nullptr);
+    SkPaint p;
+    p.setBlendMode(SkBlendMode::kSrc);
+    src->draw(canvas, 0, 0, &p);
     return surf->makeImageSnapshot();
 }
 #endif
