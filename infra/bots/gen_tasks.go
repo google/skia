@@ -363,22 +363,9 @@ func swarmDimensions(parts map[string]string) []string {
 			"Win8":    "Windows-8.1-SP0",
 			"iOS":     "iOS-9.3.1",
 		}[os]
-		if parts["cpu_or_gpu"] == "GPU" && os == "Win10" {
-			// We're in the process of moving Windows Skolo bots to
-			// a new Windows image.
-			d["os"] = map[string]string{
-				"AMDHD7770": "Windows-10-14393",
-				// In Chrome Golo; won't be updated.
-				"GT610":       "Windows-10-10586",
-				"GTX1070":     "Windows-10-14393",
-				"GTX660":      "Windows-10-14393",
-				"GTX960":      "Windows-10-14393",
-				"IntelHD4600": "Windows-10-14393",
-				// Crashing with new image.
-				"iHD530":        "Windows-10-10586",
-				"IntelIris540":  "Windows-10-14393",
-				"IntelIris6100": "Windows-10-14393",
-			}[parts["cpu_or_gpu_value"]]
+		// Chrome Golo has a different Windows image.
+		if parts["model"] == "Golo" && os == "Win10" {
+			d["os"] = "Windows-10-10586"
 		}
 	} else {
 		d["os"] = DEFAULT_OS
