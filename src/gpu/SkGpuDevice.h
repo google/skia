@@ -8,7 +8,6 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkBitmap.h"
 #include "SkDevice.h"

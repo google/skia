@@ -13,7 +13,7 @@
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 
 static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     uint32_t mask = 0;

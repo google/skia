@@ -16,7 +16,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextOptions.h"
-#include "SkGr.h"
 #endif
 
 /** Holds either a bitmap or image to be rendered and a rect that indicates what part of the bitmap

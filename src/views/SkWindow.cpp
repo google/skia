@@ -319,7 +319,6 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
-#include "SkGr.h"
 
 sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
                                                 const GrGLInterface* interface,

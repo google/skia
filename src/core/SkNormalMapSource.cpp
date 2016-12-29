@@ -21,7 +21,6 @@
 #include "GrSamplerParams.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
 
 class NormalMapFP : public GrFragmentProcessor {
 public:

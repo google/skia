@@ -14,7 +14,7 @@
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "SkBitmap.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkGradientShader.h"
 #include "effects/GrTextureDomain.h"
 #include "ops/GrDrawOp.h"

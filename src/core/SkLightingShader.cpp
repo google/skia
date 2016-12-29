@@ -109,7 +109,6 @@ private:
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "SkGr.h"
 #include "SkGrPriv.h"
 
 // This FP expects a premul'd color input for its diffuse color. Premul'ing of the paint's color is

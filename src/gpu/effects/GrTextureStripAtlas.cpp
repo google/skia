@@ -8,7 +8,7 @@
 #include "GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "SkPixelRef.h"
 #include "SkTSearch.h"
 

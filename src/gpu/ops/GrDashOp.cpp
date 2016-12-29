@@ -17,7 +17,6 @@
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"
-#include "SkGr.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
