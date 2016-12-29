@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_88680333",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-12-29T16:53:09Z",
+      "side": 1,
+      "message": "I was getting random garbage on my integrated Intel GPU without this. Finally figured out that we were blurring something containing alpha, so we had leftover contents in the surface. This seems like a better (cheaper?) fix than clearing the surface.",
+      "revId": "b39f31bf969556d81157302c067fe719e9705230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
