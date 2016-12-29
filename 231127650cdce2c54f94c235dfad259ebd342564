@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_28fc4fbc",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2016-12-29T21:22:51Z",
+      "side": 1,
+      "message": "nit: It might be useful to have a comment (maybe by replacing the one below) that indicates that the Chrome Golo only has GT610.",
+      "range": {
+        "startLine": 366,
+        "startChar": 35,
+        "endLine": 366,
+        "endChar": 40
+      },
+      "revId": "231127650cdce2c54f94c235dfad259ebd342564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
