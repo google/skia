@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkGrPriv.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
@@ -335,7 +336,6 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrTextureStripAtlas.h"
-#include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

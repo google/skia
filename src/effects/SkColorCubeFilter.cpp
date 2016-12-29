@@ -17,7 +17,6 @@
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "GrTexturePriv.h"
-#include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

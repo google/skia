@@ -10,11 +10,13 @@
 
 #include "GrTypes.h"
 #include "GrBlend.h"
+#include "GrSamplerParams.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkXfermodePriv.h"
 
 class GrCaps;
+class GrColorSpaceXform;
 class GrContext;
 class GrRenderTargetContext;
 class GrFragmentProcessor;
@@ -98,7 +100,45 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint);
 
+////////////////////////////////////////////////////////////////////////////////
+// Sk to Gr Type conversions
+
+static inline GrColor SkColorToPremulGrColor(SkColor c) {
+    SkPMColor pm = SkPreMultiplyColor(c);
+    unsigned r = SkGetPackedR32(pm);
+    unsigned g = SkGetPackedG32(pm);
+    unsigned b = SkGetPackedB32(pm);
+    unsigned a = SkGetPackedA32(pm);
+    return GrColorPackRGBA(r, g, b, a);
+}
+
+static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
+    unsigned r = SkColorGetR(c);
+    unsigned g = SkColorGetG(c);
+    unsigned b = SkColorGetB(c);
+    unsigned a = SkColorGetA(c);
+    return GrColorPackRGBA(r, g, b, a);
+}
+
+/** Transform an SkColor (sRGB bytes) to GrColor4f for the specified color space. */
+GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+
+/**
+* As above, but with explicit control over the linearization and gamut xform steps.
+* Typically used when you have easy access to a pre-computed xform.
+*/
+GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
+
 //////////////////////////////////////////////////////////////////////////////
+
+GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,
+                                        const GrCaps&);
+
+static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
+    return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.colorSpace(), caps);
+}
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
@@ -109,6 +149,11 @@ bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
     format, but we want to preserve the color space of that source. This picks an appropriate format
     to use. */
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
+
+GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                            const SkMatrix& viewM,
+                                                            const SkMatrix& localM,
+                                                            bool* doBicubic);
 
 /**
  *  If the compressed data in the SkData is supported (as a texture format, this returns
@@ -143,6 +188,14 @@ GrTexture* GrUploadPixmapToTexture(GrContext*, const SkPixmap&, SkBudgeted budge
  */
 GrTexture* GrUploadMipMapToTexture(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                    int mipLevelCount);
+
+////////////////////////////////////////////////////////////////////////////////
+/** Returns a texture representing the bitmap that is compatible with the GrSamplerParams. The
+    texture is inserted into the cache (unless the bitmap is marked volatile) and can be
+    retrieved again via this function. */
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&);
+
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&);
 
 //////////////////////////////////////////////////////////////////////////////
 

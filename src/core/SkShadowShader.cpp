@@ -100,7 +100,6 @@ private:
 #include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkSpecialImage.h"
 #include "SkImage_Base.h"

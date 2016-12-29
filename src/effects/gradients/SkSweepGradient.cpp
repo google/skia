@@ -121,7 +121,6 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
 #include "GrShaderCaps.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
