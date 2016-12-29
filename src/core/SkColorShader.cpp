@@ -90,7 +90,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
+#include "SkGrPriv.h"
 #include "effects/GrConstColorProcessor.h"
 sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs& args) const {
     GrColor4f color = SkColorToPremulGrColor4f(fColor, args.fDstColorSpace);
