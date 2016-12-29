@@ -10,7 +10,6 @@
 #include "SkColorPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
-#include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
 #include "SkUnPreMultiply.h"
@@ -282,23 +281,6 @@ static GrTextureDomain::Mode convert_tilemodes(SkMatrixConvolutionImageFilter::T
     }
     return GrTextureDomain::kIgnore_Mode;
 }
-
-// Return a copy of 'src' transformed to the output's color space
-static sk_sp<SkSpecialImage> image_to_color_space(SkSpecialImage* src,
-                                                  const SkImageFilter::OutputProperties& outProps) {
-    sk_sp<SkSpecialSurface> surf(src->makeSurface(
-        outProps, SkISize::Make(src->width(), src->height())));
-    if (!surf) {
-        return sk_ref_sp(src);
-    }
-
-    SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-
-    src->draw(canvas, 0, 0, nullptr);
-
-    return surf->makeImageSnapshot();
-}
 #endif
 
 sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialImage* source,
@@ -322,15 +304,11 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE) {
         GrContext* context = source->getContext();
 
-        // If the input is not yet already in the destination color space, do an explicit up-front
-        // conversion. This is extremely unlikely (maybe even impossible). Typically, applyCropRect
-        // will have called pad_image to account for our dilation of bounds, so the result will
-        // already be moved to the destination color space. If someone makes a filter DAG that
-        // avoids that, then we use this fall-back, which saves us from having to do the xform
-        // during the filter itself.
-        if (input->getColorSpace() != ctx.outputProperties().colorSpace()) {
-            input = image_to_color_space(input.get(), ctx.outputProperties());
-        }
+        // Ensure the input is in the destination color space. Typically applyCropRect will have
+        // called pad_image to account for our dilation of bounds, so the result will already be
+        // moved to the destination color space. If a filter DAG avoids that, then we use this
+        // fall-back, which saves us from having to do the xform during the filter itself.
+        input = ImageToColorSpace(input.get(), ctx.outputProperties());
 
         sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
         SkASSERT(inputTexture);
