@@ -971,6 +971,16 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
     return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
 }
 
+sk_sp<SkImage> SkCanvas::makeImageSnapshot() {
+    if (fSurfaceBase) {
+        return fSurfaceBase->makeImageSnapshot();
+    }
+
+    SkBaseDevice* device = this->getDevice();
+    const bool forceCopy = true;    // since we have no way to trigger copy-on-write
+    return device ? device->makeImageSnapshot(SkBudgeted::kYes, forceCopy) : nullptr;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::updateDeviceCMCache() {

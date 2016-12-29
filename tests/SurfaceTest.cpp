@@ -1050,3 +1050,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu, r, ctxInfo) {
     test_overdraw_surface(r, surface.get());
 }
 #endif
+
+#include "SkPictureRecorder.h"
+
+DEF_TEST(Canvas_snapshot, r) {
+    SkBitmap bm;
+    bm.allocN32Pixels(10, 10);
+    SkCanvas canvas(bm);
+
+    canvas.drawColor(SK_ColorRED);
+    sk_sp<SkImage> img = canvas.makeImageSnapshot();
+    SkPixmap pm;
+    REPORTER_ASSERT(r, img->peekPixels(&pm));
+    REPORTER_ASSERT(r, *pm.addr32(0, 0) == SkPackARGB32(0xFF, 0xFF, 0, 0));
+
+    canvas.drawColor(SK_ColorBLUE);
+    // check that our first snapshot didn't change
+    REPORTER_ASSERT(r, img->peekPixels(&pm));
+    REPORTER_ASSERT(r, *pm.addr32(0, 0) == SkPackARGB32(0xFF, 0xFF, 0, 0));
+
+    // now snap again and check for blue
+    img = canvas.makeImageSnapshot();
+    REPORTER_ASSERT(r, img->peekPixels(&pm));
+    REPORTER_ASSERT(r, *pm.addr32(0, 0) == SkPackARGB32(0xFF, 0, 0, 0xFF));
+
+    {
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(10, 10);
+        canvas->drawColor(SK_ColorRED);
+        REPORTER_ASSERT(r, !canvas->makeImageSnapshot());
+    }
+}
