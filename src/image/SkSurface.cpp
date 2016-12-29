@@ -161,13 +161,7 @@ SkCanvas* SkSurface::getCanvas() {
 }
 
 sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted) {
-    // the caller will call unref() to balance this
-    return asSB(this)->refCachedImage(budgeted, kNo_ForceUnique);
-}
-
-sk_sp<SkImage> SkSurface::makeImageSnapshot(SkBudgeted budgeted, ForceUnique unique) {
-    // the caller will call unref() to balance this
-    return asSB(this)->refCachedImage(budgeted, unique);
+    return asSB(this)->refCachedImage(budgeted);
 }
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
