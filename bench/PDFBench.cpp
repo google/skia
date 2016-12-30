@@ -6,15 +6,12 @@
  */
 
 #include "Benchmark.h"
+
 #include "Resources.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
-#include "SkPDFBitmap.h"
-#include "SkPDFDocument.h"
-#include "SkPDFShader.h"
-#include "SkPDFUtils.h"
 #include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -27,6 +24,33 @@ struct NullWStream : public SkWStream {
     size_t fN;
 };
 
+struct WStreamWriteTextBenchmark : public Benchmark {
+    std::unique_ptr<SkWStream> fWStream;
+    WStreamWriteTextBenchmark() : fWStream(new NullWStream) {}
+    const char* onGetName() override { return "WStreamWriteText"; }
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops-- > 0) {
+            for (int i = 1000; i-- > 0;) {
+                fWStream->writeText("HELLO SKIA!\n");
+            }
+        }
+    }
+};
+}  // namespace
+
+DEF_BENCH(return new WStreamWriteTextBenchmark;)
+
+#ifdef SK_SUPPORT_PDF
+
+#include "SkPDFBitmap.h"
+#include "SkPDFDocument.h"
+#include "SkPDFShader.h"
+#include "SkPDFUtils.h"
+
+namespace {
 static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     // SkDebugWStream wStream;
     NullWStream wStream;
@@ -207,22 +231,6 @@ struct PDFShaderBench : public Benchmark {
     }
 };
 
-struct WStreamWriteTextBenchmark : public Benchmark {
-    std::unique_ptr<SkWStream> fWStream;
-    WStreamWriteTextBenchmark() : fWStream(new NullWStream) {}
-    const char* onGetName() override { return "WStreamWriteText"; }
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-    void onDraw(int loops, SkCanvas*) override {
-        while (loops-- > 0) {
-            for (int i = 1000; i-- > 0;) {
-                fWStream->writeText("HELLO SKIA!\n");
-            }
-        }
-    }
-};
-
 struct WritePDFTextBenchmark : public Benchmark {
     std::unique_ptr<SkWStream> fWStream;
     WritePDFTextBenchmark() : fWStream(new NullWStream) {}
@@ -249,5 +257,7 @@ DEF_BENCH(return new PDFCompressionBench;)
 DEF_BENCH(return new PDFScalarBench;)
 DEF_BENCH(return new PDFColorComponentBench;)
 DEF_BENCH(return new PDFShaderBench;)
-DEF_BENCH(return new WStreamWriteTextBenchmark;)
 DEF_BENCH(return new WritePDFTextBenchmark;)
+
+#endif
+
