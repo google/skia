@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "SkDeflate.h"
 #include "SkRandom.h"
-#include "Test.h"
 
 namespace {
 
@@ -162,3 +165,5 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
     SkDeflateWStream emptyDeflateWStream(nullptr);
     REPORTER_ASSERT(r, !emptyDeflateWStream.writeText("FOO"));
 }
+
+#endif

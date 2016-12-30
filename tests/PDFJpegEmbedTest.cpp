@@ -9,7 +9,6 @@
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkImageGenerator.h"
-#include "SkJpegInfo.h"
 #include "SkStream.h"
 
 #include "Resources.h"
@@ -79,6 +78,10 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     // embedded into the PDF directly.
     REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
 }
+
+#ifdef SK_SUPPORT_PDF
+
+#include "SkJpegInfo.h"
 
 DEF_TEST(SkPDF_JpegIdentification, r) {
     static struct {
@@ -208,3 +211,4 @@ DEF_TEST(SkPDF_JpegIdentification, r) {
         REPORTER_ASSERT(r, !SkIsJFIF(data.get(), &info));
     }
 }
+#endif

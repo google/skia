@@ -5,11 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "SkBitSet.h"
 #include "SkData.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkStream.h"
-#include "Test.h"
 
 static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 
@@ -178,3 +181,5 @@ endbfrange\n";
     REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
                                             buffer2.bytesWritten()));
 }
+
+#endif
