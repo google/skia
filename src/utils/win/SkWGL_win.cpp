@@ -263,6 +263,10 @@ SkWGLExtensions::SkWGLExtensions()
         int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
         SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
         HGLRC dummyGLRC = wglCreateContext(dummyDC);
+        if (!dummyGLRC) {
+            SK_TRACEHR(HRESULT_FROM_WIN32(GetLastError()),
+                       "Could not get GL context.");
+        }
         SkASSERT(dummyGLRC);
         wglMakeCurrent(dummyDC, dummyGLRC);
 
