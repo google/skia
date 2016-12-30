@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -24,7 +28,6 @@
 #include "SkSpecialImage.h"
 #include "SkStream.h"
 #include "SkTypes.h"
-#include "Test.h"
 #include "sk_tool_utils.h"
 
 #include <cstdlib>
@@ -486,3 +489,4 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
         REPORTER_ASSERT(reporter, roundTrip == i);
     }
 }
+#endif

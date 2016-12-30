@@ -28,6 +28,7 @@ declare_args() {
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_gpu = true
+  skia_enable_pdf = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
@@ -429,7 +430,8 @@ optional("jpeg") {
 }
 
 optional("pdf") {
-  enabled = skia_use_zlib
+  enabled = skia_use_zlib && skia_enable_pdf
+  public_defines = [ "SK_SUPPORT_PDF" ]
 
   deps = [
     "//third_party/zlib",
@@ -439,7 +441,7 @@ optional("pdf") {
 
   if (skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
-    public_defines = [ "SK_PDF_USE_SFNTLY" ]
+    public_defines += [ "SK_PDF_USE_SFNTLY" ]
   }
 }
 
