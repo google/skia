@@ -8,6 +8,7 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN32)
 
+#include "SkHRESULT.h"
 #include "SkWGL.h"
 
 #include "SkTDArray.h"
@@ -263,6 +264,10 @@ SkWGLExtensions::SkWGLExtensions()
         int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
         SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
         HGLRC dummyGLRC = wglCreateContext(dummyDC);
+        if (!dummyGLRC) {
+            SK_TRACEHR(HRESULT_FROM_WIN32(GetLastError()),
+                       "Could not get GL context.");
+        }
         SkASSERT(dummyGLRC);
         wglMakeCurrent(dummyDC, dummyGLRC);
 
