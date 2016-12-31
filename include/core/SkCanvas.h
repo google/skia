@@ -293,6 +293,13 @@ public:
      */
     bool writePixels(const SkBitmap& bitmap, int x, int y);
 
+    /**
+     *  If the contents of the canvas base layer can be captured in an image, return that image.
+     *  If they cannot, return nullptr. If the image can be returned, it will only reflect the
+     *  drawing up to the point that makeImageSnapshot() was called.
+     */
+    sk_sp<SkImage> makeImageSnapshot();
+
     ///////////////////////////////////////////////////////////////////////////
 
     /** This call saves the current matrix, clip, and drawFilter, and pushes a

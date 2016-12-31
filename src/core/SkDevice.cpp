@@ -579,6 +579,10 @@ sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps co
     return nullptr;
 }
 
+sk_sp<SkImage> SkBaseDevice::makeImageSnapshot(SkBudgeted, bool forceCopy) {
+    return nullptr;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& matrix, SkFilterQuality filterQuality) {
