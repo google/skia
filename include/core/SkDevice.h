@@ -17,6 +17,7 @@ class SkBitmap;
 class SkClipStack;
 class SkDraw;
 class SkDrawFilter;
+class SkImage;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -338,6 +339,9 @@ private:
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) {}
 
     virtual bool forceConservativeRasterClip() const { return false; }
+
+    // default impl returns nullptr
+    virtual sk_sp<SkImage> makeImageSnapshot(SkBudgeted, bool forceCopy);
 
     /**
      * Don't call this!
