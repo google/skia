@@ -1376,6 +1376,7 @@ bool SkCanvas::onGetProps(SkSurfaceProps* props) const {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
 bool SkCanvas::peekPixels(SkPixmap* pmap) {
     return this->onPeekPixels(pmap);
 }
@@ -1384,7 +1385,9 @@ bool SkCanvas::onPeekPixels(SkPixmap* pmap) {
     SkBaseDevice* dev = this->getDevice();
     return dev && dev->peekPixels(pmap);
 }
+#endif
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_ACCESSPIXELS
 void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin) {
     SkPixmap pmap;
     if (!this->onAccessTopLayerPixels(&pmap)) {
@@ -1406,6 +1409,7 @@ bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
     SkBaseDevice* dev = this->getTopDevice();
     return dev && dev->accessPixels(pmap);
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 

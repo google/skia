@@ -204,6 +204,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_ACCESSPIXELS
     /**
      *  If the canvas has writable pixels in its top layer (and is not recording to a picture
      *  or other non-raster target) and has direct access to its pixels (i.e. they are in
@@ -216,7 +217,9 @@ public:
      *  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
      */
     void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL);
+#endif
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
     /**
      *  If the canvas has readable pixels in its base layer (and is not recording to a picture
      *  or other non-raster target) and has direct access to its pixels (i.e. they are in
@@ -229,6 +232,7 @@ public:
      *  On failure, returns false and the pixmap parameter will be ignored.
      */
     bool peekPixels(SkPixmap*);
+#endif
 
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
@@ -1371,8 +1375,12 @@ protected:
     virtual sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&);
 
     // default impl defers to its device
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
     virtual bool onPeekPixels(SkPixmap*);
+#endif
+#ifdef SK_SUPPORT_LEGACY_CANVAS_ACCESSPIXELS
     virtual bool onAccessTopLayerPixels(SkPixmap*);
+#endif
     virtual SkImageInfo onImageInfo() const;
     virtual bool onGetProps(SkSurfaceProps*) const;
     virtual void onFlush();

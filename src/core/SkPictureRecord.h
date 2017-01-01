@@ -149,7 +149,9 @@ protected:
     }
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
     bool onPeekPixels(SkPixmap*) override { return false; }
+#endif
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;

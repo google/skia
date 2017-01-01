@@ -30,8 +30,12 @@ protected:
     bool getClipDeviceBounds(SkIRect* bounds) const override;
     bool isClipEmpty() const override;
     bool isClipRect() const override;
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
     bool onPeekPixels(SkPixmap*) override;
+#endif
+#ifdef SK_SUPPORT_LEGACY_CANVAS_ACCESSPIXELS
     bool onAccessTopLayerPixels(SkPixmap*) override;
+#endif
     SkImageInfo onImageInfo() const override;
     bool onGetProps(SkSurfaceProps*) const override;
     void onFlush() override;

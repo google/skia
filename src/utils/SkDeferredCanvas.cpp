@@ -565,7 +565,10 @@ bool SkDeferredCanvas::getClipDeviceBounds(SkIRect* bounds) const {
 }
 bool SkDeferredCanvas::isClipEmpty() const { return fCanvas->isClipEmpty(); }
 bool SkDeferredCanvas::isClipRect() const { return fCanvas->isClipRect(); }
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
 bool SkDeferredCanvas::onPeekPixels(SkPixmap* pixmap) { return fCanvas->peekPixels(pixmap); }
+#endif
+#ifdef SK_SUPPORT_LEGACY_CANVAS_ACCESSPIXELS
 bool SkDeferredCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
     SkImageInfo info;
     size_t rowBytes;
@@ -577,6 +580,7 @@ bool SkDeferredCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
     }
     return false;
 }
+#endif
 SkImageInfo SkDeferredCanvas::onImageInfo() const { return fCanvas->imageInfo(); }
 bool SkDeferredCanvas::onGetProps(SkSurfaceProps* props) const { return fCanvas->getProps(props); }
 void SkDeferredCanvas::onFlush() {

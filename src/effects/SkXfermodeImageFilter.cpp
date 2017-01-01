@@ -456,7 +456,8 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
 void SkArithmeticImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
                                              const SkIRect& fgBounds) const {
     SkPixmap dst;
-    if (!canvas->peekPixels(&dst)) {
+ //   if (!canvas->peekPixels(&dst)) {
+    if (false) {
         return;
     }
 

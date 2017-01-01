@@ -59,7 +59,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     whitePaint.setColor(SK_ColorWHITE);
     surface->getCanvas()->drawPath(path, whitePaint);
     SkPixmap pixmap;
-    surface->getCanvas()->peekPixels(&pixmap);
+    surface->peekPixels(&pixmap);
 #if defined(SK_BUILD_FOR_WIN)
     // The static constexpr version in #else causes cl.exe to crash.
     const uint8_t* kZeros = reinterpret_cast<uint8_t*>(calloc(kRes, 1));

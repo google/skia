@@ -174,7 +174,11 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 bool SkSurface::peekPixels(SkPixmap* pmap) {
+#ifdef SK_SUPPORT_LEGACY_CANVAS_PEEKPIXELS
     return this->getCanvas()->peekPixels(pmap);
+#else
+    return false;
+#endif
 }
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
