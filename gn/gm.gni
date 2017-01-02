@@ -112,6 +112,7 @@ gm_sources = [
   "$_gm/emboss.cpp",
   "$_gm/emptypath.cpp",
   "$_gm/encode.cpp",
+  "$_gm/encode-srgb.cpp",
   "$_gm/encode-platform.cpp",
   "$_gm/extractbitmap.cpp",
   "$_gm/fadefilter.cpp",
