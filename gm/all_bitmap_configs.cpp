@@ -176,7 +176,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     } else {
         canvas->translate(0.0f, SkIntToScalar(2 * SCALE));
     }
-
+if (false) {
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapIndexed = indexed_bitmap();
     draw(canvas, p, bitmapIndexed, kIndex_8_SkColorType, "Index 8");
@@ -188,7 +188,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     p.setColor(SK_ColorRED);
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapG8 = make_bitmap(kGray_8_SkColorType);
-    draw(canvas, p, bitmapG8, kGray_8_SkColorType, "Gray 8");
+    draw(canvas, p, bitmapG8, kGray_8_SkColorType, "Gray 8");}
 }
 
 sk_sp<SkImage> make_not_native32_color_wheel() {
