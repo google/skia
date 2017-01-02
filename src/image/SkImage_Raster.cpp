@@ -181,6 +181,11 @@ bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
 
 bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, CachingHint) const {
     *dst = fBitmap;
+    if (!dstColorSpace) {
+        SkImageInfo* info = const_cast<SkImageInfo*>(&dst->info());
+        *info = info->makeColorSpace(nullptr);
+    }
+
     return true;
 }
 
