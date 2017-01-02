@@ -13,6 +13,7 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkPreConfig.h"
+#include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 
 /**
@@ -94,8 +95,9 @@ static void transform_scanline_444(char* SK_RESTRICT dst, const char* SK_RESTRIC
 }
 
 template <bool kIsRGBA>
-static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
-                                                    const char* SK_RESTRICT src, int width, int) {
+static inline void transform_scanline_legacy_unpremultiply(char* SK_RESTRICT dst,
+                                                           const char* SK_RESTRICT src, int width,
+                                                           int) {
     const uint32_t* srcP = (const SkPMColor*)src;
     const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
 
@@ -125,6 +127,37 @@ static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
         *dst++ = b;
         *dst++ = a;
     }
+}
+
+/**
+ * Transform from legacy kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
+ */
+static void transform_scanline_legacy_rgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                           int width, int bpp) {
+    transform_scanline_legacy_unpremultiply<true>(dst, src, width, bpp);
+}
+
+/**
+ * Transform from legacy kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
+ */
+static void transform_scanline_legacy_bgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                           int width, int bpp) {
+    transform_scanline_legacy_unpremultiply<false>(dst, src, width, bpp);
+}
+
+template <bool kIsRGBA>
+static inline void transform_scanline_unpremultiply(void* dst, const void* src, int width, int) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_8888, &src);
+    if (!kIsRGBA) {
+        p.append(SkRasterPipeline::swap_rb);
+    }
+
+    p.append_from_srgb(kPremul_SkAlphaType);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, &dst);
+    p.run(0, 0, width);
 }
 
 /**
