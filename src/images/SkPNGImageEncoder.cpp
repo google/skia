@@ -21,29 +21,8 @@
 
 #include "png.h"
 
-/* These were dropped in libpng >= 1.4 */
-#ifndef png_infopp_NULL
-#define png_infopp_NULL nullptr
-#endif
-
-#ifndef png_bytepp_NULL
-#define png_bytepp_NULL nullptr
-#endif
-
-#ifndef int_p_NULL
-#define int_p_NULL nullptr
-#endif
-
-#ifndef png_flush_ptr_NULL
-#define png_flush_ptr_NULL nullptr
-#endif
-
-#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
 // Suppress most PNG warnings when calling image decode functions.
-static const bool c_suppressPNGImageDecoderWarnings{
-    DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS};
-
-///////////////////////////////////////////////////////////////////////////////
+static const bool c_suppressPNGImageDecoderWarnings = true;
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     if (!c_suppressPNGImageDecoderWarnings) {
@@ -58,6 +37,8 @@ static void sk_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
         png_error(png_ptr, "sk_write_fn Error!");
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static transform_scanline_proc choose_proc(SkColorType ct, SkAlphaType alphaType) {
     static const struct {
@@ -270,7 +251,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
 
     info_ptr = png_create_info_struct(png_ptr);
     if (nullptr == info_ptr) {
-        png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+        png_destroy_write_struct(&png_ptr,  nullptr);
         return false;
     }
 
@@ -282,7 +263,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
         return false;
     }
 
-    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, png_flush_ptr_NULL);
+    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, nullptr);
 
     /* Set the image information here.  Width and height are up to 2^31,
     * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
