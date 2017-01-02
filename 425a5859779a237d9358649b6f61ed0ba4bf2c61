@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_5f0e9e1d",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-02T22:00:40Z",
+      "side": 1,
+      "message": "Alternatively, I could add some sort of setColorSpace() API to SkBitmap.",
+      "range": {
+        "startLine": 184,
+        "startChar": 4,
+        "endLine": 184,
+        "endChar": 25
+      },
+      "revId": "425a5859779a237d9358649b6f61ed0ba4bf2c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
