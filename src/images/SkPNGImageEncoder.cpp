@@ -21,29 +21,8 @@
 
 #include "png.h"
 
-/* These were dropped in libpng >= 1.4 */
-#ifndef png_infopp_NULL
-#define png_infopp_NULL nullptr
-#endif
-
-#ifndef png_bytepp_NULL
-#define png_bytepp_NULL nullptr
-#endif
-
-#ifndef int_p_NULL
-#define int_p_NULL nullptr
-#endif
-
-#ifndef png_flush_ptr_NULL
-#define png_flush_ptr_NULL nullptr
-#endif
-
-#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
 // Suppress most PNG warnings when calling image decode functions.
-static const bool c_suppressPNGImageDecoderWarnings{
-    DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS};
-
-///////////////////////////////////////////////////////////////////////////////
+static const bool c_suppressPNGImageDecoderWarnings = true;
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     if (!c_suppressPNGImageDecoderWarnings) {
@@ -87,21 +66,6 @@ static transform_scanline_proc choose_proc(SkColorType ct, SkAlphaType alphaType
     }
     sk_throw();
     return nullptr;
-}
-
-// return the minimum legal bitdepth (by png standards) for this many colortable
-// entries. SkBitmap always stores in 8bits per pixel, but for colorcount <= 16,
-// we can use fewer bits per in png
-static int computeBitDepth(int colorCount) {
-#if 0
-    int bits = SkNextLog2(colorCount);
-    SkASSERT(bits >= 1 && bits <= 8);
-    // now we need bits itself to be a power of 2 (e.g. 1, 2, 4, 8)
-    return SkNextPow2(bits);
-#else
-    // for the moment, we don't know how to pack bitdepth < 8
-    return 8;
-#endif
 }
 
 /*  Pack palette[] with the corresponding colors, and if the image has alpha, also
@@ -201,7 +165,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
     }
 
     const bool isOpaque = (kOpaque_SkAlphaType == alphaType);
-    int bitDepth = 8;   // default for color
+    const int bitDepth = 8;
     png_color_8 sig_bit;
     sk_bzero(&sig_bit, sizeof(png_color_8));
 
@@ -249,8 +213,10 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
         if (!ctable || ctable->count() == 0) {
             return false;
         }
-        // check if we can store in fewer than 8 bits
-        bitDepth = computeBitDepth(ctable->count());
+
+        // Currently, we always use 8-bit indices for paletted pngs.
+        // When ctable->count() <= 16, we could potentially use 1, 2,
+        // or 4 bit indices.
     }
     return do_encode(stream, pixmap, colorType, bitDepth, sig_bit);
 }
@@ -270,7 +236,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
 
     info_ptr = png_create_info_struct(png_ptr);
     if (nullptr == info_ptr) {
-        png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+        png_destroy_write_struct(&png_ptr,  nullptr);
         return false;
     }
 
@@ -282,7 +248,7 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
         return false;
     }
 
-    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, png_flush_ptr_NULL);
+    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, nullptr);
 
     /* Set the image information here.  Width and height are up to 2^31,
     * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
