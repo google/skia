@@ -101,58 +101,57 @@ static bool bitmap_is_too_big(int w, int h) {
     return w > kMaxSize || h > kMaxSize;
 }
 
-// returns true and set color if the bitmap can be drawn as a single color
-// (for efficiency)
-static bool can_use_color_shader(const SkImage* image, SkColor* color) {
+// If we can draw this bitmap as a color shader, return that color shader.
+static SkShader* maybe_color_shader(const sk_sp<SkImage>& image, SkTBlitterAllocator* allocator) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // HWUI does not support color shaders (see b/22390304)
-    return false;
+    return nullptr;
 #endif
 
     if (1 != image->width() || 1 != image->height()) {
-        return false;
+        return nullptr;
     }
 
     SkPixmap pmap;
     if (!image->peekPixels(&pmap)) {
-        return false;
+        return nullptr;
     }
 
-    switch (pmap.colorType()) {
-        case kN32_SkColorType:
-            *color = SkUnPreMultiply::PMColorToColor(*pmap.addr32(0, 0));
-            return true;
-        case kRGB_565_SkColorType:
-            *color = SkPixel16ToColor(*pmap.addr16(0, 0));
-            return true;
-        case kIndex_8_SkColorType: {
-            const SkColorTable& ctable = *pmap.ctable();
-            *color = SkUnPreMultiply::PMColorToColor(ctable[*pmap.addr8(0, 0)]);
-            return true;
-        }
-        default: // just skip the other configs for now
-            break;
+    char            buf[64];
+    SkFixedAlloc    fixed(buf, sizeof(buf));
+    SkFallbackAlloc fallback(&fixed);
+
+    SkRasterPipeline p;
+    SkImageShader tmp(image, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, nullptr);
+    if (!tmp.appendStages(&p, pmap.colorSpace(), &fallback,
+                          SkMatrix::I(), SkPaint())) {
+        return nullptr;
     }
-    return false;
+
+    SkColor4f color4f;
+    auto ptr = &color4f;
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::store_f32, &ptr);
+    p.run(0,0,1);
+
+    if (allocator) {
+        return allocator->createT<SkColor4Shader>(color4f, sk_ref_sp(pmap.colorSpace()));
+    }
+    return new SkColor4Shader(color4f, sk_ref_sp(pmap.colorSpace()));
 }
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     SkTBlitterAllocator* allocator) {
     SkShader* shader;
-    SkColor color;
     if (!image || bitmap_is_too_big(image->width(), image->height())) {
         if (nullptr == allocator) {
             shader = new SkEmptyShader;
         } else {
             shader = allocator->createT<SkEmptyShader>();
         }
-    } else if (can_use_color_shader(image.get(), &color)) {
-        if (nullptr == allocator) {
-            shader = new SkColorShader(color);
-        } else {
-            shader = allocator->createT<SkColorShader>(color);
-        }
+    } else if (SkShader* cs = maybe_color_shader(image, allocator)) {
+        shader = cs;
     } else {
         if (nullptr == allocator) {
             shader = new SkImageShader(image, tx, ty, localMatrix);
