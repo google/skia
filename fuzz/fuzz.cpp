@@ -13,8 +13,8 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
-#include "SkPicture.h"
-#include "SkPicture.h"
+#include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPicture.h"
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
@@ -25,16 +25,21 @@
 
 #include "sk_tool_utils.h"
 
+DEFINE_string(dir, "", "A path to a directory.  All files in the directory will be used as fuzz bytes for the fuzzer.");
 DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 
 DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale', 'image_mode', 'skp', 'icc', or 'api'.");
 DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a PNG with this name.");
 
-static int printUsage(const char* name) {
-    SkDebugf("Usage: %s -t <type> -b <path/to/file> [-n api-to-fuzz]\n", name);
+static char* binaryName;
+
+static int printUsage() {
+    SkDebugf("Usage: %s -t <type> -b <path/to/file> [-n api-to-fuzz]\n",
+             binaryName);
     return 1;
 }
+static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
 static int fuzz_api(sk_sp<SkData>);
@@ -48,8 +53,28 @@ static int fuzz_sksl2glsl(sk_sp<SkData>);
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+    binaryName = argv[0];
+
+    if (!FLAGS_dir.isEmpty()) {
+        const char* path = FLAGS_dir[0];
+        if (!sk_isdir(path)) {
+            SkDebugf("%s is not a directory", path);
+            return printUsage();
+        }
+        SkOSFile::Iter it(path);
+        for (SkString file; it.next(&file); ) {
+            SkString p = SkOSPath::Join(path, file.c_str());
+            SkDebugf("Fuzzing %s\n", p.c_str());
+            fuzz_file(p.c_str());
+        }
+        return 0;
+    }
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
+    return fuzz_file(path);
+}
+
+static int fuzz_file(const char* path) {
     sk_sp<SkData> bytes(SkData::MakeFromFileName(path));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path);
@@ -83,7 +108,7 @@ int main(int argc, char** argv) {
         }
 #endif
     }
-    return printUsage(argv[0]);
+    return printUsage();
 }
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
