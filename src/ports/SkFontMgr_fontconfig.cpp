@@ -953,6 +953,12 @@ protected:
     }
 };
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_FontConfig(FcConfig* fc) {
     return new SkFontMgr_fontconfig(fc);
 }
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_FontConfig(FcConfig* fc) {
+    return sk_make_sp<SkFontMgr_fontconfig>(fc);
+}
+#endif

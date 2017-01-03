@@ -28,7 +28,11 @@ void SkUseTestFontConfigFile(const char* fontsXml, const char* fallbackFontsXml,
               gTestBasePath, gTestFontsXml, gTestFallbackFontsXml));
 }
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SkFontMgr* SkFontMgr::Factory() {
+#else
+sk_sp<SkFontMgr> SkFontMgr::Factory() {
+#endif
     // These globals exist so that Chromium can override the environment.
     // TODO: these globals need to be removed, and Chromium use SkFontMgr_New_Android instead.
     if ((gTestFontsXml || gTestFallbackFontsXml) && gTestBasePath) {

@@ -535,7 +535,11 @@ static char const * const gSystemFontUseStrings[] = {
     "OnlyCustom", "PreferCustom", "PreferSystem"
 };
 #endif
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SkFontMgr* SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
+#else
+sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
+#endif
     if (custom) {
         SkASSERT(0 <= custom->fSystemFontUse);
         SkASSERT(custom->fSystemFontUse < SK_ARRAY_COUNT(gSystemFontUseStrings));
@@ -545,6 +549,9 @@ SkFontMgr* SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
                   custom->fFontsXml,
                   custom->fFallbackFontsXml));
     }
-
+#ifdef SK_LEGACY_FONTMGR_FACTORY
     return new SkFontMgr_Android(custom);
+#else
+    return sk_make_sp<SkFontMgr_Android>(custom);
+#endif
 }
