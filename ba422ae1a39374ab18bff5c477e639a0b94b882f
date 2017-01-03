@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_925aed0a",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-03T19:17:23Z",
+      "side": 1,
+      "message": "Adopted your suggestion below.",
+      "parentUuid": "d760061e_529335ab",
+      "revId": "ba422ae1a39374ab18bff5c477e639a0b94b882f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_92c66daa",
         "filename": "src/core/SkFindAndPlaceGlyph.h",
         "patchSetId": 1
@@ -42,6 +60,24 @@
         "endLine": 461,
         "endChar": 87
       },
+      "revId": "ba422ae1a39374ab18bff5c477e639a0b94b882f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_725f51fc",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-03T19:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_92c66daa",
       "revId": "ba422ae1a39374ab18bff5c477e639a0b94b882f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
