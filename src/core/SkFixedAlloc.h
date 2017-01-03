@@ -10,7 +10,9 @@
 
 #include "SkTFitsIn.h"
 #include "SkTypes.h"
+#include <cstddef>
 #include <new>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -96,13 +98,14 @@ public:
         return new (ptr) T(std::forward<Args>(args)...);
     }
 
-    // Destroys the last object allocated and frees any space it used in the SkFixedAlloc.
-    void undo();
 
     // Destroys all objects and frees all space in the SkFixedAlloc.
     void reset();
 
 private:
+    // Destroys the last object allocated and frees any space it used in the SkFixedAlloc.
+    void undo();
+
     struct HeapAlloc {
         void (*deleter)(char*);
         char* ptr;
@@ -110,6 +113,188 @@ private:
 
     SkFixedAlloc*          fFixedAlloc;
     std::vector<HeapAlloc> fHeapAllocs;
+};
+
+class SkArenaAlloc {
+public:
+    SkArenaAlloc() { }
+    SkArenaAlloc(char* b, size_t s)
+    : fDtorCursor{b}
+    , fCursor{b}
+    , fEnd{b + s}
+    {
+        this->installFooter(EndChain, 0);
+    }
+
+    ~SkArenaAlloc() {
+        this->reset();
+    }
+
+    template <typename T, typename... Args>
+    T* make(Args&&... args) {
+        auto mask = alignof(T) - 1;
+
+        // Align fCursor for this allocation.
+        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        size_t overhead = 0;
+        bool needsSkipFooter = false;
+        if (!std::is_trivially_destructible<T>::value) {
+            needsSkipFooter = fCursor != fDtorCursor;
+            overhead = sizeof(Footer);
+            if (needsSkipFooter) {
+                overhead += sizeof(Footer) + sizeof(ptrdiff_t);
+            }
+        }
+
+        if (objStart + sizeof(T) + overhead > fEnd) {
+            this->ensureSpace(sizeof(T), alignof(T));
+            objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        }
+
+        SkASSERT(objStart + sizeof(T) + overhead < fEnd);
+
+        ptrdiff_t padding = objStart - fCursor;
+        // Advance cursor to end of the object.
+        fCursor = objStart + sizeof(T);
+
+        if (!std::is_trivially_destructible<T>::value) {
+            if (needsSkipFooter) {
+                this->installSkipFooter(fCursor - fDtorCursor);
+            }
+            Releaser releaser = [](char* objEnd) {
+                char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
+                ((T*)objStart)->~T();
+                return objStart;
+            };
+
+            this->installFooter(releaser, padding);
+        }
+
+        return new(objStart) T(std::forward<Args>(args)...);
+    }
+
+    void reset() {
+        char* releaser = fDtorCursor;
+        while (releaser != nullptr) {
+            releaser = this->callReleaser(releaser);
+        }
+    }
+
+private:
+    using Footer = int32_t;
+    using Releaser = char*(*)(char*);
+    void ensureSpace(size_t size, size_t alignment) {
+        constexpr size_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
+        auto objSizeAndOverhead = size + headerSize + sizeof(Footer);
+        if (alignment > alignof(std::max_align_t)) {
+            objSizeAndOverhead += alignment - 1;
+        }
+
+        auto allocationSize = std::max(objSizeAndOverhead, fExtraBlockSize);
+
+        if (allocationSize > (1 << 15)) {
+            auto mask = (1 << 12) - 1;
+            allocationSize = (allocationSize + mask) & ~mask;
+        }
+
+        char* newBlock = new char[allocationSize];
+
+        auto previousDtor = fDtorCursor;
+        fCursor = newBlock;
+        fDtorCursor = newBlock;
+        fEnd = fCursor + allocationSize;
+        this->installNextHeader(previousDtor - fCursor);
+    }
+
+    void installFooter(Releaser releaser, ptrdiff_t padding) {
+        ptrdiff_t releaserDiff = (char *)releaser - (char *)EndChain;
+
+        if (padding >= 32
+            || releaserDiff >= (1 << 26)
+            || releaserDiff < -(1 << 26)) {
+            // Ran out of space, or code not store info in the Footer.
+            SkFAIL("Constraints are busted.");
+        }
+
+        Footer footer = (Footer)(SkLeftShift((int64_t)releaserDiff, 5) | padding);
+        memcpy(fCursor, &footer, sizeof(Footer));
+        fCursor += sizeof(Footer);
+        fDtorCursor = fCursor;
+    }
+
+    void installSkipFooter(ptrdiff_t size) {
+        if ((int32_t)size == size) {
+            int32_t smallSize = size;
+            memmove(fCursor, &smallSize, sizeof(int32_t));
+            fCursor += sizeof(int32_t);
+            this->installFooter(SkipNear, 0);
+        } else {
+            memmove(fCursor, &size, sizeof(size_t));
+            fCursor += sizeof(size_t);
+            this->installFooter(SkipFar, 0);
+        }
+    }
+
+    void installNextHeader(ptrdiff_t size) {
+        if ((int32_t)size == size) {
+            int32_t smallSize = size;
+            memmove(fCursor, &smallSize, sizeof(int32_t));
+            fCursor += sizeof(int32_t);
+            this->installFooter(NextNear, 0);
+        } else {
+            memmove(fCursor, &size, sizeof(size_t));
+            fCursor += sizeof(size_t);
+            this->installFooter(NextFar, 0);
+        }
+    }
+
+    char* callReleaser(char* end) {
+        Footer footer;
+        memcpy(&footer, end - sizeof(Footer), sizeof(Footer));
+
+        Releaser releaser = (Releaser)((char*)EndChain + (footer >> 5));
+        ptrdiff_t padding = footer & 31;
+
+        return releaser(end) - padding;
+    }
+
+    static char* EndChain(char*) { return nullptr; }
+
+    static char* SkipNear(char* end) {
+        char* start = end - (sizeof(Footer) + sizeof(int32_t));
+        int32_t distanceNext;
+        memmove(&distanceNext, start, sizeof(int32_t));
+        return start + distanceNext;
+    }
+
+    static char* SkipFar(char* end) {
+        char* start = end - (sizeof(Footer) + sizeof(ptrdiff_t));
+        ptrdiff_t distanceNext;
+        memmove(&distanceNext, start, sizeof(ptrdiff_t));
+        return start + distanceNext;
+    }
+
+    static char* NextNear(char* end) {
+        char* start = end - (sizeof(Footer) + sizeof(int32_t));
+        int32_t distanceNext;
+        memmove(&distanceNext, start, sizeof(int32_t));
+        free(start);
+        return start + distanceNext;
+    }
+
+    static char* NextFar(char* end) {
+        char* start = end - (sizeof(Footer) + sizeof(ptrdiff_t));
+        ptrdiff_t distanceNext;
+        memmove(&distanceNext, start, sizeof(ptrdiff_t));
+        free(start);
+        return start + distanceNext;
+    }
+
+    size_t fExtraBlockSize {256};
+    char*  fDtorCursor     {nullptr};
+    char*  fCursor         {nullptr};
+    char*  fEnd            {nullptr};
+
 };
 
 #endif//SkFixedAlloc_DEFINED
