@@ -400,4 +400,19 @@ DEF_TEST(SkSLBadOffset, r) {
                  "error: 1: offset of field 'y' must be at least 4\n1 error\n");
 }
 
+DEF_TEST(SkSLDivByZero, r) {
+    test_failure(r,
+                 "int x = 1 / 0;",
+                 "error: 1: division by zero\n1 error\n");
+    test_failure(r,
+                 "float x = 1 / 0;",
+                 "error: 1: division by zero\n1 error\n");
+    test_failure(r,
+                 "float x = 1.0 / 0.0;",
+                 "error: 1: division by zero\n1 error\n");
+    test_failure(r,
+                 "float x = -67.0 / (3.0 - 3);",
+                 "error: 1: division by zero\n1 error\n");
+}
+
 #endif
