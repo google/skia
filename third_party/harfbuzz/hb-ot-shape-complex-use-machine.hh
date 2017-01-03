@@ -1,8 +1,8 @@
 
 #line 1 "hb-ot-shape-complex-use-machine.rl"
 /*
- * Copyright © 2015  Mozilla Foundation.
- * Copyright © 2015  Google, Inc.
+ * Copyright (C) 2015  Mozilla Foundation.
+ * Copyright (C) 2015  Google, Inc.
  *
  *  This is part of HarfBuzz, a text shaping library.
  *

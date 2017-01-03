@@ -1,7 +1,7 @@
 
 #line 1 "hb-buffer-deserialize-text.rl"
 /*
- * Copyright © 2013  Google, Inc.
+ * Copyright (C) 2013  Google, Inc.
  *
  *  This is part of HarfBuzz, a text shaping library.
  *

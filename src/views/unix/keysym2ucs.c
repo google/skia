@@ -1,3 +1,10 @@
+﻿/* ← UTF-8 byte order mark */
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 /* $XFree86$
  * This module converts keysym values into the corresponding ISO 10646
  * (UCS, Unicode) values.

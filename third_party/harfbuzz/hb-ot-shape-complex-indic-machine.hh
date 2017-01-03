@@ -1,7 +1,7 @@
 
 #line 1 "hb-ot-shape-complex-indic-machine.rl"
 /*
- * Copyright © 2011,2012  Google, Inc.
+ * Copyright (C) 2011,2012  Google, Inc.
  *
  *  This is part of HarfBuzz, a text shaping library.
  *
