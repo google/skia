@@ -75,7 +75,7 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
 }
 
 GrVkPipelineState::~GrVkPipelineState() {
-    // Must of freed all GPU resources before this is destroyed
+    // Must have freed all GPU resources before this is destroyed
     SkASSERT(!fPipeline);
     SkASSERT(!fPipelineLayout);
     SkASSERT(!fSamplers.count());

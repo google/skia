@@ -17,6 +17,18 @@
  */
 template <typename K, typename V, typename HashK = SkGoodHash>
 class SkLRUCache : public SkNoncopyable {
+private:
+    struct Entry {
+        Entry(const K& key, V&& value)
+        : fKey(key)
+        , fValue(std::move(value)) {}
+
+        K fKey;
+        V fValue;
+
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
+    };
+
 public:
     explicit SkLRUCache(int maxCount)
     : fMaxCount(maxCount) {}
@@ -57,18 +69,24 @@ public:
         return fMap.count();
     }
 
+    template <typename Fn>  // f(V*)
+    void foreach(Fn&& fn) {
+        typename SkTInternalLList<Entry>::Iter iter;
+        for (Entry* e = iter.init(fLRU, SkTInternalLList<Entry>::Iter::kHead_IterStart); e;
+             e = iter.next()) {
+            fn(&e->fValue);
+        }
+    }
+
+    void reset() {
+        fMap.reset();
+        for (Entry* e = fLRU.head(); e; e = fLRU.head()) {
+            fLRU.remove(e);
+            delete e;
+        }
+    }
+
 private:
-    struct Entry {
-        Entry(const K& key, V&& value)
-        : fKey(key)
-        , fValue(std::move(value)) {}
-
-        K fKey;
-        V fValue;
-
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
-    };
-
     struct Traits {
         static const K& GetKey(Entry* e) {
             return e->fKey;
