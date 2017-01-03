@@ -328,7 +328,7 @@ static int setup_cpu_bench(const double overhead, Target* target, Benchmark* ben
     //  -------------------------  < FLAGS_overheadGoal
     //  overhead + N * Bench Time
     //
-    // where bench_plus_overhead ≈ overhead + Bench Time.
+    // where bench_plus_overhead ~=~ overhead + Bench Time.
     //
     // Doing some math, we get:
     //
