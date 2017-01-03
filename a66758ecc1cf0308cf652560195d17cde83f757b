@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_325039d5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-03T20:29:22Z",
+      "side": 1,
+      "message": "This sentence confused me, but I think I understand now. Independent of this change, Android bitmaps will be tagged as sRGB if linear blending is turned on. This change makes it so we do the right thing if the input is tagged (at least in the case of gammaCloseToSRGB, which I\u0027m guessing is the common case?). If the input is not tagged, the behavior stays the same. Right?",
+      "range": {
+        "startLine": 11,
+        "startChar": 34,
+        "endLine": 12,
+        "endChar": 8
+      },
+      "revId": "a66758ecc1cf0308cf652560195d17cde83f757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_12c41d4e",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-03T20:29:22Z",
+      "side": 1,
+      "message": "This seems weird to me. Not because we\u0027re modifying this field that should be constant*, but because we return a different color space without doing any conversion. If I look at the only other two implementations of this virtual, I see\n\n SkImage_Generator::getROPixels: If I follow this correctly, we\u0027ll ask the generator to use dstColorSpace. For an SkCodecImageGenerator, this will do some sort of conversion, right?\n\n SkImage_Gpu::getROPixels: This one appears to ignore dstColorSpace.\n\n* Maybe that is problematic too? My initial thought was that we\u0027re modifying everything about the dst SkBitmap anyway - we could have instead set a modified info and then set the pixel ref - this is just simpler and clearer about our intent. But then we get into a situation (just like we do here) where the color space on the SkBitmap does not match the one on the SkPixelRef. I know the SkImageInfos can mismatch for width and height (i.e. if the SkBitmap represents a subset). Are we sure that clients will trust the right SkColorSpace (presumably the SkBitmap, in this case) if they do not match?",
+      "range": {
+        "startLine": 185,
+        "startChar": 8,
+        "endLine": 186,
+        "endChar": 46
+      },
+      "revId": "a66758ecc1cf0308cf652560195d17cde83f757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
