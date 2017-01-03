@@ -177,14 +177,9 @@ def RunSteps(api):
                    infra_step=True)
 
   # Batcharchive everything on the isolate server for efficiency.
-  max_slaves_to_batcharchive = MAX_SLAVES_TO_BATCHARCHIVE
-  if '1m' in buildername:
-    # Break up the "isolate tests" step into batches with <100k files due to
-    # https://github.com/luci/luci-go/issues/9
-    max_slaves_to_batcharchive = 5
   tasks_to_swarm_hashes = []
-  for slave_start_num in xrange(1, ct_num_slaves+1, max_slaves_to_batcharchive):
-    m = min(max_slaves_to_batcharchive, ct_num_slaves)
+  for slave_start_num in xrange(1, ct_num_slaves+1, MAX_SLAVES_TO_BATCHARCHIVE):
+    m = min(MAX_SLAVES_TO_BATCHARCHIVE, ct_num_slaves)
     batcharchive_output = api.swarming.batcharchive(
         targets=['ct-' + skia_tool + '-%s' % num for num in range(
             slave_start_num, slave_start_num + m)])
