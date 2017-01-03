@@ -8,7 +8,6 @@
 #include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
-#include "SkColorShader.h"
 #include "SkColorTable.h"
 #include "SkEmptyShader.h"
 #include "SkFixedAlloc.h"
@@ -101,57 +100,15 @@ static bool bitmap_is_too_big(int w, int h) {
     return w > kMaxSize || h > kMaxSize;
 }
 
-// returns true and set color if the bitmap can be drawn as a single color
-// (for efficiency)
-static bool can_use_color_shader(const SkImage* image, SkColor* color) {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // HWUI does not support color shaders (see b/22390304)
-    return false;
-#endif
-
-    if (1 != image->width() || 1 != image->height()) {
-        return false;
-    }
-
-    SkPixmap pmap;
-    if (!image->peekPixels(&pmap)) {
-        return false;
-    }
-
-    switch (pmap.colorType()) {
-        case kN32_SkColorType:
-            *color = SkUnPreMultiply::PMColorToColor(*pmap.addr32(0, 0));
-            return true;
-        case kRGB_565_SkColorType:
-            *color = SkPixel16ToColor(*pmap.addr16(0, 0));
-            return true;
-        case kIndex_8_SkColorType: {
-            const SkColorTable& ctable = *pmap.ctable();
-            *color = SkUnPreMultiply::PMColorToColor(ctable[*pmap.addr8(0, 0)]);
-            return true;
-        }
-        default: // just skip the other configs for now
-            break;
-    }
-    return false;
-}
-
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     SkTBlitterAllocator* allocator) {
     SkShader* shader;
-    SkColor color;
     if (!image || bitmap_is_too_big(image->width(), image->height())) {
         if (nullptr == allocator) {
             shader = new SkEmptyShader;
         } else {
             shader = allocator->createT<SkEmptyShader>();
-        }
-    } else if (can_use_color_shader(image.get(), &color)) {
-        if (nullptr == allocator) {
-            shader = new SkColorShader(color);
-        } else {
-            shader = allocator->createT<SkColorShader>(color);
         }
     } else {
         if (nullptr == allocator) {
