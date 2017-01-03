@@ -98,8 +98,9 @@ static sk_sp<SkImage> create_image_565() {
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
-static sk_sp<SkImage> create_image_large() {
-    const SkImageInfo info = SkImageInfo::MakeN32(32000, 32, kOpaque_SkAlphaType);
+
+static sk_sp<SkImage> create_image_large(int maxTextureSize) {
+    const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(SK_ColorWHITE);
     SkPaint paint;
@@ -835,6 +836,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
+    auto createLarge = [context] {
+        return create_image_large(context->caps()->maxTextureSize());
+    };
     struct {
         std::function<sk_sp<SkImage> ()>                      fImageFactory;
         std::vector<SkImage::DeferredTextureImageUsageParams> fParams;
@@ -862,18 +866,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
           }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
         kNone_SkFilterQuality, 1, false },
         // Create an image that is too large to upload.
-        { create_image_large,    {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+        { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
           kNone_SkFilterQuality, 1, false },
         // Create an image that is too large, but is scaled to an acceptable size.
-        { create_image_large, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
           kMedium_SkFilterQuality, 16, true},
         // Create an image with multiple low filter qualities, make sure we round up.
-        { create_image_large, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
-                               {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+        { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
+                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
           kMedium_SkFilterQuality, 16, true},
         // Create an image with multiple prescale levels, make sure we chose the minimum scale.
-        { create_image_large, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
-                               {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
+                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
           kMedium_SkFilterQuality, 16, true},
     };
 

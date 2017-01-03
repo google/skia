@@ -45,7 +45,6 @@ TEST_BUILDERS = {
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
-      'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
       'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
@@ -358,9 +357,6 @@ def dm_flags(bot):
 
   if 'Nexus10' in bot: # skia:5509
     match.append('~CopySurface')
-
-  if 'GTX1070' in bot and 'Win' in bot: # skia:6080
-    match.append('~DeferredTextureImage')
 
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
