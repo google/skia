@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_529335ab",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-03T18:51:07Z",
+      "side": 1,
+      "message": "This seems like we\u0027ll start drawing these glyphs.",
+      "range": {
+        "startLine": 441,
+        "startChar": 38,
+        "endLine": 441,
+        "endChar": 52
+      },
+      "revId": "ba422ae1a39374ab18bff5c477e639a0b94b882f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_92c66daa",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-03T18:51:07Z",
+      "side": 1,
+      "message": "Since this is the issue, can we protect this like\n\nSkIPoint lookupPosition \u003d SkScalarsAreFinite(position.fX, position.fY)\n                                           ? SubpixelAlignment(kAxisAlignment, finalPosition);\n                                           : SkIPoint{0,0}\n\nAnd then just get rid of finalPosition (replace with position)?",
+      "range": {
+        "startLine": 461,
+        "startChar": 12,
+        "endLine": 461,
+        "endChar": 87
+      },
+      "revId": "ba422ae1a39374ab18bff5c477e639a0b94b882f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
