@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_bf0412c9",
+        "filename": "src/gpu/GrDrawOpTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-03T14:30:30Z",
+      "side": 1,
+      "message": "Just curious, did clang-format inject the whitespace before \u0027*\u0027 ?",
+      "revId": "c45062fb0d7340e6d5f7f177556ae20da648fe12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
