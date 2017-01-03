@@ -46,7 +46,7 @@ public:
      */
     struct PDFMetadata {
         /**
-         * The document’s title.
+         * The document's title.
          */
         SkString fTitle;
         /**

@@ -75,7 +75,7 @@ private:
 };
 
 /**
- * This is a simple helper class for resetting a canvas's clip to our test’s SkClipStack.
+ * This is a simple helper class for resetting a canvas's clip to our test's SkClipStack.
  */
 class ReplayClipStackVisitor final : public SkCanvasClipVisitor {
 public:
