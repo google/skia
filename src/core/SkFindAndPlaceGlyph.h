@@ -436,10 +436,9 @@ private:
 
         SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
-            if (!SkScalarsAreFinite(position.fX, position.fY)) {
-                return position;
-            }
-            SkPoint finalPosition = position;
+            SkPoint finalPosition = SkScalarsAreFinite(position.fX, position.fY)
+                                    ? position
+                                    : SkPoint{0, 0};
             if (kTextAlignment != SkPaint::kLeft_Align) {
                 // Get the width of an un-sub-pixel positioned glyph for calculating the
                 // alignment. This is not needed for kLeftAlign because its adjustment is
