@@ -996,7 +996,9 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         return true;
     }
     do {
-        SkOpSpan* start = coin->coinPtTStartWritable()->span()->upCast();
+        SkOpSpanBase* startSpan = coin->coinPtTStartWritable()->span();
+        FAIL_IF(!startSpan->upCastable());
+        SkOpSpan* start = startSpan->upCast();
         if (start->deleted()) {
             continue;
         }
