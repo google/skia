@@ -34,7 +34,7 @@ const char* kDebugLayerNames[] = {
 #ifdef SK_BUILD_FOR_ANDROID
 const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 3);
 #else
-const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
+const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 0);
 #endif
 
 // Create the base Vulkan objects needed by the GrVkGpu object
