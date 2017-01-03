@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_92182d5d",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-03T19:04:26Z",
+      "side": 1,
+      "message": "too bad we aren\u0027t architected to be able to save the setup between scanlines, since the same pipleline will be built each time.",
+      "range": {
+        "startLine": 237,
+        "startChar": 21,
+        "endLine": 237,
+        "endChar": 22
+      },
+      "revId": "12abf216b49511b1d4ff3658c7cbe146ff14edcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
