@@ -67,6 +67,7 @@ config("default") {
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
+      "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
