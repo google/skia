@@ -1,3 +1,4 @@
+﻿/* ← UTF-8 byte order mark */
 
 #line 1 "hb-ot-shape-complex-use-machine.rl"
 /*

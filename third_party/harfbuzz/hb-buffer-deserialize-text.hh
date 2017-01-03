@@ -1,3 +1,4 @@
+﻿/* ← UTF-8 byte order mark */
 
 #line 1 "hb-buffer-deserialize-text.rl"
 /*

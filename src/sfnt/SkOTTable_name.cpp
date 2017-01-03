@@ -1,3 +1,4 @@
+﻿/* ← UTF-8 byte order mark */
 /*
  * Copyright 2013 Google Inc.
  *
