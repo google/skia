@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_d2f2a526",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-01-03T18:17:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_72af5132",
+      "revId": "9503c52bda932b19acc3033c9383072c21da1e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_d2b3c599",
         "filename": "fuzz/fuzz.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-03T16:54:18Z",
       "side": 1,
       "message": "Seems like we either should or should not ignore the result of fuzz_file().  Here we do both.",
+      "revId": "9503c52bda932b19acc3033c9383072c21da1e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_72fe31f5",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-01-03T18:17:14Z",
+      "side": 1,
+      "message": "Fixed.  I took a leaf out of libfuzzer\u0027s book and made the program always return 0 (except when improper flags are used or file does not exist).",
+      "parentUuid": "d760061e_d2b3c599",
       "revId": "9503c52bda932b19acc3033c9383072c21da1e18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
