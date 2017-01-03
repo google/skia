@@ -56,6 +56,7 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
     SkASSERT(utf8);
     return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
 }
+bool SkUTF8_ValidLength(const char* ptr, size_t byteLength);
 
 int         SkUTF8_CountUnichars(const char utf8[]);
 int         SkUTF8_CountUnichars(const char utf8[], size_t byteLength);

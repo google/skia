@@ -62,6 +62,59 @@ int SkUTF8_CountUnichars(const char utf8[], size_t byteLength) {
     return count;
 }
 
+/*
+From https://en.wikipedia.org/wiki/UTF-8
+   bytes Bits    Codepoint range   Byte 1   Byte 2   Byte 3   Byte 4
+   1     7       U+0000 - U+007F   0xxxxxxx
+   2     11      U+0080 - U+07FF   110xxxxx 10xxxxxx
+   3     16      U+0800 - U+FFFF   1110xxxx 10xxxxxx 10xxxxxx
+   4     21      U+10000- U+10FFFF 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+*/
+#define ONEBYTE(x)       ((x & 0x80) == 0x00)
+#define CONTINUATION(x)  ((x & 0xC0) == 0x80)
+#define LEADING_TWO(x)   ((x & 0xE0) == 0xC0)
+#define LEADING_THREE(x) ((x & 0xF0) == 0xE0)
+#define LEADING_FOUR(x)  ((x & 0xF8) == 0xF0)
+bool SkUTF8_ValidLength(const char* ptr, size_t byteLength) {
+    if (!ptr || 0 == byteLength) {
+        return true;
+    }
+    const uint8_t* begin = (const uint8_t*)ptr;
+    const uint8_t* last = &begin[byteLength - 1];
+    SkASSERT(last >= begin);
+    uint8_t lastValue = *last;
+    if (ONEBYTE(lastValue)) {
+        return true;  // ends with ASCII character
+    }
+    if (!CONTINUATION(lastValue)) {
+        return false;
+    }
+    const uint8_t* first = last - 3;
+    if (first < begin) {
+        first = begin;
+    }
+    for (const uint8_t* ptr = last - 1; ptr >= first; --ptr) {
+        uint8_t value = *ptr;
+        if (CONTINUATION(value)) {
+            continue;
+        } else if (LEADING_TWO(value)) {
+            return last == ptr + 1;
+        } else if (LEADING_THREE(value)) {
+            return last == ptr + 2;
+        } else if (LEADING_FOUR(value)) {
+            return last == ptr + 3;
+        } else {
+            break;  // ONEBYTE or invalid byte
+        }
+    }
+    return false;
+}
+#undef LEADING_FOUR
+#undef LEADING_THREE
+#undef LEADING_TWO
+#undef CONTINUATION
+#undef ONEBYTE
+
 SkUnichar SkUTF8_ToUnichar(const char utf8[]) {
     SkASSERT(utf8);
 

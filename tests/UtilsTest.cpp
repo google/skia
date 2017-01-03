@@ -219,3 +219,37 @@ DEF_TEST(Utils, reporter) {
     test_autounref(reporter);
     test_autostarray(reporter);
 }
+
+DEF_TEST(Utils_UTF8_ValidLength, r) {
+    const char* goodTestcases[] = {
+        "",
+        "0",
+        "00",
+        "Ā",  // two bytes
+        "0Ā",
+        "00Ā",
+        "ࠀ",  // three bytes
+        "0ࠀ",
+        "00ࠀ",
+        "😀",  // four bytes
+        "0😀",
+        "00😀",
+    };
+    for (const char* testcase : goodTestcases) {
+        REPORTER_ASSERT(r, SkUTF8_ValidLength(testcase, strlen(testcase)));
+    }
+    const char* badTestcases[] = {
+        "\304",
+        "\200",
+        "\340\240",
+        "\240\200",
+        "\237\230\200",
+        "\360\237\230",
+        "\374",
+        "\374\200",
+    };
+    for (const char* testcase : badTestcases) {
+        REPORTER_ASSERT(r, !SkUTF8_ValidLength(testcase, strlen(testcase)));
+    }
+
+}
