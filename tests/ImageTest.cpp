@@ -99,7 +99,7 @@ static sk_sp<SkImage> create_image_565() {
     return surface->makeImageSnapshot();
 }
 static sk_sp<SkImage> create_image_large() {
-    const SkImageInfo info = SkImageInfo::MakeN32(32000, 32, kOpaque_SkAlphaType);
+    const SkImageInfo info = SkImageInfo::MakeN32(90000, 32, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(SK_ColorWHITE);
     SkPaint paint;
