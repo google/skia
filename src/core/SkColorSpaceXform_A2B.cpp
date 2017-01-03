@@ -63,6 +63,8 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
             }
             pipeline.append(SkRasterPipeline::store_f32, &dst);
             break;
+        default:
+            return false;
     }
     pipeline.run(0,0, count);
 
