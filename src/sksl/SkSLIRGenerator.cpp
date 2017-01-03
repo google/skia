@@ -876,7 +876,12 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::PLUS:       return RESULT(Int,  +);
             case Token::MINUS:      return RESULT(Int,  -);
             case Token::STAR:       return RESULT(Int,  *);
-            case Token::SLASH:      return RESULT(Int,  /);
+            case Token::SLASH:
+                if (rightVal) {
+                    return RESULT(Int, /);
+                }
+                fErrors.error(right.fPosition, "division by zero");
+                return nullptr;
             case Token::PERCENT:    return RESULT(Int,  %);
             case Token::BITWISEAND: return RESULT(Int,  &);
             case Token::BITWISEOR:  return RESULT(Int,  |);
@@ -900,7 +905,12 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::PLUS:       return RESULT(Float, +);
             case Token::MINUS:      return RESULT(Float, -);
             case Token::STAR:       return RESULT(Float, *);
-            case Token::SLASH:      return RESULT(Float, /);
+            case Token::SLASH:
+                if (rightVal) {
+                    return RESULT(Float, /);
+                }
+                fErrors.error(right.fPosition, "division by zero");
+                return nullptr;
             case Token::EQEQ:       return RESULT(Bool,  ==);
             case Token::NEQ:        return RESULT(Bool,  !=);
             case Token::GT:         return RESULT(Bool,  >);
