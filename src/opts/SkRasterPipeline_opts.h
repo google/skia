@@ -273,6 +273,15 @@ SI void from_f16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *b = SkHalfToFloat_finite_ftz(bh);
     *a = SkHalfToFloat_finite_ftz(ah);
 }
+SI void from_u16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(px, &rh, &gh, &bh, &ah);
+
+    *r = SkNx_cast<float>(rh);
+    *g = SkNx_cast<float>(gh);
+    *b = SkNx_cast<float>(bh);
+    *a = SkNx_cast<float>(ah);
+}
 
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
@@ -555,9 +564,21 @@ STAGE(store_8888) {
     store(tail, byte(r,0)|byte(g,1)|byte(b,2)|byte(a,3), (int*)ptr);
 }
 
+STAGE(load_u16) {
+    auto ptr = *(const uint64_t**)ctx + x;
+
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
+    if (false) {from_u16(src, &r, &g, &b, &a);}
+}
+
 STAGE(load_tables) {
     auto loadCtx = (const LoadTablesContext*)ctx;
-    auto ptr = loadCtx->fSrc + x;
+    auto ptr = (const uint32_t*)loadCtx->fSrc + x;
 
     SkNu rgba = load(tail, ptr);
     auto to_int = [](const SkNu& v) { return SkNi::Load(&v); };
@@ -565,6 +586,20 @@ STAGE(load_tables) {
     g = gather(tail, loadCtx->fG, to_int((rgba >>  8) & 0xff));
     b = gather(tail, loadCtx->fB, to_int((rgba >> 16) & 0xff));
     a = SkNf_from_byte(rgba >> 24);
+}
+
+STAGE(load_tables_u16) {
+    auto loadCtx = (const LoadTablesContext*)ctx;
+    auto ptr = (const uint64_t*)loadCtx->fSrc + x;
+
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+
+    auto to_int = [](const SkNb& v) { return SkNi::Load(&v); };
+    r = gather(tail, loadCtx->fR, to_int(SkNx_cast<uint8_t>(rh >> 8)));
+    g = gather(tail, loadCtx->fG, to_int(SkNx_cast<uint8_t>(gh >> 8)));
+    b = gather(tail, loadCtx->fB, to_int(SkNx_cast<uint8_t>(bh >> 8)));
+    a = SkNx_cast<float>(ah);
 }
 
 STAGE(store_tables) {

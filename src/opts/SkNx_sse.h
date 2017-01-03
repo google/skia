@@ -634,6 +634,14 @@ public:
         return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
     }
 
+    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
+        return _mm256_cvtepu16_epi32(src.fVec);
+    }
+
+    template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8h& src) {
+        return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
+    }
+
     template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8i& src) {
         return _mm256_cvtepi32_ps(src.fVec);
     }
@@ -642,13 +650,14 @@ public:
         return _mm256_cvttps_epi32(src.fVec);
     }
 
-    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
-        return _mm256_cvtepu16_epi32(src.fVec);
-    }
     template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8i& src) {
         __m128i lo = _mm256_extractf128_si256(src.fVec, 0),
                 hi = _mm256_extractf128_si256(src.fVec, 1);
         return _mm_packus_epi32(lo, hi);
+    }
+
+    template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, uint16_t>(const Sk8h& src) {
+        return _mm_packus_epi16(src.fVec, src.fVec);
     }
 
 #endif
