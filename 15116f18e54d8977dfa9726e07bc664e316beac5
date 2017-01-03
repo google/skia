@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_95f9370e",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-03T23:20:53Z",
+      "side": 1,
+      "message": "Is this x64?",
+      "revId": "15116f18e54d8977dfa9726e07bc664e316beac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
