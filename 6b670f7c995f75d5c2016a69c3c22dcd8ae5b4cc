@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_f5822be9",
+        "filename": "tests/UtilsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-03T20:39:42Z",
+      "side": 1,
+      "message": "Can you use \\x hex values instead of octal?",
+      "range": {
+        "startLine": 243,
+        "startChar": 10,
+        "endLine": 243,
+        "endChar": 13
+      },
+      "revId": "6b670f7c995f75d5c2016a69c3c22dcd8ae5b4cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
