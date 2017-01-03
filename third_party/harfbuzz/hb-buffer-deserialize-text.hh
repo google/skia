@@ -1,3 +1,4 @@
+﻿
 
 #line 1 "hb-buffer-deserialize-text.rl"
 /*

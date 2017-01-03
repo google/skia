@@ -1,3 +1,4 @@
+﻿
 
 #line 1 "hb-ot-shape-complex-indic-machine.rl"
 /*
