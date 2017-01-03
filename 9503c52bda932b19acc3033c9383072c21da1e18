@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_72af5132",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-03T16:54:18Z",
+      "side": 1,
+      "message": "Why don\u0027t we reuse the same flag?\n\nconst char* path \u003d FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];\n\nif (sk_isdir(path)) {\n    SkOSFile::Iter it(path);\n    for (SkString file; it.next(\u0026file); ) {\n        SkString p \u003d SkOSPath::Join(path, file.c_str());\n        SkDebugf(\"Fuzzing %s\\n\", p.c_str());\n        if (int rc \u003d fuzz_file(p.c_str())) {\n            return rc;\n        }\n    }\n    return 0;\n} else {\n    return fuzz_file(path);\n}",
+      "revId": "9503c52bda932b19acc3033c9383072c21da1e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_d2b3c599",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-03T16:54:18Z",
+      "side": 1,
+      "message": "Seems like we either should or should not ignore the result of fuzz_file().  Here we do both.",
+      "revId": "9503c52bda932b19acc3033c9383072c21da1e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
