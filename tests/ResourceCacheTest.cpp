@@ -229,7 +229,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     sk_sp<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
                              desc, kAdopt_GrWrapOwnership));
 
-    printf("\nborrowed: %p, adopted: %p\n", borrowed.get(), adopted.get());
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
         return;
