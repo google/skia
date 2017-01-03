@@ -11,6 +11,9 @@
 #define __STDC_FORMAT_MACROS
 #endif
 #include <cinttypes>
+#include <locale>
+#include <sstream>
+#include <string>
 
 namespace SkSL {
 
@@ -60,7 +63,12 @@ int stoi(SkString s) {
 }
 
 double stod(SkString s) {
-    return atof(s.c_str());
+    double result;
+    std::string str(s.c_str(), s.size());
+    std::stringstream buffer(str);
+    buffer.imbue(std::locale::classic());
+    buffer >> result;
+    return result;
 }
 
 long stol(SkString s) {
