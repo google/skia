@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_d51f2fd1",
+        "filename": "gm/fontmgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-03T21:21:19Z",
+      "side": 1,
+      "message": "Does the GM have to be guarded (does anyone define SK_LEGACY_FONTMGR_FACTORY when building it)?",
+      "revId": "4a82a5399762a0f8933789f7fb5f7933d92cb59b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_f20ec1e4",
+        "filename": "include/ports/SkFontMgr.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-03T21:21:19Z",
+      "side": 1,
+      "message": "Should we change the name to GetDefault() or MakeDefault?  I vaguely remember we did that for SkTypeface.",
+      "range": {
+        "startLine": 172,
+        "startChar": 28,
+        "endLine": 172,
+        "endChar": 38
+      },
+      "revId": "4a82a5399762a0f8933789f7fb5f7933d92cb59b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
