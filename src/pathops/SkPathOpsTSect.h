@@ -2031,7 +2031,7 @@ struct SkClosestRecord {
     }
 
     bool matesWith(const SkClosestRecord& mate  SkDEBUGPARAMS(SkIntersections* i)) const {
-        SkASSERT(fC1Span == mate.fC1Span || fC1Span->endT() <= mate.fC1Span->startT()
+        SkOPOBJASSERT(i, fC1Span == mate.fC1Span || fC1Span->endT() <= mate.fC1Span->startT()
                 || mate.fC1Span->endT() <= fC1Span->startT());
         SkOPOBJASSERT(i, fC2Span == mate.fC2Span || fC2Span->endT() <= mate.fC2Span->startT()
                 || mate.fC2Span->endT() <= fC2Span->startT());
@@ -2281,8 +2281,12 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
             if (!coincident->fCoinEnd.isMatch()) {
                 continue;
             }
+            double perpT = coincident->fCoinStart.perpT();
+            if (perpT < 0) {
+                return;
+            }
             int index = intersections->insertCoincident(coincident->fStartT,
-                    coincident->fCoinStart.perpT(), coincident->fPart[0]);
+                    perpT, coincident->fPart[0]);
             if ((intersections->insertCoincident(coincident->fEndT,
                     coincident->fCoinEnd.perpT(),
                     coincident->fPart[TCurve::kPointLast]) < 0) && index >= 0) {
