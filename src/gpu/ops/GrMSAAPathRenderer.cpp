@@ -217,8 +217,8 @@ private:
 class MSAAPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
-                                const SkRect& devBounds) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path,
+                                          const SkMatrix& viewMatrix, const SkRect& devBounds) {
         int contourCount;
         int maxLineVertices;
         int maxQuadVertices;
@@ -229,8 +229,8 @@ public:
             return nullptr;
         }
 
-        return sk_sp<GrDrawOp>(new MSAAPathOp(color, path, viewMatrix, devBounds, maxLineVertices,
-                                              maxQuadVertices, isIndexed));
+        return std::unique_ptr<GrDrawOp>(new MSAAPathOp(
+                color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
     }
 
     const char* name() const override { return "MSAAPathOp"; }
@@ -663,15 +663,16 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewM, bounds,
-                                                              nullptr, &localMatrix));
+            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, aaType);
             pipelineBuilder.setUserStencil(passes[p]);
 
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            sk_sp<GrDrawOp> op = MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
+            std::unique_ptr<GrDrawOp> op =
+                    MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
             if (!op) {
                 return false;
             }

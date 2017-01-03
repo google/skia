@@ -45,27 +45,36 @@ public:
      * this class before attempting to flush ops returned by it. It is invalid to record new
      * draws between beginFlush() and endFlush().
      */
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor, GrAA,
-                                                     const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+                                                               GrColor, GrAA,
+                                                               const GrInstancedPipelineInfo&,
+                                                               GrAAType*);
 
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                                     const SkRect& localRect, GrAA,
-                                                     const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+                                                               GrColor, const SkRect& localRect,
+                                                               GrAA, const GrInstancedPipelineInfo&,
+                                                               GrAAType*);
 
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                                     const SkMatrix& localMatrix, GrAA,
-                                                     const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&,
+                                                               GrColor, const SkMatrix& localMatrix,
+                                                               GrAA, const GrInstancedPipelineInfo&,
+                                                               GrAAType*);
 
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&, GrColor, GrAA,
-                                                     const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&,
+                                                               GrColor, GrAA,
+                                                               const GrInstancedPipelineInfo&,
+                                                               GrAAType*);
 
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&, GrColor,
-                                                      GrAA, const GrInstancedPipelineInfo&,
-                                                      GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&,
+                                                                GrColor, GrAA,
+                                                                const GrInstancedPipelineInfo&,
+                                                                GrAAType*);
 
-    sk_sp<GrDrawOp> SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                                       const SkMatrix&, GrColor, GrAA,
-                                                       const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer,
+                                                                 const SkRRect& inner,
+                                                                 const SkMatrix&, GrColor, GrAA,
+                                                                 const GrInstancedPipelineInfo&,
+                                                                 GrAAType*);
 
     /**
      * Compiles all recorded draws into GPU buffers and allows the client to begin flushing the
@@ -175,15 +184,16 @@ private:
         kFlushing
     };
 
-    sk_sp<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
-                                                const SkMatrix& viewMatrix, GrColor,
-                                                const SkRect& localRect, GrAA aa,
-                                                const GrInstancedPipelineInfo&, GrAAType*);
+    std::unique_ptr<Op> SK_WARN_UNUSED_RESULT recordShape(ShapeType, const SkRect& bounds,
+                                                          const SkMatrix& viewMatrix, GrColor,
+                                                          const SkRect& localRect, GrAA aa,
+                                                          const GrInstancedPipelineInfo&,
+                                                          GrAAType*);
 
     bool selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa, const GrInstancedPipelineInfo&,
                              GrAAType*, AntialiasMode*);
 
-    virtual sk_sp<Op> makeOp() = 0;
+    virtual std::unique_ptr<Op> makeOp() = 0;
 
     const sk_sp<GrGpu> fGpu;
     State fState;

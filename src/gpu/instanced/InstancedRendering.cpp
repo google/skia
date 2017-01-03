@@ -21,30 +21,33 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
       fDrawPool(1024, 1024) {
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                               GrColor color, GrAA aa,
-                                               const GrInstancedPipelineInfo& info,
-                                               GrAAType* aaType) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         GrAA aa,
+                                                         const GrInstancedPipelineInfo& info,
+                                                         GrAAType* aaType) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info, aaType);
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                               GrColor color, const SkRect& localRect, GrAA aa,
-                                               const GrInstancedPipelineInfo& info,
-                                               GrAAType* aaType) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkRect& localRect, GrAA aa,
+                                                         const GrInstancedPipelineInfo& info,
+                                                         GrAAType* aaType) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, aa, info,
                              aaType);
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                               GrColor color, const SkMatrix& localMatrix, GrAA aa,
-                                               const GrInstancedPipelineInfo& info,
-                                               GrAAType* aaType) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect,
+                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         const SkMatrix& localMatrix, GrAA aa,
+                                                         const GrInstancedPipelineInfo& info,
+                                                         GrAAType* aaType) {
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
-    if (sk_sp<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, aa, info,
-                                         aaType)) {
+    if (std::unique_ptr<Op> op = this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect,
+                                                   aa, info, aaType)) {
         op->getSingleInstance().fInfo |= kLocalMatrix_InfoFlag;
         op->appendParamsTexel(localMatrix.getScaleX(), localMatrix.getSkewX(),
                               localMatrix.getTranslateX());
@@ -56,37 +59,40 @@ sk_sp<GrDrawOp> InstancedRendering::recordRect(const SkRect& rect, const SkMatri
     return nullptr;
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
-                                               GrColor color, GrAA aa,
-                                               const GrInstancedPipelineInfo& info,
-                                               GrAAType* aaType) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordOval(const SkRect& oval,
+                                                         const SkMatrix& viewMatrix, GrColor color,
+                                                         GrAA aa,
+                                                         const GrInstancedPipelineInfo& info,
+                                                         GrAAType* aaType) {
     return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, aa, info, aaType);
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
-                                                GrColor color, GrAA aa,
-                                                const GrInstancedPipelineInfo& info,
-                                                GrAAType* aaType) {
-    if (sk_sp<Op> op = this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
-                                         rrect.rect(), aa, info, aaType)) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordRRect(const SkRRect& rrect,
+                                                          const SkMatrix& viewMatrix, GrColor color,
+                                                          GrAA aa,
+                                                          const GrInstancedPipelineInfo& info,
+                                                          GrAAType* aaType) {
+    if (std::unique_ptr<Op> op =
+                this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
+                                  rrect.rect(), aa, info, aaType)) {
         op->appendRRectParams(rrect);
         return std::move(op);
     }
     return nullptr;
 }
 
-sk_sp<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                                 const SkMatrix& viewMatrix, GrColor color, GrAA aa,
-                                                 const GrInstancedPipelineInfo& info,
-                                                 GrAAType* aaType) {
+std::unique_ptr<GrDrawOp> InstancedRendering::recordDRRect(
+        const SkRRect& outer, const SkRRect& inner, const SkMatrix& viewMatrix, GrColor color,
+        GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     if (inner.getType() > SkRRect::kSimple_Type) {
        return nullptr; // Complex inner round rects are not yet supported.
     }
     if (SkRRect::kEmpty_Type == inner.getType()) {
         return this->recordRRect(outer, viewMatrix, color, aa, info, aaType);
     }
-    if (sk_sp<Op> op = this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
-                                         outer.rect(), aa, info, aaType)) {
+    if (std::unique_ptr<Op> op =
+                this->recordShape(GetRRectShapeType(outer), outer.rect(), viewMatrix, color,
+                                  outer.rect(), aa, info, aaType)) {
         op->appendRRectParams(outer);
         ShapeType innerShapeType = GetRRectShapeType(inner);
         op->fInfo.fInnerShapeTypes |= GetShapeFlag(innerShapeType);
@@ -98,7 +104,7 @@ sk_sp<GrDrawOp> InstancedRendering::recordDRRect(const SkRRect& outer, const SkR
     return nullptr;
 }
 
-sk_sp<InstancedRendering::Op> InstancedRendering::recordShape(
+std::unique_ptr<InstancedRendering::Op> InstancedRendering::recordShape(
         ShapeType type, const SkRect& bounds, const SkMatrix& viewMatrix, GrColor color,
         const SkRect& localRect, GrAA aa, const GrInstancedPipelineInfo& info, GrAAType* aaType) {
     SkASSERT(State::kRecordingDraws == fState);
@@ -112,7 +118,7 @@ sk_sp<InstancedRendering::Op> InstancedRendering::recordShape(
         return nullptr;
     }
 
-    sk_sp<Op> op = this->makeOp();
+    std::unique_ptr<Op> op = this->makeOp();
     op->fInfo.fAntialiasMode = antialiasMode;
     op->fInfo.fShapeTypes = GetShapeFlag(type);
     op->fInfo.fCannotDiscard = !info.fCanDiscard;

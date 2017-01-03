@@ -470,7 +470,7 @@ private:
     bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
-    void addDrawOp(const GrPipelineBuilder&, const GrClip&, sk_sp<GrDrawOp>);
+    void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
 
     GrRenderTargetOpList* getOpList();
 

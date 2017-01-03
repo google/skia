@@ -62,9 +62,9 @@ public:
 
 private:
     // The unique ID is only needed for the audit trail. This should be removed with MDB.
-    void recordOp(sk_sp<GrOp>, GrGpuResource::UniqueID renderTargetID);
+    void recordOp(std::unique_ptr<GrOp>, GrGpuResource::UniqueID renderTargetID);
 
-    SkSTArray<2, sk_sp<GrOp>, true> fRecordedOps;
+    SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;
     GrGpu*                          fGpu;
 
     typedef GrOpList INHERITED;
