@@ -27,8 +27,8 @@ public:
                                        SkIRect* clippedSrcRect,
                                        SkIPoint* clippedDstPoint);
 
-    static sk_sp<GrOp> Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint);
+    static std::unique_ptr<GrOp> Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                      const SkIPoint& dstPoint);
 
     const char* name() const override { return "CopySurface"; }
 

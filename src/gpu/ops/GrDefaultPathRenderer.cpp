@@ -98,11 +98,11 @@ class DefaultPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
-                                uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
-                                const SkRect& devBounds) {
-        return sk_sp<GrDrawOp>(new DefaultPathOp(color, path, tolerance, coverage, viewMatrix,
-                                                 isHairline, devBounds));
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path, SkScalar tolerance,
+                                          uint8_t coverage, const SkMatrix& viewMatrix,
+                                          bool isHairline, const SkRect& devBounds) {
+        return std::unique_ptr<GrDrawOp>(new DefaultPathOp(color, path, tolerance, coverage,
+                                                           viewMatrix, isHairline, devBounds));
     }
 
     const char* name() const override { return "DefaultPathOp"; }
@@ -555,8 +555,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewM, bounds,
-                                                              nullptr, &localMatrix));
+            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
             GrPipelineBuilder pipelineBuilder(paint, aaType);
@@ -564,7 +564,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             pipelineBuilder.setUserStencil(passes[p]);
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            sk_sp<GrDrawOp> op =
+            std::unique_ptr<GrDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
                                         viewMatrix, isHairline, devBounds);
             GrPipelineBuilder pipelineBuilder(paint, aaType);

@@ -19,16 +19,17 @@ class GrStencilPathOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrOp> Make(const SkMatrix& viewMatrix,
-                            bool useHWAA,
-                            GrPathRendering::FillType fillType,
-                            bool hasStencilClip,
-                            int numStencilBits,
-                            const GrScissorState& scissor,
-                            GrRenderTarget* renderTarget,
-                            const GrPath* path) {
-        return sk_sp<GrOp>(new GrStencilPathOp(viewMatrix, useHWAA, fillType, hasStencilClip,
-                                               numStencilBits, scissor, renderTarget, path));
+    static std::unique_ptr<GrOp> Make(const SkMatrix& viewMatrix,
+                                      bool useHWAA,
+                                      GrPathRendering::FillType fillType,
+                                      bool hasStencilClip,
+                                      int numStencilBits,
+                                      const GrScissorState& scissor,
+                                      GrRenderTarget* renderTarget,
+                                      const GrPath* path) {
+        return std::unique_ptr<GrOp>(new GrStencilPathOp(viewMatrix, useHWAA, fillType,
+                                                         hasStencilClip, numStencilBits, scissor,
+                                                         renderTarget, path));
     }
 
     const char* name() const override { return "StencilPathOp"; }

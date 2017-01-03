@@ -343,34 +343,35 @@ private:
 
 namespace GrAAFillRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect,
-                     const SkRect& devRect) {
-    return sk_sp<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const SkRect& devRect) {
+    return std::unique_ptr<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, nullptr));
 }
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkMatrix& localMatrix,
-                     const SkRect& rect,
-                     const SkRect& devRect) {
-    return sk_sp<GrDrawOp>(new AAFillRectOp(color, viewMatrix, rect, devRect, &localMatrix));
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkMatrix& localMatrix,
+                               const SkRect& rect,
+                               const SkRect& devRect) {
+    return std::unique_ptr<GrDrawOp>(
+            new AAFillRectOp(color, viewMatrix, rect, devRect, &localMatrix));
 }
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkMatrix& localMatrix,
-                     const SkRect& rect) {
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkMatrix& localMatrix,
+                               const SkRect& rect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
     return Make(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-sk_sp<GrDrawOp> MakeWithLocalRect(GrColor color,
-                                  const SkMatrix& viewMatrix,
-                                  const SkRect& rect,
-                                  const SkRect& localRect) {
+std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrColor color,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRect& rect,
+                                            const SkRect& localRect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
     SkMatrix localMatrix;

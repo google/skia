@@ -229,7 +229,8 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrPaint& paint,
                                                       GrAAType aaType,
-                                                      sk_sp<GrDrawOp> op,
+                                                      std::unique_ptr<GrDrawOp>
+                                                              op,
                                                       const GrUserStencilSettings* uss,
                                                       bool snapToCenters) {
     ASSERT_SINGLE_OWNER
@@ -247,7 +248,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrPaint& paint,
     }
 
     fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
-                                                 op);
+                                                 std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

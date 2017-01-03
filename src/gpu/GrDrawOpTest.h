@@ -18,14 +18,15 @@ class GrContext;
 class SkRandom;
 
 /**  This function returns a randomly configured GrDrawOp for testing purposes. */
-sk_sp<GrDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
+std::unique_ptr<GrDrawOp> GrRandomDrawOp(SkRandom*, GrContext*);
 
 /** GrDrawOp subclasses should define test factory functions using this macro. */
-#define DRAW_OP_TEST_DEFINE(Op) sk_sp<GrDrawOp> Op##__Test(SkRandom* random, GrContext* context)
+#define DRAW_OP_TEST_DEFINE(Op) \
+    std::unique_ptr<GrDrawOp> Op##__Test(SkRandom* random, GrContext* context)
 
 /** This macro may be used if the test factory function must be made a friend of a class. */
 #define DRAW_OP_TEST_FRIEND(Op) \
-    friend sk_sp<GrDrawOp> Op##__Test(SkRandom* random, GrContext* context);
+    friend std::unique_ptr<GrDrawOp> Op##__Test(SkRandom* random, GrContext* context);
 
 #endif
 #endif

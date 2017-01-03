@@ -82,7 +82,7 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    sk_sp<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
@@ -95,7 +95,7 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
     return true;
 }
 
-void GrTextureOpList::recordOp(sk_sp<GrOp> op, GrGpuResource::UniqueID renderTargetID) {
+void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op, GrGpuResource::UniqueID renderTargetID) {
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 

@@ -254,7 +254,7 @@ bool GrAtlasTextBlob::mustRegenerate(const SkPaint& paint,
     return false;
 }
 
-inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
+inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color, const SkPaint& skPaint,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -268,7 +268,7 @@ inline sk_sp<GrDrawOp> GrAtlasTextBlob::makeOp(
         subRunColor = color;
     }
 
-    sk_sp<GrAtlasTextOp> op;
+    std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
         SkColor filteredColor;
         SkColorFilter* colorFilter = skPaint.getColorFilter();
@@ -313,9 +313,9 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
 
         GrColor color = grPaint.getColor();
 
-        sk_sp<GrDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, color,
-                                        skPaint, props, distanceAdjustTable, rtc->isGammaCorrect(),
-                                        cache));
+        std::unique_ptr<GrDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y,
+                                                  color, skPaint, props, distanceAdjustTable,
+                                                  rtc->isGammaCorrect(), cache));
         GrPipelineBuilder pipelineBuilder(grPaint, GrAAType::kNone);
 
         rtc->addDrawOp(pipelineBuilder, clip, std::move(op));
@@ -451,12 +451,10 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context,
     this->flushBigGlyphs(context, rtc, clip, skPaint, viewMatrix, x, y, clipBounds);
 }
 
-sk_sp<GrDrawOp> GrAtlasTextBlob::test_makeOp(int glyphCount, int run, int subRun,
-                                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                             GrColor color, const SkPaint& skPaint,
-                                             const SkSurfaceProps& props,
-                                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                             GrAtlasGlyphCache* cache) {
+std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
+        int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+        GrColor color, const SkPaint& skPaint, const SkSurfaceProps& props,
+        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, color, skPaint, props,
                         distanceAdjustTable, false, cache);

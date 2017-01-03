@@ -376,12 +376,13 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-sk_sp<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
-                                       const SkMatrix& viewMatrix,
-                                       const SkRect& rect,
-                                       const SkRect& croppedRect,
-                                       const SkRect& bounds) {
-    return sk_sp<GrDrawOp>(new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
+std::unique_ptr<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRect& rect,
+                                                 const SkRect& croppedRect,
+                                                 const SkRect& bounds) {
+    return std::unique_ptr<GrDrawOp>(
+            new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
 #ifdef GR_TEST_UTILS
@@ -392,7 +393,8 @@ DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkRect rect = GrTest::TestSquare(random);
     SkRect croppedRect = GrTest::TestSquare(random);
     SkRect bounds = GrTest::TestSquare(random);
-    return sk_sp<GrDrawOp>(new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
+    return std::unique_ptr<GrDrawOp>(
+            new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
 #endif

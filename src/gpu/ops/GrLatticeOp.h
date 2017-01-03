@@ -17,8 +17,9 @@ class SkMatrix;
 struct SkRect;
 
 namespace GrLatticeOp {
-sk_sp<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
-                          int imageHeight, std::unique_ptr<SkLatticeIter> iter, const SkRect& dst);
+std::unique_ptr<GrDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth,
+                                    int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                                    const SkRect& dst);
 };
 
 #endif

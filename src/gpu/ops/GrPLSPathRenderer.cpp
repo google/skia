@@ -766,8 +766,9 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 class PLSPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkPath& path, const SkMatrix& viewMatrix) {
-        return sk_sp<GrDrawOp>(new PLSPathOp(color, path, viewMatrix));
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkPath& path,
+                                          const SkMatrix& viewMatrix) {
+        return std::unique_ptr<GrDrawOp>(new PLSPathOp(color, path, viewMatrix));
     }
 
     const char* name() const override { return "PLSPathOp"; }
@@ -931,7 +932,8 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawOp> op = PLSPathOp::Make(args.fPaint->getColor(), path, *args.fViewMatrix);
+    std::unique_ptr<GrDrawOp> op =
+            PLSPathOp::Make(args.fPaint->getColor(), path, *args.fViewMatrix);
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 

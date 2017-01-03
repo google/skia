@@ -79,9 +79,9 @@ public:
     const GrCaps* caps() const { return fGpu->caps(); }
 
     void addDrawOp(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&,
-                   sk_sp<GrDrawOp>);
+                   std::unique_ptr<GrDrawOp>);
 
-    void addOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+    void addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext);
     }
 
@@ -133,13 +133,13 @@ private:
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
-    GrOp* recordOp(sk_sp<GrOp> op, GrRenderTargetContext* renderTargetContext) {
+    GrOp* recordOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         SkRect bounds = op->bounds();
         return this->recordOp(std::move(op), renderTargetContext, bounds);
     }
 
     // Variant that allows an explicit bounds (computed from the Op's bounds and a clip).
-    GrOp* recordOp(sk_sp<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
+    GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, const SkRect& clippedBounds);
 
     void forwardCombine();
 
@@ -155,7 +155,7 @@ private:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTargetContext*);
 
     struct RecordedOp {
-        sk_sp<GrOp> fOp;
+        std::unique_ptr<GrOp> fOp;
         SkRect fClippedBounds;
         // TODO: Use proxy ID instead of instantiated render target ID.
         GrGpuResource::UniqueID fRenderTargetID;

@@ -27,11 +27,11 @@ struct SkRect;
  */
 class GrAnalyticRectOp {
 public:
-    static sk_sp<GrDrawOp> Make(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkRect& rect,
-                                const SkRect& croppedRect,
-                                const SkRect& bounds);
+    static std::unique_ptr<GrDrawOp> Make(GrColor color,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& rect,
+                                          const SkRect& croppedRect,
+                                          const SkRect& bounds);
 };
 
 #endif  // GrAnalyticRectOp_DEFINED

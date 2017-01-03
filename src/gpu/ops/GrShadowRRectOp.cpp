@@ -67,8 +67,9 @@ class ShadowCircleOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
-                                SkScalar radius, SkScalar blurRadius, const GrStyle& style) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
+                                          SkScalar radius, SkScalar blurRadius,
+                                          const GrStyle& style) {
         SkASSERT(viewMatrix.isSimilarity());
         const SkStrokeRec& stroke = style.strokeRec();
         if (style.hasPathEffect()) {
@@ -108,7 +109,7 @@ public:
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
         bool stroked = isStrokeOnly && innerRadius > 0.0f;
-        sk_sp<ShadowCircleOp> op(new ShadowCircleOp());
+        std::unique_ptr<ShadowCircleOp> op(new ShadowCircleOp());
         op->fViewMatrixIfUsingLocalCoords = viewMatrix;
 
         SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
@@ -826,12 +827,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrDrawOp> make_shadow_circle_op(GrColor color,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRect& oval,
-                                      SkScalar blurRadius,
-                                      const SkStrokeRec& stroke,
-                                      const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrDrawOp> make_shadow_circle_op(GrColor color,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& oval,
+                                                SkScalar blurRadius,
+                                                const SkStrokeRec& stroke,
+                                                const GrShaderCaps* shaderCaps) {
     // we can only draw circles
     SkScalar width = oval.width();
     SkASSERT(SkScalarNearlyEqual(width, oval.height()) && viewMatrix.isSimilarity());
@@ -840,11 +841,11 @@ sk_sp<GrDrawOp> make_shadow_circle_op(GrColor color,
                                 GrStyle(stroke, nullptr));
 }
 
-static sk_sp<GrDrawOp> make_shadow_rrect_op(GrColor color,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRRect& rrect,
-                                            SkScalar blurRadius,
-                                            const SkStrokeRec& stroke) {
+static std::unique_ptr<GrDrawOp> make_shadow_rrect_op(GrColor color,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRRect& rrect,
+                                                      SkScalar blurRadius,
+                                                      const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -897,17 +898,17 @@ static sk_sp<GrDrawOp> make_shadow_rrect_op(GrColor color,
         return nullptr;
     }
 
-    return sk_sp<GrDrawOp>(new ShadowCircularRRectOp(color, viewMatrix, bounds, xRadius, blurRadius,
-                                                     scaledStroke.fX, isStrokeOnly));
+    return std::unique_ptr<GrDrawOp>(new ShadowCircularRRectOp(
+            color, viewMatrix, bounds, xRadius, blurRadius, scaledStroke.fX, isStrokeOnly));
 }
 
 namespace GrShadowRRectOp {
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRRect& rrect,
-                     const SkScalar blurRadius,
-                     const SkStrokeRec& stroke,
-                     const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRRect& rrect,
+                               const SkScalar blurRadius,
+                               const SkStrokeRec& stroke,
+                               const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
         return make_shadow_circle_op(color, viewMatrix, rrect.getBounds(), blurRadius, stroke,
                                      shaderCaps);
@@ -940,8 +941,8 @@ DRAW_OP_TEST_DEFINE(ShadowCircleOp) {
         SkScalar radius = circle.width() / 2.f;
         SkStrokeRec stroke = GrTest::TestStrokeRec(random);
         SkScalar blurRadius = random->nextSScalar1() * 72.f;
-        sk_sp<GrDrawOp> op = ShadowCircleOp::Make(color, viewMatrix, center, radius, blurRadius,
-                                                  GrStyle(stroke, nullptr));
+        std::unique_ptr<GrDrawOp> op = ShadowCircleOp::Make(color, viewMatrix, center, radius,
+                                                            blurRadius, GrStyle(stroke, nullptr));
         if (op) {
             return op;
         }

@@ -17,6 +17,12 @@ class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    ~GrAtlasTextOp() override {
+        for (int i = 0; i < fGeoCount; i++) {
+            fGeoData[i].fBlob->unref();
+        }
+    }
+
     static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
@@ -31,9 +37,9 @@ public:
         GrColor fColor;
     };
 
-    static sk_sp<GrAtlasTextOp> MakeBitmap(GrMaskFormat maskFormat, int glyphCount,
-                                           GrAtlasGlyphCache* fontCache) {
-        sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrMaskFormat maskFormat, int glyphCount,
+                                                     GrAtlasGlyphCache* fontCache) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
         switch (maskFormat) {
@@ -55,11 +61,11 @@ public:
         return op;
     }
 
-    static sk_sp<GrAtlasTextOp> MakeDistanceField(
+    static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor filteredColor, bool isLCD, bool useBGR) {
-        sk_sp<GrAtlasTextOp> op(new GrAtlasTextOp);
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
         op->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
@@ -107,12 +113,6 @@ private:
     void onPrepareDraws(Target* target) const override;
 
     GrAtlasTextOp() : INHERITED(ClassID()) {}  // initialized in factory functions.
-
-    ~GrAtlasTextOp() {
-        for (int i = 0; i < fGeoCount; i++) {
-            fGeoData[i].fBlob->unref();
-        }
-    }
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {

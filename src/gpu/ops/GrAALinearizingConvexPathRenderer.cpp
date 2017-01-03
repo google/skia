@@ -126,15 +126,15 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
 class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrDrawOp> Make(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkPath& path,
-                                SkScalar strokeWidth,
-                                SkStrokeRec::Style style,
-                                SkPaint::Join join,
-                                SkScalar miterLimit) {
-        return sk_sp<GrDrawOp>(new AAFlatteningConvexPathOp(color, viewMatrix, path, strokeWidth,
-                                                            style, join, miterLimit));
+    static std::unique_ptr<GrDrawOp> Make(GrColor color,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPath& path,
+                                          SkScalar strokeWidth,
+                                          SkStrokeRec::Style style,
+                                          SkPaint::Join join,
+                                          SkScalar miterLimit) {
+        return std::unique_ptr<GrDrawOp>(new AAFlatteningConvexPathOp(
+                color, viewMatrix, path, strokeWidth, style, join, miterLimit));
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
@@ -353,7 +353,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    sk_sp<GrDrawOp> op =
+    std::unique_ptr<GrDrawOp> op =
             AAFlatteningConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path,
                                            strokeWidth, stroke.getStyle(), join, miterLimit);
 

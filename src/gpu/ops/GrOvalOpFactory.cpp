@@ -613,9 +613,9 @@ public:
         SkScalar fSweepAngleRadians;
         bool fUseCenter;
     };
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
-                                SkScalar radius, const GrStyle& style,
-                                const ArcParams* arcParams = nullptr) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
+                                          SkScalar radius, const GrStyle& style,
+                                          const ArcParams* arcParams = nullptr) {
         SkASSERT(circle_stays_circle(viewMatrix));
         const SkStrokeRec& stroke = style.strokeRec();
         if (style.hasPathEffect()) {
@@ -672,7 +672,7 @@ public:
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
         bool stroked = isStrokeOnly && innerRadius > 0.0f;
-        sk_sp<CircleOp> op(new CircleOp());
+        std::unique_ptr<CircleOp> op(new CircleOp());
         op->fViewMatrixIfUsingLocalCoords = viewMatrix;
 
         // This makes every point fully inside the intersection plane.
@@ -1148,8 +1148,8 @@ private:
 class EllipseOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
-                                const SkStrokeRec& stroke) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                          const SkRect& ellipse, const SkStrokeRec& stroke) {
         SkASSERT(viewMatrix.rectStaysRect());
 
         // do any matrix crunching before we reset the draw state for device coords
@@ -1208,7 +1208,7 @@ public:
             yRadius += scaledStroke.fY;
         }
 
-        sk_sp<EllipseOp> op(new EllipseOp());
+        std::unique_ptr<EllipseOp> op(new EllipseOp());
         op->fGeoData.emplace_back(
                 Geometry{color, xRadius, yRadius, innerXRadius, innerYRadius,
                          SkRect::MakeLTRB(center.fX - xRadius, center.fY - yRadius,
@@ -1370,10 +1370,10 @@ class DIEllipseOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static sk_sp<GrDrawOp> Make(GrColor color,
-                                const SkMatrix& viewMatrix,
-                                const SkRect& ellipse,
-                                const SkStrokeRec& stroke) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color,
+                                          const SkMatrix& viewMatrix,
+                                          const SkRect& ellipse,
+                                          const SkStrokeRec& stroke) {
         SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
         SkScalar xRadius = SkScalarHalf(ellipse.width());
         SkScalar yRadius = SkScalarHalf(ellipse.height());
@@ -1430,7 +1430,7 @@ public:
         SkScalar geoDx = SK_ScalarHalf / SkScalarSqrt(a * a + c * c);
         SkScalar geoDy = SK_ScalarHalf / SkScalarSqrt(b * b + d * d);
 
-        sk_sp<DIEllipseOp> op(new DIEllipseOp());
+        std::unique_ptr<DIEllipseOp> op(new DIEllipseOp());
         op->fGeoData.emplace_back(Geometry{
                 viewMatrix, color, xRadius, yRadius, innerXRadius, innerYRadius, geoDx, geoDy,
                 dieStyle,
@@ -2054,9 +2054,9 @@ public:
 
     // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
-                                float devXRadius, float devYRadius, SkVector devStrokeWidths,
-                                bool strokeOnly) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                          const SkRect& devRect, float devXRadius, float devYRadius,
+                                          SkVector devStrokeWidths, bool strokeOnly) {
         SkASSERT(devXRadius > 0.5);
         SkASSERT(devYRadius > 0.5);
         SkASSERT((devStrokeWidths.fX > 0) == (devStrokeWidths.fY > 0));
@@ -2101,7 +2101,7 @@ public:
             bounds.outset(devStrokeWidths.fX, devStrokeWidths.fY);
         }
 
-        sk_sp<EllipticalRRectOp> op(new EllipticalRRectOp());
+        std::unique_ptr<EllipticalRRectOp> op(new EllipticalRRectOp());
         op->fStroked = stroked;
         op->fViewMatrixIfUsingLocalCoords = viewMatrix;
         op->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
@@ -2266,11 +2266,11 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-static sk_sp<GrDrawOp> make_rrect_op(GrColor color,
-                                     bool needsDistance,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRRect& rrect,
-                                     const SkStrokeRec& stroke) {
+static std::unique_ptr<GrDrawOp> make_rrect_op(GrColor color,
+                                               bool needsDistance,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRRect& rrect,
+                                               const SkStrokeRec& stroke) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(rrect.isSimple());
     SkASSERT(!rrect.isOval());
@@ -2328,8 +2328,8 @@ static sk_sp<GrDrawOp> make_rrect_op(GrColor color,
 
     // if the corners are circles, use the circle renderer
     if (isCircular) {
-        return sk_sp<GrDrawOp>(new CircularRRectOp(color, needsDistance, viewMatrix, bounds,
-                                                   xRadius, scaledStroke.fX, isStrokeOnly));
+        return std::unique_ptr<GrDrawOp>(new CircularRRectOp(
+                color, needsDistance, viewMatrix, bounds, xRadius, scaledStroke.fX, isStrokeOnly));
         // otherwise we use the ellipse renderer
     } else {
         return EllipticalRRectOp::Make(color, viewMatrix, bounds, xRadius, yRadius, scaledStroke,
@@ -2337,12 +2337,12 @@ static sk_sp<GrDrawOp> make_rrect_op(GrColor color,
     }
 }
 
-sk_sp<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
-                                             bool needsDistance,
-                                             const SkMatrix& viewMatrix,
-                                             const SkRRect& rrect,
-                                             const SkStrokeRec& stroke,
-                                             const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
+                                                       bool needsDistance,
+                                                       const SkMatrix& viewMatrix,
+                                                       const SkRRect& rrect,
+                                                       const SkStrokeRec& stroke,
+                                                       const GrShaderCaps* shaderCaps) {
     if (rrect.isOval()) {
         return MakeOvalOp(color, viewMatrix, rrect.getBounds(), stroke, shaderCaps);
     }
@@ -2356,11 +2356,11 @@ sk_sp<GrDrawOp> GrOvalOpFactory::MakeRRectOp(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& oval,
-                                            const SkStrokeRec& stroke,
-                                            const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkRect& oval,
+                                                      const SkStrokeRec& stroke,
+                                                      const GrShaderCaps* shaderCaps) {
     // we can draw circles
     SkScalar width = oval.width();
     if (SkScalarNearlyEqual(width, oval.height()) && circle_stays_circle(viewMatrix)) {
@@ -2383,10 +2383,11 @@ sk_sp<GrDrawOp> GrOvalOpFactory::MakeOvalOp(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatrix& viewMatrix,
-                                           const SkRect& oval, SkScalar startAngle,
-                                           SkScalar sweepAngle, bool useCenter,
-                                           const GrStyle& style, const GrShaderCaps* shaderCaps) {
+std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatrix& viewMatrix,
+                                                     const SkRect& oval, SkScalar startAngle,
+                                                     SkScalar sweepAngle, bool useCenter,
+                                                     const GrStyle& style,
+                                                     const GrShaderCaps* shaderCaps) {
     SkASSERT(!oval.isEmpty());
     SkASSERT(sweepAngle);
     SkScalar width = oval.width();
@@ -2429,8 +2430,8 @@ DRAW_OP_TEST_DEFINE(CircleOp) {
             arcParamsTmp.fUseCenter = random->nextBool();
             arcParams = &arcParamsTmp;
         }
-        sk_sp<GrDrawOp> op = CircleOp::Make(color, viewMatrix, center, radius,
-                                            GrStyle(stroke, nullptr), arcParams);
+        std::unique_ptr<GrDrawOp> op = CircleOp::Make(color, viewMatrix, center, radius,
+                                                      GrStyle(stroke, nullptr), arcParams);
         if (op) {
             return op;
         }

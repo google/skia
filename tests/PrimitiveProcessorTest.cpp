@@ -31,7 +31,9 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static sk_sp<GrDrawOp> Make(int numAttribs) { return sk_sp<GrDrawOp>(new Op(numAttribs)); }
+    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    }
 
 private:
     Op(int numAttribs) : INHERITED(ClassID()), fNumAttribs(numAttribs) {

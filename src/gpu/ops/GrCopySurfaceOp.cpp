@@ -58,8 +58,8 @@ bool GrCopySurfaceOp::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-sk_sp<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) {
+std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+                                            const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
     if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
@@ -74,5 +74,5 @@ sk_sp<GrOp> GrCopySurfaceOp::Make(GrSurface* dst, GrSurface* src, const SkIRect&
     if (!ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    return sk_sp<GrOp>(new GrCopySurfaceOp(dst, src, clippedSrcRect, clippedDstPoint));
+    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dst, src, clippedSrcRect, clippedDstPoint));
 }

@@ -16,7 +16,7 @@ class SkMatrix;
 class SkRegion;
 
 namespace GrRegionOp {
-sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region);
+std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region);
 }
 
 #endif

@@ -62,8 +62,9 @@ public:
         return string;
     }
 
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                                const SkStrokeRec& stroke, bool snapToPixelCenters) {
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                          const SkRect& rect, const SkStrokeRec& stroke,
+                                          bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
             return nullptr;
         }
@@ -94,7 +95,7 @@ public:
         } else {
             op->setTransformedBounds(bounds, op->fViewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
         }
-        return sk_sp<GrDrawOp>(op);
+        return std::unique_ptr<GrDrawOp>(op);
     }
 
 private:
@@ -184,11 +185,11 @@ private:
 
 namespace GrNonAAStrokeRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect,
-                     const SkStrokeRec& stroke,
-                     bool snapToPixelCenters) {
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const SkStrokeRec& stroke,
+                               bool snapToPixelCenters) {
     return NonAAStrokeRectOp::Make(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
 }

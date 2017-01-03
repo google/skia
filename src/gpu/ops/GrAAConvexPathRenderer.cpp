@@ -735,8 +735,9 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
 class AAConvexPathOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static sk_sp<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix, const SkPath& path) {
-        return sk_sp<GrDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
+                                          const SkPath& path) {
+        return std::unique_ptr<GrDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
@@ -989,7 +990,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawOp> op = AAConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path);
+    std::unique_ptr<GrDrawOp> op =
+            AAConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path);
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);

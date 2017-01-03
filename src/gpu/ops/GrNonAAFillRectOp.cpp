@@ -188,12 +188,13 @@ private:
 
 namespace GrNonAAFillRectOp {
 
-sk_sp<GrDrawOp> Make(GrColor color,
-                     const SkMatrix& viewMatrix,
-                     const SkRect& rect,
-                     const SkRect* localRect,
-                     const SkMatrix* localMatrix) {
-    return sk_sp<GrDrawOp>(new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const SkRect* localRect,
+                               const SkMatrix* localMatrix) {
+    return std::unique_ptr<GrDrawOp>(
+            new NonAAFillRectOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };
 

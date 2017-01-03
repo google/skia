@@ -24,26 +24,26 @@ class SkStrokeRec;
  */
 class GrOvalOpFactory {
 public:
-    static sk_sp<GrDrawOp> MakeOvalOp(GrColor,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRect& oval,
-                                      const SkStrokeRec& stroke,
-                                      const GrShaderCaps* shaderCaps);
-    static sk_sp<GrDrawOp> MakeRRectOp(GrColor,
-                                       bool needsDistance,
-                                       const SkMatrix& viewMatrix,
-                                       const SkRRect& rrect,
-                                       const SkStrokeRec& stroke,
-                                       const GrShaderCaps* shaderCaps);
+    static std::unique_ptr<GrDrawOp> MakeOvalOp(GrColor,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& oval,
+                                                const SkStrokeRec& stroke,
+                                                const GrShaderCaps* shaderCaps);
+    static std::unique_ptr<GrDrawOp> MakeRRectOp(GrColor,
+                                                 bool needsDistance,
+                                                 const SkMatrix& viewMatrix,
+                                                 const SkRRect& rrect,
+                                                 const SkStrokeRec& stroke,
+                                                 const GrShaderCaps* shaderCaps);
 
-    static sk_sp<GrDrawOp> MakeArcOp(GrColor,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRect& oval,
-                                     SkScalar startAngle,
-                                     SkScalar sweepAngle,
-                                     bool useCenter,
-                                     const GrStyle&,
-                                     const GrShaderCaps* shaderCaps);
+    static std::unique_ptr<GrDrawOp> MakeArcOp(GrColor,
+                                               const SkMatrix& viewMatrix,
+                                               const SkRect& oval,
+                                               SkScalar startAngle,
+                                               SkScalar sweepAngle,
+                                               bool useCenter,
+                                               const GrStyle&,
+                                               const GrShaderCaps* shaderCaps);
 };
 
 #endif  // GrOvalOpFactory_DEFINED

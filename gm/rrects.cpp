@@ -115,7 +115,7 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                                     0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
                             renderTargetContext->priv().testingOnly_addDrawOp(grPaint,
                                                                               GrAAType::kNone,

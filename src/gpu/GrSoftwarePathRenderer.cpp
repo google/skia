@@ -77,8 +77,8 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    sk_sp<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect, nullptr,
-                                                      &localMatrix));
+    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect,
+                                                                nullptr, &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);

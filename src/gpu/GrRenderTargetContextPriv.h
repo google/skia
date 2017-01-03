@@ -110,7 +110,7 @@ public:
 
     void testingOnly_addDrawOp(const GrPaint&,
                                GrAAType,
-                               sk_sp<GrDrawOp>,
+                               std::unique_ptr<GrDrawOp>,
                                const GrUserStencilSettings* = nullptr,
                                bool snapToCenters = false);
 
