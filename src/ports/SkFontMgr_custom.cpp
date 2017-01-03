@@ -420,9 +420,15 @@ private:
     SkString fBaseDirectory;
 };
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_Custom_Directory(const char* dir) {
     return new SkFontMgr_Custom(DirectorySystemFontLoader(dir));
 }
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_Custom_Directory(const char* dir) {
+    return sk_make_sp<SkFontMgr_Custom>(DirectorySystemFontLoader(dir));
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -498,9 +504,15 @@ private:
     const SkEmbeddedResourceHeader* fHeader;
 };
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SkFontMgr* SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* header) {
     return new SkFontMgr_Custom(EmbeddedSystemFontLoader(header));
 }
+#else
+sk_sp<SkFontMgr> SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* header) {
+    return sk_make_sp<SkFontMgr_Custom>(EmbeddedSystemFontLoader(header));
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -518,6 +530,12 @@ public:
 
 };
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_Custom_Empty() {
     return new SkFontMgr_Custom(EmptyFontLoader());
 }
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_Custom_Empty() {
+    return sk_make_sp<SkFontMgr_Custom>(EmptyFontLoader());
+}
+#endif

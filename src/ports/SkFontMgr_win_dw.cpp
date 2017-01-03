@@ -1043,12 +1043,20 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 ////////////////////////////////////////////////////////////////////////////////
 #include "SkTypeface_win.h"
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+#endif
                                             IDWriteFontCollection* collection) {
     return SkFontMgr_New_DirectWrite(factory, collection, nullptr);
 }
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+#endif
                                             IDWriteFontCollection* collection,
                                             IDWriteFontFallback* fallback) {
     if (nullptr == factory) {
@@ -1081,15 +1089,28 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         };
     }
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
     return new SkFontMgr_DirectWrite(factory, collection, fallback, localeName, localeNameLen);
+#else
+    return sk_make_sp<SkFontMgr_DirectWrite>(factory, collection, fallback,
+                                             localeName, localeNameLen);
+#endif
 }
 
 #include "SkFontMgr_indirect.h"
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+#endif
     sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
     if (!impl) {
         return nullptr;
     }
+#ifdef SK_LEGACY_FONTMGR_FACTORY
     return new SkFontMgr_Indirect(std::move(impl), std::move(proxy));
+#else
+    return sk_make_sp<SkFontMgr_Indirect>(std::move(impl), std::move(proxy));
+#endif
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

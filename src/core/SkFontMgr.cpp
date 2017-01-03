@@ -167,6 +167,7 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[], SkFontStyle
     return this->onLegacyCreateTypeface(familyName, style);
 }
 
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SkFontMgr* SkFontMgr::RefDefault() {
     static SkOnce once;
     static SkFontMgr* singleton;
@@ -177,6 +178,18 @@ SkFontMgr* SkFontMgr::RefDefault() {
     });
     return SkRef(singleton);
 }
+#else
+sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
+    static SkOnce once;
+    static sk_sp<SkFontMgr> singleton;
+
+    once([]{
+        sk_sp<SkFontMgr> fm = SkFontMgr::Factory();
+        singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
+    });
+    return singleton;
+}
+#endif
 
 /**
 * Width has the greatest priority.

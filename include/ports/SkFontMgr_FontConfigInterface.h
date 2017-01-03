@@ -15,6 +15,10 @@ class SkFontMgr;
 class SkFontConfigInterface;
 
 /** Creates a SkFontMgr which wraps a SkFontConfigInterface. */
+#ifdef SK_LEGACY_FONTMGR_FACTORY
 SK_API SkFontMgr* SkFontMgr_New_FCI(sk_sp<SkFontConfigInterface> fci);
+#else
+SK_API sk_sp<SkFontMgr> SkFontMgr_New_FCI(sk_sp<SkFontConfigInterface> fci);
+#endif
 
 #endif // #ifndef SkFontMgr_FontConfigInterface_DEFINED
