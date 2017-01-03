@@ -35,9 +35,9 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
             this->addPathRenderer(pr)->unref();
         }
     #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-//        if (caps.sampleShadingSupport()) {
-//            this->addPathRenderer(new GrMSAAPathRenderer)->unref();
-//        }
+        if (caps.sampleShadingSupport()) {
+            this->addPathRenderer(new GrMSAAPathRenderer)->unref();
+        }
     #endif
         this->addPathRenderer(new GrAAHairLinePathRenderer)->unref();
         this->addPathRenderer(new GrAAConvexPathRenderer)->unref();
@@ -45,9 +45,9 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         if (caps.shaderCaps()->plsPathRenderingSupport()) {
             this->addPathRenderer(new GrPLSPathRenderer)->unref();
         }
-//        if (!options.fDisableDistanceFieldRenderer) {
-//            this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
-//        }
+        if (!options.fDisableDistanceFieldRenderer) {
+            this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+        }
         this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
         this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
                                                         caps.stencilWrapOpsSupport()))->unref();
