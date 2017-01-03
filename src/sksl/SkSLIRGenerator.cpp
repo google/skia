@@ -984,15 +984,20 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     const Type* falseType;
     const Type* resultType;
     if (!determine_binary_type(fContext, Token::EQEQ, ifTrue->fType, ifFalse->fType, &trueType,
-                               &falseType, &resultType, true)) {
+                               &falseType, &resultType, true) || trueType != falseType) {
         fErrors.error(expression.fPosition, "ternary operator result mismatch: '" +
                                             ifTrue->fType.fName + "', '" +
                                             ifFalse->fType.fName + "'");
         return nullptr;
     }
-    ASSERT(trueType == falseType);
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
+    if (!ifTrue) {
+        return nullptr;
+    }
     ifFalse = this->coerce(std::move(ifFalse), *falseType);
+    if (!ifFalse) {
+        return nullptr;
+    }
     if (test->fKind == Expression::kBoolLiteral_Kind) {
         // static boolean test, just return one of the branches
         if (((BoolLiteral&) *test).fValue) {

@@ -307,6 +307,9 @@ DEF_TEST(SkSLTernaryMismatch, r) {
     test_failure(r,
                  "void main() { int x = 5 > 2 ? true : 1.0; }",
                  "error: 1: ternary operator result mismatch: 'bool', 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { int x = 5 > 2 ? vec3(1) : 1.0; }",
+                 "error: 1: ternary operator result mismatch: 'vec3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
