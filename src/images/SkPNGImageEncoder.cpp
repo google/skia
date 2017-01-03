@@ -7,7 +7,7 @@
 
 #include "SkImageEncoderPriv.h"
 
-#ifdef SK_HAS_PNG_LIBRARY
+#if 1 || SK_HAS_PNG_LIBRARY
 
 #include "SkColor.h"
 #include "SkColorPriv.h"
@@ -83,6 +83,17 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
             return transform_scanline_memcpy;
+        case kRGBA_F16_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_F16;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_F16_premul;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
         default:
             SkASSERT(false);
             return nullptr;
@@ -156,19 +167,8 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
     if (!pixmap.addr() || pixmap.info().isEmpty()) {
         return false;
     }
-    const SkColorType colorType = pixmap.colorType();
-    switch (colorType) {
-        case kIndex_8_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGB_565_SkColorType:
-            break;
-        default:
-            return false;
-    }
 
+    const SkColorType colorType = pixmap.colorType();
     const SkAlphaType alphaType = pixmap.alphaType();
     switch (alphaType) {
         case kUnpremul_SkAlphaType:
@@ -188,9 +188,22 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
     const int bitDepth = 8;
     png_color_8 sig_bit;
     sk_bzero(&sig_bit, sizeof(png_color_8));
-
     int pngColorType;
     switch (colorType) {
+        case kRGBA_F16_SkColorType:
+            if (!pixmap.colorSpace() || !pixmap.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
+
+            // Fall though
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            sig_bit.red = 8;
+            sig_bit.green = 8;
+            sig_bit.blue = 8;
+            sig_bit.alpha = 8;
+            pngColorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
+            break;
         case kIndex_8_SkColorType:
             sig_bit.red = 8;
             sig_bit.green = 8;
@@ -202,14 +215,6 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
             sig_bit.gray = 8;
             pngColorType = PNG_COLOR_TYPE_GRAY;
             SkASSERT(isOpaque);
-            break;
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            sig_bit.red = 8;
-            sig_bit.green = 8;
-            sig_bit.blue = 8;
-            sig_bit.alpha = 8;
-            pngColorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
             break;
         case kARGB_4444_SkColorType:
             sig_bit.red = 4;
@@ -228,6 +233,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
         default:
             return false;
     }
+
     if (kIndex_8_SkColorType == colorType) {
         SkColorTable* ctable = pixmap.ctable();
         if (!ctable || ctable->count() == 0) {
@@ -238,6 +244,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
         // When ctable->count() <= 16, we could potentially use 1, 2,
         // or 4 bit indices.
     }
+
     return do_encode(stream, pixmap, pngColorType, bitDepth, sig_bit);
 }
 
