@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.2.3'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -19,21 +19,27 @@ allprojects {
     }
 }
 
-def setupSkiaLibraryBuild(project, appVariants, buildCmd, requireCMake = false) {
+def setupSkiaLibraryBuild(project, appVariants, appName) {
     appVariants.all{ variant ->
-        def buildNativeLib = project.task("${variant.name}_SkiaNativeLib", type:Exec) {
+        def buildNativeLib = project.task("${variant.name}_BuildSkiaLib", type:Exec) {
             workingDir '../../../..' // top-level skia directory
-            commandLine constructBuildCommand(variant, buildCmd).split()
-            environment PATH: getPathWithDeps(requireCMake)
-            environment ANDROID_SDK_ROOT: getSDKPath()
+            commandLine constructBuildCommand(variant, appName).split()
         }
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
+
+        def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
+            from getVariantOutDir(variant).skiaOut
+            into getVariantOutDir(variant).androidOut
+            include "${appName}.so"
+        }
+
         TaskCollection<Task> compileTask = project.tasks.matching {
             //  println(it.name)
             it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
                     it.name.toLowerCase().endsWith("ndk")
         }
-        compileTask.getAt(0).dependsOn buildNativeLib
+        compileTask.getAt(0).dependsOn copyNativeLib
+        copyNativeLib.dependsOn buildNativeLib
     }
 }
 
@@ -50,70 +56,50 @@ def getLocalProperties() {
     return properties
 }
 
-def getSDKPath() {
-    String path = System.getenv("ANDROID_SDK_ROOT")
-    if (path == null) {
-        path = getLocalProperties().getProperty('sdk.dir', null)
-    }
-
-    if (path == null) {
-        throw new GradleScriptException("Android SDK not found! Please set ANDROID_SDK_ROOT to" +
-                                        " your path or define sdk.dir in gradle.properties")
-    }
-    return path
-}
-
-def getPathWithDeps(requireCMake = false) {
-    String path = System.getenv("PATH")
-    if (!path.contains("depot_tools")) {
-        path += ":" + getLocalProperties().getProperty('depot_tools.dir', null)
-    }
-
-    if (!path.contains("depot_tools")) {
-        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
-                                    " depot_tools or define depot_tools.dir in gradle.properties")
-    }
-
-    if (requireCMake) {
-        String cmakePath = getSDKPath() + "/cmake/bin"
-        if (!file(cmakePath).exists()) {
-            logger.warn("cmake not found! Please install the android SDK version of cmake.");
-        }
-        if (!path.contains(cmakePath)) {
-            path = cmakePath + ":" + path
-        }
-    }
-
-    return path
-}
-
-def constructBuildCommand(variant, buildTarget) {
-    String cmdLine = "./platform_tools/android/bin/android_ninja $buildTarget"
-    String deviceType = null
+def getVariantOutDir(variant) {
+    String variantPrefix = null
+    String androidLibDir = null
     if (variant.name.startsWith("arm64")) {
-        deviceType = "arm64"
+        variantPrefix = "arm64"
+        androidLibDir = "arm64-v8a"
     } else if (variant.name.startsWith("arm")) {
-        deviceType = "arm_v7_neon"
+        variantPrefix = "arm"
+        androidLibDir = "armeabi-v7a"
     } else if (variant.name.startsWith("x86_64")) {
-        deviceType = "x86_64"
+        variantPrefix = "x64"
+        androidLibDir = "x86_64"
     } else if (variant.name.startsWith("x86")) {
-        deviceType = "x86"
-    } else if (variant.name.startsWith("mips")) {
-        deviceType = "mips"
-    } else if (variant.name.startsWith("mips64")) {
-        deviceType = "mips64"
+        variantPrefix = "x86"
+        androidLibDir = "x86"
+    } else if (variant.name.startsWith("mipsel")) {
+        variantPrefix = "mipsel"
+        androidLibDir = "mips"
+    } else if (variant.name.startsWith("mips64el")) {
+        variantPrefix = "mips64el"
+        androidLibDir = "mips64"
     }
 
-    if (deviceType != null) {
-        cmdLine += " -d " + deviceType
+    return [skiaOut: getLocalProperties().getProperty("${variantPrefix}.out.dir", "missing_variant_out"),
+            androidOut: "src/main/libs/${androidLibDir}"]
+}
+
+def constructBuildCommand(variant, appName) {
+    String depotToolsDir = null
+    for (String entry : System.getenv("PATH").split(":")) {
+        if (entry.contains("depot_tools")) {
+            depotToolsDir = entry;
+            break;
+        }
+    }
+    if (depotToolsDir == null) {
+        depotToolsDir = getLocalProperties().getProperty('depot_tools.dir', null)
     }
 
-    if (variant.name.endsWith("Release")) {
-        cmdLine += " --release"
+    if (depotToolsDir == null) {
+        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
+                " depot_tools or define depot_tools.dir in local.properties")
     }
 
-    if (variant.name.indexOf("vulkan") != -1) {
-        cmdLine += " --vulkan"
-    }
-    return cmdLine
+    String out_dir = getVariantOutDir(variant).skiaOut
+    return "${depotToolsDir}/ninja -C $out_dir $appName"
 }

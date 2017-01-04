@@ -3,7 +3,7 @@
 # android_launch_app: Launches the skia Viewer app on the device.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
 # TODO: check to ensure that the app exists on the device and prompt to install
