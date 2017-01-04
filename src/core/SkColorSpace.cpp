@@ -165,6 +165,10 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
         return SkColorSpace_Base::MakeRGB(k2Dot2Curve_SkGammaNamed, toXYZD50);
     }
 
+    if (is_almost_linear(coeffs)) {
+        return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, toXYZD50);
+    }
+
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
     sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
     SkColorSpaceTransferFn* fn = SkTAddOffset<SkColorSpaceTransferFn>(memory, sizeof(SkGammas));

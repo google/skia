@@ -107,6 +107,28 @@ static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
            color_space_almost_equal(2.2f, coeffs.fG);
 }
 
+static inline bool is_almost_linear(const SkColorSpaceTransferFn& coeffs) {
+    const bool linearExp =
+           color_space_almost_equal(1.0f, coeffs.fA) &&
+           color_space_almost_equal(0.0f, coeffs.fB) &&
+           color_space_almost_equal(0.0f, coeffs.fC) &&
+           color_space_almost_equal(0.0f, coeffs.fD) &&
+           color_space_almost_equal(0.0f, coeffs.fE) &&
+           color_space_almost_equal(0.0f, coeffs.fF) &&
+           color_space_almost_equal(1.0f, coeffs.fG);
+
+    const bool linearSeg =
+           color_space_almost_equal(0.0f, coeffs.fA) &&
+           color_space_almost_equal(0.0f, coeffs.fB) &&
+           color_space_almost_equal(1.0f, coeffs.fC) &&
+           color_space_almost_equal(1.0f, coeffs.fD) &&
+           color_space_almost_equal(0.0f, coeffs.fE) &&
+           color_space_almost_equal(0.0f, coeffs.fF) &&
+           color_space_almost_equal(0.0f, coeffs.fG);
+
+    return linearExp || linearSeg;
+}
+
 static inline void value_to_parametric(SkColorSpaceTransferFn* coeffs, float exponent) {
     coeffs->fA = 1.0f;
     coeffs->fB = 0.0f;

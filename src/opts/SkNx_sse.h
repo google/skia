@@ -311,6 +311,7 @@ public:
     AI void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+        SkDebugf("RED FLAG\n");
         // TODO: AVX2 version
         __m128i _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
                 _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
@@ -634,6 +635,14 @@ public:
         return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
     }
 
+    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
+        return _mm256_cvtepu16_epi32(src.fVec);
+    }
+
+    template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8h& src) {
+        return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
+    }
+
     template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8i& src) {
         return _mm256_cvtepi32_ps(src.fVec);
     }
@@ -642,9 +651,6 @@ public:
         return _mm256_cvttps_epi32(src.fVec);
     }
 
-    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
-        return _mm256_cvtepu16_epi32(src.fVec);
-    }
     template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8i& src) {
         __m128i lo = _mm256_extractf128_si256(src.fVec, 0),
                 hi = _mm256_extractf128_si256(src.fVec, 1);

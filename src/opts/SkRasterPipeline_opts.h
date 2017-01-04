@@ -273,6 +273,15 @@ SI void from_f16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *b = SkHalfToFloat_finite_ftz(bh);
     *a = SkHalfToFloat_finite_ftz(ah);
 }
+SI void from_u16(const void* px, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(px, &rh, &gh, &bh, &ah);
+
+    *r = (1.0f / 65535.0f) * SkNx_cast<float>(rh);
+    *g = (1.0f / 65535.0f) * SkNx_cast<float>(gh);
+    *b = (1.0f / 65535.0f) * SkNx_cast<float>(bh);
+    *a = (1.0f / 65535.0f) * SkNx_cast<float>(ah);
+}
 
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
@@ -289,10 +298,10 @@ STAGE(registers) {
     print(" g",  g);
     print(" b",  b);
     print(" a",  a);
-    print("dr", dr);
-    print("dg", dg);
-    print("db", db);
-    print("da", da);
+    //print("dr", dr);
+    //print("dg", dg);
+    //print("db", db);
+    //print("da", da);
 }
 
 STAGE(clamp_0) {
@@ -555,9 +564,21 @@ STAGE(store_8888) {
     store(tail, byte(r,0)|byte(g,1)|byte(b,2)|byte(a,3), (int*)ptr);
 }
 
+STAGE(load_u16) {
+    auto ptr = *(const uint64_t**)ctx + x;
+
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
+    from_u16(src, &r, &g, &b, &a);
+}
+
 STAGE(load_tables) {
     auto loadCtx = (const LoadTablesContext*)ctx;
-    auto ptr = loadCtx->fSrc + x;
+    auto ptr = (const uint32_t*)loadCtx->fSrc + x;
 
     SkNu rgba = load(tail, ptr);
     auto to_int = [](const SkNu& v) { return SkNi::Load(&v); };
@@ -565,6 +586,20 @@ STAGE(load_tables) {
     g = gather(tail, loadCtx->fG, to_int((rgba >>  8) & 0xff));
     b = gather(tail, loadCtx->fB, to_int((rgba >> 16) & 0xff));
     a = SkNf_from_byte(rgba >> 24);
+}
+
+STAGE(load_tables_u16) {
+    auto loadCtx = (const LoadTablesContext*)ctx;
+    auto ptr = (const uint64_t*)loadCtx->fSrc + x;
+
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+
+    //SkDebugf("%x %x %x %x\n", rh[0], rh[1], rh[2], rh[3]);
+    r = gather(tail, loadCtx->fR, SkNx_cast<int>(rh >> 8));
+    g = gather(tail, loadCtx->fG, SkNx_cast<int>(gh >> 8));
+    b = gather(tail, loadCtx->fB, SkNx_cast<int>(bh >> 8));
+    a = (1.0f / 65535.0f) * SkNx_cast<float>(ah);
 }
 
 STAGE(store_tables) {
