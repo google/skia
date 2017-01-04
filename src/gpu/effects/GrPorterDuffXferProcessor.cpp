@@ -463,11 +463,14 @@ GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
         if (!doesStencilWrite) {
             optFlags |= GrXferProcessor::kSkipDraw_OptFlag;
         }
-        optFlags |= (GrXferProcessor::kIgnoreColor_OptFlag |
-                     GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
+        // Specify an override color to drop color FPs
+        *overrideColor = 0xFFFFFFFF;
+        optFlags |= GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag | kOverrideColor_OptFlag;
     } else {
         if (!fBlendFormula.usesInputColor()) {
-            optFlags |= GrXferProcessor::kIgnoreColor_OptFlag;
+            // Specify an override color to drop color FPs
+            *overrideColor = 0xFFFFFFFF;
+            optFlags |= kOverrideColor_OptFlag;
         }
         if (analysis.fColorPOI.allStagesMultiplyInput() &&
             fBlendFormula.canTweakAlphaForCoverage() &&
