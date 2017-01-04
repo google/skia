@@ -199,7 +199,7 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
@@ -452,7 +452,7 @@ public:
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
     }
 
@@ -744,7 +744,7 @@ public:
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point

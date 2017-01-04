@@ -97,11 +97,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         return nullptr;
     }
 
-    // No need to have an override color if it isn't even going to be used.
-    if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag & optFlags)) {
-        overrideColor = GrColor_ILLEGAL;
-    }
-
     pipeline->fXferProcessor.reset(xferProcessor.get());
 
     int firstColorProcessorIdx = args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex();
@@ -111,10 +106,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     // information.
     int firstCoverageProcessorIdx = 0;
 
-    if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag) ||
-        (optFlags & GrXferProcessor::kOverrideColor_OptFlag)) {
-        firstColorProcessorIdx = builder.numColorFragmentProcessors();
-    }
+    pipeline->adjustProgramFromOptimizations(builder, optFlags, args.fAnalysis.fColorPOI,
+                                             args.fAnalysis.fCoveragePOI, &firstColorProcessorIdx,
+                                             &firstCoverageProcessorIdx);
 
     bool usesLocalCoords = false;
 
@@ -186,6 +180,17 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
         GrTexture* texture = xfer.textureSampler(i).texture();
         SkASSERT(rt->getLastOpList());
         rt->getLastOpList()->addDependency(texture);
+    }
+}
+
+void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelineBuilder,
+                                                GrXferProcessor::OptFlags flags,
+                                                const GrProcOptInfo& colorPOI,
+                                                const GrProcOptInfo& coveragePOI,
+                                                int* firstColorProcessorIdx,
+                                                int* firstCoverageProcessorIdx) {
+    if ((flags & GrXferProcessor::kOverrideColor_OptFlag)) {
+        *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
     }
 }
 

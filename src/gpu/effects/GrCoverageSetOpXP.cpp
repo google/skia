@@ -111,8 +111,10 @@ GrXferProcessor::OptFlags CoverageSetOpXP::onGetOptimizations(const GrPipelineAn
                                                               bool doesStencilWrite,
                                                               GrColor* color,
                                                               const GrCaps& caps) const {
-    // We never look at the color input
-    return GrXferProcessor::kIgnoreColor_OptFlag;
+    // We don't use the input color, so set an override color in order to indicate that color FPs
+    // can be dropped.
+    *color = 0xFFFFFFFF;
+    return kOverrideColor_OptFlag;
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {
@@ -167,10 +169,12 @@ public:
     bool invertCoverage() const { return fInvertCoverage; }
 
 private:
-    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&, bool, GrColor*,
+    GrXferProcessor::OptFlags onGetOptimizations(const GrPipelineAnalysis&, bool, GrColor* color,
                                                  const GrCaps&) const override {
-        // We never look at the color input
-        return GrXferProcessor::kIgnoreColor_OptFlag;
+        // We don't use the input color, so set an override color in order to indicate that color
+        // FPs can be dropped.
+        *color = 0xFFFFFFFF;
+        return kOverrideColor_OptFlag;
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;

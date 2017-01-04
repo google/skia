@@ -84,7 +84,6 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fRegions[0].fColor);
-        fOptimizations = optimizations;
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -143,7 +142,6 @@ private:
     };
 
     SkMatrix fViewMatrix;
-    GrPipelineOptimizations fOptimizations;
     SkSTArray<1, RegionInfo, true> fRegions;
 
     typedef GrMeshDrawOp INHERITED;

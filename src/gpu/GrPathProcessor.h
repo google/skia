@@ -17,10 +17,9 @@
 class GrPathProcessor : public GrPrimitiveProcessor {
 public:
     static GrPathProcessor* Create(GrColor color,
-                                   const GrPipelineOptimizations& optimizations,
                                    const SkMatrix& viewMatrix = SkMatrix::I(),
                                    const SkMatrix& localMatrix = SkMatrix::I()) {
-        return new GrPathProcessor(color, optimizations, viewMatrix, localMatrix);
+        return new GrPathProcessor(color, viewMatrix, localMatrix);
     }
 
     const char* name() const override { return "PathProcessor"; }
@@ -36,20 +35,16 @@ public:
 
     virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
-    const GrPipelineOptimizations& optimizations() const { return fOptimizations; }
-
     virtual bool isPathRendering() const override { return true; }
 
 private:
-    GrPathProcessor(GrColor, const GrPipelineOptimizations&, const SkMatrix& viewMatrix,
-                    const SkMatrix& localMatrix);
+    GrPathProcessor(GrColor, const SkMatrix& viewMatrix, const SkMatrix& localMatrix);
 
     bool hasExplicitLocalCoords() const override { return false; }
 
     GrColor fColor;
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
-    GrPipelineOptimizations fOptimizations;
 
     typedef GrPrimitiveProcessor INHERITED;
 };

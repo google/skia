@@ -33,7 +33,10 @@ private:
                                                  bool doesStencilWrite,
                                                  GrColor* color,
                                                  const GrCaps& caps) const override {
-        return GrXferProcessor::kIgnoreColor_OptFlag;
+        // We don't use the input color, so set an override color in order to indicate that color
+        // FPs can be dropped.
+        *color = 0xFFFFFFFF;
+        return kOverrideColor_OptFlag;
     }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
