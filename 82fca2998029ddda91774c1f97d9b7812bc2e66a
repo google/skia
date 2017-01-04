@@ -128,6 +128,24 @@
       "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_2b9d6450",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T23:56:10Z",
+      "side": 1,
+      "message": "\u003e how raster pipeline behaves with MSVS\n\npooorly.\n\nWhich is which in the 330us vs 526us?",
+      "parentUuid": "d760061e_ab5a140a",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
