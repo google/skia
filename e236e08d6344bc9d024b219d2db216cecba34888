@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_0bc1883d",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T23:54:20Z",
+      "side": 1,
+      "message": "It would be very easy to add load_4444 and store_4444 if you\u0027d like.  It\u0027d be a simple cross of the existing gather_4444 and load_8888/store_8888 stages.",
+      "revId": "e236e08d6344bc9d024b219d2db216cecba34888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
