@@ -70,6 +70,12 @@ SI void SK_VECTORCALL just_return(Stage*, size_t, SkNf, SkNf, SkNf, SkNf,
         name##_kernel(st->ctx, x_tail/N, x_tail%N, r,g,b,a, dr,dg,db,da);                \
         next(st, x_tail, r,g,b,a, dr,dg,db,da);                                          \
     }                                                                                    \
+    SI void SK_VECTORCALL name##_d(Stage* st, size_t x_tail,                             \
+                                   SkNf  r, SkNf  g, SkNf  b, SkNf  a,                   \
+                                   SkNf dr, SkNf dg, SkNf db, SkNf da) {                 \
+        name##_kernel(st->ctx, x_tail/N, x_tail%N, dr,dg,db,da, r,g,b,a);                \
+        next(st, x_tail, r,g,b,a, dr,dg,db,da);                                          \
+    }                                                                                    \
     static SK_ALWAYS_INLINE void name##_kernel(void* ctx, size_t x, size_t tail,         \
                                                SkNf&  r, SkNf&  g, SkNf&  b, SkNf&  a,   \
                                                SkNf& dr, SkNf& dg, SkNf& db, SkNf& da)
@@ -313,12 +319,6 @@ STAGE(clamp_a) {
     g = SkNf::Min(g, a);
     b = SkNf::Min(b, a);
 }
-STAGE(clamp_a_d) {
-    da = SkNf::Min(da, 1.0f);
-    dr = SkNf::Min(dr, da);
-    dg = SkNf::Min(dg, da);
-    db = SkNf::Min(db, da);
-}
 
 STAGE(unpremul) {
     auto scale = (a == 0.0f).thenElse(0.0f, 1.0f/a);
@@ -352,18 +352,12 @@ STAGE(move_dst_src) {
     a = da;
 }
 
-STAGE(swap_rb)   { SkTSwap( r,  b); }
-STAGE(swap_rb_d) { SkTSwap(dr, db); }
+STAGE(swap_rb) { SkTSwap(r, b); }
 
 STAGE(from_srgb) {
     r = sk_linear_from_srgb_math(r);
     g = sk_linear_from_srgb_math(g);
     b = sk_linear_from_srgb_math(b);
-}
-STAGE(from_srgb_d) {
-    dr = sk_linear_from_srgb_math(dr);
-    dg = sk_linear_from_srgb_math(dg);
-    db = sk_linear_from_srgb_math(db);
 }
 STAGE(to_srgb) {
     r = sk_linear_to_srgb_needs_round(r);
@@ -381,7 +375,7 @@ STAGE(from_2dot2) {
         // x^(141/64) = x^(128/64) * x^(12/64) * x^(1/64)
         return SkNf::Max((x*x) * (x16*x16*x16) * (x64), 0.0f);
     };
-    
+
     r = from_2dot2(r);
     g = from_2dot2(g);
     b = from_2dot2(b);
@@ -473,11 +467,6 @@ STAGE(load_565) {
     from_565(load(tail, ptr), &r,&g,&b);
     a = 1.0f;
 }
-STAGE(load_565_d) {
-    auto ptr = *(const uint16_t**)ctx + x;
-    from_565(load(tail, ptr), &dr,&dg,&db);
-    da = 1.0f;
-}
 STAGE(store_565) {
     auto ptr = *(uint16_t**)ctx + x;
     store(tail, SkNx_cast<uint16_t>( SkNf_round(r, SK_R16_MASK) << SK_R16_SHIFT
@@ -496,17 +485,6 @@ STAGE(load_f16) {
         src = &px;
     }
     from_f16(src, &r, &g, &b, &a);
-}
-STAGE(load_f16_d) {
-    auto ptr = *(const uint64_t**)ctx + x;
-
-    const void* src = ptr;
-    SkNx<N, uint64_t> px;
-    if (tail) {
-        px = load(tail, ptr);
-        src = &px;
-    }
-    from_f16(src, &dr, &dg, &db, &da);
 }
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
@@ -535,10 +513,6 @@ STAGE(store_f32) {
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load(tail, ptr), &r, &g, &b, &a);
-}
-STAGE(load_8888_d) {
-    auto ptr = *(const uint32_t**)ctx + x;
-    from_8888(load(tail, ptr), &dr, &dg, &db, &da);
 }
 STAGE(store_8888) {
     auto byte = [](const SkNf& x, int ix) {
