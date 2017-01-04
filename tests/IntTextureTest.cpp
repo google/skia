@@ -86,6 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, success);
     if (success) {
+        skiatest::ReporterContext ctx(reporter, SkString("readPixels"));
         check_pixels(reporter, kS, kS, testData.get(), readData.get());
     }
 
@@ -114,6 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
                                           kRGBA_8888_sint_GrPixelConfig, readData.get());
         REPORTER_ASSERT(reporter, success);
         if (success) {
+            skiatest::ReporterContext ctx(reporter, SkString("copyIntegerToInteger"));
             check_pixels(reporter, kS, kS, testData.get(), readData.get());
         }
     }
@@ -176,7 +178,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         dst += rowBytes;
         src += rowBytes;
     }
-    check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get());
+    {
+        skiatest::ReporterContext ctx(reporter, SkString("overwrite"));
+        check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get());
+    }
 
     // Test drawing from the integer texture to a fixed point texture. To avoid any premul issues
     // we init the int texture with 0s and 1s and make alpha always be 1. We expect that 1s turn
@@ -196,13 +201,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
-    for (auto filter : {GrSamplerParams::kNone_FilterMode,
-                        GrSamplerParams::kBilerp_FilterMode,
-                        GrSamplerParams::kMipMap_FilterMode}) {
+    struct {
+        GrSamplerParams::FilterMode fMode;
+        const char* fName;
+    } kNamedFilters[] ={
+        { GrSamplerParams::kNone_FilterMode, "filter-none" },
+        { GrSamplerParams::kBilerp_FilterMode, "filter-bilerp" },
+        { GrSamplerParams::kMipMap_FilterMode, "filter-mipmap" }
+    };
+
+    for (auto filter : kNamedFilters) {
         SkMatrix m;
         m.setIDiv(kS, kS);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m,
-                                                                  filter));
+                                                                  filter.fMode));
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {
             return;
@@ -215,7 +227,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         SkImageInfo readInfo = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
         rtContext->readPixels(readInfo, actualData.get(), 0, 0, 0);
-        check_pixels(reporter, kS, kS, expectedData.get(), actualData.get());
+        {
+            skiatest::ReporterContext ctx(reporter, SkString(filter.fName));
+            check_pixels(reporter, kS, kS, expectedData.get(), actualData.get());
+        }
     }
 
     // No rendering to integer textures.
