@@ -645,6 +645,16 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const;
 
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
+    bool writePixels(const SkPixmap& src, int dstX, int dstY);
+
+    bool readPixels(const SkPixmap& dst) const {
+        return this->readPixels(dst, 0, 0);
+    }
+    bool writePixels(const SkPixmap& src) {
+        return this->writePixels(src, 0, 0);
+    }
+
     /**
      *  Returns true if this bitmap's pixels can be converted into the requested
      *  colorType, such that copyTo() could succeed.
