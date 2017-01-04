@@ -70,9 +70,10 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     }
 
 #ifdef CHECK_FOR_DECAL
-    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_filter_scale(xy, SkFractionalIntToFixed(fx),
-                           SkFractionalIntToFixed(dx), count);
+    const SkFixed fixedFx = SkFractionalIntToFixed(fx);
+    const SkFixed fixedDx = SkFractionalIntToFixed(dx);
+    if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+        decal_filter_scale(xy, fixedFx, fixedDx, count);
     } else
 #endif
     {
