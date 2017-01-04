@@ -713,6 +713,25 @@ bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, 
     return src.pixmap().readPixels(requestedDstInfo, dstPixels, dstRB, x, y);
 }
 
+bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
+    return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
+}
+
+bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
+    SkAutoPixmapUnlock dst;
+    if (!this->requestLock(&dst)) {
+        return false;
+    }
+
+    SkPixmap subset;
+    if (!dst.pixmap().extractSubset(&subset,
+                                    SkIRect::MakeXYWH(dstX, dstY, src.width(), src.height()))) {
+        return false;
+    }
+
+    return src.readPixels(subset);
+}
+
 bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc) const {
     if (!this->canCopyTo(dstColorType)) {
         return false;
