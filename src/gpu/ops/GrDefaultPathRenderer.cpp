@@ -143,7 +143,6 @@ private:
         }
         optimizations.getOverrideColorIfSet(&fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
-        fCoverageIgnored = !optimizations.readsCoverage();
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -152,9 +151,6 @@ private:
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
             Coverage coverage(this->coverage());
-            if (this->coverageIgnored()) {
-                coverage.fType = Coverage::kNone_Type;
-            }
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                                               LocalCoords::kUnused_Type);
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
@@ -395,7 +391,6 @@ private:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool isHairline() const { return fIsHairline; }
-    bool coverageIgnored() const { return fCoverageIgnored; }
 
     struct PathData {
         SkPath fPath;
@@ -406,7 +401,6 @@ private:
     uint8_t fCoverage;
     SkMatrix fViewMatrix;
     bool fUsesLocalCoords;
-    bool fCoverageIgnored;
     bool fIsHairline;
     SkSTArray<1, PathData, true> fPaths;
 

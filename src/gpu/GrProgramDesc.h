@@ -103,10 +103,9 @@ public:
         uint8_t                     fCoverageFragmentProcessorCnt : 4;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
         uint8_t                     fSurfaceOriginKey : 2;
-        uint8_t                     fIgnoresCoverage : 1;
         uint8_t                     fSnapVerticesToPixelCenters : 1;
         uint8_t                     fHasPointSize : 1;
-        uint8_t                     fPad : 3;
+        uint8_t                     fPad : 4;
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 

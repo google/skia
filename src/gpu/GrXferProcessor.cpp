@@ -37,14 +37,6 @@ GrXferProcessor::OptFlags GrXferProcessor::getOptimizations(const GrPipelineAnal
                                                             const GrCaps& caps) const {
     GrXferProcessor::OptFlags flags =
             this->onGetOptimizations(analysis, doesStencilWrite, overrideColor, caps);
-
-    if (this->willReadDstColor()) {
-        // When performing a dst read we handle coverage in the base class.
-        SkASSERT(!(flags & GrXferProcessor::kIgnoreCoverage_OptFlag));
-        if (analysis.fCoveragePOI.isSolidWhite()) {
-            flags |= GrXferProcessor::kIgnoreCoverage_OptFlag;
-        }
-    }
     return flags;
 }
 

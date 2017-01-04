@@ -28,13 +28,10 @@ static const int kIndicesPerInstance = 6;
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static sk_sp<GrGeometryProcessor> make_gp(bool readsCoverage) {
+static sk_sp<GrGeometryProcessor> make_gp() {
     using namespace GrDefaultGeoProcFactory;
-    Color color(Color::kAttribute_Type);
-    Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
-
-    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+                                         LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
 static void tesselate(intptr_t vertices,
@@ -124,7 +121,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fOptimizations.readsCoverage());
+        sk_sp<GrGeometryProcessor> gp = make_gp();
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

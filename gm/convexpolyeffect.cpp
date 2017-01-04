@@ -58,10 +58,8 @@ private:
         using namespace GrDefaultGeoProcFactory;
 
         Color color(this->color());
-        Coverage coverage(Coverage::kSolid_Type);
-        LocalCoords localCoords(LocalCoords::kUnused_Type);
-        sk_sp<GrGeometryProcessor> gp(
-            GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I()));
+        sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
+                color, Coverage::kSolid_Type, LocalCoords::kUnused_Type, SkMatrix::I()));
 
         size_t vertexStride = gp->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));

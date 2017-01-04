@@ -27,14 +27,11 @@ static const int kIndicesPerInstance = 6;
     The vertex attrib order is always pos, color, [local coords].
  */
 static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
-                                                bool readsCoverage,
                                                 bool hasExplicitLocalCoords,
                                                 const SkMatrix* localMatrix) {
     SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
 
     using namespace GrDefaultGeoProcFactory;
-    Color color(Color::kAttribute_Type);
-    Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
 
     // If we have perspective on the viewMatrix then we won't map on the CPU, nor will we map
     // the local rect on the cpu (in case the localMatrix also has perspective).
@@ -44,14 +41,16 @@ static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
         LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
                                                        : LocalCoords::kUsePosition_Type,
                                 localMatrix);
-        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+                                             localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
-        return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+                                             localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
-        return GrDefaultGeoProcFactory::MakeForDeviceSpace(color, coverage, localCoords,
-                                                           viewMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(
+                Color::kAttribute_Type, Coverage::kSolid_Type, localCoords, viewMatrix);
     }
 }
 
@@ -142,7 +141,6 @@ private:
 
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_persp_gp(fViewMatrix,
-                                                      fOptimizations.readsCoverage(),
                                                       fHasLocalRect,
                                                       fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {

@@ -177,7 +177,6 @@ private:
 
         fColorIgnored = !optimizations.readsColor();
         fUsesLocalCoords = optimizations.readsLocalCoords();
-        fCoverageIgnored = !optimizations.readsCoverage();
     }
 
     struct FlushInfo {
@@ -488,7 +487,6 @@ private:
     SkMatrix fViewMatrix;
     bool fUsesLocalCoords;
     bool fColorIgnored;
-    bool fCoverageIgnored;
 
     struct Entry {
         GrColor fColor;

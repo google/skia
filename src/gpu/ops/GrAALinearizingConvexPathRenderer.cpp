@@ -103,24 +103,18 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 
 static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                                                  const SkMatrix& viewMatrix,
-                                                 bool usesLocalCoords,
-                                                 bool coverageIgnored) {
+                                                 bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
 
-    Color color(Color::kAttribute_Type);
     Coverage::Type coverageType;
-    // TODO remove coverage if coverage is ignored
-    /*if (coverageIgnored) {
-        coverageType = Coverage::kNone_Type;
-    } else*/ if (tweakAlphaForCoverage) {
+    if (tweakAlphaForCoverage) {
         coverageType = Coverage::kSolid_Type;
     } else {
         coverageType = Coverage::kAttribute_Type;
     }
-    Coverage coverage(coverageType);
-    LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type :
-                                              LocalCoords::kUnused_Type);
-    return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    LocalCoords::Type localCoordsType =
+            usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+    return MakeForDeviceSpace(Color::kAttribute_Type, coverageType, localCoordsType, viewMatrix);
 }
 
 class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
@@ -191,7 +185,6 @@ private:
 
         fColor = fPaths[0].fColor;
         fUsesLocalCoords = optimizations.readsLocalCoords();
-        fCoverageIgnored = !optimizations.readsCoverage();
         fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
 
@@ -228,10 +221,8 @@ private:
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_fill_gp(canTweakAlphaForCoverage,
-                                                     this->viewMatrix(),
-                                                     this->usesLocalCoords(),
-                                                     this->coverageIgnored()));
+        sk_sp<GrGeometryProcessor> gp(create_fill_gp(
+                canTweakAlphaForCoverage, this->viewMatrix(), this->usesLocalCoords()));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
@@ -317,7 +308,6 @@ private:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
-    bool coverageIgnored() const { return fCoverageIgnored; }
 
     struct PathData {
         GrColor fColor;
@@ -331,7 +321,6 @@ private:
 
     GrColor fColor;
     bool fUsesLocalCoords;
-    bool fCoverageIgnored;
     bool fCanTweakAlphaForCoverage;
     SkSTArray<1, PathData, true> fPaths;
 
