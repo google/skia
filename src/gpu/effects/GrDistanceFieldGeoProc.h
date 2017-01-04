@@ -74,7 +74,6 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -135,7 +134,6 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
@@ -204,7 +202,6 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }

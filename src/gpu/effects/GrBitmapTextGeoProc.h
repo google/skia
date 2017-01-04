@@ -37,7 +37,6 @@ public:
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrMaskFormat maskFormat() const { return fMaskFormat; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }

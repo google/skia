@@ -97,11 +97,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         return nullptr;
     }
 
-    // No need to have an override color if it isn't even going to be used.
-    if (SkToBool(GrXferProcessor::kIgnoreColor_OptFlag & optFlags)) {
-        overrideColor = GrColor_ILLEGAL;
-    }
-
     pipeline->fXferProcessor.reset(xferProcessor.get());
 
     int firstColorProcessorIdx = args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex();
@@ -139,9 +134,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     // Setup info we need to pass to GrPrimitiveProcessors that are used with this GrPipeline.
     optimizations->fFlags = 0;
-    if (!SkToBool(optFlags & GrXferProcessor::kIgnoreColor_OptFlag)) {
-        optimizations->fFlags |= GrPipelineOptimizations::kReadsColor_Flag;
-    }
     if (GrColor_ILLEGAL != overrideColor) {
         optimizations->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
         optimizations->fOverrideColor = overrideColor;
@@ -197,8 +189,7 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 const GrProcOptInfo& coveragePOI,
                                                 int* firstColorProcessorIdx,
                                                 int* firstCoverageProcessorIdx) {
-    if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
-        (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
+    if ((flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
     }
 }

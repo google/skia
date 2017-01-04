@@ -723,9 +723,6 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsColor()) {
-            fColor = GrColor_ILLEGAL;
-        }
         optimizations.getOverrideColorIfSet(&fColor);
         fUsesLocalCoords = optimizations.readsLocalCoords();
     }
