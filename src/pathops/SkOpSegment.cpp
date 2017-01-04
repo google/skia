@@ -956,6 +956,9 @@ SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxW
 }
 
 void SkOpSegment::markDone(SkOpSpan* span) {
+	if (this->debugID() == 2) {
+		SkDebugf("");
+	}
     SkASSERT(this == span->segment());
     if (span->done()) {
         return;
