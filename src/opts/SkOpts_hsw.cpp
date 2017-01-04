@@ -6,8 +6,14 @@
  */
 
 #include "SkSafe_math.h"   // Keep this first.
-#include "SkOpts.h"
 
+// Please note carefully.
+// It is not safe for _opts.h files included here to use STL types, for the
+// same reason we just had to include SkSafe_math.h: STL types are templated,
+// defined in headers, but not in anonymous namespaces.  It's very easy to
+// cause ODR violations with these types and AVX+ code generation.
+
+#include "SkOpts.h"
 #define SK_OPTS_NS hsw
 #include "SkBitmapFilter_opts.h"
 #include "SkRasterPipeline_opts.h"
