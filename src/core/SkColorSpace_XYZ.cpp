@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "SkChecksum.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXform_Base.h"
+#include "SkOpts.h"
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
     : INHERITED(nullptr)
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fToXYZD50(toXYZD50)
-    , fToXYZD50Hash(SkGoodHash()(toXYZD50))
+    , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
@@ -25,7 +25,7 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gamm
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
-    , fToXYZD50Hash(SkGoodHash()(toXYZD50))
+    , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
     SkASSERT(!fGammas || 3 == fGammas->channels());
     if (fGammas) {
