@@ -187,6 +187,7 @@
       "[START_DIR]\\skimage\\colorspace",
       "--nameByHash",
       "--properties",
+      "--pre_log",
       "gitHash",
       "abc123",
       "master",
