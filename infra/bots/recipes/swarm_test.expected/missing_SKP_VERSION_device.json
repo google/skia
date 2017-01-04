@@ -501,6 +501,7 @@
       "skiabot/skia_images/colorspace",
       "--nameByHash",
       "--properties",
+      "--pre_log",
       "gitHash",
       "abc123",
       "master",
