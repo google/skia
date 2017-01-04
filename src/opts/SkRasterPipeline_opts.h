@@ -381,7 +381,7 @@ STAGE(from_2dot2) {
         // x^(141/64) = x^(128/64) * x^(12/64) * x^(1/64)
         return SkNf::Max((x*x) * (x16*x16*x16) * (x64), 0.0f);
     };
-    
+
     r = from_2dot2(r);
     g = from_2dot2(g);
     b = from_2dot2(b);
@@ -466,6 +466,21 @@ STAGE(lerp_565) {
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
     a = 1.0f;
+}
+
+STAGE(load_a8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    r = g = b = 0.0f;
+    a = SkNf_from_byte(load(tail, ptr));
+}
+STAGE(load_a8_d) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    dr = dg = db = 0.0f;
+    da = SkNf_from_byte(load(tail, ptr));
+}
+STAGE(store_a8) {
+    auto ptr = *(uint8_t**)ctx + x;
+    store(tail, SkNx_cast<uint8_t>(SkNf_round(255.0f, a)), ptr);
 }
 
 STAGE(load_565) {
