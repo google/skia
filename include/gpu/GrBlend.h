@@ -15,7 +15,7 @@
 /**
  * Equations for alpha-blending.
  */
-enum GrBlendEquation {
+enum GrBlendEquation : unsigned {
     // Basic blend equations.
     kAdd_GrBlendEquation,             //<! Cs*S + Cd*D
     kSubtract_GrBlendEquation,        //<! Cs*S - Cd*D
@@ -48,7 +48,7 @@ static const int kGrBlendEquationCnt = kLast_GrBlendEquation + 1;
 /**
  * Coefficients for alpha-blending.
  */
-enum GrBlendCoeff {
+enum GrBlendCoeff : unsigned {
     kZero_GrBlendCoeff,    //<! 0
     kOne_GrBlendCoeff,     //<! 1
     kSC_GrBlendCoeff,      //<! src color

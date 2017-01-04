@@ -342,11 +342,11 @@ private:
     // Set true by caches when they cache content that's derived from the current pixels.
     SkAtomic<bool> fAddedToCache;
 
-    enum {
+    enum : unsigned {
         kMutable,               // PixelRefs begin mutable.
         kTemporarilyImmutable,  // Considered immutable, but can revert to mutable.
         kImmutable,             // Once set to this state, it never leaves.
-    } fMutability : 8;          // easily fits inside a byte
+    } fMutability : 8;    // easily fits inside a byte
 
     // only ever set in constructor, const after that
     bool fPreLocked;
