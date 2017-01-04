@@ -462,6 +462,16 @@ STAGE(lerp_565) {
     a = 1.0f;
 }
 
+STAGE(load_a8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    r = g = b = 0.0f;
+    a = SkNf_from_byte(load(tail, ptr));
+}
+STAGE(store_a8) {
+    auto ptr = *(uint8_t**)ctx + x;
+    store(tail, SkNx_cast<uint8_t>(SkNf_round(255.0f, a)), ptr);
+}
+
 STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_565(load(tail, ptr), &r,&g,&b);
