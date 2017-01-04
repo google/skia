@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_6b791c6d",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T23:04:38Z",
+      "side": 1,
+      "message": "Ahh of course thanks.",
+      "parentUuid": "f777cabe_77c1aa92",
+      "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_ab27b4e2",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 10
@@ -42,6 +60,24 @@
         "endLine": 78,
         "endChar": 50
       },
+      "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_0b6b489a",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T23:04:38Z",
+      "side": 1,
+      "message": "sgtm\n\nFWIW, I generally don\u0027t like to call things \"linear\".  I never know whether it means the \"the way we\u0027ve always done things\" or \"convert to a linear space before doing blending/scaling/premuling etc\".",
+      "parentUuid": "d760061e_ab27b4e2",
       "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
