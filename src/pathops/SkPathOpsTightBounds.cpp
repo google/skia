@@ -75,6 +75,10 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     while ((current = current->next())) {
         bounds.add(current->bounds());
     }
+    if (scaleFactor > SK_Scalar1) {
+        bounds.set(bounds.left() * scaleFactor, bounds.top() * scaleFactor,
+                   bounds.right() * scaleFactor, bounds.bottom() * scaleFactor);
+    }
     *result = bounds;
     if (!moveBounds.isEmpty()) {
         result->join(moveBounds);
