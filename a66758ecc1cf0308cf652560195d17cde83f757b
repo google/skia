@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_95c657aa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T01:06:07Z",
+      "side": 1,
+      "message": "Yes, that\u0027s correct.",
+      "parentUuid": "d760061e_325039d5",
+      "revId": "a66758ecc1cf0308cf652560195d17cde83f757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_12c41d4e",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 8
@@ -42,6 +60,24 @@
         "endLine": 186,
         "endChar": 46
       },
+      "revId": "a66758ecc1cf0308cf652560195d17cde83f757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_15da4778",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T01:06:07Z",
+      "side": 1,
+      "message": "Per our conversation in person, getROPixels() does not convert to the dstColorSpace.  It just uses the dstColorSpace to decide whether to get legacy pixels or color correct pixels.\n\nIn this case, because dstColorSpace is null, we want legacy pixels.  Since this is a raster backed image, \"legacy pixels\" just means a bitmap with a null color space.\n\nStill I think I can write cleaner code to do this.",
+      "parentUuid": "d760061e_12c41d4e",
       "revId": "a66758ecc1cf0308cf652560195d17cde83f757b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
