@@ -538,14 +538,12 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inQuadEdge() const { return fInQuadEdge; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
-        GLSLProcessor()
-            : fColor(GrColor_ILLEGAL) {}
+        GLSLProcessor() : fColor(GrColor_ILLEGAL) {}
 
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const QuadEdgeEffect& qe = args.fGP.cast<QuadEdgeEffect>();
@@ -562,10 +560,8 @@ public:
 
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // Setup pass through color
-            if (!qe.colorIgnored()) {
-                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                        &fColorUniform);
-            }
+            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                    &fColorUniform);
 
             // Setup position
             this->setupPosition(vertBuilder, gpArgs, qe.inPosition()->fName);
@@ -604,10 +600,7 @@ public:
                                   const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
-            uint32_t key = 0;
-            key |= qee.usesLocalCoords() && qee.localMatrix().hasPerspective() ? 0x1 : 0x0;
-            key |= qee.colorIgnored() ? 0x2 : 0x0;
-            b->add32(key);
+            b->add32(SkToBool(qee.usesLocalCoords() && qee.localMatrix().hasPerspective()));
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -757,9 +750,6 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsColor()) {
-            fColor = GrColor_ILLEGAL;
-        }
         optimizations.getOverrideColorIfSet(&fColor);
 
         fUsesLocalCoords = optimizations.readsLocalCoords();

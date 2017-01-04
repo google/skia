@@ -20,8 +20,7 @@ public:
     static void GenKey(const GrPathProcessor& pathProc,
                        const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
-        b->add32(SkToInt(pathProc.optimizations().readsColor()) |
-                 (SkToInt(pathProc.viewMatrix().hasPerspective()) << 2));
+        b->add32(SkToInt(pathProc.viewMatrix().hasPerspective()));
     }
 
     void emitCode(EmitArgs& args) override {
@@ -36,15 +35,13 @@ public:
         this->emitTransforms(args.fVaryingHandler, args.fFPCoordTransformHandler);
 
         // Setup uniform color
-        if (pathProc.optimizations().readsColor()) {
-            const char* stagedLocalVarName;
-            fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                             kVec4f_GrSLType,
-                                                             kDefault_GrSLPrecision,
-                                                             "Color",
-                                                             &stagedLocalVarName);
-            fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
-        }
+        const char* stagedLocalVarName;
+        fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                         kVec4f_GrSLType,
+                                                         kDefault_GrSLPrecision,
+                                                         "Color",
+                                                         &stagedLocalVarName);
+        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
         fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
@@ -76,7 +73,7 @@ public:
                  const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
-        if (pathProc.optimizations().readsColor() && pathProc.color() != fColor) {
+        if (pathProc.color() != fColor) {
             float c[4];
             GrColorToRGBAFloat(pathProc.color(), c);
             pd.set4fv(fColorUniform, 1, c);

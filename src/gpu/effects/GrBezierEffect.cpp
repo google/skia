@@ -84,9 +84,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
-    if (!gp.colorIgnored()) {
-        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
-    }
+    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
     this->setupPosition(vertBuilder,
@@ -222,7 +220,6 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
                              GrProcessorKeyBuilder* b) {
     const GrConicEffect& ce = gp.cast<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= GrColor_ILLEGAL != ce.color() ? 0x4 : 0x0;
     key |= 0xff != ce.coverageScale() ? 0x8 : 0x0;
     key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
@@ -346,9 +343,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
-    if (!gp.colorIgnored()) {
-        this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
-    }
+    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
     this->setupPosition(vertBuilder,
@@ -426,7 +421,6 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
                             GrProcessorKeyBuilder* b) {
     const GrQuadEffect& ce = gp.cast<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= ce.color() != GrColor_ILLEGAL ? 0x4 : 0x0;
     key |= ce.coverageScale() != 0xff ? 0x8 : 0x0;
     key |= ce.usesLocalCoords() && ce.localMatrix().hasPerspective() ? 0x10 : 0x0;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
@@ -656,7 +650,6 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
                              GrProcessorKeyBuilder* b) {
     const GrCubicEffect& ce = gp.cast<GrCubicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
-    key |= ce.color() != GrColor_ILLEGAL ? 0x4 : 0x8;
     key |= ComputePosKey(ce.viewMatrix()) << 5;
     b->add32(key);
 }

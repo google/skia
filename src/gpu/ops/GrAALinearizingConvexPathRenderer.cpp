@@ -178,12 +178,7 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsColor()) {
-            fPaths[0].fColor = GrColor_ILLEGAL;
-        }
         optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
-
-        fColor = fPaths[0].fColor;
         fUsesLocalCoords = optimizations.readsLocalCoords();
         fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
     }
@@ -304,7 +299,6 @@ private:
         return true;
     }
 
-    GrColor color() const { return fColor; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
@@ -319,7 +313,6 @@ private:
         SkScalar fMiterLimit;
     };
 
-    GrColor fColor;
     bool fUsesLocalCoords;
     bool fCanTweakAlphaForCoverage;
     SkSTArray<1, PathData, true> fPaths;

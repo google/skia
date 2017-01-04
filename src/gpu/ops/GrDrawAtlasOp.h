@@ -53,7 +53,6 @@ private:
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
 
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return fColorIgnored; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
@@ -70,7 +69,6 @@ private:
     SkMatrix fViewMatrix;
     GrColor fColor;
     int fQuadCount;
-    bool fColorIgnored;
     bool fHasColors;
 
     typedef GrMeshDrawOp INHERITED;

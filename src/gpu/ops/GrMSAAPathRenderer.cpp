@@ -264,9 +264,6 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsColor()) {
-            fPaths[0].fColor = GrColor_ILLEGAL;
-        }
         optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
     }
 

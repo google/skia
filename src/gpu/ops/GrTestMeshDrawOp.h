@@ -30,12 +30,7 @@ protected:
 
     GrColor color() const { return fColor; }
 
-    struct Optimizations {
-        bool fColorIgnored = false;
-        bool fUsesLocalCoords = false;
-    };
-
-    const Optimizations optimizations() const { return fOptimizations; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
@@ -45,15 +40,13 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
-
-        fOptimizations.fColorIgnored = !optimizations.readsColor();
-        fOptimizations.fUsesLocalCoords = optimizations.readsLocalCoords();
+        fUsesLocalCoords = optimizations.readsLocalCoords();
     }
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    GrColor       fColor;
-    Optimizations fOptimizations;
+    GrColor fColor;
+    bool fUsesLocalCoords = false;
 
     typedef GrMeshDrawOp INHERITED;
 };

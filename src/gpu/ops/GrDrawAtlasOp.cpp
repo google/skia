@@ -14,9 +14,6 @@
 
 void GrDrawAtlasOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
     SkASSERT(fGeoData.count() == 1);
-    if (!optimizations.readsColor()) {
-        fGeoData[0].fColor = GrColor_ILLEGAL;
-    }
     if (optimizations.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
         size_t vertexStride =
                 sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
@@ -27,7 +24,6 @@ void GrDrawAtlasOp::applyPipelineOptimizations(const GrPipelineOptimizations& op
         }
     }
 
-    fColorIgnored = !optimizations.readsColor();
     fColor = fGeoData[0].fColor;
     // We'd like to assert this, but we can't because of GLPrograms test
     // SkASSERT(init.readsLocalCoords());
@@ -176,9 +172,6 @@ bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (this->color() != that->color()) {
-        fColor = GrColor_ILLEGAL;
-    }
     fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 

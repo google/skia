@@ -71,7 +71,8 @@ public:
             sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
             TEST_ASSERT(!xpf->willNeedDstTexture(caps, analysis));
             xpf->getInvariantBlendedColor(analysis.fColorPOI, &fBlendedColor);
-            fOptFlags = xp->getOptimizations(analysis, false, nullptr, caps);
+            GrColor ignoredOverrideColor;
+            fOptFlags = xp->getOptimizations(analysis, false, &ignoredOverrideColor, caps);
             GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor());
@@ -1180,7 +1181,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                     return;
                 }
                 TEST_ASSERT(!xp->hasSecondaryOutput());
-                xp->getOptimizations(analysis, false, 0, caps);
+                GrColor ignoredOverrideColor;
+                xp->getOptimizations(analysis, false, &ignoredOverrideColor, caps);
                 TEST_ASSERT(!xp->hasSecondaryOutput());
             }
         }

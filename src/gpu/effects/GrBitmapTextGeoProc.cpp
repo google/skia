@@ -41,13 +41,11 @@ public:
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
-        if (!cte.colorIgnored()) {
-            if (cte.hasVertexColor()) {
-                varyingHandler->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
-            } else {
-                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                        &fColorUniform);
-            }
+        if (cte.hasVertexColor()) {
+            varyingHandler->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
+        } else {
+            this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                    &fColorUniform);
         }
 
         // Setup position
@@ -63,15 +61,13 @@ public:
                              args.fFPCoordTransformHandler);
 
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
-            if (!cte.colorIgnored()) {
-                fragBuilder->codeAppendf("%s = ", args.fOutputColor);
-                fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                            args.fTexSamplers[0],
-                                                            v.fsIn(),
-                                                            kVec2f_GrSLType);
-                fragBuilder->codeAppend(";");
-                fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
-            }
+            fragBuilder->codeAppendf("%s = ", args.fOutputColor);
+            fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
+                                                        args.fTexSamplers[0],
+                                                        v.fsIn(),
+                                                        kVec2f_GrSLType);
+            fragBuilder->codeAppend(";");
+            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
@@ -102,9 +98,8 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
         uint32_t key = 0;
-        key |= gp.usesLocalCoords() && gp.localMatrix().hasPerspective() ? 0x1 : 0x0;
-        key |= gp.colorIgnored() ? 0x2 : 0x0;
-        key |= gp.maskFormat() << 3;
+        key |= (gp.usesLocalCoords() && gp.localMatrix().hasPerspective()) ? 0x1 : 0x0;
+        key |= gp.maskFormat() << 1;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point

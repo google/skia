@@ -203,16 +203,6 @@ private:
     GrPipeline() { /** Initialized in factory function*/ }
 
     /**
-     * Alter the program desc and inputs (attribs and processors) based on the blend optimization.
-     */
-    void adjustProgramFromOptimizations(const GrPipelineBuilder& ds,
-                                        GrXferProcessor::OptFlags,
-                                        const GrProcOptInfo& colorPOI,
-                                        const GrProcOptInfo& coveragePOI,
-                                        int* firstColorProcessorIdx,
-                                        int* firstCoverageProcessorIdx);
-
-    /**
      * Calculates the primary and secondary output types of the shader. For certain output types
      * the function may adjust the blend coefficients. After this function is called the src and dst
      * blend coeffs will represent those used by backend API.

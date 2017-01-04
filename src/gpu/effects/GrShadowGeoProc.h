@@ -31,7 +31,6 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inShadowParams() const { return fInShadowParams; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
