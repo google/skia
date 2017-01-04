@@ -30,10 +30,10 @@ protected:
     }
 
 protected:
-    const GrPipelineOptimizations& optimizations() const { return fOptimizations; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
+    bool blendsWithDst() const { return fBlendsWithDst; }
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
@@ -43,7 +43,7 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
-        fOptimizations = optimizations;
+        fBlendsWithDst = optimizations.willColorBlendWithDst();
     }
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
@@ -52,7 +52,7 @@ private:
     GrColor fColor;
     GrPathRendering::FillType fFillType;
     GrStencilSettings fStencilPassSettings;
-    GrPipelineOptimizations fOptimizations;
+    bool fBlendsWithDst;
 
     typedef GrDrawOp INHERITED;
 };

@@ -187,7 +187,8 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
-        fOptimizations = optimizations;
+        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+        fNeedsLocalCoords = optimizations.readsLocalCoords();
     }
 
     SkPath getPath() const {
@@ -259,9 +260,8 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
         DynamicVertexAllocator allocator(gp->getVertexStride(), target);
-        bool canTweakAlphaForCoverage = fOptimizations.canTweakAlphaForCoverage();
         int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator,
-                                                   true, fColor, canTweakAlphaForCoverage,
+                                                   true, fColor, fCanTweakAlphaForCoverage,
                                                    &isLinear);
         if (count == 0) {
             return;
@@ -275,13 +275,13 @@ private:
             using namespace GrDefaultGeoProcFactory;
 
             Color color(fColor);
-            LocalCoords::Type localCoordsType = fOptimizations.readsLocalCoords()
+            LocalCoords::Type localCoordsType = fNeedsLocalCoords
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
                 color = Color(Color::kAttribute_Type);
-                if (fOptimizations.canTweakAlphaForCoverage()) {
+                if (fCanTweakAlphaForCoverage) {
                     coverageType = Coverage::kSolid_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;
@@ -341,7 +341,8 @@ private:
     SkMatrix                fViewMatrix;
     SkIRect                 fDevClipBounds;
     bool                    fAntiAlias;
-    GrPipelineOptimizations fOptimizations;
+    bool                    fCanTweakAlphaForCoverage;
+    bool                    fNeedsLocalCoords;
 
     typedef GrMeshDrawOp INHERITED;
 };
