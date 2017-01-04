@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f777cabe_77c1aa92",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T20:55:19Z",
+      "side": 1,
+      "message": "a.k.a info.gammaCloseToSRGB()",
+      "range": {
+        "startLine": 42,
+        "startChar": 32,
+        "endLine": 42,
+        "endChar": 91
+      },
+      "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_ab27b4e2",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T20:55:19Z",
+      "side": 1,
+      "message": "Seems like unless we change all these other names, to be consistent we\u0027d want to mark the gamma-correct methods above, not the legacy ones?\n\ntransform_scanline_rgbA, transform_scanline_srgbA?\n\nI don\u0027t think that they\u0027re so much \"legacy\" as \"linear\".",
+      "range": {
+        "startLine": 78,
+        "startChar": 27,
+        "endLine": 78,
+        "endChar": 50
+      },
+      "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
