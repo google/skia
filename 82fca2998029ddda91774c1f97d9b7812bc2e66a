@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_6b9bdc02",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T21:57:50Z",
+      "side": 1,
+      "message": "Yes, thanks.",
+      "parentUuid": "d760061e_2bbe0461",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_0bbb4870",
         "filename": "src/core/SkColorSpaceXform.cpp",
         "patchSetId": 4
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_eb8eccbf",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T21:57:50Z",
+      "side": 1,
+      "message": "Agreed, I was already asking myself \"is ASAN going to get mad about this...?\".  Better to not give it a chance.",
+      "parentUuid": "d760061e_0bbb4870",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_4bcee01c",
         "filename": "src/core/SkColorSpaceXform.cpp",
         "patchSetId": 4
@@ -53,6 +89,24 @@
       "writtenOn": "2017-01-04T20:02:24Z",
       "side": 1,
       "message": "We might want to compare F16 too, or F16 conditioned on SkCpu::Supports(SkCpu::HSW).  We\u0027ll have hardware f16\u003c-\u003ef32 conversion functions there.",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_abc694a9",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-04T21:57:50Z",
+      "side": 1,
+      "message": "Good point, this may make sense on HSW.  I\u0027ll test on my z840 (Win).",
+      "parentUuid": "d760061e_4bcee01c",
       "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
