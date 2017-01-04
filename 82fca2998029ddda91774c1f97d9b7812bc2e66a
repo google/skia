@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_2bbe0461",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T20:02:24Z",
+      "side": 1,
+      "message": "this should now be [13], right?",
+      "range": {
+        "startLine": 444,
+        "startChar": 45,
+        "endLine": 444,
+        "endChar": 49
+      },
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_0bbb4870",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T20:02:24Z",
+      "side": 1,
+      "message": "Not a bad idea to zero the 13th?",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_4bcee01c",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T20:02:24Z",
+      "side": 1,
+      "message": "We might want to compare F16 too, or F16 conditioned on SkCpu::Supports(SkCpu::HSW).  We\u0027ll have hardware f16\u003c-\u003ef32 conversion functions there.",
+      "revId": "82fca2998029ddda91774c1f97d9b7812bc2e66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
