@@ -9,6 +9,7 @@
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
 #include "SkMath.h"
 #include "SkOpts.h"
@@ -316,12 +317,6 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
     // This is necessary because the gAMA chunk actually stores 1/gamma.
     return 1.0f / png_fixed_point_to_float(x);
 }
-
-static constexpr float gSRGB_toXYZD50[] {
-    0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
-    0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
-    0.0139f, 0.0971f, 0.7139f,    // Rz, Gz, Bz
-};
 
 #endif // LIBPNG >= 1.6
 
