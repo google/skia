@@ -313,6 +313,7 @@ config("warnings") {
         "-Wno-shadow",
         "-Wno-shift-sign-overflow",
         "-Wno-sign-conversion",
+        "-Wno-signed-enum-bitfield",
         "-Wno-switch-enum",
         "-Wno-undef",
         "-Wno-unreachable-code",
