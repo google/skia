@@ -113,17 +113,13 @@ public:
          */
         kIgnoreColor_OptFlag = 0x2,
         /**
-         * GrXferProcessor will ignore coverage, thus no need to provide
-         */
-        kIgnoreCoverage_OptFlag = 0x4,
-        /**
          * Clear color stages and override input color to that returned by getOptimizations
          */
-        kOverrideColor_OptFlag = 0x8,
+        kOverrideColor_OptFlag = 0x4,
         /**
          * Can tweak alpha for coverage. Currently this flag should only be used by a GrDrawOp.
          */
-        kCanTweakAlphaForCoverage_OptFlag = 0x20,
+        kCanTweakAlphaForCoverage_OptFlag = 0x8,
     };
 
     static const OptFlags kNone_OptFlags = (OptFlags)0;

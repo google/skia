@@ -57,7 +57,6 @@ private:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
-    bool coverageIgnored() const { return fCoverageIgnored; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
@@ -72,7 +71,6 @@ private:
     GrColor fColor;
     int fQuadCount;
     bool fColorIgnored;
-    bool fCoverageIgnored;
     bool fHasColors;
 
     typedef GrMeshDrawOp INHERITED;

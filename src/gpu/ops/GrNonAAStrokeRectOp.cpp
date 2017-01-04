@@ -111,12 +111,11 @@ private:
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(fColor);
-            Coverage coverage(fOptimizations.readsCoverage() ? Coverage::kSolid_Type
-                                                             : Coverage::kNone_Type);
-            LocalCoords localCoords(fOptimizations.readsLocalCoords()
-                                            ? LocalCoords::kUsePosition_Type
-                                            : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
+            LocalCoords::Type localCoordsType = fOptimizations.readsLocalCoords()
+                                                        ? LocalCoords::kUsePosition_Type
+                                                        : LocalCoords::kUnused_Type;
+            gp = GrDefaultGeoProcFactory::Make(color, Coverage::kSolid_Type, localCoordsType,
+                                               fViewMatrix);
         }
 
         size_t vertexStride = gp->getVertexStride();

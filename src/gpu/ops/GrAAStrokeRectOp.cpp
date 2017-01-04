@@ -97,17 +97,15 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
                                                         bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
 
-    Color color(Color::kAttribute_Type);
     Coverage::Type coverageType;
     if (tweakAlphaForCoverage) {
         coverageType = Coverage::kSolid_Type;
     } else {
         coverageType = Coverage::kAttribute_Type;
     }
-    Coverage coverage(coverageType);
-    LocalCoords localCoords(usesLocalCoords ? LocalCoords::kUsePosition_Type
-                                            : LocalCoords::kUnused_Type);
-    return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
+    LocalCoords::Type localCoordsType =
+            usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+    return MakeForDeviceSpace(Color::kAttribute_Type, coverageType, localCoordsType, viewMatrix);
 }
 
 class AAStrokeRectOp final : public GrMeshDrawOp {

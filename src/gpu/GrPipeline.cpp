@@ -146,9 +146,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         optimizations->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
         optimizations->fOverrideColor = overrideColor;
     }
-    if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        optimizations->fFlags |= GrPipelineOptimizations::kReadsCoverage_Flag;
-    }
     if (usesLocalCoords) {
         optimizations->fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
@@ -200,15 +197,9 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
                                                 const GrProcOptInfo& coveragePOI,
                                                 int* firstColorProcessorIdx,
                                                 int* firstCoverageProcessorIdx) {
-    fIgnoresCoverage = SkToBool(flags & GrXferProcessor::kIgnoreCoverage_OptFlag);
-
     if ((flags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (flags & GrXferProcessor::kOverrideColor_OptFlag)) {
         *firstColorProcessorIdx = pipelineBuilder.numColorFragmentProcessors();
-    }
-
-    if (flags & GrXferProcessor::kIgnoreCoverage_OptFlag) {
-        *firstCoverageProcessorIdx = pipelineBuilder.numCoverageFragmentProcessors();
     }
 }
 
@@ -224,8 +215,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
         a.fFlags != b.fFlags ||
         a.fUserStencilSettings != b.fUserStencilSettings ||
-        a.fDrawFace != b.fDrawFace ||
-        a.fIgnoresCoverage != b.fIgnoresCoverage) {
+        a.fDrawFace != b.fDrawFace) {
         return false;
     }
 

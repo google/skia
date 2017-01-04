@@ -404,7 +404,7 @@ private:
             {
                 using namespace GrDefaultGeoProcFactory;
                 lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
-                                                       Coverage(255),
+                                                       Coverage::kSolid_Type,
                                                        LocalCoords(LocalCoords::kUnused_Type),
                                                        fViewMatrix);
             }

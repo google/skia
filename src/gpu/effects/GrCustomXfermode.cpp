@@ -153,12 +153,8 @@ private:
 
         // Apply coverage by multiplying it into the src color before blending. Mixed samples will
         // "just work" automatically. (See onGetOptimizations())
-        if (args.fInputCoverage) {
-            fragBuilder->codeAppendf("%s = %s * %s;",
-                                     args.fOutputPrimary, args.fInputCoverage, args.fInputColor);
-        } else {
-            fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputColor);
-        }
+        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputCoverage,
+                                 args.fInputColor);
     }
 
     void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
@@ -305,9 +301,6 @@ GrXferProcessor::OptFlags CustomXP::onGetOptimizations(const GrPipelineAnalysis&
     OptFlags flags = kNone_OptFlags;
     if (analysis.fColorPOI.allStagesMultiplyInput()) {
         flags |= kCanTweakAlphaForCoverage_OptFlag;
-    }
-    if (this->hasHWBlendEquation() && analysis.fCoveragePOI.isSolidWhite()) {
-        flags |= kIgnoreCoverage_OptFlag;
     }
     return flags;
 }

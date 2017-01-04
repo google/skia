@@ -386,45 +386,27 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
                                 GrGLSLXPFragmentBuilder* fragBuilder,
                                 BlendFormula::OutputType outputType, const char* output,
                                 const char* inColor, const char* inCoverage) {
+    SkASSERT(inCoverage);
+    SkASSERT(inColor);
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
             fragBuilder->codeAppendf("%s = vec4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0);", output);
-            }
+            fragBuilder->codeAppendf("%s = %s;", output, inCoverage);
             break;
         case BlendFormula::kModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = %s * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kSAModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = %s.a * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISAModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0 - %s.a);", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISCModulate_OutputType:
-            if (inCoverage) {
-                fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
-            } else {
-                fragBuilder->codeAppendf("%s = vec4(1.0) - %s;", output, inColor);
-            }
+            fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
             break;
         default:
             SkFAIL("Unsupported output type.");
@@ -482,14 +464,10 @@ GrXferProcessor::OptFlags PorterDuffXferProcessor::onGetOptimizations(
             optFlags |= GrXferProcessor::kSkipDraw_OptFlag;
         }
         optFlags |= (GrXferProcessor::kIgnoreColor_OptFlag |
-                     GrXferProcessor::kIgnoreCoverage_OptFlag |
                      GrXferProcessor::kCanTweakAlphaForCoverage_OptFlag);
     } else {
         if (!fBlendFormula.usesInputColor()) {
             optFlags |= GrXferProcessor::kIgnoreColor_OptFlag;
-        }
-        if (analysis.fCoveragePOI.isSolidWhite()) {
-            optFlags |= GrXferProcessor::kIgnoreCoverage_OptFlag;
         }
         if (analysis.fColorPOI.allStagesMultiplyInput() &&
             fBlendFormula.canTweakAlphaForCoverage() &&

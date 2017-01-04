@@ -840,11 +840,10 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             using namespace GrDefaultGeoProcFactory;
 
             Color color(this->color());
-            Coverage coverage(Coverage::kAttribute_Type);
             LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
                                     LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP = GrDefaultGeoProcFactory::Make(color, coverage, localCoords,
+            lineGP = GrDefaultGeoProcFactory::Make(color, Coverage::kAttribute_Type, localCoords,
                                                    *geometryProcessorViewM);
         }
 
