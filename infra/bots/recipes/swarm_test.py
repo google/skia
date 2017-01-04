@@ -45,6 +45,7 @@ TEST_BUILDERS = {
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
+      'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
       'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
@@ -374,6 +375,10 @@ def dm_flags(bot):
     match.extend(['~XfermodeImageFilterCroppedInput',
                   '~GrTextureStripAtlasFlush',
                   '~CopySurface'])
+
+  if 'Vulkan' in bot and 'GTX1070' in bot and 'Win' in bot:
+    # skia:6092
+    match.append('~GPUMemorySize')
 
   if blacklisted:
     args.append('--blacklist')
