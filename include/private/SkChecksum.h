@@ -62,6 +62,10 @@ struct SkGoodHash {
         return SkOpts::hash_fn(&k, sizeof(K), 0);
     }
 
+    uint32_t operator()(const void* ptr, size_t bytes) const {
+        return SkOpts::hash_fn(ptr, bytes, 0);
+    }
+
     uint32_t operator()(const SkString& k) const {
         return SkOpts::hash_fn(k.c_str(), k.size(), 0);
     }

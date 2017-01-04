@@ -10,6 +10,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "Test.h"
 
 #include "png.h"
@@ -364,4 +365,24 @@ DEF_TEST(ColorSpace_InvalidICC, r) {
             GetResourcePath("icc_profiles/SM2333SW.icc").c_str());
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
     REPORTER_ASSERT(r, !cs);
+}
+
+DEF_TEST(ColorSpace_MatrixHash, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.0f;
+    fn.fE = 0.0f;
+    fn.fF = 0.0f;
+    fn.fG = 3.0f;
+
+    SkMatrix44 srgbMat(SkMatrix44::kUninitialized_Constructor);
+    srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
+    sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
+
+    REPORTER_ASSERT(r, *as_CSB(srgb)->toXYZD50() == *as_CSB(strange)->toXYZD50());
+    REPORTER_ASSERT(r, as_CSB(srgb)->toXYZD50Hash() == as_CSB(strange)->toXYZD50Hash());
 }
