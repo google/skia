@@ -52,7 +52,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkRect& devRect,
-                                           const GrPipelineOptimizations& optimizations,
+                                           bool tweakAlphaForCoverage,
                                            const SkMatrix* localMatrix) {
     SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
     SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
@@ -114,8 +114,6 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(verts + sizeof(SkPoint) + sizeof(GrColor));
         localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
     }
-
-    bool tweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs
     // values.
@@ -200,7 +198,8 @@ public:
         if (optimizations.getOverrideColorIfSet(&color)) {
             this->first()->setColor(color);
         }
-        fOptimizations = optimizations;
+        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+        fNeedsLocalCoords = optimizations.readsLocalCoords();
     }
 
 private:
@@ -210,18 +209,17 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        bool needLocalCoords = fOptimizations.readsLocalCoords();
         using namespace GrDefaultGeoProcFactory;
 
         Color color(Color::kAttribute_Type);
         Coverage::Type coverageType;
-        if (fOptimizations.canTweakAlphaForCoverage()) {
+        if (fCanTweakAlphaForCoverage) {
             coverageType = Coverage::kSolid_Type;
         } else {
             coverageType = Coverage::kAttribute_Type;
         }
         LocalCoords lc =
-                needLocalCoords ? LocalCoords::kHasExplicit_Type : LocalCoords::kUnused_Type;
+                fNeedsLocalCoords ? LocalCoords::kHasExplicit_Type : LocalCoords::kUnused_Type;
         sk_sp<GrGeometryProcessor> gp =
                 GrDefaultGeoProcFactory::Make(color, coverageType, lc, SkMatrix::I());
         if (!gp) {
@@ -246,7 +244,7 @@ private:
         for (int i = 0; i < fRectCnt; i++) {
             intptr_t verts =
                     reinterpret_cast<intptr_t>(vertices) + i * kVertsPerAAFillRect * vertexStride;
-            if (needLocalCoords) {
+            if (fNeedsLocalCoords) {
                 if (info->hasLocalMatrix()) {
                     localMatrix = &static_cast<const RectWithLocalMatrixInfo*>(info)->localMatrix();
                 } else {
@@ -254,7 +252,7 @@ private:
                 }
             }
             generate_aa_fill_rect_geometry(verts, vertexStride, info->color(), info->viewMatrix(),
-                                           info->rect(), info->devRect(), fOptimizations,
+                                           info->rect(), info->devRect(), fCanTweakAlphaForCoverage,
                                            localMatrix);
             info = this->next(info);
         }
@@ -268,11 +266,12 @@ private:
             return false;
         }
 
+        SkASSERT(fNeedsLocalCoords == that->fNeedsLocalCoords);
+
         // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
         // tweaking.
-        if (fOptimizations.canTweakAlphaForCoverage() &&
-            !that->fOptimizations.canTweakAlphaForCoverage()) {
-            fOptimizations = that->fOptimizations;
+        if (fCanTweakAlphaForCoverage && !that->fCanTweakAlphaForCoverage) {
+            fCanTweakAlphaForCoverage = false;
         }
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
@@ -333,7 +332,8 @@ private:
         return reinterpret_cast<const RectInfo*>(next);
     }
 
-    GrPipelineOptimizations fOptimizations;
+    bool fNeedsLocalCoords;
+    bool fCanTweakAlphaForCoverage;
     SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
     int fRectCnt;
 

@@ -111,7 +111,7 @@ private:
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(fColor);
-            LocalCoords::Type localCoordsType = fOptimizations.readsLocalCoords()
+            LocalCoords::Type localCoordsType = fNeedsLocalCoords
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
             gp = GrDefaultGeoProcFactory::Make(color, Coverage::kSolid_Type, localCoordsType,
@@ -161,7 +161,7 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fColor);
-        fOptimizations = optimizations;
+        fNeedsLocalCoords = optimizations.readsLocalCoords();
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
@@ -174,7 +174,7 @@ private:
     SkMatrix fViewMatrix;
     SkRect fRect;
     SkScalar fStrokeWidth;
-    GrPipelineOptimizations fOptimizations;
+    bool fNeedsLocalCoords;
 
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;

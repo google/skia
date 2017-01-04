@@ -117,7 +117,6 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
         optimizations.getOverrideColorIfSet(&fRects[0].fColor);
-        fOptimizations = optimizations;
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -158,13 +157,6 @@ private:
             return false;
         }
 
-        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
-        // tweaking.
-        if (fOptimizations.canTweakAlphaForCoverage() &&
-            !that->fOptimizations.canTweakAlphaForCoverage()) {
-            fOptimizations = that->fOptimizations;
-        }
-
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
         this->joinBounds(*that);
         return true;
@@ -177,7 +169,6 @@ private:
         GrQuad fLocalQuad;
     };
 
-    GrPipelineOptimizations fOptimizations;
     SkSTArray<1, RectInfo, true> fRects;
 
     typedef GrMeshDrawOp INHERITED;

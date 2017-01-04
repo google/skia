@@ -114,13 +114,11 @@ private:
 };
 
 GrPathProcessor::GrPathProcessor(GrColor color,
-                                 const GrPipelineOptimizations& optimizations,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
         : fColor(color)
         , fViewMatrix(viewMatrix)
-        , fLocalMatrix(localMatrix)
-        , fOptimizations(optimizations) {
+        , fLocalMatrix(localMatrix) {
     this->initClassID<GrPathProcessor>();
 }
 
