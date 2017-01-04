@@ -124,8 +124,9 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         GrShaderVar("xform", kMat44f_GrSLType),
     };
     SkString functionBody;
-    // Gamut xform, clamp to destination gamut
-    functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);\n");
+    // Gamut xform, clamp to destination gamut. We only support/have premultiplied textures, so we
+    // always just clamp to alpha.
+    functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, color.a);\n");
     functionBody.append("\treturn color;");
     SkString colorGamutXformFuncName;
     this->emitFunction(kVec4f_GrSLType,
