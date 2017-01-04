@@ -68,7 +68,6 @@ private:
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& analysioptimizations) override {
         analysioptimizations.getOverrideColorIfSet(&fPatches[0].fColor);
-        fOptimizations = analysioptimizations;
     }
 
     void onPrepareDraws(Target* target) const override {
@@ -146,13 +145,6 @@ private:
         SkASSERT(this->fImageWidth == that->fImageWidth &&
                  this->fImageHeight == that->fImageHeight);
 
-        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
-        // tweaking.
-        if (fOptimizations.canTweakAlphaForCoverage() &&
-            !that->fOptimizations.canTweakAlphaForCoverage()) {
-            fOptimizations = that->fOptimizations;
-        }
-
         fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
         this->joinBounds(*that);
         return true;
@@ -165,7 +157,6 @@ private:
         GrColor fColor;
     };
 
-    GrPipelineOptimizations fOptimizations;
     int fImageWidth;
     int fImageHeight;
     SkSTArray<1, Patch, true> fPatches;
