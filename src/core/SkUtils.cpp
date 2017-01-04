@@ -8,6 +8,22 @@
 
 #include "SkUtils.h"
 
+void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
+    for (int i = 0; i < count; i++) {
+        buffer[i] = value;
+    }
+}
+void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
+    for (int i = 0; i < count; i++) {
+        buffer[i] = value;
+    }
+}
+void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
+    for (int i = 0; i < count; i++) {
+        buffer[i] = value;
+    }
+}
+
 /*  0xxxxxxx    1 total
     10xxxxxx    // never a leading byte
     110xxxxx    2 total

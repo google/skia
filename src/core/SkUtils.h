@@ -11,38 +11,14 @@
 #include "SkTypes.h"
 #include "SkMath.h"
 
-/** Similar to memset(), but it assigns a 16bit value into the buffer.
+/** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
-    @param value    The 16bit value to be copied into buffer
+    @param value    The value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-static inline void sk_memset16(uint16_t buffer[], uint16_t value, int count) {
-    for (int i = 0; i < count; i++) {
-        buffer[i] = value;
-    }
-}
-
-/** Similar to memset(), but it assigns a 32bit value into the buffer.
-    @param buffer   The memory to have value copied into it
-    @param value    The 32bit value to be copied into buffer
-    @param count    The number of times value should be copied into the buffer.
-*/
-static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
-    for (int i = 0; i < count; i++) {
-        buffer[i] = value;
-    }
-}
-
-/** Similar to memset(), but it assigns a 64bit value into the buffer.
-    @param buffer   The memory to have value copied into it
-    @param value    The 64bit value to be copied into buffer
-    @param count    The number of times value should be copied into the buffer.
-*/
-static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
-    for (int i = 0; i < count; i++) {
-        buffer[i] = value;
-    }
-}
+void sk_memset16(uint16_t buffer[], uint16_t value, int count);
+void sk_memset32(uint32_t buffer[], uint32_t value, int count);
+void sk_memset64(uint64_t buffer[], uint64_t value, int count);
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxBytesInUTF8Sequence     4
