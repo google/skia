@@ -14,8 +14,8 @@ set -e
 IS_DEBUG="false"
 
 while (( "$#" )); do
-  if [[ "$1" == "-d" ]]; then
-    DEVICE_ID=$2
+  if [[ "$1" == "-C" ]]; then
+    SKIA_OUT=$2
     shift
   elif [[ "$1" == "-i" || "$1" == "--resourcePath" ]]; then
     RESOURCE_PATH=$2
@@ -24,14 +24,10 @@ while (( "$#" )); do
   elif [[ "$1" == "-s" ]]; then
     DEVICE_SERIAL="-s $2"
     shift
-  elif [[ "$1" == "--debug" ]]; then
-    IS_DEBUG="true"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
     VERBOSE="true"
-  elif [[ "$1" == "--vulkan" ]]; then
-    SKIA_VULKAN="true"
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
@@ -79,77 +75,6 @@ if [ -z "$ANDROID_NDK_ROOT" ]; then
      exit 1
   fi
 fi
-
-# Helper function to configure the GN defines to the appropriate values
-# based on the target device.
-setup_device() {
-  DEFINES="ndk=\"${ANDROID_NDK_ROOT}\" is_debug=${IS_DEBUG}"
-
-  if [ $SKIA_VULKAN == "true" ]; then
-    DEFINES="${DEFINES} ndk_api=24"
-  fi
-
-  # Setup the build variation depending on the target device
-  TARGET_DEVICE="$1"
-
-  if [ -z "$TARGET_DEVICE" ]; then
-    if [ -f .android_config ]; then
-      TARGET_DEVICE=$(cat .android_config)
-      verbose "no target device (-d), using ${TARGET_DEVICE} from most recent build"
-    else
-      TARGET_DEVICE="arm_v7"
-      verbose "no target device (-d), using ${TARGET_DEVICE}"
-    fi
-  fi
-
-  case $TARGET_DEVICE in
-    arm_v7 | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
-      DEFINES="${DEFINES} target_cpu=\"arm\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-arm"
-      IS_64_BIT=false
-      ;;
-    arm64 | nexus_9 | nexus_5x | nexus_6p | pixel)
-      DEFINES="${DEFINES} target_cpu=\"arm64\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-arm64"
-      IS_64_BIT=true
-      ;;
-    x86)
-      DEFINES="${DEFINES} target_cpu=\"x86\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-x86"
-      IS_64_BIT=false
-      ;;
-    x86_64 | x64)
-      DEFINES="${DEFINES} target_cpu=\"x64\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-x86_64"
-      IS_64_BIT=true
-      ;;
-    mips)
-      DEFINES="${DEFINES} target_cpu=\"mipsel\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips"
-      IS_64_BIT=false
-      #DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
-      ;;
-    mips64)
-      DEFINES="${DEFINES} target_cpu=\"mips64el\""
-      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips64"
-      IS_64_BIT=true
-      ;;
-    *)
-      echo "ERROR: unknown device $TARGET_DEVICE"
-      exit 1
-      ;;
-  esac
-
-  verbose "The build is targeting the device: $TARGET_DEVICE"
-  exportVar DEVICE_ID $TARGET_DEVICE
-  exportVar GN_ARGS "$DEFINES"
-  exportVar GDBSERVER_DIR $GDBSERVER_DIR
-  exportVar IS_64_BIT $IS_64_BIT
-
-  SKIA_SRC_DIR=$(cd "${UTIL_DIR}/../../../.."; pwd)
-  DEFAULT_SKIA_OUT="${SKIA_SRC_DIR}/out/android-${TARGET_DEVICE}"
-  exportVar SKIA_OUT "${SKIA_OUT:-${DEFAULT_SKIA_OUT}}"
-}
 
 # adb_pull_if_needed(android_src, host_dst)
 adb_pull_if_needed() {
@@ -247,5 +172,3 @@ adb_push_if_needed() {
   # turn error checking back on
   set -e
 }
-
-setup_device "${DEVICE_ID}"
