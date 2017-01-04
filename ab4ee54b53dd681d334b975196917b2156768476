@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_9081459c",
+        "filename": "tests/ColorSpaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-04T15:21:41Z",
+      "side": 1,
+      "message": "Did you intend to test something after running this code?",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 0
+      },
+      "revId": "ab4ee54b53dd681d334b975196917b2156768476",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
