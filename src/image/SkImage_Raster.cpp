@@ -180,7 +180,14 @@ bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
 }
 
 bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, CachingHint) const {
-    *dst = fBitmap;
+    SkImageInfo info = fBitmap.info();
+    if (!dstColorSpace) {
+        info = info.makeColorSpace(nullptr);
+    }
+
+    dst->setInfo(info, fBitmap.rowBytes());
+    dst->setPixelRef(sk_ref_sp(fBitmap.pixelRef()), fBitmap.pixelRefOrigin().fX,
+            fBitmap.pixelRefOrigin().fY);
     return true;
 }
 
