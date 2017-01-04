@@ -111,3 +111,18 @@ DEF_TEST(FallbackAlloc, r) {
     REPORTER_ASSERT(r, !in_buf(big));
     REPORTER_ASSERT(r, !in_buf(smallB));
 }
+
+struct WithDtor {
+    ~WithDtor() { }
+};
+
+DEF_TEST(ArenaAlloc, r) {
+    {
+        SkArenaAlloc arena{nullptr, 0};
+        arena.make<int>();
+        arena.make<WithDtor>();
+        arena.makeArrayDefault<int>(10);
+        arena.makeArrayDefault<WithDtor>(10);
+    }
+
+}
