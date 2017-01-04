@@ -216,6 +216,8 @@
       "[START_DIR]/skimage/colorspace",
       "--nameByHash",
       "--properties",
+      "--pre_log",
+      "--verbose",
       "gitHash",
       "abc123",
       "master",
