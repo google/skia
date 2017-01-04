@@ -30,7 +30,7 @@ public:
      * Values the shader can write to primary and secondary outputs. These must all be modulated by
      * coverage to support mixed samples. The XP will ignore the multiplies when not using coverage.
      */
-    enum OutputType {
+    enum OutputType : uint32_t {
         kNone_OutputType,        //<! 0
         kCoverage_OutputType,    //<! inputCoverage
         kModulate_OutputType,    //<! inputColor * inputCoverage
@@ -41,7 +41,7 @@ public:
         kLast_OutputType = kISCModulate_OutputType
     };
 
-    enum Properties {
+    enum Properties : uint32_t {
         kModifiesDst_Property              = 1,
         kUsesDstColor_Property             = 1 << 1,
         kUsesInputColor_Property           = 1 << 2,
