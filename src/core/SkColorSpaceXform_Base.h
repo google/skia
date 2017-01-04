@@ -56,6 +56,9 @@ protected:
                  int count, SkAlphaType alphaType) const override;
 
 private:
+    bool applyPipeline(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+                       int count, SkAlphaType alphaType) const;
+
     SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
                           SkColorSpace_XYZ* dstSpace);
 
@@ -65,7 +68,8 @@ private:
     const uint8_t*            fDstGammaTables[3];
     sk_sp<SkData>             fDstStorage;
 
-    float                     fSrcToDst[16];
+    // Holds a 3x4 matrix.  Padding is useful for vector loading.
+    float                     fSrcToDst[13];
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
@@ -84,32 +88,6 @@ struct StoreTablesContext {
     const uint8_t* fG;
     const uint8_t* fB;
     int            fCount;
-};
-
-class SkColorSpaceXform_Pipeline : public SkColorSpaceXform_Base {
-protected:
-    virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
-                         int count, SkAlphaType alphaType) const;
-
-private:
-    SkColorSpaceXform_Pipeline(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
-                               SkColorSpace_XYZ* dstSpace, ColorSpaceMatch csm, SrcGamma srcGamma,
-                               DstGamma dstGamma);
-
-    // Contain pointers into storage or pointers into precomputed tables.
-    const float*              fSrcGammaTables[3];
-    SkAutoTMalloc<float>      fSrcStorage;
-    const uint8_t*            fDstGammaTables[3];
-    sk_sp<SkData>             fDstStorage;
-
-    float                     fSrcToDst[12];
-
-    ColorSpaceMatch           fCSM;
-    SrcGamma                  fSrcGamma;
-    DstGamma                  fDstGamma;
-
-    friend class SkColorSpaceXform;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
