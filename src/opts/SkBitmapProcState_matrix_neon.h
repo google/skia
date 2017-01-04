@@ -54,9 +54,10 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 
 #ifdef CHECK_FOR_DECAL
     // test if we don't need to apply the tile proc
-    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_nofilter_scale_neon(xy, SkFractionalIntToFixed(fx),
-                             SkFractionalIntToFixed(dx), count);
+    const SkFixed fixedFx = SkFractionalIntToFixed(fx);
+    const SkFixed fixedDx = SkFractionalIntToFixed(dx);
+    if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+        decal_nofilter_scale_neon(xy, fixedFx, fixedDx, count);
         return;
     }
 #endif
@@ -309,9 +310,10 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 
 #ifdef CHECK_FOR_DECAL
     // test if we don't need to apply the tile proc
-    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_filter_scale_neon(xy, SkFractionalIntToFixed(fx),
-                             SkFractionalIntToFixed(dx), count);
+    const SkFixed fixedFx = SkFractionalIntToFixed(fx);
+    const SkFixed fixedDx = SkFractionalIntToFixed(dx);
+    if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+        decal_filter_scale_neon(xy, fixedFx, fixedDx, count);
         return;
     }
 #endif
