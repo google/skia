@@ -10,6 +10,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "Test.h"
 
 #include "png.h"
@@ -111,6 +112,17 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
             SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
+    SkColorSpaceTransferFn srgbFn;
+    srgbFn.fA = (1.0f / 1.055f);
+    srgbFn.fB = (0.055f / 1.055f);
+    srgbFn.fC = (1.0f / 12.92f);
+    srgbFn.fD = 0.04045f;
+    srgbFn.fE = 0.0f;
+    srgbFn.fF = 0.0f;
+    srgbFn.fG = 2.4f;
+    sk_sp<SkColorSpace> rgbColorSpace2 = SkColorSpace::MakeRGB(srgbFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace2 == namedColorSpace);
+
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
     sk_sp<SkColorSpace> strangeColorSpace =
@@ -135,11 +147,53 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
         SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
+    SkColorSpaceTransferFn linearExpFn;
+    linearExpFn.fA = 1.0f;
+    linearExpFn.fB = 0.0f;
+    linearExpFn.fC = 0.0f;
+    linearExpFn.fD = 0.0f;
+    linearExpFn.fE = 0.0f;
+    linearExpFn.fF = 0.0f;
+    linearExpFn.fG = 1.0f;
+    sk_sp<SkColorSpace> rgbColorSpace2 = SkColorSpace::MakeRGB(linearExpFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace2 == namedColorSpace);
+
+    SkColorSpaceTransferFn linearFn;
+    linearFn.fA = 0.0f;
+    linearFn.fB = 0.0f;
+    linearFn.fC = 1.0f;
+    linearFn.fD = 1.0f;
+    linearFn.fE = 0.0f;
+    linearFn.fF = 0.0f;
+    linearFn.fG = 0.0f;
+    sk_sp<SkColorSpace> rgbColorSpace3 = SkColorSpace::MakeRGB(linearFn, srgbToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace3 == namedColorSpace);
+
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
     sk_sp<SkColorSpace> strangeColorSpace =
         SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
+}
+
+DEF_TEST(ColorSpaceAdobeCompare, r) {
+    // Create an sRGB color space by name
+    sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+
+    // Create an sRGB color space by value
+    SkMatrix44 adobeToxyzD50(SkMatrix44::kUninitialized_Constructor);
+    adobeToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.0f;
+    fn.fE = 0.0f;
+    fn.fF = 0.0f;
+    fn.fG = 2.2f;
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::MakeRGB(fn, adobeToxyzD50);
+    REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 }
 
 DEF_TEST(ColorSpace_Named, r) {
