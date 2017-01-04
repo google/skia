@@ -113,6 +113,7 @@ static inline void alpha8_to_gray8(SkBitmap* bitmap) {
         SkImageInfo newInfo = bitmap->info().makeColorType(kGray_8_SkColorType)
                                             .makeAlphaType(kOpaque_SkAlphaType);
         *const_cast<SkImageInfo*>(&bitmap->info()) = newInfo;
+        *const_cast<SkImageInfo*>(&bitmap->pixelRef()->info()) = newInfo;
     }
 }
 
