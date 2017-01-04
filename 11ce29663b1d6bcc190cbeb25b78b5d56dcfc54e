@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_b0456119",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-04T17:59:56Z",
+      "side": 0,
+      "message": "I wonder if this flag is still worth having, but it just doesn\u0027t get sent up to the GPs in anyway. Seems wrong to pretend there is a known color just to drop stages, and the OverrideColor flag here is only used for one special case which I mention in the other comment.",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 115,
+        "endChar": 48
+      },
+      "revId": "11ce29663b1d6bcc190cbeb25b78b5d56dcfc54e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

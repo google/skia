@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_f0151904",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-04T17:59:56Z",
+      "side": 1,
+      "message": "Is this function really needed anymore/can it be inlined? At least reduce the params.\n\nAnd FYI since it is in this section, the analysis optimizations do set the override color as well as the start color proc. The flag here is used so that the XP has a chance to override as well. Currently this only happens when were doing the special LCD XP which puts the alpha into the color (which needs to make sure there are no color procs that could alter this value). In a future CL I wonder if this sort of optimization can be done higher up.",
+      "range": {
+        "startLine": 186,
+        "startChar": 1,
+        "endLine": 191,
+        "endChar": 81
+      },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_904ae523",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-04T17:59:56Z",
+      "side": 1,
+      "message": "this still need to be 25?",
+      "range": {
+        "startLine": 202,
+        "startChar": 58,
+        "endLine": 202,
+        "endChar": 60
+      },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_f03eb979",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-04T17:59:56Z",
+      "side": 1,
+      "message": "25?",
+      "range": {
+        "startLine": 455,
+        "startChar": 58,
+        "endLine": 455,
+        "endChar": 61
+      },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_d03bbd87",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-04T17:59:56Z",
+      "side": 1,
+      "message": "25?",
+      "range": {
+        "startLine": 747,
+        "startChar": 58,
+        "endLine": 747,
+        "endChar": 60
+      },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
