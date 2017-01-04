@@ -506,7 +506,9 @@ def test_steps(api):
     '--colorImages', api.flavor.device_path_join(
         api.flavor.device_dirs.images_dir, 'colorspace'),
     '--nameByHash',
-    '--properties'
+    '--properties',
+    '--pre_log',
+    '--verbose',
   ] + properties
 
   args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
