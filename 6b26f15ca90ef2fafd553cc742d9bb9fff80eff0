@@ -81,6 +81,24 @@
       "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_cbb670da",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-04T23:54:20Z",
+      "side": 1,
+      "message": "I have gotten myself into the habit lately to think, things want to be linear, transfer functions are extra compression steps.\n\nSo I think the sane way is, if something says linear, the data is linear.  Not will-be-linearized... that\u0027s inside out.",
+      "parentUuid": "d760061e_0b6b489a",
+      "revId": "6b26f15ca90ef2fafd553cc742d9bb9fff80eff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
