@@ -220,9 +220,6 @@ private:
 };
 
 void AAStrokeRectOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {
-    if (!optimizations.readsColor()) {
-        fRects[0].fColor = GrColor_ILLEGAL;
-    }
     optimizations.getOverrideColorIfSet(&fRects[0].fColor);
 
     fUsesLocalCoords = optimizations.readsLocalCoords();

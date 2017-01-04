@@ -1251,9 +1251,6 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsColor()) {
-            fGeoData[0].fColor = GrColor_ILLEGAL;
-        }
         if (!optimizations.readsLocalCoords()) {
             fViewMatrixIfUsingLocalCoords.reset();
         }
