@@ -21,7 +21,6 @@ public:
                        const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
         b->add32(SkToInt(pathProc.optimizations().readsColor()) |
-                 (SkToInt(pathProc.optimizations().readsCoverage()) << 1) |
                  (SkToInt(pathProc.viewMatrix().hasPerspective()) << 2));
     }
 
@@ -48,9 +47,7 @@ public:
         }
 
         // setup constant solid coverage
-        if (pathProc.optimizations().readsCoverage()) {
-            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
-        }
+        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,

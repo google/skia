@@ -309,7 +309,6 @@ private:
         optimizations.getOverrideColorIfSet(&fColor);
 
         fUsesLocalCoords = optimizations.readsLocalCoords();
-        fCoverageIgnored = !optimizations.readsCoverage();
     }
 
     struct DashDraw {
@@ -346,11 +345,11 @@ private:
             // Set up the vertex data for the line and start/end dashes
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
-            Coverage coverage(this->coverageIgnored() ? Coverage::kNone_Type :
-                                                        Coverage::kSolid_Type);
-            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                                              LocalCoords::kUnused_Type);
-            gp = MakeForDeviceSpace(color, coverage, localCoords, this->viewMatrix());
+            LocalCoords::Type localCoordsType = this->usesLocalCoords()
+                                                        ? LocalCoords::kUsePosition_Type
+                                                        : LocalCoords::kUnused_Type;
+            gp = MakeForDeviceSpace(color, Coverage::kSolid_Type, localCoordsType,
+                                    this->viewMatrix());
         }
 
         if (!gp) {
@@ -672,14 +671,12 @@ private:
     AAMode aaMode() const { return fAAMode; }
     bool fullDash() const { return fFullDash; }
     SkPaint::Cap cap() const { return fCap; }
-    bool coverageIgnored() const { return fCoverageIgnored; }
 
     static const int kVertsPerDash = 4;
     static const int kIndicesPerDash = 6;
 
     GrColor fColor;
     bool fUsesLocalCoords;
-    bool fCoverageIgnored;
     SkPaint::Cap fCap;
     AAMode fAAMode;
     bool fFullDash;

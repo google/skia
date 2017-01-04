@@ -220,11 +220,10 @@ private:
         } else {
             coverageType = Coverage::kAttribute_Type;
         }
-        Coverage coverage(coverageType);
         LocalCoords lc =
                 needLocalCoords ? LocalCoords::kHasExplicit_Type : LocalCoords::kUnused_Type;
         sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(color, coverage, lc, SkMatrix::I());
+                GrDefaultGeoProcFactory::Make(color, coverageType, lc, SkMatrix::I());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

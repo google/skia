@@ -75,7 +75,6 @@ void GrAtlasTextOp::applyPipelineOptimizations(const GrPipelineOptimizations& op
     fColorIgnored = !optimizations.readsColor();
     fColor = fGeoData[0].fColor;
     fUsesLocalCoords = optimizations.readsLocalCoords();
-    fCoverageIgnored = !optimizations.readsCoverage();
 }
 
 void GrAtlasTextOp::onPrepareDraws(Target* target) const {

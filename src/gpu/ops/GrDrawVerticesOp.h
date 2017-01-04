@@ -75,7 +75,6 @@ private:
     bool fVariableColor;
     int fVertexCount;
     int fIndexCount;
-    bool fCoverageIgnored;  // comes from applyPipelineOptimizations.
 
     SkSTArray<1, Mesh, true> fMeshes;
 

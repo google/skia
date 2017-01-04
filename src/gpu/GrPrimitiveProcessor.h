@@ -59,10 +59,6 @@ public:
     /** Does the pipeline require the GrPrimitiveProcessor's color? */
     bool readsColor() const { return SkToBool(kReadsColor_Flag & fFlags); }
 
-    /** Does the pipeline require the GrPrimitiveProcessor's coverage? */
-    bool readsCoverage() const { return
-        SkToBool(kReadsCoverage_Flag & fFlags); }
-
     /** Does the pipeline require access to (implicit or explicit) local coordinates? */
     bool readsLocalCoords() const {
         return SkToBool(kReadsLocalCoords_Flag & fFlags);
@@ -103,23 +99,20 @@ public:
 private:
     enum {
         // If this is not set the primitive processor need not produce a color output
-        kReadsColor_Flag                = 0x1,
-
-        // If this is not set the primitive processor need not produce a coverage output
-        kReadsCoverage_Flag             = 0x2,
+        kReadsColor_Flag = 0x1,
 
         // If this is not set the primitive processor need not produce local coordinates
-        kReadsLocalCoords_Flag          = 0x4,
+        kReadsLocalCoords_Flag = 0x2,
 
         // If this flag is set then the primitive processor may produce color*coverage as
         // its color output (and not output a separate coverage).
-        kCanTweakAlphaForCoverage_Flag  = 0x8,
+        kCanTweakAlphaForCoverage_Flag = 0x4,
 
         // If this flag is set the GrPrimitiveProcessor must produce fOverrideColor as its
         // output color. If not set fOverrideColor is to be ignored.
-        kUseOverrideColor_Flag          = 0x10,
+        kUseOverrideColor_Flag = 0x8,
 
-        kWillColorBlendWithDst_Flag     = 0x20,
+        kWillColorBlendWithDst_Flag = 0x10,
     };
 
     uint32_t    fFlags;

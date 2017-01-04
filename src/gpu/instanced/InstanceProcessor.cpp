@@ -354,8 +354,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
     SkASSERT(!(usedShapeDefinitions & (kRect_ShapeFlag | kComplexRRect_ShapeFlag)));
 
-    backend->emitCode(v, f, pipeline.ignoresCoverage() ? nullptr : args.fOutputCoverage,
-                      args.fOutputColor);
+    backend->emitCode(v, f, args.fOutputCoverage, args.fOutputColor);
 
     const char* localCoords = nullptr;
     if (ip.opInfo().fUsesLocalCoords) {

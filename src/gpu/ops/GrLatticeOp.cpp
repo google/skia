@@ -15,12 +15,10 @@
 #include "SkLatticeIter.h"
 #include "SkRect.h"
 
-static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
+static sk_sp<GrGeometryProcessor> create_gp() {
     using namespace GrDefaultGeoProcFactory;
-    Color color(Color::kAttribute_Type);
-    Coverage coverage(readsCoverage ? Coverage::kSolid_Type : Coverage::kNone_Type);
-    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
+    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+                                         LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
 class NonAALatticeOp final : public GrMeshDrawOp {
@@ -74,7 +72,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        sk_sp<GrGeometryProcessor> gp(create_gp(fOptimizations.readsCoverage()));
+        sk_sp<GrGeometryProcessor> gp(create_gp());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

@@ -65,8 +65,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs(GrGLSLExpr4* inputColor,
     if (primProc.getPixelLocalStorageState() !=
         GrPixelLocalStorageState::kDraw_GrPixelLocalStorageState) {
         this->emitAndInstallXferProc(this->pipeline().getXferProcessor(), *inputColor,
-                                     *inputCoverage, this->pipeline().ignoresCoverage(),
-                                     primProc.getPixelLocalStorageState());
+                                     *inputCoverage, primProc.getPixelLocalStorageState());
         this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
     }
 
@@ -206,7 +205,6 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                                   const GrGLSLExpr4& colorIn,
                                                   const GrGLSLExpr4& coverageIn,
-                                                  bool ignoresCoverage,
                                                   GrPixelLocalStorageState plsState) {
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
@@ -237,7 +235,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
                                        xp, colorIn.c_str(),
-                                       ignoresCoverage ? nullptr : coverageIn.c_str(),
+                                       coverageIn.c_str(),
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
                                        texSamplers.begin(),

@@ -1251,7 +1251,7 @@ private:
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
-        if (!optimizations.readsCoverage()) {
+        if (!optimizations.readsColor()) {
             fGeoData[0].fColor = GrColor_ILLEGAL;
         }
         if (!optimizations.readsLocalCoords()) {

@@ -214,8 +214,6 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     header->fOutputSwizzle = shaderCaps.configOutputSwizzle(rt->config()).asKey();
 
-    header->fIgnoresCoverage = pipeline.ignoresCoverage() ? 1 : 0;
-
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
     header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();

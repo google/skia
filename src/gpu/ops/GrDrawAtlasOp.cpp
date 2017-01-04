@@ -31,28 +31,24 @@ void GrDrawAtlasOp::applyPipelineOptimizations(const GrPipelineOptimizations& op
     fColor = fGeoData[0].fColor;
     // We'd like to assert this, but we can't because of GLPrograms test
     // SkASSERT(init.readsLocalCoords());
-    fCoverageIgnored = !optimizations.readsCoverage();
 }
 
-static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasColors,
-                                                        GrColor color,
-                                                        const SkMatrix& viewMatrix,
-                                                        bool coverageIgnored) {
+static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
+                                          GrColor color,
+                                          const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
     if (hasColors) {
         gpColor.fType = Color::kAttribute_Type;
     }
 
-    Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords localCoords(LocalCoords::kHasExplicit_Type);
-    return GrDefaultGeoProcFactory::Make(gpColor, coverage, localCoords, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(gpColor, Coverage::kSolid_Type,
+                                         LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
 void GrDrawAtlasOp::onPrepareDraws(Target* target) const {
     // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(set_vertex_attributes(
-            this->hasColors(), this->color(), this->viewMatrix(), this->coverageIgnored()));
+    sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
 
     int instanceCount = fGeoData.count();
     size_t vertexStride = gp->getVertexStride();

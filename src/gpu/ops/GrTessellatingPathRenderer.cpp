@@ -278,9 +278,9 @@ private:
             using namespace GrDefaultGeoProcFactory;
 
             Color color(fColor);
-            LocalCoords localCoords(fOptimizations.readsLocalCoords()
-                                            ? LocalCoords::kUsePosition_Type
-                                            : LocalCoords::kUnused_Type);
+            LocalCoords::Type localCoordsType = fOptimizations.readsLocalCoords()
+                                                        ? LocalCoords::kUsePosition_Type
+                                                        : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
                 color = Color(Color::kAttribute_Type);
@@ -289,17 +289,15 @@ private:
                 } else {
                     coverageType = Coverage::kAttribute_Type;
                 }
-            } else if (fOptimizations.readsCoverage()) {
+            } else {
                 coverageType = Coverage::kSolid_Type;
-            } else {
-                coverageType = Coverage::kNone_Type;
             }
-            Coverage coverage(coverageType);
             if (fAntiAlias) {
-                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(color, coverage, localCoords,
-                                                                 fViewMatrix);
+                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(color, coverageType,
+                                                                 localCoordsType, fViewMatrix);
             } else {
-                gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, fViewMatrix);
+                gp = GrDefaultGeoProcFactory::Make(color, coverageType, localCoordsType,
+                                                   fViewMatrix);
             }
         }
         if (fAntiAlias) {

@@ -14,21 +14,19 @@
 static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
                                                         int* colorOffset,
                                                         int* texOffset,
-                                                        const SkMatrix& viewMatrix,
-                                                        bool coverageIgnored) {
+                                                        const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
     *texOffset = -1;
     *colorOffset = -1;
 
-    Coverage coverage(coverageIgnored ? Coverage::kNone_Type : Coverage::kSolid_Type);
-    LocalCoords localCoords(hasLocalCoords ? LocalCoords::kHasExplicit_Type
-                                           : LocalCoords::kUsePosition_Type);
+    LocalCoords::Type localCoordsType =
+            hasLocalCoords ? LocalCoords::kHasExplicit_Type : LocalCoords::kUsePosition_Type;
     *colorOffset = sizeof(SkPoint);
     if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
     }
-    return GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type), coverage, localCoords,
-                                         viewMatrix);
+    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+                                         localCoordsType, viewMatrix);
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
@@ -88,7 +86,6 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations&
         fMeshes[0].fColors.reset();
         fVariableColor = false;
     }
-    fCoverageIgnored = !optimizations.readsCoverage();
     if (!optimizations.readsLocalCoords()) {
         fMeshes[0].fLocalCoords.reset();
     }
@@ -97,8 +94,8 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations&
 void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     bool hasLocalCoords = !fMeshes[0].fLocalCoords.isEmpty();
     int colorOffset = -1, texOffset = -1;
-    sk_sp<GrGeometryProcessor> gp(set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset,
-                                                        fViewMatrix, fCoverageIgnored));
+    sk_sp<GrGeometryProcessor> gp(
+            set_vertex_attributes(hasLocalCoords, &colorOffset, &texOffset, fViewMatrix));
     size_t vertexStride = gp->getVertexStride();
 
     SkASSERT(vertexStride ==

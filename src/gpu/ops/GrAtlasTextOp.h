@@ -154,7 +154,6 @@ private:
     GrColor fColor;
     bool fUsesLocalCoords;
     bool fColorIgnored;
-    bool fCoverageIgnored;
     int fNumGlyphs;
 
     // The minimum number of Geometry we will try to allocate.

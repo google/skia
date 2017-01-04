@@ -199,10 +199,6 @@ public:
     GrDrawFace getDrawFace() const { return fDrawFace; }
 
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    bool ignoresCoverage() const { return fIgnoresCoverage; }
-
 private:
     GrPipeline() { /** Initialized in factory function*/ }
 
@@ -246,7 +242,6 @@ private:
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;
     FragmentProcessorArray              fFragmentProcessors;
-    bool                                fIgnoresCoverage;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int                                 fNumColorProcessors;

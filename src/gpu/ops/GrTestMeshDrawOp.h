@@ -33,7 +33,6 @@ protected:
     struct Optimizations {
         bool fColorIgnored = false;
         bool fUsesLocalCoords = false;
-        bool fCoverageIgnored = false;
     };
 
     const Optimizations optimizations() const { return fOptimizations; }
@@ -49,7 +48,6 @@ private:
 
         fOptimizations.fColorIgnored = !optimizations.readsColor();
         fOptimizations.fUsesLocalCoords = optimizations.readsLocalCoords();
-        fOptimizations.fCoverageIgnored = !optimizations.readsCoverage();
     }
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
