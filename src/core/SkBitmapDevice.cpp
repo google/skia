@@ -167,12 +167,7 @@ bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPi
         return false;
     }
 
-    const SkImageInfo dstInfo = fBitmap.info().makeWH(srcInfo.width(), srcInfo.height());
-
-    void* dstPixels = fBitmap.getAddr(x, y);
-    size_t dstRowBytes = fBitmap.rowBytes();
-
-    if (SkPixelInfo::CopyPixels(dstInfo, dstPixels, dstRowBytes, srcInfo, srcPixels, srcRowBytes)) {
+    if (fBitmap.writePixels(SkPixmap(srcInfo, srcPixels, srcRowBytes), x, y)) {
         fBitmap.notifyPixelsChanged();
         return true;
     }
