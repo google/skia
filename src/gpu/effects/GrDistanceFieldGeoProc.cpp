@@ -53,9 +53,7 @@ public:
 #endif
 
         // Setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
         this->setupPosition(vertBuilder,
@@ -201,8 +199,7 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
@@ -323,9 +320,7 @@ public:
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
         vertBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
@@ -457,8 +452,7 @@ public:
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
     }
 
@@ -561,9 +555,7 @@ public:
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // setup pass through color
-        if (!dfTexEffect.colorIgnored()) {
-            varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
-        }
+        varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
         this->setupPosition(vertBuilder,
@@ -752,8 +744,7 @@ public:
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= dfTexEffect.colorIgnored() << 16;
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 25;
+        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point

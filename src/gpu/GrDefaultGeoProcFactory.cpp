@@ -47,7 +47,6 @@ public:
     const Attribute* inLocalCoords() const { return fInLocalCoords; }
     const Attribute* inCoverage() const { return fInCoverage; }
     GrColor color() const { return fColor; }
-    bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     bool hasVertexColor() const { return SkToBool(fInColor); }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
@@ -71,13 +70,11 @@ public:
             varyingHandler->emitAttributes(gp);
 
             // Setup pass through color
-            if (!gp.colorIgnored()) {
-                if (gp.hasVertexColor()) {
-                    varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
-                } else {
-                    this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
-                                            &fColorUniform);
-                }
+            if (gp.hasVertexColor()) {
+                varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
+            } else {
+                this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
+                                        &fColorUniform);
             }
 
             // Setup position
@@ -131,10 +128,9 @@ public:
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= def.colorIgnored() << 8;
-            key |= def.hasVertexColor() << 9;
-            key |= def.hasVertexCoverage() << 10;
-            key |= (def.coverage() == 0xff) ? (0x1 << 11) : 0;
+            key |= def.hasVertexColor() << 8;
+            key |= def.hasVertexCoverage() << 9;
+            key |= (def.coverage() == 0xff) ? (0x1 << 10) : 0;
             key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? (0x1 << 24)
                                                                                        : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 25;
