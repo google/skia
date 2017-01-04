@@ -66,7 +66,7 @@ namespace GrDefaultGeoProcFactory {
             kUniform_Type,
             kAttribute_Type,
         };
-        Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
+        explicit Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
         Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
             SkASSERT(type != kUniform_Type);
 
@@ -82,12 +82,11 @@ namespace GrDefaultGeoProcFactory {
 
     struct Coverage {
         enum Type {
-            kNone_Type,
             kSolid_Type,
             kUniform_Type,
             kAttribute_Type,
         };
-        Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
+        explicit Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
         Coverage(Type type) : fType(type), fCoverage(0xff) {
             SkASSERT(type != kUniform_Type);
         }
@@ -127,8 +126,6 @@ namespace GrDefaultGeoProcFactory {
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);
-
-    inline size_t DefaultVertexStride() { return sizeof(PositionAttr); }
 };
 
 #endif

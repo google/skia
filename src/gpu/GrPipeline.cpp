@@ -146,9 +146,6 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         optimizations->fFlags |= GrPipelineOptimizations::kUseOverrideColor_Flag;
         optimizations->fOverrideColor = overrideColor;
     }
-    if (!SkToBool(optFlags & GrXferProcessor::kIgnoreCoverage_OptFlag)) {
-        optimizations->fFlags |= GrPipelineOptimizations::kReadsCoverage_Flag;
-    }
     if (usesLocalCoords) {
         optimizations->fFlags |= GrPipelineOptimizations::kReadsLocalCoords_Flag;
     }
