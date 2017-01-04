@@ -15,14 +15,15 @@
 
 template <typename I>
 static SK_WHEN(std::is_integral<I>::value && 4 == sizeof(I), void)
-check_pixels(skiatest::Reporter* reporter, int w, int h,
-                         const I exepctedData[], const I actualData[]) {
+check_pixels(skiatest::Reporter* reporter, int w, int h, const I exepctedData[],
+             const I actualData[], const char* testName) {
     for (int j = 0; j < h; ++j) {
         for (int i = 0; i < w; ++i) {
             I expected = exepctedData[j * w + i];
             I actual = actualData[j * w + i];
             if (expected != actual) {
-                ERRORF(reporter, "Expected 0x08%x, got 0x%08x at %d, %d.", expected, actual, i, j);
+                ERRORF(reporter, "[%s] Expected 0x08%x, got 0x%08x at %d, %d.", testName, expected,
+                       actual, i, j);
                 return;
             }
         }
@@ -86,7 +87,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, success);
     if (success) {
-        check_pixels(reporter, kS, kS, testData.get(), readData.get());
+        check_pixels(reporter, kS, kS, testData.get(), readData.get(), "readPixels");
     }
 
     // readPixels should fail if we attempt to use the unpremul flag with an integer texture.
@@ -114,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
                                           kRGBA_8888_sint_GrPixelConfig, readData.get());
         REPORTER_ASSERT(reporter, success);
         if (success) {
-            check_pixels(reporter, kS, kS, testData.get(), readData.get());
+            check_pixels(reporter, kS, kS, testData.get(), readData.get(), "copyIntegerToInteger");
         }
     }
 
@@ -176,7 +177,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         dst += rowBytes;
         src += rowBytes;
     }
-    check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get());
+    check_pixels(reporter, kS, kS, overwrittenTestData.get(), readData.get(), "overwrite");
 
     // Test drawing from the integer texture to a fixed point texture. To avoid any premul issues
     // we init the int texture with 0s and 1s and make alpha always be 1. We expect that 1s turn
@@ -196,13 +197,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
-    for (auto filter : {GrSamplerParams::kNone_FilterMode,
-                        GrSamplerParams::kBilerp_FilterMode,
-                        GrSamplerParams::kMipMap_FilterMode}) {
+    struct {
+        GrSamplerParams::FilterMode fMode;
+        const char* fName;
+    } kNamedFilters[] ={
+        { GrSamplerParams::kNone_FilterMode, "filter-none" },
+        { GrSamplerParams::kBilerp_FilterMode, "filter-bilerp" },
+        { GrSamplerParams::kMipMap_FilterMode, "filter-mipmap" }
+    };
+
+    for (auto filter : kNamedFilters) {
         SkMatrix m;
         m.setIDiv(kS, kS);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m,
-                                                                  filter));
+                                                                  filter.fMode));
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {
             return;
@@ -215,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         SkImageInfo readInfo = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
         rtContext->readPixels(readInfo, actualData.get(), 0, 0, 0);
-        check_pixels(reporter, kS, kS, expectedData.get(), actualData.get());
+        check_pixels(reporter, kS, kS, expectedData.get(), actualData.get(), filter.fName);
     }
 
     // No rendering to integer textures.
