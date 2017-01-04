@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_90dca530",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-04T18:23:09Z",
+      "side": 1,
+      "message": "Interesting. I inlined this function.",
+      "parentUuid": "d760061e_f0151904",
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_904ae523",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 3
@@ -42,6 +60,24 @@
         "endLine": 202,
         "endChar": 60
       },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_b0d7210d",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-04T18:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_904ae523",
       "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_70dd892d",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-04T18:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_f03eb979",
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_d03bbd87",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 3
@@ -88,6 +142,24 @@
         "endLine": 747,
         "endChar": 60
       },
+      "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_50e20ded",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-04T18:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_d03bbd87",
       "revId": "d612ee8c847fa004e2856ea0303d63bf466e62d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
