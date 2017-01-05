@@ -34,6 +34,7 @@ public:
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*) const override;
     bool onIsLazyGenerated() const override { return true; }
+    virtual SkImageInfo onConservativeInfo(SuggestBitDepth, sk_sp<SkColorSpace>) const;
 
 private:
     mutable SkImageCacherator fCache;
@@ -98,3 +99,62 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkI
 
     return validator ? sk_make_sp<SkImage_Generator>(&validator) : nullptr;
 }
+
+SkImageInfo SkImage_Generator::onConservativeInfo(SuggestBitDepth suggestBitDepth,
+                                                  sk_sp<SkColorSpace> suggestColorSpace) const {
+    SkImageCacherator::CachedFormat format = fCache.chooseCacheFormat(suggestColorSpace.get());
+    SkASSERT(SkImageCacherator::kLegacy_CachedFormat != format);
+    return fCache.buildCacheInfo(format);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

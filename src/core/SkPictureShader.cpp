@@ -227,7 +227,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
 
         sk_sp<SkImage> tileImage(
             SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr,
-                                     sk_ref_sp(dstColorSpace)));
+                                     kN32_SkColorType, sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
         }
