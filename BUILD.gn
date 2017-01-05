@@ -25,6 +25,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_zlib = true
 
+  skia_android_serial = ""
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_gpu = true
@@ -771,8 +772,27 @@ if (skia_enable_tools) {
         testonly = true
       }
     } else {
-      executable(target_name) {
+      _executable = target_name
+      executable(_executable) {
         forward_variables_from(invoker, "*", [ "is_shared_library" ])
+        testonly = true
+      }
+    }
+    if (is_android && skia_android_serial != "" && defined(_executable)) {
+      action("push_" + target_name) {
+        script = "gn/push_to_android.py"
+        deps = [
+          ":" + _executable,
+        ]
+        _stamp = "$target_gen_dir/$_executable.pushed_$skia_android_serial"
+        outputs = [
+          _stamp,
+        ]
+        args = [
+          rebase_path("$root_build_dir/$_executable"),
+          skia_android_serial,
+          rebase_path(_stamp),
+        ]
         testonly = true
       }
     }
