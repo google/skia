@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d760061e_212aa5ee",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-05T17:12:49Z",
+      "side": 1,
+      "message": "Not sure.  The only other caller (SkChopCubicAtMaxCurvature) already has logic that may return a degenerate cubic, so the caller will have to handle that case regardless. Also, detecting this seems complicated for SkFindCubicMaxCurvature since the caller will immediately do its own chopping / point evaluation.",
+      "parentUuid": "d760061e_c1d3f1ec",
+      "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_e1d6edde",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 1
@@ -41,6 +59,47 @@
         "startChar": 4,
         "endLine": 609,
         "endChar": 7
+      },
+      "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_0127a927",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-05T17:12:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d760061e_e1d6edde",
+      "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_41fa4152",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-05T17:12:49Z",
+      "side": 1,
+      "message": "Oops, got this wrong -- \u0027index\u0027 should have been \u0027rCount\u0027 (fixed)",
+      "range": {
+        "startLine": 613,
+        "startChar": 55,
+        "endLine": 613,
+        "endChar": 60
       },
       "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
