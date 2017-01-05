@@ -426,6 +426,30 @@ DEF_SIMPLE_GM(bug5099, canvas, 50, 50) {
     canvas->drawPath(path, p);
 }
 
+DEF_SIMPLE_GM(bug6083, canvas, 100, 50) {
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(15);
+    canvas->translate(-500, -130);
+    SkPath path;
+    path.moveTo(500.988f, 155.200f);
+    path.lineTo(526.109f, 155.200f);
+    SkPoint p1 = { 526.109f, 155.200f };
+    SkPoint p2 = { 525.968f, 212.968f };
+    SkPoint p3 = { 526.109f, 241.840f };
+    path.cubicTo(p1, p2, p3);
+    canvas->drawPath(path, p);
+    canvas->translate(50, 0);
+    path.reset();
+    p2.set(525.968f, 213.172f);
+    path.moveTo(500.988f, 155.200f);
+    path.lineTo(526.109f, 155.200f);
+    path.cubicTo(p1, p2, p3);
+    canvas->drawPath(path, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new CubicPathGM; )
