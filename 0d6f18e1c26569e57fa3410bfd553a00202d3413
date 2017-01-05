@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_65fae852",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-05T19:45:25Z",
+      "side": 1,
+      "message": "Don\u0027t you want to move program[kStackMax] into the run_program branch?",
+      "range": {
+        "startLine": 1038,
+        "startChar": 22,
+        "endLine": 1038,
+        "endChar": 31
+      },
+      "revId": "0d6f18e1c26569e57fa3410bfd553a00202d3413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
