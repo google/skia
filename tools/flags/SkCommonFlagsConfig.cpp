@@ -20,9 +20,6 @@ static const char defaultConfigs[] =
 #if defined(SK_BUILD_FOR_WIN)
     " angle_d3d11_es2"
 #endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    " hwui"
-#endif
     ;
 
 static const struct {
@@ -82,11 +79,7 @@ static const struct {
 };
 
 static const char configHelp[] =
-    "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps"
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    " hwui"
-#endif
-    ;
+    "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps";
 
 static const char* config_help_fn() {
     static SkString helpString;

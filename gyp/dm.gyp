@@ -16,10 +16,6 @@
           ['skia_android_framework', {
               'libraries': [
                   'skia_static.a',
-                  'hwui_static.a',
-              ],
-              'sources': [
-                '../dm/DMSrcSinkAndroid.cpp',
               ],
               'dependencies': [
                 'tools.gyp:android_utils',
