@@ -341,9 +341,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
             // entirely in software
-            result = CreateSoftwareClipMask(context, reducedClip);
+            result = this->createSoftwareClipMask(context, reducedClip);
         } else {
-            result = CreateAlphaClipMask(context, reducedClip);
+            result = this->createAlphaClipMask(context, reducedClip);
         }
 
         if (result) {
@@ -394,8 +394,8 @@ static void GetClipMaskKey(int32_t clipGenID, const SkIRect& bounds, GrUniqueKey
     builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
 }
 
-sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
-                                                      const GrReducedClip& reducedClip) {
+sk_sp<GrTexture> GrClipStackClip::createAlphaClipMask(GrContext* context,
+                                                      const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
     GetClipMaskKey(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
@@ -423,11 +423,20 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
     }
 
     texture->resourcePriv().setUniqueKey(key);
+    SkClipStack::Iter iter(*fStack, SkClipStack::Iter::kTop_IterStart);
+    while (const Element* element = iter.next()) {
+        if (element->getGenID() == reducedClip.elementsGenID()) {
+            std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg(
+                    new GrUniqueKeyInvalidatedMessage(key));
+            element->addResourceInvalidationMessage(msg);
+            break;
+        }
+    }
     return texture;
 }
 
-sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrContext* context,
-                                                         const GrReducedClip& reducedClip) {
+sk_sp<GrTexture> GrClipStackClip::createSoftwareClipMask(GrContext* context,
+                                                         const GrReducedClip& reducedClip) const {
     GrUniqueKey key;
     GetClipMaskKey(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
     if (GrTexture* texture = context->textureProvider()->findAndRefTextureByUniqueKey(key)) {
@@ -493,6 +502,15 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrContext* context,
     }
 
     tex->resourcePriv().setUniqueKey(key);
+    SkClipStack::Iter iter(*fStack, SkClipStack::Iter::kTop_IterStart);
+    while (const Element* element = iter.next()) {
+        if (element->getGenID() == reducedClip.elementsGenID()) {
+            std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg(
+                    new GrUniqueKeyInvalidatedMessage(key));
+            element->addResourceInvalidationMessage(msg);
+            break;
+        }
+    }
 
     return sk_ref_sp(tex);
 }
