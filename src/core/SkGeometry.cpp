@@ -15,12 +15,6 @@ static SkVector to_vector(const Sk2s& x) {
     return vector;
 }
 
-/** If defined, this makes eval_quad and eval_cubic do more setup (sometimes
-    involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
-    May also introduce overflow of fixed when we compute our setup.
-*/
-//    #define DIRECT_EVAL_OF_POLYNOMIALS
-
 ////////////////////////////////////////////////////////////////////////
 
 static int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
@@ -289,33 +283,6 @@ void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
 ///// CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS /////
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_EVAL_CUBIC
-static SkScalar eval_cubic(const SkScalar src[], SkScalar t) {
-    SkASSERT(src);
-    SkASSERT(t >= 0 && t <= SK_Scalar1);
-
-    if (t == 0) {
-        return src[0];
-    }
-
-#ifdef DIRECT_EVAL_OF_POLYNOMIALS
-    SkScalar D = src[0];
-    SkScalar A = src[6] + 3*(src[2] - src[4]) - D;
-    SkScalar B = 3*(src[4] - src[2] - src[2] + D);
-    SkScalar C = 3*(src[2] - D);
-
-    return SkScalarMulAdd(SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C), t, D);
-#else
-    SkScalar    ab = SkScalarInterp(src[0], src[2], t);
-    SkScalar    bc = SkScalarInterp(src[2], src[4], t);
-    SkScalar    cd = SkScalarInterp(src[4], src[6], t);
-    SkScalar    abc = SkScalarInterp(ab, bc, t);
-    SkScalar    bcd = SkScalarInterp(bc, cd, t);
-    return SkScalarInterp(abc, bcd, t);
-#endif
-}
-#endif
-
 static SkVector eval_cubic_derivative(const SkPoint src[4], SkScalar t) {
     SkQuadCoeff coeff;
     Sk2s P0 = from_point(src[0]);
@@ -346,11 +313,7 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc,
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     if (loc) {
-#ifdef SK_SUPPORT_LEGACY_EVAL_CUBIC
-        loc->set(eval_cubic(&src[0].fX, t), eval_cubic(&src[0].fY, t));
-#else
         *loc = to_point(SkCubicCoeff(src).eval(t));
-#endif
     }
     if (tangent) {
         // The derivative equation returns a zero tangent vector when t is 0 or 1, and the
