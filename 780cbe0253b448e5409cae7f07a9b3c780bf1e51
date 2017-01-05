@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_411b6199",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-05T18:21:07Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be \u0027true\u0027 ?",
+      "revId": "780cbe0253b448e5409cae7f07a9b3c780bf1e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
