@@ -606,15 +606,23 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
     if (count == 0) {
         return kLine_ReductionType;
     }
+    int rCount = 0;
+    // Now loop over the t-values, and reject any that evaluate to either end-point
     for (int index = 0; index < count; ++index) {
         SkScalar t = tValues[index];
-        SkEvalCubicAt(cubic, t, &reduction[index], nullptr, nullptr);
+        SkEvalCubicAt(cubic, t, &reduction[rCount], nullptr, nullptr);
+        if (reduction[rCount] != cubic[0] && reduction[rCount] != cubic[3]) {
+            ++rCount;
+        }
+    }
+    if (rCount == 0) {
+        return kLine_ReductionType;
     }
     static_assert(kQuad_ReductionType + 1 == kDegenerate_ReductionType, "enum_out_of_whack");
     static_assert(kQuad_ReductionType + 2 == kDegenerate2_ReductionType, "enum_out_of_whack");
     static_assert(kQuad_ReductionType + 3 == kDegenerate3_ReductionType, "enum_out_of_whack");
 
-    return (ReductionType) (kQuad_ReductionType + count);
+    return (ReductionType) (kQuad_ReductionType + rCount);
 }
 
 SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& conic,
