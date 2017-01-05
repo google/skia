@@ -13,32 +13,6 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "../private/GrGLSL.h"
 
-/*
- * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
- * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
- * ACM DL: http://dl.acm.org/citation.cfm?id=378514
- * Free  : http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
- *
- * The authors define a family of cubic filters with two free parameters (B and C):
- *
- *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)            if |x| < 1
- * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C)   if 1 <= |x| < 2
- *            { 0                                                                 otherwise
- *
- * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as their
- * favorite overall spline - this is now commonly known as the Mitchell filter, and is the source
- * of the specific weights below.
- *
- * These weights are in column-major order (ie this matrix is transposed from what you'd expect),
- * so we can upload them directly via setMatrix4f.
- */
-static constexpr float kMitchellCoefficients[16] = {
-     1.0f / 18.0f,  16.0f / 18.0f,   1.0f / 18.0f,  0.0f / 18.0f,
-    -9.0f / 18.0f,   0.0f / 18.0f,   9.0f / 18.0f,  0.0f / 18.0f,
-    15.0f / 18.0f, -36.0f / 18.0f,  27.0f / 18.0f, -6.0f / 18.0f,
-    -7.0f / 18.0f,  21.0f / 18.0f, -21.0f / 18.0f,  7.0f / 18.0f,
-};
-
 class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
@@ -56,7 +30,6 @@ protected:
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    UniformHandle               fCoefficientsUni;
     UniformHandle               fImageIncrementUni;
     UniformHandle               fColorSpaceXformUni;
     GrTextureDomain::GLDomain   fDomain;
@@ -68,15 +41,11 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fCoefficientsUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                  kMat44f_GrSLType, kDefault_GrSLPrecision,
-                                                  "Coefficients");
     fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                     kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "ImageIncrement");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
-    const char* coeff = uniformHandler->getUniformCStr(fCoefficientsUni);
 
     GrGLSLColorSpaceXformHelper colorSpaceHelper(uniformHandler, bicubicEffect.colorSpaceXform(),
                                                  &fColorSpaceXformUni);
@@ -101,6 +70,29 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                               "\tvec4 c = coefficients * ts;\n"
                               "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
                               &cubicBlendName);
+    /*
+     * Filter weights come from Don Mitchell & Arun Netravali's 'Reconstruction Filters in Computer
+     * Graphics', ACM SIGGRAPH Computer Graphics 22, 4 (Aug. 1988).
+     * ACM DL: http://dl.acm.org/citation.cfm?id=378514
+     * Free  : http://www.cs.utexas.edu/users/fussell/courses/cs384g/lectures/mitchell/Mitchell.pdf
+     *
+     * The authors define a family of cubic filters with two free parameters (B and C):
+     *
+     *            { (12 - 9B - 6C)|x|^3 + (-18 + 12B + 6C)|x|^2 + (6 - 2B)          if |x| < 1
+     * k(x) = 1/6 { (-B - 6C)|x|^3 + (6B + 30C)|x|^2 + (-12B - 48C)|x| + (8B + 24C) if 1 <= |x| < 2
+     *            { 0                                                               otherwise
+     *
+     * Various well-known cubic splines can be generated, and the authors select (1/3, 1/3) as their
+     * favorite overall spline - this is now commonly known as the Mitchell filter, and is the
+     * source of the specific weights below.
+     *
+     * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
+     */
+    fragBuilder->codeAppend("\tmat4 coeff = mat4("
+                            " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
+                            "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
+                            "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
+                            "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
     fragBuilder->codeAppendf("\tvec2 coord = %s - %s * vec2(0.5);\n", coords2D.c_str(), imgInc);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
@@ -125,11 +117,11 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                                   args.fTexSamplers[0]);
         }
         fragBuilder->codeAppendf(
-            "\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n",
-            y, cubicBlendName.c_str(), coeff);
+            "\tvec4 s%d = %s(coeff, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n",
+            y, cubicBlendName.c_str());
     }
     SkString bicubicColor;
-    bicubicColor.printf("%s(%s, f.y, s0, s1, s2, s3)", cubicBlendName.c_str(), coeff);
+    bicubicColor.printf("%s(coeff, f.y, s0, s1, s2, s3)", cubicBlendName.c_str());
     if (colorSpaceHelper.getXformMatrix()) {
         SkString xformedColor;
         fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &colorSpaceHelper);
@@ -148,7 +140,6 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    pdman.setMatrix4f(fCoefficientsUni, kMitchellCoefficients);
     fDomain.setData(pdman, bicubicEffect.domain(), texture->origin());
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
         pdman.setSkMatrix44(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
