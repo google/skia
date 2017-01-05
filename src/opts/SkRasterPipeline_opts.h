@@ -965,9 +965,37 @@ SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
 
 namespace {
 
+    static void build_program(void** program, const SkRasterPipeline::Stage* stages, int nstages) {
+        for (int i = 0; i < nstages; i++) {
+            *program++ = (void*)enum_to_Fn(stages[i].stage);
+            if (stages[i].ctx) {
+                *program++ = stages[i].ctx;
+            }
+        }
+        *program++ = (void*)just_return;
+    }
+
+    static void run_program(void** program, size_t x, size_t y, size_t n) {
+        float dx[] = { 0,1,2,3,4,5,6,7 };
+        SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
+             Y = SkNf(y) + 0.5f,
+             _0 = SkNf(0),
+             _1 = SkNf(1);
+
+        auto start = (Fn)load_and_increment(&program);
+        while (n >= N) {
+            start(x*N, program, X,Y,_1,_0, _0,_0,_0,_0);
+            X += (float)N;
+            x += N;
+            n -= N;
+        }
+        if (n) {
+            start(x*N+n, program, X,Y,_1,_0, _0,_0,_0,_0);
+        }
+    }
+
     // Compiled manages its memory manually because it's not safe to use
     // std::vector, SkTDArray, etc without setting us up for big ODR violations.
-
     struct Compiled {
         Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
             int slots = nstages + 1;  // One extra for just_return.
@@ -977,15 +1005,7 @@ namespace {
                 }
             }
             fProgram = (void**)sk_malloc_throw(slots * sizeof(void*));
-
-            void** ip = fProgram;
-            for (int i = 0; i < nstages; i++) {
-                *ip++ = (void*)enum_to_Fn(stages[i].stage);
-                if (stages[i].ctx) {
-                    *ip++ = stages[i].ctx;
-                }
-            }
-            *ip++ = (void*)just_return;
+            build_program(fProgram, stages, nstages);
         }
         ~Compiled() { sk_free(fProgram); }
 
@@ -998,23 +1018,7 @@ namespace {
         }
 
         void operator()(size_t x, size_t y, size_t n) {
-            float dx[] = { 0,1,2,3,4,5,6,7 };
-            SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
-                 Y = SkNf(y) + 0.5f,
-                _0 = SkNf(0),
-                _1 = SkNf(1);
-
-            void** p = fProgram;
-            auto start = (Fn)load_and_increment(&p);
-            while (n >= N) {
-                start(x*N, p, X,Y,_1,_0, _0,_0,_0,_0);
-                X += (float)N;
-                x += N;
-                n -= N;
-            }
-            if (n) {
-                start(x*N+n, p, X,Y,_1,_0, _0,_0,_0,_0);
-            }
+            run_program(fProgram, x, y, n);
         }
 
         void** fProgram;
@@ -1030,7 +1034,15 @@ namespace SK_OPTS_NS {
 
     SI void run_pipeline(size_t x, size_t y, size_t n,
                          const SkRasterPipeline::Stage* stages, int nstages) {
-        Compiled{stages,nstages}(x,y,n);
+        static const int kStackMax = 256;
+        // Worst case is nstages stages with nstages context pointers, and just_return.
+        if (2*nstages+1 <= kStackMax) {
+            void* program[kStackMax];
+            build_program(program, stages, nstages);
+            run_program(program, x,y,n);
+        } else {
+            Compiled{stages,nstages}(x,y,n);
+        }
     }
 
 }  // namespace SK_OPTS_NS
