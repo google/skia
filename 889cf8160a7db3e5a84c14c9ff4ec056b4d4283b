@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_c1065140",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-05T18:28:26Z",
+      "side": 1,
+      "message": "rm \u0027\\t\u0027 - and, optionally, all the manual formatting ?\nrename to kMitchellCoeffs ?",
+      "revId": "889cf8160a7db3e5a84c14c9ff4ec056b4d4283b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_81fe19f2",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-05T18:28:26Z",
+      "side": 1,
+      "message": "IIUC this invokes \u0027cubicBlendName 4x with the same \u0027t\u0027 value. What do you think about manually inlining the function calls?",
+      "revId": "889cf8160a7db3e5a84c14c9ff4ec056b4d4283b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
