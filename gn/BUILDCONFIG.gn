@@ -58,6 +58,8 @@ if (is_android) {
   ndk_platform = ""
   ndk_stdlib = ""
   ndk_gccdir = ""
+  ndk_gdbserver = ""
+  ndk_simpleperf = ""
 
   if (host_os == "linux") {
     ndk_host = "linux-x86_64"
@@ -72,31 +74,41 @@ if (is_android) {
     ndk_platform = "android-${ndk_api}/arch-arm64"
     ndk_stdlib = "arm64-v8a"
     ndk_gccdir = ndk_target
+    ndk_gdbserver = "prebuilt/android-arm64/gdbserver/gdbserver"
+    ndk_simpleperf = "simpleperf/android/arm64/simpleperf"
   } else if (target_cpu == "arm") {
     ndk_target = "arm-linux-androideabi"
     ndk_platform = "android-${ndk_api}/arch-arm"
     ndk_stdlib = "armeabi-v7a"
     ndk_gccdir = ndk_target
+    ndk_gdbserver = "prebuilt/android-arm/gdbserver/gdbserver"
+    ndk_simpleperf = "simpleperf/android/arm/simpleperf"
   } else if (target_cpu == "mips64el") {
     ndk_target = "mips64el-linux-android"
     ndk_platform = "android-${ndk_api}/arch-mips64"
     ndk_stdlib = "mips64"
     ndk_gccdir = ndk_target
+    ndk_gdbserver = "prebuilt/android-mips64/gdbserver/gdbserver"
   } else if (target_cpu == "mipsel") {
     ndk_target = "mipsel-linux-android"
     ndk_platform = "android-${ndk_api}/arch-mips"
     ndk_stdlib = "mips"
     ndk_gccdir = ndk_target
+    ndk_gdbserver = "prebuilt/android-mips/gdbserver/gdbserver"
   } else if (target_cpu == "x64") {
     ndk_target = "x86_64-linux-android"
     ndk_platform = "android-${ndk_api}/arch-x86_64"
     ndk_stdlib = "x86_64"
     ndk_gccdir = ndk_stdlib
+    ndk_gdbserver = "prebuilt/android-x86_64/gdbserver/gdbserver"
+    ndk_simpleperf = "simpleperf/android/x86_64/simpleperf"
   } else if (target_cpu == "x86") {
     ndk_target = "i686-linux-android"
     ndk_platform = "android-${ndk_api}/arch-x86"
     ndk_stdlib = "x86"
     ndk_gccdir = ndk_stdlib
+    ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
+    ndk_simpleperf = "simpleperf/android/x86/simpleperf"
   }
 }
 

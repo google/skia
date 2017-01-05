@@ -7,7 +7,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/utils/android_setup.sh
 
 # setup the gdbserver
-$SCRIPT_DIR/android_gdbserver -d ${DEVICE_ID} ${APP_ARGS[@]}
+$SCRIPT_DIR/android_gdbserver -C ${SKIA_OUT} ${APP_ARGS[@]}
 
 # quit if gdbserver setup failed
 if [[ "$?" != "0" ]]; then

@@ -17,7 +17,7 @@ verbose "pushing binaries onto the device..."
 adb_push_if_needed "${SKIA_OUT}/${APP_ARGS[0]}" /data/local/tmp
 if [[ -n $RESOURCE_PATH ]]; then
   verbose "pushing resources onto the device..."
-  adb_push_if_needed "${SKIA_SRC_DIR}/resources" $RESOURCE_PATH
+  adb_push_if_needed "${SCRIPT_DIR}/../../../resources" $RESOURCE_PATH
 fi
 
 if [ $LOGCAT ]; then

@@ -12,15 +12,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/utils/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-if [ $(uname) == "Linux" ]; then
-    PERFHOST=$SCRIPT_DIR/linux/perfhost
-elif [ $(uname) == "Darwin" ]; then
-    PERFHOST=$SCRIPT_DIR/mac/perfhost
-else
-    echo "Could not automatically determine OS!"
-    exit 1;
-fi
-
 # grab and remove the perf command from the input args
 PERF_CMD=${APP_ARGS[0]}
 unset APP_ARGS[0]
@@ -42,7 +33,6 @@ perf_setup() {
     echo "Copying symbol files"
     adb_pull_if_needed /system/lib/libc.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libstdc++.so $TMP_SYS_LIB
-    adb_pull_if_needed /system/lib/libstlport.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libGLESv2.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libandroid.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB
@@ -54,6 +44,9 @@ perf_setup() {
       echo "Unable to find the ${runVars[0]} executable"
       exit 1
     fi
+
+    echo "Pushing simpleperf..."
+    adb_push_if_needed $SKIA_OUT/simpleperf /data/local/tmp
 
     echo "Pushing app..."
     adb_push_if_needed "${SKIA_OUT}/${runVars[0]}" /data/local/tmp
@@ -73,16 +66,16 @@ perf_record() {
     # TO BE READ BY THE REPORTING TOOL
     echo "Starting profiler"
     APP_PID=$($ADB shell ps | grep ${runVars[0]} | awk '{print $2}')
-    $ADB shell perf record -p ${APP_PID} sleep 70
+    $ADB shell /data/local/tmp/simpleperf record -p ${APP_PID} -o /data/local/tmp/perf.data sleep 70
 
-    $ADB pull /data/perf.data $PERF_TMP_DIR/perf.data
+    $ADB pull /data/local/tmp/perf.data $PERF_TMP_DIR/perf.data
 
     exit 0;
 }
 
 perf_report() {
-    adb_pull_if_needed /data/perf.data $PERF_TMP_DIR/perf.data
-    $PERFHOST report -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR ${runVars[@]}
+    adb_pull_if_needed /data/local/tmp/perf.data $PERF_TMP_DIR/perf.data
+    $SKIA_OUT/perfhost_report.py -i $PERF_TMP_DIR/perf.data --symfs=$PERF_TMP_DIR ${runVars[@]}
 }
 
 # Clean up
