@@ -76,7 +76,7 @@
       'product_name': 'skia_skgpu',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'msvs_disabled_warnings': [ 4267, 4800 ],
+      'msvs_disabled_warnings': [ 4244, 4267, 4800 ],
       'dependencies': [
         'core.gyp:*',
         'utils.gyp:utils',
