@@ -40,6 +40,24 @@
       "revId": "12abf216b49511b1d4ff3658c7cbe146ff14edcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_c1ef713e",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-05T18:36:26Z",
+      "side": 1,
+      "message": "It\u0027s pretty small, and I think I can make it a little smaller still.",
+      "parentUuid": "d760061e_2170e5f3",
+      "revId": "12abf216b49511b1d4ff3658c7cbe146ff14edcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
