@@ -92,9 +92,6 @@ public:
                             sk_sp<SkColorSpace>*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    // exposed for SkSurface_Raster via SkNewImageFromPixelRef
-    SkImage_Raster(const SkImageInfo&, SkPixelRef*, const SkIPoint& origin, size_t rowBytes);
-
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
@@ -151,16 +148,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowB
     fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
     fBitmap.setImmutable();
     fBitmap.lockPixels();
-}
-
-SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, const SkIPoint& pixelRefOrigin,
-                               size_t rowBytes)
-    : INHERITED(info.width(), info.height(), pr->getGenerationID())
-{
-    fBitmap.setInfo(info, rowBytes);
-    fBitmap.setPixelRef(sk_ref_sp(pr), pixelRefOrigin.x(), pixelRefOrigin.y());
-    fBitmap.lockPixels();
-    SkASSERT(fBitmap.isImmutable());
 }
 
 SkImage_Raster::~SkImage_Raster() {
@@ -311,14 +298,6 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
 
     sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
-}
-
-sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
-                                       const SkIPoint& pixelRefOrigin, size_t rowBytes) {
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, nullptr)) {
-        return nullptr;
-    }
-    return sk_make_sp<SkImage_Raster>(info, pr, pixelRefOrigin, rowBytes);
 }
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm,
