@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_06ea1f2d",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-05T14:58:17Z",
+      "side": 1,
+      "message": "I agree that this is cleaner. I\u0027m still a little nervous about the color space on the bitmap not matching the color space its pixel ref, but it probably makes sense. The bitmap is a way to look at the pixel ref - it may have a smaller window, and it may have a different color space interpretation.",
+      "range": {
+        "startLine": 189,
+        "startChar": 9,
+        "endLine": 189,
+        "endChar": 20
+      },
+      "revId": "5cc7d9c3f4f406c58f0aa2a3215f58f5b0021072",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
