@@ -53,6 +53,8 @@ int main(int argc, char**argv) {
             XNextEvent(display, &event);
 
             sk_app::Window_unix* win = sk_app::Window_unix::gWindowMap.find(event.xany.window);
+            SkASSERT(win);
+
             // paint and resize events get collapsed
             switch (event.type) {
             case Expose: 
