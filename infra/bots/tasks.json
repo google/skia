@@ -174,6 +174,12 @@
         "Build-Ubuntu-Clang-x86_64-Release"
       ]
     },
+    "Build-Ubuntu-Clang-x86_64-Release-Fast": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-Fast"
+      ]
+    },
     "Build-Ubuntu-Clang-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
@@ -220,12 +226,6 @@
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-GCC-x86_64-Release-ANGLE"
-      ]
-    },
-    "Build-Ubuntu-GCC-x86_64-Release-Fast": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Ubuntu-GCC-x86_64-Release-Fast"
       ]
     },
     "Build-Ubuntu-GCC-x86_64-Release-Mesa": {
@@ -660,6 +660,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
+      ]
+    },
+    "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
       ]
     },
     "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
@@ -1196,6 +1202,12 @@
         "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+      ]
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
@@ -1255,12 +1267,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
-      ]
-    },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast"
       ]
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
@@ -2384,6 +2390,38 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Ubuntu-Clang-x86_64-Release-Fast": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-Fast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-Clang-x86_64-Release-TSAN": {
       "cipd_packages": [
         {
@@ -2578,31 +2616,6 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-ANGLE",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Ubuntu-GCC-x86_64-Release-Fast": {
-      "dimensions": [
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_compile",
-        "repository=<(REPO)",
-        "buildername=Build-Ubuntu-GCC-x86_64-Release-Fast",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -5607,6 +5620,55 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:17"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:31"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-Fast"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -9909,6 +9971,55 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:17"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:31"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-Fast"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
       "cipd_packages": [
         {
@@ -10326,55 +10437,6 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:17"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:31"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-Fast"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -12983,6 +13045,35 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "dependencies": [
+        "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
         "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
@@ -14752,6 +14843,35 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+      "dependencies": [
+        "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "dependencies": [
         "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug"
@@ -14855,35 +14975,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast": {
-      "dependencies": [
-        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
