@@ -94,6 +94,7 @@ public:
     using GrTextureProvider::findAndRefTextureByUniqueKey;
     using GrTextureProvider::abandon;
 
+    /** These flags alias/extend GrTextureProvider::ScratchTextureFlags */
     enum Flags {
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
@@ -101,12 +102,12 @@ public:
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
-        kNoPendingIO_Flag = 0x1,
+        kNoPendingIO_Flag = GrTextureProvider::kNoPendingIO_ScratchTextureFlag,
 
         /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
          *  creating a buffer to guarantee it resides in GPU memory.
          */
-        kRequireGpuMemory_Flag = 0x2,
+        kRequireGpuMemory_Flag = GrTextureProvider::kLastScratchTextureFlag << 1,
     };
 
     /**
