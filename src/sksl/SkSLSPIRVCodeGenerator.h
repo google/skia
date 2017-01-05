@@ -18,6 +18,7 @@
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLConstructor.h"
+#include "ir/SkSLDoStatement.h"
 #include "ir/SkSLFloatLiteral.h"
 #include "ir/SkSLIfStatement.h"
 #include "ir/SkSLIndexExpression.h"
@@ -38,6 +39,7 @@
 #include "ir/SkSLVarDeclarations.h"
 #include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
+#include "ir/SkSLWhileStatement.h"
 #include "spirv.h"
 
 namespace SkSL {
@@ -190,6 +192,10 @@ private:
     void writeIfStatement(const IfStatement& stmt, SkWStream& out);
 
     void writeForStatement(const ForStatement& f, SkWStream& out);
+
+    void writeWhileStatement(const WhileStatement& w, SkWStream& out);
+
+    void writeDoStatement(const DoStatement& d, SkWStream& out);
 
     void writeReturnStatement(const ReturnStatement& r, SkWStream& out);
 
