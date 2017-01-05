@@ -33,6 +33,7 @@ static sk_sp<SkImage> make_picture_image(int width, int height, SkColor colors[2
     draw(recorder.beginRecording(SkRect::MakeIWH(width, height)), width, height, colors);
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                     SkISize::Make(width, height), nullptr, nullptr,
+                                    kN32_SkColorType,
                                     SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 

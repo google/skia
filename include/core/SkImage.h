@@ -155,14 +155,14 @@ public:
                                                    sk_sp<SkColorSpace> = nullptr);
 
     /**
-     *  Create a new image from the specified picture. The color space becomes a preferred
-     *  color space for playback of the picture when retrieving the rasterized image contents.
+     *  Create a new image from the specified picture.
+     *  Creating an SkImage from an SkPicture requires snapping the picture to a particular
+     *  SkColorType and SkColorSpace.
      */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
-                                          const SkMatrix*, const SkPaint*, sk_sp<SkColorSpace>);
-
-    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                          const SkMatrix* matrix, const SkPaint* paint);
+                                          const SkMatrix*, const SkPaint*,
+                                          SkColorType = kN32_SkColorType,
+                                          sk_sp<SkColorSpace> = nullptr);
 
     static sk_sp<SkImage> MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
@@ -409,6 +409,25 @@ public:
      *  (and caches) its pixels / texture on-demand.
      */
     bool isLazyGenerated() const;
+
+    /**
+     *  Returns an SkImageInfo that can be used to losslessly represent the SkImage.
+     *  If properties of the SkImage are not fully specified, |suggestBitDepth| and
+     *  |suggestColorSpace| will be used as instructions to create the SkImageInfo.
+     *
+     *  @param suggestBitDepth   If the bit depth of the SkImage is undefined, this
+     *                           will set the bit depth for the SkImageInfo.
+     *  @param suggestColorSpace Must be non-null.  If the color space of the SkImage
+     *                           is undefined, this will be the color space of the
+     *                           SkImageInfo.
+     *
+     */
+    enum SuggestBitDepth {
+        kLowPrecision_SuggestBitDepth,
+        kHighPrecision_SuggestBitDepth,
+    };
+    SkImageInfo conservativeInfo(SuggestBitDepth suggestBitDepth,
+                                 sk_sp<SkColorSpace> suggestColorSpace) const;
 
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
