@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_c6fe67b9",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-05T15:47:53Z",
+      "side": 1,
+      "message": "Why are we uploading these if they are always the same?",
+      "revId": "0857527e8676083b38975b0a5d0e2f4c19fe76f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
