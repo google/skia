@@ -63,7 +63,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_cflags.append('/EHsc')
     if extra_config == 'Fast':
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
-                           '-ffp-contract=off'])
+                           '-ffp-contract=off', '-flto'])
+      extra_ldflags.append('-flto')
     if extra_config.startswith('SK'):
       extra_cflags.append('-D' + extra_config)
     if extra_config == 'MSAN':
