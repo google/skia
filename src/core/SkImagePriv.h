@@ -33,11 +33,6 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkSh
                                    const SkMatrix* localMatrix, SkCopyPixelsMode,
                                    SkTBlitterAllocator* alloc);
 
-// Call this if you explicitly want to use/share this pixelRef in the image
-extern sk_sp<SkImage> SkMakeImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
-                                              const SkIPoint& pixelRefOrigin,
-                                              size_t rowBytes);
-
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
  *  if it needs to make a deep-copy of the pixels.
