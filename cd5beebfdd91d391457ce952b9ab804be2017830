@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d760061e_861d8f4d",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-05T15:44:59Z",
+      "side": 1,
+      "message": "I think I\u0027d rather not have this in the public API, maybe just a static helper in SkImage_Raster.cpp?",
+      "revId": "cd5beebfdd91d391457ce952b9ab804be2017830",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_064cdf8b",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 2
