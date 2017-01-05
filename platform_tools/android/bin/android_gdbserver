@@ -9,11 +9,15 @@ source $SCRIPT_DIR/utils/setup_adb.sh
 APP_NAME=${APP_ARGS[0]}
 
 TARGET_EXE="${SKIA_OUT}/${APP_NAME}"
+echo "$APP_NAME"
+
 if [ ! -f "$TARGET_EXE" ]
 then
   echo "Unable to find ${TARGET_EXE}."
   exit 1
 fi
+
+echo "here2"
 
 # We need the debug symbols from these files
 GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
@@ -58,7 +62,7 @@ cp "$TARGET_EXE" $GDB_TMP_DIR
 adb_push_if_needed "${TARGET_EXE}" /data/local/tmp
 
 echo "Pushing gdbserver..."
-adb_push_if_needed $GDBSERVER_DIR/gdbserver/gdbserver /data/local/tmp
+adb_push_if_needed $SKIA_OUT/gdbserver /data/local/tmp
 
 echo "Setting up port forward"
 $ADB forward "tcp:5039" "tcp:5039"
