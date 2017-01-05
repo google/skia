@@ -74,6 +74,7 @@ public:
     }
 
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
+    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false);
     virtual ~SkImage_Raster();
 
     SkImageInfo onImageInfo() const override {
@@ -95,20 +96,6 @@ public:
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
-
-    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
-        : INHERITED(bm.width(), bm.height(),
-                    is_not_subset(bm) ? bm.getGenerationID()
-                                      : (uint32_t)kNeedNewImageUniqueID)
-        , fBitmap(bm)
-    {
-        if (bm.pixelRef()->isPreLocked()) {
-            // we only preemptively lock if there is no chance of triggering something expensive
-            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
-            fBitmap.lockPixels();
-        }
-        SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
-    }
 
     bool onIsLazyGenerated() const override {
         return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
@@ -145,9 +132,33 @@ SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowB
 {
     void* addr = const_cast<void*>(data->data());
 
+    if (!info.colorSpace()) {
+        info = info.makeColorSpace(SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+    }
+
     fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
     fBitmap.setImmutable();
     fBitmap.lockPixels();
+}
+
+SkImage_Raster::SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
+    : INHERITED(bm.width(), bm.height(),
+                is_not_subset(bm) ? bm.getGenerationID() : (uint32_t)kNeedNewImageUniqueID)
+{
+    SkImageInfo info = bm.info();
+    if (!info.colorSpace()) {
+        info = info.makeSRGB();
+    }
+    fBitmap.setInfo(info, fBitmap.rowBytes());
+    fBitmap.setPixelRef(sk_ref_sp(fBitmap.pixelRef()), fBitmap.pixelRefOrigin().fX,
+                        fBitmap.pixelRefOrigin().fY);
+
+    if (bm.pixelRef()->isPreLocked()) {
+        // we only preemptively lock if there is no chance of triggering something expensive
+        // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
+        fBitmap.lockPixels();
+    }
+    SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
 }
 
 SkImage_Raster::~SkImage_Raster() {

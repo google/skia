@@ -268,6 +268,8 @@ public:
         return Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
     }
 
+    SkImageInfo makeSRGB() const;
+
     int bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
 
     int shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
