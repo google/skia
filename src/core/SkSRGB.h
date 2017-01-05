@@ -63,7 +63,7 @@ static inline V sk_linear_to_srgb_needs_round(const V& x) {
     auto hi = SkNx_fma(V{+0.411192f}, ftrt,
               SkNx_fma(V{+0.689206f}, sqrt,
                        V{-0.0988f}));
-    return (x < 0.0043f).thenElse(lo, hi);
+    return V::Min((x < 0.0043f).thenElse(lo, hi), 1.0f);
 }
 
 template <int N>

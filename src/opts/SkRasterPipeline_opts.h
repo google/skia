@@ -555,6 +555,23 @@ STAGE(store_8888) {
     store(tail, byte(r,0)|byte(g,1)|byte(b,2)|byte(a,3), (int*)ptr);
 }
 
+STAGE(store_u16_be) {
+    auto to_u16_be = [](const SkNf& x) {
+        SkNh x16 = SkNx_cast<uint16_t>(65535.0f * x);
+        return (x16 << 8) | (x16 >> 8);
+    };
+
+    auto ptr = *(uint64_t**)ctx + x;
+    SkNx<N, uint64_t> px;
+    SkNh::Store4(tail ? (void*)&px : (void*)ptr, to_u16_be(r),
+                                                 to_u16_be(g),
+                                                 to_u16_be(b),
+                                                 to_u16_be(a));
+    if (tail) {
+        store(tail, px, ptr);
+    }
+}
+
 STAGE(load_tables) {
     auto loadCtx = (const LoadTablesContext*)ctx;
     auto ptr = loadCtx->fSrc + x;
