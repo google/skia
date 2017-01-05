@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_064cdf8b",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-05T15:18:06Z",
+      "side": 1,
+      "message": "I can see two ways to go here...\n(1) Add a setColorSpace() to SkBitmap so this is easier for me to do.  It can maybe be private with SkImage_Raster as a friend.\n(2) We hate the idea of the bitmap and pixel ref having different color spaces.  Store an extra pointer to a color space on SkImage_Raster.",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 98
+      },
+      "revId": "cd5beebfdd91d391457ce952b9ab804be2017830",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
