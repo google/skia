@@ -22,6 +22,16 @@ SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
                        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
+SkImageInfo SkImageInfo::makeSRGB() const {
+    if (kRGBA_F16_SkColorType == fColorType) {
+        return Make(fWidth, fHeight, fColorType, fAlphaType,
+                    SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
+    }
+
+    return Make(fWidth, fHeight, fColorType, fAlphaType,
+                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+}
+
 static const int kColorTypeMask = 0x0F;
 static const int kAlphaTypeMask = 0x03;
 
