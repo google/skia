@@ -1223,6 +1223,26 @@ static void test_flush(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
 }
 
+static void test_public_limits_api(skiatest::Reporter* reporter) {
+    Mock mock(1000000, 1000000);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+    // Test that public API portion of this feature works correctly
+    context->setResourceCacheLimits(10, 200);
+    context->setMaxUnusedResourceFlushes(5);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceCount() == 10);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceBytes() == 200);
+    REPORTER_ASSERT(reporter, cache->getMaxUnusedFlushes() == 5);
+    context->setResourceCacheLimits(20, 400);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceCount() == 20);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceBytes() == 400);
+    REPORTER_ASSERT(reporter, cache->getMaxUnusedFlushes() == 5);
+    context->setMaxUnusedResourceFlushes(7);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceCount() == 20);
+    REPORTER_ASSERT(reporter, cache->getMaxResourceBytes() == 400);
+    REPORTER_ASSERT(reporter, cache->getMaxUnusedFlushes() == 7);
+}
+
 static void test_large_resource_count(skiatest::Reporter* reporter) {
     // Set the cache size to double the resource count because we're going to create 2x that number
     // resources, using two different key domains. Add a little slop to the bytes because we resize
@@ -1339,6 +1359,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_resource_size_changed(reporter);
     test_timestamp_wrap(reporter);
     test_flush(reporter);
+    test_public_limits_api(reporter);
     test_large_resource_count(reporter);
     test_custom_data(reporter);
     test_abandoned(reporter);

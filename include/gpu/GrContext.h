@@ -147,6 +147,17 @@ public:
      */
     void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
 
+    /**
+     * Sets the maximum number of flushes() that a purgeable GPU resource can go unused
+     * before it is deleted. Such resources will be deleted even when the context is
+     * under budget with respect to the values specified in setResourceCacheLimits. A
+     * value less than or equal to 0 disables purging based on flush count.
+     *
+     * This is likely to be removed in the near future and replaced with an alternative
+     * mechanism that allows clients to have more control over unused resource purging.
+     */
+    void setMaxUnusedResourceFlushes(int maxFlushes);
+
     GrTextureProvider* textureProvider() { return fTextureProvider; }
     const GrTextureProvider* textureProvider() const { return fTextureProvider; }
 

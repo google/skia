@@ -102,6 +102,11 @@ public:
     size_t getMaxResourceBytes() const { return fMaxBytes; }
 
     /**
+     * Returns the maximum number of flushes a purgeable resource can go unused for.
+     */
+    int getMaxUnusedFlushes() const { return fMaxUnusedFlushes; }
+
+    /**
      * Abandons the backend API resources owned by all GrGpuResource objects and removes them from
      * the cache.
      */
