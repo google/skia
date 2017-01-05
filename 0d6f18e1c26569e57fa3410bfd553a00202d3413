@@ -22,6 +22,24 @@
       "revId": "0d6f18e1c26569e57fa3410bfd553a00202d3413",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_e537183d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-05T20:05:05Z",
+      "side": 1,
+      "message": "Oh, sure, done.  I\u0027m sure it\u0027ll be the same codegen either way.",
+      "parentUuid": "d760061e_65fae852",
+      "revId": "0d6f18e1c26569e57fa3410bfd553a00202d3413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
