@@ -22,6 +22,24 @@
       "revId": "12abf216b49511b1d4ff3658c7cbe146ff14edcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_2170e5f3",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-05T18:04:31Z",
+      "side": 1,
+      "message": "Ack.  Possible follow up optimization here.  Though I\u0027m not sure that this overhead really matters much.",
+      "parentUuid": "d760061e_92182d5d",
+      "revId": "12abf216b49511b1d4ff3658c7cbe146ff14edcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
