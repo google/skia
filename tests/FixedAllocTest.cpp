@@ -111,3 +111,41 @@ DEF_TEST(FallbackAlloc, r) {
     REPORTER_ASSERT(r, !in_buf(big));
     REPORTER_ASSERT(r, !in_buf(smallB));
 }
+
+struct WithDtor {
+    ~WithDtor() { }
+};
+
+DEF_TEST(ArenaAlloc, r) {
+    /*
+    {
+        SkArenaAlloc arena{nullptr, 0};
+        arena.make<int>();
+        arena.make<WithDtor>();
+        arena.makeArrayDefault<int>(10);
+        arena.makeArrayDefault<WithDtor>(10);
+        arena.make<typename std::aligned_storage<10,8>::type>();
+    }
+     */
+
+    {
+        char block[1024];
+        SkArenaAlloc arena{block, 1024};
+        arena.make<int>();
+        arena.make<WithDtor>();
+        //arena.makeArrayDefault<int>(10);
+        //arena.makeArrayDefault<WithDtor>(10);
+        //arena.make<typename std::aligned_storage<10,8>::type>();
+    }
+
+    {
+        std::unique_ptr<char[]> block{new char[1024]};
+        SkArenaAlloc arena{block.get(), 1024};
+        arena.make<int>();
+        arena.make<WithDtor>();
+        arena.makeArrayDefault<int>(10);
+        arena.makeArrayDefault<WithDtor>(10);
+        arena.make<typename std::aligned_storage<10,8>::type>();
+    }
+
+}
