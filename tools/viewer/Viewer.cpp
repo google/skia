@@ -150,10 +150,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
     fWindow->attach(fBackendType, DisplayParams());
-#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
-    // Vulkan doesn't seem to handle a single refresh properly on Linux
-    fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
-#endif
 
     // register callbacks
     fCommands.attach(fWindow);
@@ -198,8 +194,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->changeZoomLevel(-1.f / 32.f);
         fWindow->inval();
     });
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
         if (sk_app::Window::kRaster_BackendType == fBackendType) {
             fBackendType = sk_app::Window::kNativeGL_BackendType;
 #ifdef SK_VULKAN
@@ -209,14 +205,19 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         } else {
             fBackendType = sk_app::Window::kRaster_BackendType;
         }
-
+#elif defined(SK_BUILD_FOR_UNIX)
+        // Switching to and from Vulkan is problematic on Linux so disabled for now
+        if (sk_app::Window::kRaster_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kNativeGL_BackendType;
+        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
+            fBackendType = sk_app::Window::kRaster_BackendType;
+        }
+#endif
         fWindow->detach();
 
-#ifdef SK_VULKAN
-        // Switching from OpenGL to Vulkan in the same window is problematic at this point,
-        // so we just delete the window and recreate it.
-        // On Windows, only tearing down the window when going from OpenGL to Vulkan works fine.
-        // On Linux, we may need to tear down the window for the Vulkan to OpenGL case as well.
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
+        // Switching from OpenGL to Vulkan in the same window is problematic at this point on
+        // Windows, so we just delete the window and recreate it.
         if (sk_app::Window::kVulkan_BackendType == fBackendType) {
             delete fWindow;
             fWindow = Window::CreateNativeWindow(nullptr);
@@ -229,16 +230,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
 #endif
         fWindow->attach(fBackendType, DisplayParams());
-#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_UNIX)
-        // Vulkan doesn't seem to handle a single refresh properly on Linux
-        fRefresh = (sk_app::Window::kVulkan_BackendType == fBackendType);
-#endif
 
         this->updateTitle();
         fWindow->inval();
         fWindow->show();
     });
-#endif
 
     // set up slides
     this->initSlides();
