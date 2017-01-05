@@ -301,17 +301,10 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
 
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                         const SkMatrix* matrix, const SkPaint* paint,
-                                        sk_sp<SkColorSpace> colorSpace) {
-    if (!picture) {
-        return nullptr;
-    }
+                                        SkColorType colorType, sk_sp<SkColorSpace> colorSpace) {
     return MakeFromGenerator(SkImageGenerator::NewFromPicture(dimensions, picture.get(), matrix,
-                                                              paint, std::move(colorSpace)));
-}
-
-sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
-                                        const SkMatrix* matrix, const SkPaint* paint) {
-    return MakeFromPicture(std::move(picture), dimensions, matrix, paint, nullptr);
+                                                              paint, colorType,
+                                                              std::move(colorSpace)));
 }
 
 sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
@@ -366,6 +359,12 @@ bool SkImage::isLazyGenerated() const {
 
 bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
+}
+
+SkImageInfo SkImage::conservativeInfo(SuggestBitDepth suggestBitDepth,
+                                      sk_sp<SkColorSpace> suggestColorSpace) const {
+    SkASSERT(suggestColorSpace);
+    return as_IB(this)->onConservativeInfo(suggestBitDepth, suggestColorSpace);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
