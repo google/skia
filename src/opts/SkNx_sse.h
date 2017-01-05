@@ -283,6 +283,7 @@ public:
     AI SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     AI SkNx operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
@@ -348,6 +349,7 @@ public:
     AI SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     AI SkNx operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
@@ -649,6 +651,9 @@ public:
         __m128i lo = _mm256_extractf128_si256(src.fVec, 0),
                 hi = _mm256_extractf128_si256(src.fVec, 1);
         return _mm_packus_epi32(lo, hi);
+    }
+    template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8f& src) {
+        return SkNx_cast<uint16_t>(SkNx_cast<int>(src));
     }
 
 #endif
