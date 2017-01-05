@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
 
     int samples = 0;
     while (samples < limit) {
+        std::random_shuffle(benches.begin(), benches.end());
         for (auto& bench : benches) {
             for (int loops = 1; loops < 1000000000;) {
                 bench.b->preDraw(nullptr);
