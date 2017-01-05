@@ -764,6 +764,20 @@ if (skia_enable_tools) {
     }
   }
 
+  template("test_app") {
+    if (defined(invoker.is_shared_library) && invoker.is_shared_library) {
+      shared_library("lib" + target_name) {
+        forward_variables_from(invoker, "*", [ "is_shared_library" ])
+        testonly = true
+      }
+    } else {
+      executable(target_name) {
+        forward_variables_from(invoker, "*", [ "is_shared_library" ])
+        testonly = true
+      }
+    }
+  }
+
   test_lib("gpu_tool_utils") {
     public_include_dirs = []
     if (skia_enable_gpu) {
@@ -998,7 +1012,7 @@ if (skia_enable_tools) {
       ]
     }
 
-    executable("lua_app") {
+    test_app("lua_app") {
       sources = [
         "tools/lua/lua_app.cpp",
       ]
@@ -1007,10 +1021,9 @@ if (skia_enable_tools) {
         ":skia",
         "//third_party/lua",
       ]
-      testonly = true
     }
 
-    executable("lua_pictures") {
+    test_app("lua_pictures") {
       sources = [
         "tools/lua/lua_pictures.cpp",
       ]
@@ -1021,7 +1034,6 @@ if (skia_enable_tools) {
         ":tool_utils",
         "//third_party/lua",
       ]
-      testonly = true
     }
   }
 
@@ -1052,7 +1064,7 @@ if (skia_enable_tools) {
     }
   }
 
-  executable("dm") {
+  test_app("dm") {
     sources = [
       "dm/DM.cpp",
       "dm/DMJsonWriter.cpp",
@@ -1071,11 +1083,10 @@ if (skia_enable_tools) {
       "//third_party/jsoncpp",
       "//third_party/libpng",
     ]
-    testonly = true
   }
 
   if (!is_debug) {  # I've benchmarked debug code once too many times...
-    executable("monobench") {
+    test_app("monobench") {
       sources = [
         "tools/monobench.cpp",
       ]
@@ -1083,11 +1094,10 @@ if (skia_enable_tools) {
         ":bench",
         ":skia",
       ]
-      testonly = true
     }
   }
 
-  executable("nanobench") {
+  test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
     ]
@@ -1102,11 +1112,10 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
     ]
-    testonly = true
   }
 
   if (is_linux || is_win || is_mac) {
-    executable("SampleApp") {
+    test_app("SampleApp") {
       sources = [
         "samplecode/SampleApp.cpp",
         "samplecode/SamplePictFile.cpp",
@@ -1130,12 +1139,11 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
       }
-      testonly = true
     }
   }
 
   if (skia_enable_gpu) {
-    executable("skpbench") {
+    test_app("skpbench") {
       sources = [
         "tools/skpbench/skpbench.cpp",
       ]
@@ -1145,13 +1153,12 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
       ]
-      testonly = true
     }
   }
 
   # We can't yet build ICU on iOS or Windows.
   if (!is_ios && !is_win) {
-    executable("sktexttopdf-hb") {
+    test_app("sktexttopdf-hb") {
       sources = [
         "tools/SkShaper_harfbuzz.cpp",
         "tools/using_skia_and_harfbuzz.cpp",
@@ -1160,10 +1167,9 @@ if (skia_enable_tools) {
         ":skia",
         "//third_party/harfbuzz",
       ]
-      testonly = true
     }
   }
-  executable("sktexttopdf") {
+  test_app("sktexttopdf") {
     sources = [
       "tools/SkShaper_primitive.cpp",
       "tools/using_skia_and_harfbuzz.cpp",
@@ -1171,10 +1177,9 @@ if (skia_enable_tools) {
     deps = [
       ":skia",
     ]
-    testonly = true
   }
 
-  executable("get_images_from_skps") {
+  test_app("get_images_from_skps") {
     sources = [
       "tools/get_images_from_skps.cpp",
     ]
@@ -1183,10 +1188,9 @@ if (skia_enable_tools) {
       ":skia",
       "//third_party/jsoncpp",
     ]
-    testonly = true
   }
 
-  executable("colorspaceinfo") {
+  test_app("colorspaceinfo") {
     sources = [
       "tools/colorspaceinfo.cpp",
     ]
@@ -1195,11 +1199,10 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
     ]
-    testonly = true
   }
 
   if (!is_ios) {
-    executable("skiaserve") {
+    test_app("skiaserve") {
       sources = [
         "tools/skiaserve/Request.cpp",
         "tools/skiaserve/Response.cpp",
@@ -1229,11 +1232,10 @@ if (skia_enable_tools) {
         "//third_party/libmicrohttpd",
         "//third_party/libpng",
       ]
-      testonly = true
     }
   }
 
-  executable("fuzz") {
+  test_app("fuzz") {
     sources = [
       "fuzz/FilterFuzz.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
@@ -1248,10 +1250,9 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
     ]
-    testonly = true
   }
 
-  executable("pathops_unittest") {
+  test_app("pathops_unittest") {
     sources = pathops_tests_sources + [
                 rebase_path("tests/skia_test.cpp"),
                 rebase_path("tests/Test.cpp"),
@@ -1262,10 +1263,9 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
     ]
-    testonly = true
   }
 
-  executable("dump_record") {
+  test_app("dump_record") {
     sources = [
       "tools/DumpRecord.cpp",
       "tools/dump_record.cpp",
@@ -1274,10 +1274,9 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
     ]
-    testonly = true
   }
 
-  executable("skdiff") {
+  test_app("skdiff") {
     sources = [
       "tools/skdiff/skdiff.cpp",
       "tools/skdiff/skdiff_html.cpp",
@@ -1288,10 +1287,9 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
     ]
-    testonly = true
   }
 
-  executable("skp_parser") {
+  test_app("skp_parser") {
     sources = [
       "tools/skp_parser.cpp",
     ]
@@ -1300,11 +1298,11 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
     ]
-    testonly = true
   }
 
   if (skia_enable_gpu && (is_android || is_linux || is_win || is_mac)) {
-    source_set("viewer_sources") {
+    test_app("viewer") {
+      is_shared_library = is_android
       sources = [
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImageSlide.cpp",
@@ -1379,28 +1377,11 @@ if (skia_enable_tools) {
       } else if (is_mac) {
         deps += [ "//third_party/libsdl" ]
       }
-      testonly = true
-    }
-
-    if (is_android) {
-      shared_library("libviewer") {
-        deps = [
-          ":viewer_sources",
-        ]
-        testonly = true
-      }
-    } else {
-      executable("viewer") {
-        deps = [
-          ":viewer_sources",
-        ]
-        testonly = true
-      }
     }
   }
 
   if (skia_enable_gpu) {
-    executable("skslc") {
+    test_app("skslc") {
       sources = [
         "src/sksl/SkSLMain.cpp",
       ]
@@ -1408,7 +1389,6 @@ if (skia_enable_tools) {
         ":flags",
         ":skia",
       ]
-      testonly = true
     }
   }
 }
