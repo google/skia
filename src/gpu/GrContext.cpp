@@ -278,11 +278,6 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
         return false;
     }
 
-    // We don't allow writing to a color space tagged destination if the source isn't tagged
-    if (dstColorSpace && !srcColorSpace) {
-        return false;
-    }
-
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
     // Don't prefer to draw for the conversion (and thereby access a texture from the cache) when
     // we've already determined that there isn't a roundtrip preserving conversion processor pair.
@@ -429,11 +424,6 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
     }
     // We don't allow conversion between integer configs and float/fixed configs.
     if (GrPixelConfigIsSint(src->config()) != GrPixelConfigIsSint(dstConfig)) {
-        return false;
-    }
-
-    // We don't allow reading to a color space tagged destination if the source isn't tagged
-    if (dstColorSpace && !srcColorSpace) {
         return false;
     }
 
