@@ -16,6 +16,24 @@
       "revId": "0857527e8676083b38975b0a5d0e2f4c19fe76f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_865f4ffb",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-05T15:51:03Z",
+      "side": 1,
+      "message": "Good point, might as well bake this into the shader.",
+      "parentUuid": "d760061e_c6fe67b9",
+      "revId": "0857527e8676083b38975b0a5d0e2f4c19fe76f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
