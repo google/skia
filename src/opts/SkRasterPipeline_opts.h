@@ -13,7 +13,7 @@
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
-#include "SkImageShaderContext.h"
+#include "../image/SkImageShaderContext.h"
 #include "SkMSAN.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
