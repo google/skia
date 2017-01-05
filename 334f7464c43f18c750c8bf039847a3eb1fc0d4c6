@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_c1d3f1ec",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-05T16:54:42Z",
+      "side": 1,
+      "message": "I wonder if this check should happen inside SkFindCubicMaxCurvature itself. Is it useful (to any other callers) that we return t-values that evaluate to effectively 0 or 1 ?",
+      "range": {
+        "startLine": 605,
+        "startChar": 16,
+        "endLine": 605,
+        "endChar": 39
+      },
+      "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_e1d6edde",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-05T16:54:42Z",
+      "side": 1,
+      "message": "// Now loop over the t-values, and reject any that evaluate to either end-point",
+      "range": {
+        "startLine": 609,
+        "startChar": 4,
+        "endLine": 609,
+        "endChar": 7
+      },
+      "revId": "334f7464c43f18c750c8bf039847a3eb1fc0d4c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
