@@ -126,7 +126,6 @@ var (
 		"Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
 		"Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
 		"Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
-		"Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
 		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
 		// "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
 		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",

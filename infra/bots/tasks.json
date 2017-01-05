@@ -530,12 +530,6 @@
         "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android"
-      ]
-    },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -4557,55 +4551,6 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:17"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:31"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Ubuntu-Clang-x86-Release-Android"
-      ],
-      "dimensions": [
-        "device_os:NRD90R",
-        "device_type:fugu",
-        "os:Android",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -12684,35 +12629,6 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android": {
-      "dependencies": [
-        "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
