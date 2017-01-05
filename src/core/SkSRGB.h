@@ -50,7 +50,7 @@ static inline V sk_linear_to_srgb_needs_trunc(const V& x) {
     return (x < 0.0048f).thenElse(lo, hi);
 }
 
-// [0.0f, 1.0f] -> [0.0f, 1.xf], for small x.  Correct after rounding.
+// [0.0f, 1.0f] -> [0.0f, 1.0f].  Correct after rounding.
 template <typename V>
 static inline V sk_linear_to_srgb_needs_round(const V& x) {
     // Tuned to round trip each sRGB byte after rounding.
@@ -60,9 +60,9 @@ static inline V sk_linear_to_srgb_needs_round(const V& x) {
 
     auto lo = 12.46f * x;
 
-    auto hi = SkNx_fma(V{+0.411192f}, ftrt,
-              SkNx_fma(V{+0.689206f}, sqrt,
-                       V{-0.0988f}));
+    auto hi = V::Min(1.0f, SkNx_fma(V{+0.411192f}, ftrt,
+                           SkNx_fma(V{+0.689206f}, sqrt,
+                                    V{-0.0988f})));
     return (x < 0.0043f).thenElse(lo, hi);
 }
 
