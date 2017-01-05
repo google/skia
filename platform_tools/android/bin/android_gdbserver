@@ -58,7 +58,7 @@ cp "$TARGET_EXE" $GDB_TMP_DIR
 adb_push_if_needed "${TARGET_EXE}" /data/local/tmp
 
 echo "Pushing gdbserver..."
-adb_push_if_needed $GDBSERVER_DIR/gdbserver/gdbserver /data/local/tmp
+adb_push_if_needed $SKIA_OUT/gdbserver /data/local/tmp
 
 echo "Setting up port forward"
 $ADB forward "tcp:5039" "tcp:5039"

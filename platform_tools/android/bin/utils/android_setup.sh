@@ -62,11 +62,6 @@ if [ -z "$ANDROID_SDK_ROOT" ]; then
   fi
 fi
 
-if [ -z "$ANDROID_HOME" ]; then
-  echo "ANDROID_HOME not set so we are setting it to a default value of ANDROID_SDK_ROOT"
-  exportVar ANDROID_HOME $ANDROID_SDK_ROOT
-fi
-
 if [ -z "$ANDROID_NDK_ROOT" ]; then
   if [ -d "${ANDROID_SDK_ROOT}/ndk-bundle" ]; then
     exportVar ANDROID_NDK_ROOT ${ANDROID_SDK_ROOT}/ndk-bundle
