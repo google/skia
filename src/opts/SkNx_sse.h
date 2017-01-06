@@ -567,10 +567,10 @@ public:
                    _26 = unpacklo_pd(rg2367, ba2367),  // r2 ...      | r6 ...
                    _37 = unpackhi_pd(rg2367, ba2367);  // r3 ...      | r7 ...
 
-            __m256 _01 = _mm256_permute2f128_ps(_04, _15, 16),  // 16 == 010 000 == lo, lo
-                   _23 = _mm256_permute2f128_ps(_26, _37, 16),
-                   _45 = _mm256_permute2f128_ps(_04, _15, 25),  // 25 == 011 001 == hi, hi
-                   _67 = _mm256_permute2f128_ps(_26, _37, 25);
+            __m256 _01 = _mm256_permute2f128_ps(_04, _15, 32),  // 32 == 0010 0000 == lo, lo
+                   _23 = _mm256_permute2f128_ps(_26, _37, 32),
+                   _45 = _mm256_permute2f128_ps(_04, _15, 49),  // 49 == 0011 0001 == hi, hi
+                   _67 = _mm256_permute2f128_ps(_26, _37, 49);
 
             _mm256_storeu_ps((float*)ptr + 0*8, _01);
             _mm256_storeu_ps((float*)ptr + 1*8, _23);
