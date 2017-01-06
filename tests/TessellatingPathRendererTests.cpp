@@ -254,7 +254,7 @@ static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProv
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
-    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+    paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);

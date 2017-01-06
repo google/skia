@@ -229,8 +229,3 @@ GrProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexture> texture, Gr
             break;
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Initial static variable from GrXPFactory
-int32_t GrXPFactory::gCurrXPFClassID = GrXPFactory::kIllegalXPFClassID;

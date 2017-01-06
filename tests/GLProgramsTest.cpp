@@ -167,9 +167,9 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
 }
 
 static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
-    sk_sp<GrXPFactory> xpf(GrProcessorTestFactory<GrXPFactory>::Make(d));
+    const GrXPFactory* xpf = nullptr;// = GrProcessorTestFactory<GrXPFactory>::Make(d));
     SkASSERT(xpf);
-    paint->setXPFactory(std::move(xpf));
+    paint->setXPFactory(xpf);
 }
 
 static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
@@ -368,7 +368,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
-            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
             sk_sp<GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));

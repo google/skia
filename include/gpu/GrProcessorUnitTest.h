@@ -124,8 +124,8 @@ private:
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect)                                                  \
     GrProcessorTestFactory<GrFragmentProcessor> Effect :: gTestFactory(Effect :: TestCreate)
 
-#define GR_DEFINE_XP_FACTORY_TEST(Factory)                                                         \
-    GrProcessorTestFactory<GrXPFactory> Factory :: gTestFactory(Factory :: TestCreate)
+//#define GR_DEFINE_XP_FACTORY_TEST(Factory)                                                         \
+//    GrProcessorTestFactory<GrXPFactory> Factory :: gTestFactory(Factory :: TestCreate)
 
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(Effect)                                                  \
     GrProcessorTestFactory<GrGeometryProcessor> Effect :: gTestFactory(Effect :: TestCreate)
