@@ -45,13 +45,14 @@ public:
         p.append(SkRasterPipeline::load_8888, &src_ctx);
         p.append_from_srgb(kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
+        p.append(SkRasterPipeline::move_src_dst);
         if (kF16) {
-            p.append(SkRasterPipeline::load_f16_d, &dst_ctx);
+            p.append(SkRasterPipeline::load_f16, &dst_ctx);
         } else {
-            p.append(SkRasterPipeline::load_8888_d, &dst_ctx);
-            p.append_from_srgb_d(kPremul_SkAlphaType);
+            p.append(SkRasterPipeline::load_8888, &dst_ctx);
+            p.append_from_srgb(kPremul_SkAlphaType);
         }
-        p.append(SkRasterPipeline::srcover);
+        p.append(SkRasterPipeline::dstover);
         if (kF16) {
             p.append(SkRasterPipeline::store_f16, &dst_ctx);
         } else {
