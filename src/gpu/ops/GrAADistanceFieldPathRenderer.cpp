@@ -16,6 +16,7 @@
 #include "GrSWMaskHelper.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
@@ -191,6 +192,16 @@ private:
             return;
         }
 
+        GrTextureProxy* proxy = fAtlas->getProxy();
+        if (!proxy) {
+            return;
+        }
+
+        GrTexture* texture = proxy->instantiate(nullptr);
+        if (!texture) {
+            return;
+        }
+
         const SkMatrix& ctm = this->viewMatrix();
         uint32_t flags = 0;
         flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
@@ -205,7 +216,7 @@ private:
         GrDrawOpAtlas* atlas = fAtlas;
         flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
                                                                         this->viewMatrix(),
-                                                                        atlas->getTexture(),
+                                                                        texture,
                                                                         params,
                                                                         flags,
                                                                         this->usesLocalCoords());
@@ -402,11 +413,11 @@ private:
         texRight += atlasLocation.fX - dx;
         texBottom += atlasLocation.fY - dy;
 
-        GrTexture* texture = atlas->getTexture();
-        shapeData->fTexCoords.setLTRB(texLeft / texture->width(),
-                                      texTop / texture->height(),
-                                      texRight / texture->width(),
-                                      texBottom / texture->height());
+        GrSurfaceProxy* proxy = atlas->getProxy();
+        shapeData->fTexCoords.setLTRB(texLeft / proxy->width(),
+                                      texTop / proxy->height(),
+                                      texRight / proxy->width(),
+                                      texBottom / proxy->height());
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);

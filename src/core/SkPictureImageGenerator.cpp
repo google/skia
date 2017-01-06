@@ -161,6 +161,7 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIm
     if (!image) {
         return nullptr;
     }
-    return SkSafeRef(as_IB(image)->peekTexture());
+    return nullptr;
+    //return SkSafeRef(as_IB(image)->peekTexture());
 }
 #endif
