@@ -178,20 +178,32 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
-    sk_sp<SkData> encoded(image->encode(this->getPixelSerializer()));
+    // Encode from a legacy bitmap.  This makes sure we get a legacy encode.
+    SkBitmap bitmap;
+    if (!image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode)) {
+        this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
+        return;
+    }
+    bitmap.lockPixels();
+
+    SkPixmap pixmap(bitmap.info().makeColorSpace(nullptr), bitmap.getPixels(), bitmap.rowBytes(),
+                    bitmap.getColorTable());
+    sk_sp<SkData> encoded = nullptr;
+    if (fPixelSerializer) {
+        encoded = sk_ref_sp(this->getPixelSerializer()->encode(pixmap));
+    } else {
+        SkDynamicMemoryWStream buffer;
+        SkEncodeImage(&buffer, pixmap, SkEncodedImageFormat::kPNG, 100);
+        encoded = buffer.detachAsData();
+    }
+
     if (encoded && encoded->size() > 0) {
         write_encoded_bitmap(this, encoded.get(), SkIPoint::Make(0, 0));
         return;
     }
 
-    SkBitmap bm;
-    if (image->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
-        this->writeUInt(1);  // signal raw pixels.
-        SkBitmap::WriteRawPixels(this, bm);
-        return;
-    }
-
-    this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
+    this->writeUInt(1);  // signal raw pixels.
+    SkBitmap::WriteRawPixels(this, bitmap);
 }
 
 void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
