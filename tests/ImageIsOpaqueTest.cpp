@@ -125,6 +125,7 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
         GetResourceAsImage("mandrill_128.png"),
         GetResourceAsImage("color_wheel.jpg"),
         SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
+                                 SkImage::BitDepth::kU8,
                                  SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)),
     })
     {
