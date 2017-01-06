@@ -36,7 +36,10 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
                                                 sk_sp<GrFragmentProcessor> dst) const override;
-    sk_sp<GrXPFactory> asXPFactory() const override;
+    sk_sp<GrXPFactory> asXPFactory() const override {
+        SkFAIL("This should only be used as a FP.");
+        return nullptr;
+    }
 #endif
 
     bool isArithmetic(SkArithmeticParams* params) const override {
@@ -144,14 +147,6 @@ sk_sp<GrFragmentProcessor> SkArithmeticMode_scalar::makeFragmentProcessorForImag
                                 SkScalarToFloat(fK[3]),
                                 fEnforcePMColor,
                                 std::move(dst));
-}
-
-sk_sp<GrXPFactory> SkArithmeticMode_scalar::asXPFactory() const {
-    return GrArithmeticXPFactory::Make(SkScalarToFloat(fK[0]),
-                                       SkScalarToFloat(fK[1]),
-                                       SkScalarToFloat(fK[2]),
-                                       SkScalarToFloat(fK[3]),
-                                       fEnforcePMColor);
 }
 
 #endif

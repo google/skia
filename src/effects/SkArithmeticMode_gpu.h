@@ -71,50 +71,5 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// Xfer Processor
-///////////////////////////////////////////////////////////////////////////////
-
-class GrArithmeticXPFactory : public GrXPFactory {
-public:
-    static sk_sp<GrXPFactory> Make(float k1, float k2, float k3, float k4, bool enforcePMColor) {
-        return sk_sp<GrXPFactory>(new GrArithmeticXPFactory(k1, k2, k3, k4, enforcePMColor));
-    }
-
-    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                  GrXPFactory::InvariantBlendedColor*) const override;
-
-private:
-    GrArithmeticXPFactory(float k1, float k2, float k3, float k4, bool enforcePMColor);
-
-    GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
-                                           const GrPipelineAnalysis&,
-                                           bool hasMixedSamples,
-                                           const DstTexture*) const override;
-
-    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override {
-        return true;
-    }
-
-    bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        const GrArithmeticXPFactory& xpf = xpfBase.cast<GrArithmeticXPFactory>();
-        if (fK1 != xpf.fK1 ||
-            fK2 != xpf.fK2 ||
-            fK3 != xpf.fK3 ||
-            fK4 != xpf.fK4 ||
-            fEnforcePMColor != xpf.fEnforcePMColor) {
-            return false;
-        }
-        return true;
-    }
-
-    GR_DECLARE_XP_FACTORY_TEST;
-
-    float                       fK1, fK2, fK3, fK4;
-    bool                        fEnforcePMColor;
-
-    typedef GrXPFactory INHERITED;
-};
-
 #endif
 #endif
