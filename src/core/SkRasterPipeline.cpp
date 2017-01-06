@@ -29,7 +29,6 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
 #ifdef SK_XBYAK
     if (auto fn = this->jit()) {
-        SkDebugf("Jitted with xbyak!\n");
         return fn;
     }
 #endif
