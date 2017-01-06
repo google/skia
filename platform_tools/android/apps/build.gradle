@@ -23,13 +23,13 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
     appVariants.all{ variant ->
         def buildNativeLib = project.task("${variant.name}_BuildSkiaLib", type:Exec) {
             workingDir '../../../..' // top-level skia directory
-            commandLine constructBuildCommand(variant, appName).split()
+            commandLine constructBuildCommand(project, variant, appName).split()
         }
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
 
         def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
-            from getVariantOutDir(variant).skiaOut
-            into getVariantOutDir(variant).androidOut
+            from getVariantOutDir(project, variant).skiaOut
+            into getVariantOutDir(project, variant).androidOut
             include "${appName}.so"
         }
 
@@ -56,7 +56,7 @@ def getLocalProperties() {
     return properties
 }
 
-def getVariantOutDir(variant) {
+def getVariantOutDir(project, variant) {
     String variantPrefix = null
     String androidLibDir = null
     if (variant.name.startsWith("arm64")) {
@@ -79,11 +79,19 @@ def getVariantOutDir(variant) {
         androidLibDir = "mips64"
     }
 
-    return [skiaOut: getLocalProperties().getProperty("${variantPrefix}.out.dir", "missing_variant_out"),
+    String skiaOutDir = null
+    String propName = "${variantPrefix}.out.dir"
+    if (project.hasProperty(propName)) {
+        skiaOutDir = project.getProperties().getAt(propName)
+    } else {
+        skiaOutDir = getLocalProperties().getProperty(propName, "missing_variant_out")
+    }
+
+    return [skiaOut: skiaOutDir,
             androidOut: "src/main/libs/${androidLibDir}"]
 }
 
-def constructBuildCommand(variant, appName) {
+def constructBuildCommand(project, variant, appName) {
     String depotToolsDir = null
     for (String entry : System.getenv("PATH").split(":")) {
         if (entry.contains("depot_tools")) {
@@ -100,6 +108,6 @@ def constructBuildCommand(variant, appName) {
                 " depot_tools or define depot_tools.dir in local.properties")
     }
 
-    String out_dir = getVariantOutDir(variant).skiaOut
+    String out_dir = getVariantOutDir(project, variant).skiaOut
     return "${depotToolsDir}/ninja -C $out_dir $appName"
 }
