@@ -35,12 +35,14 @@ namespace {
 
         Pipeline(const SkRasterPipeline::Stage* stages, int n, bool* supported) {
             // Set up some register name aliases.
-            //auto x = rdi, y = rsi, tail = rdx;
+            // y = rsi, tail = rdx;
+            auto x = rdi;
             auto r = ymm0,  g = ymm1,  b = ymm2,  a = ymm3,
                 dr = ymm4, dg = ymm5, db = ymm6, da = ymm7;
 
             Xbyak::Label floatOneStorage;
-            vbroadcastss(ymm8, ptr[rip + floatOneStorage]);
+
+            //trap();
 
             // TODO: set up (x+0.5,y+0.5) in (r,g)
             vxorps(r,r);
@@ -54,6 +56,56 @@ namespace {
 
             for (int i = 0; i < n; i++) {
                 switch(stages[i].stage) {
+                    case SkRasterPipeline::load_f16:
+                        mov(rax, (size_t)stages[i].ctx);
+                        mov(rax, ptr[rax]);
+
+                        vmovdqu(xmm0, ptr[rax+x*8+ 0]);
+                        vmovdqu(xmm1, ptr[rax+x*8+16]);
+                        vmovdqu(xmm2, ptr[rax+x*8+32]);
+                        vmovdqu(xmm3, ptr[rax+x*8+48]);
+
+                        vpunpcklwd(xmm8, xmm1, xmm0); vpunpckhwd(xmm0 , xmm1, xmm0);
+                        vpunpcklwd(xmm1, xmm3, xmm2); vpunpckhwd(xmm2 , xmm3, xmm2);
+                        vpunpcklwd(xmm9, xmm0, xmm8); vpunpckhwd(xmm8 , xmm0, xmm8);
+                        vpunpcklwd(xmm3, xmm2, xmm1); vpunpckhwd(xmm10, xmm2, xmm1);
+
+                        vpunpcklqdq(xmm0,  xmm3, xmm9); vcvtph2ps(ymm0, xmm0);
+                        vpunpckhqdq(xmm1,  xmm3, xmm9); vcvtph2ps(ymm1, xmm1);
+                        vpunpcklqdq(xmm2, xmm10, xmm8); vcvtph2ps(ymm2, xmm2);
+                        vpunpckhqdq(xmm3, xmm10, xmm8); vcvtph2ps(ymm3, xmm3);
+                        break;
+
+                    case SkRasterPipeline::unpremul:
+                        vxorps(ymm8, ymm8);                              // ymm8:  0
+                        vcmpeqps(ymm10, ymm8, a);                        // ymm10: a == 0
+                        vbroadcastss(ymm9, ptr[rip + floatOneStorage]);  // ymm9:  1.0f
+                        vdivps(ymm11, ymm9, a);                          // ymm11: 1/a
+                        vblendvps(ymm10, ymm10, ymm8, ymm11);            // ymm10: (a==0) ? 0 : 1/a
+                        vmulps(r, r, ymm10);
+                        vmulps(g, g, ymm10);
+                        vmulps(b, b, ymm10);
+                        break;
+
+                    case SkRasterPipeline::store_f16:
+                        mov(rax, (size_t)stages[i].ctx);
+                        mov(rax, ptr[rax]);
+
+                        vcvtps2ph(xmm8 , ymm0, 4);
+                        vcvtps2ph(xmm9 , ymm1, 4);
+                        vcvtps2ph(xmm10, ymm2, 4);
+                        vcvtps2ph(xmm11, ymm3, 4);
+
+                        vpunpcklwd(xmm12, xmm9 , xmm8 );
+                        vpunpckhwd(xmm8 , xmm9 , xmm8 );
+                        vpunpcklwd(xmm9 , xmm11, xmm10);
+                        vpunpckhwd(xmm10, xmm11, xmm10);
+
+                        vpunpckldq(xmm11, xmm9 , xmm12); vmovdqu(ptr[rax+x*8+ 0], xmm11);
+                        vpunpckhdq(xmm9 , xmm9 , xmm12); vmovdqu(ptr[rax+x*8+16], xmm9 );
+                        vpunpckldq(xmm9 , xmm10, xmm8 ); vmovdqu(ptr[rax+x*8+32], xmm9 );
+                        vpunpckhdq(xmm8 , xmm10, xmm8 ); vmovdqu(ptr[rax+x*8+48], xmm8 );
+                        break;
 
                     default:
                         *supported = false;
@@ -61,6 +113,7 @@ namespace {
                 }
             }
 
+            vzeroupper();
             ret();
             L(floatOneStorage); df(1.0f);
         }
@@ -68,6 +121,14 @@ namespace {
         void df(float f) {
             union { float f; uint32_t x; } pun = {f};
             dd(pun.x);
+        }
+        void dp(void* p) {
+            union { void* p; uint64_t x; } pun = {p};
+            dq(pun.x);
+        }
+
+        void trap() {
+            dw(0x0b0f);
         }
     };
 
@@ -78,6 +139,7 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::jit() const {
         if (auto pipeline = Pipeline::Create(fStages.data(), SkToInt(fStages.size()))) {
             return [pipeline] (size_t x, size_t y, size_t n) {
                 auto call = pipeline->getCode<void(*)(size_t, size_t, size_t)>();
+                //printf("fn addr: %p\n", (void*)call);
                 while (n >= 8) {
                     call(x,y,0);
                     x += 8;
@@ -88,10 +150,13 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::jit() const {
                 }
             };
         }
+#if 0
         SkDebugf("Cannot yet JIT with xbyak:\n");
         this->dump();
+#endif
         return nullptr;
     } catch(...) {
+        SkDebugf("caught exception\n");
         return nullptr;
     }
 }
