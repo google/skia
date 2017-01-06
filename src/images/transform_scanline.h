@@ -96,7 +96,7 @@ static void transform_scanline_444(char* SK_RESTRICT dst, const char* SK_RESTRIC
 
 template <bool kIsRGBA>
 static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
-                                                    const char* SK_RESTRICT src, int width, int) {
+                                                    const char* SK_RESTRICT src, int width) {
     const uint32_t* srcP = (const SkPMColor*)src;
     const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
 
@@ -132,21 +132,20 @@ static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
  * Transform from legacy kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static void transform_scanline_rgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src, int width,
-                                    int bpp) {
-    transform_scanline_unpremultiply<true>(dst, src, width, bpp);
+                                    int) {
+    transform_scanline_unpremultiply<true>(dst, src, width);
 }
 
 /**
  * Transform from legacy kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src, int width,
-                                    int bpp) {
-    transform_scanline_unpremultiply<false>(dst, src, width, bpp);
+                                    int) {
+    transform_scanline_unpremultiply<false>(dst, src, width);
 }
 
 template <bool kIsRGBA>
-static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width, int)
-{
+static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width) {
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_8888, &src);
     if (!kIsRGBA) {
@@ -164,16 +163,16 @@ static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* 
  * Transform from kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static void transform_scanline_srgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                     int width, int bpp) {
-    transform_scanline_unpremultiply_sRGB<true>(dst, src, width, bpp);
+                                     int width, int) {
+    transform_scanline_unpremultiply_sRGB<true>(dst, src, width);
 }
 
 /**
  * Transform from kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static void transform_scanline_sbgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                     int width, int bpp) {
-    transform_scanline_unpremultiply_sRGB<false>(dst, src, width, bpp);
+                                     int width, int) {
+    transform_scanline_unpremultiply_sRGB<false>(dst, src, width);
 }
 
 /**
@@ -218,4 +217,29 @@ static void transform_scanline_4444(char* SK_RESTRICT dst, const char* SK_RESTRI
         *dst++ = b;
         *dst++ = a;
     }
+}
+
+/**
+ * Transform from kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ */
+static void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_RESTRICT src, int width,
+                                   int) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_f16, (const void**) &src);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
+    p.run(0, 0, width);
+}
+
+/**
+ * Transform from kPremul, kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ */
+static void transform_scanline_F16_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
+                                          int width, int) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_f16, (const void**) &src);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
+    p.run(0, 0, width);
 }
