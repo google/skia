@@ -8,13 +8,18 @@
 #ifndef SkClipStack_DEFINED
 #define SkClipStack_DEFINED
 
+#include "../private/SkMessageBus.h"
 #include "SkCanvas.h"
 #include "SkDeque.h"
 #include "SkPath.h"
-#include "SkRect.h"
 #include "SkRRect.h"
+#include "SkRect.h"
 #include "SkRegion.h"
 #include "SkTLazy.h"
+
+#if SK_SUPPORT_GPU
+#include "GrResourceKey.h"
+#endif
 
 class SkCanvasClipVisitor;
 
@@ -70,6 +75,14 @@ public:
 
         Element(const SkPath& path, SkClipOp op, bool doAA) {
             this->initPath(0, path, op, doAA);
+        }
+
+        ~Element() {
+#if SK_SUPPORT_GPU
+            for (int i = 0; i < fMessages.count(); ++i) {
+                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fMessages[i]);
+            }
+#endif
         }
 
         bool operator== (const Element& element) const;
@@ -196,15 +209,26 @@ public:
         void dump() const;
 #endif
 
+#if SK_SUPPORT_GPU
+        /**
+         * This is used to purge any GPU resource cache items that become unreachable when
+         * the element is destroyed because their key is based on this element's gen ID.
+         */
+        void addResourceInvalidationMessage(
+                std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) const {
+            fMessages.emplace_back(std::move(msg));
+        }
+#endif
+
     private:
         friend class SkClipStack;
 
         SkTLazy<SkPath> fPath;
-        SkRRect         fRRect;
-        int             fSaveCount; // save count of stack when this element was added.
-        SkClipOp        fOp;
-        Type            fType;
-        bool            fDoAA;
+        SkRRect fRRect;
+        int fSaveCount;  // save count of stack when this element was added.
+        SkClipOp fOp;
+        Type fType;
+        bool fDoAA;
 
         /* fFiniteBoundType and fFiniteBound are used to incrementally update the clip stack's
            bound. When fFiniteBoundType is kNormal_BoundsType, fFiniteBound represents the
@@ -217,14 +241,16 @@ public:
            can capture the cancelling out of the extensions to infinity when two inverse filled
            clips are Booleaned together. */
         SkClipStack::BoundsType fFiniteBoundType;
-        SkRect                  fFiniteBound;
+        SkRect fFiniteBound;
 
         // When element is applied to the previous elements in the stack is the result known to be
         // equivalent to a single rect intersection? IIOW, is the clip effectively a rectangle.
-        bool                    fIsIntersectionOfRects;
+        bool fIsIntersectionOfRects;
 
-        int                     fGenID;
-
+        int fGenID;
+#if SK_SUPPORT_GPU
+        mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
+#endif
         Element(int saveCount) {
             this->initCommon(saveCount, SkClipOp::kReplace_deprecated, false);
             this->setEmpty();
