@@ -186,9 +186,10 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(image)->peekTexture()) {
-        return MakeFromGpu(subset, image->uniqueID(), sk_ref_sp(texture),
-                           sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
+    if (GrSurfaceProxy* proxy = as_IB(image)->peekProxy()) {
+        return MakeDeferredFromGpu(as_IB(image)->getContext(),
+                                   subset, image->uniqueID(), sk_ref_sp(proxy),
+                                   sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
     } else
 #endif
     {
@@ -399,11 +400,13 @@ public:
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
+#if 0
         // TODO: add GrTextureProxy-backed SkImage_Gpus
         GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
         if (!surf) {
             return;
         }
+#endif
 
         // TODO: In this instance we know we're going to draw a sub-portion of the backing
         // texture into the canvas so it is okay to wrap it in an SkImage. This poses
@@ -411,9 +414,9 @@ public:
         // instantiates itself it is going to have to either be okay with having a larger
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs 
         // to be tightened (if it is deferred).
-        auto img = sk_sp<SkImage>(new SkImage_Gpu(surf->width(), surf->height(),
-                                                  this->uniqueID(), fAlphaType,
-                                                  sk_ref_sp(surf->asTexture()),
+        auto img = sk_sp<SkImage>(new SkImage_Gpu(canvas->getGrContext(),
+                                                  fSurfaceProxy->width(), fSurfaceProxy->height(),
+                                                  this->uniqueID(), fAlphaType, fSurfaceProxy,
                                                   fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
