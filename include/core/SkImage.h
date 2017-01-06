@@ -27,6 +27,7 @@ class SkSurface;
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
+struct SkEncodeOptions;
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
@@ -290,6 +291,12 @@ public:
      *  fail (return NULL).
      */
     SkData* encode(SkPixelSerializer* = nullptr) const;
+
+    /**
+     *  Returns the existing encoded data if possible.
+     *  Otherwise, encodes the image according to |opts|.
+     */
+    sk_sp<SkData> encode(const SkEncodeOptions& opts) const;
 
     /**
      *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref
