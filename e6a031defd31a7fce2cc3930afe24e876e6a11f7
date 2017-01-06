@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_af2bd9ac",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-06T17:04:53Z",
+      "side": 1,
+      "message": "nit: I\u0027d prefer a different name here. 8888 implies four channels, and I think that whatever this thing is, it should just be specifying the depth/type per-channel. k8_BitDepth, perhaps.\n\nWhile I\u0027m complaining... \u0027enum class\u0027 ?  SkImage::BitDepth::k8 vs. SkImage::BitDepth::kF16 seems to clearly describe intent.",
+      "revId": "e6a031defd31a7fce2cc3930afe24e876e6a11f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
