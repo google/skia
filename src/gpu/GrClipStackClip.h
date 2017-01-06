@@ -40,6 +40,9 @@ public:
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override;
 
+    sk_sp<GrTexture> testingOnly_createClipMask(GrContext*) const;
+    static const char kMaskTestTag[];
+
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
                                     bool hasUserStencilSettings,
@@ -51,18 +54,15 @@ private:
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
-    static sk_sp<GrTexture> CreateAlphaClipMask(GrContext*, const GrReducedClip&);
+    sk_sp<GrTexture> createAlphaClipMask(GrContext*, const GrReducedClip&) const;
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
-    static sk_sp<GrTexture> CreateSoftwareClipMask(GrContext*, const GrReducedClip&);
+    sk_sp<GrTexture> createSoftwareClipMask(GrContext*, const GrReducedClip&) const;
 
-   static bool UseSWOnlyPath(GrContext*,
-                             bool hasUserStencilSettings,
-                             const GrRenderTargetContext*,
-                             const GrReducedClip&);
-
-    static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,
-                                       bool renderTarget);
+    static bool UseSWOnlyPath(GrContext*,
+                              bool hasUserStencilSettings,
+                              const GrRenderTargetContext*,
+                              const GrReducedClip&);
 
     SkIPoint                 fOrigin;
     sk_sp<const SkClipStack> fStack;

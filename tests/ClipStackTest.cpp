@@ -13,7 +13,9 @@
 #include "SkRegion.h"
 
 #if SK_SUPPORT_GPU
+#include "GrClipStackClip.h"
 #include "GrReducedClip.h"
+#include "GrResourceCache.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;
 #endif
@@ -1407,3 +1409,51 @@ DEF_TEST(ClipStack, reporter) {
     test_reduced_clip_stack_aa(reporter);
 #endif
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+sk_sp<GrTexture> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
+    const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
+    return this->createSoftwareClipMask(context, reducedClip);
+}
+
+// Verify that clip masks are freed up when the clip state that generated them goes away.
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
+    // This test uses resource key tags which only function in debug builds.
+#ifdef SK_DEBUG
+    GrContext* context = ctxInfo.grContext();
+    SkClipStack stack;
+
+    SkPath path;
+    path.addCircle(10, 10, 8);
+    path.addCircle(15, 15, 8);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    static const char* kTag = GrClipStackClip::kMaskTestTag;
+    GrResourceCache* cache = context->getResourceCache();
+
+    static constexpr int kN = 5;
+
+    for (int i = 0; i < kN; ++i) {
+        SkMatrix m;
+        m.setTranslate(0.5, 0.5);
+        stack.save();
+        stack.clipPath(path, m, SkClipOp::kIntersect, true);
+        auto mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
+        REPORTER_ASSERT(reporter, 0 == strcmp(mask->getUniqueKey().tag(), kTag));
+        // Make sure mask isn't pinned in cache.
+        mask.reset(nullptr);
+        context->flush();
+        REPORTER_ASSERT(reporter, i + 1 == cache->countUniqueKeysWithTag(kTag));
+    }
+
+    for (int i = 0; i < kN; ++i) {
+        stack.restore();
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, kN - (i + 1) == cache->countUniqueKeysWithTag(kTag));
+    }
+#endif
+}
+
+#endif
