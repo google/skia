@@ -34,6 +34,16 @@ DEF_TEST(SkRasterPipeline, r) {
     REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
     REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
     REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
+
+    // Run again, this time compiling the pipeline.
+    result = 0;
+
+    auto fn = p.compile();
+    fn(0,0, 1);
+    REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
+    REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
+    REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
+    REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
 }
 
 DEF_TEST(SkRasterPipeline_empty, r) {

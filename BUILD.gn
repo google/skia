@@ -23,6 +23,7 @@ declare_args() {
   skia_use_lua = false
   skia_use_mesa = false
   skia_use_piex = !is_win
+  skia_use_xbyak = false
   skia_use_zlib = true
 
   skia_android_serial = ""
@@ -506,6 +507,22 @@ optional("webp") {
   ]
 }
 
+optional("xbyak") {
+  enabled = skia_use_xbyak
+  public_defines = [ "SK_XBYAK" ]
+
+  deps = [
+    "//third_party/xbyak",
+  ]
+
+  # xbyak uses exceptions, but SkXbyak catches them all.
+  configs_to_remove = [ "//gn:no_exceptions" ]
+
+  sources = [
+    "src/opts/SkXbyak.cpp",
+  ]
+}
+
 optional("xml") {
   enabled = skia_use_expat
   public_defines = [ "SK_XML" ]
@@ -546,6 +563,7 @@ component("skia") {
     ":ssse3",
     ":typeface_freetype",
     ":webp",
+    ":xbyak",
     ":xml",
   ]
 

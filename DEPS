@@ -42,6 +42,9 @@ deps = {
 
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+
+  # TODO: mirror to skia.googlesource.com
+  "third_party/externals/xbyak" : "https://github.com/herumi/xbyak",
 }
 
 recursedeps = [ "common" ]
