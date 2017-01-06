@@ -428,11 +428,19 @@ sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMip
 #include "SkImageDeserializer.h"
 
 sk_sp<SkImage> SkImageDeserializer::makeFromData(SkData* data, const SkIRect* subset) {
-    return SkImage::MakeFromEncoded(sk_ref_sp(data), subset);
+     sk_sp<SkImage> image = SkImage::MakeFromEncoded(sk_ref_sp(data), subset);
+
+     // Make sure that we deserialize with a legacy decode, regardless of the draw
+     // target.  This is necessary to round-trip - we will have serialized with a
+     // legacy encode.
+     SkBitmap bitmap;
+     as_IB(image)->getROPixels(&bitmap, nullptr);
+     bitmap.setImmutable();
+     return SkImage::MakeFromBitmap(bitmap);
 }
 sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t length,
                                                    const SkIRect* subset) {
-    return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
+    return SkImageDeserializer::makeFromData(SkData::MakeWithCopy(data, length).get(), subset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
