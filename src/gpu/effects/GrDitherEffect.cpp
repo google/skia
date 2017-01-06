@@ -28,7 +28,6 @@ public:
 private:
     DitherEffect() {
         this->initClassID<DitherEffect>();
-        this->setWillReadFragmentPosition();
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -79,8 +78,8 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
     // For each channel c, add the random offset to the pixel to either bump
     // it up or let it remain constant during quantization.
     fragBuilder->codeAppendf("\t\tfloat r = "
-                             "fract(sin(dot(%s.xy ,vec2(12.9898,78.233))) * 43758.5453);\n",
-                             fragBuilder->fragmentPosition());
+                             "fract(sin(dot(sk_FragCoord.xy, vec2(12.9898,78.233))) * "
+                                                            "43758.5453);\n");
     fragBuilder->codeAppendf("\t\t%s = (1.0/255.0) * vec4(r, r, r, r) + %s;\n",
                              args.fOutputColor, GrGLSLExpr4(args.fInputColor).c_str());
 }

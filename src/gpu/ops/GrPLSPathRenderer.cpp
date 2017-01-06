@@ -344,8 +344,7 @@ public:
             // gl_FragCoord. The oriented box positioning of the subsamples is of course not
             // optimal, but it greatly simplifies the math and this simplification is necessary for
             // performance reasons.
-            fsBuilder->codeAppendf("highp vec2 firstSample = %s.xy - vec2(0.25);",
-                                   fsBuilder->fragmentPosition());
+            fsBuilder->codeAppendf("highp vec2 firstSample = sk_FragCoord.xy - vec2(0.25);");
             fsBuilder->codeAppendf("highp vec2 delta1 = %s;", delta1.fsIn());
             fsBuilder->codeAppendf("highp vec2 delta2 = %s;", delta2.fsIn());
             fsBuilder->codeAppendf("highp vec2 delta3 = %s;", delta3.fsIn());
@@ -423,7 +422,6 @@ private:
                                             kHigh_GrSLPrecision);
         fInWindings = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
                                              kLow_GrSLPrecision);
-        this->setWillReadFragmentPosition();
     }
 
     const Attribute* fInPosition;
@@ -542,8 +540,7 @@ public:
             fsBuilder->codeAppend("highp vec2 uvIncY = uvdX * 0.1 + uvdY * 0.55;");
             fsBuilder->codeAppendf("highp vec2 uv = %s.xy - uvdX * 0.35 - uvdY * 0.25;",
                                    uv.fsIn());
-            fsBuilder->codeAppendf("highp vec2 firstSample = %s.xy - vec2(0.25);",
-                                   fsBuilder->fragmentPosition());
+            fsBuilder->codeAppendf("highp vec2 firstSample = sk_FragCoord.xy - vec2(0.25);");
             fsBuilder->codeAppendf("highp float d = dot(%s, (firstSample - %s).yx) * 2.0;",
                                    delta.fsIn(), ep1.fsIn());
             fsBuilder->codeAppendf("pls.windings[0] += %s(d, uv) ? %s : 0;", inQuadName.c_str(),
@@ -604,7 +601,6 @@ private:
                                               kHigh_GrSLPrecision);
         fInWindings  = &this->addVertexAttrib("inWindings", kInt_GrVertexAttribType,
                                               kLow_GrSLPrecision);
-        this->setWillReadFragmentPosition();
     }
 
     const Attribute* fInPosition;
