@@ -126,6 +126,8 @@ public:
     void append_from_srgb(SkAlphaType);
 
 private:
+    std::function<void(size_t, size_t, size_t)> jit() const;
+
     std::vector<Stage> fStages;
 };
 
