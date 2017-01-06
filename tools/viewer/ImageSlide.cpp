@@ -37,7 +37,7 @@ void ImageSlide::draw(SkCanvas* canvas) {
 
 void ImageSlide::load(SkScalar, SkScalar) {
     sk_sp<SkData> encoded = SkData::MakeFromFileName(fPath.c_str());
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (!codec) {
         return;
     }
@@ -46,7 +46,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
     codec->getPixels(codec->getInfo(), fOriginalBitmap.getPixels(), fOriginalBitmap.rowBytes());
 
     SkImageInfo xformedInfo = codec->getInfo().makeColorSpace(
-            SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named));
+            SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named));
     fXformedBitmap.allocPixels(xformedInfo);
     codec->getPixels(xformedInfo, fXformedBitmap.getPixels(), fXformedBitmap.rowBytes());
 }

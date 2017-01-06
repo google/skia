@@ -56,10 +56,10 @@ public:
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
     struct SK_API LayerInfo {
-        BitFlags            fPaintBits;
-        SkXfermode::Mode    fColorMode;
-        SkVector            fOffset;
-        bool                fPostTranslate; //!< applies to fOffset
+        BitFlags    fPaintBits;
+        SkBlendMode fColorMode;
+        SkVector    fOffset;
+        bool        fPostTranslate; //!< applies to fOffset
 
         /**
          *  Initial the LayerInfo. Defaults to settings that will draw the
@@ -143,11 +143,6 @@ public:
           * also reset the builder, so it can be used to build another looper.
           */
         sk_sp<SkDrawLooper> detach();
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-        SkLayerDrawLooper* detachLooper() {
-            return (SkLayerDrawLooper*)this->detach().release();
-        }
-#endif
 
     private:
         Rec* fRecs;

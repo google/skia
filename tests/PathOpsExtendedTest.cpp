@@ -32,9 +32,6 @@ bool SimplifyDebug(const SkPath& one, SkPath* result
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-DEFINE_bool2(runFail, f, false, "run tests known to fail.");
-DEFINE_bool2(runBinary, f, false, "run tests known to fail binary sect.");
-
 static const char marker[] =
     "</div>\n"
     "\n"

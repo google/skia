@@ -110,7 +110,7 @@ protected:
         enum {
             kMaxObjects = 4 * (1 << 10),
         };
-        SkAutoTDelete<B> objects[kMaxObjects];
+        std::unique_ptr<B> objects[kMaxObjects];
 
         for (int i = 0; i < loops; i++) {
             uint32_t idx = r.nextRangeU(0, kMaxObjects-1);

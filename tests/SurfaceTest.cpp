@@ -19,7 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include <vector>
@@ -310,17 +310,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
                 ERRORF(reporter, "Not texture backed.");
                 return static_cast<intptr_t>(0);
             }
-            return static_cast<intptr_t>(texture->uniqueID());
+            return static_cast<intptr_t>(texture->uniqueID().asUInt());
         };
 
         auto surfaceBackingStore = [reporter](SkSurface* surface) {
-            GrDrawContext* dc = surface->getCanvas()->internal_private_accessTopLayerDrawContext();
-            GrRenderTarget* rt = dc->accessRenderTarget();
+            GrRenderTargetContext* rtc =
+                surface->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+            GrRenderTarget* rt = rtc->accessRenderTarget();
             if (!rt) {
                 ERRORF(reporter, "Not render target backed.");
                 return static_cast<intptr_t>(0);
             }
-            return static_cast<intptr_t>(rt->uniqueID());
+            return static_cast<intptr_t>(rt->uniqueID().asUInt());
         };
 
         test_unique_image_snap(reporter, surface.get(), false, imageBackingStore,
@@ -566,7 +567,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
-    return gsurf->getDevice()->accessDrawContext()->accessRenderTarget()->resourcePriv().isBudgeted();
+    return gsurf->getDevice()->accessRenderTargetContext()
+        ->accessRenderTarget()->resourcePriv().isBudgeted();
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
@@ -707,7 +709,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {
     const int kWidth = 10;
     const int kHeight = 10;
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
     GrBackendTextureDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -730,7 +732,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendObject* outTexture) {
     const int kWidth = 10;
     const int kHeight = 10;
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
     GrBackendTextureDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -759,10 +761,10 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     }
     int w = surface->width();
     int h = surface->height();
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[w * h]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     sk_memset32(pixels.get(), ~expectedValue, w * h);
 
-    SkAutoTUnref<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
+    sk_sp<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
     if (!grSurface) {
         ERRORF(reporter, "Could access render target of GPU SkSurface.");
         return;
@@ -793,8 +795,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
 
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
         [] (SkSurface* s){
-            GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
-            return dc->accessRenderTarget(); },
+            GrRenderTargetContext* rtc =
+                s->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+            return rtc->accessRenderTarget(); },
         [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
                            return as_IB(i)->peekTexture(); }
     };
@@ -827,7 +830,7 @@ static void test_surface_draw_partially(
     paint.setColor(kRectColor);
     surface->getCanvas()->drawRect(SkRect::MakeWH(SkIntToScalar(kW), SkIntToScalar(kH)/2),
                                    paint);
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kW * kH]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kW * kH]);
     sk_memset32(pixels.get(), ~origColor, kW * kH);
     // Read back RGBA to avoid format conversions that may not be supported on all platforms.
     SkImageInfo readInfo = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -903,8 +906,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 
             // Validate that we can attach a stencil buffer to an SkSurface created by either of
             // our surface functions.
-            GrRenderTarget* rt = surface->getCanvas()->internal_private_accessTopLayerDrawContext()
-                ->accessRenderTarget();
+            GrRenderTarget* rt = surface->getCanvas()
+                ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter,
                             ctxInfo.grContext()->resourceProvider()->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(textureObject);
@@ -919,12 +922,16 @@ static void test_surface_creation_and_snapshot_with_color_space(
     bool f16Support,
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
-    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    auto adobeColorSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
-    SkMatrix44 srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
-    const float oddGamma[] = { 2.4f, 2.4f, 2.4f };
-    auto oddColorSpace = SkColorSpace_Base::NewRGB(oddGamma, srgbMatrix);
-    auto linearColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    auto adobeColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+    const SkMatrix44* srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
+    SkASSERT(srgbMatrix);
+    SkColorSpaceTransferFn oddGamma;
+    oddGamma.fA = 1.0f;
+    oddGamma.fB = oddGamma.fC = oddGamma.fD = oddGamma.fE = oddGamma.fF = 0.0f;
+    oddGamma.fG = 4.0f;
+    auto oddColorSpace = SkColorSpace::MakeRGB(oddGamma, *srgbMatrix);
+    auto linearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
 
     const struct {
         SkColorType         fColorType;
@@ -937,7 +944,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
         { kN32_SkColorType,       adobeColorSpace,  true,  "N32-adobe"   },
         { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
-        { kRGBA_F16_SkColorType,  nullptr,          false, "F16-nullptr" },
+        { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
         { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
         { kRGBA_F16_SkColorType,  srgbColorSpace,   false, "F16-srgb"    },
         { kRGBA_F16_SkColorType,  adobeColorSpace,  false, "F16-adobe"   },

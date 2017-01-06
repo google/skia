@@ -69,7 +69,7 @@ protected:
                                             SkBlurMaskFilter::kHighQuality_BlurFlag));
                     paint.setColorFilter(SkColorFilter::MakeModeFilter(
                                              SK_ColorRED,
-                                             SkXfermode::kSrcIn_Mode));
+                                             SkBlendMode::kSrcIn));
                     paint.setAntiAlias(true);
 
                     canvas->drawRRect(rr, paint);

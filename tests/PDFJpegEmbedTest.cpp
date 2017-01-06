@@ -15,14 +15,6 @@
 #include "Resources.h"
 #include "Test.h"
 
-// Returned bitmap is lazy.  Only lazy bitmaps hold onto the original data.
-static SkBitmap bitmap_from_data(SkData* data) {
-    SkASSERT(data);
-    SkBitmap bm;
-    SkDEPRECATED_InstallDiscardablePixelRef(data, &bm);
-    return bm;
-}
-
 static bool is_subset_of(SkData* smaller, SkData* larger) {
     SkASSERT(smaller && larger);
     if (smaller->size() > larger->size()) {
@@ -70,29 +62,6 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
 
     canvas->clear(SK_ColorLTGRAY);
 
-    SkBitmap bm1(bitmap_from_data(mandrillData.get()));
-    canvas->drawBitmap(bm1, 65.0, 0.0, nullptr);
-    SkBitmap bm2(bitmap_from_data(cmykData.get()));
-    canvas->drawBitmap(bm2, 0.0, 512.0, nullptr);
-
-    canvas->flush();
-    document->endPage();
-    document->close();
-    sk_sp<SkData> pdfData(pdf.detachAsData());
-    SkASSERT(pdfData);
-
-    REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
-
-    // This JPEG uses a nonstandard colorspace - it can not be
-    // embedded into the PDF directly.
-    REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
-    ////////////////////////////////////////////////////////////////////////////
-    pdf.reset();
-    document = SkDocument::MakePDF(&pdf);
-    canvas = document->beginPage(642, 1028);
-
-    canvas->clear(SK_ColorLTGRAY);
-
     sk_sp<SkImage> im1(SkImage::MakeFromEncoded(mandrillData));
     canvas->drawImage(im1.get(), 65.0, 0.0, nullptr);
     sk_sp<SkImage> im2(SkImage::MakeFromEncoded(cmykData));
@@ -101,7 +70,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     canvas->flush();
     document->endPage();
     document->close();
-    pdfData = pdf.detachAsData();
+    sk_sp<SkData> pdfData = pdf.detachAsData();
     SkASSERT(pdfData);
 
     REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));

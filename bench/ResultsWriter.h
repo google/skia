@@ -13,6 +13,7 @@
 #include "BenchLogger.h"
 #include "SkJSONCPP.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypes.h"

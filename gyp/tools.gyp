@@ -182,6 +182,7 @@
       'dependencies': [
         'resources',
         'flags.gyp:flags',
+        'flags.gyp:flags_common',
         'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
@@ -201,13 +202,13 @@
       'target_name': 'skdiff',
       'type': 'executable',
       'sources': [
-        '../tools/skdiff.cpp',
-        '../tools/skdiff.h',
-        '../tools/skdiff_html.cpp',
-        '../tools/skdiff_html.h',
-        '../tools/skdiff_main.cpp',
-        '../tools/skdiff_utils.cpp',
-        '../tools/skdiff_utils.h',
+        '../tools/skdiff/skdiff.cpp',
+        '../tools/skdiff/skdiff.h',
+        '../tools/skdiff/skdiff_html.cpp',
+        '../tools/skdiff/skdiff_html.h',
+        '../tools/skdiff/skdiff_main.cpp',
+        '../tools/skdiff/skdiff_utils.cpp',
+        '../tools/skdiff/skdiff_utils.h',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
@@ -232,13 +233,13 @@
       'target_name': 'skimagediff',
       'type': 'executable',
       'sources': [
-        '../tools/skdiff.cpp',
-        '../tools/skdiff.h',
-        '../tools/skdiff_html.cpp',
-        '../tools/skdiff_html.h',
-        '../tools/skdiff_image.cpp',
-        '../tools/skdiff_utils.cpp',
-        '../tools/skdiff_utils.h',
+        '../tools/skdiff/skdiff.cpp',
+        '../tools/skdiff/skdiff.h',
+        '../tools/skdiff/skdiff_html.cpp',
+        '../tools/skdiff/skdiff_html.h',
+        '../tools/skdiff/skdiff_image.cpp',
+        '../tools/skdiff/skdiff_utils.cpp',
+        '../tools/skdiff/skdiff_utils.h',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
@@ -403,6 +404,7 @@
         '../tools/picture_utils.h',
       ],
       'include_dirs': [
+          '../include/private',
           '../src/core/',
       ],
       'dependencies': [
@@ -484,7 +486,7 @@
       'target_name': 'visualize_color_gamut',
       'type': 'executable',
       'sources': [
-        '../tools/visualize_color_gamut.cpp',
+        '../tools/colorspaceinfo.cpp',
       ],
       'include_dirs': [
         '../src/core',

@@ -9,6 +9,7 @@
 #include "GrProcessor.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
+#include "GrTexturePriv.h"
 #include "SkChecksum.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -18,7 +19,7 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
                             const GrGLSLCaps& caps) {
     enum {
         kFirstSamplerType = kTexture2DSampler_GrSLType,
-        kLastSamplerType = kTextureBufferSampler_GrSLType,
+        kLastSamplerType = kBufferSampler_GrSLType,
         kSamplerTypeKeyBits = 4
     };
     GR_STATIC_ASSERT(kLastSamplerType - kFirstSamplerType < (1 << kSamplerTypeKeyBits));
@@ -45,11 +46,12 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     for (; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
         const GrTexture* tex = access.getTexture();
-        k16[i] = sampler_key(tex->samplerType(), tex->config(), access.getVisibility(), caps);
+        k16[i] = sampler_key(tex->texturePriv().samplerType(), tex->config(),
+                             access.getVisibility(), caps);
     }
     for (; i < numSamplers; ++i) {
         const GrBufferAccess& access = proc.bufferAccess(i - numTextures);
-        k16[i] = sampler_key(kTextureBufferSampler_GrSLType, access.texelConfig(),
+        k16[i] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(),
                              access.visibility(), caps);
     }
     // zero the last 16 bits if the number of samplers is odd.
@@ -165,7 +167,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());
         header->fSamplePatternKey =
-            rt->renderTargetPriv().getMultisampleSpecs(pipeline.getStencil()).fUniqueID;
+            rt->renderTargetPriv().getMultisampleSpecs(pipeline).fUniqueID;
     } else {
         header->fSamplePatternKey = 0;
     }

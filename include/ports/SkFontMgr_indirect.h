@@ -28,8 +28,8 @@ public:
     // TODO: The SkFontMgr is only used for createFromStream/File/Data.
     // In the future these calls should be broken out into their own interface
     // with a name like SkFontRenderer.
-    SkFontMgr_Indirect(SkFontMgr* impl, SkRemotableFontMgr* proxy)
-        : fImpl(SkRef(impl)), fProxy(SkRef(proxy))
+    SkFontMgr_Indirect(sk_sp<SkFontMgr> impl, sk_sp<SkRemotableFontMgr> proxy)
+        : fImpl(std::move(impl)), fProxy(std::move(proxy))
     { }
 
 protected:
@@ -60,8 +60,8 @@ protected:
 private:
     SkTypeface* createTypefaceFromFontId(const SkFontIdentity& fontId) const;
 
-    SkAutoTUnref<SkFontMgr> fImpl;
-    SkAutoTUnref<SkRemotableFontMgr> fProxy;
+    sk_sp<SkFontMgr> fImpl;
+    sk_sp<SkRemotableFontMgr> fProxy;
 
     struct DataEntry {
         uint32_t fDataId;  // key1

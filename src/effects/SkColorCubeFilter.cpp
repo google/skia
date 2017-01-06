@@ -298,7 +298,8 @@ void GrColorCubeEffect::GLSLProcessor::GenKey(const GrProcessor& proc,
                                               const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
-sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {
+sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context,
+                                                                  SkColorSpace*) const {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 2);
@@ -312,18 +313,17 @@ sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* con
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fIsMipMapped = false;
 
-    SkAutoTUnref<GrTexture> textureCube(
-        context->textureProvider()->findAndRefTextureByUniqueKey(key));
+    sk_sp<GrTexture> textureCube(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!textureCube) {
         textureCube.reset(context->textureProvider()->createTexture(
             desc, SkBudgeted::kYes, fCubeData->data(), 0));
         if (textureCube) {
-            context->textureProvider()->assignUniqueKeyToTexture(key, textureCube);
+            context->textureProvider()->assignUniqueKeyToTexture(key, textureCube.get());
         } else {
             return nullptr;
         }
     }
 
-    return sk_sp<GrFragmentProcessor>(GrColorCubeEffect::Make(textureCube));
+    return sk_sp<GrFragmentProcessor>(GrColorCubeEffect::Make(textureCube.get()));
 }
 #endif

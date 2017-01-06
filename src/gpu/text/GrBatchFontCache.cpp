@@ -24,11 +24,10 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] =
-                fContext->resourceProvider()->createAtlas(config, width, height,
-                                                          numPlotsX, numPlotsY,
-                                                          &GrBatchFontCache::HandleEviction,
-                                                          (void*)this);
+        fAtlases[index] = fContext->resourceProvider()->makeAtlas(config, width, height,
+                                                                  numPlotsX, numPlotsY,
+                                                                  &GrBatchFontCache::HandleEviction,
+                                                                  (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -39,9 +38,6 @@ bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
 GrBatchFontCache::GrBatchFontCache(GrContext* context)
     : fContext(context)
     , fPreserveStrike(nullptr) {
-    for (int i = 0; i < kMaskFormatCount; ++i) {
-        fAtlases[i] = nullptr;
-    }
 
     // setup default atlas configs
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = 2048;
@@ -73,9 +69,6 @@ GrBatchFontCache::~GrBatchFontCache() {
         (*iter).unref();
         ++iter;
     }
-    for (int i = 0; i < kMaskFormatCount; ++i) {
-        delete fAtlases[i];
-    }
 }
 
 void GrBatchFontCache::freeAll() {
@@ -87,7 +80,6 @@ void GrBatchFontCache::freeAll() {
     }
     fCache.rewind();
     for (int i = 0; i < kMaskFormatCount; ++i) {
-        delete fAtlases[i];
         fAtlases[i] = nullptr;
     }
 }
@@ -130,13 +122,10 @@ void GrBatchFontCache::dump() const {
 }
 
 void GrBatchFontCache::setAtlasSizes_ForTesting(const GrBatchAtlasConfig configs[3]) {
-    // delete any old atlases, this should be safe to do as long as we are not in the middle of a
-    // flush
+    // Delete any old atlases.
+    // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {
-        if (fAtlases[i]) {
-            delete fAtlases[i];
-            fAtlases[i] = nullptr;
-        }
+        fAtlases[i] = nullptr;
     }
     memcpy(fAtlasConfigs, configs, sizeof(fAtlasConfigs));
 }

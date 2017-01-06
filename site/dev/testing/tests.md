@@ -5,6 +5,14 @@ Writing Skia Tests
 +   [Rendering Tests](#gm)
 +   [Benchmark Tests](#bench)
 
+We assume you have already synced Skia's dependecies and set up Skia's build system.
+
+<!--?prettify lang=sh?-->
+
+    python bin/sync
+    gn gen out/Debug
+    gn gen out/Release --args='is_debug=false'
+
 <span id="test"></span>
 
 Writing a Unit Test
@@ -29,9 +37,12 @@ Writing a Unit Test
             REPORTER_ASSERT(reporter, lifeIsGood);
         }
 
-2.  Recompile and run test:
+2.  Add `NewUnitTest.cpp` to `gn/tests.gni`.
 
-        python bin/sync-and-gyp
+3.  Recompile and run test:
+
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug dm
         out/Debug/dm --match NewUnitTest
 
@@ -58,21 +69,21 @@ Writing a Rendering Test
             canvas->drawLine(16, 16, 112, 112, p);
         }
 
-2.  Recompile and run test:
+2.  Add `newgmtest.cpp` to `gn/gm.gni`.
 
-        python bin/sync-and-gyp
+3.  Recompile and run test:
+
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
-3.  Run the GM inside SampleApp:
+4.  Run the GM inside SampleApp:
 
-        python bin/sync-and-gyp
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Debug SampleApp
         out/Debug/SampleApp --slide GM:newgmtest
-
-    On MacOS, try this:
-
-        out/Debug/SampleApp.app/Contents/MacOS/SampleApp --slide GM:newgmtest
 
 <span id="bench"></span>
 
@@ -108,9 +119,11 @@ Writing a Benchmark Test
         }  // namespace
         DEF_BENCH(return new FooBench;)
 
+2.  Add `FooBench.cpp` to `gn/bench.gni`.
 
-2.  Recompile and run nanobench:
+3.  Recompile and run nanobench:
 
-        python bin/sync-and-gyp
+    <!--?prettify lang=sh?-->
+
         ninja -C out/Release nanobench
         out/Release/nanobench --match Foo

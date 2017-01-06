@@ -21,11 +21,22 @@ third_party("libmicrohttpd") {
     "../externals/microhttpd/src/microhttpd/postprocessor.c",
     "../externals/microhttpd/src/microhttpd/reason_phrase.c",
     "../externals/microhttpd/src/microhttpd/response.c",
+    "../externals/microhttpd/src/microhttpd/tsearch.c",
   ]
 
   defines = [ "DAUTH_SUPPORT=1" ]
+  libs = []
 
-  if (!is_win) {
+  if (is_win) {
+    sources += [ "../externals/microhttpd/src/platform/w32functions.c" ]
+    defines += [
+      "HAVE_SYS_TYPES_H=1",
+      "HAVE_TIME_H=1",
+      "MHD_USE_W32_THREADS=1",
+      "WINDOWS",
+    ]
+    libs += [ "Ws2_32.lib" ]
+  } else {
     defines += [
       "HAVE_NETINET_IN_H=1",
       "HAVE_PTHREAD_H=1",

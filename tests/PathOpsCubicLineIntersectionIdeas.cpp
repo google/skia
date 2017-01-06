@@ -16,7 +16,7 @@
 static bool gPathOpsCubicLineIntersectionIdeasVerbose = false;
 
 static struct CubicLineFailures {
-    SkDCubic c;
+    CubicPts c;
     double t;
     SkDPoint p;
 } cubicLineFailures[] = {
@@ -145,13 +145,15 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
     double largestR2 = 0;
     for (int index = 0; index < 1000000000; ++index) {
         SkDPoint origin = {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)};
-        SkDCubic cubic = {{origin,
+        CubicPts cuPts = {{origin,
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
                 {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}
         }};
         // construct a line at a known intersection
         double t = ran.nextRangeF(0, 1);
+        SkDCubic cubic;
+        cubic.debugSet(cuPts.fPts);
         SkDPoint pt = cubic.ptAtT(t);
         // skip answers with no intersections (although note the bug!) or two, or more
         // see if the line / cubic has a fun range of roots
@@ -248,7 +250,9 @@ DEF_TEST(PathOpsCubicLineRoots, reporter) {
 }
 
 static double testOneFailure(const CubicLineFailures& failure) {
-    const SkDCubic& cubic = failure.c;
+    const CubicPts& c = failure.c;
+    SkDCubic cubic;
+    cubic.debugSet(c.fPts);
     const SkDPoint& pt = failure.p;
     double A, B, C, D;
     SkDCubic::Coefficients(&cubic[0].fY, &A, &B, &C, &D);

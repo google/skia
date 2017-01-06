@@ -64,6 +64,10 @@ struct SkDRect {
     }
 
     void setBounds(const SkDQuad& curve, const SkDQuad& sub, double tStart, double tEnd);
+
+    bool valid() const {
+        return fLeft <= fRight && fTop <= fBottom;
+    }
 };
 
 #endif

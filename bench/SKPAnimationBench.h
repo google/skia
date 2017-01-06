@@ -40,10 +40,10 @@ protected:
     void drawPicture() override;
 
 private:
-    SkAutoTUnref<Animation>   fAnimation;
-    WallTimer                 fAnimationTimer;
-    SkString                  fUniqueName;
-    SkIRect                   fDevBounds;
+    sk_sp<Animation> fAnimation;
+    WallTimer        fAnimationTimer;
+    SkString         fUniqueName;
+    SkIRect          fDevBounds;
 
     typedef SKPBench INHERITED;
 };

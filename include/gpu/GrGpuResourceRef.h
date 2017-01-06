@@ -28,7 +28,7 @@
  * state 2 to state 3. Calling pendingIOComplete() moves from state 2 to state 1. There is no
  * valid way of going from state 3 back to 2 or 1.
  *
- * Like SkAutoTUnref, its constructor and setter adopt a ref from their caller.
+ * Like sk_sp, its constructor and setter adopt a ref from their caller.
  *
  * TODO: Once GrDODrawState no longer exists and therefore GrDrawState and GrOptDrawState no
  * longer share an instance of this class, attempt to make the resource owned by GrGpuResourceRef
@@ -63,7 +63,7 @@ private:
         execution. It can only be called once. */
     void markPendingIO() const;
 
-    /** Called when the program element/draw state is no longer owned by GrDrawTarget-client code.
+    /** Called when the program element/draw state is no longer owned by GrOpList-client code.
         This lets the cache know that the drawing code will no longer schedule additional reads or
         writes to the resource using the program element or draw state. It can only be called once.
       */

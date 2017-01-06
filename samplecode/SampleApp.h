@@ -14,6 +14,7 @@
 #include "SkPictureRecorder.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
 #include "SkWindow.h"
@@ -174,7 +175,7 @@ private:
     SkPipeDeserializer      fPipeDeserializer;
 
     SkPictureRecorder fRecorder;
-    SkAutoTDelete<SkCanvas> fFlagsFilterCanvas;
+    std::unique_ptr<SkCanvas> fFlagsFilterCanvas;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;

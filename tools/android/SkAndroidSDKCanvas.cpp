@@ -9,6 +9,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkImageFilter.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
@@ -25,7 +26,7 @@ void CheckShader(SkPaint* paint) {
         return;
     }
 
-    if (shader->isABitmap()) {
+    if (shader->isAImage()) {
         return;
     }
     if (shader->asACompose(nullptr)) {
@@ -46,11 +47,9 @@ void Filter(SkPaint* paint) {
     flags &= ~SkPaint::kLCDRenderText_Flag;
     paint->setFlags(flags);
 
-    // Android doesn't support Xfermodes above kLighten_Mode
-    SkXfermode::Mode mode;
-    SkXfermode::AsMode(paint->getXfermode(), &mode);
-    if (mode > SkXfermode::kLighten_Mode) {
-        paint->setXfermode(nullptr);
+    // Android doesn't support blend modes above kLighten_Mode
+    if (paint->getBlendMode() > SkBlendMode::kLighten) {
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
     // Force bilinear scaling or none
@@ -65,12 +64,12 @@ void Filter(SkPaint* paint) {
     SkColorFilter* cf = paint->getColorFilter();
     if (cf) {
         SkColor color;
-        SkXfermode::Mode mode;
+        SkBlendMode mode;
         SkScalar srcColorMatrix[20];
         bool isMode = cf->asColorMode(&color, &mode);
-        if (isMode && mode > SkXfermode::kLighten_Mode) {
+        if (isMode && (int)mode > (int)SkBlendMode::kLighten) {
             paint->setColorFilter(
-                SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcOver_Mode));
+                SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrcOver));
         } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
             paint->setColorFilter(nullptr);
         }
@@ -166,12 +165,12 @@ void SkAndroidSDKCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
 void SkAndroidSDKCanvas::onDrawVertices(VertexMode vMode,
                                                  int vertexCount,
                                                  const SkPoint vertices[],
-                    const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
+                    const SkPoint texs[], const SkColor colors[], SkBlendMode bmode,
                     const uint16_t indices[], int indexCount,
                     const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawVertices(vMode, vertexCount, vertices, texs, colors,
-                               xMode, indices, indexCount, filteredPaint);
+                               bmode, indices, indexCount, filteredPaint);
 }
 
 void SkAndroidSDKCanvas::onDrawDRRect(const SkRRect& outer,
@@ -229,10 +228,10 @@ void SkAndroidSDKCanvas::onDrawTextBlob(const SkTextBlob* blob,
 void SkAndroidSDKCanvas::onDrawPatch(const SkPoint cubics[12],
                                               const SkColor colors[4],
                                               const SkPoint texCoords[4],
-                                              SkXfermode* xmode,
+                                              SkBlendMode bmode,
                                               const SkPaint& paint) {
     FILTER(paint);
-    fProxyTarget->drawPatch(cubics, colors, texCoords, xmode, filteredPaint);
+    fProxyTarget->drawPatch(cubics, colors, texCoords, bmode, filteredPaint);
 }
 
 
@@ -265,12 +264,11 @@ void SkAndroidSDKCanvas::onDrawAtlas(const SkImage* atlas,
                                      const SkRect tex[],
                                      const SkColor colors[],
                                      int count,
-                                     SkXfermode::Mode mode,
+                                     SkBlendMode mode,
                                      const SkRect* cullRect,
                                      const SkPaint* paint) {
     FILTER_PTR(paint);
-    fProxyTarget->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect,
-                            filteredPaint);
+    fProxyTarget->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect, filteredPaint);
 }
 
 void SkAndroidSDKCanvas::onDrawImageNine(const SkImage* image,
@@ -344,24 +342,24 @@ void SkAndroidSDKCanvas::didSetMatrix(const SkMatrix& m) {
 }
 
 void SkAndroidSDKCanvas::onClipRect(const SkRect& rect,
-                                             SkRegion::Op op,
+                                             ClipOp op,
                                              ClipEdgeStyle style) {
     fProxyTarget->clipRect(rect, op, style);
 }
 
 void SkAndroidSDKCanvas::onClipRRect(const SkRRect& rrect,
-                                              SkRegion::Op op,
+                                              ClipOp op,
                                               ClipEdgeStyle style) {
     fProxyTarget->clipRRect(rrect, op, style);
 }
 
 void SkAndroidSDKCanvas::onClipPath(const SkPath& path,
-                                             SkRegion::Op op,
+                                             ClipOp op,
                                              ClipEdgeStyle style) {
     fProxyTarget->clipPath(path, op, style);
 }
 
-void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, ClipOp op) {
     fProxyTarget->clipRegion(region, op);
 }
 

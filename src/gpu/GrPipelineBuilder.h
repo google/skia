@@ -311,7 +311,10 @@ private:
     FragmentProcessorArray                  fCoverageFragmentProcessors;
 
     friend class GrPipeline;
-    friend class GrDrawTarget;
+    // This gives the GrRenderTargetOpList raw access to fColorFragmentProcessors &
+    // fCoverageFragmentProcessors
+    // TODO: that access seems a little dodgy
+    friend class GrRenderTargetOpList;
 };
 
 #endif

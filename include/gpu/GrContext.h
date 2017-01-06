@@ -27,7 +27,7 @@ struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
@@ -60,7 +60,7 @@ public:
 
     virtual ~GrContext();
 
-    GrContextThreadSafeProxy* threadSafeProxy();
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
      * The GrContext normally assumes that no outsider is setting state
@@ -181,26 +181,37 @@ public:
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
     /**
-     * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
-     * We guarantee that "asTexture" will succeed for drawContexts created
+     * Create both a GrRenderTarget and a matching GrRenderTargetContext to wrap it.
+     * We guarantee that "asTexture" will succeed for renderTargetContexts created
      * via this entry point.
      */
-    sk_sp<GrDrawContext> makeDrawContext(SkBackingFit fit, 
-                                         int width, int height,
-                                         GrPixelConfig config,
-                                         sk_sp<SkColorSpace> colorSpace,
-                                         int sampleCnt = 0,
-                                         GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
-                                         const SkSurfaceProps* surfaceProps = nullptr,
-                                         SkBudgeted = SkBudgeted::kYes);
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 0,
+                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
 
+    // Create a new render target context as above but have it backed by a deferred-style
+    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(SkBackingFit fit, 
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 0,
+                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
     /*
-     * This method will attempt to create a drawContext that has, at least, the number of
+     * This method will attempt to create a renderTargetContext that has, at least, the number of
      * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
      * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
      * SRGB-ness will be preserved.
      */
-    sk_sp<GrDrawContext> makeDrawContextWithFallback(
+    sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
@@ -327,14 +338,14 @@ public:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
-    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
+    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
-    // Called by tests that draw directly to the context via GrDrawContext
-    void getTestTarget(GrTestTarget*, sk_sp<GrDrawContext>);
+    // Called by tests that draw directly to the context via GrRenderTargetContext
+    void getTestTarget(GrTestTarget*, sk_sp<GrRenderTargetContext>);
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -383,10 +394,10 @@ private:
         GrTextureProvider*                  fTextureProvider;
     };
 
-    SkAutoTUnref<GrContextThreadSafeProxy>  fThreadSafeProxy;
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrBatchFontCache*                       fBatchFontCache;
-    SkAutoTDelete<GrTextBlobCache>          fTextBlobCache;
+    std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
     int                                     fPMToUPMConversion;
@@ -406,7 +417,7 @@ private:
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrDrawContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    // GrRenderTargetContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
     struct CleanUpData {
@@ -418,11 +429,11 @@ private:
 
     const uint32_t                          fUniqueID;
 
-    SkAutoTDelete<GrDrawingManager>         fDrawingManager;
+    std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
 
-    // TODO: have the GrClipStackClip use drawContexts and rm this friending
+    // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
     GrContext(); // init must be called after the constructor.
@@ -463,12 +474,12 @@ private:
  */
 class GrContextThreadSafeProxy : public SkRefCnt {
 private:
-    GrContextThreadSafeProxy(const GrCaps* caps, uint32_t uniqueID)
-        : fCaps(SkRef(caps))
+    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID)
+        : fCaps(std::move(caps))
         , fContextUniqueID(uniqueID) {}
 
-    SkAutoTUnref<const GrCaps>  fCaps;
-    uint32_t                    fContextUniqueID;
+    sk_sp<const GrCaps> fCaps;
+    uint32_t            fContextUniqueID;
 
     friend class GrContext;
     friend class SkImage;

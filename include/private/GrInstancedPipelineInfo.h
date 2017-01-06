@@ -8,20 +8,20 @@
 #ifndef GrGrInstancedPipelineInfo_DEFINED
 #define GrGrInstancedPipelineInfo_DEFINED
 
-#include "GrRenderTarget.h"
+#include "GrRenderTargetProxy.h"
 
 /**
  * Provides info about the pipeline that GrInstancedRendering needs in order to select appropriate
  * drawing algorithms.
  */
 struct GrInstancedPipelineInfo {
-    GrInstancedPipelineInfo(const GrRenderTarget* rt)
-        : fIsMultisampled(rt->isStencilBufferMultisampled()),
-          fIsMixedSampled(rt->isMixedSampled()),
-          fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rt->desc().fConfig)),
-          fColorDisabled(false),
-          fDrawingShapeToStencil(false),
-          fCanDiscard(false) {
+    GrInstancedPipelineInfo(const GrRenderTargetProxy* rtp)
+        : fIsMultisampled(rtp->isStencilBufferMultisampled())
+        , fIsMixedSampled(rtp->isMixedSampled())
+        , fIsRenderingToFloat(GrPixelConfigIsFloatingPoint(rtp->desc().fConfig))
+        , fColorDisabled(false)
+        , fDrawingShapeToStencil(false)
+        , fCanDiscard(false) {
     }
 
     bool canUseCoverageAA() const {

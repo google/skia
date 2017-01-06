@@ -11,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -70,8 +70,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -81,9 +82,9 @@ protected:
             return;
         }
 
-        SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                                 GrTextureParams::ClampNoFilter(),
-                                                                 SkSourceGammaTreatment::kRespect));
+        sk_sp<GrTexture> texture(
+            GrRefCachedBitmapTexture(context, fBmp, GrTextureParams::ClampNoFilter(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         if (!texture) {
             return;
         }
@@ -113,10 +114,10 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Make(texture, nullptr, textureMatrices[tm],
-                                                GrTextureDomain::MakeTexelDomain(texture,
+                        GrTextureDomainEffect::Make(texture.get(), nullptr, textureMatrices[tm],
+                                                GrTextureDomain::MakeTexelDomain(texture.get(),
                                                                                  texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
@@ -126,10 +127,10 @@ protected:
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

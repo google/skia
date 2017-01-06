@@ -10,8 +10,8 @@
 #ifndef SkDOM_DEFINED
 #define SkDOM_DEFINED
 
+#include "../private/SkChunkAlloc.h"
 #include "../private/SkTemplates.h"
-#include "SkChunkAlloc.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
@@ -89,9 +89,9 @@ public:
     SkDEBUGCODE(void dump(const Node* node = NULL, int tabLevel = 0) const;)
 
 private:
-    SkChunkAlloc               fAlloc;
-    Node*                      fRoot;
-    SkAutoTDelete<SkDOMParser> fParser;
+    SkChunkAlloc                 fAlloc;
+    Node*                        fRoot;
+    std::unique_ptr<SkDOMParser> fParser;
 
     typedef SkNoncopyable INHERITED;
 };

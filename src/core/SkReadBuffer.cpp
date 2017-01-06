@@ -7,7 +7,6 @@
 
 #include "SkBitmap.h"
 #include "SkDeduper.h"
-#include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
@@ -31,7 +30,7 @@ namespace {
         return SkImage::MakeFromGenerator(
             new EmptyImageGenerator(SkImageInfo::MakeN32Premul(width, height)));
     }
-    
+
 } // anonymous namespace
 
 
@@ -225,9 +224,7 @@ sk_sp<SkImage> SkReadBuffer::readBitmapAsImage() {
     if (this->readBool()) {
         this->readUInt(); // Bitmap index
         this->readUInt(); // Bitmap generation ID
-        SkErrorInternals::SetError(kParseError_SkError, "SkWriteBuffer::writeBitmap "
-                                   "stored the SkBitmap in an SkBitmapHeap, but "
-                                   "that feature is no longer supported.");
+        // Old unsupported SkBitmapHeap format.  No longer supported.
     } else {
         // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
         const size_t length = this->readUInt();
@@ -246,13 +243,11 @@ sk_sp<SkImage> SkReadBuffer::readBitmapAsImage() {
                 return image;
             }
 
-            // This bitmap was encoded when written, but we are unable to decode, possibly due to
-            // not having a decoder.
-            SkErrorInternals::SetError(kParseError_SkError,
-                                       "Could not decode bitmap. Resulting bitmap will be empty.");
-            // Even though we weren't able to decode the pixels, the readbuffer should still be
-            // intact, so we return true with an empty bitmap, so we don't force an abort of the
-            // larger deserialize.
+            // This bitmap was encoded when written, but we are unable to
+            // decode, possibly due to not having a decoder.  Even though we
+            // weren't able to decode the pixels, the readbuffer should still
+            // be intact, so we return true with an empty bitmap, so we don't
+            // force an abort of the larger deserialize.
             return MakeEmptyImage(width, height);
         } else {
             SkBitmap bitmap;
@@ -315,7 +310,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     if (fInflator) {
         return sk_ref_sp(fInflator->getTypeface(this->read32()));
     }
-    
+
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
         return nullptr;

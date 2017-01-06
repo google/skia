@@ -104,7 +104,7 @@ public:
     }
 
 #ifdef SK_DEBUG
-    SkOpGlobalState* debugGlobalState() { return fDebugGlobalState; }
+    SkOpGlobalState* globalState() const { return fDebugGlobalState; }
 #endif
 
     bool hasT(double t) const {
@@ -308,9 +308,9 @@ private:
     void cleanUpParallelLines(bool parallel);
     void computePoints(const SkDLine& line, int used);
 
-    SkDPoint fPt[12];  // FIXME: since scans store points as SkPoint, this should also
+    SkDPoint fPt[13];  // FIXME: since scans store points as SkPoint, this should also
     SkDPoint fPt2[2];  // used by nearly same to store alternate intersection point
-    double fT[2][12];
+    double fT[2][13];
     uint16_t fIsCoincident[2];  // bit set for each curve's coincident T
     bool fNearlySame[2];  // true if end points nearly match
     unsigned char fUsed;

@@ -226,8 +226,11 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
 
     if (fVertexUniformBuffer.get() || fFragmentUniformBuffer.get()) {
-        if (fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer) ||
-            !fUniformDescriptorSet) {
+        if (fDataManager.uploadUniformBuffers(gpu,
+                                              fVertexUniformBuffer.get(),
+                                              fFragmentUniformBuffer.get())
+            || !fUniformDescriptorSet)
+        {
             if (fUniformDescriptorSet) {
                 fUniformDescriptorSet->recycle(gpu);
             }
@@ -492,6 +495,7 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPrimitiveProcessor& primProc,
                                     const GrPipeline& pipeline,
+                                    const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
                                     const GrGLSLCaps& caps) {
     if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
@@ -503,7 +507,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
-    pipeline.getStencil().genKey(&b);
+    stencil.genKey(&b);
 
     SkASSERT(sizeof(GrDrawFace) <= sizeof(uint32_t));
     b.add32((int32_t)pipeline.getDrawFace());

@@ -27,6 +27,7 @@
     '../tests/PathOpsBuilderConicTest.cpp',
     '../tests/PathOpsBuilderTest.cpp',
     '../tests/PathOpsBuildUseTest.cpp',
+    '../tests/PathOpsChalkboardTest.cpp',
     '../tests/PathOpsConicIntersectionTest.cpp',
     '../tests/PathOpsConicLineIntersectionTest.cpp',
     '../tests/PathOpsConicQuadIntersectionTest.cpp',

@@ -189,9 +189,6 @@ public:
                                          &GrProcessor::textureAccess>;
 
 protected:
-    void addTextureAccess(const GrTextureAccess* textureAccess) override;
-    void addBufferAccess(const GrBufferAccess*) override;
-
     /**
      * Fragment Processor subclasses call this from their constructor to register coordinate
      * transformations. Coord transforms provide a mechanism for a processor to receive coordinates

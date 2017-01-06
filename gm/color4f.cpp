@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace_Base.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 
@@ -46,7 +47,7 @@ static sk_sp<SkColorFilter> make_cf1() {
 }
 
 static sk_sp<SkColorFilter> make_cf2() {
-    return SkColorFilter::MakeModeFilter(0x8044CC88, SkXfermode::kSrcATop_Mode);
+    return SkColorFilter::MakeModeFilter(0x8044CC88, SkBlendMode::kSrcATop);
 }
 
 static void draw_into_canvas(SkCanvas* canvas) {
@@ -75,7 +76,7 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 
     sk_sp<SkColorSpace> colorSpaces[]{
         nullptr,
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)
+        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)
     };
     for (auto colorSpace : colorSpaces) {
         const SkImageInfo info = SkImageInfo::Make(1024, 100, kN32_SkColorType, kPremul_SkAlphaType,
@@ -91,12 +92,15 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkColorSpace.h"
 
-DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
+DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
 
+    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-    // red -> blue, green -> red, blue -> green
+    // red -> blue, green -> red, blue -> green (sRGB)
     mat.set3x3(0, 0, 1, 1, 0, 0, 0, 1, 0);
+    mat.postConcat(*as_CSB(srgb)->toXYZD50());
 
     const SkColor4f colors[] {
         { 1, 0, 0, 1 },
@@ -111,9 +115,9 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
     for (const auto& c4 : colors) {
         sk_sp<SkShader> shaders[] {
             SkShader::MakeColorShader(c4, nullptr),
-            SkShader::MakeColorShader(c4, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)),
+            SkShader::MakeColorShader(c4, srgb),
             SkShader::MakeColorShader(c4,
-                    SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
+                    SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
         };
 
         canvas->save();

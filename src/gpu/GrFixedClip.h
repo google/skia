@@ -43,7 +43,7 @@ public:
     bool quickContains(const SkRect&) const override;
     void getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const override;
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override;
-    bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip* out) const override;
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out) const override;
 
     static const GrFixedClip& Disabled();
 

@@ -49,7 +49,7 @@ protected:
     void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                           const SkRect& dst, const SkPaint* paint) override;
     void onDrawVertices(VertexMode vMode, int vertexCount, const SkPoint vertices[],
-                        const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
+                        const SkPoint texs[], const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint& paint) override;
 
@@ -70,7 +70,7 @@ protected:
                         const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkXfermode* xmode,
+                     const SkPoint texCoords[4], SkBlendMode,
                      const SkPaint& paint) override;
 
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
@@ -78,7 +78,7 @@ protected:
                          SrcRectConstraint) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[],
-                     const SkColor[], int count, SkXfermode::Mode,
+                     const SkColor[], int count, SkBlendMode,
                      const SkRect* cull, const SkPaint*) override;
     void onDrawImageNine(const SkImage*, const SkIRect& center,
                          const SkRect& dst, const SkPaint*) override;
@@ -100,10 +100,10 @@ protected:
     void didRestore() override;
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
-    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, SkRegion::Op) override;
+    void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, ClipOp) override;
     void onDiscard() override;
 
 protected:

@@ -235,10 +235,10 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
+        sk_sp<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerAAFillRect,
+                                     indexBuffer.get(), kVertsPerAAFillRect,
                                      kIndicesPerAAFillRect, fRectCnt);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");

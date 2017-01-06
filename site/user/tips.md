@@ -1,7 +1,6 @@
 Tips & FAQ
 ==========
 
-+   [Gyp Options](#gypdefines)
 +   [Bitmap Subsetting](#bitmap-subsetting)
 +   [Capture a `.skp` file on a web page in Chromium](#skp-capture)
 +   [Capture a `.mskp` file on a web page in Chromium](#mskp-capture)
@@ -11,68 +10,6 @@ Tips & FAQ
 +   [How do I add drop shadow on text?](#text-shadow)
 
 * * *
-
-<span id="gypdefines">Gyp Options</span>
-----------------------------------------
-
-When running `sync-and-gyp`, the `GYP_DEFINES` environment variable can
-be used to change Skia’s compile-time settings, using a
-space-separated list of key=value pairs. For example, to disable both
-the Skia GPU backend and PDF backends, run it as follows:
-
-<!--?prettify lang=sh?-->
-
-    GYP_DEFINES='skia_gpu=0 skia_pdf=0' python bin/sync-and-gyp
-    ninja -C out/Debug
-
-Note: Setting enviroment variables in the Windows CMD.EXE shell [uses a
-different syntax](/user/quick/windows#env).
-
-You can also set environment variables such as `CC`, `CXX`,
-`CFLAGS`, `CXXFLAGS`, or `CPPFLAGS` to control how Skia is compiled.
-To build with clang, for example:
-
-<!--?prettify lang=sh?-->
-
-    CC='clang' CXX='clang++' python bin/sync-and-gyp
-    ninja -C out/Debug
-
-To build with clang and enable a compiler warning for unused parameters in C++
-(but not C or assembly) code:
-
-<!--?prettify lang=sh?-->
-
-    CXXFLAGS='-Wunused-parameter' \
-        CC='clang' CXX='clang++' python bin/sync-and-gyp
-    ninja -C out/Debug
-
-
-The `GYP_GENERATORS` environment variable can be used to set the
-build systems that you want to use (as a comma-separated list).
-The default is `'ninja,msvs-ninja'` on Windows, `'ninja,xcode'` on
-Mac OS X, and just `'ninja'` on Linux.  For example, to generate
-only Ninja files on Mac:
-
-<!--?prettify lang=sh?-->
-
-    GYP_GENERATORS='ninja' python bin/sync-and-gyp
-    ninja -C out/Debug
-
-Finally, the `SKIA_OUT` environment variable can be used to set
-the path for the build directory.  The default is `out` inside the
-top-level Skia source directory.  For example to test Skia with
-two different compilers:
-
-<!--?prettify lang=sh?-->
-
-    CC='clang' CXX='clang++' SKIA_OUT=~/build/skia_clang python bin/sync-and-gyp
-    CC='gcc'   CXX='g++'     SKIA_OUT=~/build/skia_gcc   python bin/sync-and-gyp
-    ninja -C ~/build/skia_clang/Debug
-    ninja -C ~/build/skia_gcc/Debug
-
-* * *
-
-
 
 <span id="bitmap-subsetting">Bitmap Subsetting</span>
 -----------------------------------------------------

@@ -9,34 +9,54 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkMatrix44.h"
+#include "SkSpinlock.h"
 
-static inline bool sk_float_almost_equals(float x, float y, float tol) {
-    return sk_float_abs(x - y) <= tol;
-}
+class GrColorSpaceXformCache {
+public:
+    using NewValueFn = std::function<sk_sp<GrColorSpaceXform>(void)>;
 
-static inline bool matrix_is_almost_identity(const SkMatrix44& m,
-                                             SkMScalar tol = SK_MScalar1 / (1 << 12)) {
-    return
-        sk_float_almost_equals(m.getFloat(0, 0), 1.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(0, 1), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(0, 2), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(0, 3), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(1, 0), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(1, 1), 1.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(1, 2), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(1, 3), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(2, 0), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(2, 1), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(2, 2), 1.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(2, 3), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(3, 0), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(3, 1), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(3, 2), 0.0f, tol) &&
-        sk_float_almost_equals(m.getFloat(3, 3), 1.0f, tol);
-}
+    GrColorSpaceXformCache() : fSequence(0) {}
+
+    sk_sp<GrColorSpaceXform> findOrAdd(uint64_t key, NewValueFn newValue) {
+        int oldest = 0;
+        for (int i = 0; i < kEntryCount; ++i) {
+            if (fEntries[i].fKey == key) {
+                fEntries[i].fLastUse = fSequence++;
+                return fEntries[i].fXform;
+            }
+            if (fEntries[i].fLastUse < fEntries[oldest].fLastUse) {
+                oldest = i;
+            }
+        }
+        fEntries[oldest].fKey = key;
+        fEntries[oldest].fXform = newValue();
+        fEntries[oldest].fLastUse = fSequence++;
+        return fEntries[oldest].fXform;
+    }
+
+private:
+    enum { kEntryCount = 32 };
+
+    struct Entry {
+        // The default Entry is "valid". Any 64-bit key that is the same 32-bit value repeated
+        // implies no xform is necessary, so nullptr should be returned. This particular case should
+        // never happen, but by initializing all entries with this data, we can avoid special cases
+        // for the array not yet being full.
+        Entry() : fKey(0), fXform(nullptr), fLastUse(0) {}
+
+        uint64_t fKey;
+        sk_sp<GrColorSpaceXform> fXform;
+        uint64_t fLastUse;
+    };
+
+    Entry fEntries[kEntryCount];
+    uint64_t fSequence;
+};
 
 GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) 
     : fSrcToDst(srcToDst) {}
+
+static SkSpinlock gColorSpaceXformCacheSpinlock;
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst) {
     if (!src || !dst) {
@@ -49,14 +69,41 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    srcToDst.setConcat(as_CSB(dst)->fromXYZD50(), as_CSB(src)->toXYZD50());
-
-    if (matrix_is_almost_identity(srcToDst)) {
+    const SkMatrix44* toXYZD50   = as_CSB(src)->toXYZD50();
+    const SkMatrix44* fromXYZD50 = as_CSB(dst)->fromXYZD50();
+    if (!toXYZD50 || !fromXYZD50) {
+        // unsupported colour spaces -- cannot specify gamut as a matrix
         return nullptr;
     }
 
-    return sk_make_sp<GrColorSpaceXform>(srcToDst);
+    uint32_t srcHash = as_CSB(src)->toXYZD50Hash();
+    uint32_t dstHash = as_CSB(dst)->toXYZD50Hash();
+    if (srcHash == dstHash) {
+        // Identical gamut - no conversion needed in this case
+        SkASSERT(*toXYZD50 == *as_CSB(dst)->toXYZD50() && "Hash collision");
+        return nullptr;
+    }
+
+    auto deferredResult = [fromXYZD50, toXYZD50]() {
+        SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
+        srcToDst.setConcat(*fromXYZD50, *toXYZD50);
+        return sk_make_sp<GrColorSpaceXform>(srcToDst);
+    };
+
+    if (gColorSpaceXformCacheSpinlock.tryAcquire()) {
+        static GrColorSpaceXformCache* gCache;
+        if (nullptr == gCache) {
+            gCache = new GrColorSpaceXformCache();
+        }
+
+        uint64_t key = static_cast<uint64_t>(srcHash) << 32 | static_cast<uint64_t>(dstHash);
+        sk_sp<GrColorSpaceXform> xform = gCache->findOrAdd(key, deferredResult);
+        gColorSpaceXformCacheSpinlock.release();
+        return xform;
+    } else {
+        // Rather than wait for the spin lock, just bypass the cache
+        return deferredResult();
+    }
 }
 
 bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b) {

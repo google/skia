@@ -26,12 +26,15 @@ public:
 
     const char* name() const override { return "Discard"; }
 
-    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->uniqueID(); }
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    GrGpuResource::UniqueID renderTargetUniqueID() const override {
+        return fRenderTarget.get()->uniqueID();
+    }
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: %d", fRenderTarget.get()->uniqueID());
+        string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -43,8 +46,8 @@ private:
 
     void onPrepare(GrBatchFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->discard(fRenderTarget.get());
+    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+        state->commandBuffer()->discard();
     }
 
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;

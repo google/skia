@@ -18,7 +18,7 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
   // texture and a
   // renderbuffer component, dump as skia/gpu_resources/resource_#/texture
   SkString dumpName("skia/gpu_resources/resource_");
-  dumpName.appendS32(this->uniqueID());
+  dumpName.appendU32(this->uniqueID().asUInt());
   dumpName.append("/texture");
 
   // Use the texture's gpuMemorySize, not our own, which includes the
@@ -44,9 +44,10 @@ bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     return true;
 }
 
-GrGLTextureRenderTarget* GrGLTextureRenderTarget::CreateWrapped(GrGLGpu* gpu,
-                                                                const GrSurfaceDesc& desc,
-                                                                const GrGLTexture::IDDesc& texIDDesc,
-                                                                const GrGLRenderTarget::IDDesc& rtIDDesc) {
-    return new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc);
+sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
+    GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
+{
+    return sk_sp<GrGLTextureRenderTarget>(
+        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, false));
 }

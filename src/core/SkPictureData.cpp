@@ -268,7 +268,7 @@ void SkPictureData::serialize(SkWStream* stream,
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
     SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
     buffer.setFactoryRecorder(&factSet);
-    buffer.setPixelSerializer(pixelSerializer);
+    buffer.setPixelSerializer(sk_ref_sp(pixelSerializer));
     buffer.setTypefaceRecorder(typefaceSet);
     this->flattenToBuffer(buffer);
 
@@ -577,7 +577,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
                                                SkImageDeserializer* factory,
                                                SkTypefacePlayback* topLevelTFPlayback) {
-    SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
+    std::unique_ptr<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
@@ -590,7 +590,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
 
 SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
                                                const SkPictInfo& info) {
-    SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
+    std::unique_ptr<SkPictureData> data(new SkPictureData(info));
     buffer.setVersion(info.getVersion());
 
     if (!data->parseBuffer(buffer)) {

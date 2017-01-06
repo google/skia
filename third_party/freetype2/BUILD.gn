@@ -4,12 +4,18 @@
 # found in the LICENSE file.
 
 declare_args() {
+  # TODO: false?  i.e. build from source all the time for testing?
+  skia_use_system_freetype2 = !(is_android || sanitize == "MSAN")
 }
 
 import("../third_party.gni")
 
-# TODO: build from source all the time?
-if (is_android || sanitize == "MSAN") {
+if (skia_use_system_freetype2) {
+  system("freetype2") {
+    include_dirs = [ "/usr/include/freetype2" ]
+    libs = [ "freetype" ]
+  }
+} else {
   third_party("freetype2") {
     public_include_dirs = [ "../externals/freetype/include" ]
 
@@ -52,13 +58,5 @@ if (is_android || sanitize == "MSAN") {
       "../externals/freetype/src/smooth/smooth.c",
       "../externals/freetype/src/truetype/truetype.c",
     ]
-  }
-} else {
-  config("system_freetype2") {
-    include_dirs = [ "/usr/include/freetype2" ]
-    libs = [ "freetype" ]
-  }
-  group("freetype2") {
-    public_configs = [ ":system_freetype2" ]
   }
 }

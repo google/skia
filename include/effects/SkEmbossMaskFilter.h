@@ -25,12 +25,6 @@ public:
 
     static sk_sp<SkMaskFilter> Make(SkScalar blurSigma, const Light& light);
     
-#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
-    static SkMaskFilter* Create(SkScalar blurSigma, const Light& light) {
-        return Make(blurSigma, light).release();
-    }
-#endif
-
     // overrides from SkMaskFilter
     //  This method is not exported to java.
     SkMask::Format getFormat() const override;

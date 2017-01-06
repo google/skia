@@ -13,7 +13,7 @@
 #include "Test.h"
 
 static struct lineQuad {
-    SkDQuad quad;
+    QuadPts quad;
     SkDLine line;
     int result;
     SkDPoint expected[2];
@@ -56,7 +56,7 @@ static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, cons
 }
 
 static struct oneLineQuad {
-    SkDQuad quad;
+    QuadPts quad;
     SkDLine line;
 } oneOffs[] = {
     {{{{97.9337616,100}, {88,112.94265}, {88,130}}},
@@ -79,7 +79,9 @@ static size_t oneOffs_count = SK_ARRAY_COUNT(oneOffs);
 static void testOneOffs(skiatest::Reporter* reporter) {
     bool flipped = false;
     for (size_t index = 0; index < oneOffs_count; ++index) {
-        const SkDQuad& quad = oneOffs[index].quad;
+        const QuadPts& q = oneOffs[index].quad;
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         SkASSERT(ValidQuad(quad));
         const SkDLine& line = oneOffs[index].line;
         SkASSERT(ValidLine(line));
@@ -106,7 +108,9 @@ DEF_TEST(PathOpsQuadLineIntersectionOneOff, reporter) {
 DEF_TEST(PathOpsQuadLineIntersection, reporter) {
     for (size_t index = 0; index < lineQuadTests_count; ++index) {
         int iIndex = static_cast<int>(index);
-        const SkDQuad& quad = lineQuadTests[index].quad;
+        const QuadPts& q = lineQuadTests[index].quad;
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         SkASSERT(ValidQuad(quad));
         const SkDLine& line = lineQuadTests[index].line;
         SkASSERT(ValidLine(line));

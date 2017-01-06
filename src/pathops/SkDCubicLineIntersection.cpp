@@ -122,6 +122,7 @@ public:
         double adj = fLine[1].fX - fLine[0].fX;
         double opp = fLine[1].fY - fLine[0].fY;
         SkDCubic c;
+        SkDEBUGCODE(c.fDebugGlobalState = fIntersections->globalState());
         for (int n = 0; n < 4; ++n) {
             c[n].fX = (fCubic[n].fY - fLine[0].fY) * adj - (fCubic[n].fX - fLine[0].fX) * opp;
         }

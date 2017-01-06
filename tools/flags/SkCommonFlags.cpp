@@ -7,6 +7,7 @@
 
 #include "SkCommonFlags.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 
@@ -50,8 +51,8 @@ DEFINE_string(skps, "skps", "Directory to read skps from.");
 
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
-DEFINE_int32(threads, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
-                          "defaulting to one extra thread per core.");
+DEFINE_int32_2(threads, j, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
+                               "defaulting to one extra thread per core.");
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
@@ -64,6 +65,8 @@ DEFINE_string(key, "",
 DEFINE_string(properties, "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
 DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehensible when threading");
+
+DEFINE_bool(analyticAA, false, "Analytic Anati-Alias");
 
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);

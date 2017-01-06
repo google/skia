@@ -29,6 +29,7 @@ public:
                                         const SkStrokeRec& stroke,
                                         const GrShaderCaps* shaderCaps);
     static GrDrawBatch* CreateRRectBatch(GrColor,
+                                         bool needsDistance,
                                          const SkMatrix& viewMatrix,
                                          const SkRRect& rrect,
                                          const SkStrokeRec& stroke,

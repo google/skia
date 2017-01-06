@@ -23,7 +23,7 @@ SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
     if (nullptr == codec) {
         return nullptr;
     }
@@ -36,9 +36,7 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
 #ifdef SK_HAS_JPEG_LIBRARY
         case kJPEG_SkEncodedFormat:
 #endif
-#ifdef SK_HAS_GIF_LIBRARY
         case kGIF_SkEncodedFormat:
-#endif
         case kBMP_SkEncodedFormat:
         case kWBMP_SkEncodedFormat:
             return new SkSampledCodec(codec.release());

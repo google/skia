@@ -143,7 +143,7 @@ private:
         kPathsPerGroup = 16 // Paths get tracked in groups of 16 for lazy loading.
     };
 
-    mutable SkAutoTUnref<PathGenerator> fPathGenerator;
+    mutable sk_sp<PathGenerator> fPathGenerator;
     mutable SkTArray<uint8_t, true /*MEM_COPY*/> fGeneratedPaths;
     const int fNumPaths;
 

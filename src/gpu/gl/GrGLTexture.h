@@ -56,10 +56,10 @@ public:
 
     GrGLenum target() const { return fInfo.fTarget; }
 
-    static GrGLTexture* CreateWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 protected:
     // Constructor for subclasses.
-    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided);
 
     enum Wrapped { kWrapped };
     // Constructor for instances wrapping backend objects.

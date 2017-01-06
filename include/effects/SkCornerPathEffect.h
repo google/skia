@@ -24,12 +24,6 @@ public:
         return sk_sp<SkPathEffect>(new SkCornerPathEffect(radius));
     }
 
-#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
-    static SkPathEffect* Create(SkScalar radius) {
-        return Make(radius).release();
-    }
-#endif
-
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const override;
 

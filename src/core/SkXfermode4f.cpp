@@ -7,7 +7,7 @@
 
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include "Sk4x4f.h"
 
 static SkPM4f rgba_to_pmcolor_order(const SkPM4f& x) {
@@ -73,10 +73,10 @@ static void store_4_srgb(void* ptr, const Sk4x4f& p) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <DstType D> void general_1(const SkXfermode* xfer, uint32_t dst[],
+template <DstType D> void general_1(SkBlendMode mode, uint32_t dst[],
                                     const SkPM4f* src, int count, const SkAlpha aa[]) {
     const SkPM4f s = rgba_to_pmcolor_order(*src);
-    SkXfermodeProc4f proc = xfer->getProc4f();
+    SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -94,9 +94,9 @@ template <DstType D> void general_1(const SkXfermode* xfer, uint32_t dst[],
     }
 }
 
-template <DstType D> void general_n(const SkXfermode* xfer, uint32_t dst[],
+template <DstType D> void general_n(SkBlendMode mode, uint32_t dst[],
                                     const SkPM4f src[], int count, const SkAlpha aa[]) {
-    SkXfermodeProc4f proc = xfer->getProc4f();
+    SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -123,8 +123,8 @@ const SkXfermode::D32Proc gProcs_General[] = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void clear_linear(const SkXfermode*, uint32_t dst[], const SkPM4f[],
-                           int count, const SkAlpha aa[]) {
+static void clear_linear(SkBlendMode, uint32_t dst[], const SkPM4f[], int count,
+                         const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
             unsigned a = aa[i];
@@ -142,8 +142,7 @@ static void clear_linear(const SkXfermode*, uint32_t dst[], const SkPM4f[],
     }
 }
 
-static void clear_srgb(const SkXfermode*, uint32_t dst[], const SkPM4f[],
-                       int count, const SkAlpha aa[]) {
+static void clear_srgb(SkBlendMode, uint32_t dst[], const SkPM4f[], int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
             if (aa[i]) {
@@ -165,8 +164,8 @@ const SkXfermode::D32Proc gProcs_Clear[] = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <DstType D> void src_n(const SkXfermode*, uint32_t dst[],
-                                const SkPM4f src[], int count, const SkAlpha aa[]) {
+template <DstType D> void src_n(SkBlendMode, uint32_t dst[], const SkPM4f src[], int count,
+                                const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
         unsigned a = 0xFF;
         if (aa) {
@@ -188,8 +187,8 @@ static Sk4f lerp(const Sk4f& src, const Sk4f& dst, const Sk4f& src_scale) {
     return dst + (src - dst) * src_scale;
 }
 
-template <DstType D> void src_1(const SkXfermode*, uint32_t dst[],
-                                const SkPM4f* src, int count, const SkAlpha aa[]) {
+template <DstType D> void src_1(SkBlendMode, uint32_t dst[], const SkPM4f* src, int count,
+                                const SkAlpha aa[]) {
     const Sk4f s4 = src->to4f_pmorder();
 
     if (aa) {
@@ -225,7 +224,7 @@ const SkXfermode::D32Proc gProcs_Src[] = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void dst(const SkXfermode*, uint32_t dst[], const SkPM4f[], int count, const SkAlpha aa[]) {}
+static void dst(SkBlendMode, uint32_t dst[], const SkPM4f[], int count, const SkAlpha aa[]) {}
 
 const SkXfermode::D32Proc gProcs_Dst[] = {
     dst, dst, dst, dst, dst, dst, dst, dst,
@@ -234,8 +233,8 @@ const SkXfermode::D32Proc gProcs_Dst[] = {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
-                                    const SkPM4f src[], int count, const SkAlpha aa[]) {
+template <DstType D> void srcover_n(SkBlendMode, uint32_t dst[], const SkPM4f src[], int count,
+                                    const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
             unsigned a = aa[i];
@@ -276,8 +275,8 @@ template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
     }
 }
 
-static void srcover_linear_dst_1(const SkXfermode*, uint32_t dst[],
-                                 const SkPM4f* src, int count, const SkAlpha aa[]) {
+static void srcover_linear_dst_1(SkBlendMode, uint32_t dst[], const SkPM4f* src, int count,
+                                 const SkAlpha aa[]) {
     const Sk4f s4 = src->to4f_pmorder();
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
 
@@ -305,8 +304,8 @@ static void srcover_linear_dst_1(const SkXfermode*, uint32_t dst[],
     }
 }
 
-static void srcover_srgb_dst_1(const SkXfermode*, uint32_t dst[],
-                               const SkPM4f* src, int count, const SkAlpha aa[]) {
+static void srcover_srgb_dst_1(SkBlendMode, uint32_t dst[], const SkPM4f* src, int count,
+                               const SkAlpha aa[]) {
     Sk4f s4 = src->to4f_pmorder();
     Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
 
@@ -360,31 +359,19 @@ const SkXfermode::D32Proc gProcs_SrcOver[] = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static SkXfermode::D32Proc find_proc(SkXfermode::Mode mode, uint32_t flags) {
+SkXfermode::D32Proc SkXfermode::GetD32Proc(SkBlendMode mode, uint32_t flags) {
     SkASSERT(0 == (flags & ~7));
     flags &= 7;
 
     switch (mode) {
-        case SkXfermode::kClear_Mode:   return gProcs_Clear[flags];
-        case SkXfermode::kSrc_Mode:     return gProcs_Src[flags];
-        case SkXfermode::kDst_Mode:     return gProcs_Dst[flags];
-        case SkXfermode::kSrcOver_Mode: return gProcs_SrcOver[flags];
+        case SkBlendMode::kClear:   return gProcs_Clear[flags];
+        case SkBlendMode::kSrc:     return gProcs_Src[flags];
+        case SkBlendMode::kDst:     return gProcs_Dst[flags];
+        case SkBlendMode::kSrcOver: return gProcs_SrcOver[flags];
         default:
             break;
     }
     return gProcs_General[flags];
-}
-
-SkXfermode::D32Proc SkXfermode::onGetD32Proc(uint32_t flags) const {
-    SkASSERT(0 == (flags & ~7));
-    flags &= 7;
-
-    Mode mode;
-    return this->asMode(&mode) ? find_proc(mode, flags) : gProcs_General[flags];
-}
-
-SkXfermode::D32Proc SkXfermode::GetD32Proc(SkXfermode* xfer, uint32_t flags) {
-    return xfer ? xfer->onGetD32Proc(flags) : find_proc(SkXfermode::kSrcOver_Mode, flags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -468,7 +468,7 @@ void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
 
 void SkDumpCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
+                                  const SkColor colors[], SkBlendMode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] %g %g ...)",
@@ -477,7 +477,7 @@ void SkDumpCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPoint texCoords[4], SkBlendMode,
                                const SkPaint& paint) {
     //dumps corner points and colors in clockwise order starting on upper-left corner
     this->dump(kDrawPatch_Verb, &paint, "drawPatch(Vertices{[%f, %f], [%f, %f], [%f, %f], [%f, %f]}\
@@ -541,7 +541,7 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
     if (p) {
         msg.appendf(" color:0x%08X flags:%X", p->getColor(), p->getFlags());
         if (!p->isSrcOver()) {
-            msg.appendf(" blendmode:%d", p->getBlendMode());
+            msg.appendf(" blendmode:%d", (int)p->getBlendMode());
         }
         appendFlattenable(&msg, p->getShader(), "shader");
         appendFlattenable(&msg, p->getPathEffect(), "pathEffect");

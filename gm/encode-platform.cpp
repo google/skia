@@ -96,7 +96,7 @@ protected:
         make_unpremul_256(&unpremulBm);
 
         for (SkImageEncoder::Type type : kTypes) {
-            SkAutoTDelete<SkImageEncoder> encoder(make_encoder(type));
+            std::unique_ptr<SkImageEncoder> encoder(make_encoder(type));
             sk_sp<SkData> opaqueData(encoder->encodeData(opaqueBm, 100));
             sk_sp<SkData> premulData(encoder->encodeData(premulBm, 100));
             sk_sp<SkData> unpremulData(encoder->encodeData(unpremulBm, 100));

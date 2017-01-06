@@ -80,6 +80,11 @@ public:
 
     virtual sk_sp<SkSurface> makeSurface();
 
+#if SK_SUPPORT_GPU
+    sk_sp<SkSurface> makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
+                                          const GrGLInterface* , GrContext* grContext);
+#endif
+
 protected:
     virtual bool onEvent(const SkEvent&);
     virtual bool onDispatchClick(int x, int y, Click::State, void* owner, unsigned modi);
@@ -88,19 +93,14 @@ protected:
     virtual bool onHandleChar(SkUnichar);
     virtual bool onHandleKey(SkKey);
     virtual bool onHandleKeyUp(SkKey);
-    virtual void onAddMenu(const SkOSMenu*) {};
-    virtual void onUpdateMenu(const SkOSMenu*) {};
+    virtual void onAddMenu(const SkOSMenu*) {}
+    virtual void onUpdateMenu(const SkOSMenu*) {}
     virtual void onSetTitle(const char title[]) {}
 
     // overrides from SkView
     virtual bool handleInval(const SkRect*);
     virtual bool onGetFocusView(SkView** focus) const;
     virtual bool onSetFocusView(SkView* focus);
-
-#if SK_SUPPORT_GPU
-    sk_sp<SkSurface> makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
-                                          const GrGLInterface* , GrContext* grContext);
-#endif
 
 private:
     SkSurfaceProps  fSurfaceProps;

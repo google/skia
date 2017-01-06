@@ -189,8 +189,8 @@ static SkImageGenerator* make_ctable_generator(GrContext*, SkPicture* pic) {
     SkImageInfo info = SkImageInfo::Make(100, 100, kIndex_8_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm2;
-    SkAutoTUnref<SkColorTable> ct(new SkColorTable(colors, count));
-    bm2.allocPixels(info, nullptr, ct);
+    sk_sp<SkColorTable> ct(new SkColorTable(colors, count));
+    bm2.allocPixels(info, nullptr, ct.get());
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             *bm2.getAddr8(x, y) = find_closest(*bm.getAddr32(x, y), colors, count);
@@ -239,12 +239,12 @@ protected:
         desc.fHeight = subset->height();
 
         GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture, *subset, SkIPoint::Make(0, 0));
+        fCtx->copySurface(dst, fTexture.get(), *subset, SkIPoint::Make(0, 0));
         return dst;
     }
 private:
-    SkAutoTUnref<GrContext> fCtx;
-    SkAutoTUnref<GrTexture> fTexture;
+    sk_sp<GrContext> fCtx;
+    sk_sp<GrTexture> fTexture;
 };
 static SkImageGenerator* make_tex_generator(GrContext* ctx, SkPicture* pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
@@ -260,8 +260,8 @@ class ImageCacheratorGM : public skiagm::GM {
     SkString                         fName;
     SkImageGenerator*                (*fFactory)(GrContext*, SkPicture*);
     sk_sp<SkPicture>                 fPicture;
-    SkAutoTDelete<SkImageCacherator> fCache;
-    SkAutoTDelete<SkImageCacherator> fCacheSubset;
+    std::unique_ptr<SkImageCacherator> fCache;
+    std::unique_ptr<SkImageCacherator> fCacheSubset;
 
 public:
     ImageCacheratorGM(const char suffix[], SkImageGenerator* (*factory)(GrContext*, SkPicture*))
@@ -314,10 +314,9 @@ protected:
 
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
-        SkAutoTUnref<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
-                                                             GrTextureParams::ClampBilerp(),
-                                                             SkSourceGammaTreatment::kRespect,
-                                                             nullptr));
+        sk_sp<GrTexture> texture(
+            cache->lockAsTexture(canvas->getGrContext(), GrTextureParams::ClampBilerp(),
+                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware, nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;
@@ -330,11 +329,12 @@ protected:
             return;
         }
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        SkAutoTUnref<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
-                                                    cache->uniqueID(), kPremul_SkAlphaType, texture,
-                                                    sk_ref_sp(cache->info().colorSpace()),
-                                                    SkBudgeted::kNo));
-        canvas->drawImage(image, x, y);
+        sk_sp<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
+                                             cache->uniqueID(), kPremul_SkAlphaType,
+                                             std::move(texture),
+                                             sk_ref_sp(cache->info().colorSpace()),
+                                             SkBudgeted::kNo));
+        canvas->drawImage(image.get(), x, y);
 #endif
     }
 
@@ -345,11 +345,11 @@ protected:
         // Draw the tex first, so it doesn't hit a lucky cache from the raster version. This
         // way we also can force the generateTexture call.
 
-        draw_as_tex(canvas, fCache, 310, 0);
-        draw_as_tex(canvas, fCacheSubset, 310+101, 0);
+        draw_as_tex(canvas, fCache.get(), 310, 0);
+        draw_as_tex(canvas, fCacheSubset.get(), 310+101, 0);
 
-        draw_as_bitmap(canvas, fCache, 150, 0);
-        draw_as_bitmap(canvas, fCacheSubset, 150+101, 0);
+        draw_as_bitmap(canvas, fCache.get(), 150, 0);
+        draw_as_bitmap(canvas, fCacheSubset.get(), 150+101, 0);
     }
 
     void onDraw(SkCanvas* canvas) override {

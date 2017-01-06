@@ -39,6 +39,8 @@ public:
 
     Symbol* takeOwnership(Symbol* s);
 
+    void markAllFunctionsBuiltin();
+
     const std::shared_ptr<SymbolTable> fParent;
 
 private:

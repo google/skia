@@ -23,9 +23,6 @@
         'skia_lib.gyp:skia_lib',
         'zlib.gyp:zlib',
       ],
-      'includes': [
-        'pdf.gypi',
-      ],
       'include_dirs': [
         '../include/private',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
@@ -33,7 +30,7 @@
         '../src/utils', # needed to get SkBitSet.h
       ],
       'sources': [
-        'pdf.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/pdf.gni skia_pdf_sources)',
       ],
       'conditions': [
         [ 'skia_pdf_use_sfntly and not skia_android_framework and \

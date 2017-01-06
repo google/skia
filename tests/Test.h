@@ -92,7 +92,6 @@ extern bool IsGLContextType(GrContextFactoryContextType);
 extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsNullGLContextType(GrContextFactoryContextType);
-
 void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*,
                             Reporter*, sk_gpu_test::GrContextFactory*);
 

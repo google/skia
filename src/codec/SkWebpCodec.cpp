@@ -36,7 +36,7 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 // bytes again.
 // Returns an SkWebpCodec on success;
 SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
 
     // Webp demux needs a contiguous data buffer.
     sk_sp<SkData> data = nullptr;
@@ -63,11 +63,11 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-        colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+        colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
 
     if (!colorSpace) {
-        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|
@@ -197,10 +197,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kInvalidConversion;
     }
 
-    std::unique_ptr<SkColorSpaceXform> colorXform = nullptr;
-    if (needs_color_xform(dstInfo, this->getInfo())) {
-        colorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(colorXform);
+    if (!this->initializeColorXform(dstInfo)) {
+        return kInvalidConversion;
     }
 
     WebPDecoderConfig config;
@@ -262,7 +260,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // color transform swizzle if necessary.
     // Lossy webp is encoded as YUV (so RGBA and BGRA are the same cost).  Lossless webp is
     // encoded as BGRA. This means decoding to BGRA is either faster or the same cost as RGBA.
-    config.output.colorspace = colorXform ? MODE_BGRA :
+    config.output.colorspace = this->colorXform() ? MODE_BGRA :
             webp_decode_mode(dstInfo.colorType(), dstInfo.alphaType() == kPremul_SkAlphaType);
     config.output.is_external_memory = 1;
 
@@ -307,7 +305,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             return kInvalidInput;
     }
 
-    if (colorXform) {
+    if (this->colorXform()) {
         SkColorSpaceXform::ColorFormat dstColorFormat = select_xform_format(dstInfo.colorType());
         SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
@@ -315,8 +313,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
         size_t srcRowBytes = config.output.u.RGBA.stride;
         for (int y = 0; y < rowsDecoded; y++) {
-            colorXform->apply(dst, src, dstInfo.width(), dstColorFormat,
-                              SkColorSpaceXform::kBGRA_8888_ColorFormat, xformAlphaType);
+            SkAssertResult(this->colorXform()->apply(dstColorFormat, dst,
+                    SkColorSpaceXform::kBGRA_8888_ColorFormat, src, dstInfo.width(),
+                    xformAlphaType));
             dst = SkTAddOffset<void>(dst, rowBytes);
             src = SkTAddOffset<uint32_t>(src, srcRowBytes);
         }

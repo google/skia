@@ -37,8 +37,7 @@ static sk_sp<SkImageFilter> make_grayscale(sk_sp<SkImageFilter> input) {
 }
 
 static sk_sp<SkImageFilter> make_mode_blue(sk_sp<SkImageFilter> input) {
-    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
-                                                              SkXfermode::kSrcIn_Mode));
+    sk_sp<SkColorFilter> filter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkBlendMode::kSrcIn));
     return SkColorFilterImageFilter::Make(std::move(filter), std::move(input));
 }
 

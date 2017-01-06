@@ -49,7 +49,7 @@ protected:
 
         // this combination of emboss+colorfilter used to crash -- so we exercise it to
         // confirm that we have a fix.
-        paint.setColorFilter(SkColorFilter::MakeModeFilter(0xFFFF0000, SkXfermode::kSrcATop_Mode));
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(0xFFFF0000, SkBlendMode::kSrcATop));
         canvas->translate(bm.width() + SkIntToScalar(10), 0);
         canvas->drawBitmap(bm, 10, 10, &paint);
     }

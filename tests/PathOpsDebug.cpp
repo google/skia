@@ -13,8 +13,6 @@
 #include "SkOpSegment.h"
 #include "SkString.h"
 
-extern bool FLAGS_runFail;
-
 inline void DebugDumpDouble(double x) {
     if (x == floor(x)) {
         SkDebugf("%.0f", x);

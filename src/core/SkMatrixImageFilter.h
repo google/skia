@@ -34,14 +34,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkMatrix& transform,
-                                 SkFilterQuality filterQuality,
-                                 SkImageFilter* input = nullptr) {
-        return Make(transform, filterQuality, sk_ref_sp<SkImageFilter>(input)).release();
-    }
-#endif
-
 protected:
     SkMatrixImageFilter(const SkMatrix& transform,
                         SkFilterQuality,

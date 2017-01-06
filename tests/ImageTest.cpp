@@ -110,7 +110,7 @@ static sk_sp<SkImage> create_image_ct() {
         SkPreMultiplyARGB(0x80, 0x00, 0xA0, 0xFF),
         SkPreMultiplyARGB(0xFF, 0xBB, 0x00, 0xBB)
     };
-    SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
+    sk_sp<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
     uint8_t data[] = {
         0, 0, 0, 0, 0,
         0, 1, 1, 1, 0,
@@ -119,7 +119,7 @@ static sk_sp<SkImage> create_image_ct() {
         0, 0, 0, 0, 0
     };
     SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable));
+    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable.get()));
 }
 static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
@@ -295,8 +295,8 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
         picture->serialize(&wstream, serializers[i]);
         REPORTER_ASSERT(reporter, serializers[i]->didEncode());
 
-        SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
-        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream));
+        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream.get()));
         REPORTER_ASSERT(reporter, deserialized);
         REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
     }
@@ -307,14 +307,14 @@ DEF_TEST(Image_NewRasterCopy, reporter) {
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
     const SkPMColor blue =  SkPackARGB32(0xFF, 0, 0, 0xFF);
     SkPMColor colors[] = { red, green, blue, 0 };
-    SkAutoTUnref<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
+    sk_sp<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
     // The colortable made a copy, so we can trash the original colors
     memset(colors, 0xFF, sizeof(colors));
 
     const SkImageInfo srcInfo = SkImageInfo::Make(2, 2, kIndex_8_SkColorType, kPremul_SkAlphaType);
     const size_t srcRowBytes = 2 * sizeof(uint8_t);
     uint8_t indices[] = { 0, 1, 2, 3 };
-    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(srcInfo, indices, srcRowBytes, ctable)));
+    auto image = SkImage::MakeRasterCopy(SkPixmap(srcInfo, indices, srcRowBytes, ctable.get()));
     // The image made a copy, so we can trash the original indices
     memset(indices, 0xFF, sizeof(indices));
 
@@ -556,11 +556,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
     SkBitmap bm;
-    SkAutoTUnref<SkColorTable> ctable(
-            new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
-    SkImageInfo info =
-            SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    bm.allocPixels(info, nullptr, ctable);
+    sk_sp<SkColorTable> ctable( new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
+    SkImageInfo info = SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
+    bm.allocPixels(info, nullptr, ctable.get());
     SkAutoLockPixels autoLockPixels(bm);
     *bm.getAddr8(0, 0) = 0;
     sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));
@@ -799,7 +797,7 @@ struct TextureReleaseChecker {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     GrBackendTextureDesc backendDesc;
     backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
@@ -889,7 +887,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
-    SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
 
     GrContextFactory otherFactory;
     ContextInfo otherContextInfo =
@@ -949,7 +947,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
         size_t size = image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                          static_cast<int>(testCase.fParams.size()),
-                                                         nullptr, SkSourceGammaTreatment::kIgnore);
+                                                         nullptr, nullptr);
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
             ERRORF(reporter,  "This image was expected to %s but did not.",
@@ -960,12 +958,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
             if (image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                    static_cast<int>(testCase.fParams.size()),
-                                                   misaligned, SkSourceGammaTreatment::kIgnore)) {
+                                                   misaligned, nullptr)) {
                 ERRORF(reporter, "Should fail when buffer is misaligned.");
             }
             if (!image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                     static_cast<int>(testCase.fParams.size()),
-                                                    buffer, SkSourceGammaTreatment::kIgnore)) {
+                                                    buffer, nullptr)) {
                 ERRORF(reporter, "deferred image size succeeded but creation failed.");
             } else {
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {

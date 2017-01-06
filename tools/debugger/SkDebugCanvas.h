@@ -21,7 +21,7 @@
 class GrAuditTrail;
 class SkNWayCanvas;
 
-class SK_API SkDebugCanvas : public SkCanvas {
+class SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
 
@@ -205,7 +205,7 @@ protected:
     void didSetMatrix(const SkMatrix &) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-    void didTranslateZ(SkScalar) override; 
+    void didTranslateZ(SkScalar) override;
 #else
     void didTranslateZ(SkScalar);
 #endif
@@ -226,7 +226,7 @@ protected:
                         const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) override;
+                     const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
     void onDrawPaint(const SkPaint&) override;
 
     void onDrawRect(const SkRect&, const SkPaint&) override;
@@ -236,7 +236,7 @@ protected:
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SkXfermode* xmode,
+                        const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
@@ -288,8 +288,6 @@ private:
     SkColor fClipVizColor;
     bool fDrawGpuBatchBounds;
 
-    SkAutoTUnref<SkNWayCanvas> fPaintFilterCanvas;
-
     /**
         The active saveLayer commands at a given point in the renderering.
         Only used when "mega" visualization is enabled.
@@ -320,7 +318,6 @@ private:
 
     GrAuditTrail* getAuditTrail(SkCanvas*);
 
-    void updatePaintFilterCanvas();
     void drawAndCollectBatches(int n, SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 

@@ -47,7 +47,7 @@ protected:
                         const SkPaint& paint) override;
     void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                       const SkPoint verts[], const SkPoint texs[],
-                      const SkColor colors[], SkXfermode* xmode,
+                      const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint) override;
 
@@ -63,9 +63,9 @@ private:
     class AutoElement;
     class ResourceBucket;
 
-    SkXMLWriter*                  fWriter;
-    SkAutoTDelete<AutoElement>    fRootElement;
-    SkAutoTDelete<ResourceBucket> fResourceBucket;
+    SkXMLWriter*                    fWriter;
+    std::unique_ptr<AutoElement>    fRootElement;
+    std::unique_ptr<ResourceBucket> fResourceBucket;
 
     typedef SkBaseDevice INHERITED;
 };

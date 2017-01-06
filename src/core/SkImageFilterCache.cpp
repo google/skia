@@ -41,7 +41,7 @@ public:
             : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
 
         Key fKey;
-        SkAutoTUnref<SkSpecialImage> fImage;
+        sk_sp<SkSpecialImage> fImage;
         SkIPoint fOffset;
         static const Key& GetKey(const Value& v) {
             return v.fKey;
@@ -60,7 +60,7 @@ public:
                 fLRU.remove(v);
                 fLRU.addToHead(v);
             }
-            return v->fImage;
+            return v->fImage.get();
         }
         return nullptr;
     }

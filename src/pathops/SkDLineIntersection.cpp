@@ -152,7 +152,7 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
                         continue;
                     }
                     SkASSERT(a[iA] != b[nearer]);
-                    SkASSERT(iA == (bNearA[nearer] > 0.5));
+                    SkOPASSERT(iA == (bNearA[nearer] > 0.5));
                     insertNear(iA, nearer, a[iA], b[nearer]);
                     aNearB[iA] = -1;
                     bNearA[nearer] = -1;

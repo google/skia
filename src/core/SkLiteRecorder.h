@@ -72,12 +72,12 @@ public:
                          SrcRectConstraint) override;
 
     void onDrawPatch(const SkPoint[12], const SkColor[4],
-                     const SkPoint[4], SkXfermode*, const SkPaint&) override;
+                     const SkPoint[4], SkBlendMode, const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawVertices(VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
-                        SkXfermode*, const uint16_t[], int, const SkPaint&) override;
+                        SkBlendMode, const uint16_t[], int, const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                     int, SkXfermode::Mode, const SkRect*, const SkPaint*) override;
+                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;

@@ -428,7 +428,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         fontPackageBuffer.realloc(bytesWritten);
     }
 
-    SkAutoTDelete<SkMemoryStream> newStream(new SkMemoryStream());
+    std::unique_ptr<SkMemoryStream> newStream(new SkMemoryStream());
     newStream->setMemoryOwned(fontPackageBuffer.release(), bytesWritten + extra);
 
     SkTScopedComPtr<IStream> newIStream;
@@ -644,11 +644,11 @@ static const XPS_TILE_MODE XTM_XY = XPS_TILE_MODE_FLIPXY;
 //None is currently an internal hack so masks don't repeat (None+None only).
 static XPS_TILE_MODE SkToXpsTileMode[SkShader::kTileModeCount+1]
                                     [SkShader::kTileModeCount+1] = {
-           //Clamp //Repeat //Mirror //None
-/*Clamp */ XTM_N,  XTM_T,   XTM_Y,   XTM_N,
-/*Repeat*/ XTM_T,  XTM_T,   XTM_Y,   XTM_N,
-/*Mirror*/ XTM_X,  XTM_X,   XTM_XY,  XTM_X,
-/*None  */ XTM_N,  XTM_N,   XTM_Y,   XTM_N,
+               //Clamp  //Repeat //Mirror //None
+    /*Clamp */ {XTM_N,  XTM_T,   XTM_Y,   XTM_N},
+    /*Repeat*/ {XTM_T,  XTM_T,   XTM_Y,   XTM_N},
+    /*Mirror*/ {XTM_X,  XTM_X,   XTM_XY,  XTM_X},
+    /*None  */ {XTM_N,  XTM_N,   XTM_Y,   XTM_N},
 };
 
 HRESULT SkXPSDevice::createXpsImageBrush(
@@ -1181,7 +1181,7 @@ void SkXPSDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 void SkXPSDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],
-                               SkXfermode* xmode, const uint16_t indices[],
+                               SkBlendMode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
     //TODO: override this for XPS
     SkDEBUGF(("XPS drawVertices not yet implemented."));

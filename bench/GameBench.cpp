@@ -201,8 +201,7 @@ protected:
                         { SkIntToScalar(src.fRight), SkIntToScalar(src.fBottom) },
                     };
                     canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
-                                         4, verts, uvs, nullptr, nullptr,
-                                         indices, 6, p2);
+                                         4, verts, uvs, nullptr, indices, 6, p2);
                 } else {
                     canvas->drawBitmapRect(fAtlas, src, dst, &p,
                                            SkCanvas::kFast_SrcRectConstraint);

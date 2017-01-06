@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkNextID.h"
 
@@ -107,6 +108,12 @@ bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
     return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels);
 }
 
+bool SkImageGenerator::accessScaledImage(const SkRect& src, const SkMatrix& matrix,
+                                         SkFilterQuality fq, ScaledImageRec* rec) {
+    SkASSERT(fInfo.bounds().contains(src));
+    return this->onAccessScaledImage(src, matrix, fq, rec);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 SkData* SkImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
@@ -140,14 +147,14 @@ bool SkImageGenerator::tryGenerateBitmap(SkBitmap* bitmap, const SkImageInfo* in
 
     SkPMColor ctStorage[256];
     memset(ctStorage, 0xFF, sizeof(ctStorage)); // init with opaque-white for the moment
-    SkAutoTUnref<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
-    if (!bitmap->tryAllocPixels(allocator, ctable)) {
+    sk_sp<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
+    if (!bitmap->tryAllocPixels(allocator, ctable.get())) {
         // SkResourceCache's custom allcator can'thandle ctables, so it may fail on
         // kIndex_8_SkColorTable.
         // https://bug.skia.org/4355
 #if 1
         // ignroe the allocator, and see if we can succeed without it
-        if (!bitmap->tryAllocPixels(nullptr, ctable)) {
+        if (!bitmap->tryAllocPixels(nullptr, ctable.get())) {
             return reset_and_return_false(bitmap);
         }
 #else

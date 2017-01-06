@@ -27,7 +27,7 @@ protected:
 private:
     using INHERITED = GradientShaderBase4fContext;
 
-    template<DstType, TileMode>
+    template<DstType, ApplyPremul, TileMode>
     class LinearIntervalProcessor;
 
     template <DstType dstType, ApplyPremul premul>

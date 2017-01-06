@@ -11,6 +11,7 @@
 #include "SkImage.h"
 #include "SkPaint.h"
 #include "SkShader.h"
+#include "SkXfermodePriv.h"
 
 static bool changes_alpha(const SkPaint& paint) {
     SkColorFilter* cf = paint.getColorFilter();

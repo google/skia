@@ -114,7 +114,7 @@ protected:
         dstRect = SkRect::MakeXYWH(0, 0, 100, 100);
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(5, 5, 40, 40));
         sk_sp<SkColorFilter> greenCF = SkColorFilter::MakeModeFilter(SK_ColorGREEN,
-                                                                     SkXfermode::kSrc_Mode);
+                                                                     SkBlendMode::kSrc);
         sk_sp<SkImageFilter> green(SkColorFilterImageFilter::Make(std::move(greenCF),
                                                                   nullptr,
                                                                   &cropRect));

@@ -115,7 +115,7 @@ protected:
         };
 
         sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
-                                                              SkXfermode::kSrcIn_Mode));
+                                                              SkBlendMode::kSrcIn));
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                          SkImageFilter::CropRect::kHasAll_CropEdge);
         SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
@@ -144,7 +144,7 @@ protected:
             SkErodeImageFilter::Make(8, 8, nullptr, &cropRect),
             SkMergeImageFilter::Make(nullptr,
                                      std::move(cfOffset),
-                                     SkXfermode::kSrcOver_Mode,
+                                     SkBlendMode::kSrcOver,
                                      &cropRect),
             SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &bogusRect),
             SkColorFilterImageFilter::Make(cf, nullptr, &bogusRect),

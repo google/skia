@@ -121,19 +121,19 @@ sk_shader_t* sk_shader_new_compose(
     sk_sp<SkShader> s = SkShader::MakeComposeShader(
         sk_ref_sp(AsShader(shaderA)),
         sk_ref_sp(AsShader(shaderB)),
-        SkXfermode::kSrcOver_Mode);
+        SkBlendMode::kSrcOver);
     return ToShader(s.release());
 }
 
 sk_shader_t* sk_shader_new_compose_with_mode(
     sk_shader_t* shaderA,
     sk_shader_t* shaderB,
-    sk_xfermode_mode_t cmode) {
+    sk_blendmode_t cmode) {
 
     sk_sp<SkShader> s = SkShader::MakeComposeShader(
         sk_ref_sp(AsShader(shaderA)),
         sk_ref_sp(AsShader(shaderB)),
-        (SkXfermode::Mode)cmode);
+        (SkBlendMode)cmode);
     return ToShader(s.release());
 }
 

@@ -130,8 +130,6 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
                 "o_color = a_color;\n"
             "}\n");
 
-    const GrGLInterface* gl = ctx->interface();
-
     // setup fragment shader
     GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
@@ -155,7 +153,7 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
                 "%s = vec4(o_color, 1.0);\n"
             "}\n", fsOutName);
 
-    return CreateProgram(gl, vshaderTxt.c_str(), fshaderTxt.c_str());
+    return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
 
 template<typename Func>

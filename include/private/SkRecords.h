@@ -327,7 +327,7 @@ RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         PODArray<SkPoint> cubics;
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
-        sk_sp<SkXfermode> xmode);
+        SkBlendMode bmode);
 RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> atlas;
@@ -335,7 +335,7 @@ RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         PODArray<SkRect> texs;
         PODArray<SkColor> colors;
         int count;
-        SkXfermode::Mode mode;
+        SkBlendMode mode;
         Optional<SkRect> cull);
 RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
@@ -344,7 +344,7 @@ RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         PODArray<SkPoint> vertices;
         PODArray<SkPoint> texs;
         PODArray<SkColor> colors;
-        sk_sp<SkXfermode> xmode;
+        SkBlendMode bmode;
         PODArray<uint16_t> indices;
         int indexCount);
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548

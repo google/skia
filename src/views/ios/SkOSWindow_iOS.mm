@@ -53,7 +53,7 @@ void SkOSWindow::onAddMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onAddMenu:menu];
 }
 
-void SkOSWindow::onUpdateMenu(SkOSMenu* menu) {
+void SkOSWindow::onUpdateMenu(const SkOSMenu* menu) {
     [(SkUIView*)fHWND onUpdateMenu:menu];
 }
 

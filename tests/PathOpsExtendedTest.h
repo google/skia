@@ -8,14 +8,10 @@
 #define PathOpsExtendedTest_DEFINED
 
 #include "SkBitmap.h"
-#include "SkCommandLineFlags.h"
 #include "SkPath.h"
 #include "SkPathOpsTypes.h"
 #include "SkStream.h"
 #include "Test.h"
-
-DECLARE_bool(runFail);
-DECLARE_bool(runBinary);
 
 struct PathOpsThreadState;
 

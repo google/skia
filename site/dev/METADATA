@@ -1,4 +1,13 @@
 {
-  "dirOrder": ["chrome", "contrib", "design", "present", "runtime", "testing", "tools", "sheriffing"],
+  "dirOrder": [
+    "contrib",
+    "tools",
+    "testing",
+    "design",
+    "present",
+    "runtime",
+    "chrome",
+    "sheriffing"
+  ],
   "fileOrder": []
 }

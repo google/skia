@@ -183,15 +183,15 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // setup GrContext
-    SkAutoTUnref<const GrGLInterface> interface(GrGLCreateNativeInterface());
+    sk_sp<const GrGLInterface> interface(GrGLCreateNativeInterface());
 
     // To use NVPR, comment this out
     interface.reset(GrGLInterfaceRemoveNVPR(interface));
     SkASSERT(interface);
 
     // setup contexts
-    SkAutoTUnref<GrContext> grContext(GrContext::Create(kOpenGL_GrBackend,
-                                                        (GrBackendContext)interface.get()));
+    sk_sp<GrContext> grContext(GrContext::Create(kOpenGL_GrBackend,
+                                                 (GrBackendContext)interface.get()));
     SkASSERT(grContext);
 
     // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can

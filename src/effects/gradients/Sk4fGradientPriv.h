@@ -29,17 +29,6 @@ enum class DstType {
     F32,  // Linear float.  Used for shaders only.
 };
 
-template <ApplyPremul premul>
-inline SkPMColor trunc_from_4f_255(const Sk4f& c) {
-    SkPMColor pmc;
-    SkNx_cast<uint8_t>(c).store(&pmc);
-    if (premul == ApplyPremul::True) {
-        pmc = SkPreMultiplyARGB(SkGetPackedA32(pmc), SkGetPackedR32(pmc),
-                                SkGetPackedG32(pmc), SkGetPackedB32(pmc));
-    }
-    return pmc;
-}
-
 template <ApplyPremul>
 struct PremulTraits;
 
@@ -69,24 +58,34 @@ struct PremulTraits<ApplyPremul::True> {
 //
 //   - store4x()    Store 4 Sk4f values to dest (opportunistic optimization).
 //
-template <DstType, ApplyPremul premul = ApplyPremul::False>
+template <DstType, ApplyPremul premul>
 struct DstTraits;
 
 template <ApplyPremul premul>
 struct DstTraits<DstType::L32, premul> {
+    using PM   = PremulTraits<premul>;
     using Type = SkPMColor;
 
-    // For L32, we prescale the values by 255 to save a per-pixel multiplication.
+    // For L32, prescaling by 255 saves a per-pixel multiplication when premul is not needed.
     static Sk4f load(const SkPM4f& c) {
-        return c.to4f_pmorder() * Sk4f(255);
+        return premul == ApplyPremul::False
+            ? c.to4f_pmorder() * Sk4f(255)
+            : c.to4f_pmorder();
     }
 
     static void store(const Sk4f& c, Type* dst) {
-        *dst = trunc_from_4f_255<premul>(c);
+        if (premul == ApplyPremul::False) {
+            // c is prescaled by 255, just store.
+            SkNx_cast<uint8_t>(c).store(dst);
+        } else {
+            *dst = Sk4f_toL32(PM::apply(c));
+        }
     }
 
     static void store(const Sk4f& c, Type* dst, int n) {
-        sk_memset32(dst, trunc_from_4f_255<premul>(c), n);
+        Type pmc;
+        store(c, &pmc);
+        sk_memset32(dst, pmc, n);
     }
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,

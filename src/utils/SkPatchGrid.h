@@ -87,8 +87,7 @@ public:
         kColorsAndTexs_VertexType = 0x03
     };
 
-    SkPatchGrid(int rows = 0, int cols = 0, VertexType flags = kNone_VertexType,
-                SkXfermode* xfer = nullptr);
+    SkPatchGrid(int rows = 0, int cols = 0, VertexType flags = kNone_VertexType);
 
     ~SkPatchGrid();
 
@@ -113,7 +112,7 @@ public:
     /**
      * Resets the grid of patches to contain rows and cols of patches.
      */
-    void reset(int rows, int cols, VertexType flags, SkXfermode* xMode);
+    void reset(int rows, int cols, VertexType flags, SkBlendMode);
 
     /**
      * Draws the grid of patches. The patches are drawn starting at patch (0,0) drawing columns, so
@@ -137,7 +136,7 @@ private:
     SkPoint* fTexCoords;
     SkPoint* fHrzCtrlPts;
     SkPoint* fVrtCtrlPts;
-    SkXfermode* fXferMode;
+    SkBlendMode fBlendMode = SkBlendMode::kModulate;
 };
 
 

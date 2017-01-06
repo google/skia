@@ -623,7 +623,7 @@
       "--io-timeout",
       "2400",
       "--hard-timeout",
-      "14400",
+      "32400",
       "--dimension",
       "cpu",
       "x86-64-avx2",

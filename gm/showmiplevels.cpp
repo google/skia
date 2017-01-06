@@ -139,8 +139,8 @@ protected:
         baseBM.lockPixels();
         baseBM.peekPixels(&prevPM);
 
-        SkSourceGammaTreatment treatment = SkSourceGammaTreatment::kIgnore;
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
+        SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
+        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, colorMode, nullptr));
 
         int index = 0;
         SkMipMap::Level level;
@@ -250,8 +250,8 @@ protected:
         SkScalar x = 4;
         SkScalar y = 4;
 
-        SkSourceGammaTreatment treatment = SkSourceGammaTreatment::kIgnore;
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
+        SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
+        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, colorMode, nullptr));
 
         int index = 0;
         SkMipMap::Level level;

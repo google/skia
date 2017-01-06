@@ -8,8 +8,11 @@
 #include "SkOpts.h"
 
 #define SK_OPTS_NS hsw
+#include "SkRasterPipeline_opts.h"
 
 namespace SkOpts {
-    void Init_hsw() { }
+    void Init_hsw() {
+        compile_pipeline = hsw::compile_pipeline;
+    }
 }
 

@@ -12,6 +12,7 @@
 GrVkInterface::GrVkInterface() {
 }
 
+#define GET_PROC_GLOBAL(F) functions->f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(NULL, "vk" #F)
 #define GET_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
 #define GET_PROC_LOCAL(inst, F) PFN_vk ## F F = (PFN_vk ## F) vkGetInstanceProcAddr(inst, "vk" #F)
 #define GET_DEV_PROC(F) functions->f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
@@ -22,7 +23,9 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
     GrVkInterface* interface = new GrVkInterface();
     GrVkInterface::Functions* functions = &interface->fFunctions;
 
-    GET_PROC(CreateInstance);
+    GET_PROC_GLOBAL(CreateInstance);
+    GET_PROC_GLOBAL(EnumerateInstanceExtensionProperties);
+    GET_PROC_GLOBAL(EnumerateInstanceLayerProperties);
     GET_PROC(DestroyInstance);
     GET_PROC(EnumeratePhysicalDevices);
     GET_PROC(GetPhysicalDeviceFeatures);
@@ -33,9 +36,7 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
     GET_PROC(GetPhysicalDeviceMemoryProperties);
     GET_PROC(CreateDevice);
     GET_PROC(DestroyDevice);
-    GET_PROC(EnumerateInstanceExtensionProperties);
     GET_PROC(EnumerateDeviceExtensionProperties);
-    GET_PROC(EnumerateInstanceLayerProperties);
     GET_PROC(EnumerateDeviceLayerProperties);
     GET_DEV_PROC(GetDeviceQueue);
     GET_DEV_PROC(QueueSubmit);
@@ -167,11 +168,17 @@ const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
     return interface;
 }
 
+#ifdef SK_DEBUG
+    static int kIsDebug = 1;
+#else
+    static int kIsDebug = 0;
+#endif
+
 #define RETURN_FALSE_INTERFACE                                                                   \
     if (kIsDebug) { SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); } \
     return false;
 
-bool GrVkInterface::validate() const {
+bool GrVkInterface::validate(uint32_t extensionFlags) const {
     // functions that are always required
     if (NULL == fFunctions.fCreateInstance ||
         NULL == fFunctions.fDestroyInstance ||
@@ -307,12 +314,17 @@ bool GrVkInterface::validate() const {
         NULL == fFunctions.fCmdBeginRenderPass ||
         NULL == fFunctions.fCmdNextSubpass ||
         NULL == fFunctions.fCmdEndRenderPass ||
-        NULL == fFunctions.fCmdExecuteCommands ||
-        NULL == fFunctions.fCreateDebugReportCallbackEXT ||
-        NULL == fFunctions.fDebugReportMessageEXT ||
-        NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
+        NULL == fFunctions.fCmdExecuteCommands) {
+        RETURN_FALSE_INTERFACE
+    }
 
-        return false;
+    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
+        if (NULL == fFunctions.fCreateDebugReportCallbackEXT ||
+            NULL == fFunctions.fDebugReportMessageEXT ||
+            NULL == fFunctions.fDestroyDebugReportCallbackEXT) {
+            RETURN_FALSE_INTERFACE
+        }
     }
     return true;
 }
+

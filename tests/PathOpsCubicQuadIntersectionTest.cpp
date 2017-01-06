@@ -13,8 +13,8 @@
 #include "Test.h"
 
 static struct quadCubic {
-    SkDCubic cubic;
-    SkDQuad quad;
+    CubicPts cubic;
+    QuadPts quad;
 } quadCubicTests[] = {
     {{{{945.08099365234375, 747.1619873046875}, {982.5679931640625, 747.1619873046875}, {1013.6290283203125, 719.656005859375}, {1019.1910400390625, 683.72601318359375}}},
      {{{945, 747}, {976.0660400390625, 747}, {998.03302001953125, 725.03302001953125}}}},
@@ -53,9 +53,13 @@ static const int quadCubicTests_count = (int) SK_ARRAY_COUNT(quadCubicTests);
 
 static void cubicQuadIntersection(skiatest::Reporter* reporter, int index) {
     int iIndex = static_cast<int>(index);
-    const SkDCubic& cubic = quadCubicTests[index].cubic;
+    const CubicPts& c = quadCubicTests[index].cubic;
+    SkDCubic cubic;
+    cubic.debugSet(c.fPts);
     SkASSERT(ValidCubic(cubic));
-    const SkDQuad& quad = quadCubicTests[index].quad;
+    const QuadPts& q = quadCubicTests[index].quad;
+    SkDQuad quad;
+    quad.debugSet(q.fPts);
     SkASSERT(ValidQuad(quad));
     SkReduceOrder reduce1;
     SkReduceOrder reduce2;

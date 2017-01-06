@@ -24,6 +24,7 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindAttribLocationProc)(GrGLuint prog
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
+typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindImageTextureProc)(GrGLuint unit, GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLenum access, GrGLenum format);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
@@ -118,6 +119,8 @@ typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferProc)(GrGLenum target, GrGL
 typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferRangeProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
 typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferSubDataProc)(GrGLuint target, GrGLintptr offset, GrGLsizeiptr size, GrGLenum access);
 typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access);
+typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMemoryBarrierProc)(GrGLbitfield barriers);
+typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMemoryBarrierByRegionProc)(GrGLbitfield barriers);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPopGroupMarkerProc)();
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);

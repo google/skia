@@ -579,8 +579,6 @@ public:
                                  qe.localMatrix(),
                                  args.fFPCoordTransformHandler);
 
-            SkAssertResult(fragBuilder->enableFeature(
-                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional
@@ -984,21 +982,21 @@ private:
 };
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
     args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(new AAConvexPathBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawBatch> batch(new AAConvexPathBatch(args.fPaint->getColor(),
                                                           *args.fViewMatrix, path));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 

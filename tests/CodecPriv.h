@@ -10,13 +10,13 @@
 #include "SkData.h"
 
 inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(SkData::MakeWithoutCopy(mem, size)));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(SkData::MakeWithoutCopy(mem, size)));
     if (!codec) {
         return false;
     }
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
     int maxColors = 256;

@@ -2073,8 +2073,7 @@ SkBlitter* CreateASTCBlitter(int width, int height, void* outputBuffer,
     }
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<12, 16, CompressorASTC>, int, int, void* >
-        (width, height, outputBuffer);
+        SkTCompressedAlphaBlitter<12, 16, CompressorASTC>>(width, height, outputBuffer);
 }
 
 void DecompressASTC(uint8_t* dst, int dstRowBytes, const uint8_t* src,

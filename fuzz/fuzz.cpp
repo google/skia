@@ -16,11 +16,12 @@
 #include "SkPicture.h"
 #include "SkPicture.h"
 #include "SkPicture.h"
+#if SK_SUPPORT_GPU
+#include "SkSLCompiler.h"
+#endif
 #include "SkStream.h"
 
-#include <cmath>
 #include <signal.h>
-#include <stdlib.h>
 
 DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
@@ -39,6 +40,9 @@ static int fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static int fuzz_skp(sk_sp<SkData>);
 static int fuzz_icc(sk_sp<SkData>);
 static int fuzz_color_deserialize(sk_sp<SkData>);
+#if SK_SUPPORT_GPU
+static int fuzz_sksl2glsl(sk_sp<SkData>);
+#endif
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
@@ -53,23 +57,29 @@ int main(int argc, char** argv) {
     uint8_t option = calculate_option(bytes.get());
 
     if (!FLAGS_type.isEmpty()) {
-        switch (FLAGS_type[0][0]) {
-            case 'a': return fuzz_api(bytes);
-
-            case 'c': return fuzz_color_deserialize(bytes);
-
-            case 'i':
-                if (FLAGS_type[0][1] == 'c') { //icc
-                    return fuzz_icc(bytes);
-                }
-                // We only allow one degree of freedom to avoid a search space explosion for afl-fuzz.
-                if (FLAGS_type[0][6] == 's') { // image_scale
-                    return fuzz_img(bytes, option, 0);
-                }
-                // image_mode
-                return fuzz_img(bytes, 0, option);
-            case 's': return fuzz_skp(bytes);
+        if (0 == strcmp("api", FLAGS_type[0])) {
+            return fuzz_api(bytes);
         }
+        if (0 == strcmp("color_deserialize", FLAGS_type[0])) {
+            return fuzz_color_deserialize(bytes);
+        }
+        if (0 == strcmp("icc", FLAGS_type[0])) {
+            return fuzz_icc(bytes);
+        }
+        if (0 == strcmp("image_scale", FLAGS_type[0])) {
+            return fuzz_img(bytes, option, 0);
+        }
+        if (0 == strcmp("image_mode", FLAGS_type[0])) {
+            return fuzz_img(bytes, 0, option);
+        }
+        if (0 == strcmp("skp", FLAGS_type[0])) {
+            return fuzz_skp(bytes);
+        }
+#if SK_SUPPORT_GPU
+        if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
+            return fuzz_sksl2glsl(bytes);
+        }
+#endif
     }
     return printUsage(argv[0]);
 }
@@ -129,7 +139,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
     // This is mostly copied from DMSrcSink's CodecSrc::draw method.
     SkDebugf("Decoding\n");
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(bytes));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(bytes));
     if (nullptr == codec.get()) {
         SkDebugf("[terminated] Couldn't create codec.\n");
         return 3;
@@ -141,7 +151,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
     int maxColors = 256;
@@ -200,17 +210,6 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     // image, memory will be filled with a default value.
                     codec->getScanlines(dst, height, rowBytes);
                     break;
-                case SkCodec::kOutOfOrder_SkScanlineOrder: {
-                    for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = codec->outputScanline(y);
-                        void* dstPtr = bitmap.getAddr(0, dstY);
-                        // We complete the loop, even if this call begins to fail
-                        // due to an incomplete image.  This ensures any uninitialized
-                        // memory will be filled with the proper value.
-                        codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
-                    }
-                    break;
-                }
             }
             SkDebugf("[terminated] Success!\n");
             break;
@@ -381,7 +380,7 @@ int fuzz_skp(sk_sp<SkData> bytes) {
 }
 
 int fuzz_icc(sk_sp<SkData> bytes) {
-    sk_sp<SkColorSpace> space(SkColorSpace::NewICC(bytes->data(), bytes->size()));
+    sk_sp<SkColorSpace> space(SkColorSpace::MakeICC(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't decode ICC.\n");
         return 1;
@@ -400,61 +399,28 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
     return 0;
 }
 
+#if SK_SUPPORT_GPU
+int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
+    SkSL::Compiler compiler;
+    std::string output;
+    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
+        (const char*)bytes->data(), *SkSL::GLSLCapsFactory::Default(), &output);
+
+    if (!result) {
+        SkDebugf("[terminated] Couldn't compile input.\n");
+        return 1;
+    }
+    SkDebugf("[terminated] Success! Compiled input.\n");
+    return 0;
+}
+#endif
+
 Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 
-void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
-void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
+void Fuzz::signalBug() { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
 
 size_t Fuzz::size() { return fBytes->size(); }
 
-size_t Fuzz::remaining() {
-    return fBytes->size() - fNextByte;
-}
-
-template <typename T>
-T Fuzz::nextT() {
-    if (fNextByte + sizeof(T) > fBytes->size()) {
-        this->signalBoring();
-    }
-
-    T val;
-    memcpy(&val, fBytes->bytes() + fNextByte, sizeof(T));
-    fNextByte += sizeof(T);
-    return val;
-}
-
-uint8_t  Fuzz::nextB() { return this->nextT<uint8_t >(); }
-bool  Fuzz::nextBool() { return nextB()&1; }
-uint32_t Fuzz::nextU() { return this->nextT<uint32_t>(); }
-float    Fuzz::nextF() { return this->nextT<float   >(); }
-
-float    Fuzz::nextF1() {
-    // This is the same code as is in SkRandom's nextF()
-    unsigned int floatint = 0x3f800000 | (this->nextU() >> 9);
-    float f = SkBits2Float(floatint) - 1.0f;
-    return f;
-}
-
-uint32_t Fuzz::nextRangeU(uint32_t min, uint32_t max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%d, %d)\n", min, max);
-        this->signalBoring();
-    }
-    uint32_t range = max - min + 1;
-    if (0 == range) {
-        return this->nextU();
-    } else {
-        return min + this->nextU() % range;
-    }
-}
-float Fuzz::nextRangeF(float min, float max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%f, %f)\n", min, max);
-        this->signalBoring();
-    }
-    float f = std::abs(this->nextF());
-    if (!std::isnormal(f) && f != 0.0) {
-        this->signalBoring();
-    }
-    return min + fmod(f, (max - min + 1));
+bool Fuzz::exhausted() {
+    return fBytes->size() == fNextByte;
 }

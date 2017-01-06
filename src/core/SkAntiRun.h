@@ -21,6 +21,12 @@ public:
     int16_t*    fRuns;
     uint8_t*     fAlpha;
 
+    // Return 0-255 given 0-256
+    static inline SkAlpha CatchOverflow(int alpha) {
+        SkASSERT(alpha >= 0 && alpha <= 256);
+        return alpha - (alpha >> 8);
+    }
+
     /// Returns true if the scanline contains only a single run,
     /// of alpha value 0.
     bool empty() const {
@@ -79,7 +85,7 @@ public:
             runs += x;
             x = 0;
             do {
-                alpha[0] = SkToU8(alpha[0] + maxValue);
+                alpha[0] = SkToU8(CatchOverflow(alpha[0] + maxValue));
                 int n = runs[0];
                 SkASSERT(n <= middleCount);
                 alpha += n;

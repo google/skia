@@ -38,7 +38,7 @@ protected:
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*, int*) override;
 
-    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+    SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
@@ -46,15 +46,15 @@ private:
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fMaskSwizzler);
-        return fMaskSwizzler;
+        return fMaskSwizzler.get();
     }
 
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
 
-    SkAutoTDelete<SkMasks>              fMasks;        // owned
-    SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;
-    SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
+    std::unique_ptr<SkMasks>        fMasks;
+    std::unique_ptr<SkMaskSwizzler> fMaskSwizzler;
+    std::unique_ptr<uint8_t[]>      fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;
 };

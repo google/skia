@@ -90,7 +90,7 @@ public:
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
-                            SkSourceGammaTreatment) const override;
+                            SkDestinationSurfaceColorMode) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -120,7 +120,7 @@ public:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
-    void onPinAsTexture(GrContext*) const override;
+    bool onPinAsTexture(GrContext*) const override;
     void onUnpinAsTexture(GrContext*) const override;
 #endif
 
@@ -198,7 +198,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
 }
 
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params,
-                                        SkSourceGammaTreatment gammaTreatment) const {
+                                        SkDestinationSurfaceColorMode colorMode) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
@@ -209,10 +209,10 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& p
     if (tex) {
         GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
-        return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
+        return adjuster.refTextureSafeForParams(params, colorMode, nullptr);
     }
 
-    return GrRefCachedBitmapTexture(ctx, fBitmap, params, gammaTreatment);
+    return GrRefCachedBitmapTexture(ctx, fBitmap, params, colorMode);
 #endif
 
     return nullptr;
@@ -230,7 +230,7 @@ sk_sp<GrTexture> SkImage_Raster::refPinnedTexture(uint32_t* uniqueID) const {
     return nullptr;
 }
 
-void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
+bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     if (fPinnedTexture) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
@@ -238,13 +238,17 @@ void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedTexture.reset(GrRefCachedBitmapTexture(ctx, fBitmap,
-                                                      GrTextureParams::ClampNoFilter(),
-                                                      SkSourceGammaTreatment::kRespect));
+        fPinnedTexture.reset(
+            GrRefCachedBitmapTexture(ctx, fBitmap, GrTextureParams::ClampNoFilter(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        if (!fPinnedTexture) {
+            return false;
+        }
         fPinnedUniqueID = fBitmap.getGenerationID();
     }
-    // Note: we always increment, even if we failed to create the pinned texture
+    // Note: we only increment if the texture was successfully pinned
     ++fPinnedCount;
+    return true;
 }
 
 void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {

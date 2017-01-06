@@ -124,10 +124,10 @@ static SkBitmap indexed_bitmap() {
         pmColors[i] = premultiply_color(colors[i]);
     }
     SkBitmap bm;
-    SkAutoTUnref<SkColorTable> ctable(new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
+    sk_sp<SkColorTable> ctable(new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
     SkImageInfo info = SkImageInfo::Make(SCALE, SCALE, kIndex_8_SkColorType,
                                          kPremul_SkAlphaType);
-    bm.allocPixels(info, nullptr, ctable);
+    bm.allocPixels(info, nullptr, ctable.get());
     SkAutoLockPixels autoLockPixels1(n32bitmap);
     SkAutoLockPixels autoLockPixels2(bm);
     for (int y = 0; y < SCALE; ++y) {
@@ -266,7 +266,7 @@ DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     sk_sp<SkColorSpace> colorSpaces[] {
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named),
+        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
         nullptr,
     };
     for (auto colorSpace : colorSpaces) {

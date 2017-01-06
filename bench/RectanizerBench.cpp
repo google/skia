@@ -115,7 +115,7 @@ private:
     SkString                    fName;
     RectanizerType              fRectanizerType;
     RectType                    fRectType;
-    SkAutoTDelete<GrRectanizer> fRectanizer;
+    std::unique_ptr<GrRectanizer> fRectanizer;
 
     typedef Benchmark INHERITED;
 };

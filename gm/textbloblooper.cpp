@@ -115,7 +115,7 @@ static sk_sp<SkDrawLooper> setupLooper(SkLayerDrawLooper::BitFlags bits,
     SkLayerDrawLooper::LayerInfo info;
     info.fPaintBits = bits;
 
-    info.fColorMode = SkXfermode::kSrc_Mode;
+    info.fColorMode = SkBlendMode::kSrc;
 
     for (size_t i = 0; i < size; i++) {
         info.fOffset.set(settings[i].fOffset, settings[i].fOffset);

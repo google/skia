@@ -56,70 +56,70 @@ static void test_incremental_buffering(skiatest::Reporter* reporter, size_t buff
     // deleted yet (and we only call const methods in it).
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
 
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
-    test_hasLength(reporter, *bufferedStream.get(), *memStream);
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    test_hasLength(reporter, *bufferedStream, *memStream);
 
     // First, test reading less than the max buffer size.
-    test_read(reporter, bufferedStream, gAbcs, bufferSize / 2);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize / 2);
 
     // Now test rewinding back to the beginning and reading less than what was
     // already buffered.
-    test_rewind(reporter, bufferedStream, true);
-    test_read(reporter, bufferedStream, gAbcs, bufferSize / 4);
+    test_rewind(reporter, bufferedStream.get(), true);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize / 4);
 
     // Now test reading part of what was buffered, and buffering new data.
-    test_read(reporter, bufferedStream, gAbcs + bufferSize / 4, bufferSize / 2);
+    test_read(reporter, bufferedStream.get(), gAbcs + bufferSize / 4, bufferSize / 2);
 
     // Now test reading what was buffered, buffering new data, and
     // reading directly from the stream.
-    test_rewind(reporter, bufferedStream, true);
-    test_read(reporter, bufferedStream, gAbcs, bufferSize << 1);
+    test_rewind(reporter, bufferedStream.get(), true);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize << 1);
 
     // We have reached the end of the buffer, so rewinding will fail.
     // This test assumes that the stream is larger than the buffer; otherwise the
     // result of rewind should be true.
-    test_rewind(reporter, bufferedStream, false);
+    test_rewind(reporter, bufferedStream.get(), false);
 }
 
 static void test_perfectly_sized_buffer(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
-    test_hasLength(reporter, *bufferedStream.get(), *memStream);
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Read exactly the amount that fits in the buffer.
-    test_read(reporter, bufferedStream, gAbcs, bufferSize);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize);
 
     // Rewinding should succeed.
-    test_rewind(reporter, bufferedStream, true);
+    test_rewind(reporter, bufferedStream.get(), true);
 
     // Once again reading buffered info should succeed
-    test_read(reporter, bufferedStream, gAbcs, bufferSize);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize);
 
     // Read past the size of the buffer. At this point, we cannot return.
-    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), 1);
-    test_rewind(reporter, bufferedStream, false);
+    test_read(reporter, bufferedStream.get(), gAbcs + memStream->getPosition(), 1);
+    test_rewind(reporter, bufferedStream.get(), false);
 }
 
 static void test_skipping(skiatest::Reporter* reporter, size_t bufferSize) {
     SkMemoryStream* memStream = new SkMemoryStream(gAbcs, strlen(gAbcs), false);
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
-    test_hasLength(reporter, *bufferedStream.get(), *memStream);
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Skip half the buffer.
     bufferedStream->skip(bufferSize / 2);
 
     // Rewind, then read part of the buffer, which should have been read.
-    test_rewind(reporter, bufferedStream, true);
-    test_read(reporter, bufferedStream, gAbcs, bufferSize / 4);
+    test_rewind(reporter, bufferedStream.get(), true);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize / 4);
 
     // Now skip beyond the buffered piece, but still within the total buffer.
     bufferedStream->skip(bufferSize / 2);
 
     // Test that reading will still work.
-    test_read(reporter, bufferedStream, gAbcs + memStream->getPosition(), bufferSize / 4);
+    test_read(reporter, bufferedStream.get(), gAbcs + memStream->getPosition(), bufferSize / 4);
 
-    test_rewind(reporter, bufferedStream, true);
-    test_read(reporter, bufferedStream, gAbcs, bufferSize);
+    test_rewind(reporter, bufferedStream.get(), true);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize);
 }
 
 // A custom class whose isAtEnd behaves the way Android's stream does - since it is an adaptor to a
@@ -156,7 +156,7 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
             new AndroidLikeMemoryStream((void*)gAbcs, bufferSize, false);
 
     // Create a buffer that matches the length of the stream.
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
     test_hasLength(reporter, *bufferedStream.get(), *memStream);
 
     // Attempt to read one more than the bufferSize
@@ -164,7 +164,7 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
     test_rewind(reporter, bufferedStream.get(), true);
 
     // Ensure that the initial read did not invalidate the buffer.
-    test_read(reporter, bufferedStream, gAbcs, bufferSize);
+    test_read(reporter, bufferedStream.get(), gAbcs, bufferSize);
 }
 
 // Dummy stream that optionally has a length and/or position. Tests that FrontBufferedStream's
@@ -203,7 +203,7 @@ static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) 
         for (int hasPos = 0; hasPos <= 1; hasPos++) {
             LengthOptionalStream* stream =
                     new LengthOptionalStream(SkToBool(hasLen), SkToBool(hasPos));
-            SkAutoTDelete<SkStream> buffered(SkFrontBufferedStream::Create(stream, bufferSize));
+            std::unique_ptr<SkStream> buffered(SkFrontBufferedStream::Create(stream, bufferSize));
             test_hasLength(reporter, *buffered.get(), *stream);
         }
     }
@@ -217,7 +217,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     // the stream it wraps.
     const size_t arbitraryOffset = 17;
     memStream->skip(arbitraryOffset);
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(memStream, bufferSize));
 
     // Since SkMemoryStream has a length, bufferedStream must also.
     REPORTER_ASSERT(reporter, bufferedStream->hasLength());
@@ -231,7 +231,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
     // Importantly, the end should not have been reached until currentPosition == bufferedLength.
     while (currentPosition < bufferedLength) {
         REPORTER_ASSERT(reporter, !bufferedStream->isAtEnd());
-        test_read(reporter, bufferedStream, gAbcs + arbitraryOffset + currentPosition,
+        test_read(reporter, bufferedStream.get(), gAbcs + arbitraryOffset + currentPosition,
                   amountToRead);
         currentPosition = SkTMin(currentPosition + amountToRead, bufferedLength);
         REPORTER_ASSERT(reporter, memStream->getPosition() - arbitraryOffset == currentPosition);
@@ -281,9 +281,9 @@ private:
 
 DEF_TEST(ShortFrontBufferedStream, reporter) {
     FailingStream* failingStream = new FailingStream;
-    SkAutoTDelete<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
+    std::unique_ptr<SkStreamRewindable> stream(SkFrontBufferedStream::Create(failingStream, 64));
 
     // This will fail to create a codec.  However, what we really want to test is that we
     // won't read past the end of the stream.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 }

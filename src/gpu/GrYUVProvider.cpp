@@ -6,7 +6,7 @@
  */
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrYUVProvider.h"
 #include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
@@ -28,8 +28,8 @@ public:
 
 private:
     // we only use one or the other of these
-    SkAutoTUnref<SkCachedData>  fCachedData;
-    SkAutoMalloc                fStorage;
+    sk_sp<SkCachedData>  fCachedData;
+    SkAutoMalloc         fStorage;
 };
 }
 
@@ -75,7 +75,7 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
 
         if (useCache) {
             // Decoding is done, cache the resulting YUV planes
-            SkYUVPlanesCache::Add(provider->onGetID(), fCachedData, yuvInfo);
+            SkYUVPlanesCache::Add(provider->onGetID(), fCachedData.get(), yuvInfo);
         }
     }
     return true;
@@ -93,7 +93,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     GrSurfaceDesc yuvDesc;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
-    SkAutoTUnref<GrTexture> yuvTextures[3];
+    sk_sp<GrTexture> yuvTextures[3];
     for (int i = 0; i < 3; i++) {
         yuvDesc.fWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
         yuvDesc.fHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
@@ -114,17 +114,18 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     }
 
     // We never want to perform color-space conversion during the decode
-    sk_sp<GrDrawContext> drawContext(ctx->makeDrawContext(SkBackingFit::kExact,
-                                                          desc.fWidth, desc.fHeight,
-                                                          desc.fConfig, nullptr,
-                                                          desc.fSampleCnt));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeRenderTargetContext(
+                                                                          SkBackingFit::kExact,
+                                                                          desc.fWidth, desc.fHeight,
+                                                                          desc.fConfig, nullptr,
+                                                                          desc.fSampleCnt));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
-        GrYUVEffect::MakeYUVToRGB(yuvTextures[0], yuvTextures[1], yuvTextures[2],
+        GrYUVEffect::MakeYUVToRGB(yuvTextures[0].get(), yuvTextures[1].get(), yuvTextures[2].get(),
                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
@@ -146,7 +147,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
+    renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
 
-    return drawContext->asTexture();
+    return renderTargetContext->asTexture();
 }

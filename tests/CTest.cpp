@@ -59,7 +59,7 @@ static void test_c(skiatest::Reporter* reporter) {
         1, 1, ct, PREMUL_SK_ALPHATYPE
     };
     uint32_t pixel[1] = { 0 };
-    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY, USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS };
+    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY };
 
     sk_surface_t* surface = sk_surface_new_raster_direct(&info, pixel, sizeof(uint32_t),
                                                          &surfaceProps);

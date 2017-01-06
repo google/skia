@@ -16,7 +16,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 SK_API void sk_colorfilter_unref(sk_colorfilter_t* filter);
-SK_API sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_xfermode_mode_t mode);
+SK_API sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_blendmode_t mode);
 SK_API sk_colorfilter_t* sk_colorfilter_new_lighting(sk_color_t mul, sk_color_t add);
 SK_API sk_colorfilter_t* sk_colorfilter_new_compose(sk_colorfilter_t* outer, sk_colorfilter_t* inner);
 SK_API sk_colorfilter_t* sk_colorfilter_new_color_cube(sk_data_t* cubeData, int cubeDimension);

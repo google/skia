@@ -8,7 +8,7 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkRRect.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
@@ -48,8 +48,9 @@ protected:
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -74,7 +75,7 @@ protected:
                 canvas->drawRect(testBounds, paint);
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
@@ -86,10 +87,10 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(), bounds,
                                                                 nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
             canvas->restore();
             x = x + fTestOffsetX;

@@ -71,17 +71,22 @@ void SkBlitter::blitRect(int x, int y, int width, int height) {
     }
 }
 
-/// Default implementation doesn't check for any easy optimizations
-/// such as alpha == 0 or 255; also uses blitV(), which some subclasses
+/// Default implementation doesn't check for easy optimizations
+/// such as alpha == 255; also uses blitV(), which some subclasses
 /// may not support.
 void SkBlitter::blitAntiRect(int x, int y, int width, int height,
                              SkAlpha leftAlpha, SkAlpha rightAlpha) {
-    this->blitV(x++, y, height, leftAlpha);
+    if (leftAlpha > 0) { // we may send in x = -1 with leftAlpha = 0
+        this->blitV(x, y, height, leftAlpha);
+    }
+    x++;
     if (width > 0) {
         this->blitRect(x, y, width, height);
         x += width;
     }
-    this->blitV(x, y, height, rightAlpha);
+    if (rightAlpha > 0) {
+        this->blitV(x, y, height, rightAlpha);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -853,7 +858,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         p->setColor(0);
     }
 
-    if (SkBlitter* blitter = SkCreateRasterPipelineBlitter(device, *paint, allocator)) {
+    if (SkBlitter* blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, allocator)) {
         return blitter;
     }
 
@@ -891,14 +896,15 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         size_t contextSize = shader->contextSize(rec);
         if (contextSize) {
             // Try to create the ShaderContext
-            void* storage = allocator->reserveT<SkShader::Context>(contextSize);
-            shaderContext = shader->createContext(rec, storage);
+            shaderContext = allocator->createWithIniter(
+                contextSize,
+                [&rec, shader](void* storage) {
+                    return shader->createContext(rec, storage);
+                });
             if (!shaderContext) {
-                allocator->freeLast();
                 return allocator->createT<SkNullBlitter>();
             }
             SkASSERT(shaderContext);
-            SkASSERT((void*) shaderContext == storage);
         } else {
             return allocator->createT<SkNullBlitter>();
         }
@@ -1016,3 +1022,52 @@ bool SkShaderBlitter::resetShaderContext(const SkShader::ContextRec& rec) {
     }
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_DEBUG
+
+void SkRectClipCheckBlitter::blitH(int x, int y, int width) {
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, width, 1)));
+    fBlitter->blitH(x, y, width);
+}
+
+void SkRectClipCheckBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
+    const int16_t* iter = runs;
+    for (; *iter; iter += *iter)
+        ;
+    int width = iter - runs;
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, width, 1)));
+    fBlitter->blitAntiH(x, y, aa, runs);
+}
+
+void SkRectClipCheckBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, 1, height)));
+    fBlitter->blitV(x, y, height, alpha);
+}
+
+void SkRectClipCheckBlitter::blitRect(int x, int y, int width, int height) {
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, width, height)));
+    fBlitter->blitRect(x, y, width, height);
+}
+
+void SkRectClipCheckBlitter::blitAntiRect(int x, int y, int width, int height,
+                                     SkAlpha leftAlpha, SkAlpha rightAlpha) {
+    bool skipLeft = !leftAlpha;
+    bool skipRight = !rightAlpha;
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x + skipLeft, y,
+            width + 2 - skipRight - skipLeft, height)));
+    fBlitter->blitAntiRect(x, y, width, height, leftAlpha, rightAlpha);
+}
+
+void SkRectClipCheckBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
+    SkASSERT(mask.fBounds.contains(clip));
+    SkASSERT(fClipRect.contains(clip));
+    fBlitter->blitMask(mask, clip);
+}
+
+const SkPixmap* SkRectClipCheckBlitter::justAnOpaqueColor(uint32_t* value) {
+    return fBlitter->justAnOpaqueColor(value);
+}
+
+#endif

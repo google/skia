@@ -532,6 +532,14 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DeleteSync);
     }
 
+    if (glVer >= GR_GL_VER(4, 2) || extensions.has("GL_ARB_shader_image_load_store")) {
+        GET_PROC(BindImageTexture);
+        GET_PROC(MemoryBarrier);
+    }
+    if (glVer >= GR_GL_VER(4, 5) || extensions.has("GL_ARB_ES3_1_compatibility")) {
+        GET_PROC(MemoryBarrierByRegion);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -748,12 +756,19 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(FramebufferRenderbuffer);
     GET_PROC(FramebufferTexture2D);
 
-    if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
-        GET_PROC_SUFFIX(RenderbufferStorageMultisample, CHROMIUM);
-        GET_PROC_SUFFIX(BlitFramebuffer, CHROMIUM);
-    } else if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3,0)) {
         GET_PROC(RenderbufferStorageMultisample);
         GET_PROC(BlitFramebuffer);
+    } else if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
+        GET_PROC_SUFFIX(RenderbufferStorageMultisample, CHROMIUM);
+        GET_PROC_SUFFIX(BlitFramebuffer, CHROMIUM);
+    } else {
+        if (extensions.has("GL_ANGLE_framebuffer_multisample")) {
+            GET_PROC_SUFFIX(RenderbufferStorageMultisample, ANGLE);
+        }
+        if (extensions.has("GL_ANGLE_framebuffer_blit")) {
+            GET_PROC_SUFFIX(BlitFramebuffer, ANGLE);
+        }
     }
 
     if (extensions.has("GL_CHROMIUM_map_sub")) {
@@ -929,6 +944,12 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(FenceSync);
         GET_PROC(ClientWaitSync);
         GET_PROC(DeleteSync);
+    }
+
+    if (version >= GR_GL_VER(3, 1)) {
+        GET_PROC(BindImageTexture);
+        GET_PROC(MemoryBarrier);
+        GET_PROC(MemoryBarrierByRegion);
     }
 
     interface->fStandard = kGLES_GrGLStandard;

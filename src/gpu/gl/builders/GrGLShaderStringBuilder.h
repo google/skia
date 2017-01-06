@@ -11,6 +11,7 @@
 #include "GrAllocator.h"
 #include "GrGpu.h"
 #include "gl/GrGLContext.h"
+#include "SkSLGLSLCodeGenerator.h"
 #include "SkTypes.h"
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,

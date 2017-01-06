@@ -35,8 +35,6 @@ public:
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkAssertResult(fragBuilder->enableFeature(
-                GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -313,8 +311,6 @@ public:
         const GrDistanceFieldPathGeoProc& dfTexEffect = args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkAssertResult(fragBuilder->enableFeature(
-                                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -609,9 +605,6 @@ public:
                                  dfTexEffect.inTextureCoords()->fName);
 
         // add frag shader code
-
-        SkAssertResult(fragBuilder->enableFeature(
-                GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues

@@ -8,7 +8,7 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
@@ -62,8 +62,9 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (kEffect_Type == fType && !drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (kEffect_Type == fType && !renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -102,7 +103,7 @@ protected:
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
                         GrPaint grPaint;
-                        grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                        grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
@@ -114,10 +115,10 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            SkAutoTUnref<GrDrawBatch> batch(
+                            sk_sp<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                            renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                         } else {
                             drew = false;
                         }

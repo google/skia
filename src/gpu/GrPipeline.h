@@ -10,14 +10,13 @@
 
 #include "GrColor.h"
 #include "GrFragmentProcessor.h"
-#include "GrGpu.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
-#include "GrStencilSettings.h"
+#include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
@@ -28,7 +27,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrBatch;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
@@ -56,7 +55,7 @@ public:
 
     struct CreateArgs {
         const GrPipelineBuilder*    fPipelineBuilder;
-        GrDrawContext*              fDrawContext;
+        GrRenderTargetContext*      fRenderTargetContext;
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
@@ -106,8 +105,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name GrFragmentProcessors
 
-    // Make the renderTarget's drawTarget (if it exists) be dependent on any
-    // drawTargets in this pipeline
+    // Make the renderTarget's GrOpList (if it exists) be dependent on any
+    // GrOpLists in this pipeline
     void addDependenciesTo(GrRenderTarget* rt) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }
@@ -149,7 +148,7 @@ public:
      */
     GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
 
-    const GrStencilSettings& getStencil() const { return fStencilSettings; }
+    const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
@@ -168,6 +167,9 @@ public:
     }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
+    }
+    bool isStencilEnabled() const {
+        return SkToBool(fFlags & kStencilEnabled_Flag);
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
@@ -214,6 +216,7 @@ private:
         kAllowSRGBInputs_Flag               = 0x8,
         kUsesDistanceVectorField_Flag       = 0x10,
         kHasStencilClip_Flag                = 0x20,
+        kStencilEnabled_Flag                = 0x40,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
@@ -223,7 +226,7 @@ private:
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;
-    GrStencilSettings                   fStencilSettings;
+    const GrUserStencilSettings*        fUserStencilSettings;
     GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;

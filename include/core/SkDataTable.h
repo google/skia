@@ -8,8 +8,8 @@
 #ifndef SkDataTable_DEFINED
 #define SkDataTable_DEFINED
 
+#include "../private/SkChunkAlloc.h"
 #include "../private/SkTDArray.h"
-#include "SkChunkAlloc.h"
 #include "SkData.h"
 #include "SkString.h"
 

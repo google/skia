@@ -163,14 +163,14 @@ public:
     SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
 
     void onDelayedSetup() override {
-        SkAutoTDelete<SkBBHFactory> factory;
+        std::unique_ptr<SkBBHFactory> factory;
         switch (fBBH) {
             case kNone:                                                 break;
             case kRTree:    factory.reset(new SkRTreeFactory);          break;
         }
 
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(1024, 1024, factory);
+        SkCanvas* canvas = recorder.beginRecording(1024, 1024, factory.get());
             SkRandom rand;
             for (int i = 0; i < 10000; i++) {
                 SkScalar x = rand.nextRangeScalar(0, 1024),

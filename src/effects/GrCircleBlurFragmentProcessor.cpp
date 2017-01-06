@@ -310,7 +310,7 @@ static GrTexture* create_profile_texture(GrTextureProvider* textureProvider, con
         texDesc.fHeight = 1;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-        SkAutoTDeleteArray<uint8_t> profile(nullptr);
+        std::unique_ptr<uint8_t[]> profile(nullptr);
         if (useHalfPlaneApprox) {
             profile.reset(create_half_plane_profile(kProfileTextureWidth));
         } else {
@@ -335,13 +335,13 @@ sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(GrTextureProvider
                                                                const SkRect& circle, float sigma) {
     float solidRadius;
     float textureRadius;
-    SkAutoTUnref<GrTexture> profile(create_profile_texture(textureProvider, circle, sigma,
-                                                           &solidRadius, &textureRadius));
+    sk_sp<GrTexture> profile(create_profile_texture(textureProvider, circle, sigma,
+                                                    &solidRadius, &textureRadius));
     if (!profile) {
         return nullptr;
     }
-    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(circle, textureRadius,
-                                                                        solidRadius, profile));
+    return sk_sp<GrFragmentProcessor>(
+            new GrCircleBlurFragmentProcessor(circle, textureRadius, solidRadius, profile.get()));
 }
 
 //////////////////////////////////////////////////////////////////////////////

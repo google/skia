@@ -233,7 +233,7 @@ SkStreamAsset* SkFILEStream::duplicate() const {
     }
 
     if (!fName.isEmpty()) {
-        SkAutoTDelete<SkFILEStream> that(new SkFILEStream(fName.c_str()));
+        std::unique_ptr<SkFILEStream> that(new SkFILEStream(fName.c_str()));
         if (sk_fidentical(that->fFILE, this->fFILE)) {
             return that.release();
         }
@@ -259,7 +259,7 @@ bool SkFILEStream::move(long offset) {
 }
 
 SkStreamAsset* SkFILEStream::fork() const {
-    SkAutoTDelete<SkStreamAsset> that(this->duplicate());
+    std::unique_ptr<SkStreamAsset> that(this->duplicate());
     that->seek(this->getPosition());
     return that.release();
 }
@@ -306,17 +306,6 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
     }
     fOffset = 0;
 }
-
-#ifdef SK_SUPPORT_LEGACY_STREAM_DATA
-SkMemoryStream::SkMemoryStream(SkData* data) {
-    if (nullptr == data) {
-        fData = SkData::MakeEmpty();
-    } else {
-        fData = sk_ref_sp(data);
-    }
-    fOffset = 0;
-}
-#endif
 
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
     fData = SkData::MakeFromMalloc(src, size);
@@ -392,7 +381,7 @@ bool SkMemoryStream::move(long offset) {
 }
 
 SkMemoryStream* SkMemoryStream::fork() const {
-    SkAutoTDelete<SkMemoryStream> that(this->duplicate());
+    std::unique_ptr<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
     return that.release();
 }
@@ -778,7 +767,7 @@ public:
     }
 
     SkBlockMemoryStream* fork() const override {
-        SkAutoTDelete<SkBlockMemoryStream> that(this->duplicate());
+        std::unique_ptr<SkBlockMemoryStream> that(this->duplicate());
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
@@ -798,7 +787,7 @@ public:
     }
 
 private:
-    SkAutoTUnref<SkBlockMemoryRefCnt> const fBlockMemory;
+    sk_sp<SkBlockMemoryRefCnt> const fBlockMemory;
     SkDynamicMemoryWStream::Block const * fCurrent;
     size_t const fSize;
     size_t fOffset;

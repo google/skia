@@ -173,8 +173,8 @@ void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo
     GrMesh mesh;
     int maxGlyphsPerDraw =
         static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-    mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-                       flushInfo->fIndexBuffer, flushInfo->fVertexOffset,
+    mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer.get(),
+                       flushInfo->fIndexBuffer.get(), flushInfo->fVertexOffset,
                        kVerticesPerGlyph, kIndicesPerGlyph, flushInfo->fGlyphsToFlush,
                        maxGlyphsPerDraw);
     target->draw(flushInfo->fGeometryProcessor.get(), mesh);

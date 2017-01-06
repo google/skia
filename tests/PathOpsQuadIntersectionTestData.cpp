@@ -7,7 +7,7 @@
 
 #include "PathOpsQuadIntersectionTestData.h"
 
-const SkDQuad quadraticPoints[] = {
+const QuadPts quadraticPoints[] = {
     {{{0, 0}, {1, 0}, {0, 0}}},
     {{{0, 0}, {0, 1}, {0, 0}}},
     {{{0, 0}, {1, 1}, {0, 0}}},
@@ -16,7 +16,7 @@ const SkDQuad quadraticPoints[] = {
 
 const size_t quadraticPoints_count = SK_ARRAY_COUNT(quadraticPoints);
 
-const SkDQuad quadraticLines[] = {
+const QuadPts quadraticLines[] = {
     {{{0, 0}, {0, 0}, {1, 0}}},
     {{{1, 0}, {0, 0}, {0, 0}}},
     {{{1, 0}, {2, 0}, {3, 0}}},
@@ -49,7 +49,7 @@ static const double H = FLT_EPSILON * 32;
 static const double J = FLT_EPSILON * 32;
 static const double K = FLT_EPSILON * 32;  // INVESTIGATE: why are larger multiples necessary?
 
-const SkDQuad quadraticModEpsilonLines[] = {
+const QuadPts quadraticModEpsilonLines[] = {
     {{{0, F}, {0, 0}, {1, 0}}},
     {{{0, 0}, {1, 0}, {0, F}}},
     {{{1, 0}, {0, F}, {0, 0}}},
@@ -82,7 +82,7 @@ const SkDQuad quadraticModEpsilonLines[] = {
 const size_t quadraticModEpsilonLines_count =
         SK_ARRAY_COUNT(quadraticModEpsilonLines);
 
-const SkDQuad quadraticTests[][2] = {
+const QuadPts quadraticTests[][2] = {
     {  // one intersection
      {{{0, 0},
       {0, 1},

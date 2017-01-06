@@ -72,9 +72,9 @@ public:
 
 class SkMipMapCache {
 public:
-    static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&, SkSourceGammaTreatment,
+    static const SkMipMap* FindAndRef(const SkBitmapCacheDesc&, SkDestinationSurfaceColorMode,
                                       SkResourceCache* localCache = nullptr);
-    static const SkMipMap* AddAndRef(const SkBitmap& src, SkSourceGammaTreatment,
+    static const SkMipMap* AddAndRef(const SkBitmap& src, SkDestinationSurfaceColorMode,
                                      SkResourceCache* localCache = nullptr);
 };
 

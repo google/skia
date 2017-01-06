@@ -12,6 +12,7 @@
 #include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
+#include "GrTexturePriv.h"
 
 class GrGLGpu;
 
@@ -29,9 +30,10 @@ public:
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc)
+                            const GrGLRenderTarget::IDDesc& rtIDDesc,
+                            bool wasMipMapDataProvided)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc)
+        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
         this->registerWithCache(budgeted);
     }
@@ -40,9 +42,9 @@ public:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
-    static GrGLTextureRenderTarget* CreateWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
-                                                  const GrGLTexture::IDDesc& texIDDesc,
-                                                  const GrGLRenderTarget::IDDesc& rtIDDesc);
+    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                                      const GrGLTexture::IDDesc& texIDDesc,
+                                                      const GrGLRenderTarget::IDDesc& rtIDDesc);
 protected:
     void onAbandon() override {
         GrGLRenderTarget::onAbandon();
@@ -59,16 +61,18 @@ private:
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc)
+                            const GrGLRenderTarget::IDDesc& rtIDDesc,
+                            bool wasMipMapDataProvided)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc)
+        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
         this->registerWithCacheWrapped();
     }
 
-    // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        return GrGLRenderTarget::onGpuMemorySize();
+        return GrSurface::ComputeSize(fDesc,
+                                      this->numSamplesOwnedPerPixel(),
+                                      this->texturePriv().hasMipMaps());
     }
 
 };

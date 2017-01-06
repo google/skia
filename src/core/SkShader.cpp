@@ -230,7 +230,7 @@ sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&) const 
 }
 #endif
 
-SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
@@ -257,6 +257,13 @@ void SkShader::toString(SkString* str) const {
 }
 #endif
 
+bool SkShader::appendStages(SkRasterPipeline* pipeline,
+                            SkColorSpace* dst,
+                            SkFallbackAlloc* scratch,
+                            const SkMatrix& ctm) const {
+    return this->onAppendStages(pipeline, dst, scratch, ctm);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
@@ -272,32 +279,5 @@ void SkEmptyShader::toString(SkString* str) const {
     this->INHERITED::toString(str);
 
     str->append(")");
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode) {
-    return MakeComposeShader(sk_ref_sp(dst), sk_ref_sp(src), mode).release();
-}
-SkShader* SkShader::CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer) {
-    return MakeComposeShader(sk_ref_sp(dst), sk_ref_sp(src), xfer).release();
-}
-SkShader* SkShader::CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
-                                     const SkMatrix* localMatrix, const SkRect* tile) {
-    return MakePictureShader(sk_ref_sp(const_cast<SkPicture*>(src)), tmx, tmy,
-                             localMatrix, tile).release();
-}
-SkShader* SkShader::newWithColorFilter(SkColorFilter* filter) const {
-    return this->makeWithColorFilter(sk_ref_sp(filter)).release();
-}
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-#include "SkXfermode.h"
-sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                            SkXfermode* xfer) {
-    return MakeComposeShader(std::move(dst), std::move(src), sk_ref_sp(xfer));
 }
 #endif

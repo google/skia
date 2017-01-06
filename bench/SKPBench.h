@@ -42,12 +42,12 @@ protected:
     virtual void drawMPDPicture();
     virtual void drawPicture();
 
-    const SkPicture* picture() const { return fPic; }
+    const SkPicture* picture() const { return fPic.get(); }
     const SkTDArray<SkSurface*>& surfaces() const { return fSurfaces; }
     const SkTDArray<SkIRect>& tileRects() const { return fTileRects; }
 
 private:
-    SkAutoTUnref<const SkPicture> fPic;
+    sk_sp<const SkPicture> fPic;
     const SkIRect fClip;
     const SkScalar fScale;
     SkString fName;

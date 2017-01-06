@@ -50,16 +50,16 @@ void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
         time_t m_time;
         time(&m_time);
-        struct tm* tstruct;
-        tstruct = gmtime(&m_time);
+        struct tm tstruct;
+        gmtime_r(&m_time, &tstruct);
         dt->fTimeZoneMinutes = 0;
-        dt->fYear       = tstruct->tm_year + 1900;
-        dt->fMonth      = SkToU8(tstruct->tm_mon + 1);
-        dt->fDayOfWeek  = SkToU8(tstruct->tm_wday);
-        dt->fDay        = SkToU8(tstruct->tm_mday);
-        dt->fHour       = SkToU8(tstruct->tm_hour);
-        dt->fMinute     = SkToU8(tstruct->tm_min);
-        dt->fSecond     = SkToU8(tstruct->tm_sec);
+        dt->fYear       = tstruct.tm_year + 1900;
+        dt->fMonth      = SkToU8(tstruct.tm_mon + 1);
+        dt->fDayOfWeek  = SkToU8(tstruct.tm_wday);
+        dt->fDay        = SkToU8(tstruct.tm_mday);
+        dt->fHour       = SkToU8(tstruct.tm_hour);
+        dt->fMinute     = SkToU8(tstruct.tm_min);
+        dt->fSecond     = SkToU8(tstruct.tm_sec);
     }
 }
 #endif // SK_BUILD_FOR_WIN32

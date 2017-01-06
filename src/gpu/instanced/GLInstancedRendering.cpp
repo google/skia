@@ -104,7 +104,7 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
         GL_CALL(VertexAttribIPointer((int)Attrib::kVertexAttrs, 1, GR_GL_INT, sizeof(ShapeVertex),
                                      (void*) offsetof(ShapeVertex, fAttrs)));
 
-        SkASSERT(SK_InvalidUniqueID == fInstanceAttribsBufferUniqueId);
+        SkASSERT(fInstanceAttribsBufferUniqueId.isInvalid());
     }
 
     // Create and map instance and draw-indirect buffers.
@@ -318,7 +318,7 @@ void GLInstancedRendering::onResetGpuResources(ResetType resetType) {
     fVertexArrayID = 0;
     fInstanceBuffer.reset();
     fDrawIndirectBuffer.reset();
-    fInstanceAttribsBufferUniqueId = SK_InvalidUniqueID;
+    fInstanceAttribsBufferUniqueId.makeInvalid();
 }
 
 }

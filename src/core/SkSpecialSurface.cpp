@@ -24,12 +24,12 @@ public:
     void reset() { fCanvas.reset(); }
 
     // This can return nullptr if reset has already been called or something when wrong in the ctor
-    SkCanvas* onGetCanvas() { return fCanvas; }
+    SkCanvas* onGetCanvas() { return fCanvas.get(); }
 
     virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
 
 protected:
-    SkAutoTUnref<SkCanvas> fCanvas;   // initialized by derived classes in ctors
+    std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
 
 private:
     typedef SkSpecialSurface INHERITED;
@@ -98,14 +98,14 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, 
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
                                                      const SkSurfaceProps* props) {
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
     if (nullptr == pr.get()) {
         return nullptr;
     }
 
     const SkIRect subset = SkIRect::MakeWH(pr->info().width(), pr->info().height());
 
-    return sk_make_sp<SkSpecialSurface_Raster>(pr, subset, props);
+    return sk_make_sp<SkSpecialSurface_Raster>(pr.get(), subset, props);
 }
 
 #if SK_SUPPORT_GPU
@@ -115,13 +115,12 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(sk_sp<GrDrawContext> drawContext,
-                         int width, int height,
-                         const SkIRect& subset)
-        : INHERITED(subset, &drawContext->surfaceProps())
-        , fDrawContext(std::move(drawContext)) {
+    SkSpecialSurface_Gpu(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
+                         int width, int height, const SkIRect& subset)
+        : INHERITED(subset, &renderTargetContext->surfaceProps())
+        , fRenderTargetContext(std::move(renderTargetContext)) {
 
-        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(fDrawContext, width, height,
+        sk_sp<SkBaseDevice> device(SkGpuDevice::Make(context, fRenderTargetContext, width, height,
                                                      SkGpuDevice::kUninit_InitContents));
         if (!device) {
             return;
@@ -137,18 +136,21 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
+        if (!fRenderTargetContext->asTexture()) {
+            return nullptr;
+        }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeFromGpu(
-                                                           this->subset(),
-                                                           kNeedNewImageUniqueID_SpecialImage,
-                                                           fDrawContext->asTexture(),
-                                                           sk_ref_sp(fDrawContext->getColorSpace()),
-                                                           &this->props()));
-        fDrawContext = nullptr;
+                                                   this->subset(),
+                                                   kNeedNewImageUniqueID_SpecialImage,
+                                                   fRenderTargetContext->asTexture(),
+                                                   sk_ref_sp(fRenderTargetContext->getColorSpace()),
+                                                   &this->props()));
+        fRenderTargetContext = nullptr;
         return tmp;
     }
 
 private:
-    sk_sp<GrDrawContext> fDrawContext;
+    sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
     typedef SkSpecialSurface_Base INHERITED;
 };
@@ -161,16 +163,16 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              width, height, config,
-                                                              std::move(colorSpace)));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        SkBackingFit::kApprox, width, height, config, std::move(colorSpace)));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
     const SkIRect subset = SkIRect::MakeWH(width, height);
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(drawContext), width, height, subset);
+    return sk_make_sp<SkSpecialSurface_Gpu>(context, std::move(renderTargetContext),
+                                            width, height, subset);
 }
 
 #endif

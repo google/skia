@@ -42,10 +42,15 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
+    fImageLoadStoreExtensionString = nullptr;
     fMaxVertexSamplers = 0;
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
+    fMaxVertexImages = 0;
+    fMaxGeometryImages = 0;
+    fMaxFragmentImages = 0;
+    fMaxCombinedImages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -90,6 +95,10 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
     r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);
     r.appendf("Max Combined Samplers: %d\n", fMaxFragmentSamplers);
+    r.appendf("Max VS Images: %d\n", fMaxVertexImages);
+    r.appendf("Max GS Images: %d\n", fMaxGeometryImages);
+    r.appendf("Max FS Images: %d\n", fMaxFragmentImages);
+    r.appendf("Max Combined Images: %d\n", fMaxFragmentImages);
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
@@ -129,24 +138,25 @@ void GrGLSLCaps::initSamplerPrecisionTable() {
         }
 
         uint8_t* table = fSamplerPrecisions[visibility];
-        table[kUnknown_GrPixelConfig]    = kDefault_GrSLPrecision;
-        table[kAlpha_8_GrPixelConfig]    = lowp;
-        table[kIndex_8_GrPixelConfig]    = lowp;
-        table[kRGB_565_GrPixelConfig]    = lowp;
-        table[kRGBA_4444_GrPixelConfig]  = lowp;
-        table[kRGBA_8888_GrPixelConfig]  = lowp;
-        table[kBGRA_8888_GrPixelConfig]  = lowp;
-        table[kSRGBA_8888_GrPixelConfig] = lowp;
-        table[kSBGRA_8888_GrPixelConfig] = lowp;
-        table[kETC1_GrPixelConfig]       = lowp;
-        table[kLATC_GrPixelConfig]       = lowp;
-        table[kR11_EAC_GrPixelConfig]    = lowp;
-        table[kASTC_12x12_GrPixelConfig] = lowp;
-        table[kRGBA_float_GrPixelConfig] = kHigh_GrSLPrecision;
-        table[kAlpha_half_GrPixelConfig] = mediump;
-        table[kRGBA_half_GrPixelConfig]  = mediump;
+        table[kUnknown_GrPixelConfig]        = kDefault_GrSLPrecision;
+        table[kAlpha_8_GrPixelConfig]        = lowp;
+        table[kIndex_8_GrPixelConfig]        = lowp;
+        table[kRGB_565_GrPixelConfig]        = lowp;
+        table[kRGBA_4444_GrPixelConfig]      = lowp;
+        table[kRGBA_8888_GrPixelConfig]      = lowp;
+        table[kBGRA_8888_GrPixelConfig]      = lowp;
+        table[kSRGBA_8888_GrPixelConfig]     = lowp;
+        table[kSBGRA_8888_GrPixelConfig]     = lowp;
+        table[kRGBA_8888_sint_GrPixelConfig] = lowp;
+        table[kETC1_GrPixelConfig]           = lowp;
+        table[kLATC_GrPixelConfig]           = lowp;
+        table[kR11_EAC_GrPixelConfig]        = lowp;
+        table[kASTC_12x12_GrPixelConfig]     = lowp;
+        table[kRGBA_float_GrPixelConfig]     = kHigh_GrSLPrecision;
+        table[kAlpha_half_GrPixelConfig]     = mediump;
+        table[kRGBA_half_GrPixelConfig]      = mediump;
 
-        GR_STATIC_ASSERT(16 == kGrPixelConfigCnt);
+        GR_STATIC_ASSERT(17 == kGrPixelConfigCnt);
     }
 }
 

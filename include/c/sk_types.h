@@ -186,39 +186,6 @@ typedef struct sk_surface_t sk_surface_t;
 */
 typedef struct sk_region_t sk_region_t;
 
-
-typedef enum {
-    CLEAR_SK_XFERMODE_MODE,
-    SRC_SK_XFERMODE_MODE,
-    DST_SK_XFERMODE_MODE,
-    SRCOVER_SK_XFERMODE_MODE,
-    DSTOVER_SK_XFERMODE_MODE,
-    SRCIN_SK_XFERMODE_MODE,
-    DSTIN_SK_XFERMODE_MODE,
-    SRCOUT_SK_XFERMODE_MODE,
-    DSTOUT_SK_XFERMODE_MODE,
-    SRCATOP_SK_XFERMODE_MODE,
-    DSTATOP_SK_XFERMODE_MODE,
-    XOR_SK_XFERMODE_MODE,
-    PLUS_SK_XFERMODE_MODE,
-    MODULATE_SK_XFERMODE_MODE,
-    SCREEN_SK_XFERMODE_MODE,
-    OVERLAY_SK_XFERMODE_MODE,
-    DARKEN_SK_XFERMODE_MODE,
-    LIGHTEN_SK_XFERMODE_MODE,
-    COLORDODGE_SK_XFERMODE_MODE,
-    COLORBURN_SK_XFERMODE_MODE,
-    HARDLIGHT_SK_XFERMODE_MODE,
-    SOFTLIGHT_SK_XFERMODE_MODE,
-    DIFFERENCE_SK_XFERMODE_MODE,
-    EXCLUSION_SK_XFERMODE_MODE,
-    MULTIPLY_SK_XFERMODE_MODE,
-    HUE_SK_XFERMODE_MODE,
-    SATURATION_SK_XFERMODE_MODE,
-    COLOR_SK_XFERMODE_MODE,
-    LUMINOSITY_SK_XFERMODE_MODE,
-} sk_xfermode_mode_t;
-
 typedef enum {
     CLEAR_SK_BLENDMODE,
     SRC_SK_BLENDMODE,
@@ -494,6 +461,8 @@ typedef enum {
 typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
     sk_irect_t* fSubset;
+    size_t fFrameIndex;
+    bool fHasPriorFrame;
 } sk_codec_options_t;
 
 // The verbs that can be foudn on a path
@@ -590,6 +559,7 @@ typedef enum {
     BGRA_8888_GR_PIXEL_CONFIG,
     SRGBA_8888_GR_PIXEL_CONFIG,
     SBGRA_8888_GR_PIXEL_CONFIG,
+    RGBA_8888_SINT_GR_PIXEL_CONFIG,
     ETC1_GR_PIXEL_CONFIG,
     LATC_GR_PIXEL_CONFIG,
     R11_EAC_GR_PIXEL_CONFIG,
@@ -700,6 +670,46 @@ typedef enum {
 } sk_pathmeasure_matrixflags_t;
 
 typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
+
+typedef enum {
+    NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x00,
+    TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x01,
+    LARGER_UMBRA_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x02,
+    GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x04,
+    ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x07
+} sk_shadowmaskfilter_shadowflags_t;
+
+typedef enum {
+    OPAQUE_SK_ENCODEDINFO_ALPHA,
+    UNPREMUL_SK_ENCODEDINFO_ALPHA,
+    BINARY_SK_ENCODEDINFO_ALPHA,
+} sk_encodedinfo_alpha_t;
+
+typedef enum {
+    GRAY_SK_ENCODEDINFO_COLOR,
+    GRAY_ALPHA_SK_ENCODEDINFO_COLOR,
+    PALETTE_SK_ENCODEDINFO_COLOR,
+    RGB_SK_ENCODEDINFO_COLOR,
+    RGBA_SK_ENCODEDINFO_COLOR,
+    BGR_SK_ENCODEDINFO_COLOR,
+    BGRX_SK_ENCODEDINFO_COLOR,
+    BGRA_SK_ENCODEDINFO_COLOR,
+    YUV_SK_ENCODEDINFO_COLOR,
+    YUVA_SK_ENCODEDINFO_COLOR,
+    INVERTED_CMYK_SK_ENCODEDINFO_COLOR,
+    YCCK_SK_ENCODEDINFO_COLOR,
+} sk_encodedinfo_color_t;
+
+typedef struct {
+    sk_encodedinfo_color_t fColor;
+    sk_encodedinfo_alpha_t fAlpha;
+    uint8_t fBitsPerComponent;
+} sk_encodedinfo_t;
+
+typedef struct {
+    size_t fRequiredFrame;
+    size_t fDuration;
+} sk_codec_frameinfo_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

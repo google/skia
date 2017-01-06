@@ -71,7 +71,7 @@ private:
     SkScalar                 fSize;
     SkScalar                 fScaleX;
 
-    // Keep this SkAutoTUnref off the first position, to avoid interfering with SkNoncopyable
+    // Keep this sk_sp off the first position, to avoid interfering with SkNoncopyable
     // empty baseclass optimization (http://code.google.com/p/skia/issues/detail?id=3694).
     sk_sp<SkTypeface>        fTypeface;
     SkScalar                 fSkewX;

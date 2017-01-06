@@ -9,7 +9,7 @@
 #define SKSL_INTERFACEBLOCK
 
 #include "SkSLProgramElement.h"
-#include "SkSLVarDeclaration.h"
+#include "SkSLVarDeclarations.h"
 
 namespace SkSL {
 

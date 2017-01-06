@@ -22,7 +22,7 @@ class SkOpContourHead;
 #define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 #endif
 
-#define DEBUG_UNDER_DEVELOPMENT 1
+#define DEBUG_UNDER_DEVELOPMENT 0
 
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
@@ -58,6 +58,7 @@ class SkOpContourHead;
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
 #define DEBUG_DUMP_SEGMENTS 0
+#define DEBUG_DUMP_VERIFY 0
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
@@ -87,6 +88,7 @@ class SkOpContourHead;
 #define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
+#define DEBUG_DUMP_VERIFY 0
 #define DEBUG_DUMP_SEGMENTS 1
 #define DEBUG_FLOW 1
 #define DEBUG_LIMIT_WIND_SUM 15
@@ -371,6 +373,27 @@ public:
     static void DumpCoinDict();
     static void DumpGlitchType(GlitchType );
 #endif
+
+    static bool gRunFail;
+    static bool gVeryVerbose;
+
+#if DEBUG_DUMP_VERIFY
+    static bool gDumpOp;
+    static bool gVerifyOp;
+
+    static void DumpOp(const SkPath& one, const SkPath& two, SkPathOp op,
+            const char* testName);
+    static void DumpOp(FILE* file, const SkPath& one, const SkPath& two, SkPathOp op,
+            const char* testName);
+    static void DumpSimplify(const SkPath& path, const char* testName);
+    static void DumpSimplify(FILE* file, const SkPath& path, const char* testName);
+    static void ReportOpFail(const SkPath& one, const SkPath& two, SkPathOp op);
+    static void ReportSimplifyFail(const SkPath& path);
+    static void VerifyOp(const SkPath& one, const SkPath& two, SkPathOp op,
+        const SkPath& result);
+    static void VerifySimplify(const SkPath& path, const SkPath& result);
+#endif
+
 };
 
 struct SkDQuad;

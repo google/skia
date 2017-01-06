@@ -102,17 +102,17 @@ public:
     {}
 
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeFlattenable(fIntDrawable);
-        buffer.writeFlattenable(fPaintDrawable);
+        buffer.writeFlattenable(fIntDrawable.get());
+        buffer.writeFlattenable(fPaintDrawable.get());
     }
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
-        SkAutoTUnref<SkFlattenable> intDrawable(
+        sk_sp<SkFlattenable> intDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(intDrawable);
         SkASSERT(!strcmp("IntDrawable", intDrawable->getTypeName()));
 
-        SkAutoTUnref<SkFlattenable> paintDrawable(
+        sk_sp<SkFlattenable> paintDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(paintDrawable);
         SkASSERT(!strcmp("PaintDrawable", paintDrawable->getTypeName()));
@@ -123,8 +123,8 @@ public:
 
     Factory getFactory() const override { return CreateProc; }
 
-    IntDrawable* intDrawable() const { return fIntDrawable; }
-    PaintDrawable* paintDrawable() const { return fPaintDrawable; }
+    IntDrawable* intDrawable() const { return fIntDrawable.get(); }
+    PaintDrawable* paintDrawable() const { return fPaintDrawable.get(); }
 
     const char* getTypeName() const override { return "CompoundDrawable"; }
 
@@ -133,8 +133,8 @@ protected:
     void onDraw(SkCanvas*) override {}
 
 private:
-    SkAutoTUnref<IntDrawable>   fIntDrawable;
-    SkAutoTUnref<PaintDrawable> fPaintDrawable;
+    sk_sp<IntDrawable>   fIntDrawable;
+    sk_sp<PaintDrawable> fPaintDrawable;
 };
 
 class RootDrawable : public SkDrawable {
@@ -154,23 +154,23 @@ public:
     {}
 
     void flatten(SkWriteBuffer& buffer) const override {
-        buffer.writeFlattenable(fCompoundDrawable);
-        buffer.writeFlattenable(fIntDrawable);
-        buffer.writeFlattenable(fDrawable);
+        buffer.writeFlattenable(fCompoundDrawable.get());
+        buffer.writeFlattenable(fIntDrawable.get());
+        buffer.writeFlattenable(fDrawable.get());
     }
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
-        SkAutoTUnref<SkFlattenable> compoundDrawable(
+        sk_sp<SkFlattenable> compoundDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(compoundDrawable);
         SkASSERT(!strcmp("CompoundDrawable", compoundDrawable->getTypeName()));
 
-        SkAutoTUnref<SkFlattenable> intDrawable(
+        sk_sp<SkFlattenable> intDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(intDrawable);
         SkASSERT(!strcmp("IntDrawable", intDrawable->getTypeName()));
 
-        SkAutoTUnref<SkFlattenable> drawable(
+        sk_sp<SkFlattenable> drawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(drawable);
 
@@ -181,9 +181,9 @@ public:
 
     Factory getFactory() const override { return CreateProc; }
 
-    CompoundDrawable* compoundDrawable() const { return fCompoundDrawable; }
-    IntDrawable* intDrawable() const { return fIntDrawable; }
-    SkDrawable* drawable() const { return fDrawable; }
+    CompoundDrawable* compoundDrawable() const { return fCompoundDrawable.get(); }
+    IntDrawable* intDrawable() const { return fIntDrawable.get(); }
+    SkDrawable* drawable() const { return fDrawable.get(); }
 
     const char* getTypeName() const override { return "RootDrawable"; }
 
@@ -192,9 +192,9 @@ protected:
     void onDraw(SkCanvas*) override {}
 
 private:
-    SkAutoTUnref<CompoundDrawable> fCompoundDrawable;
-    SkAutoTUnref<IntDrawable>      fIntDrawable;
-    SkAutoTUnref<SkDrawable>       fDrawable;
+    sk_sp<CompoundDrawable> fCompoundDrawable;
+    sk_sp<IntDrawable>      fIntDrawable;
+    sk_sp<SkDrawable>       fDrawable;
 };
 
 static void register_test_drawables(SkReadBuffer& buffer) {
@@ -206,12 +206,12 @@ static void register_test_drawables(SkReadBuffer& buffer) {
 
 DEF_TEST(FlattenDrawable, r) {
     // Create and serialize the test drawable
-    SkAutoTUnref<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
+    sk_sp<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
-    SkAutoTUnref<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable));
+    sk_sp<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable.get()));
     SkBinaryWriteBuffer writeBuffer;
-    writeBuffer.writeFlattenable(root);
+    writeBuffer.writeFlattenable(root.get());
 
     // Copy the contents of the write buffer into a read buffer
     sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
@@ -220,8 +220,7 @@ DEF_TEST(FlattenDrawable, r) {
     register_test_drawables(readBuffer);
 
     // Deserialize and verify the drawable
-    SkAutoTUnref<SkDrawable> out((SkDrawable*)
-            readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
+    sk_sp<SkDrawable> out((SkDrawable*)readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
     REPORTER_ASSERT(r, out);
     REPORTER_ASSERT(r, !strcmp("RootDrawable", out->getTypeName()));
 
@@ -260,13 +259,13 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     canvas->drawText("TEXT", 4, 467.0f, 100.0f, textPaint);
 
     // Draw some drawables as well
-    SkAutoTUnref<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
-    SkAutoTUnref<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable));
-    canvas->drawDrawable(root, 747.0f, 242.0f);
-    SkAutoTUnref<PaintDrawable> paintDrawable(new PaintDrawable(paint));
-    canvas->drawDrawable(paintDrawable, 500.0, 500.0f);
-    SkAutoTUnref<CompoundDrawable> comDrawable(new CompoundDrawable(13, 14, 15, 16, textPaint));
-    canvas->drawDrawable(comDrawable, 10.0f, 10.0f);
+    sk_sp<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));
+    sk_sp<RootDrawable> root(new RootDrawable(5, 6, 7, 8, paint, 9, 10, 11, 12, drawable.get()));
+    canvas->drawDrawable(root.get(), 747.0f, 242.0f);
+    sk_sp<PaintDrawable> paintDrawable(new PaintDrawable(paint));
+    canvas->drawDrawable(paintDrawable.get(), 500.0, 500.0f);
+    sk_sp<CompoundDrawable> comDrawable(new CompoundDrawable(13, 14, 15, 16, textPaint));
+    canvas->drawDrawable(comDrawable.get(), 10.0f, 10.0f);
 
     // Serialize the recorded drawable
     sk_sp<SkDrawable> recordedDrawable = recorder.finishRecordingAsDrawable();
@@ -280,8 +279,7 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     register_test_drawables(readBuffer);
 
     // Deserialize and verify the drawable
-    SkAutoTUnref<SkDrawable> out((SkDrawable*)
-            readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
+    sk_sp<SkDrawable> out((SkDrawable*)readBuffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
     REPORTER_ASSERT(r, out);
     REPORTER_ASSERT(r, !strcmp("SkRecordedDrawable", out->getTypeName()));
 }

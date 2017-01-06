@@ -33,6 +33,7 @@ struct Expression : public IRNode {
         kVariableReference_Kind,
         kTernary_Kind,
         kTypeReference_Kind,
+        kDefined_Kind
     };
 
     Expression(Position position, Kind kind, const Type& type)

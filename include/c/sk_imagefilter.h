@@ -126,7 +126,7 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
 SK_API sk_imagefilter_t* sk_imagefilter_new_merge(
     sk_imagefilter_t* filters[],
     int count,
-    const sk_xfermode_mode_t modes[] /*NULL*/,
+    const sk_blendmode_t modes[] /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/);
 SK_API sk_imagefilter_t* sk_imagefilter_new_dilate(
     int radiusX, 

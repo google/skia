@@ -8,6 +8,7 @@
 #include "PathOpsCubicIntersectionTestData.h"
 #include "PathOpsQuadIntersectionTestData.h"
 #include "SkCommonFlags.h"
+#include "SkPathOpsCubic.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -49,10 +50,12 @@ static void quadTest(const SkPoint c[3]) {
     pathTest(path);
 }
 
-static void cubicSetTest(const SkDCubic* dCubic, size_t count) {
+static void cubicSetTest(const CubicPts* dCubic, size_t count) {
     skiatest::Timer timer;
     for (size_t index = 0; index < count; ++index) {
-        const SkDCubic& d = dCubic[index];
+        const CubicPts& dPts = dCubic[index];
+        SkDCubic d;
+        d.debugSet(dPts.fPts);
         SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
         cubicTest(c);
@@ -62,11 +65,13 @@ static void cubicSetTest(const SkDCubic* dCubic, size_t count) {
     }
 }
 
-static void cubicPairSetTest(const SkDCubic dCubic[][2], size_t count) {
+static void cubicPairSetTest(const CubicPts dCubic[][2], size_t count) {
     skiatest::Timer timer;
     for (size_t index = 0; index < count; ++index) {
         for (int pair = 0; pair < 2; ++pair) {
-            const SkDCubic& d = dCubic[index][pair];
+            const CubicPts& dPts = dCubic[index][pair];
+            SkDCubic d;
+            d.debugSet(dPts.fPts);
             SkPoint c[4] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}, {(float) d[3].fX, (float) d[3].fY} };
             cubicTest(c);
@@ -77,10 +82,12 @@ static void cubicPairSetTest(const SkDCubic dCubic[][2], size_t count) {
     }
 }
 
-static void quadSetTest(const SkDQuad* dQuad, size_t count) {
+static void quadSetTest(const QuadPts* dQuad, size_t count) {
     skiatest::Timer timer;
     for (size_t index = 0; index < count; ++index) {
-        const SkDQuad& d = dQuad[index];
+        const QuadPts& dPts = dQuad[index];
+        SkDQuad d;
+        d.debugSet(dPts.fPts);
         SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                          {(float) d[2].fX, (float) d[2].fY}  };
         quadTest(c);
@@ -90,11 +97,13 @@ static void quadSetTest(const SkDQuad* dQuad, size_t count) {
     }
 }
 
-static void quadPairSetTest(const SkDQuad dQuad[][2], size_t count) {
+static void quadPairSetTest(const QuadPts dQuad[][2], size_t count) {
     skiatest::Timer timer;
     for (size_t index = 0; index < count; ++index) {
         for (int pair = 0; pair < 2; ++pair) {
-            const SkDQuad& d = dQuad[index][pair];
+            const QuadPts& dPts = dQuad[index][pair];
+            SkDQuad d;
+            d.debugSet(dPts.fPts);
             SkPoint c[3] = { {(float) d[0].fX, (float) d[0].fY}, {(float) d[1].fX, (float) d[1].fY},
                              {(float) d[2].fX, (float) d[2].fY}  };
             quadTest(c);

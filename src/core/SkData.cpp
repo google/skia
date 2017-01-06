@@ -19,10 +19,9 @@ SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
     fReleaseProcContext = context;
 }
 
-// This constructor means we are inline with our fPtr's contents. Thus we set fPtr
-// to point right after this. We also set our releaseproc to sk_inplace_sentinel_releaseproc,
-// since we need to handle "delete" ourselves. See internal_displose().
-//
+/** This constructor means we are inline with our fPtr's contents.
+ *  Thus we set fPtr to point right after this.
+ */
 SkData::SkData(size_t size) {
     fPtr = (char*)(this + 1);   // contents are immediately after this
     fSize = size;
@@ -70,12 +69,12 @@ sk_sp<SkData> SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
         sk_throw();
     }
 
-    char* storage = (char*)sk_malloc_throw(actualLength);
-    SkData* data = new (storage) SkData(length);
+    void* storage = ::operator new (actualLength);
+    sk_sp<SkData> data(new (storage) SkData(length));
     if (srcOrNull) {
         memcpy(data->writable_data(), srcOrNull, length);
     }
-    return sk_sp<SkData>(data);
+    return data;
 }
 
 void SkData::DummyReleaseProc(const void*, void*) {}

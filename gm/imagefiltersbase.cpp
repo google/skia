@@ -194,7 +194,7 @@ protected:
             draw_bitmap,
         };
 
-        auto cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode);
+        auto cf = SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kSrcIn);
         sk_sp<SkImageFilter> filters[] = {
             nullptr,
             IdentityImageFilter::Make(nullptr),
@@ -318,7 +318,7 @@ public:
     ImageFiltersText_CF() : ImageFiltersTextBaseGM("color") {}
 
     void installFilter(SkPaint* paint) override {
-        paint->setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLUE, SkBlendMode::kSrcIn));
     }
 };
 DEF_GM( return new ImageFiltersText_CF; )

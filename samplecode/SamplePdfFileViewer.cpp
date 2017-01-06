@@ -36,7 +36,7 @@ private:
     SkPicture*  fPicture;  // TODO(edisonn): multiple pages, one page / picture, make it an array
 
     static SkPicture* LoadPdf(const char path[]) {
-        SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
+        std::unique_ptr<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
         if (nullptr == renderer.get()) {
             return nullptr;
         }

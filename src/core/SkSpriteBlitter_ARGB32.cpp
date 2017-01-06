@@ -11,7 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

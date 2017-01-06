@@ -581,7 +581,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
         }
 
     private:
-        SkAutoTUnref<const SkFontMgr_fontconfig> fFontMgr;
+        sk_sp<const SkFontMgr_fontconfig> fFontMgr;
         SkAutoFcFontSet fFontSet;
     };
 
@@ -944,7 +944,7 @@ protected:
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
-        SkAutoTUnref<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
+        sk_sp<SkTypeface> typeface(this->matchFamilyStyle(familyName, style));
         if (typeface.get()) {
             return typeface.release();
         }

@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrPathProcessor.h"
+#include "GrStencilSettings.h"
 
 #include "SkTLList.h"
 
@@ -81,7 +82,7 @@ private:
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
 
-    void onDraw(GrBatchFlushState* state) override;
+    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
@@ -174,7 +175,7 @@ private:
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 
-    void onDraw(GrBatchFlushState* state) override;
+    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 
     struct Draw {
         void set(const InstanceData* instanceData, SkScalar x, SkScalar y) {
@@ -183,8 +184,8 @@ private:
             fY = y;
         }
 
-        SkAutoTUnref<const InstanceData>    fInstanceData;
-        SkScalar                            fX, fY;
+        sk_sp<const InstanceData> fInstanceData;
+        SkScalar                  fX, fY;
     };
 
     typedef GrPendingIOResource<const GrPathRange, kRead_GrIOType> PendingPathRange;

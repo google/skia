@@ -22,8 +22,7 @@ public:
     SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                    int srcFullWidth, int srcFullHeight,
                    float destWidth, float destHeight,
-                   const SkRect& destSubset,
-                   const SkConvolutionProcs& convolveProcs);
+                   const SkRect& destSubset);
     ~SkResizeFilter() { delete fBitmapFilter; }
 
     // Returns the filled filter values.
@@ -48,8 +47,7 @@ private:
     void computeFilters(int srcSize,
                         float destSubsetLo, float destSubsetSize,
                         float scale,
-                        SkConvolutionFilter1D* output,
-                        const SkConvolutionProcs& convolveProcs);
+                        SkConvolutionFilter1D* output);
 
     SkConvolutionFilter1D fXFilter;
     SkConvolutionFilter1D fYFilter;
@@ -58,8 +56,7 @@ private:
 SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                                int srcFullWidth, int srcFullHeight,
                                float destWidth, float destHeight,
-                               const SkRect& destSubset,
-                               const SkConvolutionProcs& convolveProcs) {
+                               const SkRect& destSubset) {
 
     SkASSERT(method >= SkBitmapScaler::RESIZE_FirstMethod &&
              method <= SkBitmapScaler::RESIZE_LastMethod);
@@ -88,7 +85,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
     float scaleY = destHeight / srcFullHeight;
 
     this->computeFilters(srcFullWidth, destSubset.fLeft, destSubset.width(),
-                         scaleX, &fXFilter, convolveProcs);
+                         scaleX, &fXFilter);
     if (srcFullWidth == srcFullHeight &&
         destSubset.fLeft == destSubset.fTop &&
         destSubset.width() == destSubset.height()&&
@@ -96,7 +93,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
         fYFilter = fXFilter;
     } else {
         this->computeFilters(srcFullHeight, destSubset.fTop, destSubset.height(),
-                          scaleY, &fYFilter, convolveProcs);
+                          scaleY, &fYFilter);
     }
 }
 
@@ -114,8 +111,7 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
 void SkResizeFilter::computeFilters(int srcSize,
                                   float destSubsetLo, float destSubsetSize,
                                   float scale,
-                                  SkConvolutionFilter1D* output,
-                                  const SkConvolutionProcs& convolveProcs) {
+                                  SkConvolutionFilter1D* output) {
   float destSubsetHi = destSubsetLo + destSubsetSize;  // [lo, hi)
 
   // When we're doing a magnification, the scale will be larger than one. This
@@ -200,10 +196,6 @@ void SkResizeFilter::computeFilters(int srcSize,
     // Now it's ready to go.
     output->AddFilter(SkScalarFloorToInt(srcBegin), fixedFilterValues, filterCount);
   }
-
-  if (convolveProcs.fApplySIMDPadding) {
-      convolveProcs.fApplySIMDPadding(output);
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,13 +214,13 @@ bool SkBitmapScaler::Resize(const SkPixmap& result, const SkPixmap& source, Resi
         return false;
     }
 
-    SkConvolutionProcs convolveProcs= { 0, nullptr, nullptr, nullptr, nullptr };
+    SkConvolutionProcs convolveProcs= { nullptr, nullptr, nullptr };
     PlatformConvolutionProcs(&convolveProcs);
 
     SkRect destSubset = SkRect::MakeIWH(result.width(), result.height());
 
     SkResizeFilter filter(method, source.width(), source.height(),
-                          result.width(), result.height(), destSubset, convolveProcs);
+                          result.width(), result.height(), destSubset);
 
     // Get a subset encompassing this touched area. We construct the
     // offsets and row strides such that it looks like a new bitmap, while

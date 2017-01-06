@@ -29,6 +29,7 @@
 #include "SkPathOps.h"
 #include "SkRegion.h"
 #include "SkTypeface.h"
+#include "SkEncodedInfo.h"
 #include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
@@ -540,6 +541,42 @@ static inline sk_pathmeasure_t* ToPathMeasure(SkPathMeasure* p) {
 
 static inline SkPathMeasure* AsPathMeasure(sk_pathmeasure_t* p) {
     return reinterpret_cast<SkPathMeasure*>(p);
+}
+
+static inline sk_encodedinfo_t* ToEncodedInfo(SkEncodedInfo *p) {
+    return reinterpret_cast<sk_encodedinfo_t*>(p);
+}
+
+static inline sk_encodedinfo_t& ToEncodedInfo(SkEncodedInfo &p) {
+    return reinterpret_cast<sk_encodedinfo_t&>(p);
+}
+
+static inline const sk_encodedinfo_t* ToEncodedInfo(const SkEncodedInfo *p) {
+    return reinterpret_cast<const sk_encodedinfo_t*>(p);
+}
+
+static inline const sk_encodedinfo_t& ToEncodedInfo(const SkEncodedInfo &p) {
+    return reinterpret_cast<const sk_encodedinfo_t&>(p);
+}
+
+static inline SkCodec::FrameInfo* AsFrameInfo(sk_codec_frameinfo_t *p) {
+    return reinterpret_cast<SkCodec::FrameInfo*>(p);
+}
+
+static inline sk_codec_frameinfo_t* ToFrameInfo(SkCodec::FrameInfo *p) {
+    return reinterpret_cast<sk_codec_frameinfo_t*>(p);
+}
+
+static inline sk_codec_frameinfo_t& ToFrameInfo(SkCodec::FrameInfo &p) {
+    return reinterpret_cast<sk_codec_frameinfo_t&>(p);
+}
+
+static inline const sk_codec_frameinfo_t* ToFrameInfo(const SkCodec::FrameInfo *p) {
+    return reinterpret_cast<const sk_codec_frameinfo_t*>(p);
+}
+
+static inline const sk_codec_frameinfo_t& ToFrameInfo(const SkCodec::FrameInfo &p) {
+    return reinterpret_cast<const sk_codec_frameinfo_t&>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

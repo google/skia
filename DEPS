@@ -5,7 +5,7 @@ use_relative_paths = True
 deps = {
   "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@5fd66957f08bb752dca714a591c84587c9d70762",
 
-  "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
+  "common": "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
 
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
@@ -17,7 +17,6 @@ deps = {
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
-  "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
   "third_party/externals/piex"    : "https://android.googlesource.com/platform/external/piex.git@be908191d0a6883a95333bdc0bca749c9b830969",
@@ -43,12 +42,6 @@ deps = {
 
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
-
-  # shaderc for the vulkan backend
-  "third_party/externals/shaderc2" : "https://github.com/google/shaderc.git@7308a2cacffce47cc944a59b411ab065c01c3f03",
-  "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",
-  "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@e1cd410d9c03a24c00c570c91a99cad88bb475d1",
-  "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@009c4358b5a1c93203166b3ed60a548f63522e81",
 }
 
 recursedeps = [ "common" ]

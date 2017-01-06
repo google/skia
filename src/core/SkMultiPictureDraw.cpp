@@ -18,7 +18,7 @@ void SkMultiPictureDraw::DrawData::draw() {
 void SkMultiPictureDraw::DrawData::init(SkCanvas* canvas, const SkPicture* picture,
                                         const SkMatrix* matrix, const SkPaint* paint) {
     fPicture = SkRef(picture);
-    fCanvas = SkRef(canvas);
+    fCanvas = canvas;
     if (matrix) {
         fMatrix = *matrix;
     } else {
@@ -34,7 +34,6 @@ void SkMultiPictureDraw::DrawData::init(SkCanvas* canvas, const SkPicture* pictu
 void SkMultiPictureDraw::DrawData::Reset(SkTDArray<DrawData>& data) {
     for (int i = 0; i < data.count(); ++i) {
         data[i].fPicture->unref();
-        data[i].fCanvas->unref();
         delete data[i].fPaint;
     }
     data.rewind();

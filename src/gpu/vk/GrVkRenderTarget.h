@@ -34,9 +34,9 @@ public:
     static GrVkRenderTarget* CreateNewRenderTarget(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                                                    const GrVkImage::ImageDesc&);
 
-    static GrVkRenderTarget* CreateWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                       GrWrapOwnership,
-                                                       const GrVkImageInfo*);
+    static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
+                                                           GrWrapOwnership,
+                                                           const GrVkImageInfo*);
 
     ~GrVkRenderTarget() override;
 
@@ -99,11 +99,9 @@ protected:
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
-        SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
-        size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
-        SkASSERT(colorBytes > 0);
-        return fColorValuesPerPixel * fDesc.fWidth * fDesc.fHeight * colorBytes;
+        // The plus 1 is to account for the resolve texture.
+        // TODO: is this still correct?
+        return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
     }
 
     void createFramebuffer(GrVkGpu* gpu);
@@ -138,7 +136,6 @@ private:
     void abandonInternalObjects();
 
     const GrVkFramebuffer*     fFramebuffer;
-    int                        fColorValuesPerPixel;
 
     // This is a cached pointer to a simple render pass. The render target should unref it
     // once it is done with it.

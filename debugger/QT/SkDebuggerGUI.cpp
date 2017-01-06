@@ -281,9 +281,9 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
     sk_sp<SkPicture> copy(fDebugger.copyPicture());
 
-    SkAutoTUnref<SkPixelSerializer> serializer(
+    sk_sp<SkPixelSerializer> serializer(
             SkImageEncoder::CreatePixelSerializer());
-    copy->serialize(&file, serializer);
+    copy->serialize(&file, serializer.get());
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
@@ -672,9 +672,9 @@ void SkDebuggerGUI::populateDirectoryWidget() {
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
-    SkAutoTDelete<SkStream> stream(new SkFILEStream(fileName.c_str()));
+    SkFILEStream stream(fileName.c_str());
 
-    auto picture = SkPicture::MakeFromStream(stream);
+    auto picture = SkPicture::MakeFromStream(&stream);
 
     if (nullptr == picture) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");

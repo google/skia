@@ -70,7 +70,7 @@ public:
                         const SkPoint& offset, const SkPaint& paint) const;
     void    drawVertices(SkCanvas::VertexMode mode, int count,
                          const SkPoint vertices[], const SkPoint textures[],
-                         const SkColor colors[], SkXfermode* xmode,
+                         const SkColor colors[], SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
                          const SkPaint& paint) const;
 

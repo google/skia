@@ -96,10 +96,6 @@ public:
     }
 
     void setPorterDuffXPFactory(SkBlendMode mode) {
-        fXPFactory = GrPorterDuffXPFactory::Make((SkXfermode::Mode)mode);
-    }
-
-    void setPorterDuffXPFactory(SkXfermode::Mode mode) {
         fXPFactory = GrPorterDuffXPFactory::Make(mode);
     }
 

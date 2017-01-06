@@ -189,7 +189,7 @@ SK_API sk_shader_t* sk_shader_new_compose(
 SK_API sk_shader_t* sk_shader_new_compose_with_mode(
     sk_shader_t* shaderA,
     sk_shader_t* shaderB,
-    sk_xfermode_mode_t mode);
+    sk_blendmode_t mode);
 
 SK_C_PLUS_PLUS_END_GUARD
 

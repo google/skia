@@ -12,24 +12,44 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
+static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelConfig config,
+                                    const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
+        SkASSERT(!GrPixelConfigIsSint(config));
         return kTextureExternalSampler_GrSLType;
     } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
         SkASSERT(gpu->glCaps().rectangleTextureSupport());
+        SkASSERT(!GrPixelConfigIsSint(config));
         return kTexture2DRectSampler_GrSLType;
+    } else if (GrPixelConfigIsSint(config)) {
+        return kITexture2DSampler_GrSLType;
     } else {
         SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
         return kTexture2DSampler_GrSLType;
     }
 }
 
+static inline GrTextureParams::FilterMode highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
+                                                              GrPixelConfig config) {
+    if (GrPixelConfigIsSint(config)) {
+        // Integer textures in GL can use GL_NEAREST_MIPMAP_NEAREST. This is a mode we don't support
+        // and don't currently have a use for.
+        return GrTextureParams::kNone_FilterMode;
+    }
+    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
+        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
+        return GrTextureParams::kBilerp_FilterMode;
+    }
+    return GrTextureParams::kMipMap_FilterMode;
+}
+
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
+                highest_filter_mode(idDesc, desc.fConfig), false) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -38,21 +58,27 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
                          const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
+                highest_filter_mode(idDesc, desc.fConfig),
+                wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
+                highest_filter_mode(idDesc, desc.fConfig), false) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
+                         bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
+                highest_filter_mode(idDesc, desc.fConfig),
+                wasMipMapDataProvided) {
     this->init(desc, idDesc);
 }
 
@@ -81,11 +107,7 @@ void GrGLTexture::onAbandon() {
 }
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    return static_cast<GrBackendObject>(this->textureID());
-#else
     return reinterpret_cast<GrBackendObject>(&fInfo);
-#endif
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
@@ -96,8 +118,8 @@ void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                       texture_id.c_str());
 }
 
-GrGLTexture* GrGLTexture::CreateWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
-                                        const IDDesc& idDesc) {
-    return new GrGLTexture(gpu, kWrapped, desc, idDesc);
+sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                            const IDDesc& idDesc) {
+    return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
 

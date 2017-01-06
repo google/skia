@@ -8,7 +8,7 @@
 #include "SkPatchGrid.h"
 #include "SkPatchUtils.h"
 
-SkPatchGrid::SkPatchGrid(int rows, int cols, VertexType flags, SkXfermode* xfer)
+SkPatchGrid::SkPatchGrid(int rows, int cols, VertexType flags)
     : fRows(0)
     , fCols(0)
     , fModeFlags(kNone_VertexType)
@@ -17,8 +17,8 @@ SkPatchGrid::SkPatchGrid(int rows, int cols, VertexType flags, SkXfermode* xfer)
     , fTexCoords(nullptr)
     , fHrzCtrlPts(nullptr)
     , fVrtCtrlPts(nullptr)
-    , fXferMode(nullptr) {
-        this->reset(rows, cols, flags, xfer);
+{
+    this->reset(rows, cols, flags, SkBlendMode::kModulate);
 }
 
 SkPatchGrid::~SkPatchGrid() {
@@ -119,7 +119,7 @@ bool SkPatchGrid::getPatch(int x, int y, SkPoint cubics[12], SkColor colors[4],
     return true;
 }
 
-void SkPatchGrid::reset(int rows, int cols, VertexType flags, SkXfermode* xMode) {
+void SkPatchGrid::reset(int rows, int cols, VertexType flags, SkBlendMode blendmode) {
     delete[] fCornerPts;
     delete[] fCornerColors;
     delete[] fTexCoords;
@@ -129,7 +129,7 @@ void SkPatchGrid::reset(int rows, int cols, VertexType flags, SkXfermode* xMode)
     fCols = cols;
     fRows = rows;
     fModeFlags = flags;
-    fXferMode = xMode;
+    fBlendMode = blendmode;
 
     fCornerPts = new SkPoint[(fRows + 1) * (fCols + 1)];
     fHrzCtrlPts = new SkPoint[(fRows + 1) * fCols * 2];
@@ -179,7 +179,7 @@ void SkPatchGrid::draw(SkCanvas* canvas, SkPaint& paint) {
                                             fModeFlags & kTexs_VertexType ? texCoords : nullptr,
                                             maxCols[x], maxRows[y])) {
                 canvas->drawVertices(SkCanvas::kTriangles_VertexMode, data.fVertexCount,
-                                     data.fPoints, data.fTexCoords, data.fColors, fXferMode,
+                                     data.fPoints, data.fTexCoords, data.fColors, fBlendMode,
                                      data.fIndices, data.fIndexCount, paint);
             }
         }

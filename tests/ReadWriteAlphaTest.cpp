@@ -50,7 +50,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
-        SkAutoTUnref<GrTexture> texture(
+        sk_sp<GrTexture> texture(
             ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo, alphaData,
                                                                   0));
         if (!texture) {
@@ -76,7 +76,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
-            SkAutoTDeleteArray<uint8_t> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
+            std::unique_ptr<uint8_t[]> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
             // clear readback to something non-zero so we can detect readback failures
             memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
@@ -152,7 +152,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
-            SkAutoTUnref<GrTexture> texture(
+            sk_sp<GrTexture> texture(
                 ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo,
                                                                       rgbaData, 0));
             if (!texture) {
@@ -166,7 +166,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
 
-                SkAutoTDeleteArray<uint8_t> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
+                std::unique_ptr<uint8_t[]> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
                 // Clear so we don't accidentally see values from previous iteration.
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 

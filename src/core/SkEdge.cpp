@@ -172,8 +172,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy)
     return (32 - SkCLZ(dist)) >> 1;
 }
 
-int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
-{
+bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift) {
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
     {
@@ -266,6 +265,13 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
     fQLastX = SkFDot6ToFixed(x2);
     fQLastY = SkFDot6ToFixed(y2);
 
+    return true;
+}
+
+int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift) {
+    if (!setQuadraticWithoutUpdate(pts, shift)) {
+        return 0;
+    }
     return this->updateQuadratic();
 }
 
@@ -332,7 +338,7 @@ static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
     return SkMax32(SkAbs32(oneThird), SkAbs32(twoThird));
 }
 
-int SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
+bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift) {
     SkFDot6 x0, y0, x1, y1, x2, y2, x3, y3;
 
     {
@@ -428,6 +434,13 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
     fCLastX = SkFDot6ToFixed(x3);
     fCLastY = SkFDot6ToFixed(y3);
 
+    return true;
+}
+
+int SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
+    if (!this->setCubicWithoutUpdate(pts, shift)) {
+        return 0;
+    }
     return this->updateCubic();
 }
 

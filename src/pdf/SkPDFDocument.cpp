@@ -217,7 +217,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
     fPageDevice.reset(
             SkPDFDevice::Create(pageSize, fRasterDpi, this));
-    fCanvas = sk_make_sp<SkPDFCanvas>(fPageDevice);
+    fCanvas.reset(new SkPDFCanvas(fPageDevice));
     fCanvas->clipRect(trimBox);
     fCanvas->translate(trimBox.x(), trimBox.y());
     return fCanvas.get();

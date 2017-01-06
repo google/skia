@@ -1,13 +1,7 @@
-Quick Start Guides
-==================
+Quick Start Guides (Deprecated)
+===============================
 
-System-specific guidelines:
+This section is obsolete and will be removed soon.
+See [How to build Skia](/user/build) for the best way to build Skia.
 
-*   [Android](/user/quick/android)
-
-*   [iOS](/user/quick/ios)
-
-*   [Desktop](/user/quick/desktop)
-    -   [Linux](/user/quick/linux)
-    -   [Mac OS X](/user/quick/macos)
-    -   [Windows](/user/quick/windows)
+Legacy guidelines (soon be removed):  [iOS](/user/quick/ios)

@@ -13,13 +13,13 @@ class MipMapBench: public Benchmark {
     SkBitmap fBitmap;
     SkString fName;
     const int fW, fH;
-    SkSourceGammaTreatment fTreatment;
+    SkDestinationSurfaceColorMode fColorMode;
 
 public:
-    MipMapBench(int w, int h, SkSourceGammaTreatment treatment)
-        : fW(w), fH(h), fTreatment(treatment)
+    MipMapBench(int w, int h, SkDestinationSurfaceColorMode colorMode)
+        : fW(w), fH(h), fColorMode(colorMode)
     {
-        fName.printf("mipmap_build_%dx%d_%d_gamma", w, h, static_cast<int>(treatment));
+        fName.printf("mipmap_build_%dx%d_%d_gamma", w, h, static_cast<int>(colorMode));
     }
 
 protected:
@@ -37,7 +37,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * 4; i++) {
-            SkMipMap::Build(fBitmap, fTreatment, nullptr)->unref();
+            SkMipMap::Build(fBitmap, fColorMode, nullptr)->unref();
         }
     }
 
@@ -48,8 +48,9 @@ private:
 // Build variants that exercise the width and heights being even or odd at each level, as the
 // impl specializes on each of these.
 //
-DEF_BENCH( return new MipMapBench(511, 511, SkSourceGammaTreatment::kIgnore); )
-DEF_BENCH( return new MipMapBench(512, 511, SkSourceGammaTreatment::kIgnore); )
-DEF_BENCH( return new MipMapBench(511, 512, SkSourceGammaTreatment::kIgnore); )
-DEF_BENCH( return new MipMapBench(512, 512, SkSourceGammaTreatment::kIgnore); )
-DEF_BENCH( return new MipMapBench(512, 512, SkSourceGammaTreatment::kRespect); )
+DEF_BENCH( return new MipMapBench(511, 511, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(512, 511, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(511, 512, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(512, 512, SkDestinationSurfaceColorMode::kLegacy); )
+DEF_BENCH( return new MipMapBench(512, 512,
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware); )

@@ -77,15 +77,6 @@
 #  endif
 #endif
 
-// As usual, there are two ways to increase alignment... the MSVC way and the everyone-else way.
-#ifndef SK_STRUCT_ALIGN
-    #ifdef _MSC_VER
-        #define SK_STRUCT_ALIGN(N) __declspec(align(N))
-    #else
-        #define SK_STRUCT_ALIGN(N) __attribute__((aligned(N)))
-    #endif
-#endif
-
 #if defined(_MSC_VER) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #define SK_VECTORCALL __vectorcall
 #elif defined(SK_CPU_ARM32) && defined(SK_ARM_HAS_NEON)

@@ -50,7 +50,8 @@ void SkGammaColorFilter::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkGammaColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkGammaColorFilter::asFragmentProcessor(GrContext*,
+                                                                   SkColorSpace*) const {
     return GrGammaEffect::Make(fGamma);
 }
 #endif

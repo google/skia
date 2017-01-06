@@ -56,14 +56,6 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
     return glFragProc;
 }
 
-void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess) {
-    INHERITED::addTextureAccess(textureAccess);
-}
-
-void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
-    INHERITED::addBufferAccess(bufferAccess);
-}
-
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = true;
@@ -112,8 +104,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp),
-                                                             SkXfermode::kDstIn_Mode);
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(fp), SkBlendMode::kDstIn);
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProcessor> fp) {
@@ -356,7 +347,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     info.calcWithInitialValues(sk_sp_address_as_pointer_address(series), cnt,
                                0x0, kNone_GrColorComponentFlags, false, false);
     if (kRGBA_GrColorComponentFlags == info.validFlags()) {
-        return GrConstColorProcessor::Make(info.color(), GrConstColorProcessor::kIgnore_InputMode);
+        // TODO: We need to preserve 4f and color spaces during invariant processing. This color
+        // has definitely lost precision, and could easily be in the wrong gamut (or have been
+        // built from colors in multiple spaces).
+        return GrConstColorProcessor::Make(GrColor4f::FromGrColor(info.color()),
+                                           GrConstColorProcessor::kIgnore_InputMode);
     }
 
     SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;
@@ -364,8 +359,10 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     int firstIdx = info.firstEffectiveProcessorIndex();
     cnt -= firstIdx;
     if (firstIdx > 0 && info.inputColorIsUsed()) {
+        // See comment above - need to preserve 4f and color spaces during invariant processing.
         sk_sp<GrFragmentProcessor> colorFP(GrConstColorProcessor::Make(
-            info.inputColorToFirstEffectiveProccesor(), GrConstColorProcessor::kIgnore_InputMode));
+            GrColor4f::FromGrColor(info.inputColorToFirstEffectiveProccesor()),
+            GrConstColorProcessor::kIgnore_InputMode));
         cnt += 1;
         replacementSeries.reserve(cnt);
         replacementSeries.emplace_back(std::move(colorFP));

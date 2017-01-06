@@ -34,6 +34,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env = {}
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
+    self.no_buildbot = self.m.properties.get('nobuildbot', '') == 'True'
+    self.skia_task_id = self.m.properties.get('skia_task_id', None)
 
     self.default_env['CHROME_HEADLESS'] = '1'
     # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
@@ -49,7 +51,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
                                 '-CT_' in self.builder_name or
-                                'Presubmit' in self.builder_name)
+                                'Presubmit' in self.builder_name or
+                                'InfraTests' in self.builder_name)
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')
@@ -106,21 +109,43 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
-    self.is_trybot = self.builder_cfg['is_trybot']
+
     self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
     self.issue = None
     self.patchset = None
-    if self.is_trybot:
-      if self.patch_storage == 'gerrit':
-        self.issue = self.m.properties['event.change.number']
-        self.patchset = self.m.properties['event.patchSet.ref'].split('/')[-1]
-      else:
+    if self.no_buildbot:
+      self.is_trybot = False
+      if (self.m.properties.get('issue', '') and
+          self.m.properties.get('patchset', '')):
+        self.is_trybot = True
         self.issue = self.m.properties['issue']
         self.patchset = self.m.properties['patchset']
+      elif (self.m.properties.get('patch_issue', '') and
+            self.m.properties.get('patch_ref', '')):
+        self.is_trybot = True
+        self.issue = self.m.properties['patch_issue']
+        self.patchset = self.m.properties['patch_ref'].split('/')[-1]
+    else:
+      self.is_trybot = self.builder_cfg['is_trybot']
+      if self.is_trybot:
+        if self.patch_storage == 'gerrit':
+          self.issue = self.m.properties['patch_issue']
+          self.patchset = self.m.properties['patch_ref'].split('/')[-1]
+        else:
+          self.issue = self.m.properties['issue']
+          self.patchset = self.m.properties['patchset']
+
     self.dm_dir = self.m.path.join(
         self.swarming_out_dir, 'dm')
     self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
         'perfdata', self.builder_name, 'data')
+    self._swarming_bot_id = None
+    self._swarming_task_id = None
+
+    # Data should go under in _data_dir, which may be preserved across runs.
+    self.android_data_dir = '/sdcard/revenge_of_the_skiabot/'
+    # Executables go under _bin_dir, which, well, allows executable files.
+    self.android_bin_dir  = '/data/local/tmp/'
 
   @property
   def upload_dm_results(self):
@@ -159,3 +184,26 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         upload_perf_results = False
         break
     return upload_perf_results
+
+  @property
+  def swarming_bot_id(self):
+    if not self._swarming_bot_id:
+      self._swarming_bot_id = self.m.python.inline(
+          name='get swarming bot id',
+          program='''import os
+print os.environ.get('SWARMING_BOT_ID', '')
+''',
+          stdout=self.m.raw_io.output()).stdout.rstrip()
+    return self._swarming_bot_id
+
+  @property
+  def swarming_task_id(self):
+    if not self._swarming_task_id:
+      self._swarming_task_id = self.m.python.inline(
+          name='get swarming task id',
+          program='''import os
+print os.environ.get('SWARMING_TASK_ID', '')
+''',
+          stdout=self.m.raw_io.output()).stdout.rstrip()
+    return self._swarming_task_id
+

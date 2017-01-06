@@ -9,6 +9,7 @@
 
 #include "GrVkGpu.h"
 #include "GrProcessor.h"
+#include "GrRenderTargetPriv.h" // TODO: remove once refPipelineState gets passed stencil settings.
 #include "GrVkPipelineState.h"
 #include "GrVkPipelineStateBuilder.h"
 #include "SkOpts.h"
@@ -97,10 +98,19 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
+    GrStencilSettings stencil;
+    if (pipeline.isStencilEnabled()) {
+        GrRenderTarget* rt = pipeline.getRenderTarget();
+        // TODO: attach stencil and create settings during render target flush.
+        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+                      rt->renderTargetPriv().numStencilBits());
+    }
+
     // Get GrVkProgramDesc
     GrVkPipelineState::Desc desc;
-    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, primitiveType,
-                                        *fGpu->vkCaps().glslCaps())) {
+    if (!GrVkPipelineState::Desc::Build(&desc, primProc, pipeline, stencil,
+                                        primitiveType, *fGpu->vkCaps().glslCaps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
@@ -118,6 +128,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
         sk_sp<GrVkPipelineState> pipelineState(
             GrVkPipelineStateBuilder::CreatePipelineState(fGpu,
                                                           pipeline,
+                                                          stencil,
                                                           primProc,
                                                           primitiveType,
                                                           desc,

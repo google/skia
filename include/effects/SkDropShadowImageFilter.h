@@ -32,16 +32,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY,
-                                 SkColor color, ShadowMode shadowMode,
-                                 SkImageFilter* input = nullptr,
-                                 const CropRect* cropRect = nullptr) {
-        return Make(dx, dy, sigmaX, sigmaY, color, shadowMode,
-                    sk_ref_sp<SkImageFilter>(input), cropRect).release();
-    }
-#endif
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,

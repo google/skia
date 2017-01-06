@@ -8,6 +8,7 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkConfig8888.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
 #include "SkMallocPixelRef.h"
@@ -560,64 +561,6 @@ void* SkBitmap::getAddr(int x, int y) const {
     return base;
 }
 
-#include "SkHalf.h"
-
-SkColor SkBitmap::getColor(int x, int y) const {
-    SkASSERT((unsigned)x < (unsigned)this->width());
-    SkASSERT((unsigned)y < (unsigned)this->height());
-
-    switch (this->colorType()) {
-        case kGray_8_SkColorType: {
-            uint8_t* addr = this->getAddr8(x, y);
-            return SkColorSetRGB(*addr, *addr, *addr);
-        }
-        case kAlpha_8_SkColorType: {
-            uint8_t* addr = this->getAddr8(x, y);
-            return SkColorSetA(0, addr[0]);
-        }
-        case kIndex_8_SkColorType: {
-            SkPMColor c = this->getIndex8Color(x, y);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGB_565_SkColorType: {
-            uint16_t* addr = this->getAddr16(x, y);
-            return SkPixel16ToColor(addr[0]);
-        }
-        case kARGB_4444_SkColorType: {
-            uint16_t* addr = this->getAddr16(x, y);
-            SkPMColor c = SkPixel4444ToPixel32(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kBGRA_8888_SkColorType: {
-            uint32_t* addr = this->getAddr32(x, y);
-            SkPMColor c = SkSwizzle_BGRA_to_PMColor(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGBA_8888_SkColorType: {
-            uint32_t* addr = this->getAddr32(x, y);
-            SkPMColor c = SkSwizzle_RGBA_to_PMColor(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGBA_F16_SkColorType: {
-            const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_finite_ftz(addr[0]);
-            if (p4[3]) {
-                float inva = 1 / p4[3];
-                p4 = p4 * Sk4f(inva, inva, inva, 1);
-            }
-            SkColor c;
-            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
-            // p4 is RGBA, but we want BGRA, so we need to swap next
-            return SkSwizzle_RB(c);
-        }
-        default:
-            SkASSERT(false);
-            return 0;
-    }
-    SkASSERT(false);  // Not reached.
-    return 0;
-}
-
 static bool compute_is_opaque(const SkPixmap& pmap) {
     const int height = pmap.height();
     const int width = pmap.width();
@@ -860,11 +803,11 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     }
 
     // allocate colortable if srcConfig == kIndex8_Config
-    SkAutoTUnref<SkColorTable> ctable;
+    sk_sp<SkColorTable> ctable;
     if (dstColorType == kIndex_8_SkColorType) {
         ctable.reset(SkRef(srcPM.ctable()));
     }
-    if (!tmpDst.tryAllocPixels(alloc, ctable)) {
+    if (!tmpDst.tryAllocPixels(alloc, ctable.get())) {
         return false;
     }
 
@@ -906,72 +849,21 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void rect_memset(uint8_t* array, U8CPU value, SkISize size, size_t rowBytes) {
-    for (int y = 0; y < size.height(); ++y) {
-        memset(array, value, size.width());
-        array += rowBytes;
-    }
-}
-
-static void get_bitmap_alpha(const SkPixmap& pmap, uint8_t* SK_RESTRICT alpha, int alphaRowBytes) {
-    SkColorType colorType = pmap.colorType();
-    int         w = pmap.width();
-    int         h = pmap.height();
-    size_t      rb = pmap.rowBytes();
-
-    if (kAlpha_8_SkColorType == colorType && !pmap.isOpaque()) {
-        const uint8_t* s = pmap.addr8(0, 0);
-        while (--h >= 0) {
-            memcpy(alpha, s, w);
-            s += rb;
-            alpha += alphaRowBytes;
-        }
-    } else if (kN32_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkPMColor* SK_RESTRICT s = pmap.addr32(0, 0);
-        while (--h >= 0) {
-            for (int x = 0; x < w; x++) {
-                alpha[x] = SkGetPackedA32(s[x]);
-            }
-            s = (const SkPMColor*)((const char*)s + rb);
-            alpha += alphaRowBytes;
-        }
-    } else if (kARGB_4444_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkPMColor16* SK_RESTRICT s = pmap.addr16(0, 0);
-        while (--h >= 0) {
-            for (int x = 0; x < w; x++) {
-                alpha[x] = SkPacked4444ToA32(s[x]);
-            }
-            s = (const SkPMColor16*)((const char*)s + rb);
-            alpha += alphaRowBytes;
-        }
-    } else if (kIndex_8_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkColorTable* ct = pmap.ctable();
-        if (ct) {
-            const SkPMColor* SK_RESTRICT table = ct->readColors();
-            const uint8_t* SK_RESTRICT s = pmap.addr8(0, 0);
-            while (--h >= 0) {
-                for (int x = 0; x < w; x++) {
-                    alpha[x] = SkGetPackedA32(table[s[x]]);
-                }
-                s += rb;
-                alpha += alphaRowBytes;
-            }
-        }
-    } else {    // src is opaque, so just fill alpha[] with 0xFF
-        rect_memset(alpha, 0xFF, pmap.info().dimensions(), alphaRowBytes);
-    }
-}
-
 static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int alphaRowBytes) {
     SkASSERT(alpha != nullptr);
     SkASSERT(alphaRowBytes >= src.width());
 
     SkAutoPixmapUnlock apl;
     if (!src.requestLock(&apl)) {
-        rect_memset(alpha, 0, src.info().dimensions(), alphaRowBytes);
+        for (int y = 0; y < src.height(); ++y) {
+            memset(alpha, 0, src.width());
+            alpha += alphaRowBytes;
+        }
         return false;
     }
-    get_bitmap_alpha(apl.pixmap(), alpha, alphaRowBytes);
+    const SkPixmap& pmap = apl.pixmap();
+    SkPixelInfo::CopyPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                            pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
     return true;
 }
 
@@ -1129,7 +1021,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         SkASSERT(srcRow == dstRow); // first row does not need to be moved
     }
 
-    SkAutoTUnref<SkColorTable> ctable;
+    sk_sp<SkColorTable> ctable;
     if (buffer->readBool()) {
         ctable.reset(SkColorTable::Create(*buffer));
         if (!ctable) {
@@ -1155,13 +1047,13 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         }
     }
 
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
-                                                              ctable.get(), data.get()));
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
+                                                       ctable.get(), data.get()));
     if (!pr.get()) {
         return false;
     }
     bitmap->setInfo(pr->info());
-    bitmap->setPixelRef(pr, 0, 0);
+    bitmap->setPixelRef(pr.get(), 0, 0);
     return true;
 }
 

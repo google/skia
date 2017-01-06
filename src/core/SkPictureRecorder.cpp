@@ -62,7 +62,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     }
 
     // TODO: delay as much of this work until just before first playback?
-    SkRecordOptimize(fRecord);
+    SkRecordOptimize(fRecord.get());
 
     if (fRecord->count() == 0) {
         if (finishFlags & kReturnNullForEmpty_FinishFlag) {
@@ -122,7 +122,7 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
     fRecorder->flushMiniRecorder();
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
-    SkRecordOptimize(fRecord);
+    SkRecordOptimize(fRecord.get());
 
     if (fRecord->count() == 0) {
         if (finishFlags & kReturnNullForEmpty_FinishFlag) {
@@ -137,11 +137,8 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
     }
 
     sk_sp<SkDrawable> drawable =
-         sk_make_sp<SkRecordedDrawable>(fRecord, fBBH, fRecorder->detachDrawableList(), fCullRect);
-
-    // release our refs now, so only the drawable will be the owner.
-    fRecord.reset(nullptr);
-    fBBH.reset(nullptr);
+         sk_make_sp<SkRecordedDrawable>(std::move(fRecord), std::move(fBBH),
+                                        fRecorder->detachDrawableList(), fCullRect);
 
     return drawable;
 }

@@ -653,8 +653,7 @@ SkBlitter* CreateR11EACBlitter(int width, int height, void* outputBuffer,
     }
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<4, 8, CompressorR11EAC>, int, int, void*>
-        (width, height, outputBuffer);
+        SkTCompressedAlphaBlitter<4, 8, CompressorR11EAC>>(width, height, outputBuffer);
 }
 
 void DecompressR11EAC(uint8_t* dst, int dstRowBytes, const uint8_t* src, int width, int height) {

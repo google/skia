@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkPathOpsQuad.h"
+#include "PathOpsTestCommon.h"
 
-extern const SkDQuad quadraticLines[];
-extern const SkDQuad quadraticPoints[];
-extern const SkDQuad quadraticModEpsilonLines[];
-extern const SkDQuad quadraticTests[][2];
+extern const QuadPts quadraticLines[];
+extern const QuadPts quadraticPoints[];
+extern const QuadPts quadraticModEpsilonLines[];
+extern const QuadPts quadraticTests[][2];
 
 extern const size_t quadraticLines_count;
 extern const size_t quadraticPoints_count;

@@ -14,7 +14,7 @@ namespace {
 
 class GLFenceSync : public sk_gpu_test::FenceSync {
 public:
-    static GLFenceSync* CreateIfSupported(const sk_gpu_test::GLTestContext*);
+    static std::unique_ptr<GLFenceSync> MakeIfSupported(const sk_gpu_test::GLTestContext*);
 
     sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(sk_gpu_test::PlatformFence fence) const override;
@@ -43,8 +43,8 @@ private:
     typedef FenceSync INHERITED;
 };
 
-GLFenceSync* GLFenceSync::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-    SkAutoTDelete<GLFenceSync> ret;
+std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    std::unique_ptr<GLFenceSync> ret;
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
             return nullptr;
@@ -56,7 +56,10 @@ GLFenceSync* GLFenceSync::CreateIfSupported(const sk_gpu_test::GLTestContext* ct
         }
         ret.reset(new GLFenceSync(ctx, "APPLE"));
     }
-    return ret->validate() ? ret.release() : nullptr;
+    if (!ret->validate()) {
+        ret = nullptr;
+    }
+    return ret;
 }
 
 GLFenceSync::GLFenceSync(const sk_gpu_test::GLTestContext* ctx, const char* ext) {
@@ -82,7 +85,7 @@ void GLFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
 
 class GLGpuTimer : public sk_gpu_test::GpuTimer {
 public:
-    static GLGpuTimer* CreateIfSupported(const sk_gpu_test::GLTestContext*);
+    static std::unique_ptr<GLGpuTimer> MakeIfSupported(const sk_gpu_test::GLTestContext*);
 
     QueryStatus checkQueryStatus(sk_gpu_test::PlatformTimerQuery) override;
     std::chrono::nanoseconds getTimeElapsed(sk_gpu_test::PlatformTimerQuery) override;
@@ -121,8 +124,8 @@ private:
     typedef sk_gpu_test::GpuTimer INHERITED;
 };
 
-GLGpuTimer* GLGpuTimer::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-    SkAutoTDelete<GLGpuTimer> ret;
+std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    std::unique_ptr<GLGpuTimer> ret;
     const GrGLInterface* gl = ctx->gl();
     if (gl->fExtensions.has("GL_EXT_disjoint_timer_query")) {
         ret.reset(new GLGpuTimer(true, ctx, "EXT"));
@@ -132,7 +135,10 @@ GLGpuTimer* GLGpuTimer::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx)
     } else if (gl->fExtensions.has("GL_EXT_timer_query")) {
         ret.reset(new GLGpuTimer(false, ctx, "EXT"));
     }
-    return ret && ret->validate() ? ret.release() : nullptr;
+    if (ret && !ret->validate()) {
+        ret = nullptr;
+    }
+    return ret;
 }
 
 GLGpuTimer::GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext* ctx, const char* ext)
@@ -219,11 +225,11 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, FenceSync* fenceSync) {
+void GLTestContext::init(const GrGLInterface* gl, std::unique_ptr<FenceSync> fenceSync) {
     SkASSERT(!fGL.get());
     fGL.reset(gl);
-    fFenceSync = fenceSync ? fenceSync : GLFenceSync::CreateIfSupported(this);
-    fGpuTimer = GLGpuTimer::CreateIfSupported(this);
+    fFenceSync = fenceSync ? std::move(fenceSync) : GLFenceSync::MakeIfSupported(this);
+    fGpuTimer = GLGpuTimer::MakeIfSupported(this);
 }
 
 void GLTestContext::teardown() {
@@ -253,28 +259,28 @@ void GLTestContext::finish() {
 GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
                                           GrGLenum externalFormat, GrGLenum externalType,
                                           GrGLvoid* data) {
-    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 1)) &&
+    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL.get()) >= GR_GL_VER(3, 1)) &&
         !fGL->fExtensions.has("GL_ARB_texture_rectangle")) {
         return 0;
     }
 
-    if  (GrGLGetGLSLVersion(fGL) < GR_GLSL_VER(1, 40)) {
+    if  (GrGLGetGLSLVersion(fGL.get()) < GR_GLSL_VER(1, 40)) {
         return 0;
     }
 
     GrGLuint id;
-    GR_GL_CALL(fGL, GenTextures(1, &id));
-    GR_GL_CALL(fGL, BindTexture(GR_GL_TEXTURE_RECTANGLE, id));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MAG_FILTER,
-                                  GR_GL_NEAREST));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
-                                  GR_GL_NEAREST));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
-                                  GR_GL_CLAMP_TO_EDGE));    
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
-                                  GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(fGL, TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
-                               externalFormat, externalType, data));
+    GR_GL_CALL(fGL.get(), GenTextures(1, &id));
+    GR_GL_CALL(fGL.get(), BindTexture(GR_GL_TEXTURE_RECTANGLE, id));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MAG_FILTER,
+                                        GR_GL_NEAREST));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
+                                        GR_GL_NEAREST));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
+                                        GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
+                                        GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(fGL.get(), TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
+                                     externalFormat, externalType, data));
     return id;
 }
 }  // namespace sk_gpu_test

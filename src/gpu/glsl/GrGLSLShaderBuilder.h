@@ -72,23 +72,27 @@ public:
     void appendTexelFetch(SamplerHandle, const char* coordExpr);
 
     /**
-    * Adds a #define directive to the top of the shader.
+    * Adds a constant declaration to the top of the shader.
     */
-    void define(const char* macro, const char* replacement) {
-        this->definitions().appendf("#define %s %s\n", macro, replacement);
+    void defineConstant(const char* type, const char* name, const char* value) {
+        this->definitions().appendf("const %s %s = %s;\n", type, name, value);
     }
 
-    void define(const char* macro, int replacement) {
-        this->definitions().appendf("#define %s %i\n", macro, replacement);
+    void defineConstant(const char* name, int value) {
+        this->definitions().appendf("const int %s = %i;\n", name, value);
     }
 
-    void definef(const char* macro, const char* replacement, ...) {
-       this->definitions().appendf("#define %s ", macro);
+    void defineConstant(const char* name, float value) {
+        this->definitions().appendf("const float %s = %f;\n", name, value);
+    }
+
+    void defineConstantf(const char* type, const char* name, const char* fmt, ...) {
+       this->definitions().appendf("const %s %s = ", type, name);
        va_list args;
-       va_start(args, replacement);
-       this->definitions().appendVAList(replacement, args);
+       va_start(args, fmt);
+       this->definitions().appendVAList(fmt, args);
        va_end(args);
-       this->definitions().append("\n");
+       this->definitions().append(";\n");
     }
 
     /**

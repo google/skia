@@ -116,7 +116,7 @@ DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
-DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
+DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
@@ -138,7 +138,7 @@ DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
-                                r.xmode, r.indices, r.indexCount, r.paint));
+                                r.bmode, r.indices, r.indexCount, r.paint));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 

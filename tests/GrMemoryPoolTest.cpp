@@ -55,11 +55,11 @@ public:
     }
 
 private:
-    static SkAutoTDelete<GrMemoryPool> gPool;
+    static std::unique_ptr<GrMemoryPool> gPool;
     char fChar;
 };
 
-SkAutoTDelete<GrMemoryPool> A::gPool;
+std::unique_ptr<GrMemoryPool> A::gPool;
 
 class B : public A {
 public:

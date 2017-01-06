@@ -169,18 +169,18 @@ bool SkOpSegment::addCurveTo(const SkOpSpanBase* start, const SkOpSpanBase* end,
     path->deferredMove(start->ptT());
     switch (verb) {
         case SkPath::kLine_Verb:
-            path->deferredLine(end->ptT());
+            FAIL_IF(!path->deferredLine(end->ptT()));
             break;
         case SkPath::kQuad_Verb:
-            path->quadTo(curvePart.fCurve.fQuad.fPts[1].asSkPoint(), end->ptT());
+            path->quadTo(curvePart.fCurve.fQuad[1].asSkPoint(), end->ptT());
             break;
         case SkPath::kConic_Verb:
-            path->conicTo(curvePart.fCurve.fConic.fPts[1].asSkPoint(), end->ptT(),
+            path->conicTo(curvePart.fCurve.fConic[1].asSkPoint(), end->ptT(),
                     curvePart.fCurve.fConic.fWeight);
             break;
         case SkPath::kCubic_Verb:
-            path->cubicTo(curvePart.fCurve.fCubic.fPts[1].asSkPoint(),
-                    curvePart.fCurve.fCubic.fPts[2].asSkPoint(), end->ptT());
+            path->cubicTo(curvePart.fCurve.fCubic[1].asSkPoint(),
+                    curvePart.fCurve.fCubic[2].asSkPoint(), end->ptT());
             break;
         default:
             SkASSERT(0);
@@ -225,6 +225,7 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
         return true;
     }
     this->globalState()->resetAllocatedOpSpan();
+    FAIL_IF(!between(0, newT, 1));
     SkOpPtT* newPtT = this->addT(newT);
     *startOver |= this->globalState()->allocatedOpSpan();
     if (!newPtT) {
@@ -836,12 +837,19 @@ SkOpSpanBase* SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* e
     markDone(minSpan);
     SkOpSpanBase* last = nullptr;
     SkOpSegment* other = this;
+    SkOpSpan* priorDone = nullptr;
+    SkOpSpan* lastDone = nullptr;
     while ((other = other->nextChase(&start, &step, &minSpan, &last))) {
         if (other->done()) {
             SkASSERT(!last);
             break;
         }
+        if (lastDone == minSpan || priorDone == minSpan) {
+            return nullptr;
+        }
         other->markDone(minSpan);
+        priorDone = lastDone;
+        lastDone = minSpan;
     }
     return last;
 }
@@ -855,7 +863,7 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, in
     SkOpSegment* other = this;
     while ((other = other->nextChase(&start, &step, &spanStart, &last))) {
         if (spanStart->windSum() != SK_MinS32) {
-            SkASSERT(spanStart->windSum() == winding);
+//            SkASSERT(spanStart->windSum() == winding);   // FIXME: is this assert too aggressive?
             SkASSERT(!last);
             break;
         }
@@ -1057,9 +1065,6 @@ SkOpSegment* SkOpSegment::nextChase(SkOpSpanBase** startPtr, int* stepPtr, SkOpS
         return set_last(last, endSpan);
     }
     SkASSERT(*startPtr);
-    if (!otherEnd) {
-        return nullptr;
-    }
 //    SkASSERT(otherEnd >= 0);
     SkOpSpan* origMin = step < 0 ? origStart->prev() : origStart->upCast();
     SkOpSpan* foundMin = foundSpan->starter(otherEnd);
@@ -1459,7 +1464,7 @@ void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(*oppSumWinding) <= DEBUG_LIMIT_WIND_SUM);
 }
 
-void SkOpSegment::sortAngles() {
+bool SkOpSegment::sortAngles() {
     SkOpSpanBase* span = &this->fHead;
     do {
         SkOpAngle* fromAngle = span->fromAngle();
@@ -1477,7 +1482,7 @@ void SkOpSegment::sortAngles() {
                     span->debugID());
             wroteAfterHeader = true;
 #endif
-            fromAngle->insert(toAngle);
+            FAIL_IF(!fromAngle->insert(toAngle));
         } else if (!fromAngle) {
             baseAngle = toAngle;
         }
@@ -1527,6 +1532,7 @@ void SkOpSegment::sortAngles() {
         SkASSERT(!baseAngle || baseAngle->loopCount() > 1);
 #endif
     } while (!span->final() && (span = span->upCast()->next()));
+    return true;
 }
 
 bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,

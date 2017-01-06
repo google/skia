@@ -36,6 +36,7 @@
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
 #include "SkString.h"
@@ -44,6 +45,7 @@
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
+#include "SkScan.h"
 
 #include <stdlib.h>
 
@@ -62,7 +64,7 @@
     #include "gl/GrGLUtil.h"
     using sk_gpu_test::GrContextFactory;
     using sk_gpu_test::TestContext;
-    SkAutoTDelete<GrContextFactory> gGrFactory;
+    std::unique_ptr<GrContextFactory> gGrFactory;
 #endif
 
     struct GrContextOptions;
@@ -125,7 +127,7 @@ DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,T
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
-        "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
+        "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -455,11 +457,12 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
                    kN32_SkColorType, kPremul_SkAlphaType, nullptr)
         CPU_CONFIG(565,  kRaster_Backend,
                    kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         CPU_CONFIG(srgb, kRaster_Backend,
                    kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
+        auto srgbLinearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
         CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbColorSpace->makeLinearGamma())
+                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
     }
 
     #undef CPU_CONFIG
@@ -479,7 +482,7 @@ void create_configs(SkTArray<Config>* configs) {
     SkCommandLineConfigArray array;
     ParseConfigs(FLAGS_config, &array);
     for (int i = 0; i < array.count(); ++i) {
-        create_config(array[i], configs);
+        create_config(array[i].get(), configs);
     }
 }
 
@@ -529,7 +532,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 
 static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
-    SkAutoTDelete<SkBitmapRegionDecoder> brd(
+    std::unique_ptr<SkBitmapRegionDecoder> brd(
             SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
     if (nullptr == brd.get()) {
         // This is indicates that subset decoding is not supported for a particular image format.
@@ -581,6 +584,7 @@ public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
                       , fGMs(skiagm::GMRegistry::Head())
                       , fCurrentRecording(0)
+                      , fCurrentPiping(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
                       , fCurrentSVG(0)
@@ -680,7 +684,7 @@ public:
     }
 
     Benchmark* next() {
-        SkAutoTDelete<Benchmark> bench;
+        std::unique_ptr<Benchmark> bench;
         do {
             bench.reset(this->rawNext());
             if (!bench) {
@@ -701,7 +705,7 @@ public:
         }
 
         while (fGMs) {
-            SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(nullptr));
+            std::unique_ptr<skiagm::GM> gm(fGMs->factory()(nullptr));
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";
@@ -723,6 +727,21 @@ public:
             fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic.get()));
             fSKPOps   = pic->approximateOpCount();
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
+        }
+
+        // Add all .skps as PipeBenches.
+        while (fCurrentPiping < fSKPs.count()) {
+            const SkString& path = fSKPs[fCurrentPiping++];
+            sk_sp<SkPicture> pic = ReadPicture(path.c_str());
+            if (!pic) {
+                continue;
+            }
+            SkString name = SkOSPath::Basename(path.c_str());
+            fSourceType = "skp";
+            fBenchType  = "piping";
+            fSKPBytes = static_cast<double>(SkPictureUtils::ApproximateBytesUsed(pic.get()));
+            fSKPOps   = pic->approximateOpCount();
+            return new PipingBench(name.c_str(), pic.get());
         }
 
         // Then once each for each scale as SKPBenches (playback).
@@ -783,9 +802,9 @@ public:
 
                 fCurrentAnimSKP++;
                 SkString name = SkOSPath::Basename(path.c_str());
-                SkAutoTUnref<SKPAnimationBench::Animation> animation(
+                sk_sp<SKPAnimationBench::Animation> animation(
                     SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
-                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation,
+                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation.get(),
                                              FLAGS_loopSKP);
             }
         }
@@ -798,7 +817,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+            std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -882,7 +901,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+            std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -1055,6 +1074,7 @@ private:
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
     int fCurrentRecording;
+    int fCurrentPiping;
     int fCurrentScale;
     int fCurrentSKP;
     int fCurrentSVG;
@@ -1118,7 +1138,7 @@ int nanobench_main() {
         }
     }
 
-    SkAutoTDelete<ResultsWriter> log(new ResultsWriter);
+    std::unique_ptr<ResultsWriter> log(new ResultsWriter);
     if (!FLAGS_outResultsFile.isEmpty()) {
 #if defined(SK_RELEASE)
         log.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
@@ -1178,10 +1198,14 @@ int nanobench_main() {
         start_keepalive();
     }
 
+    if (FLAGS_analyticAA) {
+        gSkUseAnalyticAA = true;
+    }
+
     int runs = 0;
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
-        SkAutoTDelete<Benchmark> bench(b);
+        std::unique_ptr<Benchmark> bench(b);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }
@@ -1226,12 +1250,12 @@ int nanobench_main() {
                 samples.reset();
                 auto stop = now_ms() + FLAGS_ms;
                 do {
-                    samples.push_back(time(loops, bench, target) / loops);
+                    samples.push_back(time(loops, bench.get(), target) / loops);
                 } while (now_ms() < stop);
             } else {
                 samples.reset(FLAGS_samples);
                 for (int s = 0; s < FLAGS_samples; s++) {
-                    samples[s] = time(loops, bench, target) / loops;
+                    samples[s] = time(loops, bench.get(), target) / loops;
                 }
             }
 

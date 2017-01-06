@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
+#include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
@@ -24,6 +25,7 @@
 #include "SkSpecialImage.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
+#include "SkTLazy.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
     : fInfo(info)
@@ -119,7 +121,7 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 }
 
 void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
     SkPatchUtils::VertexData data;
 
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, draw.fMatrix);
@@ -128,7 +130,7 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
     // If it fails to generate the vertices, then we do not draw.
     if (SkPatchUtils::getVertexData(&data, cubics, colors, texCoords, lod.width(), lod.height())) {
         this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
-                           data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
+                           data.fTexCoords, data.fColors, bmode, data.fIndices, data.fIndexCount,
                            paint);
     }
 }
@@ -177,9 +179,60 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
     }
 }
 
+bool SkBaseDevice::drawExternallyScaledImage(const SkDraw& draw,
+                                             const SkImage* image,
+                                             const SkRect* src,
+                                             const SkRect& dst,
+                                             const SkPaint& paint,
+                                             SkCanvas::SrcRectConstraint constraint) {
+    SkImageCacherator* cacherator = as_IB(image)->peekCacherator();
+    if (!cacherator) {
+        return false;
+    }
+
+    SkTLazy<SkRect> tmpSrc(src);
+    if (!tmpSrc.isValid()) {
+        tmpSrc.init(SkRect::Make(image->bounds()));
+    }
+
+    SkMatrix m = *draw.fMatrix;
+    m.preConcat(SkMatrix::MakeRectToRect(*tmpSrc.get(), dst, SkMatrix::kFill_ScaleToFit));
+
+    // constrain src to our bounds
+    if (!image->bounds().contains(*tmpSrc.get()) &&
+        !tmpSrc.get()->intersect(SkRect::Make(image->bounds()))) {
+        return false;
+    }
+
+    SkImageGenerator::ScaledImageRec rec;
+    if (!cacherator->directAccessScaledImage(*tmpSrc.get(), m, paint.getFilterQuality(), &rec)) {
+        return false;
+    }
+
+    SkBitmap bm;
+    if (!as_IB(rec.fImage)->getROPixels(&bm)) {
+        return false;
+    }
+
+    SkTCopyOnFirstWrite<SkPaint> adjustedPaint(paint);
+    if (rec.fQuality != paint.getFilterQuality()) {
+        adjustedPaint.writable()->setFilterQuality(rec.fQuality);
+    }
+
+    this->drawBitmapRect(draw, bm, &rec.fSrcRect, dst, *adjustedPaint, constraint);
+
+    return true;
+}
 void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     // Default impl : turns everything into raster bitmap
+
+    if (this->drawExternallyScaledImage(draw, image, nullptr,
+                                        SkRect::Make(image->bounds()).makeOffset(x, y),
+                                        paint, SkCanvas::kFast_SrcRectConstraint)) {
+        return;
+    }
+
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
@@ -190,6 +243,11 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
     // Default impl : turns everything into raster bitmap
+
+    if (this->drawExternallyScaledImage(draw, image, src, dst, paint, constraint)) {
+        return;
+    }
+
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
@@ -240,7 +298,7 @@ void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
                              const SkRect tex[], const SkColor colors[], int count,
-                             SkXfermode::Mode mode, const SkPaint& paint) {
+                             SkBlendMode mode, const SkPaint& paint) {
     SkPath path;
     path.setIsVolatile(true);
 
@@ -262,7 +320,7 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         pnt.setShader(std::move(shader));
 
         if (colors) {
-            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], mode));
+            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], (SkBlendMode)mode));
         }
 
         path.rewind();

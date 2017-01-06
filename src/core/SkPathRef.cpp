@@ -12,7 +12,7 @@
 #include <limits>
 
 //////////////////////////////////////////////////////////////////////////////
-SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
+SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
                           int incReserveVerbs,
                           int incReservePoints)
 {
@@ -23,7 +23,7 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
         copy->copy(**pathRef, incReserveVerbs, incReservePoints);
         pathRef->reset(copy);
     }
-    fPathRef = *pathRef;
+    fPathRef = pathRef->get();
     fPathRef->callGenIDChangeListeners();
     fPathRef->fGenerationID = 0;
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
@@ -111,12 +111,12 @@ static void transform_dir_and_start(const SkMatrix& matrix, bool isRRect, bool* 
     }
 }
 
-void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
+void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix) {
     SkDEBUGCODE(src.validate();)
     if (matrix.isIdentity()) {
-        if (*dst != &src) {
+        if (dst->get() != &src) {
             src.ref();
             dst->reset(const_cast<SkPathRef*>(&src));
             SkDEBUGCODE((*dst)->validate();)
@@ -128,7 +128,7 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
         dst->reset(new SkPathRef);
     }
 
-    if (*dst != &src) {
+    if (dst->get() != &src) {
         (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
         sk_careful_memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(),
                            src.fVerbCnt * sizeof(uint8_t));
@@ -242,7 +242,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     return ref;
 }
 
-void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
+void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
     if ((*pathRef)->unique()) {
         SkDEBUGCODE((*pathRef)->validate();)
         (*pathRef)->callGenIDChangeListeners();

@@ -11,7 +11,8 @@
 #include "SkRasterPipeline.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
+#include <functional>
 
 struct ProcCoeff;
 
@@ -24,7 +25,7 @@ namespace SkOpts {
     // Declare function pointers here...
 
     // May return nullptr if we haven't specialized the given Mode.
-    extern SkXfermode* (*create_xfermode)(const ProcCoeff&, SkXfermode::Mode);
+    extern SkXfermode* (*create_xfermode)(const ProcCoeff&, SkBlendMode);
 
     typedef void (*BoxBlur)(const SkPMColor*, int, const SkIRect& srcBounds, SkPMColor*, int, int, int, int, int);
     extern BoxBlur box_blur_xx, box_blur_xy, box_blur_yx;
@@ -73,8 +74,8 @@ namespace SkOpts {
         return hash_fn(data, bytes, seed);
     }
 
-    extern SkRasterPipeline::Fn stages_4  [SkRasterPipeline::kNumStockStages],
-                                stages_1_3[SkRasterPipeline::kNumStockStages];
+    extern std::function<void(size_t, size_t, size_t)>
+    (*compile_pipeline)(const SkRasterPipeline::Stage*, int);
 }
 
 #endif//SkOpts_DEFINED

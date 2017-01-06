@@ -75,7 +75,11 @@ public:
     const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id) const;
     const class SkOpPtT* debugPtT(int id) const;
-    bool debugRunFail() const;
+#endif
+
+    static bool DebugRunFail();
+
+#ifdef SK_DEBUG
     const class SkOpSegment* debugSegment(int id) const;
     bool debugSkipAssert() const { return fDebugSkipAssert; }
     const class SkOpSpanBase* debugSpan(int id) const;
@@ -221,8 +225,8 @@ private:
 #define SkOPASSERT(cond) SkASSERT((this->globalState() && \
         this->globalState()->debugSkipAssert()) || (cond))
 #endif
-#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
-        obj->debugGlobalState()->debugSkipAssert()) || (cond))
+#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->globalState() && \
+        obj->globalState()->debugSkipAssert()) || (cond))
 #else
 #define SkOPASSERT(cond)
 #define SkOPOBJASSERT(obj, cond)

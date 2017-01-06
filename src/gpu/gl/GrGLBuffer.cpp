@@ -30,7 +30,7 @@
 
 GrGLBuffer* GrGLBuffer::Create(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
                                GrAccessPattern accessPattern, const void* data) {
-    SkAutoTUnref<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, data));
+    sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, data));
     if (0 == buffer->bufferID()) {
         return nullptr;
     }

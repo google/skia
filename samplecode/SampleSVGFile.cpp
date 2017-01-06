@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkDOM.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkSVGDOM.h"
 #include "SkView.h"

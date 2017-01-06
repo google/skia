@@ -39,7 +39,7 @@ static sk_sp<SkColorFilter> cf_make_grayscale() {
 }
 
 static sk_sp<SkColorFilter> cf_make_colorize(SkColor color) {
-    return SkColorFilter::MakeModeFilter(color, SkXfermode::kSrc_Mode);
+    return SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrc);
 }
 
 static void sk_gm_get_colorfilters(SkTArray<sk_sp<SkColorFilter>>* array) {

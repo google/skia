@@ -5,10 +5,6 @@
 import default_flavor
 import subprocess
 
-# Data should go under in _data_dir, which may be preserved across runs.
-_data_dir = '/sdcard/revenge_of_the_skiabot/'
-# Executables go under _bin_dir, which, well, allows executable files.
-_bin_dir  = '/data/local/tmp/'
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
@@ -17,23 +13,28 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._ever_ran_adb = False
 
     self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir        = _data_dir + 'dm_out',
-        perf_data_dir = _data_dir + 'perf',
-        resource_dir  = _data_dir + 'resources',
-        images_dir    = _data_dir + 'images',
-        skp_dir       = _data_dir + 'skps',
-        svg_dir       = _data_dir + 'svgs',
-        tmp_dir       = _data_dir)
+        dm_dir        = self.m.vars.android_data_dir + 'dm_out',
+        perf_data_dir = self.m.vars.android_data_dir + 'perf',
+        resource_dir  = self.m.vars.android_data_dir + 'resources',
+        images_dir    = self.m.vars.android_data_dir + 'images',
+        skp_dir       = self.m.vars.android_data_dir + 'skps',
+        svg_dir       = self.m.vars.android_data_dir + 'svgs',
+        tmp_dir       = self.m.vars.android_data_dir)
 
-  def supported(self):
-    return 'GN_Android' in self.m.vars.builder_cfg.get('extra_config', '')
-
-  def _run(self, title, *cmd, **kwargs):
+  def _strip_environment(self):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
+
+  def _run(self, title, *cmd, **kwargs):
+    self._strip_environment()
     return self.m.run(self.m.step, title, cmd=list(cmd),
-                      cwd=self.m.vars.skia_dir, env={}, **kwargs)
+                      cwd=self.m.vars.skia_dir, **kwargs)
+
+  def _py(self, title, script, infra_step=True):
+    self._strip_environment()
+    return self.m.run(self.m.python, title, script=script,
+                      cwd=self.m.vars.skia_dir, env=None, infra_step=infra_step)
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
@@ -51,7 +52,15 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     assert compiler == 'Clang'  # At this rate we might not ever support GCC.
 
-    ndk_asset = 'android_ndk_linux' if os == 'Ubuntu' else 'android_ndk_darwin'
+    extra_cflags = []
+    if configuration == 'Debug':
+      extra_cflags.append('-O1')
+
+    ndk_asset = 'android_ndk_linux'
+    if 'Mac' in os:
+      ndk_asset = 'android_ndk_darwin'
+    elif 'Win' in os:
+      ndk_asset = 'n'
 
     quote = lambda x: '"%s"' % x
     args = {
@@ -66,13 +75,17 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_enable_vulkan_debug_layers'] = 'false'
     if 'FrameworkDefs' in extra_config:
       args['skia_enable_android_framework_defines'] = 'true'
+    if extra_cflags:
+      args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
-    self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'),
-              infra_step=True)
-    self._run('gn gen', 'gn', 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', 'ninja', '-C', self.out_dir)
+    gn    = 'gn.bat'    if 'Win' in os else 'gn'
+    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
+
+    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
+    self._run('ninja', ninja, '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
@@ -98,20 +111,20 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       """,
       args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
       infra_step=True)
-      self._adb('reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
-              'push', app, _bin_dir)
+              'push', app, self.m.vars.android_bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
         'set -x; %s%s; echo $? >%src' %
-        (_bin_dir, subprocess.list2cmdline(map(str, cmd)), _bin_dir))
+        (self.m.vars.android_bin_dir, subprocess.list2cmdline(map(str, cmd)),
+            self.m.vars.android_bin_dir))
     self._adb('push %s' % sh,
-              'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
+              'push', self.m.vars.tmp_dir.join(sh), self.m.vars.android_bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
     self.m.python.inline('%s' % cmd[0], """
@@ -126,7 +139,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     except ValueError:
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
-    """, args=[_bin_dir, sh])
+    """, args=[self.m.vars.android_bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)

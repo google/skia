@@ -44,12 +44,25 @@ def main(target_dir):
   subprocess.check_call(['download_from_google_storage', '-s', cipd_sha1,
                          '--bucket', 'chromium-luci'])
 
+  # First verify that there are no gen_tasks diffs.
+  gen_tasks = os.path.join(os.getcwd(), 'infra', 'bots', 'gen_tasks.go')
+  try:
+    subprocess.check_call(['go', 'run', gen_tasks, '--test'])
+  except subprocess.CalledProcessError as e:
+    print >> sys.stderr, ('gen_tasks.go failed, not uploading SKP update:\n\n%s'
+                          % e.output)
+    sys.exit(1)
+
+  # Upload the new version, land the update CL.
   with git_utils.GitBranch(branch_name='update_skp_version',
                            commit_msg=COMMIT_MSG,
                            commit_queue=True):
     upload_script = os.path.join(
         os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
     subprocess.check_call(['python', upload_script, '-t', target_dir])
+    subprocess.check_call(['go', 'run', gen_tasks])
+    subprocess.check_call([
+        'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
 
 
 if '__main__' == __name__:

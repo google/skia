@@ -7,7 +7,7 @@
 
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
@@ -184,18 +184,20 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
-    sk_sp<GrDrawContext> readDC(context->makeDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                         kConfig, nullptr));
-    sk_sp<GrDrawContext> tempDC(context->makeDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                         kConfig, nullptr));
-    if (!readDC || !tempDC) {
+    sk_sp<GrRenderTargetContext> readRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                          kSize, kSize,
+                                                                          kConfig, nullptr));
+    sk_sp<GrRenderTargetContext> tempRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                          kSize, kSize,
+                                                                          kConfig, nullptr));
+    if (!readRTC || !tempRTC) {
         return;
     }
     GrSurfaceDesc desc;
     desc.fWidth = kSize;
     desc.fHeight = kSize;
     desc.fConfig = kConfig;
-    SkAutoTUnref<GrTexture> dataTex(context->textureProvider()->createTexture(
+    sk_sp<GrTexture> dataTex(context->textureProvider()->createTexture(
         desc, SkBudgeted::kYes, data, 0));
     if (!dataTex.get()) {
         return;
@@ -218,34 +220,37 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
         // We then verify that two reads produced the same values.
 
+        if (!readRTC->asTexture()) {
+            continue;
+        }
         GrPaint paint1;
         GrPaint paint2;
         GrPaint paint3;
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
-                dataTex, GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
+                dataTex.get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                readDC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
+                readRTC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                tempDC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
+                tempRTC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readDC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
+        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempDC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
+        tempRTC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readDC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
+        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 
         failed = false;
         for (int y = 0; y < kSize && !failed; ++y) {

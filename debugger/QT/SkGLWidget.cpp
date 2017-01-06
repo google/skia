@@ -59,7 +59,7 @@ void SkGLWidget::createRenderTarget() {
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
-    fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext, desc, nullptr);
+    fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext.get(), desc, nullptr);
     fCanvas = fGpuSurface->getCanvas();
 }
 

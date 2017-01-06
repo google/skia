@@ -22,15 +22,11 @@ public:
      */
     static sk_sp<SkColorFilter> Make(sk_sp<SkData> cubeData, int cubeDimension);
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(SkData* cubeData, int cubeDimension);
-#endif
-
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     uint32_t getFlags() const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

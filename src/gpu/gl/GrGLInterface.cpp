@@ -348,6 +348,15 @@ bool GrGLInterface::validate() const {
                 nullptr == fFunctions.fBlitFramebuffer) {
                 RETURN_FALSE_INTERFACE
             }
+        } else {
+            if (fExtensions.has("GL_ANGLE_framebuffer_multisample") &&
+                nullptr == fFunctions.fRenderbufferStorageMultisample) {
+                RETURN_FALSE_INTERFACE
+            }
+            if (fExtensions.has("GL_ANGLE_framebuffer_blit") &&
+                nullptr == fFunctions.fBlitFramebuffer) {
+                RETURN_FALSE_INTERFACE
+            }
         }
         if (fExtensions.has("GL_APPLE_framebuffer_multisample")) {
             if (nullptr == fFunctions.fRenderbufferStorageMultisampleES2APPLE ||
@@ -817,6 +826,26 @@ bool GrGLInterface::validate() const {
         }
     } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
         if (nullptr == fFunctions.fDrawRangeElements) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_shader_image_load_store")) {
+            if (nullptr == fFunctions.fBindImageTexture ||
+                nullptr == fFunctions.fMemoryBarrier) {
+                RETURN_FALSE_INTERFACE;
+            }
+        }
+        if (glVer >= GR_GL_VER(4,5) || fExtensions.has("GL_ARB_ES3_1_compatibility")) {
+            if (nullptr == fFunctions.fMemoryBarrierByRegion) {
+                RETURN_FALSE_INTERFACE;
+            }
+        }
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1)) {
+        if (nullptr == fFunctions.fBindImageTexture ||
+            nullptr == fFunctions.fMemoryBarrier ||
+            nullptr == fFunctions.fMemoryBarrierByRegion) {
             RETURN_FALSE_INTERFACE;
         }
     }

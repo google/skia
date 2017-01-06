@@ -341,12 +341,13 @@ public:
         fXor = isXor;
     }
 
-    void sortAngles() {
+    bool sortAngles() {
         SkASSERT(fCount > 0);
         SkOpSegment* segment = &fHead;
         do {
-            segment->sortAngles();
+            FAIL_IF(!segment->sortAngles());
         } while ((segment = segment->next()));
+        return true;
     }
 
     const SkPoint& start() const {

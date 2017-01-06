@@ -27,7 +27,7 @@ static sk_sp<SkShader> make_shader2() {
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {
-    return SkColorFilter::MakeModeFilter(0xFFAABBCC, SkXfermode::kDarken_Mode);
+    return SkColorFilter::MakeModeFilter(0xFFAABBCC, SkBlendMode::kDarken);
 }
 
 class VerticesGM : public skiagm::GM {
@@ -117,36 +117,36 @@ protected:
             { fColors,  fTexs  , fShader2, fColorFilter, 0x80 },
         };
 
-        const SkXfermode::Mode modes[] = {
-            SkXfermode::kClear_Mode,
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kSrcOver_Mode,
-            SkXfermode::kDstOver_Mode,
-            SkXfermode::kSrcIn_Mode,
-            SkXfermode::kDstIn_Mode,
-            SkXfermode::kSrcOut_Mode,
-            SkXfermode::kDstOut_Mode,
-            SkXfermode::kSrcATop_Mode,
-            SkXfermode::kDstATop_Mode,
-            SkXfermode::kXor_Mode,
-            SkXfermode::kPlus_Mode,
-            SkXfermode::kModulate_Mode,
-            SkXfermode::kScreen_Mode,
-            SkXfermode::kOverlay_Mode,
-            SkXfermode::kDarken_Mode,
-            SkXfermode::kLighten_Mode,
-            SkXfermode::kColorDodge_Mode,
-            SkXfermode::kColorBurn_Mode,
-            SkXfermode::kHardLight_Mode,
-            SkXfermode::kSoftLight_Mode,
-            SkXfermode::kDifference_Mode,
-            SkXfermode::kExclusion_Mode,
-            SkXfermode::kMultiply_Mode,
-            SkXfermode::kHue_Mode,
-            SkXfermode::kSaturation_Mode,
-            SkXfermode::kColor_Mode,
-            SkXfermode::kLuminosity_Mode,
+        const SkBlendMode modes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
+            SkBlendMode::kScreen,
+            SkBlendMode::kOverlay,
+            SkBlendMode::kDarken,
+            SkBlendMode::kLighten,
+            SkBlendMode::kColorDodge,
+            SkBlendMode::kColorBurn,
+            SkBlendMode::kHardLight,
+            SkBlendMode::kSoftLight,
+            SkBlendMode::kDifference,
+            SkBlendMode::kExclusion,
+            SkBlendMode::kMultiply,
+            SkBlendMode::kHue,
+            SkBlendMode::kSaturation,
+            SkBlendMode::kColor,
+            SkBlendMode::kLuminosity,
         };
 
         SkPaint paint;
@@ -154,7 +154,6 @@ protected:
         canvas->translate(4, 4);
         int x = 0;
         for (size_t j = 0; j < SK_ARRAY_COUNT(modes); ++j) {
-            auto xfer = SkXfermode::Make(modes[j]);
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
                 paint.setShader(rec[i].fShader);
@@ -164,7 +163,7 @@ protected:
                 canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
                                      SK_ARRAY_COUNT(fPts), fPts,
                                      rec[i].fTexs, rec[i].fColors,
-                                     xfer, fan, SK_ARRAY_COUNT(fan), paint);
+                                     modes[j], fan, SK_ARRAY_COUNT(fan), paint);
                 canvas->translate(40, 0);
                 ++x;
             }

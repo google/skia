@@ -162,10 +162,10 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int instanceCount = fRects.count();
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerInstance,
+                                     indexBuffer.get(), kVertsPerInstance,
                                      kIndicesPerInstance, instanceCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");

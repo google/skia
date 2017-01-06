@@ -78,6 +78,12 @@ public:
      */
     int swizzleWidth() const { return fSwizzleWidth; }
 
+    /**
+     *  Returns the byte offset at which we write to destination memory, taking
+     *  scaling, subsetting, and partial frames into account.
+     */
+    size_t swizzleOffsetBytes() const { return fDstOffsetBytes; }
+
 private:
 
     /**

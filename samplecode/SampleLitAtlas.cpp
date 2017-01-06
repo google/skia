@@ -492,7 +492,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawDrawable(fDrawable);
+        canvas->drawDrawable(fDrawable.get());
         this->inval(NULL);
     }
 
@@ -506,7 +506,7 @@ protected:
 #endif
 
 private:
-    SkAutoTUnref<DrawLitAtlasDrawable> fDrawable;
+    sk_sp<DrawLitAtlasDrawable> fDrawable;
 
     typedef SampleView INHERITED;
 };

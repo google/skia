@@ -15,7 +15,6 @@ SkNWayCanvas::~SkNWayCanvas() {
 
 void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
     if (canvas) {
-        canvas->ref();
         *fList.append() = canvas;
     }
 }
@@ -23,13 +22,11 @@ void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
 void SkNWayCanvas::removeCanvas(SkCanvas* canvas) {
     int index = fList.find(canvas);
     if (index >= 0) {
-        canvas->unref();
         fList.removeShuffle(index);
     }
 }
 
 void SkNWayCanvas::removeAll() {
-    fList.unrefAll();
     fList.reset();
 }
 
@@ -288,22 +285,22 @@ void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
 
 void SkNWayCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
+                                  const SkColor colors[], SkBlendMode bmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
+        iter->drawVertices(vmode, vertexCount, vertices, texs, colors, bmode,
                            indices, indexCount, paint);
     }
 }
 
 void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPoint texCoords[4], SkBlendMode bmode,
                                const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawPatch(cubics, colors, texCoords, xmode, paint);
+        iter->drawPatch(cubics, colors, texCoords, bmode, paint);
     }
 }
 

@@ -54,12 +54,7 @@ static SkIRect get_bounds_from_image(const SkImage* image) {
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm, int width, int height) {
-    SkBitmapCacheDesc desc;
-    desc.fImageID = bm.getGenerationID();
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fBounds = get_bounds_from_bitmap(bm);
-    return desc;
+    return { bm.getGenerationID(), width, height, get_bounds_from_bitmap(bm) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
@@ -67,12 +62,7 @@ SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image, int width, int height) {
-    SkBitmapCacheDesc desc;
-    desc.fImageID = image->uniqueID();
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fBounds = get_bounds_from_image(image);
-    return desc;
+    return { image->uniqueID(), width, height, get_bounds_from_image(image) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
@@ -85,39 +75,27 @@ static unsigned gBitmapKeyNamespaceLabel;
 struct BitmapKey : public SkResourceCache::Key {
 public:
     BitmapKey(uint32_t genID, int width, int height, const SkIRect& bounds)
-        : fGenID(genID)
-        , fWidth(width)
-        , fHeight(height)
-        , fBounds(bounds)
+        : fDesc({ genID, width, height, bounds })
     {
-        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
-                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fDesc.fImageID),
+                   sizeof(fDesc));
     }
 
-    BitmapKey(const SkBitmapCacheDesc& desc)
-        : fGenID(desc.fImageID)
-        , fWidth(desc.fWidth)
-        , fHeight(desc.fHeight)
-        , fBounds(desc.fBounds)
-    {
-        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
-                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
+    BitmapKey(const SkBitmapCacheDesc& desc) : fDesc(desc) {
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fDesc.fImageID),
+                   sizeof(fDesc));
     }
 
     void dump() const {
-        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n", fWidth, fHeight, fGenID,
-                 fBounds.x(), fBounds.y(), fBounds.width(), fBounds.height());
+        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n", fDesc.fWidth, fDesc.fHeight, fDesc.fImageID,
+            fDesc.fBounds.x(), fDesc.fBounds.y(), fDesc.fBounds.width(), fDesc.fBounds.height());
     }
 
-    const uint32_t  fGenID;
-    const int       fWidth;
-    const int       fHeight;
-    const SkIRect   fBounds;
+    const SkBitmapCacheDesc fDesc;
 };
 
 struct BitmapRec : public SkResourceCache::Rec {
-    BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds,
-              const SkBitmap& result)
+    BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds, const SkBitmap& result)
         : fKey(genID, width, height, bounds)
         , fBitmap(result)
     {
@@ -230,21 +208,21 @@ static unsigned gMipMapKeyNamespaceLabel;
 
 struct MipMapKey : public SkResourceCache::Key {
 public:
-    MipMapKey(uint32_t genID, SkSourceGammaTreatment treatment, const SkIRect& bounds)
-        : fGenID(genID), fSrcGammaTreatment(static_cast<uint32_t>(treatment)), fBounds(bounds)
+    MipMapKey(uint32_t genID, SkDestinationSurfaceColorMode colorMode, const SkIRect& bounds)
+        : fGenID(genID), fColorMode(static_cast<uint32_t>(colorMode)), fBounds(bounds)
     {
         this->init(&gMipMapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(genID),
-                   sizeof(fGenID) + sizeof(fSrcGammaTreatment) + sizeof(fBounds));
+                   sizeof(fGenID) + sizeof(fColorMode) + sizeof(fBounds));
     }
 
     uint32_t    fGenID;
-    uint32_t    fSrcGammaTreatment;
+    uint32_t    fColorMode;
     SkIRect     fBounds;
 };
 
 struct MipMapRec : public SkResourceCache::Rec {
-    MipMapRec(const SkBitmap& src, SkSourceGammaTreatment treatment, const SkMipMap* result)
-        : fKey(src.getGenerationID(), treatment, get_bounds_from_bitmap(src))
+    MipMapRec(const SkBitmap& src, SkDestinationSurfaceColorMode colorMode, const SkMipMap* result)
+        : fKey(src.getGenerationID(), colorMode, get_bounds_from_bitmap(src))
         , fMipMap(result)
     {
         fMipMap->attachToCacheAndRef();
@@ -282,10 +260,10 @@ private:
 }
 
 const SkMipMap* SkMipMapCache::FindAndRef(const SkBitmapCacheDesc& desc,
-                                          SkSourceGammaTreatment treatment,
+                                          SkDestinationSurfaceColorMode colorMode,
                                           SkResourceCache* localCache) {
     // Note: we ignore width/height from desc, just need id and bounds
-    MipMapKey key(desc.fImageID, treatment, desc.fBounds);
+    MipMapKey key(desc.fImageID, colorMode, desc.fBounds);
     const SkMipMap* result;
 
     if (!CHECK_LOCAL(localCache, find, Find, key, MipMapRec::Finder, &result)) {
@@ -299,11 +277,12 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
                       : SkResourceCache::GetDiscardableFactory();
 }
 
-const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src, SkSourceGammaTreatment treatment,
+const SkMipMap* SkMipMapCache::AddAndRef(const SkBitmap& src,
+                                         SkDestinationSurfaceColorMode colorMode,
                                          SkResourceCache* localCache) {
-    SkMipMap* mipmap = SkMipMap::Build(src, treatment, get_fact(localCache));
+    SkMipMap* mipmap = SkMipMap::Build(src, colorMode, get_fact(localCache));
     if (mipmap) {
-        MipMapRec* rec = new MipMapRec(src, treatment, mipmap);
+        MipMapRec* rec = new MipMapRec(src, colorMode, mipmap);
         CHECK_LOCAL(localCache, add, Add, rec);
         src.pixelRef()->notifyAddedToCache();
     }

@@ -14,6 +14,8 @@
 #include "SkPM4f.h"
 #include "SkRandom.h"
 
+#include <cmath>
+
 static bool eq_within_half_float(float a, float b) {
     const float kTolerance = 1.0f / (1 << (8 + 10));
 
@@ -100,7 +102,7 @@ DEF_TEST(SkFloatToHalf_finite_ftz, r) {
         uint16_t alternate = expected;
         if (is_denorm(expected)) {
             // _finite_ftz() may flush denorms to zero, and happens to keep the sign bit.
-            alternate = signbit(f) ? 0x8000 : 0x0000;
+            alternate = std::signbit(f) ? 0x8000 : 0x0000;
         }
 
         uint16_t actual = SkFloatToHalf_finite_ftz(Sk4f{f})[0];

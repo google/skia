@@ -46,7 +46,7 @@ bool SkImageShader::isOpaque() const {
 }
 
 size_t SkImageShader::onContextSize(const ContextRec& rec) const {
-    return SkBitmapProcLegacyShader::ContextSize(rec, SkBitmapProvider(fImage.get()).info());
+    return SkBitmapProcLegacyShader::ContextSize(rec, as_IB(fImage)->onImageInfo());
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
@@ -210,8 +210,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix, this->getLocalMatrix(),
                                     &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    SkAutoTUnref<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params,
-                                                                args.fGammaTreatment));
+    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode));
     if (!texture) {
         return nullptr;
     }
@@ -221,9 +220,10 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), matrix, tm);
+        inner = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), matrix, tm);
     } else {
-        inner = GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), matrix, params);
+        inner = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform),
+                                            matrix, params);
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {

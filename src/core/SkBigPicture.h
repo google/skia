@@ -54,8 +54,8 @@ public:
                          int stop,
                          const SkMatrix& initialCTM) const;
 // Used by GrRecordReplaceDraw
-    const SkBBoxHierarchy* bbh() const { return fBBH; }
-    const SkRecord*     record() const { return fRecord; }
+    const SkBBoxHierarchy* bbh() const { return fBBH.get(); }
+    const SkRecord*     record() const { return fRecord.get(); }
 
 private:
     struct Analysis {
@@ -72,13 +72,13 @@ private:
     int drawableCount() const;
     SkPicture const* const* drawablePicts() const;
 
-    const SkRect                          fCullRect;
-    const size_t                          fApproxBytesUsedBySubPictures;
-    mutable SkOnce                        fAnalysisOnce;
-    mutable Analysis                      fAnalysis;
-    SkAutoTUnref<const SkRecord>          fRecord;
-    SkAutoTDelete<const SnapshotArray>    fDrawablePicts;
-    SkAutoTUnref<const SkBBoxHierarchy>   fBBH;
+    const SkRect                         fCullRect;
+    const size_t                         fApproxBytesUsedBySubPictures;
+    mutable SkOnce                       fAnalysisOnce;
+    mutable Analysis                     fAnalysis;
+    sk_sp<const SkRecord>                fRecord;
+    std::unique_ptr<const SnapshotArray> fDrawablePicts;
+    sk_sp<const SkBBoxHierarchy>         fBBH;
 };
 
 #endif//SkBigPicture_DEFINED

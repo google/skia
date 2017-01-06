@@ -193,8 +193,8 @@ int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     }
 
     int ttcIndex;
-    SkAutoTDelete<SkStream> stream(this->openStream(&ttcIndex));
-    return stream.get() ? SkFontStream::GetTableTags(stream, ttcIndex, tags) : 0;
+    std::unique_ptr<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get() ? SkFontStream::GetTableTags(stream.get(), ttcIndex, tags) : 0;
 }
 
 size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
@@ -247,7 +247,7 @@ SkStreamAsset* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
 
 SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                            const SkDescriptor* desc) const {
-    return new SkScalerContext_DW(const_cast<DWriteFontTypeface*>(this), effects, desc);
+    return new SkScalerContext_DW(sk_ref_sp(const_cast<DWriteFontTypeface*>(this)), effects, desc);
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {

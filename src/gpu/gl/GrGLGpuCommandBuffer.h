@@ -10,7 +10,10 @@
 
 #include "GrGpuCommandBuffer.h"
 
+#include "GrBatchFlushState.h"
 #include "GrGLGpu.h"
+
+class GrGLRenderTarget;
 
 class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
 /**
@@ -19,37 +22,43 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
+    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrGLRenderTarget* rt) : fGpu(gpu), fRenderTarget(rt) {}
 
     virtual ~GrGLGpuCommandBuffer() {}
 
     void end() override {}
 
-    void discard(GrRenderTarget* rt) override {}
+    void discard() override {}
+
+    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override {
+        state->doUpload(upload);
+    }
 
 private:
     GrGpu* gpu() override { return fGpu; }
+    GrRenderTarget* renderTarget() override { return fRenderTarget; }
 
-    void onSubmit(const SkIRect& bounds) override {}
+    void onSubmit() override {}
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
-                int meshCount) override {
+                int meshCount,
+                const SkRect& bounds) override {
         fGpu->draw(pipeline, primProc, mesh, meshCount);
     }
 
-    void onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) override {
-        fGpu->clear(clip, color, rt);
+    void onClear(const GrFixedClip& clip, GrColor color) override {
+        fGpu->clear(clip, color, fRenderTarget);
     }
 
-    void onClearStencilClip(GrRenderTarget* rt,
-                            const GrFixedClip& clip,
+    void onClearStencilClip(const GrFixedClip& clip,
                             bool insideStencilMask) override {
-        fGpu->clearStencilClip(clip, insideStencilMask, rt);
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
     GrGLGpu*                    fGpu;
+    GrGLRenderTarget*           fRenderTarget;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

@@ -9,7 +9,7 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrDrawPathBatch.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
@@ -78,31 +78,33 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& 
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
-    SkASSERT(!args.fIsAA || args.fDrawContext->isStencilBufferMultisampled());
+    SkASSERT(!args.fIsAA || args.fRenderTargetContext->isStencilBufferMultisampled());
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
-    args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fIsAA, *args.fViewMatrix, p);
+    sk_sp<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
+    args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fIsAA,
+                                                  *args.fViewMatrix, p.get());
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onDrawPath");
-    SkASSERT(!args.fPaint->isAntiAlias() || args.fDrawContext->isStencilBufferMultisampled());
+    SkASSERT(!args.fPaint->isAntiAlias() ||
+             args.fRenderTargetContext->isStencilBufferMultisampled());
     SkASSERT(!args.fShape->style().strokeRec().isHairlineStyle());
 
     const SkMatrix& viewMatrix = *args.fViewMatrix;
 
 
-    SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
+    sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
 
     if (args.fShape->inverseFilled()) {
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
             SkRect::MakeLTRB(0, 0,
-                             SkIntToScalar(args.fDrawContext->width()),
-                             SkIntToScalar(args.fDrawContext->height()));
+                             SkIntToScalar(args.fRenderTargetContext->width()),
+                             SkIntToScalar(args.fRenderTargetContext->height()));
         SkMatrix vmi;
         // mapRect through persp matrix may not be correct
         if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
@@ -118,13 +120,13 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        SkAutoTUnref<GrDrawBatch> coverBatch(
+        sk_sp<GrDrawBatch> coverBatch(
                 GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
                                                     nullptr, &invert));
 
         // fake inverse with a stencil and cover
-        args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
-                                                         viewMatrix, path);
+        args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
+                                                      viewMatrix, path.get());
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -142,10 +144,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
             GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                               args.fPaint->isAntiAlias() &&
-                                              !args.fDrawContext->hasMixedSamples());
+                                              !args.fRenderTargetContext->hasMixedSamples());
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
-            args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch);
+            args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, coverBatch.get());
         }
     } else {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -158,17 +160,17 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 0xffff>()
         );
 
-        SkAutoTUnref<GrDrawBatch> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
-                                                                path));
+        sk_sp<GrDrawBatch> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
+                                                         path.get()));
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
         if (args.fAntiAlias) {
-            SkASSERT(args.fDrawContext->isStencilBufferMultisampled());
+            SkASSERT(args.fRenderTargetContext->isStencilBufferMultisampled());
             pipelineBuilder.enableState(GrPipelineBuilder::kHWAntialias_Flag);
         }
 
-        args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+        args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
     }
 
     return true;

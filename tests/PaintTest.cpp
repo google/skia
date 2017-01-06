@@ -312,10 +312,6 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(other.getTextSize()   == paint.getTextSize());
     ASSERT(other.getLooper()     == paint.getLooper());
     ASSERT(other.getBlendMode()  == paint.getBlendMode());
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    other.setXfermode(nullptr);
-#endif
 }
 
 DEF_TEST(Paint_getHash, r) {

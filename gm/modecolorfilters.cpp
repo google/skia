@@ -99,21 +99,21 @@ protected:
         // used with shaders
         SkColor alphas[] = {0xFFFFFFFF, 0x80808080};
 
-        SkXfermode::Mode modes[]  = { // currently just doing the Modes expressible as Coeffs
-            SkXfermode::kClear_Mode,
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kSrcOver_Mode,
-            SkXfermode::kDstOver_Mode,
-            SkXfermode::kSrcIn_Mode,
-            SkXfermode::kDstIn_Mode,
-            SkXfermode::kSrcOut_Mode,
-            SkXfermode::kDstOut_Mode,
-            SkXfermode::kSrcATop_Mode,
-            SkXfermode::kDstATop_Mode,
-            SkXfermode::kXor_Mode,
-            SkXfermode::kPlus_Mode,
-            SkXfermode::kModulate_Mode,
+        const SkBlendMode modes[]  = { // currently just doing the Modes expressible as Coeffs
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
         };
 
         SkPaint paint;

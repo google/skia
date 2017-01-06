@@ -101,7 +101,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
             return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
         }
     }
-    SkAutoTDelete<TestContext> testCtx;
+    std::unique_ptr<TestContext> testCtx;
     sk_sp<GrContext> grCtx;
     GrBackendContext backendContext = 0;
     sk_sp<const GrGLInterface> glInterface;
@@ -117,13 +117,20 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard);
                     break;
 #if SK_ANGLE
-#   ifdef SK_BUILD_FOR_WIN
-                case kANGLE_ContextType:
-                    glCtx = CreateANGLEDirect3DGLTestContext();
+                case kANGLE_D3D9_ES2_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2).release();
                     break;
-#   endif
-                case kANGLE_GL_ContextType:
-                    glCtx = CreateANGLEOpenGLGLTestContext();
+                case kANGLE_D3D11_ES2_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2).release();
+                    break;
+                case kANGLE_D3D11_ES3_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3).release();
+                    break;
+                case kANGLE_GL_ES2_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2).release();
+                    break;
+                case kANGLE_GL_ES3_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3).release();
                     break;
 #endif
                 case kCommandBuffer_ContextType:

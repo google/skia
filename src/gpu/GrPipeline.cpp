@@ -8,11 +8,11 @@
 #include "GrPipeline.h"
 
 #include "GrCaps.h"
-#include "GrDrawContext.h"
-#include "GrDrawTarget.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
+#include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
 
@@ -21,19 +21,18 @@
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrXPOverridesForBatch* overrides) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
-
+    const GrUserStencilSettings* userStencil = builder.getUserStencil();
+    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
+    if (!rt) {
+        return nullptr;
+    }
+    
     GrPipeline* pipeline = new (memory) GrPipeline;
-    GrRenderTarget* rt = args.fDrawContext->accessRenderTarget();
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
     pipeline->fWindowRectsState = *args.fWindowRectsState;
-    if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
-        const GrRenderTargetPriv& rtPriv = rt->renderTargetPriv();
-        pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
-                                         rtPriv.numStencilBits());
-        SkASSERT(!pipeline->fStencilSettings.usesWrapOp() || args.fCaps->stencilWrapOpsSupport());
-    }
+    pipeline->fUserStencilSettings = userStencil;
     pipeline->fDrawFace = builder.getDrawFace();
 
     pipeline->fFlags = 0;
@@ -55,12 +54,15 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (args.fHasStencilClip) {
         pipeline->fFlags |= kHasStencilClip_Flag;
     }
+    if (!userStencil->isDisabled(args.fHasStencilClip)) {
+        pipeline->fFlags |= kStencilEnabled_Flag;
+    }
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fDrawContext->hasMixedSamples() &&
-                           (builder.isHWAntialias() || !pipeline->fStencilSettings.isDisabled());
+    bool hasMixedSamples = args.fRenderTargetContext->hasMixedSamples() &&
+                           (builder.isHWAntialias() || pipeline->isStencilEnabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
-    SkAutoTUnref<GrXferProcessor> xferProcessor;
+    sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
         xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
                                                            hasMixedSamples,
@@ -88,7 +90,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
     optFlags = xpForOpts->getOptimizations(args.fOpts,
-                                           pipeline->fStencilSettings.doesWrite(),
+                                           userStencil->doesWrite(args.fHasStencilClip),
                                            &overrideColor,
                                            *args.fCaps);
 
@@ -105,7 +107,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    pipeline->fXferProcessor.reset(xferProcessor);
+    pipeline->fXferProcessor.reset(xferProcessor.get());
 
     int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 
@@ -178,8 +180,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrTextureAccess* access = iter.next()) {
-        SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(access->getTexture());
+        SkASSERT(rt->getLastOpList());
+        rt->getLastOpList()->addDependency(access->getTexture());
     }
 }
 
@@ -192,8 +194,8 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
 
     for (int i = 0; i < xfer.numTextures(); ++i) {
         GrTexture* texture = xfer.textureAccess(i).getTexture();
-        SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(texture);
+        SkASSERT(rt->getLastOpList());
+        rt->getLastOpList()->addDependency(texture);
     }
 }
 
@@ -226,7 +228,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         a.fScissorState != b.fScissorState ||
         !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
         a.fFlags != b.fFlags ||
-        a.fStencilSettings != b.fStencilSettings ||
+        a.fUserStencilSettings != b.fUserStencilSettings ||
         a.fDrawFace != b.fDrawFace ||
         a.fIgnoresCoverage != b.fIgnoresCoverage) {
         return false;

@@ -18,7 +18,10 @@
 #include "SkTypes.h"
 #include "SkYUVSizeInfo.h"
 
+#include <vector>
+
 class SkColorSpace;
+class SkColorSpaceXform;
 class SkData;
 class SkPngChunkReader;
 class SkSampler;
@@ -243,10 +246,12 @@ public:
     struct Options {
         Options()
             : fZeroInitialized(kNo_ZeroInitialized)
-            , fSubset(NULL)
+            , fSubset(nullptr)
+            , fFrameIndex(0)
+            , fHasPriorFrame(false)
         {}
 
-        ZeroInitialized fZeroInitialized;
+        ZeroInitialized             fZeroInitialized;
         /**
          *  If not NULL, represents a subset of the original image to decode.
          *  Must be within the bounds returned by getInfo().
@@ -264,7 +269,33 @@ public:
          *  subset left and subset width to decode partial scanlines on calls
          *  to getScanlines().
          */
-        SkIRect*        fSubset;
+        const SkIRect*              fSubset;
+
+        /**
+         *  The frame to decode.
+         *
+         *  Only meaningful for multi-frame images.
+         */
+        size_t fFrameIndex;
+
+        /**
+         *  If true, the dst already contains the prior frame.
+         *
+         *  Only meaningful for multi-frame images.
+         *
+         *  If fFrameIndex needs to be blended with a prior frame (as reported by
+         *  getFrameInfo[fFrameIndex].fRequiredFrame), the client can set this to
+         *  either true or false:
+         *
+         *  true means that the prior frame is already in the dst, and this
+         *  codec only needs to decode fFrameIndex and blend it with the dst.
+         *  Options.fZeroInitialized is ignored in this case.
+         *
+         *  false means that the dst does not contain the prior frame, so this
+         *  codec needs to first decode the prior frame (which in turn may need
+         *  to decode its prior frame).
+         */
+        bool   fHasPriorFrame;
     };
 
     /**
@@ -522,19 +553,6 @@ public:
          * Upside down bmps are an example.
          */
         kBottomUp_SkScanlineOrder,
-
-        /*
-         * This indicates that the scanline decoder reliably outputs rows, but
-         * they will not be in logical order.  If the scanline format is
-         * kOutOfOrder, the nextScanline() API should be used to determine the
-         * actual y-coordinate of the next output row.
-         *
-         * For this scanline ordering, it is advisable to get and skip
-         * scanlines one at a time.
-         *
-         * Interlaced gifs are an example.
-         */
-        kOutOfOrder_SkScanlineOrder,
     };
 
     /**
@@ -550,7 +568,7 @@ public:
      *  decoder.
      *
      *  This will equal fCurrScanline, except in the case of strangely
-     *  encoded image types (bottom-up bmps, interlaced gifs).
+     *  encoded image types (bottom-up bmps).
      *
      *  Results are undefined when not in scanline decoding mode.
      */
@@ -566,6 +584,55 @@ public:
      */
     int outputScanline(int inputScanline) const;
 
+    // The required frame for an independent frame is marked as
+    // kNone.
+    static constexpr size_t kNone = static_cast<size_t>(-1);
+
+    /**
+     *  Information about individual frames in a multi-framed image.
+     */
+    struct FrameInfo {
+        /**
+         *  The frame that this frame needs to be blended with, or
+         *  kNone.
+         */
+        size_t fRequiredFrame;
+
+        /**
+         *  Number of milliseconds to show this frame.
+         */
+        size_t fDuration;
+    };
+
+    /**
+     *  Return info about the frames in the image.
+     *
+     *  May require reading through the stream to determine info about the
+     *  frames (including the count).
+     *
+     *  As such, future decoding calls may require a rewind.
+     *
+     *  For single-frame images, this will return an empty vector.
+     */
+    std::vector<FrameInfo> getFrameInfo() {
+        return this->onGetFrameInfo();
+    }
+
+    static constexpr int kRepetitionCountInfinite = -1;
+
+    /**
+     *  Return the number of times to repeat, if this image is animated.
+     *
+     *  May require reading the stream to find the repetition count.
+     *
+     *  As such, future decoding calls may require a rewind.
+     *
+     *  For single-frame images, this will return 0.
+     */
+    int getRepetitionCount() {
+        return this->onGetRepetitionCount();
+    }
+
 protected:
     /**
      *  Takes ownership of SkStream*
@@ -574,7 +641,7 @@ protected:
             int height,
             const SkEncodedInfo&,
             SkStream*,
-            sk_sp<SkColorSpace> = nullptr,
+            sk_sp<SkColorSpace>,
             Origin = kTopLeft_Origin);
 
     /**
@@ -706,25 +773,33 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    /**
-     *  Used for testing with qcms.
-     *  FIXME: Remove this when we are done comparing with qcms.
-     */
-    virtual sk_sp<SkData> getICCData() const { return nullptr; }
-private:
-    const SkEncodedInfo         fEncodedInfo;
-    const SkImageInfo           fSrcInfo;
-    SkAutoTDelete<SkStream>     fStream;
-    bool                        fNeedsRewind;
-    const Origin                fOrigin;
+    bool initializeColorXform(const SkImageInfo& dstInfo);
+    SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
 
-    SkImageInfo                 fDstInfo;
-    SkCodec::Options            fOptions;
+    virtual std::vector<FrameInfo> onGetFrameInfo() {
+        // empty vector - this is not animated.
+        return {};
+    }
+
+    virtual int onGetRepetitionCount() {
+        return 0;
+    }
+
+private:
+    const SkEncodedInfo                fEncodedInfo;
+    const SkImageInfo                  fSrcInfo;
+    std::unique_ptr<SkStream>          fStream;
+    bool                               fNeedsRewind;
+    const Origin                       fOrigin;
+
+    SkImageInfo                        fDstInfo;
+    SkCodec::Options                   fOptions;
+    std::unique_ptr<SkColorSpaceXform> fColorXform;
 
     // Only meaningful during scanline decodes.
-    int                         fCurrScanline;
+    int                                fCurrScanline;
 
-    bool                        fStartedIncrementalDecode;
+    bool                               fStartedIncrementalDecode;
 
     /**
      *  Return whether these dimensions are supported as a scale.
@@ -782,14 +857,9 @@ private:
      *  May create a sampler, if one is not currently being used. Otherwise, does
      *  not affect ownership.
      *
-     *  Only valid during scanline decoding.
+     *  Only valid during scanline decoding or incremental decoding.
      */
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
-
-    // For testing with qcms
-    // FIXME: Remove these when we are done comparing with qcms.
-    friend class DM::ColorCodecSrc;
-    friend class ColorCodecBench;
 
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;

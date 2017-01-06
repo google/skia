@@ -31,15 +31,23 @@ struct SkDConic {
         fPts.debugInit();
     }
 
+    void debugSet(const SkDPoint* pts, SkScalar weight);
+
     SkDConic flip() const {
-        SkDConic result = {{{fPts[2], fPts[1], fPts[0]}}, fWeight};
+        SkDConic result = {{{fPts[2], fPts[1], fPts[0]}
+                SkDEBUGPARAMS(fPts.fDebugGlobalState) }, fWeight};
         return result;
     }
 
+#ifdef SK_DEBUG
+    SkOpGlobalState* globalState() const { return fPts.globalState(); }
+#endif
+
     static bool IsConic() { return true; }
 
-    const SkDConic& set(const SkPoint pts[kPointCount], SkScalar weight) {
-        fPts.set(pts);
+    const SkDConic& set(const SkPoint pts[kPointCount], SkScalar weight
+            SkDEBUGPARAMS(SkOpGlobalState* state = nullptr)) {
+        fPts.set(pts  SkDEBUGPARAMS(state));
         fWeight = weight;
         return *this;
     }
@@ -117,6 +125,7 @@ struct SkDConic {
     void dump() const;
     void dumpID(int id) const;
     void dumpInner() const;
+
 };
 
 

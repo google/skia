@@ -2093,7 +2093,7 @@ path.close();
 
     SkPath path2(path);
     // DEBUG_UNDER_DEVELOPMENT  fuzz763_1026368 disable expectation check for now
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, !FLAGS_runFail);
+    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, !SkOpGlobalState::DebugRunFail());
 }
 
 static void fuzz763_5485218(skiatest::Reporter* reporter, const char* filename) {

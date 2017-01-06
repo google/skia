@@ -164,7 +164,7 @@ public:
                      GrBatchTextStrike* strike,
                      GrGlyph* glyph,
                      SkGlyphCache*, const SkGlyph& skGlyph,
-                     SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+                     SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
     static size_t GetVertexStride(GrMaskFormat maskFormat) {
         switch (maskFormat) {
@@ -182,7 +182,7 @@ public:
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
     void flushCached(GrContext* context,
-                     GrDrawContext* dc,
+                     GrRenderTargetContext* rtc,
                      const SkTextBlob* blob,
                      const SkSurfaceProps& props,
                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -196,7 +196,7 @@ public:
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
     void flushThrowaway(GrContext* context,
-                        GrDrawContext* dc,
+                        GrRenderTargetContext* rtc,
                         const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
                         const SkPaint& skPaint,
@@ -292,21 +292,21 @@ private:
         , fTextType(0) {}
 
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                          SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+                          SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    inline void flushRun(GrDrawContext* dc, const GrPaint&, const GrClip&,
+    inline void flushRun(GrRenderTargetContext* rtc, const GrPaint&, const GrClip&,
                          int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                          const SkPaint& skPaint, const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrBatchFontCache* cache);
 
-    void flushBigGlyphs(GrContext* context, GrDrawContext* dc,
+    void flushBigGlyphs(GrContext* context, GrRenderTargetContext* rtc,
                         const GrClip& clip, const SkPaint& skPaint,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 
     void flushRunAsPaths(GrContext* context,
-                         GrDrawContext* dc,
+                         GrRenderTargetContext* rtc,
                          const SkSurfaceProps& props,
                          const SkTextBlobRunIterator& it,
                          const GrClip& clip, const SkPaint& skPaint,
@@ -452,7 +452,7 @@ private:
 
         private:
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
-            SkAutoTUnref<GrBatchTextStrike> fStrike;
+            sk_sp<GrBatchTextStrike> fStrike;
             SkMatrix fCurrentViewMatrix;
             SkRect fVertexBounds;
             uint64_t fAtlasGeneration;
@@ -477,7 +477,7 @@ private:
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
-        SkAutoTUnref<SkTypeface> fTypeface;
+        sk_sp<SkTypeface> fTypeface;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
 
@@ -490,7 +490,7 @@ private:
         // though the distance field text and the coloremoji may share the same run, they
         // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
+        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
         bool fInitialized;
         bool fDrawAsPaths;
     };
@@ -515,17 +515,17 @@ private:
                                     GrBatchFontCache* cache);
 
     struct BigGlyph {
-        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool applyVM)
+        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
             : fPath(path)
             , fScale(scale)
             , fX(vx)
             , fY(vy)
-            , fApplyVM(applyVM) {}
+            , fTreatAsBMP(treatAsBMP) {}
         SkPath fPath;
         SkScalar fScale;
         SkScalar fX;
         SkScalar fY;
-        bool fApplyVM;
+        bool fTreatAsBMP;
     };
 
     struct StrokeInfo {

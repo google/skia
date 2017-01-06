@@ -10,6 +10,8 @@
 
 #include "SkNx.h"
 
+namespace {
+
 struct Sk4x4f {
     Sk4f r,g,b,a;
 
@@ -149,5 +151,7 @@ inline void Sk4x4f::transpose(uint8_t bs[16]) const {
 }
 
 #endif
+
+}  // namespace
 
 #endif//Sk4x4f_DEFINED

@@ -25,6 +25,17 @@ static void output_message(j_common_ptr info) {
     print_message(info, "output_message");
 }
 
+static void progress_monitor(j_common_ptr info) {
+  int scan = ((j_decompress_ptr)info)->input_scan_number;
+  // Progressive images with a very large number of scans can cause the
+  // decoder to hang.  Here we use the progress monitor to abort on
+  // a very large number of scans.  100 is arbitrary, but much larger
+  // than the number of scans we might expect in a normal image.
+  if (scan >= 100) {
+      skjpeg_err_exit(info);
+  }
+}
+
 bool JpegDecoderMgr::returnFalse(const char caller[]) {
     print_message((j_common_ptr) &fDInfo, caller);
     return false;
@@ -71,6 +82,8 @@ void JpegDecoderMgr::init() {
     fInit = true;
     fDInfo.src = &fSrcMgr;
     fDInfo.err->output_message = &output_message;
+    fDInfo.progress = &fProgressMgr;
+    fProgressMgr.progress_monitor = &progress_monitor;
 }
 
 JpegDecoderMgr::~JpegDecoderMgr() {

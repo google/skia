@@ -14,7 +14,7 @@
 #include "Test.h"
 
 static struct lineConic {
-    SkDConic conic;
+    ConicPts conic;
     SkDLine line;
     int result;
     SkDPoint expected[2];
@@ -57,7 +57,7 @@ static int doIntersect(SkIntersections& intersections, const SkDConic& conic, co
 }
 
 static struct oneLineConic {
-    SkDConic conic;
+    ConicPts conic;
     SkDLine line;
 } oneOffs[] = {
     {{{{{30.6499996,25.6499996}, {30.6499996,20.6499996}, {25.6499996,20.6499996}}}, 0.707107008f},
@@ -69,7 +69,9 @@ static size_t oneOffs_count = SK_ARRAY_COUNT(oneOffs);
 static void testOneOffs(skiatest::Reporter* reporter) {
     bool flipped = false;
     for (size_t index = 0; index < oneOffs_count; ++index) {
-        const SkDConic& conic = oneOffs[index].conic;
+        const ConicPts& c = oneOffs[index].conic;
+        SkDConic  conic;
+        conic.debugSet(c.fPts.fPts, c.fWeight);
         SkASSERT(ValidConic(conic));
         const SkDLine& line = oneOffs[index].line;
         SkASSERT(ValidLine(line));
@@ -96,7 +98,9 @@ DEF_TEST(PathOpsConicLineIntersectionOneOff, reporter) {
 DEF_TEST(PathOpsConicLineIntersection, reporter) {
     for (size_t index = 0; index < lineConicTests_count; ++index) {
         int iIndex = static_cast<int>(index);
-        const SkDConic& conic = lineConicTests[index].conic;
+        const ConicPts& c = lineConicTests[index].conic;
+        SkDConic conic;
+        conic.debugSet(c.fPts.fPts, c.fWeight);
         SkASSERT(ValidConic(conic));
         const SkDLine& line = lineConicTests[index].line;
         SkASSERT(ValidLine(line));

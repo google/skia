@@ -9,6 +9,7 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
@@ -99,12 +100,12 @@ bool GrGLExtensions::init(GrGLStandard standard,
         if (!extensions) {
             return false;
         }
-        eat_space_sep_strings(fStrings, extensions);
+        eat_space_sep_strings(fStrings.get(), extensions);
     }
     if (queryString) {
         const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
 
-        eat_space_sep_strings(fStrings, extensions);
+        eat_space_sep_strings(fStrings.get(), extensions);
     }
     if (!fStrings->empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
@@ -122,27 +123,26 @@ bool GrGLExtensions::has(const char ext[]) const {
 bool GrGLExtensions::remove(const char ext[]) {
     SkASSERT(fInitialized);
     int idx = find_string(*fStrings, ext);
-    if (idx >= 0) {
-        // This is not terribly effecient but we really only expect this function to be called at
-        // most a handful of times when our test programs start.
-        SkAutoTDelete< SkTArray<SkString> > oldStrings(fStrings.release());
-        fStrings.reset(new SkTArray<SkString>(oldStrings->count() - 1));
-        fStrings->push_back_n(idx, &oldStrings->front());
-        fStrings->push_back_n(oldStrings->count() - idx - 1, &(*oldStrings)[idx] + 1);
-        return true;
-    } else {
+    if (idx < 0) {
         return false;
     }
+
+    // This is not terribly effecient but we really only expect this function to be called at
+    // most a handful of times when our test programs start.
+    fStrings->removeShuffle(idx);
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+    SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    return true;
 }
 
 void GrGLExtensions::add(const char ext[]) {
     int idx = find_string(*fStrings, ext);
     if (idx < 0) {
-        // This is not the most effecient approach since we end up doing a full sort of the
+        // This is not the most effecient approach since we end up looking at all of the
         // extensions after the add
-        fStrings->push_back().set(ext);
+        fStrings->emplace_back(ext);
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-        SkTQSort(&fStrings->front(), &fStrings->back(), cmp);
+        SkTInsertionSort(&fStrings->front(), &fStrings->back(), cmp);
     }
 }
 

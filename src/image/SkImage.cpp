@@ -48,22 +48,6 @@ bool SkImage::peekPixels(SkPixmap* pm) const {
     return as_IB(this)->onPeekPixels(pm);
 }
 
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
-    SkPixmap pm;
-    if (this->peekPixels(&pm)) {
-        if (info) {
-            *info = pm.info();
-        }
-        if (rowBytes) {
-            *rowBytes = pm.rowBytes();
-        }
-        return pm.addr();
-    }
-    return nullptr;
-}
-#endif
-
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY, CachingHint chint) const {
     SkReadPixelsRec rec(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
@@ -116,13 +100,6 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-SkShader* SkImage::newShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                             const SkMatrix* localMatrix) const {
-    return this->makeShader(tileX, tileY, localMatrix).release();
-}
-#endif
-
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
@@ -132,7 +109,7 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
 }
 
 SkData* SkImage::encode(SkPixelSerializer* serializer) const {
-    SkAutoTUnref<SkPixelSerializer> defaultSerializer;
+    sk_sp<SkPixelSerializer> defaultSerializer;
     SkPixelSerializer* effectiveSerializer = serializer;
     if (!effectiveSerializer) {
         defaultSerializer.reset(SkImageEncoder::CreatePixelSerializer());
@@ -344,7 +321,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
         return nullptr;
     }
 
-    SkAutoTUnref<SkImageFilterCache> cache(
+    sk_sp<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
     SkImageFilter::OutputProperties outputProperties(as_IB(this)->onImageInfo().colorSpace());
     SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);
@@ -378,6 +355,10 @@ bool SkImage::isLazyGenerated() const {
     return as_IB(this)->onIsLazyGenerated();
 }
 
+bool SkImage::isAlphaOnly() const {
+    return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
@@ -387,7 +368,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBud
 }
 
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                     int mipLevelCount, SkBudgeted, SkSourceGammaTreatment) {
+                                     int mipLevelCount, SkBudgeted, SkDestinationSurfaceColorMode) {
     return nullptr;
 }
 
@@ -399,7 +380,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&,
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                             const DeferredTextureImageUsageParams[],
                                             int paramCnt, void* buffer,
-                                            SkSourceGammaTreatment treatment) const {
+                                            SkColorSpace* dstColorSpace) const {
     return 0;
 }
 
@@ -433,66 +414,6 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFACTORY
-SkImage* SkImage::NewRasterCopy(const Info& info, const void* pixels, size_t rowBytes,
-                                SkColorTable* ctable) {
-    return MakeRasterCopy(SkPixmap(info, pixels, rowBytes, ctable)).release();
-}
-
-SkImage* SkImage::NewRasterData(const Info& info, SkData* pixels, size_t rowBytes) {
-    return MakeRasterData(info, sk_ref_sp(pixels), rowBytes).release();
-}
-
-SkImage* SkImage::NewFromRaster(const Info& info, const void* pixels, size_t rowBytes,
-                                RasterReleaseProc proc, ReleaseContext releasectx) {
-    return MakeFromRaster(SkPixmap(info, pixels, rowBytes), proc, releasectx).release();
-}
-
-SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
-    return MakeFromBitmap(bm).release();
-}
-
-SkImage* SkImage::NewFromGenerator(SkImageGenerator* gen, const SkIRect* subset) {
-    return MakeFromGenerator(gen, subset).release();
-}
-
-SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
-    return MakeFromEncoded(sk_ref_sp(encoded), subset).release();
-}
-
-SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at,
-                                 TextureReleaseProc proc, ReleaseContext releasectx) {
-    return MakeFromTexture(ctx, desc, at, proc, releasectx).release();
-}
-
-SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                        SkAlphaType at) {
-    return MakeFromAdoptedTexture(ctx, desc, at).release();
-}
-
-SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
-                                         const GrBackendObject yuvTextureHandles[3],
-                                         const SkISize yuvSizes[3],
-                                         GrSurfaceOrigin origin) {
-    return MakeFromYUVTexturesCopy(ctx, space, yuvTextureHandles, yuvSizes, origin).release();
-}
-
-SkImage* SkImage::NewFromPicture(const SkPicture* picture, const SkISize& dimensions,
-                                 const SkMatrix* matrix, const SkPaint* paint) {
-    return MakeFromPicture(sk_ref_sp(const_cast<SkPicture*>(picture)), dimensions,
-                                     matrix, paint).release();
-}
-
-SkImage* SkImage::NewTextureFromPixmap(GrContext* ctx, const SkPixmap& pmap, SkBudgeted budgeted) {
-    return MakeTextureFromPixmap(ctx, pmap, budgeted).release();
-}
-
-SkImage* SkImage::NewFromDeferredTextureImageData(GrContext* ctx, const void* data,
-                                                  SkBudgeted budgeted) {
-    return MakeFromDeferredTextureImageData(ctx, data, budgeted).release();
-}
-#endif
-
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                      int mipLevelCount, SkBudgeted) {
     return nullptr;
@@ -511,10 +432,10 @@ sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t leng
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
+bool SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
     SkASSERT(image);
     SkASSERT(ctx);
-    as_IB(image)->onPinAsTexture(ctx);
+    return as_IB(image)->onPinAsTexture(ctx);
 }
 
 void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {

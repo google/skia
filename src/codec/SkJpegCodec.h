@@ -59,8 +59,6 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
-    sk_sp<SkData> getICCData() const override { return fICCData; }
-
 private:
 
     /*
@@ -95,8 +93,7 @@ private:
      *                   takes ownership
      */
     SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
-            sk_sp<SkData> iccData);
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output
@@ -107,7 +104,6 @@ private:
     bool setOutputColorSpace(const SkImageInfo& dst);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
-    void initializeColorXform(const SkImageInfo& dstInfo);
     void allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count);
 
@@ -120,7 +116,7 @@ private:
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 
-    SkAutoTDelete<JpegDecoderMgr>      fDecoderMgr;
+    std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
 
     // We will save the state of the decompress struct after reading the header.
     // This allows us to safely call onGetScaledDimensions() at any time.
@@ -136,10 +132,7 @@ private:
     // to further subset the output from libjpeg-turbo.
     SkIRect                            fSwizzlerSubset;
 
-    SkAutoTDelete<SkSwizzler>          fSwizzler;
-    std::unique_ptr<SkColorSpaceXform> fColorXform;
-
-    sk_sp<SkData>                      fICCData;
+    std::unique_ptr<SkSwizzler>        fSwizzler;
 
     typedef SkCodec INHERITED;
 };

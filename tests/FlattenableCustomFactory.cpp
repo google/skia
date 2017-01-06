@@ -53,12 +53,12 @@ static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer) {
 DEF_TEST(UnflattenWithCustomFactory, r) {
     // Create and flatten the test flattenable
     SkBinaryWriteBuffer writeBuffer;
-    SkAutoTUnref<SkFlattenable> flattenable1(new IntFlattenable(1, 2, 3, 4));
-    writeBuffer.writeFlattenable(flattenable1);
-    SkAutoTUnref<SkFlattenable> flattenable2(new IntFlattenable(2, 3, 4, 5));
-    writeBuffer.writeFlattenable(flattenable2);
-    SkAutoTUnref<SkFlattenable> flattenable3(new IntFlattenable(3, 4, 5, 6));
-    writeBuffer.writeFlattenable(flattenable3);
+    sk_sp<SkFlattenable> flattenable1(new IntFlattenable(1, 2, 3, 4));
+    writeBuffer.writeFlattenable(flattenable1.get());
+    sk_sp<SkFlattenable> flattenable2(new IntFlattenable(2, 3, 4, 5));
+    writeBuffer.writeFlattenable(flattenable2.get());
+    sk_sp<SkFlattenable> flattenable3(new IntFlattenable(3, 4, 5, 6));
+    writeBuffer.writeFlattenable(flattenable3.get());
 
     // Copy the contents of the write buffer into a read buffer
     sk_sp<SkData> data = SkData::MakeUninitialized(writeBuffer.bytesWritten());
@@ -69,7 +69,7 @@ DEF_TEST(UnflattenWithCustomFactory, r) {
     readBuffer.setCustomFactory(SkString("IntFlattenable"), &custom_create_proc);
 
     // Unflatten and verify the flattenables
-    SkAutoTUnref<IntFlattenable> out1((IntFlattenable*) readBuffer.readFlattenable(
+    sk_sp<IntFlattenable> out1((IntFlattenable*) readBuffer.readFlattenable(
             SkFlattenable::kSkUnused_Type));
     REPORTER_ASSERT(r, out1);
     REPORTER_ASSERT(r, 2 == out1->a());
@@ -77,7 +77,7 @@ DEF_TEST(UnflattenWithCustomFactory, r) {
     REPORTER_ASSERT(r, 4 == out1->c());
     REPORTER_ASSERT(r, 5 == out1->d());
 
-    SkAutoTUnref<IntFlattenable> out2((IntFlattenable*) readBuffer.readFlattenable(
+    sk_sp<IntFlattenable> out2((IntFlattenable*) readBuffer.readFlattenable(
             SkFlattenable::kSkUnused_Type));
     REPORTER_ASSERT(r, out2);
     REPORTER_ASSERT(r, 3 == out2->a());
@@ -85,7 +85,7 @@ DEF_TEST(UnflattenWithCustomFactory, r) {
     REPORTER_ASSERT(r, 5 == out2->c());
     REPORTER_ASSERT(r, 6 == out2->d());
 
-    SkAutoTUnref<IntFlattenable> out3((IntFlattenable*) readBuffer.readFlattenable(
+    sk_sp<IntFlattenable> out3((IntFlattenable*) readBuffer.readFlattenable(
             SkFlattenable::kSkUnused_Type));
     REPORTER_ASSERT(r, out3);
     REPORTER_ASSERT(r, 4 == out3->a());

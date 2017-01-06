@@ -463,7 +463,7 @@ void SkApply::endSave(int index) {
     int count = (int) (size / sizeof(SkScalar));
     int activeIndex = fActive->fDrawIndex + index;
     SkOperand* last = new SkOperand[count];
-    SkAutoTDelete<SkOperand> autoLast(last);
+    std::unique_ptr<SkOperand> autoLast(last);
     if (type != SkType_MemberProperty) {
         info->getValue(target, last, count);
         SkOperand* saveOperand = fActive->fSaveRestore[activeIndex];

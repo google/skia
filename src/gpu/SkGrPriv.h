@@ -12,11 +12,11 @@
 #include "GrBlend.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 class GrCaps;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrPaint;
 class GrTexture;
@@ -47,14 +47,14 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
 bool SkPaintToGrPaint(GrContext*,
-                      GrDrawContext*,
+                      GrRenderTargetContext*,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
-                              GrDrawContext* dc,
+                              GrRenderTargetContext* rtc,
                               const SkPaint& skPaint,
                               GrPaint* grPaint);
 
@@ -62,7 +62,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrContext*,
-                                   GrDrawContext*,
+                                   GrRenderTargetContext*,
                                    const SkPaint& skPaint,
                                    sk_sp<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint);
@@ -72,10 +72,10 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
     primitive color is the dst or src color to the blend in order to work around differences between
     drawVertices and drawAtlas. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* rtc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
-                                  SkXfermode::Mode primColorMode,
+                                  SkBlendMode primColorMode,
                                   bool primitiveIsSrc,
                                   GrPaint* grPaint);
 
@@ -83,16 +83,16 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     the expectation is that the primitive color will be premultiplied, though it really should be
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be
     applied to the primitive color after interpolation. */
-inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrDrawContext* dc,
+inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrRenderTargetContext* rtc,
                                                const SkPaint& skPaint, GrPaint* grPaint) {
-    return SkPaintToGrPaintWithXfermode(context, dc, skPaint, SkMatrix::I(), SkXfermode::kDst_Mode,
+    return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, SkMatrix::I(), SkBlendMode::kDst,
                                         false, grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
     lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
 bool SkPaintToGrPaintWithTexture(GrContext* context,
-                                 GrDrawContext* dc,
+                                 GrRenderTargetContext* rtc,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
                                  sk_sp<GrFragmentProcessor> fp,
@@ -105,9 +105,10 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
 
 bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 
-/** When image filter code needs to construct a draw context to do intermediate rendering, we need
-    a renderable pixel config. The source (SkSpecialImage) may not be in a renderable format, but
-    we want to preserve the color space of that source. This picks an appropriate format to use. */
+/** When image filter code needs to construct a render target context to do intermediate rendering,
+    we need a renderable pixel config. The source (SkSpecialImage) may not be in a renderable
+    format, but we want to preserve the color space of that source. This picks an appropriate format
+    to use. */
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
 
 /**
@@ -130,7 +131,8 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
  */
 GrTexture* GrUploadBitmapToTexture(GrContext*, const SkBitmap&);
 
-GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&, SkSourceGammaTreatment);
+GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext*, const SkBitmap&,
+                                               SkDestinationSurfaceColorMode);
 
 /**
  * Creates a new texture for the pixmap.

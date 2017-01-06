@@ -23,7 +23,7 @@
 #include "SkShader.h"
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 class SkBitmap;
 class SkImage;
@@ -70,6 +70,7 @@ public:
         kBlurMaskFilterWritesOccluder      = 47,
         kGradientShaderFloatColor_Version  = 49,
         kXfermodeToBlendMode_Version       = 50,
+        kXfermodeToBlendMode2_Version      = 51,
     };
 
     /**

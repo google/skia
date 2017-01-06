@@ -10,6 +10,7 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBuffer.h"
+#include "GrGpu.h"
 #include "GrTextureProvider.h"
 #include "GrPathRange.h"
 
@@ -93,19 +94,20 @@ public:
     using GrTextureProvider::findAndRefTextureByUniqueKey;
     using GrTextureProvider::abandon;
 
+    /** These flags alias/extend GrTextureProvider::ScratchTextureFlags */
     enum Flags {
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
-         *  set when accessing resources during a GrDrawTarget flush. This includes the execution of
+         *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrBatch objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
-        kNoPendingIO_Flag = 0x1,
+        kNoPendingIO_Flag = GrTextureProvider::kNoPendingIO_ScratchTextureFlag,
 
         /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
          *  creating a buffer to guarantee it resides in GPU memory.
          */
-        kRequireGpuMemory_Flag = 0x2,
+        kRequireGpuMemory_Flag = GrTextureProvider::kLastScratchTextureFlag << 1,
     };
 
     /**
@@ -143,8 +145,9 @@ public:
      *
      *   @return                 An initialized GrBatchAtlas, or nullptr if creation fails
      */
-    GrBatchAtlas* createAtlas(GrPixelConfig, int width, int height, int numPlotsX, int numPlotsY,
-                              GrBatchAtlas::EvictionFunc func, void* data);
+    std::unique_ptr<GrBatchAtlas> makeAtlas(GrPixelConfig, int width, int height,
+                                            int numPlotsX, int numPlotsY,
+                                            GrBatchAtlas::EvictionFunc func, void* data);
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
@@ -163,7 +166,7 @@ public:
       *
       * @return GrRenderTarget object or NULL on failure.
       */
-     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
+     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
 
 private:
     const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,

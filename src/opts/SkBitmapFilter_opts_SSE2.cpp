@@ -40,6 +40,20 @@ static inline void print128f(__m128 value) {
 }
 #endif
 
+static SK_ALWAYS_INLINE void accum_remainder(const unsigned char* pixels_left,
+        const SkConvolutionFilter1D::ConvolutionFixed* filter_values, __m128i& accum, int r) {
+    int remainder[4] = {0};
+    for (int i = 0; i < r; i++) {
+        SkConvolutionFilter1D::ConvolutionFixed coeff = filter_values[i];
+        remainder[0] += coeff * pixels_left[i * 4 + 0];
+        remainder[1] += coeff * pixels_left[i * 4 + 1];
+        remainder[2] += coeff * pixels_left[i * 4 + 2];
+        remainder[3] += coeff * pixels_left[i * 4 + 3];
+    }
+    __m128i t = _mm_setr_epi32(remainder[0], remainder[1], remainder[2], remainder[3]);
+    accum = _mm_add_epi32(accum, t);
+}
+
 // Convolves horizontally along a single row. The row data is given in
 // |src_data| and continues for the num_values() of the filter.
 void convolveHorizontally_SSE2(const unsigned char* src_data,
@@ -50,13 +64,6 @@ void convolveHorizontally_SSE2(const unsigned char* src_data,
 
     int filter_offset, filter_length;
     __m128i zero = _mm_setzero_si128();
-    __m128i mask[4];
-    // |mask| will be used to decimate all extra filter coefficients that are
-    // loaded by SIMD when |filter_length| is not divisible by 4.
-    // mask[0] is not used in following algorithm.
-    mask[1] = _mm_set_epi16(0, 0, 0, 0, 0, 0, 0, -1);
-    mask[2] = _mm_set_epi16(0, 0, 0, 0, 0, 0, -1, -1);
-    mask[3] = _mm_set_epi16(0, 0, 0, 0, 0, -1, -1, -1);
 
     // Output one pixel each iteration, calculating all channels (RGBA) together.
     for (int out_x = 0; out_x < num_values; out_x++) {
@@ -120,38 +127,12 @@ void convolveHorizontally_SSE2(const unsigned char* src_data,
             filter_values += 4;
         }
 
-        // When |filter_length| is not divisible by 4, we need to decimate some of
-        // the filter coefficient that was loaded incorrectly to zero; Other than
-        // that the algorithm is same with above, exceot that the 4th pixel will be
-        // always absent.
-        int r = filter_length&3;
+        // When |filter_length| is not divisible by 4, we accumulate the last 1 - 3
+        // coefficients one at a time.
+        int r = filter_length & 3;
         if (r) {
-            // Note: filter_values must be padded to align_up(filter_offset, 8).
-            __m128i coeff, coeff16;
-            coeff = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(filter_values));
-            // Mask out extra filter taps.
-            coeff = _mm_and_si128(coeff, mask[r]);
-            coeff16 = _mm_shufflelo_epi16(coeff, _MM_SHUFFLE(1, 1, 0, 0));
-            coeff16 = _mm_unpacklo_epi16(coeff16, coeff16);
-
-            // Note: line buffer must be padded to align_up(filter_offset, 16).
-            // We resolve this by use C-version for the last horizontal line.
-            __m128i src8 = _mm_loadu_si128(row_to_filter);
-            __m128i src16 = _mm_unpacklo_epi8(src8, zero);
-            __m128i mul_hi = _mm_mulhi_epi16(src16, coeff16);
-            __m128i mul_lo = _mm_mullo_epi16(src16, coeff16);
-            __m128i t = _mm_unpacklo_epi16(mul_lo, mul_hi);
-            accum = _mm_add_epi32(accum, t);
-            t = _mm_unpackhi_epi16(mul_lo, mul_hi);
-            accum = _mm_add_epi32(accum, t);
-
-            src16 = _mm_unpackhi_epi8(src8, zero);
-            coeff16 = _mm_shufflelo_epi16(coeff, _MM_SHUFFLE(3, 3, 2, 2));
-            coeff16 = _mm_unpacklo_epi16(coeff16, coeff16);
-            mul_hi = _mm_mulhi_epi16(src16, coeff16);
-            mul_lo = _mm_mullo_epi16(src16, coeff16);
-            t = _mm_unpacklo_epi16(mul_lo, mul_hi);
-            accum = _mm_add_epi32(accum, t);
+            int remainder_offset = (filter_offset + filter_length - r) * 4;
+            accum_remainder(src_data + remainder_offset, filter_values, accum, r);
         }
 
         // Shift right for fixed point implementation.
@@ -182,13 +163,6 @@ void convolve4RowsHorizontally_SSE2(const unsigned char* src_data[4],
 
     int filter_offset, filter_length;
     __m128i zero = _mm_setzero_si128();
-    __m128i mask[4];
-    // |mask| will be used to decimate all extra filter coefficients that are
-    // loaded by SIMD when |filter_length| is not divisible by 4.
-    // mask[0] is not used in following algorithm.
-    mask[1] = _mm_set_epi16(0, 0, 0, 0, 0, 0, 0, -1);
-    mask[2] = _mm_set_epi16(0, 0, 0, 0, 0, 0, -1, -1);
-    mask[3] = _mm_set_epi16(0, 0, 0, 0, 0, -1, -1, -1);
 
     // Output one pixel each iteration, calculating all channels (RGBA) together.
     for (int out_x = 0; out_x < num_values; out_x++) {
@@ -245,24 +219,11 @@ void convolve4RowsHorizontally_SSE2(const unsigned char* src_data[4],
 
         int r = filter_length & 3;
         if (r) {
-            // Note: filter_values must be padded to align_up(filter_offset, 8);
-            __m128i coeff;
-            coeff = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(filter_values));
-            // Mask out extra filter taps.
-            coeff = _mm_and_si128(coeff, mask[r]);
-
-            __m128i coeff16lo = _mm_shufflelo_epi16(coeff, _MM_SHUFFLE(1, 1, 0, 0));
-            /* c1 c1 c1 c1 c0 c0 c0 c0 */
-            coeff16lo = _mm_unpacklo_epi16(coeff16lo, coeff16lo);
-            __m128i coeff16hi = _mm_shufflelo_epi16(coeff, _MM_SHUFFLE(3, 3, 2, 2));
-            coeff16hi = _mm_unpacklo_epi16(coeff16hi, coeff16hi);
-
-            __m128i src8, src16, mul_hi, mul_lo, t;
-
-            ITERATION(src_data[0] + start, accum0);
-            ITERATION(src_data[1] + start, accum1);
-            ITERATION(src_data[2] + start, accum2);
-            ITERATION(src_data[3] + start, accum3);
+            int remainder_offset = (filter_offset + filter_length - r) * 4;
+            accum_remainder(src_data[0] + remainder_offset, filter_values, accum0, r);
+            accum_remainder(src_data[1] + remainder_offset, filter_values, accum1, r);
+            accum_remainder(src_data[2] + remainder_offset, filter_values, accum2, r);
+            accum_remainder(src_data[3] + remainder_offset, filter_values, accum3, r);
         }
 
         accum0 = _mm_srai_epi32(accum0, SkConvolutionFilter1D::kShiftBits);
@@ -485,16 +446,5 @@ void convolveVertically_SSE2(const SkConvolutionFilter1D::ConvolutionFixed* filt
                                        source_data_rows,
                                        pixel_width,
                                        out_row);
-    }
-}
-
-void applySIMDPadding_SSE2(SkConvolutionFilter1D *filter) {
-    // Padding |paddingCount| of more dummy coefficients after the coefficients
-    // of last filter to prevent SIMD instructions which load 8 or 16 bytes
-    // together to access invalid memory areas. We are not trying to align the
-    // coefficients right now due to the opaqueness of <vector> implementation.
-    // This has to be done after all |AddFilter| calls.
-    for (int i = 0; i < 8; ++i) {
-        filter->addFilterValue(static_cast<SkConvolutionFilter1D::ConvolutionFixed>(0));
     }
 }

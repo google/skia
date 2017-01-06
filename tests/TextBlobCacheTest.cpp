@@ -66,7 +66,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     SkCanvas* canvas = surface->getCanvas();
 
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
 
     int count = SkMin32(fm->countFamilies(), maxFamilies);
 
@@ -85,7 +85,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
         SkString familyName;
         fm->getFamilyName(i, &familyName);
-        SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+        sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         for (int j = 0; j < set->count(); ++j) {
             SkFontStyle fs;
             set->getStyle(j, &fs, nullptr);

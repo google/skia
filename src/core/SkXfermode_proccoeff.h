@@ -23,7 +23,7 @@ struct ProcCoeff {
 
 class SK_API SkProcCoeffXfermode : public SkXfermode {
 public:
-    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode) {
+    SkProcCoeffXfermode(const ProcCoeff& rec, SkBlendMode mode) {
         fMode = mode;
         fProc = rec.fProc;
         // these may be valid, or may be CANNOT_USE_COEFF
@@ -53,18 +53,16 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
-    bool onAppendStages(SkRasterPipeline*) const override;
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
-    Mode getMode() const { return fMode; }
+    SkBlendMode getMode() const { return fMode; }
 
     SkXfermodeProc getProc() const { return fProc; }
 
 private:
     SkXfermodeProc  fProc;
-    Mode            fMode;
+    SkBlendMode     fMode;
     Coeff           fSrcCoeff, fDstCoeff;
 
     friend class SkXfermode;

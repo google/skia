@@ -439,12 +439,12 @@ void TestResult::testOne() {
         SkCanvas skCanvas(bitmap);
         drawPict(pic, &skCanvas, fScaleOversized ? scale : 1);
         GrTextureDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = dim.fX;
         desc.fHeight = dim.fY;
         desc.fSampleCnt = 0;
-        SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
+        sk_sp<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
         if (!texture) {
             SkDebugf("unable to allocate texture for %s (w=%d h=%d)\n", fFilename,
                 dim.fX, dim.fY);

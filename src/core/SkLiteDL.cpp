@@ -454,8 +454,9 @@ namespace {
     struct DrawPatch final : Op {
         static const auto kType = Type::DrawPatch;
         DrawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texs[4],
-                  SkXfermode* xfermode, const SkPaint& paint)
-            : xfermode(sk_ref_sp(xfermode)), paint(paint) {
+                  SkBlendMode bmode, const SkPaint& paint)
+            : xfermode(bmode), paint(paint)
+        {
             copy_v(this->cubics, cubics, 12);
             if (colors) { copy_v(this->colors, colors, 4); has_colors = true; }
             if (texs  ) { copy_v(this->texs  , texs  , 4); has_texs   = true; }
@@ -463,13 +464,13 @@ namespace {
         SkPoint           cubics[12];
         SkColor           colors[4];
         SkPoint           texs[4];
-        sk_sp<SkXfermode> xfermode;
+        SkBlendMode       xfermode;
         SkPaint           paint;
         bool              has_colors = false;
         bool              has_texs   = false;
         void draw(SkCanvas* c, const SkMatrix&) {
             c->drawPatch(cubics, has_colors ? colors : nullptr, has_texs ? texs : nullptr,
-                         xfermode.get(), paint);
+                         xfermode, paint);
         }
     };
     struct DrawPoints final : Op {
@@ -485,13 +486,13 @@ namespace {
     };
     struct DrawVertices final : Op {
         static const auto kType = Type::DrawVertices;
-        DrawVertices(SkCanvas::VertexMode mode, int count, SkXfermode* xfermode, int nindices,
+        DrawVertices(SkCanvas::VertexMode mode, int count, SkBlendMode bmode, int nindices,
                      const SkPaint& paint, bool has_texs, bool has_colors, bool has_indices)
-            : mode(mode), count(count), xfermode(sk_ref_sp(xfermode)), nindices(nindices)
+            : mode(mode), count(count), xfermode(bmode), nindices(nindices)
             , paint(paint), has_texs(has_texs), has_colors(has_colors), has_indices(has_indices) {}
         SkCanvas::VertexMode mode;
         int                  count;
-        sk_sp<SkXfermode>    xfermode;
+        SkBlendMode          xfermode;
         int                  nindices;
         SkPaint              paint;
         bool                 has_texs;
@@ -517,13 +518,13 @@ namespace {
             if (has_indices) {
                 indices = pod<uint16_t>(this, offset);
             }
-            c->drawVertices(mode, count, vertices, texs, colors, xfermode.get(),
+            c->drawVertices(mode, count, vertices, texs, colors, xfermode,
                             indices, nindices, paint);
         }
     };
     struct DrawAtlas final : Op {
         static const auto kType = Type::DrawAtlas;
-        DrawAtlas(const SkImage* atlas, int count, SkXfermode::Mode xfermode,
+        DrawAtlas(const SkImage* atlas, int count, SkBlendMode xfermode,
                   const SkRect* cull, const SkPaint* paint, bool has_colors)
             : atlas(sk_ref_sp(atlas)), count(count), xfermode(xfermode), has_colors(has_colors) {
             if (cull)  { this->cull  = *cull; }
@@ -531,7 +532,7 @@ namespace {
         }
         sk_sp<const SkImage> atlas;
         int                  count;
-        SkXfermode::Mode     xfermode;
+        SkBlendMode          xfermode;
         SkRect               cull = kUnset;
         SkPaint              paint;
         bool                 has_colors;
@@ -711,8 +712,8 @@ void SkLiteDL::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, cons
 }
 
 void SkLiteDL::drawPatch(const SkPoint points[12], const SkColor colors[4], const SkPoint texs[4],
-                         SkXfermode* xfermode, const SkPaint& paint) {
-    this->push<DrawPatch>(0, points, colors, texs, xfermode, paint);
+                         SkBlendMode bmode, const SkPaint& paint) {
+    this->push<DrawPatch>(0, points, colors, texs, bmode, paint);
 }
 void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint points[],
                           const SkPaint& paint) {
@@ -720,7 +721,7 @@ void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint 
     copy_v(pod, points,count);
 }
 void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint vertices[],
-                            const SkPoint texs[], const SkColor colors[], SkXfermode* xfermode,
+                            const SkPoint texs[], const SkColor colors[], SkBlendMode xfermode,
                             const uint16_t indices[], int nindices, const SkPaint& paint) {
     size_t bytes = count * sizeof(SkPoint);
     if (texs  )  { bytes += count    * sizeof(SkPoint); }
@@ -734,7 +735,7 @@ void SkLiteDL::drawVertices(SkCanvas::VertexMode mode, int count, const SkPoint 
                  indices, indices ? nindices : 0);
 }
 void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const SkRect texs[],
-                         const SkColor colors[], int count, SkXfermode::Mode xfermode,
+                         const SkColor colors[], int count, SkBlendMode xfermode,
                          const SkRect* cull, const SkPaint* paint) {
     size_t bytes = count*(sizeof(SkRSXform) + sizeof(SkRect));
     if (colors) {

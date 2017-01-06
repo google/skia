@@ -1,0 +1,19 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("../src", "abspath")
+
+skia_sksl_sources = [
+  "$_src/sksl/SkSLCFGGenerator.cpp",
+  "$_src/sksl/SkSLCompiler.cpp",
+  "$_src/sksl/SkSLIRGenerator.cpp",
+  "$_src/sksl/SkSLParser.cpp",
+  "$_src/sksl/SkSLGLSLCodeGenerator.cpp",
+  "$_src/sksl/SkSLSPIRVCodeGenerator.cpp",
+  "$_src/sksl/SkSLUtil.cpp",
+  "$_src/sksl/ir/SkSLSymbolTable.cpp",
+  "$_src/sksl/ir/SkSLType.cpp",
+]

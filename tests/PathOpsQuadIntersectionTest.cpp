@@ -14,9 +14,13 @@
 static void standardTestCases(skiatest::Reporter* reporter) {
     bool showSkipped = false;
     for (size_t index = 0; index < quadraticTests_count; ++index) {
-        const SkDQuad& quad1 = quadraticTests[index][0];
+        const QuadPts& q1 = quadraticTests[index][0];
+        SkDQuad quad1;
+        quad1.debugSet(q1.fPts);
         SkASSERT(ValidQuad(quad1));
-        const SkDQuad& quad2 = quadraticTests[index][1];
+        const QuadPts& q2 = quadraticTests[index][1];
+        SkDQuad quad2;
+        quad2.debugSet(q2.fPts);
         SkASSERT(ValidQuad(quad2));
         SkReduceOrder reduce1, reduce2;
         int order1 = reduce1.reduce(quad1);
@@ -52,7 +56,10 @@ static void standardTestCases(skiatest::Reporter* reporter) {
     }
 }
 
-static const SkDQuad testSet[] = {
+static const QuadPts testSet[] = {
+{{{123.637985f, 102.405312f}, {125.172699f, 104.575714f}, {123.387383f, 106.91227f}}},
+{{{123.388428f, 106.910896f}, {123.365623f, 106.94088f}, {123.320007f, 107.000946f}}},
+
 {{{-0.001019871095195412636, -0.008523519150912761688}, {-0.005396408028900623322, -0.005396373569965362549}, {-0.02855382487177848816, -0.02855364233255386353}}},
 {{{-0.004567248281091451645, -0.01482933573424816132}, {-0.01142475008964538574, -0.01140109263360500336}, {-0.02852955088019371033, -0.02847047336399555206}}},
 
@@ -326,9 +333,13 @@ static const SkDQuad testSet[] = {
 const size_t testSetCount = SK_ARRAY_COUNT(testSet);
 
 static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner) {
-    const SkDQuad& quad1 = testSet[outer];
+    const QuadPts& q1 = testSet[outer];
+    SkDQuad quad1;
+    quad1.debugSet(q1.fPts);
     SkASSERT(ValidQuad(quad1));
-    const SkDQuad& quad2 = testSet[inner];
+    const QuadPts& q2 = testSet[inner];
+    SkDQuad quad2;
+    quad2.debugSet(q2.fPts);
     SkASSERT(ValidQuad(quad2));
     SkIntersections intersections;
     intersections.intersect(quad1, quad2);
@@ -358,7 +369,7 @@ static void oneOffTests(skiatest::Reporter* reporter) {
     }
 }
 
-static const SkDQuad coincidentTestSet[] = {
+static const QuadPts coincidentTestSet[] = {
     {{{4914.9990234375, 1523}, {4942.75146484375, 1523}, {4962.375, 1542.6239013671875}}},
     {{{4962.3759765625, 1542.6239013671875}, {4942.75244140625, 1523}, {4915, 1523}}},
 #if 0
@@ -374,9 +385,13 @@ static const SkDQuad coincidentTestSet[] = {
 static const int coincidentTestSetCount = (int) SK_ARRAY_COUNT(coincidentTestSet);
 
 static void coincidentTestOne(skiatest::Reporter* reporter, int test1, int test2) {
-    const SkDQuad& quad1 = coincidentTestSet[test1];
+    const QuadPts& q1 = coincidentTestSet[test1];
+    SkDQuad quad1;
+    quad1.debugSet(q1.fPts);
     SkASSERT(ValidQuad(quad1));
-    const SkDQuad& quad2 = coincidentTestSet[test2];
+    const QuadPts& q2 = coincidentTestSet[test2];
+    SkDQuad quad2;
+    quad2.debugSet(q2.fPts);
     SkASSERT(ValidQuad(quad2));
     SkIntersections intersections2;
     intersections2.intersect(quad1, quad2);
@@ -398,9 +413,11 @@ static void coincidentTest(skiatest::Reporter* reporter) {
 }
 
 static void intersectionFinder(int test1, int test2) {
-    const SkDQuad& quad1 = testSet[test1];
-    const SkDQuad& quad2 = testSet[test2];
-
+    const QuadPts& q1 = testSet[test1];
+    const QuadPts& q2 = testSet[test2];
+    SkDQuad quad1, quad2;
+    quad1.debugSet(q1.fPts);
+    quad2.debugSet(q2.fPts);
     double t1Seed = 0.5;
     double t2Seed = 0.8;
     double t1Step = 0.1;
@@ -510,10 +527,8 @@ DEF_TEST(PathOpsQuadIntersection, reporter) {
     if (false) QuadraticIntersection_IntersectionFinder();
 }
 
-#include "SkCommonFlags.h"
-
 DEF_TEST(PathOpsQuadBinaryProfile, reporter) {
-    if (!FLAGS_veryVerbose) {
+    if (!SkPathOpsDebug::gVeryVerbose) {
             return;
     }
     SkIntersections intersections;
@@ -521,8 +536,12 @@ DEF_TEST(PathOpsQuadBinaryProfile, reporter) {
         int outer = 0;
         int inner = outer + 1;
         do {
-            const SkDQuad& quad1 = testSet[outer];
-            const SkDQuad& quad2 = testSet[inner];
+            const QuadPts& q1 = testSet[outer];
+            SkDQuad quad1;
+            quad1.debugSet(q1.fPts);
+            const QuadPts& q2 = testSet[inner];
+            SkDQuad quad2;
+            quad2.debugSet(q2.fPts);
             (void) intersections.intersect(quad1, quad2);
             REPORTER_ASSERT(reporter, intersections.used() >= 0);  // make sure code isn't tossed
             inner += 2;
@@ -531,8 +550,11 @@ DEF_TEST(PathOpsQuadBinaryProfile, reporter) {
     }
     for (int x = 0; x < 100; ++x) {
         for (size_t test = 0; test < quadraticTests_count; ++test) {
-            const SkDQuad& quad1 = quadraticTests[test][0];
-            const SkDQuad& quad2 = quadraticTests[test][1];
+            const QuadPts& q1 = quadraticTests[test][0];
+            const QuadPts& q2 = quadraticTests[test][1];
+            SkDQuad quad1, quad2;
+            quad1.debugSet(q1.fPts);
+            quad2.debugSet(q2.fPts);
             (void) intersections.intersect(quad1, quad2);
             REPORTER_ASSERT(reporter, intersections.used() >= 0);  // make sure code isn't tossed
         }

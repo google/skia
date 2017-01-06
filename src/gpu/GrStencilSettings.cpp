@@ -28,6 +28,7 @@ void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencil
                               int numStencilBits) {
     uint16_t frontFlags = user.fFrontFlags[hasStencilClip];
     if (frontFlags & kSingleSided_StencilFlag) {
+        SkASSERT(frontFlags == user.fBackFlags[hasStencilClip]);
         fFlags = frontFlags;
         if (!this->isDisabled()) {
             fFront.reset(user.fFront, hasStencilClip, numStencilBits);

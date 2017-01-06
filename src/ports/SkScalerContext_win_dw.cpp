@@ -204,18 +204,18 @@ static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
             both_zero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
+SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc)
-        : SkScalerContext(typeface, effects, desc)
-        , fTypeface(SkRef(typeface))
+        : SkScalerContext(std::move(typefaceRef), effects, desc)
         , fGlyphCount(-1) {
 
+    DWriteFontTypeface* typeface = this->getDWriteTypeface();
 #if SK_HAS_DWRITE_2_H
-    fTypeface->fFactory->QueryInterface<IDWriteFactory2>(&fFactory2);
+    typeface->fFactory->QueryInterface<IDWriteFactory2>(&fFactory2);
 
     SkTScopedComPtr<IDWriteFontFace2> fontFace2;
-    fTypeface->fDWriteFontFace->QueryInterface<IDWriteFontFace2>(&fontFace2);
+    typeface->fDWriteFontFace->QueryInterface<IDWriteFontFace2>(&fontFace2);
     fIsColorFont = fFactory2.get() && fontFace2.get() && fontFace2->IsColorFont();
 #endif
 
@@ -335,14 +335,15 @@ SkScalerContext_DW::~SkScalerContext_DW() {
 
 unsigned SkScalerContext_DW::generateGlyphCount() {
     if (fGlyphCount < 0) {
-        fGlyphCount = fTypeface->fDWriteFontFace->GetGlyphCount();
+        fGlyphCount = this->getDWriteTypeface()->fDWriteFontFace->GetGlyphCount();
     }
     return fGlyphCount;
 }
 
 uint16_t SkScalerContext_DW::generateCharToGlyph(SkUnichar uni) {
     uint16_t index = 0;
-    fTypeface->fDWriteFontFace->GetGlyphIndices(reinterpret_cast<UINT32*>(&uni), 1, &index);
+    UINT32* uniPtr = reinterpret_cast<UINT32*>(&uni);
+    this->getDWriteTypeface()->fDWriteFontFace->GetGlyphIndices(uniPtr, 1, &index);
     return index;
 }
 
@@ -363,7 +364,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
     {
         SkAutoExclusive l(DWriteFactoryMutex);
-        HRVM(fTypeface->fDWriteFontFace->GetGdiCompatibleGlyphMetrics(
+        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGdiCompatibleGlyphMetrics(
                  fTextSizeMeasure,
                  1.0f, // pixelsPerDip
                  &fGsA,
@@ -373,14 +374,14 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
              "Could not get gdi compatible glyph metrics.");
     } else {
         SkAutoExclusive l(DWriteFactoryMutex);
-        HRVM(fTypeface->fDWriteFontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm),
+        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm),
              "Could not get design metrics.");
     }
 
     DWRITE_FONT_METRICS dwfm;
     {
         Shared l(DWriteFactoryMutex);
-        fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
+        this->getDWriteTypeface()->fDWriteFontFace->GetMetrics(&dwfm);
     }
     SkScalar advanceX = SkScalarMulDiv(fTextSizeMeasure,
                                        SkIntToScalar(gm.advanceWidth),
@@ -422,7 +423,7 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     DWRITE_GLYPH_RUN run;
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
-    run.fontFace = fTypeface->fDWriteFontFace.get();
+    run.fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
     run.fontEmSize = SkScalarToFloat(fTextSizeRender);
     run.bidiLevel = 0;
     run.glyphIndices = &glyphId;
@@ -432,7 +433,7 @@ HRESULT SkScalerContext_DW::getBoundingBox(SkGlyph* glyph,
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     {
         SkAutoExclusive l(DWriteFactoryMutex);
-        HRM(fTypeface->fFactory->CreateGlyphRunAnalysis(
+        HRM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(
             &run,
             1.0f, // pixelsPerDip,
             &fXform,
@@ -491,7 +492,7 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     DWRITE_GLYPH_RUN run;
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
-    run.fontFace = fTypeface->fDWriteFontFace.get();
+    run.fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
     run.fontEmSize = SkScalarToFloat(fTextSizeRender);
     run.bidiLevel = 0;
     run.glyphIndices = &glyphId;
@@ -558,13 +559,13 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
     {
-        fTypeface->fDWriteFontFace->GetGdiCompatibleMetrics(
+        this->getDWriteTypeface()->fDWriteFontFace->GetGdiCompatibleMetrics(
              fTextSizeRender,
              1.0f, // pixelsPerDip
              &fXform,
              &dwfm);
     } else {
-        fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
+        this->getDWriteTypeface()->fDWriteFontFace->GetMetrics(&dwfm);
     }
 
     SkScalar upem = SkIntToScalar(dwfm.designUnitsPerEm);
@@ -580,9 +581,9 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
 #if SK_HAS_DWRITE_1_H
-    if (fTypeface->fDWriteFontFace1.get()) {
+    if (this->getDWriteTypeface()->fDWriteFontFace1.get()) {
         DWRITE_FONT_METRICS1 dwfm1;
-        fTypeface->fDWriteFontFace1->GetMetrics(&dwfm1);
+        this->getDWriteTypeface()->fDWriteFontFace1->GetMetrics(&dwfm1);
         metrics->fTop = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxTop) / upem;
         metrics->fBottom = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxBottom) / upem;
         metrics->fXMin = fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxLeft) / upem;
@@ -595,7 +596,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 #  pragma message("No dwrite_1.h is available, font metrics may be affected.")
 #endif
 
-    AutoTDWriteTable<SkOTTableHead> head(fTypeface->fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableHead> head(this->getDWriteTypeface()->fDWriteFontFace.get());
     if (head.fExists &&
         head.fSize >= sizeof(SkOTTableHead) &&
         head->version == SkOTTableHead::version1)
@@ -726,7 +727,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     DWRITE_GLYPH_RUN run;
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
-    run.fontFace = fTypeface->fDWriteFontFace.get();
+    run.fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
     run.fontEmSize = SkScalarToFloat(fTextSizeRender);
     run.bidiLevel = 0;
     run.glyphIndices = &index;
@@ -737,7 +738,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
         SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
         {
             SkAutoExclusive l(DWriteFactoryMutex);
-            HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
+            HRNM(this->getDWriteTypeface()->fFactory->CreateGlyphRunAnalysis(&run,
                 1.0f, // pixelsPerDip,
                 &fXform,
                 renderingMode,
@@ -886,7 +887,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
 
     path->reset();
@@ -894,20 +895,21 @@ void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
     HRVM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
-    uint16_t glyphId = glyph.getGlyphID();
+    UINT16 glyphId = SkTo<UINT16>(glyph);
     {
         SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
-        HRVM(fTypeface->fDWriteFontFace->GetGlyphRunOutline(SkScalarToFloat(fTextSizeRender),
-            &glyphId,
-            nullptr, //advances
-            nullptr, //offsets
-            1, //num glyphs
-            FALSE, //sideways
-            FALSE, //rtl
-            geometryToPath.get()),
-            "Could not create glyph outline.");
+        HRVM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
+             SkScalarToFloat(fTextSizeRender),
+             &glyphId,
+             nullptr, //advances
+             nullptr, //offsets
+             1, //num glyphs
+             FALSE, //sideways
+             FALSE, //rtl
+             geometryToPath.get()),
+             "Could not create glyph outline.");
     }
 
     path->transform(fSkXform);

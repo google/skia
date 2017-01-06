@@ -330,7 +330,7 @@ void SkRecorder::onDrawShadowedPicture(const SkPicture* pic, const SkMatrix* mat
 void SkRecorder::onDrawVertices(VertexMode vmode,
                                 int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[],
-                                SkXfermode* xmode,
+                                SkBlendMode bmode,
                                 const uint16_t indices[], int indexCount, const SkPaint& paint) {
     APPEND(DrawVertices, paint,
                          vmode,
@@ -338,22 +338,23 @@ void SkRecorder::onDrawVertices(VertexMode vmode,
                          this->copy(vertices, vertexCount),
                          texs ? this->copy(texs, vertexCount) : nullptr,
                          colors ? this->copy(colors, vertexCount) : nullptr,
-                         sk_ref_sp(xmode),
+                         bmode,
                          this->copy(indices, indexCount),
                          indexCount);
 }
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SkBlendMode bmode,
+                             const SkPaint& paint) {
     APPEND(DrawPatch, paint,
            cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : nullptr,
            colors ? this->copy(colors, SkPatchUtils::kNumCorners) : nullptr,
            texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : nullptr,
-           sk_ref_sp(xmode));
+           bmode);
 }
 
 void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                             const SkColor colors[], int count, SkXfermode::Mode mode,
+                             const SkColor colors[], int count, SkBlendMode mode,
                              const SkRect* cull, const SkPaint* paint) {
     APPEND(DrawAtlas, this->copy(paint),
            sk_ref_sp(atlas),

@@ -170,7 +170,7 @@ protected:
         };
         static_assert(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), "array_mismatch");
 
-        SkAutoTDeleteArray<SkPoint> data(nullptr);
+        std::unique_ptr<SkPoint[]> data(nullptr);
         const SkPoint* points;
         int numPts;
         if (index < (int) SK_ARRAY_COUNT(gPoints)) {

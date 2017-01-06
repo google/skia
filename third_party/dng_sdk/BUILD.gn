@@ -1,0 +1,189 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+# The Adobe DNG SDK, an API for reading and writing DNG files.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("dng_sdk") {
+  public_include_dirs = [ "../externals/dng_sdk/source" ]
+
+  configs -= [
+    "//gn:no_exceptions",
+    "//gn:no_rtti",
+  ]
+
+  public_defines = [ "qDNGBigEndian=0" ]
+
+  defines = [
+    "qDNGReportErrors=0",
+    "qDNGThreadSafe=1",
+    "qDNGUseLibJPEG=1",
+    "qDNGUseXMP=0",
+    "qDNGValidate=0",
+    "qDNGValidateTarget=1",
+    "UNIX_ENV=1",
+  ]
+
+  deps = [
+    "//third_party/libjpeg-turbo:libjpeg",
+    "//third_party/zlib",
+  ]
+
+  sources = [
+    "../externals/dng_sdk/source/RawEnvironment.h",
+    "../externals/dng_sdk/source/dng_1d_function.cpp",
+    "../externals/dng_sdk/source/dng_1d_function.h",
+    "../externals/dng_sdk/source/dng_1d_table.cpp",
+    "../externals/dng_sdk/source/dng_1d_table.h",
+    "../externals/dng_sdk/source/dng_abort_sniffer.cpp",
+    "../externals/dng_sdk/source/dng_abort_sniffer.h",
+    "../externals/dng_sdk/source/dng_area_task.cpp",
+    "../externals/dng_sdk/source/dng_area_task.h",
+    "../externals/dng_sdk/source/dng_assertions.h",
+    "../externals/dng_sdk/source/dng_auto_ptr.h",
+    "../externals/dng_sdk/source/dng_bad_pixels.cpp",
+    "../externals/dng_sdk/source/dng_bad_pixels.h",
+    "../externals/dng_sdk/source/dng_bottlenecks.cpp",
+    "../externals/dng_sdk/source/dng_bottlenecks.h",
+    "../externals/dng_sdk/source/dng_camera_profile.cpp",
+    "../externals/dng_sdk/source/dng_camera_profile.h",
+    "../externals/dng_sdk/source/dng_classes.h",
+    "../externals/dng_sdk/source/dng_color_space.cpp",
+    "../externals/dng_sdk/source/dng_color_space.h",
+    "../externals/dng_sdk/source/dng_color_spec.cpp",
+    "../externals/dng_sdk/source/dng_color_spec.h",
+    "../externals/dng_sdk/source/dng_date_time.cpp",
+    "../externals/dng_sdk/source/dng_date_time.h",
+    "../externals/dng_sdk/source/dng_errors.h",
+    "../externals/dng_sdk/source/dng_exceptions.cpp",
+    "../externals/dng_sdk/source/dng_exceptions.h",
+    "../externals/dng_sdk/source/dng_exif.cpp",
+    "../externals/dng_sdk/source/dng_exif.h",
+    "../externals/dng_sdk/source/dng_fast_module.h",
+    "../externals/dng_sdk/source/dng_file_stream.cpp",
+    "../externals/dng_sdk/source/dng_file_stream.h",
+    "../externals/dng_sdk/source/dng_filter_task.cpp",
+    "../externals/dng_sdk/source/dng_filter_task.h",
+    "../externals/dng_sdk/source/dng_fingerprint.cpp",
+    "../externals/dng_sdk/source/dng_fingerprint.h",
+    "../externals/dng_sdk/source/dng_flags.h",
+    "../externals/dng_sdk/source/dng_gain_map.cpp",
+    "../externals/dng_sdk/source/dng_gain_map.h",
+    "../externals/dng_sdk/source/dng_globals.cpp",
+    "../externals/dng_sdk/source/dng_globals.h",
+    "../externals/dng_sdk/source/dng_host.cpp",
+    "../externals/dng_sdk/source/dng_host.h",
+    "../externals/dng_sdk/source/dng_hue_sat_map.cpp",
+    "../externals/dng_sdk/source/dng_hue_sat_map.h",
+    "../externals/dng_sdk/source/dng_ifd.cpp",
+    "../externals/dng_sdk/source/dng_ifd.h",
+    "../externals/dng_sdk/source/dng_image.cpp",
+    "../externals/dng_sdk/source/dng_image.h",
+    "../externals/dng_sdk/source/dng_image_writer.cpp",
+    "../externals/dng_sdk/source/dng_image_writer.h",
+    "../externals/dng_sdk/source/dng_info.cpp",
+    "../externals/dng_sdk/source/dng_info.h",
+    "../externals/dng_sdk/source/dng_iptc.cpp",
+    "../externals/dng_sdk/source/dng_iptc.h",
+    "../externals/dng_sdk/source/dng_jpeg_image.cpp",
+    "../externals/dng_sdk/source/dng_jpeg_image.h",
+    "../externals/dng_sdk/source/dng_jpeg_memory_source.cpp",
+    "../externals/dng_sdk/source/dng_jpeg_memory_source.h",
+    "../externals/dng_sdk/source/dng_jpeglib.h",
+    "../externals/dng_sdk/source/dng_lens_correction.cpp",
+    "../externals/dng_sdk/source/dng_lens_correction.h",
+    "../externals/dng_sdk/source/dng_linearization_info.cpp",
+    "../externals/dng_sdk/source/dng_linearization_info.h",
+    "../externals/dng_sdk/source/dng_lossless_jpeg.cpp",
+    "../externals/dng_sdk/source/dng_lossless_jpeg.h",
+    "../externals/dng_sdk/source/dng_matrix.cpp",
+    "../externals/dng_sdk/source/dng_matrix.h",
+    "../externals/dng_sdk/source/dng_memory.cpp",
+    "../externals/dng_sdk/source/dng_memory.h",
+    "../externals/dng_sdk/source/dng_memory_stream.cpp",
+    "../externals/dng_sdk/source/dng_memory_stream.h",
+    "../externals/dng_sdk/source/dng_misc_opcodes.cpp",
+    "../externals/dng_sdk/source/dng_misc_opcodes.h",
+    "../externals/dng_sdk/source/dng_mosaic_info.cpp",
+    "../externals/dng_sdk/source/dng_mosaic_info.h",
+    "../externals/dng_sdk/source/dng_mutex.cpp",
+    "../externals/dng_sdk/source/dng_mutex.h",
+    "../externals/dng_sdk/source/dng_negative.cpp",
+    "../externals/dng_sdk/source/dng_negative.h",
+    "../externals/dng_sdk/source/dng_opcode_list.cpp",
+    "../externals/dng_sdk/source/dng_opcode_list.h",
+    "../externals/dng_sdk/source/dng_opcodes.cpp",
+    "../externals/dng_sdk/source/dng_opcodes.h",
+    "../externals/dng_sdk/source/dng_orientation.cpp",
+    "../externals/dng_sdk/source/dng_orientation.h",
+    "../externals/dng_sdk/source/dng_parse_utils.cpp",
+    "../externals/dng_sdk/source/dng_parse_utils.h",
+    "../externals/dng_sdk/source/dng_pixel_buffer.cpp",
+    "../externals/dng_sdk/source/dng_pixel_buffer.h",
+    "../externals/dng_sdk/source/dng_point.cpp",
+    "../externals/dng_sdk/source/dng_point.h",
+    "../externals/dng_sdk/source/dng_preview.cpp",
+    "../externals/dng_sdk/source/dng_preview.h",
+    "../externals/dng_sdk/source/dng_pthread.cpp",
+    "../externals/dng_sdk/source/dng_pthread.h",
+    "../externals/dng_sdk/source/dng_rational.cpp",
+    "../externals/dng_sdk/source/dng_rational.h",
+    "../externals/dng_sdk/source/dng_read_image.cpp",
+    "../externals/dng_sdk/source/dng_read_image.h",
+    "../externals/dng_sdk/source/dng_rect.cpp",
+    "../externals/dng_sdk/source/dng_rect.h",
+    "../externals/dng_sdk/source/dng_ref_counted_block.cpp",
+    "../externals/dng_sdk/source/dng_ref_counted_block.h",
+    "../externals/dng_sdk/source/dng_reference.cpp",
+    "../externals/dng_sdk/source/dng_reference.h",
+    "../externals/dng_sdk/source/dng_render.cpp",
+    "../externals/dng_sdk/source/dng_render.h",
+    "../externals/dng_sdk/source/dng_resample.cpp",
+    "../externals/dng_sdk/source/dng_resample.h",
+    "../externals/dng_sdk/source/dng_safe_arithmetic.cpp",
+    "../externals/dng_sdk/source/dng_safe_arithmetic.h",
+    "../externals/dng_sdk/source/dng_sdk_limits.h",
+    "../externals/dng_sdk/source/dng_shared.cpp",
+    "../externals/dng_sdk/source/dng_shared.h",
+    "../externals/dng_sdk/source/dng_simple_image.cpp",
+    "../externals/dng_sdk/source/dng_simple_image.h",
+    "../externals/dng_sdk/source/dng_spline.cpp",
+    "../externals/dng_sdk/source/dng_spline.h",
+    "../externals/dng_sdk/source/dng_stream.cpp",
+    "../externals/dng_sdk/source/dng_stream.h",
+    "../externals/dng_sdk/source/dng_string.cpp",
+    "../externals/dng_sdk/source/dng_string.h",
+    "../externals/dng_sdk/source/dng_string_list.cpp",
+    "../externals/dng_sdk/source/dng_string_list.h",
+    "../externals/dng_sdk/source/dng_tag_codes.h",
+    "../externals/dng_sdk/source/dng_tag_types.cpp",
+    "../externals/dng_sdk/source/dng_tag_types.h",
+    "../externals/dng_sdk/source/dng_tag_values.h",
+    "../externals/dng_sdk/source/dng_temperature.cpp",
+    "../externals/dng_sdk/source/dng_temperature.h",
+    "../externals/dng_sdk/source/dng_tile_iterator.cpp",
+    "../externals/dng_sdk/source/dng_tile_iterator.h",
+    "../externals/dng_sdk/source/dng_tone_curve.cpp",
+    "../externals/dng_sdk/source/dng_tone_curve.h",
+    "../externals/dng_sdk/source/dng_types.h",
+    "../externals/dng_sdk/source/dng_uncopyable.h",
+    "../externals/dng_sdk/source/dng_utils.cpp",
+    "../externals/dng_sdk/source/dng_utils.h",
+    "../externals/dng_sdk/source/dng_xy_coord.cpp",
+    "../externals/dng_sdk/source/dng_xy_coord.h",
+  ]
+
+  if (current_cpu == "x86" || current_cpu == "mipsel" || current_cpu == "arm") {
+    # DNG SDK uses __builtin_smulll_overflow() to detect 64x64 bit multiply overflow.
+    # On some platforms, the compiler implements this with __mulodi4().
+    # I can't quite figure out how to link that here, so instead here's a shim for
+    # __builtin_smulll_overflow() that multiplies normally assuming no overflow.
+    # Tracked in b/29412086.
+    defines += [ "__builtin_smulll_overflow(x,y,p)=(*(p)=(x)*(y), false)" ]
+  }
+}

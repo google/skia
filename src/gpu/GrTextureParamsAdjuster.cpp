@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrResourceKey.h"
@@ -36,11 +36,9 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
 
     GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
-    sk_sp<GrDrawContext> copyDC = context->makeDrawContextWithFallback(SkBackingFit::kExact,
-                                                                       copyParams.fWidth,
-                                                                       copyParams.fHeight,
-                                                                       config, nullptr);
-    if (!copyDC) {
+    sk_sp<GrRenderTargetContext> copyRTC = context->makeRenderTargetContextWithFallback(
+        SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
+    if (!copyRTC) {
         return nullptr;
     }
 
@@ -86,8 +84,8 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     }
 
     SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
-    copyDC->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
-    return copyDC->asTexture().release();
+    copyRTC->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
+    return copyRTC->asTexture().release();
 }
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
@@ -144,7 +142,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
 }
 
 GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& params,
-                                                      SkSourceGammaTreatment gammaTreatment,
+                                                      SkDestinationSurfaceColorMode colorMode,
                                                       SkIPoint* outOffset) {
     GrTexture* texture = this->originalTexture();
     GrContext* context = texture->getContext();
@@ -371,7 +369,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
-                                        SkSourceGammaTreatment gammaTreatment) {
+                                        SkDestinationSurfaceColorMode colorMode) {
 
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
@@ -390,13 +388,13 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
-    SkAutoTUnref<GrTexture> texture(this->refTextureSafeForParams(params, gammaTreatment, nullptr));
+    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, colorMode, nullptr));
     if (!texture) {
         return nullptr;
     }
     // If we made a copy then we only copied the contentArea, in which case the new texture is all
     // content.
-    if (texture != this->originalTexture()) {
+    if (texture.get() != this->originalTexture()) {
         contentArea = nullptr;
     }
 
@@ -425,14 +423,14 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     textureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
-    return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform), textureMatrix,
+    return create_fp_for_domain_and_filter(texture.get(), std::move(colorSpaceXform), textureMatrix,
                                            domainMode, domain, filterOrNullForBicubic);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
-                                               SkSourceGammaTreatment gammaTreatment) {
+                                               SkDestinationSurfaceColorMode colorMode) {
     CopyParams copyParams;
     bool willBeMipped = params.filterMode() == GrTextureParams::kMipMap_FilterMode;
 
@@ -442,7 +440,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
 
     if (!fContext->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
                                                       &copyParams)) {
-        return this->refOriginalTexture(willBeMipped, gammaTreatment);
+        return this->refOriginalTexture(willBeMipped, colorMode);
     }
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey);
@@ -453,7 +451,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
         }
     }
 
-    GrTexture* result = this->generateTextureForParams(copyParams, willBeMipped, gammaTreatment);
+    GrTexture* result = this->generateTextureForParams(copyParams, willBeMipped, colorMode);
     if (!result) {
         return nullptr;
     }
@@ -472,7 +470,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
-                                        SkSourceGammaTreatment gammaTreatment) {
+                                        SkDestinationSurfaceColorMode colorMode) {
 
     const GrTextureParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
@@ -493,7 +491,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         // Bicubic doesn't use filtering for it's texture accesses.
         params.reset(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     }
-    SkAutoTUnref<GrTexture> texture(this->refTextureForParams(params, gammaTreatment));
+    sk_sp<GrTexture> texture(this->refTextureForParams(params, colorMode));
     if (!texture) {
         return nullptr;
     }
@@ -507,16 +505,16 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
-    return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform),
+    return create_fp_for_domain_and_filter(texture.get(), std::move(colorSpaceXform),
                                            normalizedTextureMatrix, domainMode, domain,
                                            filterOrNullForBicubic);
 }
 
 GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams, bool willBeMipped,
-                                                    SkSourceGammaTreatment gammaTreatment) {
-    SkAutoTUnref<GrTexture> original(this->refOriginalTexture(willBeMipped, gammaTreatment));
+                                                    SkDestinationSurfaceColorMode colorMode) {
+    sk_sp<GrTexture> original(this->refOriginalTexture(willBeMipped, colorMode));
     if (!original) {
         return nullptr;
     }
-    return copy_on_gpu(original, nullptr, copyParams);
+    return copy_on_gpu(original.get(), nullptr, copyParams);
 }

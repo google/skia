@@ -138,18 +138,18 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int 
 }
 
 static void test_fontstream(skiatest::Reporter* reporter) {
-    SkAutoTDelete<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/test.ttc"));
     if (!stream) {
         SkDebugf("Skipping FontHostTest::test_fontstream\n");
         return;
     }
 
-    int count = SkFontStream::CountTTCEntries(stream);
+    int count = SkFontStream::CountTTCEntries(stream.get());
 #ifdef DUMP_TTC_TABLES
     SkDebugf("CountTTCEntries %d\n", count);
 #endif
     for (int i = 0; i < count; ++i) {
-        test_fontstream(reporter, stream, i);
+        test_fontstream(reporter, stream.get(), i);
     }
 }
 

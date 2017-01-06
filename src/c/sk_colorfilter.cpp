@@ -19,11 +19,9 @@ void sk_colorfilter_unref(sk_colorfilter_t* filter) {
     SkSafeUnref(AsColorFilter(filter));
 }
 
-sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_xfermode_mode_t cmode) {
+sk_colorfilter_t* sk_colorfilter_new_mode(sk_color_t c, sk_blendmode_t cmode) {
 
-    sk_sp<SkColorFilter> filter = SkColorFilter::MakeModeFilter(
-        c,
-        (SkXfermode::Mode)cmode);
+    sk_sp<SkColorFilter> filter = SkColorFilter::MakeModeFilter(c, (SkBlendMode)cmode);
     return ToColorFilter(filter.release());
 }
 

@@ -450,8 +450,10 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                         }
                         case SkIntersectionHelper::kCubic_Segment: {
                             swap = true;
-                            pts = ts.intersect(cubic2.set(wn.pts()),
-                                    conic1.set(wt.pts(), wt.weight()));
+                            pts = ts.intersect(cubic2.set(wn.pts()
+                                    SkDEBUGPARAMS(ts.globalState())),
+                                    conic1.set(wt.pts(), wt.weight()
+                                    SkDEBUGPARAMS(ts.globalState())));
                             debugShowCubicConicIntersection(pts, wn, wt, ts);
                             break;
                         }
@@ -479,8 +481,10 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                             break;
                         }
                         case SkIntersectionHelper::kConic_Segment: {
-                            pts = ts.intersect(cubic1.set(wt.pts()),
-                                    conic2.set(wn.pts(), wn.weight()));
+                            pts = ts.intersect(cubic1.set(wt.pts()
+                                    SkDEBUGPARAMS(ts.globalState())),
+                                    conic2.set(wn.pts(), wn.weight()
+                                    SkDEBUGPARAMS(ts.globalState())));
                             debugShowCubicConicIntersection(pts, wt, wn, ts);
                             break;
                         }

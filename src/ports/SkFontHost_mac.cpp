@@ -694,7 +694,7 @@ struct GlyphRect {
 
 class SkScalerContext_Mac : public SkScalerContext {
 public:
-    SkScalerContext_Mac(SkTypeface_Mac*, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext_Mac(sk_sp<SkTypeface_Mac>, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
     unsigned generateGlyphCount(void) override;
@@ -702,7 +702,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -802,10 +802,10 @@ static CTFontRef ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
     return CTFontCreateWithGraphicsFont(baseCGFont, textSize, transform, nullptr);
 }
 
-SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
+SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : INHERITED(typeface, effects, desc)
+        : INHERITED(std::move(typeface), effects, desc)
         , fFBoundingBoxes()
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
@@ -815,7 +815,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
 {
     AUTO_CG_LOCK();
 
-    CTFontRef ctFont = typeface->fFontRef.get();
+    CTFontRef ctFont = static_cast<SkTypeface_Mac*>(this->getTypeface())->fFontRef.get();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
@@ -1373,7 +1373,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
  */
 #define kScaleForSubPixelPositionHinting (4.0f)
 
-void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
     AUTO_CG_LOCK();
 
     SkScalar scaleX = SK_Scalar1;
@@ -1408,7 +1408,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         xform = CGAffineTransformConcat(fTransform, scale);
     }
 
-    CGGlyph cgGlyph = (CGGlyph)glyph.getGlyphID();
+    CGGlyph cgGlyph = SkTo<CGGlyph>(glyph);
     AutoCFRelease<CGPathRef> cgPath(CTFontCreatePathForGlyph(fCTFont, cgGlyph, &xform));
 
     path->reset();
@@ -1962,7 +1962,7 @@ size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
 
 SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                        const SkDescriptor* desc) const {
-    return new SkScalerContext_Mac(const_cast<SkTypeface_Mac*>(this), effects, desc);
+    return new SkScalerContext_Mac(sk_ref_sp(const_cast<SkTypeface_Mac*>(this)), effects, desc);
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
@@ -2317,7 +2317,7 @@ protected:
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontStyle) const override {
-        SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontStyle);
     }
 

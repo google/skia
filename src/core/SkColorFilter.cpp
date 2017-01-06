@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkFixedAlloc.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -19,7 +20,7 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) const {
+bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 
@@ -32,16 +33,19 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
     return nullptr;
 }
 #endif
 
-bool SkColorFilter::appendStages(SkRasterPipeline* pipeline) const {
-    return this->onAppendStages(pipeline);
+bool SkColorFilter::appendStages(SkRasterPipeline* pipeline,
+                                 SkColorSpace* dst,
+                                 SkFallbackAlloc* scratch,
+                                 bool shaderIsOpaque) const {
+    return this->onAppendStages(pipeline, dst, scratch, shaderIsOpaque);
 }
 
-bool SkColorFilter::onAppendStages(SkRasterPipeline*) const {
+bool SkColorFilter::onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*, bool) const {
     return false;
 }
 
@@ -114,9 +118,10 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context) const override {
-        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
-        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
+                                                   SkColorSpace* dstColorSpace) const override {
+        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context, dstColorSpace));
+        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context, dstColorSpace));
         if (!innerFP || !outerFP) {
             return nullptr;
         }

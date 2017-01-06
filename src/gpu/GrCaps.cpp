@@ -17,7 +17,10 @@ GrShaderCaps::GrShaderCaps() {
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
     fTexelBufferSupport = false;
+    fImageLoadStoreSupport = false;
     fShaderPrecisionVaries = false;
+    fPLSPathRenderingSupport = false;
+    fPixelLocalStorageSize = 0;
 }
 
 static const char* shader_type_to_string(GrShaderType type) {
@@ -54,6 +57,7 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
     r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
     r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
+    r.appendf("Image Load Store Support           : %s\n", gNY[fImageLoadStoreSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 
@@ -241,22 +245,23 @@ SkString GrCaps::dump() const {
               map_flags_to_string(fMapBufferFlags).c_str());
 
     static const char* kConfigNames[] = {
-        "Unknown",  // kUnknown_GrPixelConfig
-        "Alpha8",   // kAlpha_8_GrPixelConfig,
-        "Index8",   // kIndex_8_GrPixelConfig,
-        "RGB565",   // kRGB_565_GrPixelConfig,
-        "RGBA444",  // kRGBA_4444_GrPixelConfig,
-        "RGBA8888", // kRGBA_8888_GrPixelConfig,
-        "BGRA8888", // kBGRA_8888_GrPixelConfig,
-        "SRGBA8888",// kSRGBA_8888_GrPixelConfig,
-        "SBGRA8888",// kSBGRA_8888_GrPixelConfig,
-        "ETC1",     // kETC1_GrPixelConfig,
-        "LATC",     // kLATC_GrPixelConfig,
-        "R11EAC",   // kR11_EAC_GrPixelConfig,
-        "ASTC12x12",// kASTC_12x12_GrPixelConfig,
-        "RGBAFloat",// kRGBA_float_GrPixelConfig
-        "AlphaHalf",// kAlpha_half_GrPixelConfig
-        "RGBAHalf", // kRGBA_half_GrPixelConfig
+        "Unknown",       // kUnknown_GrPixelConfig
+        "Alpha8",        // kAlpha_8_GrPixelConfig,
+        "Index8",        // kIndex_8_GrPixelConfig,
+        "RGB565",        // kRGB_565_GrPixelConfig,
+        "RGBA444",       // kRGBA_4444_GrPixelConfig,
+        "RGBA8888",      // kRGBA_8888_GrPixelConfig,
+        "BGRA8888",      // kBGRA_8888_GrPixelConfig,
+        "SRGBA8888",     // kSRGBA_8888_GrPixelConfig,
+        "SBGRA8888",     // kSBGRA_8888_GrPixelConfig,
+        "RGBA8888_sint", // kRGBA_8888_sint_GrPixelConfig,
+        "ETC1",          // kETC1_GrPixelConfig,
+        "LATC",          // kLATC_GrPixelConfig,
+        "R11EAC",        // kR11_EAC_GrPixelConfig,
+        "ASTC12x12",     // kASTC_12x12_GrPixelConfig,
+        "RGBAFloat",     // kRGBA_float_GrPixelConfig
+        "AlphaHalf",     // kAlpha_half_GrPixelConfig
+        "RGBAHalf",      // kRGBA_half_GrPixelConfig
     };
     GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
     GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
@@ -267,13 +272,14 @@ SkString GrCaps::dump() const {
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
+    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));

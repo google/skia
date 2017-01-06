@@ -12,6 +12,7 @@
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -20,6 +21,7 @@
 #include "SkImage_Base.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
@@ -33,6 +35,7 @@
 #include "SkTypeface.h"
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
+#include "SkScan.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -239,7 +242,7 @@ public:
         fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
 
         SkASSERT(nullptr == fCurIntf);
-        SkAutoTUnref<const GrGLInterface> glInterface;
+        sk_sp<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kGPU_DeviceType:
@@ -332,7 +335,7 @@ public:
                 // Instead, we readPixels into a buffer that we claim is sRGB (readPixels doesn't
                 // do gamut conversion), so these pixels then get thrown directly at the monitor,
                 // giving us the expected results (the output is adapted to the monitor's gamut).
-                auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 offscreenInfo = offscreenInfo.makeColorSpace(srgb);
             }
             SkBitmap bm;
@@ -348,7 +351,7 @@ public:
             // With ten-bit output, we need to manually apply the gamma of the output device
             // (unless we're in non-gamma correct mode, in which case our data is already
             // fake-sRGB, like we're expected to put in the 10-bit buffer):
-            bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
+            bool doGamma = (fActualColorBits == 30) && win->info().colorSpace();
 
             SkPaint gammaPaint;
             gammaPaint.setBlendMode(SkBlendMode::kSrc);
@@ -728,9 +731,8 @@ DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
-DEFINE_bool(gpu, false, "Start up with gpu?");
+DEFINE_bool(startgpu, false, "Start up with gpu?");
 DEFINE_bool(redraw, false, "Force continuous redrawing, for profiling or debugging tools.");
-DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 #ifdef SAMPLE_PDF_FILE_VIEWER
 DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 #endif
@@ -850,7 +852,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fDeviceType = kRaster_DeviceType;
 #if SK_SUPPORT_GPU
-    if (FLAGS_gpu) {
+    if (FLAGS_startgpu) {
         fDeviceType = kGPU_DeviceType;
     }
 #endif
@@ -1591,7 +1593,7 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
     const uint8_t* data = CFDataGetBytePtr(dataRef);
     size_t size = CFDataGetLength(dataRef);
 
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data, size);
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data, size);
 
     CFRelease(cs);
     CFRelease(dataRef);
@@ -1612,11 +1614,11 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
             if (dc) {
                 char icmPath[MAX_PATH + 1];
                 DWORD pathLength = MAX_PATH;
-                BOOL success = GetICMProfile(dc, &pathLength, icmPath);
+                BOOL success = GetICMProfileA(dc, &pathLength, icmPath);
                 DeleteDC(dc);
                 if (success) {
                     sk_sp<SkData> iccData = SkData::MakeFromFileName(icmPath);
-                    return SkColorSpace::NewICC(iccData->data(), iccData->size());
+                    return SkColorSpace::MakeICC(iccData->data(), iccData->size());
                 }
             }
         }
@@ -1658,13 +1660,13 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         sk_sp<SkColorSpace> colorSpace = nullptr;
         switch (gConfig[selected].fColorSpace) {
             case kSRGB_OutputColorSpace:
-                colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 break;
             case kMonitor_OutputColorSpace:
                 colorSpace = getMonitorColorSpace();
                 if (!colorSpace) {
                     // Fallback for platforms / machines where we can't get a monitor profile
-                    colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                    colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 }
                 break;
             case kLegacy_OutputColorSpace:
@@ -1674,7 +1676,9 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         }
         if (kRGBA_F16_SkColorType == gConfig[selected].fColorType) {
             SkASSERT(colorSpace);
-            colorSpace = colorSpace->makeLinearGamma();
+            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type());
+            SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
+            colorSpace = csXYZ->makeLinearGamma();
         }
         this->setDeviceColorType(gConfig[selected].fColorType, colorSpace);
         return true;
@@ -1799,6 +1803,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case 'A':
+            gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
+            this->inval(nullptr);
+            this->updateTitle();
             break;
         case 'B':
             post_event_to_sink(new SkEvent("PictFileView::toggleBBox"), curr_view(this));
@@ -2149,6 +2158,9 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
+    if (gSkUseAnalyticAA) {
+        title.prepend("<AAA> ");
+    }
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);
     }

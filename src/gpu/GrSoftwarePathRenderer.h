@@ -22,14 +22,14 @@ public:
             : fTexProvider(texProvider)
             , fAllowCaching(allowCaching) {}
 private:
-    static void DrawNonAARect(GrDrawContext* drawContext,
+    static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                               const GrPaint& paint,
                               const GrUserStencilSettings& userStencilSettings,
                               const GrClip& clip,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
-    static void DrawAroundInvPath(GrDrawContext* drawContext,
+    static void DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
                                   const GrPaint& paint,
                                   const GrUserStencilSettings& userStencilSettings,
                                   const GrClip& clip,

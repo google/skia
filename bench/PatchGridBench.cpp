@@ -96,7 +96,7 @@ public:
         static const int kRows = 3;
         static const int kCols = 4;
 
-        fGrid.reset(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);
+        fGrid.reset(kRows, kCols, SkPatchGrid::kColors_VertexType, SkBlendMode::kModulate);
         for (int i = 0; i < kRows; i++) {
             for (int j = 0; j < kCols; j++) {
                 SkPoint points[12];

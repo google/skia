@@ -59,6 +59,8 @@ SK_API sk_maskfilter_t* sk_maskfilter_new_clip(
     uint8_t min,
     uint8_t max);
 
+SK_API sk_maskfilter_t* sk_maskfilter_new_shadow(float occluderHeight, const sk_point3_t* lightPos, float lightRadius, float ambientAlpha, float spotAlpha, sk_shadowmaskfilter_shadowflags_t flags);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

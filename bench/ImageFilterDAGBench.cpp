@@ -31,11 +31,13 @@ protected:
         for (int j = 0; j < loops; j++) {
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
+            SkBlendMode modes[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
+                modes[i] = SkBlendMode::kSrcOver;
             }
             SkPaint paint;
-            paint.setImageFilter(SkMergeImageFilter::Make(inputs, kNumInputs));
+            paint.setImageFilter(SkMergeImageFilter::MakeN(inputs, kNumInputs, modes));
             canvas->drawRect(rect, paint);
         }
     }
@@ -68,10 +70,12 @@ protected:
         for (int j = 0; j < loops; j++) {
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(20.0f, 20.0f, nullptr));
             sk_sp<SkImageFilter> inputs[kNumInputs];
+            SkBlendMode modes[kNumInputs];
             for (int i = 0; i < kNumInputs; ++i) {
                 inputs[i] = blur;
+                modes[i] = SkBlendMode::kSrcOver;
             }
-            sk_sp<SkImageFilter> mergeFilter = SkMergeImageFilter::Make(inputs, kNumInputs);
+            sk_sp<SkImageFilter> mergeFilter = SkMergeImageFilter::MakeN(inputs, kNumInputs, modes);
             image = image->makeWithFilter(mergeFilter.get(), subset, subset, &discardSubset,
                                           &offset);
             SkASSERT(image && image->dimensions() == fImage->dimensions());

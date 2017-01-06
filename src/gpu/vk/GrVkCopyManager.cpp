@@ -354,7 +354,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     scissor.offset.y = 0;
     cmdBuffer->setScissor(gpu, 0, 1, &scissor);
 
-    cmdBuffer->bindVertexBuffer(gpu, fVertexBuffer);
+    cmdBuffer->bindVertexBuffer(gpu, fVertexBuffer.get());
     cmdBuffer->draw(gpu, 4, 1, 0, 0);
     cmdBuffer->endRenderPass(gpu);
 

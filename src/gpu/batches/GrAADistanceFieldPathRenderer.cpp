@@ -70,7 +70,6 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
         iter.next();
         delete shapeData;
     }
-    delete fAtlas;
 
 #ifdef DF_PATH_TRACKING
     SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
@@ -147,7 +146,6 @@ public:
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
-
     const char* name() const override { return "AADistanceFieldPathBatch"; }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
@@ -172,8 +170,8 @@ private:
     }
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         int fVertexOffset;
         int fInstancesToFlush;
@@ -234,9 +232,16 @@ private:
             const SkRect& bounds = args.fShape.bounds();
             SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
             SkScalar size = maxScale * maxDim;
-            uint32_t desiredDimension;
-            if (size <= kSmallMIP) {
+            SkScalar desiredDimension;
+            // For minimizing (or the common case of identity) transforms, we try to
+            // create the DF at the appropriately sized native src-space path resolution.
+            // In the majority of cases this will yield a crisper rendering.
+            if (size <= maxDim && maxDim < kSmallMIP) {
+                desiredDimension = maxDim;
+            } else if (size <= kSmallMIP) {
                 desiredDimension = kSmallMIP;
+            } else if (size <= maxDim) {
+                desiredDimension = maxDim;
             } else if (size <= kMediumMIP) {
                 desiredDimension = kMediumMIP;
             } else {
@@ -244,7 +249,7 @@ private:
             }
 
             // check to see if path is cached
-            ShapeData::Key key(args.fShape, desiredDimension);
+            ShapeData::Key key(args.fShape, SkScalarCeilToInt(desiredDimension));
             ShapeData* shapeData = fShapeCache->find(key);
             if (nullptr == shapeData || !atlas->hasID(shapeData->fID)) {
                 // Remove the stale cache entry
@@ -254,6 +259,7 @@ private:
                     delete shapeData;
                 }
                 SkScalar scale = desiredDimension/maxDim;
+
                 shapeData = new ShapeData;
                 if (!this->addPathToAtlas(target,
                                           &flushInfo,
@@ -261,7 +267,7 @@ private:
                                           shapeData,
                                           args.fShape,
                                           args.fAntiAlias,
-                                          desiredDimension,
+                                          SkScalarCeilToInt(desiredDimension),
                                           scale)) {
                     delete shapeData;
                     SkDebugf("Can't rasterize path\n");
@@ -276,7 +282,7 @@ private:
                                     offset,
                                     args.fColor,
                                     vertexStride,
-                                    this->viewMatrix(),
+                                    maxScale,
                                     shapeData);
             offset += kVerticesPerQuad * vertexStride;
             flushInfo.fInstancesToFlush++;
@@ -302,29 +308,25 @@ private:
         scaledBounds.fTop *= scale;
         scaledBounds.fRight *= scale;
         scaledBounds.fBottom *= scale;
-        // move the origin to an integer boundary (gives better results)
-        SkScalar dx = SkScalarFraction(scaledBounds.fLeft);
-        SkScalar dy = SkScalarFraction(scaledBounds.fTop);
+        // subtract out integer portion of origin
+        // (SDF created will be placed with fractional offset burnt in)
+        SkScalar dx = SkScalarFloorToInt(scaledBounds.fLeft);
+        SkScalar dy = SkScalarFloorToInt(scaledBounds.fTop);
         scaledBounds.offset(-dx, -dy);
         // get integer boundary
         SkIRect devPathBounds;
         scaledBounds.roundOut(&devPathBounds);
         // pad to allow room for antialiasing
         const int intPad = SkScalarCeilToInt(kAntiAliasPad);
-        // pre-move origin (after outset, will be 0,0)
-        int width = devPathBounds.width();
-        int height = devPathBounds.height();
-        devPathBounds.fLeft = intPad;
-        devPathBounds.fTop = intPad;
-        devPathBounds.fRight = intPad + width;
-        devPathBounds.fBottom = intPad + height;
-        devPathBounds.outset(intPad, intPad);
+        // place devBounds at origin
+        int width = devPathBounds.width() + 2*intPad;
+        int height = devPathBounds.height() + 2*intPad;
+        devPathBounds = SkIRect::MakeWH(width, height);
 
         // draw path to bitmap
         SkMatrix drawMatrix;
-        drawMatrix.setTranslate(-bounds.left(), -bounds.top());
-        drawMatrix.postScale(scale, scale);
-        drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
+        drawMatrix.setScale(scale, scale);
+        drawMatrix.postTranslate(intPad - dx, intPad - dy);
 
         // setup bitmap backing
         SkASSERT(devPathBounds.fLeft == 0);
@@ -369,7 +371,7 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrBatchAtlas::AtlasID id;
-       if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+        if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
             if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
                 return false;
@@ -378,22 +380,34 @@ private:
 
         // add to cache
         shapeData->fKey.set(shape, dimension);
-        shapeData->fScale = scale;
         shapeData->fID = id;
-        // change the scaled rect to match the size of the inset distance field
-        scaledBounds.fRight = scaledBounds.fLeft +
-            SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldInset);
-        scaledBounds.fBottom = scaledBounds.fTop +
-            SkIntToScalar(devPathBounds.height() - 2*SK_DistanceFieldInset);
-        // shift the origin to the correct place relative to the distance field
-        // need to also restore the fractional translation
-        scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
-                            -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
-        shapeData->fBounds = scaledBounds;
-        // origin we render from is inset from distance field edge
-        atlasLocation.fX += SK_DistanceFieldInset;
-        atlasLocation.fY += SK_DistanceFieldInset;
-        shapeData->fAtlasLocation = atlasLocation;
+
+        // set the bounds rect to the original bounds
+        shapeData->fBounds = bounds;
+
+        // set up texture coordinates
+        SkScalar texLeft = bounds.fLeft;
+        SkScalar texTop = bounds.fTop;
+        SkScalar texRight = bounds.fRight;
+        SkScalar texBottom = bounds.fBottom;
+
+        // transform original path's bounds to texture space
+        texLeft *= scale;
+        texTop *= scale;
+        texRight *= scale;
+        texBottom *= scale;
+        dx -= SK_DistanceFieldPad + kAntiAliasPad;
+        dy -= SK_DistanceFieldPad + kAntiAliasPad;
+        texLeft += atlasLocation.fX - dx;
+        texTop += atlasLocation.fY - dy;
+        texRight += atlasLocation.fX - dx;
+        texBottom += atlasLocation.fY - dy;
+
+        GrTexture* texture = atlas->getTexture();
+        shapeData->fTexCoords.setLTRB(texLeft / texture->width(),
+                                      texTop / texture->height(),
+                                      texRight / texture->width(),
+                                      texBottom / texture->height());
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -408,27 +422,15 @@ private:
                            intptr_t offset,
                            GrColor color,
                            size_t vertexStride,
-                           const SkMatrix& viewMatrix,
+                           SkScalar maxScale,
                            const ShapeData* shapeData) const {
-        GrTexture* texture = atlas->getTexture();
-
-        SkScalar dx = shapeData->fBounds.fLeft;
-        SkScalar dy = shapeData->fBounds.fTop;
-        SkScalar width = shapeData->fBounds.width();
-        SkScalar height = shapeData->fBounds.height();
-
-        SkScalar invScale = 1.0f / shapeData->fScale;
-        dx *= invScale;
-        dy *= invScale;
-        width *= invScale;
-        height *= invScale;
 
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
         // vertex positions
         // TODO make the vertex attributes a struct
-        SkRect r = SkRect::MakeXYWH(dx, dy, width, height);
-        positions->setRectFan(r.left(), r.top(), r.right(), r.bottom(), vertexStride);
+        positions->setRectFan(shapeData->fBounds.left(), shapeData->fBounds.top(),
+                              shapeData->fBounds.right(), shapeData->fBounds.bottom(), vertexStride);
 
         // colors
         for (int i = 0; i < kVerticesPerQuad; i++) {
@@ -436,15 +438,11 @@ private:
             *colorPtr = color;
         }
 
-        const SkScalar tx = SkIntToScalar(shapeData->fAtlasLocation.fX);
-        const SkScalar ty = SkIntToScalar(shapeData->fAtlasLocation.fY);
-
         // vertex texture coords
+        // TODO make these int16_t
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        textureCoords->setRectFan(tx / texture->width(),
-                                  ty / texture->height(),
-                                  (tx + shapeData->fBounds.width()) / texture->width(),
-                                  (ty + shapeData->fBounds.height())  / texture->height(),
+        textureCoords->setRectFan(shapeData->fTexCoords.left(), shapeData->fTexCoords.top(),
+                                  shapeData->fTexCoords.right(), shapeData->fTexCoords.bottom(),
                                   vertexStride);
     }
 
@@ -453,8 +451,8 @@ private:
             GrMesh mesh;
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-                flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
+            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer.get(),
+                flushInfo->fIndexBuffer.get(), flushInfo->fVertexOffset, kVerticesPerQuad,
                 kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
             target->draw(flushInfo->fGeometryProcessor.get(), mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
@@ -507,35 +505,34 @@ private:
 };
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAADistanceFieldPathRenderer::onDrawPath");
-    SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
     SkASSERT(args.fShape->style().isSimpleFill());
 
     // we've already bailed on inverse filled paths, so this is safe
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->createAtlas(kAlpha_8_GrPixelConfig,
-                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                     &GrAADistanceFieldPathRenderer::HandleEviction,
-                                                     (void*)this);
+        fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
+                                                   ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                   NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                   &GrAADistanceFieldPathRenderer::HandleEviction,
+                                                   (void*)this);
         if (!fAtlas) {
             return false;
         }
     }
 
-    SkAutoTUnref<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
-                                                                 *args.fShape,
-                                                                 args.fAntiAlias, *args.fViewMatrix,
-                                                                 fAtlas, &fShapeCache, &fShapeList,
-                                                                 args.fGammaCorrect));
-
+    sk_sp<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
+                                                          *args.fShape,
+                                                          args.fAntiAlias, *args.fViewMatrix,
+                                                          fAtlas.get(), &fShapeCache, &fShapeList,
+                                                          args.fGammaCorrect));
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }
@@ -560,7 +557,7 @@ struct PathTestStruct {
             fShapeList.remove(shapeData);
             delete shapeData;
         }
-        delete fAtlas;
+        fAtlas = nullptr;
         fShapeCache.reset();
     }
 
@@ -581,7 +578,7 @@ struct PathTestStruct {
     }
 
     uint32_t fContextID;
-    GrBatchAtlas* fAtlas;
+    std::unique_ptr<GrBatchAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 };
@@ -593,11 +590,11 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->createAtlas(kAlpha_8_GrPixelConfig,
-                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                     &PathTestStruct::HandleEviction,
-                                                     (void*)&gTestStruct);
+                context->resourceProvider()->makeAtlas(kAlpha_8_GrPixelConfig,
+                                                       ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                       NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                       &PathTestStruct::HandleEviction,
+                                                       (void*)&gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
@@ -612,7 +609,7 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
                                         shape,
                                         antiAlias,
                                         viewMatrix,
-                                        gTestStruct.fAtlas,
+                                        gTestStruct.fAtlas.get(),
                                         &gTestStruct.fShapeCache,
                                         &gTestStruct.fShapeList,
                                         gammaCorrect);

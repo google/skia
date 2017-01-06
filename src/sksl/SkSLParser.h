@@ -35,6 +35,7 @@ struct ASTInterfaceBlock;
 struct ASTLayout;
 struct ASTModifiers;
 struct ASTParameter;
+struct ASTPrecision;
 struct ASTReturnStatement;
 struct ASTStatement;
 struct ASTSuffix;
@@ -100,7 +101,7 @@ private:
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
 
-    void precision();
+    std::unique_ptr<ASTDeclaration> precision();
 
     std::unique_ptr<ASTDeclaration> directive();
 
@@ -196,12 +197,16 @@ private:
 
     bool identifier(std::string* dest);
 
-
     void* fScanner;
     YY_BUFFER_STATE fBuffer;
+    // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
+    // stack on pathological inputs
+    int fDepth = 0;
     Token fPushback;
     SymbolTable& fTypes;
     ErrorReporter& fErrors;
+
+    friend class AutoDepth;
 };
 
 } // namespace

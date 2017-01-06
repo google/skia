@@ -32,38 +32,59 @@ public:
 
     void end() override;
 
-    void discard(GrRenderTarget* rt) override;
+    void discard() override;
+
+    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override;
 
 private:
     GrGpu* gpu() override;
+    GrRenderTarget* renderTarget() override;
 
-    void onSubmit(const SkIRect& bounds) override;
+    void onSubmit() override;
 
     // Bind vertex and index buffers
     void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
                                               const GrPrimitiveProcessor&,
-                                              GrPrimitiveType,
-                                              const GrVkRenderPass&);
+                                              GrPrimitiveType);
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
-                int meshCount) override;
+                int meshCount,
+                const SkRect& bounds) override;
 
-    void onClear(GrRenderTarget* rt, const GrFixedClip&, GrColor color) override;
+    void onClear(const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
-    const GrVkRenderPass*       fRenderPass;
-    GrVkSecondaryCommandBuffer* fCommandBuffer;
+    void addAdditionalCommandBuffer();
+
+    struct InlineUploadInfo {
+        InlineUploadInfo(GrBatchFlushState* state, const GrDrawBatch::DeferredUploadFn& upload)
+                : fFlushState(state)
+                , fUpload(upload) {}
+
+        GrBatchFlushState*            fFlushState;
+        GrDrawBatch::DeferredUploadFn fUpload;
+    };
+
+    struct CommandBufferInfo {
+        const GrVkRenderPass*        fRenderPass;
+        GrVkSecondaryCommandBuffer*  fCommandBuffer;
+        VkClearValue                 fColorClearValue;
+        SkRect                       fBounds;
+        bool                         fIsEmpty;
+        bool                         fStartsWithClear;
+        SkTArray<InlineUploadInfo>   fPreDrawUploads;
+    };
+
+    SkTArray<CommandBufferInfo> fCommandBufferInfos;
+    int                         fCurrentCmdBuffer;
+
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
-    VkClearValue                fColorClearValue;
-
-    bool                        fIsEmpty;
-    bool                        fStartsWithClear;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

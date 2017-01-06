@@ -32,13 +32,14 @@ public:
 
     int numStencilBits() const;
 
-    const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrStencilSettings& stencil) const;
-    uint8_t& accessMultisampleSpecsID() { return fRenderTarget->fMultisampleSpecsID; }
+    // Finds a render target's multisample specs. The pipeline is only needed in case the info isn't
+    // cached and we need to flush the draw state in order to query it. The pipeline is not expected
+    // to affect the multisample information itself.
+    const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrPipeline&) const;
 
     typedef GrRenderTarget::Flags Flags;
 
     Flags flags() const { return fRenderTarget->fFlags; }
-    int maxWindowRectangles() const;
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

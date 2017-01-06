@@ -7,10 +7,12 @@
 
 #include "Resources.h"
 #include "Test.h"
+
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkStream.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
+#include "SkStream.h"
 
 DEF_TEST(BadImage, reporter) {
     const char* const badImages [] = {
@@ -28,8 +30,8 @@ DEF_TEST(BadImage, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
         SkString resourcePath = SkOSPath::Join(badImagesFolder, badImages[i]);
-        SkAutoTDelete<SkStream> stream(GetResourceAsStream(resourcePath.c_str()));
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+        std::unique_ptr<SkStream> stream(GetResourceAsStream(resourcePath.c_str()));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
         // These images are corrupt.  It's not important whether we succeed/fail in codec
         // creation or decoding.  We just want to make sure that we don't crash.

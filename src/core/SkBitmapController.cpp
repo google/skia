@@ -21,10 +21,6 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
                                                              const SkMatrix& inv,
                                                              SkFilterQuality quality,
                                                              void* storage, size_t storageSize) {
-    if (!provider.validForDrawing()) {
-        return nullptr;
-    }
-
     State* state = this->onRequestBitmap(provider, inv, quality, storage, storageSize);
     if (state) {
         if (nullptr == state->fPixmap.addr()) {
@@ -45,13 +41,14 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
     SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   SkSourceGammaTreatment);
+                                   SkDestinationSurfaceColorMode);
 
 private:
-    SkBitmap                     fResultBitmap;
-    SkSourceGammaTreatment       fSrcGammaTreatment;
-    SkAutoTUnref<const SkMipMap> fCurrMip;
+    SkBitmap                      fResultBitmap;
+    SkDestinationSurfaceColorMode fColorMode;
+    sk_sp<const SkMipMap>         fCurrMip;
 
+    bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);
 };
@@ -69,6 +66,28 @@ static inline bool cache_size_okay(const SkBitmapProvider& provider, const SkMat
     const size_t size = provider.info().getSafeSize(provider.info().minRowBytes());
     SkScalar invScaleSqr = invMat.getScaleX() * invMat.getScaleY();
     return size < (maximumAllocation * SkScalarAbs(invScaleSqr));
+}
+
+/*
+ *  Image generators can provide access to externally managed pixels
+ *  (external scale/decode caches).
+ */
+bool SkDefaultBitmapControllerState::processExternalRequest(const SkBitmapProvider& provider) {
+    // TODO: actual srcRect
+
+    const SkRect src = SkRect::MakeIWH(provider.width(), provider.height());
+    SkRect          adjustedSrc;
+
+    if (!provider.accessScaledImage(src, fInvMatrix, fQuality,
+                                    &fResultBitmap, &adjustedSrc, &fQuality)) {
+        return false;
+    }
+
+    fInvMatrix.postConcat(SkMatrix::MakeRectToRect(src, adjustedSrc, SkMatrix::kFill_ScaleToFit));
+    fResultBitmap.lockPixels();
+    SkASSERT(fResultBitmap.getPixels());
+
+    return true;
 }
 
 /*
@@ -166,13 +185,13 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     }
 
     if (invScaleSize.width() > SK_Scalar1 || invScaleSize.height() > SK_Scalar1) {
-        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), fSrcGammaTreatment));
+        fCurrMip.reset(SkMipMapCache::FindAndRef(provider.makeCacheDesc(), fColorMode));
         if (nullptr == fCurrMip.get()) {
             SkBitmap orig;
             if (!provider.asBitmap(&orig)) {
                 return false;
             }
-            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, fSrcGammaTreatment));
+            fCurrMip.reset(SkMipMapCache::AddAndRef(orig, fColorMode));
             if (nullptr == fCurrMip.get()) {
                 return false;
             }
@@ -200,15 +219,22 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
     return false;
 }
 
-SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
-                                                               const SkMatrix& inv,
-                                                               SkFilterQuality qual,
-                                                               SkSourceGammaTreatment treatment) {
+SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
+                                                         const SkBitmapProvider& provider,
+                                                         const SkMatrix& inv,
+                                                         SkFilterQuality qual,
+                                                         SkDestinationSurfaceColorMode colorMode) {
     fInvMatrix = inv;
     fQuality = qual;
-    fSrcGammaTreatment = treatment;
+    fColorMode = colorMode;
 
-    if (this->processHQRequest(provider) || this->processMediumRequest(provider)) {
+    bool processed = this->processExternalRequest(provider);
+
+    // Externally handled requests are not guaranteed to reduce quality below kMedium -- so we
+    // always give our internal processors a shot.
+    processed |= this->processHQRequest(provider) || this->processMediumRequest(provider);
+
+    if (processed) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);
@@ -228,5 +254,5 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
     return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality,
-                                                             fSrcGammaTreatment);
+                                                             fColorMode);
 }

@@ -47,13 +47,13 @@ Error ViaAndroidSDK::draw(const Src& src,
 
         Error draw(SkCanvas* canvas) const override {
             // Pass through HWUI's upper layers to get operational transforms
-            SkAutoTDelete<android::Canvas> ac (android::Canvas::create_canvas(canvas));
-            SkAutoTUnref<android::uirenderer::SkiaCanvasProxy> scProxy
-                (new android::uirenderer::SkiaCanvasProxy(ac));
+            std::unique_ptr<android::Canvas> ac(android::Canvas::create_canvas(canvas));
+            sk_sp<android::uirenderer::SkiaCanvasProxy> scProxy
+                (new android::uirenderer::SkiaCanvasProxy(ac.get()));
 
             // Pass through another proxy to get paint transforms
             SkAndroidSDKCanvas fc;
-            fc.reset(scProxy);
+            fc.reset(scProxy.get());
 
             fSrc.draw(&fc);
 

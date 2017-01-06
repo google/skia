@@ -17,15 +17,6 @@ public:
                                      const SkImageFilter::CropRect* cropRect = nullptr) {
         return SkImageFilter::MakeBlur(sigmaX, sigmaY, input, cropRect);
     }
-
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY,
-                                 SkImageFilter * input = nullptr,
-                                 const SkImageFilter::CropRect* cropRect = nullptr) {
-        return SkImageFilter::MakeBlur(sigmaX, sigmaY, sk_ref_sp<SkImageFilter>(input),
-                                       cropRect).release();
-    }
-#endif
 };
 
 #endif

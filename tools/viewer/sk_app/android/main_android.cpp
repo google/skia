@@ -28,6 +28,9 @@ void android_main(struct android_app* state) {
         "viewer",
         "--skps",
         "/data/local/tmp/skp",
+        // TODO: figure out how to use am start with extra params to pass in additional arguments at
+        // runtime
+        // "--atrace",
     };
 
     std::unique_ptr<Application> vkApp(Application::Create(SK_ARRAY_COUNT(gCmdLine),

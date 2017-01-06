@@ -10,7 +10,7 @@
 
 #include "ir/SkSLProgram.h"
 #include <vector>
-#include <iostream>
+#include <ostream>
 
 namespace SkSL {
 

@@ -10,6 +10,8 @@
 
 #include "GrPathRenderer.h"
 
+#include "GrGpu.h"
+
 class GrDashLinePathRenderer : public GrPathRenderer {
 private:
     bool onCanDrawPath(const CanDrawPathArgs&) const override;
@@ -20,7 +22,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    SkAutoTUnref<GrGpu> fGpu;
+    sk_sp<GrGpu> fGpu;
     typedef GrPathRenderer INHERITED;
 };
 

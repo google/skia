@@ -151,21 +151,21 @@ protected:
             return;
         }
 
-        static const SkXfermode::Mode gModes[] = {
-            SkXfermode::kClear_Mode,
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kSrcOver_Mode,
-            SkXfermode::kDstOver_Mode,
-            SkXfermode::kSrcIn_Mode,
-            SkXfermode::kDstIn_Mode,
-            SkXfermode::kSrcOut_Mode,
-            SkXfermode::kDstOut_Mode,
-            SkXfermode::kSrcATop_Mode,
-            SkXfermode::kDstATop_Mode,
-            SkXfermode::kXor_Mode,
-            SkXfermode::kPlus_Mode,
-            SkXfermode::kModulate_Mode,
+        static const SkBlendMode gModes[] = {
+            SkBlendMode::kClear,
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kSrcOver,
+            SkBlendMode::kDstOver,
+            SkBlendMode::kSrcIn,
+            SkBlendMode::kDstIn,
+            SkBlendMode::kSrcOut,
+            SkBlendMode::kDstOut,
+            SkBlendMode::kSrcATop,
+            SkBlendMode::kDstATop,
+            SkBlendMode::kXor,
+            SkBlendMode::kPlus,
+            SkBlendMode::kModulate,
         };
 
         static const SkColor gColors[] = {

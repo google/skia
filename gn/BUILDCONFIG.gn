@@ -11,7 +11,7 @@ declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
-  ndk_api = 0  # 0 == picked automatically for target_cpu.
+  ndk_api = 21
   sanitize = ""
 }
 declare_args() {
@@ -40,7 +40,7 @@ is_win = current_os == "win"
 
 if (target_cpu == "") {
   target_cpu = host_cpu
-  if (is_android) {
+  if (is_android || is_ios) {
     target_cpu = "arm64"
   }
 }
@@ -55,18 +55,12 @@ if (is_android) {
   ndk_stdlib = ""
   ndk_gccdir = ""
 
-  if (ndk_api == 0) {
-    ndk_api = 18
-    if (target_cpu == "arm64" || target_cpu == "mips64el" ||
-        target_cpu == "x64") {
-      ndk_api = 21
-    }
-  }
-
   if (host_os == "linux") {
     ndk_host = "linux-x86_64"
   } else if (host_os == "mac") {
     ndk_host = "darwin-x86_64"
+  } else if (host_os == "win") {
+    ndk_host = "windows-x86_64"
   }
 
   if (target_cpu == "arm64") {
@@ -117,7 +111,10 @@ template("component") {
 # Default configs
 default_configs = [
   "//gn:default",
+  "//gn:no_exceptions",
   "//gn:no_rtti",
+  "//gn:warnings",
+  "//gn:warnings_except_public_headers",
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]

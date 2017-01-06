@@ -109,7 +109,7 @@ protected:
         constexpr int kCols = 4;
 
         canvas->scale(3, 3);
-        SkPatchGrid grid(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);
+        SkPatchGrid grid(kRows, kCols, SkPatchGrid::kColors_VertexType);
         for (int i = 0; i < kRows; i++) {
             for (int j = 0; j < kCols; j++) {
                 SkPoint points[12];
