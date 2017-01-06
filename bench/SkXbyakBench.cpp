@@ -27,6 +27,7 @@ public:
     enum Mode { kHandWritten, kInterpreted, kJITCompiled };
 
     SkXbyakBench(Mode mode) : fMode(mode) {
+        memset(fBuf, 0, sizeof(fBuf));
         if (mode == kInterpreted || mode == kJITCompiled) {
             fPtr = &fBuf;
             fP.append(SkRasterPipeline::load_f16, &fPtr);
