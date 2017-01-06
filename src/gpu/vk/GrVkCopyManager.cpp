@@ -25,6 +25,13 @@
 #include "SkPoint.h"
 #include "SkRect.h"
 
+GrVkCopyManager::GrVkCopyManager()
+    : fVertShaderModule(VK_NULL_HANDLE)
+    , fFragShaderModule(VK_NULL_HANDLE)
+    , fPipelineLayout(VK_NULL_HANDLE) {}
+
+GrVkCopyManager::~GrVkCopyManager() {}
+
 bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
     const char* version = shaderCaps->versionDeclString();
@@ -125,8 +132,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     fVertexBuffer->updateData(vdata, sizeof(vdata));
 
     // We use 2 vec4's for uniforms
-    fUniformBuffer = GrVkUniformBuffer::Create(gpu, 8 * sizeof(float));
-    SkASSERT(fUniformBuffer);
+    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, 8 * sizeof(float)));
+    SkASSERT(fUniformBuffer.get());
 
     return true;
 }
@@ -154,7 +161,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         SkASSERT(VK_NULL_HANDLE == fFragShaderModule &&
                  VK_NULL_HANDLE == fPipelineLayout &&
                  nullptr == fVertexBuffer.get() &&
-                 nullptr == fUniformBuffer);
+                 nullptr == fUniformBuffer.get());
         if (!this->createCopyProgram(gpu)) {
             SkDebugf("Failed to create copy program.\n");
             return false;
@@ -392,7 +399,7 @@ void GrVkCopyManager::destroyResources(GrVkGpu* gpu) {
 
     if (fUniformBuffer) {
         fUniformBuffer->release(gpu);
-        fUniformBuffer = nullptr;
+        fUniformBuffer.reset();
     }
 }
 
@@ -403,6 +410,6 @@ void GrVkCopyManager::abandonResources() {
 
     if (fUniformBuffer) {
         fUniformBuffer->abandon();
-        fUniformBuffer = nullptr;
+        fUniformBuffer.reset();
     }
 }

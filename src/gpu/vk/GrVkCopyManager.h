@@ -22,11 +22,9 @@ struct SkIRect;
 
 class GrVkCopyManager {
 public:
-    GrVkCopyManager()
-        : fVertShaderModule(VK_NULL_HANDLE)
-        , fFragShaderModule(VK_NULL_HANDLE)
-        , fPipelineLayout(VK_NULL_HANDLE)
-        , fUniformBuffer(nullptr) {}
+    GrVkCopyManager();
+
+    ~GrVkCopyManager();
 
     bool copySurfaceAsDraw(GrVkGpu* gpu,
                            GrSurface* dst,
@@ -49,7 +47,7 @@ private:
     VkPipelineLayout fPipelineLayout;
 
     sk_sp<GrVkVertexBuffer> fVertexBuffer;
-    GrVkUniformBuffer* fUniformBuffer;
+    std::unique_ptr<GrVkUniformBuffer> fUniformBuffer;
 };
 
 #endif
