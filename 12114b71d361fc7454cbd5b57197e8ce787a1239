@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d760061e_05a33496",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-06T13:11:06Z",
+      "side": 1,
+      "message": "Or even, SkDebugf(\"Usage: fuzz -t ...\\n\");\n\nIf it\u0027s not super convenient, it\u0027s probably not worth using argv[0] here.  It\u0027s just cute if we can.",
+      "revId": "12114b71d361fc7454cbd5b57197e8ce787a1239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_459d2c4f",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-06T13:11:06Z",
+      "side": 1,
+      "message": "It looks like these fuzz_foo() methods all always return 0 now.\n\nSeems like we should take the opportunity to codify that, making them all return void and handling this function\u0027s return value here.  E.g.\n\n  if (0 \u003d\u003d strcmp(...) { fuzz_...(bytes); return 0; }\n  if (0 \u003d\u003d strcmp(...) { fuzz_...(bytes); return 0; }\n\nor\n\n  if      (0 \u003d\u003d strcmp(...) { fuzz_...(bytes); }\n  else if (0 \u003d\u003d strcmp(...) { fuzz_...(bytes); }\n  ...\n  return 0;",
+      "revId": "12114b71d361fc7454cbd5b57197e8ce787a1239",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
