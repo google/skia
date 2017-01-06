@@ -16,7 +16,10 @@ class GrProcOptInfo;
 
 class GrDisableColorXPFactory : public GrXPFactory {
 public:
-    static sk_sp<GrXPFactory> Make() { return sk_sp<GrXPFactory>(new GrDisableColorXPFactory); }
+    static sk_sp<GrXPFactory> Make() {
+        static GrDisableColorXPFactory gDisableColorXPFactory;
+        return sk_sp<GrXPFactory>(SkRef(&gDisableColorXPFactory));
+    }
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor* blendedColor) const override {
