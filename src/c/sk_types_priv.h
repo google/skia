@@ -16,6 +16,7 @@
 #include "SkPathMeasure.h"
 #include "SkCodec.h"
 #include "SkPicture.h"
+#include "SkPixmap.h"
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkStream.h"
@@ -129,6 +130,26 @@ static inline const SkBitmap& AsBitmap(const sk_bitmap_t& cbitmap) {
 
 static inline SkBitmap* AsBitmap(sk_bitmap_t* cbitmap) {
     return reinterpret_cast<SkBitmap*>(cbitmap);
+}
+
+static inline const SkPixmap* AsPixmap(const sk_pixmap_t* cpixmap) {
+    return reinterpret_cast<const SkPixmap*>(cpixmap);
+}
+
+static inline const SkPixmap& AsPixmap(const sk_pixmap_t& cpixmap) {
+    return reinterpret_cast<const SkPixmap&>(cpixmap);
+}
+
+static inline SkPixmap* AsPixmap(sk_pixmap_t* cpixmap) {
+    return reinterpret_cast<SkPixmap*>(cpixmap);
+}
+
+static inline SkPixmap& AsPixmap(sk_pixmap_t& cpixmap) {
+    return reinterpret_cast<SkPixmap&>(cpixmap);
+}
+
+static inline sk_pixmap_t* ToPixmap(SkPixmap* pixmap) {
+    return reinterpret_cast<sk_pixmap_t*>(pixmap);
 }
 
 static inline SkData* AsData(const sk_data_t* cdata) {

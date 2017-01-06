@@ -310,6 +310,12 @@ bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo,
     return bmp->installPixels(info, pixels, rowBytes, AsColorTable(ctable), releaseProc, context);
 }
 
+bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    return bmp->installPixels(AsPixmap(*cpixmap));
+}
+
 bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
@@ -339,4 +345,10 @@ void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* c
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
     bmp->setPixels(pixels, AsColorTable(ctable));
+}
+
+bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    return bmp->peekPixels(AsPixmap(cpixmap));
 }

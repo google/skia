@@ -41,10 +41,12 @@ SK_API void sk_bitmap_unlock_pixels(sk_bitmap_t* cbitmap);
 SK_API void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors);
 SK_API void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors);
 SK_API bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, sk_colortable_t* ctable, const sk_bitmap_release_proc releaseProc, void* context);
+SK_API bool sk_bitmap_install_pixels_with_pixmap(sk_bitmap_t* cbitmap, const sk_pixmap_t* cpixmap);
 SK_API bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes);
 SK_API bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_pixelref_factory_t* factory, sk_colortable_t* ctable);
 SK_API sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap);
 SK_API void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ctable);
+SK_API bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap);
 
 
 SK_C_PLUS_PLUS_END_GUARD
