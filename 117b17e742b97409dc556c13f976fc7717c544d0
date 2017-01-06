@@ -52,6 +52,24 @@
       "revId": "117b17e742b97409dc556c13f976fc7717c544d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_0f86a5ff",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-06T15:40:00Z",
+      "side": 1,
+      "message": "Uh, duh, that can be simpler:\n\n  #!/usr/bin/env python2.7\n\n  import os,re,sys\n\n  args_gn, \u003d sys.argv[1:]\n\n  target_cpu \u003d \u0027arm64\u0027\n\n  if os.path.exists(args_gn):\n    for line in open(args_gn):\n      line \u003d line.strip()\n      if line.startswith(\u0027#\u0027):\n        continue\n      m \u003d re.match(\u0027target_cpu \u003d \"(.*)\"\u0027, line)\n      if m:\n        target_cpu \u003d m.group(1)\n\n  print target_cpu",
+      "parentUuid": "578ed681_cf673d94",
+      "revId": "117b17e742b97409dc556c13f976fc7717c544d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
