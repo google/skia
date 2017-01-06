@@ -186,19 +186,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
     SkASSERT(supported(fDst.info()));
 
+    p->append(SkRasterPipeline::move_src_dst);
     switch (fDst.info().colorType()) {
-        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::load_565_d,  &fDstPtr); break;
+        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::load_565,  &fDstPtr); break;
         case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::load_8888_d, &fDstPtr); break;
-        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::load_f16_d,  &fDstPtr); break;
+        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::load_8888, &fDstPtr); break;
+        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::load_f16,  &fDstPtr); break;
         default: break;
     }
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
-        p->append(SkRasterPipeline::swap_rb_d);
+        p->append(SkRasterPipeline::swap_rb);
     }
     if (fDst.info().gammaCloseToSRGB()) {
-        p->append_from_srgb_d(fDst.info().alphaType());
+        p->append_from_srgb(fDst.info().alphaType());
     }
+    p->append(SkRasterPipeline::swap);
 }
 
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {

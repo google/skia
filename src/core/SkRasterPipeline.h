@@ -58,16 +58,16 @@
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(trace) M(registers)                                        \
-    M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)      \
-    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_d)                \
+    M(move_src_dst) M(move_dst_src) M(swap)                      \
+    M(clamp_0) M(clamp_1) M(clamp_a)                             \
     M(unpremul) M(premul)                                        \
-    M(set_rgb)                                                   \
-    M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
+    M(set_rgb) M(swap_rb)                                        \
+    M(from_srgb) M(to_srgb)                                      \
     M(from_2dot2) M(to_2dot2)                                    \
     M(constant_color) M(store_f32)                               \
-    M(load_565)  M(load_565_d)  M(store_565)                     \
-    M(load_f16)  M(load_f16_d)  M(store_f16)                     \
-    M(load_8888) M(load_8888_d) M(store_8888)                    \
+    M(load_565)  M(store_565)                                    \
+    M(load_f16)  M(store_f16)                                    \
+    M(load_8888) M(store_8888)                                   \
     M(load_tables) M(store_tables)                               \
     M(scale_u8) M(scale_1_float)                                 \
     M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
@@ -122,8 +122,7 @@ public:
 
     // Conversion from sRGB can be subtly tricky when premultiplication is involved.
     // Use these helpers to keep things sane.
-    void append_from_srgb  (SkAlphaType);
-    void append_from_srgb_d(SkAlphaType);
+    void append_from_srgb(SkAlphaType);
 
 private:
     std::vector<Stage> fStages;

@@ -44,8 +44,10 @@ namespace {
     //    &load_8888
     //    (src ptr)
     //    &from_srgb
-    //    &load_f16_d
+    //    &move_src_dst
+    //    &load_f16
     //    (dst ptr)
+    //    &swap
     //    &srcover
     //    &store_f16
     //    (dst ptr)
@@ -92,12 +94,6 @@ SI void SK_VECTORCALL just_return(size_t, void**, SkNf, SkNf, SkNf, SkNf,
         name##_kernel(x_tail/N, x_tail%N, r,g,b,a, dr,dg,db,da);                         \
         next(x_tail,p, r,g,b,a, dr,dg,db,da);                                            \
     }                                                                                    \
-    SI void SK_VECTORCALL name##_d(size_t x_tail, void** p,                              \
-                                   SkNf  r, SkNf  g, SkNf  b, SkNf  a,                   \
-                                   SkNf dr, SkNf dg, SkNf db, SkNf da) {                 \
-        name##_kernel(x_tail/N, x_tail%N, dr,dg,db,da, r,g,b,a);                         \
-        next(x_tail,p, r,g,b,a, dr,dg,db,da);                                            \
-    }                                                                                    \
     static SK_ALWAYS_INLINE void name##_kernel(size_t x, size_t tail,                    \
                                                SkNf&  r, SkNf&  g, SkNf&  b, SkNf&  a,   \
                                                SkNf& dr, SkNf& dg, SkNf& db, SkNf& da)
@@ -111,13 +107,6 @@ SI void SK_VECTORCALL just_return(size_t, void**, SkNf, SkNf, SkNf, SkNf,
                                SkNf dr, SkNf dg, SkNf db, SkNf da) {                     \
         auto ctx = (Ctx)load_and_increment(&p);                                          \
         name##_kernel(ctx, x_tail/N, x_tail%N, r,g,b,a, dr,dg,db,da);                    \
-        next(x_tail,p, r,g,b,a, dr,dg,db,da);                                            \
-    }                                                                                    \
-    SI void SK_VECTORCALL name##_d(size_t x_tail, void** p,                              \
-                                   SkNf  r, SkNf  g, SkNf  b, SkNf  a,                   \
-                                   SkNf dr, SkNf dg, SkNf db, SkNf da) {                 \
-        auto ctx = (Ctx)load_and_increment(&p);                                          \
-        name##_kernel(ctx, x_tail/N, x_tail%N, dr,dg,db,da, r,g,b,a);                    \
         next(x_tail,p, r,g,b,a, dr,dg,db,da);                                            \
     }                                                                                    \
     static SK_ALWAYS_INLINE void name##_kernel(Ctx ctx, size_t x, size_t tail,           \
@@ -380,6 +369,7 @@ STAGE_CTX(set_rgb, const float*) {
     g = ctx[1];
     b = ctx[2];
 }
+STAGE(swap_rb) { SkTSwap(r,b); }
 
 STAGE(move_src_dst) {
     dr = r;
@@ -393,8 +383,12 @@ STAGE(move_dst_src) {
     b = db;
     a = da;
 }
-
-STAGE(swap_rb) { SkTSwap(r, b); }
+STAGE(swap) {
+    SkTSwap(r,dr);
+    SkTSwap(g,dg);
+    SkTSwap(b,db);
+    SkTSwap(a,da);
+}
 
 STAGE(from_srgb) {
     r = sk_linear_from_srgb_math(r);

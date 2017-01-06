@@ -22,7 +22,9 @@ DEF_TEST(SkRasterPipeline, r) {
 
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_f16, &load_s_ctx);
-    p.append(SkRasterPipeline::load_f16_d, &load_d_ctx);
+    p.append(SkRasterPipeline::move_src_dst);
+    p.append(SkRasterPipeline::load_f16, &load_d_ctx);
+    p.append(SkRasterPipeline::swap);
     p.append(SkRasterPipeline::srcover);
     p.append(SkRasterPipeline::store_f16, &store_ctx);
     p.run(0,0, 1);
