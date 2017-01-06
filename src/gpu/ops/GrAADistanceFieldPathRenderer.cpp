@@ -383,12 +383,14 @@ private:
 
         // set the bounds rect to the original bounds
         shapeData->fBounds = bounds;
+        shapeData->fBounds.fRight += 512;
+        shapeData->fBounds.fBottom += 512;
 
         // set up texture coordinates
-        SkScalar texLeft = bounds.fLeft;
-        SkScalar texTop = bounds.fTop;
-        SkScalar texRight = bounds.fRight;
-        SkScalar texBottom = bounds.fBottom;
+        SkScalar texLeft = shapeData->fBounds.fLeft;
+        SkScalar texTop = shapeData->fBounds.fTop;
+        SkScalar texRight = shapeData->fBounds.fRight;
+        SkScalar texBottom = shapeData->fBounds.fBottom;
 
         // transform original path's bounds to texture space
         texLeft *= scale;
@@ -401,7 +403,7 @@ private:
         texTop += atlasLocation.fY - dy;
         texRight += atlasLocation.fX - dx;
         texBottom += atlasLocation.fY - dy;
-
+        
         GrTexture* texture = atlas->getTexture();
         shapeData->fTexCoords.setLTRB(texLeft / texture->width(),
                                       texTop / texture->height(),
