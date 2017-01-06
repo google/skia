@@ -129,7 +129,7 @@ static sk_sp<SkImage> create_picture_image() {
     SkCanvas* canvas = recorder.beginRecording(10, 10);
     canvas->clear(SK_ColorCYAN);
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
-                                    nullptr, nullptr,
+                                    nullptr, nullptr, SkImage::k8888_BitDepth,
                                     SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 };
 #endif

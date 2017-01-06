@@ -156,7 +156,7 @@ protected:
             std::unique_ptr<SkImageGenerator> gen(
                 SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
                                                  p.getAlpha() != 255 ? &p : nullptr,
-                                                 srgbColorSpace));
+                                                 SkImage::k8888_BitDepth, srgbColorSpace));
 
             SkImageInfo bmInfo = gen->getInfo().makeColorSpace(
                 sk_ref_sp(canvas->imageInfo().colorSpace()));
