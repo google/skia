@@ -868,17 +868,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         // Create an image that is too large to upload.
         { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
           kNone_SkFilterQuality, 1, false },
-        // Create an image that is too large, but is scaled to an acceptable size.
-        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
-        // Create an image with multiple low filter qualities, make sure we round up.
-        { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
-                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
-        // Create an image with multiple prescale levels, make sure we chose the minimum scale.
-        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
-                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
     };
 
 
