@@ -110,6 +110,9 @@ void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
     VALIDATE();
     fResource->recycle(const_cast<GrVkGpu*>(gpu));
     fResource = nullptr;
+    if (!fDesc.fDynamic) {
+        delete[] (unsigned char*)fMapPtr;
+    }
     fMapPtr = nullptr;
     VALIDATE();
 }
@@ -117,6 +120,9 @@ void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
 void GrVkBuffer::vkAbandon() {
     fResource->unrefAndAbandon();
     fResource = nullptr;
+    if (!fDesc.fDynamic) {
+        delete[] (unsigned char*)fMapPtr;
+    }
     fMapPtr = nullptr;
     VALIDATE();
 }

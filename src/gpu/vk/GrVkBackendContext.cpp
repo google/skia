@@ -13,6 +13,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Helper code to set up Vulkan context objects
 
+#undef SK_ENABLE_VK_LAYERS
+
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
     // elements of VK_LAYER_LUNARG_standard_validation
