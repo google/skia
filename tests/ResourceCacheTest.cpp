@@ -415,9 +415,10 @@ static void test_no_key(skiatest::Reporter* reporter) {
 }
 
 // Each integer passed as a template param creates a new domain.
-template <int> static void make_unique_key(GrUniqueKey* key, int data) {
+template <int>
+static void make_unique_key(GrUniqueKey* key, int data, const char* tag = nullptr) {
     static GrUniqueKey::Domain d = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, d, 1);
+    GrUniqueKey::Builder builder(key, d, 1, tag);
     builder[0] = data;
 }
 
@@ -1324,6 +1325,42 @@ static void test_abandoned(skiatest::Reporter* reporter) {
     resource->resourcePriv().removeUniqueKey();
 }
 
+static void test_tags(skiatest::Reporter* reporter) {
+#ifdef SK_DEBUG
+    // We will insert 1 resource with tag "tag1", 2 with "tag2", and so on, up through kLastTagIdx.
+    static constexpr int kLastTagIdx = 10;
+    static constexpr int kNumResources = kLastTagIdx * (kLastTagIdx + 1) / 2;
+
+    Mock mock(kNumResources, kNumResources * TestResource::kDefaultSize);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+
+    SkString tagStr;
+    int tagIdx = 0;
+    int currTagCnt = 0;
+
+    for (int i = 0; i < kNumResources; ++i, ++currTagCnt) {
+        sk_sp<GrGpuResource> resource(new TestResource(context->getGpu()));
+        GrUniqueKey key;
+        if (currTagCnt == tagIdx) {
+            tagIdx += 1;
+            currTagCnt = 0;
+            tagStr.printf("tag%d", tagIdx);
+        }
+        make_unique_key<1>(&key, i, tagStr.c_str());
+        resource->resourcePriv().setUniqueKey(key);
+    }
+    SkASSERT(kLastTagIdx == tagIdx);
+    SkASSERT(currTagCnt == kLastTagIdx);
+
+    // Test i = 0 to exercise unused tag string.
+    for (int i = 0; i <= kLastTagIdx; ++i) {
+        tagStr.printf("tag%d", i);
+        REPORTER_ASSERT(reporter, cache->countUniqueKeysWithTag(tagStr.c_str()) == i);
+    }
+#endif
+}
+
 DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
@@ -1342,6 +1379,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_large_resource_count(reporter);
     test_custom_data(reporter);
     test_abandoned(reporter);
+    test_tags(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
