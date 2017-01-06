@@ -34,6 +34,11 @@ public:
         fPath.quadTo(250, 0, 0, 500);
 
         fPixmap.alloc(SkImageInfo::MakeA8(500, 500));
+        if (!drawCoverage) {
+            // drawPathCoverage() goes out of its way to work fine with an uninitialized
+            // dst buffer, even in "SrcOver" mode, but ordinary drawing sure doesn't.
+            fPixmap.erase(0);
+        }
 
         fIdentity.setIdentity();
         fRC.setRect(fPath.getBounds().round());
