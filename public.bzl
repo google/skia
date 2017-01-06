@@ -139,9 +139,6 @@ BASE_SRCS_ALL = struct(
 
         # Defines main.
         "src/sksl/SkSLMain.cpp",
-
-        # Experiment.  Google3 doesn't have the library it needs.
-        "src/opts/SkXbyak.cpp",
     ],
 )
 
@@ -174,6 +171,8 @@ BASE_SRCS_UNIX = struct(
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
+        # Experiment.  Google3 doesn't have the library it needs.
+        "src/opts/SkXbyak.cpp",
         "src/ports/*CG*",
         "src/ports/*WIC*",
         "src/ports/*android*",
@@ -218,6 +217,8 @@ BASE_SRCS_ANDROID = struct(
         "src/opts/*x86*",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
+        # Experiment.  Google3 doesn't have the library it needs.
+        "src/opts/SkXbyak.cpp",
         "src/ports/*CG*",
         "src/ports/*FontConfig*",
         "src/ports/*WIC*",
@@ -269,6 +270,8 @@ BASE_SRCS_IOS = struct(
         "src/opts/*x86*",
         "src/opts/SkBlitMask_opts_arm*.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
+        # Experiment.  Google3 doesn't have the library it needs.
+        "src/opts/SkXbyak.cpp",
         "src/ports/*CG*",
         "src/ports/*FontConfig*",
         "src/ports/*FreeType*",
