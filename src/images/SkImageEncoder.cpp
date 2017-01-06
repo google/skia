@@ -15,11 +15,40 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
     #elif SK_USE_WIC_ENCODER
         return SkEncodeImageWithWIC(dst, src, format, quality);
     #else
+        SkPixmap pixmap = src;
+        pixmap.setColorSpace(nullptr);
         switch(format) {
-            case SkEncodedImageFormat::kJPEG: return SkEncodeImageAsJPEG(dst, src, quality);
-            case SkEncodedImageFormat::kPNG:  return SkEncodeImageAsPNG(dst, src);
-            case SkEncodedImageFormat::kWEBP: return SkEncodeImageAsWEBP(dst, src, quality);
-            default:                          return false;
+            case SkEncodedImageFormat::kJPEG:
+                return SkEncodeImageAsJPEG(dst, src, quality);
+            case SkEncodedImageFormat::kPNG:
+                return SkEncodeImageAsPNG(dst, pixmap);
+            case SkEncodedImageFormat::kWEBP:
+                return SkEncodeImageAsWEBP(dst, src, quality);
+            default:
+                return false;
         }
     #endif
+}
+
+sk_sp<SkData> SkEncodeImage(const SkPixmap& src, const SkEncodeOptions& opts) {
+    SkPixmap pixmap = src;
+    switch (opts.fPremulBehavior) {
+        case SkEncodeOptions::PremulBehavior::kGammaCorrect:
+            if (!pixmap.colorSpace()) {
+                return false;
+            }
+            break;
+        case SkEncodeOptions::PremulBehavior::kLegacy:
+            pixmap.setColorSpace(nullptr);
+            break;
+    }
+
+    if (SkEncodedImageFormat::kPNG == opts.fFormat) {
+        SkDynamicMemoryWStream dst;
+        if (SkEncodeImageAsPNG(&dst, pixmap)) {
+            return dst.detachAsData();
+        }
+    }
+
+    return nullptr;
 }
