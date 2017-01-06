@@ -52,7 +52,7 @@ GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
  */
 static const int kFPFactoryCount = 40;
 static const int kGPFactoryCount = 14;
-static const int kXPFactoryCount = 5;
+static const int kXPFactoryCount = 4;
 
 template<>
 void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
