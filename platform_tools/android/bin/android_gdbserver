@@ -15,6 +15,14 @@ then
   exit 1
 fi
 
+IS_64_BIT="false"
+GN_TARGET_CPU=$(grep target_cpu ${SKIA_OUT}/args.gn)
+if [ -z "$GN_TARGET_CPU"]; then
+  IS_64_BIT="true"
+elif [[ $GN_TARGET_CPU == *64* ]]; then
+  IS_64_BIT="true"
+fi
+
 # We need the debug symbols from these files
 GDB_TMP_DIR=$SKIA_OUT/android_gdb_tmp
 mkdir -p $GDB_TMP_DIR
@@ -47,7 +55,7 @@ for library_file in \
     fi
 done
 
-if [[ $ANDROID_ARCH == *64* ]]; then
+if [[ $IS_64_BIT == "true" ]]; then
   adb_pull_if_needed /system/bin/linker64 $GDB_TMP_DIR
 else
   adb_pull_if_needed /system/bin/linker $GDB_TMP_DIR
