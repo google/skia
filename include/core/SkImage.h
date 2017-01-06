@@ -422,6 +422,21 @@ public:
      */
     bool isLazyGenerated() const;
 
+
+    /**
+     *  Returns an SkImageInfo that can be used to losslessly represent the SkImage.
+     *  If properties of the SkImage are not fully specified, |suggestBitDepth| and
+     *  |suggestColorSpace| will be used as instructions to create the SkImageInfo.
+     *
+     *  @param suggestBitDepth   If the bit depth of the SkImage is undefined, this
+     *                           will set the bit depth for the SkImageInfo.
+     *  @param suggestColorSpace Must be non-null.  If the color space of the SkImage
+     *                           is undefined, this will be the color space of the
+     *                           SkImageInfo.
+     */
+    SkImageInfo conservativeInfo(BitDepth suggestBitDepth,
+                                 sk_sp<SkColorSpace> suggestColorSpace) const;
+
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 

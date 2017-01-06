@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
+#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImageCacherator.h"
 #include "SkImagePriv.h"
@@ -34,6 +35,7 @@ public:
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*) const override;
     bool onIsLazyGenerated() const override { return true; }
+    virtual SkImageInfo onConservativeInfo(BitDepth, sk_sp<SkColorSpace>) const;
 
 private:
     mutable SkImageCacherator fCache;
@@ -90,6 +92,12 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     const SkIRect generatorSubset = subset.makeOffset(fCache.fOrigin.x(), fCache.fOrigin.y());
     SkImageCacherator::Validator validator(fCache.fSharedGenerator, &generatorSubset);
     return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
+}
+
+SkImageInfo SkImage_Generator::onConservativeInfo(BitDepth suggestBitDepth,
+                                                  sk_sp<SkColorSpace> suggestColorSpace) const {
+    SkImageCacherator::CachedFormat format = fCache.chooseCacheFormat(suggestColorSpace.get());
+    return fCache.buildCacheInfo(format);
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
