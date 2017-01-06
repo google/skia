@@ -211,6 +211,10 @@ public:
     void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
 #endif
 
+#ifdef SK_DEBUG
+    int countUniqueKeysWithTag(const char* tag) const;
+#endif
+
     // This function is for unit testing and is only defined in test tools.
     void changeTimestamp(uint32_t newTimestamp);
 

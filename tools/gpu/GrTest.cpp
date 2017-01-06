@@ -221,6 +221,20 @@ void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
 
 void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
 
+#ifdef SK_DEBUG
+int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
+    int count = 0;
+    UniqueHash::ConstIter iter(&fUniqueHash);
+    while (!iter.done()) {
+        if (0 == strcmp(tag, (*iter).getUniqueKey().tag())) {
+            ++count;
+        }
+        ++iter;
+    }
+    return count;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
