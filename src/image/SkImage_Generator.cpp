@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
+#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImageCacherator.h"
 #include "SkImagePriv.h"
@@ -34,6 +35,7 @@ public:
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*) const override;
     bool onIsLazyGenerated() const override { return true; }
+    virtual SkImageInfo onConservativeInfo(SuggestBitDepth, sk_sp<SkColorSpace>) const;
 
 private:
     mutable SkImageCacherator fCache;
@@ -90,6 +92,27 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     const SkIRect generatorSubset = subset.makeOffset(fCache.fOrigin.x(), fCache.fOrigin.y());
     SkImageCacherator::Validator validator(fCache.fSharedGenerator, &generatorSubset);
     return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
+}
+
+SkImageInfo SkImage_Generator::onConservativeInfo(SuggestBitDepth suggestBitDepth,
+                                                  sk_sp<SkColorSpace> suggestColorSpace) const {
+    SkImageCacherator::CachedFormat format = fCache.chooseCacheFormat(suggestColorSpace.get());
+    if (SkImageCacherator::kLegacy_CachedFormat == format) {
+        // Hacky way to assert that we only allow picture backed images to be untagged.
+        SkASSERT(!this->onRefEncoded(nullptr));
+
+        switch (suggestBitDepth) {
+            case kHighPrecision_SuggestBitDepth:
+                return SkImageInfo::Make(fCache.info().width(), fCache.info().height(),
+                                         kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                                         as_CSB(suggestColorSpace)->makeLinearGamma());
+            case kLowPrecision_SuggestBitDepth:
+                return SkImageInfo::Make(fCache.info().width(), fCache.info().height(),
+                                         kN32_SkColorType, kPremul_SkAlphaType, suggestColorSpace);
+        }
+    }
+
+    return fCache.buildCacheInfo(format);
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {

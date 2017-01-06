@@ -368,6 +368,13 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
+
+SkImageInfo SkImage::conservativeInfo(SuggestBitDepth suggestBitDepth,
+                                      sk_sp<SkColorSpace> suggestColorSpace) const {
+    SkASSERT(suggestColorSpace);
+    return as_IB(this)->onConservativeInfo(suggestBitDepth, suggestColorSpace);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
