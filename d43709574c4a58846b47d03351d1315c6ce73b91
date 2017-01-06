@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_f2a46659",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-06T20:49:05Z",
+      "side": 1,
+      "message": "Is this necessary? The compiler should just create a default destructor.",
+      "range": {
+        "startLine": 33,
+        "startChar": 18,
+        "endLine": 33,
+        "endChar": 33
+      },
+      "revId": "d43709574c4a58846b47d03351d1315c6ce73b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
