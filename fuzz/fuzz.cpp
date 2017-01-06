@@ -13,6 +13,7 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
+#include "SkPath.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
@@ -43,6 +44,7 @@ static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_path_deserialize(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
@@ -96,6 +98,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("image_mode", FLAGS_type[0])) {
             fuzz_img(bytes, 0, option);
+            return 0;
+        }
+        if (0 == strcmp("path_deserialize", FLAGS_type[0])) {
+            fuzz_path_deserialize(bytes);
             return 0;
         }
         if (0 == strcmp("skp", FLAGS_type[0])) {
@@ -459,6 +465,15 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
         return;
     }
     SkDebugf("[terminated] Success! deserialized Colorspace.\n");
+}
+
+static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
+    SkPath path;
+    if (!path.readFromMemory(bytes->data(), bytes->size())) {
+        SkDebugf("[terminated] Couldn't initialize SkPath.\n");
+        return;
+    }
+    SkDebugf("[terminated] Success! Initialized SkPath.\n");
 }
 
 #if SK_SUPPORT_GPU
