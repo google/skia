@@ -387,9 +387,51 @@ sk_sp<GrXPFactory> CustomXPFactory::TestCreate(GrProcessorTestData* d) {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrXPFactory> GrCustomXfermode::MakeXPFactory(SkBlendMode mode) {
-    if (!GrCustomXfermode::IsSupportedMode(mode)) {
-        return nullptr;
-    } else {
-        return sk_sp<GrXPFactory>(new CustomXPFactory(mode));
+    static CustomXPFactory gOverlay(SkBlendMode::kOverlay);
+    static CustomXPFactory gDarken(SkBlendMode::kDarken);
+    static CustomXPFactory gLighten(SkBlendMode::kLighten);
+    static CustomXPFactory gColorDodge(SkBlendMode::kColorDodge);
+    static CustomXPFactory gColorBurn(SkBlendMode::kColorBurn);
+    static CustomXPFactory gHardLight(SkBlendMode::kHardLight);
+    static CustomXPFactory gSoftLight(SkBlendMode::kSoftLight);
+    static CustomXPFactory gDifference(SkBlendMode::kDifference);
+    static CustomXPFactory gExclusion(SkBlendMode::kExclusion);
+    static CustomXPFactory gMultiply(SkBlendMode::kMultiply);
+    static CustomXPFactory gHue(SkBlendMode::kHue);
+    static CustomXPFactory gSaturation(SkBlendMode::kSaturation);
+    static CustomXPFactory gColor(SkBlendMode::kColor);
+    static CustomXPFactory gLuminosity(SkBlendMode::kLuminosity);
+    switch (mode) {
+        case SkBlendMode::kOverlay:
+            return sk_sp<GrXPFactory>(SkRef(&gOverlay));
+        case SkBlendMode::kDarken:
+            return sk_sp<GrXPFactory>(SkRef(&gDarken));
+        case SkBlendMode::kLighten:
+            return sk_sp<GrXPFactory>(SkRef(&gLighten));
+        case SkBlendMode::kColorDodge:
+            return sk_sp<GrXPFactory>(SkRef(&gColorDodge));
+        case SkBlendMode::kColorBurn:
+            return sk_sp<GrXPFactory>(SkRef(&gColorBurn));
+        case SkBlendMode::kHardLight:
+            return sk_sp<GrXPFactory>(SkRef(&gHardLight));
+        case SkBlendMode::kSoftLight:
+             return sk_sp<GrXPFactory>(SkRef(&gSoftLight));
+        case SkBlendMode::kDifference:
+            return sk_sp<GrXPFactory>(SkRef(&gDifference));
+        case SkBlendMode::kExclusion:
+            return sk_sp<GrXPFactory>(SkRef(&gExclusion));
+        case SkBlendMode::kMultiply:
+            return sk_sp<GrXPFactory>(SkRef(&gMultiply));
+        case SkBlendMode::kHue:
+            return sk_sp<GrXPFactory>(SkRef(&gHue));
+        case SkBlendMode::kSaturation:
+            return sk_sp<GrXPFactory>(SkRef(&gSaturation));
+        case SkBlendMode::kColor:
+            return sk_sp<GrXPFactory>(SkRef(&gColor));
+        case SkBlendMode::kLuminosity:
+            return sk_sp<GrXPFactory>(SkRef(&gLuminosity));
+        default:
+            SkASSERT(!GrCustomXfermode::IsSupportedMode(mode));
+            return nullptr;
     }
 }
