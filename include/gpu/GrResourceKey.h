@@ -263,6 +263,7 @@ public:
         Builder(GrUniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
             : INHERITED::Builder(key, type, data32Count) {
             SkDEBUGCODE(key->fTag = tag;)
+            (void) tag;  // suppress unused named param warning.
         }
 
         /** Used to build a key that wraps another key and adds additional data. */
@@ -276,6 +277,7 @@ public:
             (*innerKeyData++) = innerKey.domain();
             memcpy(innerKeyData, srcData, innerKey.dataSize());
             SkDEBUGCODE(key->fTag = tag;)
+            (void) tag;  // suppress unused named param warning.
         }
 
     private:

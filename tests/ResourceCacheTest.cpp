@@ -1482,5 +1482,48 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 }
 
+#include "GrClipStackClip.h"
+#include "SkClipStack.h"
+
+sk_sp<GrTexture> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
+    const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
+    return this->createSoftwareClipMask(context, reducedClip);
+}
+
+DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
+#ifdef SK_DEBUG
+    GrContext* context = ctxInfo.grContext();
+    SkClipStack stack;
+
+    SkPath path;
+    path.addCircle(10, 10, 8);
+    path.addCircle(15, 15, 8);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    static const char* kTag = GrClipStackClip::kMaskTestTag;
+    GrResourceCache* cache = context->getResourceCache();
+
+    static constexpr int kN = 5;
+
+    for (int i = 0; i < kN; ++i) {
+        SkMatrix m;
+        m.setTranslate(0.5, 0.5);
+        stack.save();
+        stack.clipPath(path, m, SkClipOp::kIntersect, true);
+        auto mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
+        REPORTER_ASSERT(reporter, 0 == strcmp(mask->getUniqueKey().tag(), kTag));
+        // Make sure mask isn't pinned in cache.
+        mask.reset(nullptr);
+        context->flush();
+        REPORTER_ASSERT(reporter, i + 1 == cache->countUniqueKeysWithTag(kTag));
+    }
+
+    for (int i = 0; i < kN; ++i) {
+        stack.restore();
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, kN - (i + 1) == cache->countUniqueKeysWithTag(kTag));
+    }
+#endif
+}
 
 #endif
