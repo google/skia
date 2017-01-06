@@ -17,7 +17,7 @@
 #endif
 
 #ifdef SK_HAS_PNG_LIBRARY
-    bool SkEncodeImageAsPNG(SkWStream*, const SkPixmap&);
+    bool SkEncodeImageAsPNG(SkWStream* dst, const SkPixmap& src);
 #else
     #define SkEncodeImageAsPNG(...) false
 #endif

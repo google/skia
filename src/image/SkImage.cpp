@@ -92,11 +92,7 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
 
 SkData* SkImage::encode(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
-    SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
+    if (as_IB(this)->getROPixels(&bm, nullptr)) {
         SkDynamicMemoryWStream buf;
         return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData().release() : nullptr;
     }
@@ -112,11 +108,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
 
     SkBitmap bm;
     SkAutoPixmapUnlock apu;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
-    SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace) &&
+    if (as_IB(this)->getROPixels(&bm, nullptr) &&
         bm.requestLock(&apu)) {
         if (serializer) {
             return serializer->encode(apu.pixmap());
@@ -125,6 +117,32 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
             return SkEncodeImage(&buf, apu.pixmap(), SkEncodedImageFormat::kPNG, 100)
                    ? buf.detachAsData().release() : nullptr;
         }
+    }
+
+    return nullptr;
+}
+
+sk_sp<SkData> SkImage::encode(SkEncodeOptions* options) const {
+    sk_sp<SkData> encoded(this->refEncoded());
+    if (encoded) {
+        return encoded;
+    }
+
+    SkEncodeOptions opts;
+    if (!options) {
+        options = &opts;
+    }
+
+    // Using an sRGB color space is insignificant.  We just use a non-nullptr color space to
+    // signify that we want gamma correct pixels.
+    const bool legacy = (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior);
+    sk_sp<SkColorSpace> colorSpace = legacy ? nullptr :
+                                              SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+
+    SkBitmap bitmap;
+    SkAutoPixmapUnlock apu;
+    if (as_IB(this)->getROPixels(&bitmap, colorSpace.get()) && bitmap.requestLock(&apu)) {
+        return SkEncodeImage(apu.pixmap(), *options);
     }
 
     return nullptr;

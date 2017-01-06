@@ -18,6 +18,7 @@
 class SkData;
 class SkCanvas;
 class SkColorTable;
+class SkEncodeOptions;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
@@ -290,6 +291,13 @@ public:
      *  fail (return NULL).
      */
     SkData* encode(SkPixelSerializer* = nullptr) const;
+
+    /**
+     *  Simply returns the existing encoded data if it exists.
+     *  Otherwise, encodes the image according to |opts|.  If |opts| is nullptr, the default
+     *  options are used.
+     */
+    sk_sp<SkData> encode(SkEncodeOptions* opts) const;
 
     /**
      *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref
