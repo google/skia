@@ -39,6 +39,55 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
     return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
 }
 
+SK_API struct SkEncodeOptions {
+    enum class Fidelity {
+        // If the selected image format supports lossless encoding, choose a lossless encode.
+        // If the format is lossy, encode at the highest quality.
+        kPreferLossless,
+
+        // Use lossy encoding if it is supported by the selected image format.
+        kPreferLossy,
+    };
+
+    enum class BitDepth {
+        // If possible, maintain the bit depth of the input.
+        kAsIs,
+
+        // Encode at a maximum bit depth of 8.
+        kShrinkTo8,
+    };
+
+    enum class PremulBehavior {
+         // Convert to a linear space before premultiplying or unpremultiplying.
+        kGammaCorrect,
+
+        // Ignore the transfer function when premultiplying or unpremultiplying.
+        kLegacy,
+    };
+
+    SkEncodedImageFormat fFormat;
+    Fidelity             fFidelity;
+    BitDepth             fBitDepth;
+    PremulBehavior       fPremulBehavior;
+
+    SkEncodeOptions()
+        : fFormat(SkEncodedImageFormat::kPNG)
+        , fFidelity(Fidelity::kPreferLossless)
+        , fBitDepth(BitDepth::kAsIs)
+        , fPremulBehavior(PremulBehavior::kGammaCorrect)
+    {}
+};
+
+/**
+ * Encode |src| in the given binary image format.
+ *
+ * @param  src     Pixels to encode.
+ * @param  opts    Options for the encode.
+ *
+ * @return         On success, returns the encoded data.  On failure, returns nullptr.
+ */
+SK_API sk_sp<SkData> SkEncodeImage(const SkPixmap& src, const SkEncodeOptions& opts);
+
 //TODO(halcanary):  remove this code once all changes land.
 #ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
 class SkImageEncoder {
