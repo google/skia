@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_32b0ae23",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-06T22:46:33Z",
+      "side": 1,
+      "message": "I can image more options that we might want to add.  I can also imagine deleting some of these that we\u0027re not using (yet).",
+      "range": {
+        "startLine": 42,
+        "startChar": 14,
+        "endLine": 42,
+        "endChar": 29
+      },
+      "revId": "3c88b5971a25026d9131ff3fd644eb5e8cda3509",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
