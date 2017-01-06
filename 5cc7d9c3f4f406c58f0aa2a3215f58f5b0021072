@@ -22,6 +22,24 @@
       "revId": "5cc7d9c3f4f406c58f0aa2a3215f58f5b0021072",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d760061e_0516940f",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-06T01:36:43Z",
+      "side": 1,
+      "message": "I\u0027ve removed this change.  I think there is a better fix for this.",
+      "parentUuid": "d760061e_06ea1f2d",
+      "revId": "5cc7d9c3f4f406c58f0aa2a3215f58f5b0021072",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
