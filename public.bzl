@@ -139,6 +139,9 @@ BASE_SRCS_ALL = struct(
 
         # Defines main.
         "src/sksl/SkSLMain.cpp",
+
+        # Experiment.  Google3 doesn't have the library it needs.
+        "src/opts/SkXbyak.cpp",
     ],
 )
 
