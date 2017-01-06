@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_2f112974",
+        "filename": "include/core/SkClipStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "Probably, added a guard",
+      "parentUuid": "578ed681_0f354534",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_2f8609a7",
         "filename": "include/core/SkClipStack.h",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-06T16:48:23Z",
       "side": 1,
       "message": "// Add a message to be sent when this clipElement is popped off the clip stack. This is to remove unique keys off of generated clip masks.\n\n?",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_cffe5df6",
+        "filename": "include/core/SkClipStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_2f8609a7",
       "revId": "948224b78034715add8e56317bd11690d890ffec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_ef03212b",
+        "filename": "include/core/SkClipStack.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "yay for not having to spend time maintaining it. They weren\u0027t even all aligned at the same column prior.",
+      "parentUuid": "578ed681_2f32894d",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_2fd4c9a2",
         "filename": "src/gpu/GrClipStackClip.cpp",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-06T16:48:23Z",
       "side": 1,
       "message": "Maybe create_clip_mask_key ?",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_8ff85509",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_2fd4c9a2",
       "revId": "948224b78034715add8e56317bd11690d890ffec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_affd19f8",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_af999908",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_8f94d5d1",
         "filename": "tests/ClipStackTest.cpp",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-06T16:48:23Z",
       "side": 1,
       "message": "// Verify that clip masks are freed up when the clip state that generated them goes away\n\n?",
+      "revId": "948224b78034715add8e56317bd11690d890ffec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_6ff0911e",
+        "filename": "tests/ClipStackTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_8f94d5d1",
       "revId": "948224b78034715add8e56317bd11690d890ffec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
