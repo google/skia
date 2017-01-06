@@ -13,8 +13,8 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkMallocPixelRef.h"
-#include "SkPicture.h"
-#include "SkPicture.h"
+#include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPicture.h"
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
@@ -25,65 +25,91 @@
 
 #include "sk_tool_utils.h"
 
-DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
+DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the contents will be used as the fuzz bytes. If a directory, all files in the directory will be used as fuzz bytes for the fuzzer, one at a time.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
 
 DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale', 'image_mode', 'skp', 'icc', or 'api'.");
 DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a PNG with this name.");
 
-static int printUsage(const char* name) {
-    SkDebugf("Usage: %s -t <type> -b <path/to/file> [-n api-to-fuzz]\n", name);
+static int printUsage() {
+    SkDebugf("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n");
     return 1;
 }
+static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
-static int fuzz_api(sk_sp<SkData>);
-static int fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
-static int fuzz_skp(sk_sp<SkData>);
-static int fuzz_icc(sk_sp<SkData>);
-static int fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_api(sk_sp<SkData>);
+static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
+static void fuzz_skp(sk_sp<SkData>);
+static void fuzz_icc(sk_sp<SkData>);
+static void fuzz_color_deserialize(sk_sp<SkData>);
 #if SK_SUPPORT_GPU
-static int fuzz_sksl2glsl(sk_sp<SkData>);
+static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
+
+    if (!sk_isdir(path)) {
+        return fuzz_file(path);
+    }
+
+    SkOSFile::Iter it(path);
+    for (SkString file; it.next(&file); ) {
+        SkString p = SkOSPath::Join(path, file.c_str());
+        SkDebugf("Fuzzing %s\n", p.c_str());
+        int rv = fuzz_file(p.c_str());
+        if (rv != 0) {
+            return rv;
+        }
+    }
+    return 0;
+}
+
+static int fuzz_file(const char* path) {
     sk_sp<SkData> bytes(SkData::MakeFromFileName(path));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path);
-        return 2;
+        return 1;
     }
 
     uint8_t option = calculate_option(bytes.get());
 
     if (!FLAGS_type.isEmpty()) {
         if (0 == strcmp("api", FLAGS_type[0])) {
-            return fuzz_api(bytes);
+            fuzz_api(bytes);
+            return 0;
         }
         if (0 == strcmp("color_deserialize", FLAGS_type[0])) {
-            return fuzz_color_deserialize(bytes);
+            fuzz_color_deserialize(bytes);
+            return 0;
         }
         if (0 == strcmp("icc", FLAGS_type[0])) {
-            return fuzz_icc(bytes);
+            fuzz_icc(bytes);
+            return 0;
         }
         if (0 == strcmp("image_scale", FLAGS_type[0])) {
-            return fuzz_img(bytes, option, 0);
+            fuzz_img(bytes, option, 0);
+            return 0;
         }
         if (0 == strcmp("image_mode", FLAGS_type[0])) {
-            return fuzz_img(bytes, 0, option);
+            fuzz_img(bytes, 0, option);
+            return 0;
         }
         if (0 == strcmp("skp", FLAGS_type[0])) {
-            return fuzz_skp(bytes);
+            fuzz_skp(bytes);
+            return 0;
         }
 #if SK_SUPPORT_GPU
         if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
-            return fuzz_sksl2glsl(bytes);
+            fuzz_sksl2glsl(bytes);
+            return 0;
         }
 #endif
     }
-    return printUsage(argv[0]);
+    return printUsage();
 }
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
@@ -100,7 +126,7 @@ static uint8_t calculate_option(SkData* bytes) {
     return total;
 }
 
-int fuzz_api(sk_sp<SkData> bytes) {
+static void fuzz_api(sk_sp<SkData> bytes) {
     const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
 
     for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
@@ -110,7 +136,7 @@ int fuzz_api(sk_sp<SkData> bytes) {
             Fuzz fuzz(bytes);
             fuzzable.fn(&fuzz);
             SkDebugf("[terminated] Success!\n");
-            return 0;
+            return;
         }
     }
 
@@ -119,7 +145,6 @@ int fuzz_api(sk_sp<SkData> bytes) {
         auto fuzzable = r->factory();
         SkDebugf("\t%s\n", fuzzable.name);
     }
-    return 1;
 }
 
 static void dump_png(SkBitmap bitmap) {
@@ -129,7 +154,7 @@ static void dump_png(SkBitmap bitmap) {
     }
 }
 
-int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
+static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     // We can scale 1x, 2x, 4x, 8x, 16x
     scale = scale % 5;
     float fscale = (float)pow(2.0f, scale);
@@ -144,7 +169,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(bytes));
     if (nullptr == codec.get()) {
         SkDebugf("[terminated] Couldn't create codec.\n");
-        return 3;
+        return;
     }
 
     SkImageInfo decodeInfo = codec->getInfo();
@@ -177,7 +202,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     if (!bitmap.tryAllocPixels(decodeInfo, &zeroFactory, colorTable.get())) {
         SkDebugf("[terminated] Could not allocate memory.  Image might be too large (%d x %d)",
                  decodeInfo.width(), decodeInfo.height());
-        return 4;
+        return;
     }
 
     switch (mode) {
@@ -196,7 +221,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     raise(SIGSEGV);
                 default:
                     SkDebugf("[terminated] Couldn't getPixels.\n");
-                    return 6;
+                    return;
             }
             break;
         }
@@ -204,7 +229,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
                                                                 colorCountPtr)) {
                     SkDebugf("[terminated] Could not start scanline decoder\n");
-                    return 7;
+                    return;
                 }
 
             void* dst = bitmap.getAddr(0, 0);
@@ -236,7 +261,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
                 // to run this test for image types that do not have this scanline ordering.
                 SkDebugf("[terminated] Could not start top-down scanline decoder\n");
-                return 8;
+                return;
             }
 
             for (int i = 0; i < numStripes; i += 2) {
@@ -257,7 +282,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     colorPtr, colorCountPtr);
             if (SkCodec::kSuccess != startResult) {
                 SkDebugf("[terminated] Failed to restart scanline decoder with same parameters.\n");
-                return 9;
+                return;
             }
             for (int i = 0; i < numStripes; i += 2) {
                 // Read a stripe
@@ -283,7 +308,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             if (divisor > W || divisor > H) {
                 SkDebugf("[terminated] Cannot codec subset: divisor %d is too big "
                          "with dimensions (%d x %d)\n", divisor, W, H);
-                return 10;
+                return;
             }
             // subset dimensions
             // SkWebpCodec, the only one that supports subsets, requires even top/left boundaries.
@@ -316,7 +341,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
                                                 nullptr, nullptr)) {
                         SkDebugf("[terminated] Could not install pixels.\n");
-                        return 11;
+                        return;
                     }
                     const SkCodec::Result result = codec->getPixels(decodeInfo, pixels, rowBytes,
                             &opts, colorPtr, colorCountPtr);
@@ -329,7 +354,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                             if (0 == (x|y)) {
                                 // First subset is okay to return unimplemented.
                                 SkDebugf("[terminated] Incompatible colortype conversion\n");
-                                return 12;
+                                return;
                             }
                             // If the first subset succeeded, a later one should not fail.
                             // fall through to failure
@@ -337,7 +362,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                             if (0 == (x|y)) {
                                 // First subset is okay to return unimplemented.
                                 SkDebugf("[terminated] subset codec not supported\n");
-                                return 13;
+                                return;
                             }
                             // If the first subset succeeded, why would a later one fail?
                             // fall through to failure
@@ -346,7 +371,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                                                   "with dimensions (%d x %d)\t error %d\n",
                                                   x, y, decodeInfo.width(), decodeInfo.height(),
                                                   W, H, result);
-                            return 14;
+                            return;
                     }
                     // translate by the scaled height.
                     top += decodeInfo.height();
@@ -371,7 +396,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 if (SkCodec::kSuccess != result) {
                     SkDebugf("[terminated] failed to start incremental decode "
                              "in frame %d with error %d\n", i, result);
-                    return 15;
+                    return;
                 }
 
                 result = codec->incrementalDecode();
@@ -385,7 +410,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 } else {
                     SkDebugf("[terminated] incremental decode failed with "
                              "error %d\n", result);
-                    return 16;
+                    return;
                 }
             }
             SkDebugf("[terminated] Success!\n");
@@ -396,16 +421,15 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     }
 
     dump_png(bitmap);
-    return 0;
 }
 
-int fuzz_skp(sk_sp<SkData> bytes) {
+static void fuzz_skp(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);
     SkDebugf("Decoding\n");
     sk_sp<SkPicture> pic(SkPicture::MakeFromStream(&stream));
     if (!pic) {
         SkDebugf("[terminated] Couldn't decode as a picture.\n");
-        return 3;
+        return;
     }
     SkDebugf("Rendering\n");
     SkBitmap bitmap;
@@ -417,31 +441,28 @@ int fuzz_skp(sk_sp<SkData> bytes) {
     canvas.drawPicture(pic);
     SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
-    return 0;
 }
 
-int fuzz_icc(sk_sp<SkData> bytes) {
+static void fuzz_icc(sk_sp<SkData> bytes) {
     sk_sp<SkColorSpace> space(SkColorSpace::MakeICC(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't decode ICC.\n");
-        return 1;
+        return;
     }
     SkDebugf("[terminated] Success! Decoded ICC.\n");
-    return 0;
 }
 
-int fuzz_color_deserialize(sk_sp<SkData> bytes) {
+static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
     sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't deserialize Colorspace.\n");
-        return 1;
+        return;
     }
     SkDebugf("[terminated] Success! deserialized Colorspace.\n");
-    return 0;
 }
 
 #if SK_SUPPORT_GPU
-int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
+static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     SkString output;
     SkSL::Program::Settings settings;
@@ -452,10 +473,9 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
                                                               settings);
     if (!program || !compiler.toGLSL(*program, &output)) {
         SkDebugf("[terminated] Couldn't compile input.\n");
-        return 1;
+        return;
     }
     SkDebugf("[terminated] Success! Compiled input.\n");
-    return 0;
 }
 #endif
 
