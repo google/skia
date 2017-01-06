@@ -22,6 +22,24 @@
       "revId": "d43709574c4a58846b47d03351d1315c6ce73b91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_92c2baee",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-06T20:54:49Z",
+      "side": 1,
+      "message": "It is so I can forward declare GrVkUniformBuffer in the header. Since it now gets wrapped in a unique_ptr, the compiler adds a default dtor and ctor that try and call sizeof(GrVkUniformBuffer). Option 2 would be to move these back into the header and include GrVkUniformbuffer there instead of here.",
+      "parentUuid": "578ed681_f2a46659",
+      "revId": "d43709574c4a58846b47d03351d1315c6ce73b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
