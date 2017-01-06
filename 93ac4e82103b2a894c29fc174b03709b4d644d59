@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_ef1a4195",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:04:42Z",
+      "side": 1,
+      "message": "ha, I added that line in order to set a breakpoint there... removed.",
+      "parentUuid": "578ed681_cf2c1dca",
+      "revId": "93ac4e82103b2a894c29fc174b03709b4d644d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_8f2615e6",
         "filename": "tests/ResourceCacheTest.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-06T17:01:45Z",
       "side": 1,
       "message": "rm tagIdx here ?",
+      "revId": "93ac4e82103b2a894c29fc174b03709b4d644d59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_8f1ff583",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-06T17:04:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_8f2615e6",
       "revId": "93ac4e82103b2a894c29fc174b03709b4d644d59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
