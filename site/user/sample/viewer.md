@@ -22,7 +22,13 @@ The Viewer can be built using the regular GN build process, e.g.
 
 Android
 -------
-GN support for the Android Viewer is in the process of being addressed.
+The Viewer APK must be built by gradle which can be invoked on the command line with the following script...
+
+    ./platform_tools/android/bin/android_build_app -C <out_dir> viewer
+
+*   **out_dir** is the ninja out directory that you want to use to build the app
+
+Upon completion of the script the APK can be found at <out_dir>/viewer.apk
 
 iOS
 ---
