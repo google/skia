@@ -66,7 +66,6 @@ public:
     SkXMLStreamWriter(SkWStream*);
     virtual ~SkXMLStreamWriter();
     void writeHeader() override;
-    SkDEBUGCODE(static void UnitTest();)
 
 protected:
     void onStartElementLen(const char elem[], size_t length) override;

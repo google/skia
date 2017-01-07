@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkDOM_DEFINED
 #define SkDOM_DEFINED
@@ -44,7 +42,7 @@ public:
         kElement_Type,
         kText_Type
     };
-    Type    getType(const Node*) const;
+    Type getType(const Node*) const;
 
     const char* getName(const Node*) const;
     const Node* getFirstChild(const Node*, const char elem[] = NULL) const;
@@ -66,8 +64,7 @@ public:
     bool findBool(const Node*, const char name[], bool*) const;
     int  findList(const Node*, const char name[], const char list[]) const;
 
-    bool findScalar(const Node* node, const char name[], SkScalar value[]) const
-    {
+    bool findScalar(const Node* node, const char name[], SkScalar value[]) const {
         return this->findScalars(node, name, value, 1);
     }
 
@@ -85,8 +82,6 @@ public:
         const Attr* fAttr;
         const Attr* fStop;
     };
-
-    SkDEBUGCODE(void dump(const Node* node = NULL, int tabLevel = 0) const;)
 
 private:
     SkChunkAlloc                 fAlloc;
