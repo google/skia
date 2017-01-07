@@ -108,6 +108,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
 
     // ImageFilter
     SkImageFilter::InitializeFlattenables();
+    SkArithmeticImageFilter::InitializeFlattenables();
     SkXfermodeImageFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDilateImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDisplacementMapEffect)
