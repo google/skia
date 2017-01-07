@@ -46,7 +46,7 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
                                                         sk_sp<GrFragmentProcessor>) const override;
-    sk_sp<GrXPFactory> asXPFactory() const override;
+    const GrXPFactory* asXPFactory() const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

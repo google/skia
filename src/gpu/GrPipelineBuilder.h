@@ -145,21 +145,15 @@ public:
      * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
      * and the dst color are blended.
      */
-    void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
-        fXPFactory = std::move(xpFactory);
-    }
+    void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
 
     /**
      * Sets a GrXPFactory that disables color writes to the destination. This is useful when
      * rendering to the stencil buffer.
      */
-    void setDisableColorXPFactory() {
-        fXPFactory = GrDisableColorXPFactory::Make();
-    }
+    void setDisableColorXPFactory() { fXPFactory = GrDisableColorXPFactory::Get(); }
 
-    const GrXPFactory* getXPFactory() const {
-        return fXPFactory.get();
-    }
+    const GrXPFactory* getXPFactory() const { return fXPFactory; }
 
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
@@ -304,7 +298,7 @@ private:
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
     GrDrawFace                              fDrawFace;
-    mutable sk_sp<GrXPFactory>              fXPFactory;
+    const GrXPFactory*                      fXPFactory;
     FragmentProcessorArray                  fColorFragmentProcessors;
     FragmentProcessorArray                  fCoverageFragmentProcessors;
 
