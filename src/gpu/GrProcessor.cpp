@@ -32,16 +32,14 @@ GrProcessorTestFactory<GrFragmentProcessor>::GetFactories() {
 }
 
 template<>
-SkTArray<GrProcessorTestFactory<GrXPFactory>*, true>*
-GrProcessorTestFactory<GrXPFactory>::GetFactories() {
-    static SkTArray<GrProcessorTestFactory<GrXPFactory>*, true> gFactories;
-    return &gFactories;
-}
-
-template<>
 SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true>*
 GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
     static SkTArray<GrProcessorTestFactory<GrGeometryProcessor>*, true> gFactories;
+    return &gFactories;
+}
+
+SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() {
+    static SkTArray<GrXPFactoryTestFactory*, true> gFactories;
     return &gFactories;
 }
 
@@ -72,8 +70,7 @@ void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
     }
 }
 
-template<>
-void GrProcessorTestFactory<GrXPFactory>::VerifyFactoryCount() {
+void GrXPFactoryTestFactory::VerifyFactoryCount() {
     if (kXPFactoryCount != GetFactories()->count()) {
         SkDebugf("\nExpected %d xp factory factories, found %d.\n",
                  kXPFactoryCount, GetFactories()->count());
@@ -229,8 +226,3 @@ GrProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexture> texture, Gr
             break;
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Initial static variable from GrXPFactory
-int32_t GrXPFactory::gCurrXPFClassID = GrXPFactory::kIllegalXPFClassID;

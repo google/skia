@@ -21,13 +21,18 @@ class GrProcOptInfo;
  */
 class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
-    static sk_sp<GrXPFactory> Make(SkRegion::Op regionOp, bool invertCoverage = false);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
+    ~GrCoverageSetOpXPFactory() = default;
+#pragma clang diagnostic pop
+
+    static const GrXPFactory* Get(SkRegion::Op regionOp, bool invertCoverage = false);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
 
 private:
-    GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
+    constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps&,
                                            const GrPipelineAnalysis&,
@@ -36,11 +41,6 @@ private:
 
     bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override {
         return false;
-    }
-
-    bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        const GrCoverageSetOpXPFactory& xpf = xpfBase.cast<GrCoverageSetOpXPFactory>();
-        return fRegionOp == xpf.fRegionOp;
     }
 
     GR_DECLARE_XP_FACTORY_TEST;
