@@ -718,7 +718,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(!args.fShape->mayBeInverseFilledAfterStyling());
 
     GrPaint paint;
-    paint.setXPFactory(GrDisableColorXPFactory::Make());
+    paint.setXPFactory(GrDisableColorXPFactory::Get());
 
     this->internalDrawPath(args.fRenderTargetContext, paint, args.fAAType,
                            GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
