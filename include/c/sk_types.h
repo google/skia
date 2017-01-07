@@ -546,6 +546,14 @@ typedef struct sk_colortable_t sk_colortable_t;
 typedef struct sk_pixelref_factory_t sk_pixelref_factory_t;
 
 typedef enum {
+    BOX_SK_BITMAP_SCALER_RESIZE_METHOD,
+    TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,
+    LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,
+    HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,
+    MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,
+} sk_bitmapscaler_resizemethod_t;
+
+typedef enum {
     TOP_LEFT_GR_SURFACE_ORIGIN = 1,
     BOTTOM_LEFT_GR_SURFACE_ORIGIN,
 } gr_surfaceorigin_t;

@@ -7,6 +7,7 @@
 
 #include "sk_types_priv.h"
 #include "SkShadowMaskFilter.h"
+#include "SkBitmapScaler.h"
 
 #if __cplusplus >= 199711L
 
@@ -288,6 +289,13 @@ static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   
 // gr_backend_t
 static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
+
+// sk_bitmapscaler_resizemethod_t
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_TRIANGLE   == (int)TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_LANCZOS3   == (int)LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_HAMMING    == (int)HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,    ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
+static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_MITCHELL   == (int)MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
 
 // SkBudgeted
 static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));

@@ -25,6 +25,8 @@ SK_API size_t sk_pixmap_get_row_bytes(sk_pixmap_t* cpixmap);
 SK_API const void* sk_pixmap_get_pixels(sk_pixmap_t* cpixmap);
 SK_API sk_colortable_t* sk_pixmap_get_colortable(sk_pixmap_t* cpixmap);
 
+SK_API bool sk_bitmapscaler_resize(const sk_pixmap_t* dst, const sk_pixmap_t* src, sk_bitmapscaler_resizemethod_t method);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

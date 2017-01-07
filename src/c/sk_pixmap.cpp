@@ -6,6 +6,7 @@
  */
 
 #include "SkPixmap.h"
+#include "SkBitmapScaler.h"
 
 #include "sk_pixmap.h"
 
@@ -61,4 +62,11 @@ const void* sk_pixmap_get_pixels(sk_pixmap_t* cpixmap)
 sk_colortable_t* sk_pixmap_get_colortable(sk_pixmap_t* cpixmap)
 {
     return ToColorTable(AsPixmap(cpixmap)->ctable());
+}
+
+bool sk_bitmapscaler_resize(const sk_pixmap_t* cdst, const sk_pixmap_t* csrc, sk_bitmapscaler_resizemethod_t method)
+{
+    const SkPixmap& dst = AsPixmap(*cdst);
+    const SkPixmap& src = AsPixmap(*csrc);
+    return SkBitmapScaler::Resize(dst, src, (SkBitmapScaler::ResizeMethod)method);
 }
