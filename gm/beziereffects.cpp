@@ -193,7 +193,7 @@ protected:
                     canvas->drawRect(bounds, boundsPaint);
 
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
                     std::unique_ptr<GrDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, klmSigns[c]);
@@ -326,7 +326,7 @@ protected:
                     canvas->drawRect(bounds, boundsPaint);
 
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
                     std::unique_ptr<GrDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, 1.f);
@@ -540,7 +540,7 @@ protected:
                     canvas->drawRect(bounds, boundsPaint);
 
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
