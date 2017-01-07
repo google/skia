@@ -14,12 +14,14 @@
 
 class GrProcOptInfo;
 
+// See the comment above GrXPFactory's definition about this warning suppression.
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
 class GrDisableColorXPFactory : public GrXPFactory {
 public:
-    static sk_sp<GrXPFactory> Make() {
-        static GrDisableColorXPFactory gDisableColorXPFactory;
-        return sk_sp<GrXPFactory>(SkRef(&gDisableColorXPFactory));
-    }
+    static const GrXPFactory* Get();
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor* blendedColor) const override {
@@ -28,7 +30,7 @@ public:
     }
 
 private:
-    GrDisableColorXPFactory();
+    constexpr GrDisableColorXPFactory() {}
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
@@ -39,13 +41,17 @@ private:
         return false;
     }
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        return true;
-    }
-
     GR_DECLARE_XP_FACTORY_TEST;
 
     typedef GrXPFactory INHERITED;
 };
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic pop
+#endif
+
+inline const GrXPFactory* GrDisableColorXPFactory::Get() {
+    static constexpr const GrDisableColorXPFactory gDisableColorXPFactory;
+    return &gDisableColorXPFactory;
+}
 
 #endif
