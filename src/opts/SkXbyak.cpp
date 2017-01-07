@@ -33,16 +33,15 @@ namespace {
             return nullptr;
         }
 
-        Pipeline(const SkRasterPipeline::Stage* stages, int n, bool* supported) {
+        Pipeline(const SkRasterPipeline::Stage* stages, int nstages, bool* supported) {
             // Set up some register name aliases.
-            // y = rsi, tail = rdx;
-            auto x = rdi;
+            // y = rsi
+            auto x = rdi, n = rdx;
             auto r = ymm0,  g = ymm1,  b = ymm2,  a = ymm3,
                 dr = ymm4, dg = ymm5, db = ymm6, da = ymm7;
 
-            Xbyak::Label floatOneStorage;
-
-            //trap();
+            Xbyak::Label floatOneStorage,
+                         start;
 
             // TODO: set up (x+0.5,y+0.5) in (r,g)
             vxorps(r,r);
@@ -54,7 +53,14 @@ namespace {
             vxorps(db,db);
             vxorps(da,da);
 
-            for (int i = 0; i < n; i++) {
+            auto zero = ymm14,
+                  one = ymm15;
+            vxorps(zero, zero);
+            vbroadcastss(one, ptr[rip + floatOneStorage]);
+
+            L(start);
+            //trap();
+            for (int i = 0; i < nstages; i++) {
                 switch(stages[i].stage) {
                     case SkRasterPipeline::load_f16:
                         mov(rax, (size_t)stages[i].ctx);
@@ -77,11 +83,9 @@ namespace {
                         break;
 
                     case SkRasterPipeline::unpremul:
-                        vxorps(ymm8, ymm8);                              // ymm8:  0
-                        vcmpeqps(ymm10, ymm8, a);                        // ymm10: a == 0
-                        vbroadcastss(ymm9, ptr[rip + floatOneStorage]);  // ymm9:  1.0f
-                        vdivps(ymm11, ymm9, a);                          // ymm11: 1/a
-                        vblendvps(ymm10, ymm10, ymm8, ymm11);            // ymm10: (a==0) ? 0 : 1/a
+                        vcmpeqps(ymm10, zero, a);              // ymm10: a == 0
+                        vdivps(ymm11, one, a);                 // ymm11: 1/a
+                        vblendvps(ymm10, ymm10, zero, ymm11);  // ymm10: (a==0) ? 0 : 1/a
                         vmulps(r, r, ymm10);
                         vmulps(g, g, ymm10);
                         vmulps(b, b, ymm10);
@@ -112,6 +116,9 @@ namespace {
                         return;
                 }
             }
+            add(x, 8);
+            cmp(x, n);
+            jl(start);
 
             vzeroupper();
             ret();
@@ -140,14 +147,7 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::jit() const {
             return [pipeline] (size_t x, size_t y, size_t n) {
                 auto call = pipeline->getCode<void(*)(size_t, size_t, size_t)>();
                 //printf("fn addr: %p\n", (void*)call);
-                while (n >= 8) {
-                    call(x,y,0);
-                    x += 8;
-                    n -= 8;
-                }
-                if (n) {
-                    call(x,y,n);
-                }
+                call(x,y,n);
             };
         }
 #if 0
