@@ -7,6 +7,7 @@
 
 #include "gm.h"
 
+#include "SkArithmeticImageFilter.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -14,13 +15,13 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkMergeImageFilter.h"
+#include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
-#include "SkMergeImageFilter.h"
-#include "SkMorphologyImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
 class ImageFiltersGraphGM : public skiagm::GM {
@@ -88,11 +89,8 @@ protected:
                                                                         matrixFilter));
 
             SkPaint paint;
-            paint.setImageFilter(
-                SkXfermodeImageFilter::MakeArithmetic(0, 1, 1, 0, true,
-                                            std::move(matrixFilter),
-                                            std::move(offsetFilter),
-                                            nullptr));
+            paint.setImageFilter(SkArithmeticImageFilter::Make(
+                    0, 1, 1, 0, true, std::move(matrixFilter), std::move(offsetFilter), nullptr));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
