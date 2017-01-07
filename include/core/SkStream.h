@@ -366,20 +366,6 @@ private:
     typedef SkWStream INHERITED;
 };
 
-class SK_API SkMemoryWStream : public SkWStream {
-public:
-    SkMemoryWStream(void* buffer, size_t size);
-    bool write(const void* buffer, size_t size) override;
-    size_t bytesWritten() const override { return fBytesWritten; }
-
-private:
-    char*   fBuffer;
-    size_t  fMaxLength;
-    size_t  fBytesWritten;
-
-    typedef SkWStream INHERITED;
-};
-
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();

@@ -146,18 +146,16 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
 
 
     size_t i;
-    char buffer[sizeof(sizes) * 4];
+    SkDynamicMemoryWStream wstream;
 
-    SkMemoryWStream wstream(buffer, sizeof(buffer));
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         bool success = wstream.writePackedUInt(sizes[i]);
         REPORTER_ASSERT(reporter, success);
     }
-    wstream.flush();
 
-    SkMemoryStream rstream(buffer, sizeof(buffer));
+    std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
-        size_t n = rstream.readPackedUInt();
+        size_t n = rstream->readPackedUInt();
         if (sizes[i] != n) {
             ERRORF(reporter, "sizes:%x != n:%x\n", i, sizes[i], n);
         }

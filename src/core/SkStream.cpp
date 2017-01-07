@@ -431,23 +431,6 @@ void SkFILEWStream::fsync()
 
 ////////////////////////////////////////////////////////////////////////
 
-SkMemoryWStream::SkMemoryWStream(void* buffer, size_t size)
-    : fBuffer((char*)buffer), fMaxLength(size), fBytesWritten(0)
-{
-}
-
-bool SkMemoryWStream::write(const void* buffer, size_t size) {
-    size = SkTMin(size, fMaxLength - fBytesWritten);
-    if (size > 0) {
-        memcpy(fBuffer + fBytesWritten, buffer, size);
-        fBytesWritten += size;
-        return true;
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////
-
 static inline void sk_memcpy_4bytes(void* dst, const void* src, size_t size) {
     if (size == 4) {
         memcpy(dst, src, 4);
