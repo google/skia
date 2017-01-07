@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
 """Top-level presubmit script for Skia.
 
 See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
