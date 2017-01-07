@@ -20,7 +20,7 @@ class GrXPFactory;
  */
 namespace GrCustomXfermode {
     bool IsSupportedMode(SkBlendMode mode);
-    sk_sp<GrXPFactory> MakeXPFactory(SkBlendMode mode);
+    const GrXPFactory* Get(SkBlendMode mode);
 };
 
 #endif

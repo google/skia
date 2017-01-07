@@ -88,11 +88,6 @@ void DisableColorXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrDisableColorXPFactory::GrDisableColorXPFactory() {
-    this->initClassID<GrDisableColorXPFactory>();
-}
-
 GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                                 const GrPipelineAnalysis& analysis,
                                                                 bool hasMixedSamples,
@@ -103,6 +98,6 @@ GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& ca
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
 
-sk_sp<GrXPFactory> GrDisableColorXPFactory::TestCreate(GrProcessorTestData*) {
-    return GrDisableColorXPFactory::Make();
+const GrXPFactory* GrDisableColorXPFactory::TestGet(GrProcessorTestData*) {
+    return GrDisableColorXPFactory::Get();
 }

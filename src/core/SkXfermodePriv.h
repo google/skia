@@ -246,7 +246,7 @@ public:
         The xfermode will return a factory for which the caller will get a ref. It is up
         to the caller to install it. XferProcessors cannot use a background texture.
       */
-    virtual sk_sp<GrXPFactory> asXPFactory() const;
+    virtual const GrXPFactory* asXPFactory() const;
 #endif
 
     SK_TO_STRING_PUREVIRT()
