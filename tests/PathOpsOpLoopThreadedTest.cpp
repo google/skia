@@ -76,7 +76,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
             pathStr.appendf("    testPathOp(reporter, path, pathB, kIntersect_SkPathOp,"
                     " filename);\n");
             pathStr.appendf("}\n");
-            outputProgress(state.fPathStr, pathStr.c_str(), kIntersect_SkPathOp);
+            state.outputProgress(pathStr.c_str(), kIntersect_SkPathOp);
         }
         testPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, "loops");
                 }

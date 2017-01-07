@@ -49,8 +49,6 @@ extern bool testSimplifyFuzz(skiatest::Reporter* reporter, const SkPath& path,
                                        const char* filename);
 
 void initializeTests(skiatest::Reporter* reporter, const char* testName);
-void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType );
-void outputProgress(char* ramStr, const char* pathStr, SkPathOp op);
 
 void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
                 void (*firstTest)(skiatest::Reporter* , const char* filename),

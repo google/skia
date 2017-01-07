@@ -61,12 +61,12 @@ static void testSimplifyQuadsMain(PathOpsThreadState* data)
                         pathStr.appendf("    path.close();\n");
                         pathStr.appendf("    testSimplify(reporter, path, filename);\n");
                         pathStr.appendf("}\n");
-                        outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kWinding_FillType);
+                        state.outputProgress(pathStr.c_str(), SkPath::kWinding_FillType);
                     }
                     testSimplify(path, false, out, state, pathStr.c_str());
                     path.setFillType(SkPath::kEvenOdd_FillType);
                     if (state.fReporter->verbose()) {
-                        outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kEvenOdd_FillType);
+                        state.outputProgress(pathStr.c_str(), SkPath::kEvenOdd_FillType);
                     }
                     testSimplify(path, true, out, state, pathStr.c_str());
                 }
