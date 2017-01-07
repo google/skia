@@ -70,11 +70,6 @@ SkWStream::~SkWStream()
 {
 }
 
-void SkWStream::newline()
-{
-    this->write("\n", 1);
-}
-
 void SkWStream::flush()
 {
 }
@@ -784,31 +779,7 @@ SkStreamAsset* SkDynamicMemoryWStream::detachAsStream() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkDebugWStream::newline()
-{
-#if defined(SK_DEBUG)
-    SkDebugf("\n");
-    fBytesWritten++;
-#endif
-}
-
-bool SkDebugWStream::write(const void* buffer, size_t size)
-{
-#if defined(SK_DEBUG)
-    char* s = new char[size+1];
-    memcpy(s, buffer, size);
-    s[size] = 0;
-    SkDebugf("%s", s);
-    delete[] s;
-    fBytesWritten += size;
-#endif
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 
 static sk_sp<SkData> mmap_filename(const char path[]) {
     FILE* file = sk_fopen(path, kRead_SkFILE_Flag);
