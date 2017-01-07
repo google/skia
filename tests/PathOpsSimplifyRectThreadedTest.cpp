@@ -166,11 +166,11 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
         }
         path.close();
         if (state.fReporter->verbose()) {
-            outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kWinding_FillType);
+            state.outputProgress(pathStr.c_str(), SkPath::kWinding_FillType);
         }
         testSimplify(path, false, out, state, pathStr.c_str());
         if (state.fReporter->verbose()) {
-            outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kEvenOdd_FillType);
+            state.outputProgress(pathStr.c_str(), SkPath::kEvenOdd_FillType);
         }
         testSimplify(path, true, out, state, pathStr.c_str());
     }
