@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_d8670194",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-08T15:02:50Z",
+      "side": 1,
+      "message": "Since imageinfo *can* have null-colorspace, why do we need to pass in a suggested space? Why not just return null for the info\u0027s space for pictures?",
+      "range": {
+        "startLine": 437,
+        "startChar": 16,
+        "endLine": 437,
+        "endChar": 32
+      },
+      "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
