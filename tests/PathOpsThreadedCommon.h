@@ -80,8 +80,6 @@ public:
     void operator()() {
         SkBitmap bitmap;
         fState.fBitmap = &bitmap;
-        char pathStr[PATH_STR_SIZE];
-        fState.fPathStr = pathStr;
         SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
         (*fTestFun)(&fState);
     }
