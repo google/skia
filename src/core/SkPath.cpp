@@ -2054,7 +2054,7 @@ size_t SkPath::writeToMemory(void* storage) const {
 }
 
 size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    SkRBufferWithSizeCheck buffer(storage, length);
+    SkRBuffer buffer(storage, length);
 
     int32_t packed;
     if (!buffer.readS32(&packed)) {

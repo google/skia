@@ -428,3 +428,18 @@ DEF_TEST(StreamEmptyStreamMemoryBase, r) {
     std::unique_ptr<SkStreamAsset> asset(tmp.detachAsStream());
     REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
 }
+
+#include "SkBuffer.h"
+
+DEF_TEST(RBuffer, reporter) {
+    int32_t value = 0;
+    SkRBuffer buffer(&value, 4);
+    REPORTER_ASSERT(reporter, buffer.isValid());
+
+    int32_t tmp;
+    REPORTER_ASSERT(reporter, buffer.read(&tmp, 4));
+    REPORTER_ASSERT(reporter, buffer.isValid());
+
+    REPORTER_ASSERT(reporter, !buffer.read(&tmp, 4));
+    REPORTER_ASSERT(reporter, !buffer.isValid());
+}
