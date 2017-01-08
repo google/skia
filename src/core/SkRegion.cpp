@@ -1128,9 +1128,9 @@ size_t SkRegion::writeToMemory(void* storage) const {
 }
 
 size_t SkRegion::readFromMemory(const void* storage, size_t length) {
-    SkRBufferWithSizeCheck  buffer(storage, length);
-    SkRegion                tmp;
-    int32_t                 count;
+    SkRBuffer   buffer(storage, length);
+    SkRegion    tmp;
+    int32_t     count;
 
     if (buffer.readS32(&count) && (count >= 0) && buffer.read(&tmp.fBounds, sizeof(tmp.fBounds))) {
         if (count == 0) {
