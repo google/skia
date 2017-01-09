@@ -22,6 +22,24 @@
       "revId": "d4da0a9a54ed6abf220a014ca674d77b5fe05e66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_de4609c5",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-09T22:00:50Z",
+      "side": 1,
+      "message": "It should. We only restrict the set of formats we produce/return (from chooseCacheFormat) if you pass in a GrContext. The implementation of onBitDepthAndColorSpace isn\u0027t doing that, so you should always get F16 linear here.",
+      "parentUuid": "578ed681_fe62ed53",
+      "revId": "d4da0a9a54ed6abf220a014ca674d77b5fe05e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
