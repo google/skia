@@ -1661,7 +1661,7 @@ void sort_and_simplify(VertexList* vertices, Comparator& c, SkChunkAlloc& alloc)
     merge_sort(vertices, c);
     merge_coincident_vertices(vertices, c, alloc);
 #if LOGGING_ENABLED
-    for (Vertex* v = *vertices; v != nullptr; v = v->fNext) {
+    for (Vertex* v = vertices->fHead; v != nullptr; v = v->fNext) {
         static float gID = 0.0f;
         v->fID = gID++;
     }
