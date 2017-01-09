@@ -103,7 +103,7 @@ protected:
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
                         GrPaint grPaint;
-                        grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                        grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));

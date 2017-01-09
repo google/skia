@@ -17,7 +17,7 @@ bool SkBlendMode_AppendStages(SkBlendMode, SkRasterPipeline* = nullptr);
 
 #if SK_SUPPORT_GPU
 #include "GrXferProcessor.h"
-const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode);
+sk_sp<GrXPFactory> SkBlendMode_AsXPFactory(SkBlendMode);
 #endif
 
 

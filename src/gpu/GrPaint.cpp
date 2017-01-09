@@ -13,14 +13,13 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 GrPaint::GrPaint()
-        : fXPFactory(nullptr)
-        , fDisableOutputConversionToSRGB(false)
-        , fAllowSRGBInputs(false)
-        , fUsesDistanceVectorField(false)
-        , fColor(GrColor4f::OpaqueWhite()) {}
+    : fDisableOutputConversionToSRGB(false)
+    , fAllowSRGBInputs(false)
+    , fUsesDistanceVectorField(false)
+    , fColor(GrColor4f::OpaqueWhite()) {}
 
 void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage) {
-    fXPFactory = GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage);
+    fXPFactory = GrCoverageSetOpXPFactory::Make(regionOp, invertCoverage);
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,

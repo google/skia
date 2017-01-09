@@ -180,7 +180,7 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
@@ -220,7 +220,7 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                 std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);

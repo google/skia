@@ -29,7 +29,7 @@ GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
         fCoverageFragmentProcessors.emplace_back(SkRef(paint.getCoverageFragmentProcessor(i)));
     }
 
-    fXPFactory = paint.getXPFactory();
+    fXPFactory.reset(SkSafeRef(paint.getXPFactory()));
 
     this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAATypeIsHW(aaType));
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
