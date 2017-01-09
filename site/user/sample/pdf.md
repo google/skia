@@ -8,36 +8,33 @@ SkDocument and SkCanvas APIs.
 
     #include "SkDocument.h"
 
-    bool WritePDF(SkWStream* outputStream) {
+    void WritePDF(SkWStream* outputStream,
+                  const char* documentTitle,
+                  void (*writePage)(SkCanvas*, int page),
+                  int numberOfPages,
+                  SkSize pageSize) {
         SkDocument::PDFMetadata metadata;
-        metadata.fCreator  = "creator....";
-        metadata.fTitle    = "title...";
-        metadata.fAuthor   = "author...";
-        metadata.fSubject  = "subject...";
-        metadata.fKeywords = "keywords...";
-        metadata.fCreator  = "creator...";
-        SkTime::DateTime now = get_current_date_and_time();
-        metadata.fCreation.fEnabled = true;
+        metadata.fTitle = documentTitle;
+        metadata.fCreator = "Example WritePDF() Function";
+        SkTime::DateTime now;
+        SkTime::GetDateTime(&now);
+        metadata.fCreation.fEnabled  = true;
         metadata.fCreation.fDateTime = now;
-        metadata.fModified.fEnabled = true;
+        metadata.fModified.fEnabled  = true;
         metadata.fModified.fDateTime = now;
-        sk_sp<SkDocument> pdfDocument(SkDocument::MakePDF(
+        sk_sp<SkDocument> pdfDocument = SkDocument::MakePDF(
                 outputStream, SK_ScalarDefaultRasterDPI, metadata,
                 nullptr, true);
         assert(pdfDocument);
 
-        int numberOfPages = ....;
         for (int page = 0; page < numberOfPages; ++page) {
-            SkScalar pageWidth = ....;
-            SkScalar pageHeight = ....;
             SkCanvas* pageCanvas =
-                    pdfDocument->beginPage(pageWidth, pageHeight);
-
-            // ....insert canvas draw commands here....
-
+                    pdfDocument->beginPage(pageSize.width(),
+                                           pageSize.height());
+            writePage(pageCanvas, page);
             pdfDocument->endPage();
         }
-        return pdfDocument->close();
+        pdfDocument->close();
     }
 
 * * *
