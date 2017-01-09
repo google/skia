@@ -29,6 +29,7 @@ TEST_BUILDERS = {
       'Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android',
       'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
+      'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
       'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan',
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
@@ -44,6 +45,7 @@ TEST_BUILDERS = {
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN',
       'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+      'Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE',
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
       'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
@@ -346,6 +348,10 @@ def dm_flags(bot):
     blacklist('_ image _ abnormal.wbmp')
     blacklist(['msaa16', 'gm', '_', 'blurcircles'])
 
+  if 'Nexus5' in bot:
+    # skia:5876
+    blacklist(['msaa4', 'gm', '_', 'encode-platform'])
+
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
@@ -356,8 +362,9 @@ def dm_flags(bot):
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
 
-  if 'Nexus10' in bot: # skia:5509
-    match.append('~CopySurface')
+  if 'Nexus10' in bot:
+    match.append('~CopySurface') # skia:5509
+    match.append('~SRGBReadWritePixels') # skia:6097
 
   if 'ANGLE' in bot and 'Debug' in bot:
     match.append('~GLPrograms') # skia:4717
@@ -379,6 +386,9 @@ def dm_flags(bot):
   if 'Vulkan' in bot and 'GTX1070' in bot and 'Win' in bot:
     # skia:6092
     match.append('~GPUMemorySize')
+
+  if 'IntelIris540' in bot and 'ANGLE' in bot:
+    match.append('~IntTexture') # skia:6086
 
   if blacklisted:
     args.append('--blacklist')

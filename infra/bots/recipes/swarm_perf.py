@@ -38,8 +38,9 @@ TEST_BUILDERS = {
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
-      'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+      'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE',
       'Perf-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
+      'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
       'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
@@ -130,6 +131,8 @@ def nanobench_flags(bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
+  if 'IntelIris540' in bot and 'ANGLE' in bot:
+    match.append('~tile_image_filter_tiled_64')  # skia:6082
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
