@@ -22,6 +22,24 @@
       "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38864da7",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T14:04:13Z",
+      "side": 1,
+      "message": "That\u0027s fine with me.  You could also ask: why not just return the color space that was specified when creating the picture?\n\nnullptr seems good -  now that we are planning to tag all SkImages with SkColorSpaces there won\u0027t be any confusion between \"has no color space\" and \"legacy\" in terms of meaning.",
+      "parentUuid": "578ed681_d8670194",
+      "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
