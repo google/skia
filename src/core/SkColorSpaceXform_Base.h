@@ -34,6 +34,7 @@ private:
 enum SrcGamma {
     kLinear_SrcGamma,
     kTable_SrcGamma,
+    kSRGB_SrcGamma,
 };
 
 enum DstGamma {
@@ -76,10 +77,10 @@ private:
 };
 
 struct LoadTablesContext {
-    const uint32_t* fSrc;
-    const float*    fR;
-    const float*    fG;
-    const float*    fB;
+    const void*  fSrc;
+    const float* fR;
+    const float* fG;
+    const float* fB;
 };
 
 struct StoreTablesContext {
