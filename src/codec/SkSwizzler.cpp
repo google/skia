@@ -51,6 +51,16 @@ static void sample4(void* dst, const uint8_t* src, int width, int bpp, int delta
     }
 }
 
+static void sample8(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+    src += offset;
+    uint64_t* dst64 = (uint64_t*) dst;
+    for (int x = 0; x < width; x++) {
+        dst64[x] = *((const uint64_t*) src);
+        src += deltaSrc;
+    }
+}
+
 // kBit
 // These routines exclusively choose between white and black
 
@@ -808,7 +818,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                 break;
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
-                proc = &sample4;
+                SkASSERT(16 == encodedInfo.bitsPerComponent() ||
+                          8 == encodedInfo.bitsPerComponent());
+                proc = (8 == encodedInfo.bitsPerComponent()) ? &sample4 : &sample8;
                 fastProc = &copy;
                 break;
             default:
