@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_981f3984",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-09T14:24:35Z",
+      "side": 1,
+      "message": "Given the comment, I\u0027d suggest naming this kMaximum8, or something similar. It\u0027s minor, but if my source is 565, I\u0027m not shrinking.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_f831a51e",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-09T14:24:35Z",
+      "side": 1,
+      "message": "Even if you want to remove the comment, I\u0027d still leave the \u0027legacyColorSpace\u0027 stuff. I\u0027ve been trying to do that rather than just passing nullptr, to make it clearer what that parameter is, and easier to find these kinds of situations in the future.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
