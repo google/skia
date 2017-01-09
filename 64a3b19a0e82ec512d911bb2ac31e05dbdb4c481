@@ -84,6 +84,91 @@
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_78b7f5d6",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:34:02Z",
+      "side": 1,
+      "message": "If the user wants to set the colorspace to null before calling this function, let them.  Why change it for them?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_18c4a94d",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:34:02Z",
+      "side": 1,
+      "message": "Why does this API return a SkData?  This can be bad on Android, where memory is at a premium and clients may want to write to a file.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_58ba31c0",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:34:02Z",
+      "side": 1,
+      "message": "this is missing from chrome\u0027s implementation ( https://cs.chromium.org/chromium/src/skia/ext/skia_encode_image.cc ).  Do we use this API internally?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38c16d3e",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:34:02Z",
+      "side": 1,
+      "message": "seems like failing here is wrong.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_d8ae2180",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:34:02Z",
+      "side": 1,
+      "message": "You don\u0027t support other formats?  Why?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
