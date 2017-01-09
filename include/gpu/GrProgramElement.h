@@ -14,6 +14,9 @@
 class GrGpuResourceRef;
 
 /**
+ * Note: We are converting GrProcessor from ref counting to a single owner model using move
+ * semantics. This class will be removed.
+ *
  * Base class for GrProcessor. This exists to manage transitioning a GrProcessor from being owned by
  * a client to being scheduled for execution. While a GrProcessor is ref'ed by drawing code its
  * GrGpu resources must also be ref'ed to prevent incorrectly recycling them through the cache.
@@ -30,18 +33,13 @@ class GrGpuResourceRef;
  * safe to recycle a resource even though we still have buffered GrOps that read or write to the
  * the resource.
  *
- * To make this work all GrGpuResource objects owned by a GrProgramElement or derived classes
- * (either directly or indirectly) must be wrapped in a GrGpuResourceRef and registered with the
- * GrProgramElement using addGpuResource(). This allows the regular refs to be converted to pending
- * IO events when the program element is scheduled for deferred execution.
- *
- * Moreover, a GrProgramElement that in turn owns other GrProgramElements must convert its ownership
- * of its children to pending executions when its ref count reaches zero so that the GrGpuResources
- * owned by the children GrProgramElements are correctly converted from ownership by ref to
- * ownership by pending IO. Any GrProgramElement hierarchy is managed by subclasses which must
- * implement notifyRefCntIsZero() in order to convert refs of children to pending executions.
+ * To make this work the subclass, GrProcessor, implements addPendingIOs and pendingIOComplete. The
+ * former adds pending reads/writes as appropriate when the processor is recorded in a GrOpList. The
+ * latter removes them after the op list executes the operation. These calls must propagate to any
+ * children processors. Similarly, the subclass implements a removeRefs function in order to remove
+ * refs from resources once the processor is only owned for pending execution.
  */
-class GrProgramElement : public SkNoncopyable {
+template<typename DERIVED> class GrProgramElement : public SkNoncopyable {
 public:
     virtual ~GrProgramElement() {
         // fRefCnt can be one when an effect is created statically using GR_CREATE_STATIC_EFFECT
@@ -67,7 +65,7 @@ public:
                 delete this;
                 return;
             } else {
-                this->removeRefs();
+                static_cast<const DERIVED*>(this)->removeRefs();
             }
         }
         this->validate();
@@ -84,19 +82,11 @@ public:
 protected:
     GrProgramElement() : fRefCnt(1), fPendingExecutions(0) {}
 
-    /** Subclasses registers their resources using this function. It is assumed the GrProgramResouce
-        is and will remain owned by the subclass and this function will retain a raw ptr. Once a
-        GrGpuResourceRef is registered its setResource must not be called.
-     */
-    void addGpuResource(const GrGpuResourceRef* res) {
-        fGpuResources.push_back(res);
-    }
-
     void addPendingExecution() const {
         this->validate();
         SkASSERT(fRefCnt > 0);
         if (0 == fPendingExecutions) {
-            this->addPendingIOs();
+            static_cast<const DERIVED*>(this)->addPendingIOs();
         }
         ++fPendingExecutions;
         this->validate();
@@ -110,7 +100,7 @@ protected:
                 delete this;
                 return;
             } else {
-                this->pendingIOComplete();
+                static_cast<const DERIVED*>(this)->pendingIOComplete();
             }
         }
         this->validate();
@@ -121,15 +111,9 @@ private:
         executions. */
     virtual void notifyRefCntIsZero() const = 0;
 
-    void removeRefs() const;
-    void addPendingIOs() const;
-    void pendingIOComplete() const;
-
     mutable int32_t fRefCnt;
     // Count of deferred executions not yet issued to the 3D API.
     mutable int32_t fPendingExecutions;
-
-    SkSTArray<4, const GrGpuResourceRef*, true> fGpuResources;
 
     // Only this class can access addPendingExecution() and completedExecution().
     template <typename T> friend class GrPendingProgramElement;

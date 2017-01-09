@@ -79,7 +79,7 @@ private:
         called. */
     void pendingIOComplete() const;
 
-    friend class GrProgramElement;
+    friend class GrProcessor;
 
     GrGpuResource*  fResource;
     mutable bool    fOwnRef;

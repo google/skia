@@ -145,7 +145,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrPrimitiveProcessor.h",
   "$_src/gpu/GrProgramDesc.cpp",
   "$_src/gpu/GrProgramDesc.h",
-  "$_src/gpu/GrProgramElement.cpp",
   "$_src/gpu/GrProcessor.cpp",
   "$_src/gpu/GrProcessorUnitTest.cpp",
   "$_src/gpu/GrProcOptInfo.cpp",
