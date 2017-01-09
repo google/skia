@@ -89,6 +89,7 @@ public:
     GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
                               const SkDescriptor*, const GrStyle&);
 
+    using GrTextureProvider::createTexture;
     using GrTextureProvider::assignUniqueKeyToResource;
     using GrTextureProvider::findAndRefResourceByUniqueKey;
     using GrTextureProvider::findAndRefTextureByUniqueKey;
