@@ -29,38 +29,86 @@ namespace {
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
     };
 
-    // Short x86-64 instruction sequences that we'll use as glue to splice together Stages.
-    static const uint8_t   vzeroupper[] = { 0xc5, 0xf8, 0x77 };        // clear top half of all ymm
-    static const uint8_t          ret[] = { 0xc3 };                    // return
-    static const uint8_t  movabsq_rcx[] = { 0x48, 0xb9 };              // move next 8 bytes into rcx
-    static const uint8_t  movabsq_rdx[] = { 0x48, 0xba };              // move next 8 bytes into rdx
-    static const uint8_t   addq_8_rdi[] = { 0x48, 0x83, 0xc7, 0x08 };  // rdi += 8
-    static const uint8_t cmpq_rsi_rdi[] = { 0x48, 0x39, 0xf7 };        // rdi cmp? rsi
-    static const uint8_t      jb_near[] = { 0x0f, 0x8c };              // jump relative next 4 bytes
-                                                                       //  if cmp set unsigned < bit
-
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
     template <typename T>
-    void splice(SkWStream* stream, const T& val) {
-        stream->write(&val, sizeof(val));
+    static void splice(SkWStream* buf, const T& val) {
+        buf->write(&val, sizeof(val));
     }
+
+#if defined(__aarch64__)
+    static constexpr int kStride = 4;
+    static void set_k(SkWStream* buf, const SkSplicer_constants* k) {
+        uint16_t parts[4];
+        memcpy(parts, &k, 8);
+        splice(buf, 0xd2f00000 | (parts[3] << 5) | 0x3);  // move  16-bit intermediate << 48 into x3
+        splice(buf, 0xf2c00000 | (parts[2] << 5) | 0x3);  // merge 16-bit intermediate << 32 into x3
+        splice(buf, 0xf2a00000 | (parts[1] << 5) | 0x3);  // merge 16-bit intermediate << 16 into x3
+        splice(buf, 0xf2800000 | (parts[0] << 5) | 0x3);  // merge 16-bit intermediate <<  0 into x3
+    }
+    static void set_ctx(SkWStream* buf, void* ctx) {
+        uint16_t parts[4];
+        memcpy(parts, &ctx, 8);
+        splice(buf, 0xd2f00000 | (parts[3] << 5) | 0x2);  // move  16-bit intermediate << 48 into x2
+        splice(buf, 0xf2c00000 | (parts[2] << 5) | 0x2);  // merge 16-bit intermediate << 32 into x2
+        splice(buf, 0xf2a00000 | (parts[1] << 5) | 0x2);  // merge 16-bit intermediate << 16 into x2
+        splice(buf, 0xf2800000 | (parts[0] << 5) | 0x2);  // merge 16-bit intermediate <<  0 into x2
+    }
+    static void loop(SkWStream* buf, int loop_start) {
+        splice(buf, 0x91001000);        // add x0, x0, #4
+        splice(buf, 0xeb01001f);        // cmp x0, x1
+        int off = loop_start - (int)(buf->bytesWritten() + 4);  // TODO: check that this is right
+        off /= 4;   // bytes -> instructions, still signed
+        off = (off & 0x7ffff) << 5;  // 19 bit maximum range (+- 256K instructions)
+        splice(buf, 0x54000003 | off); // b.cc loop_start  (cc == "carry clear", unsigned less than)
+    }
+    static void ret(SkWStream* buf) {
+        splice(buf, 0xd65f03c0);  // ret
+    }
+#else
+    static constexpr int kStride = 8;
+    static void set_k(SkWStream* buf, const SkSplicer_constants* k) {
+        static const uint8_t movabsq_rcx[] = { 0x48, 0xb9 };
+        splice(buf, movabsq_rcx);  // movabsq <next 8 bytes>, %rcx
+        splice(buf, k);
+    }
+    static void set_ctx(SkWStream* buf, void* ctx) {
+        static const uint8_t movabsq_rdx[] = { 0x48, 0xba };
+        splice(buf, movabsq_rdx);  // movabsq <next 8 bytes>, %rdx
+        splice(buf, ctx);
+    }
+    static void loop(SkWStream* buf, int loop_start) {
+        static const uint8_t  addq_8_rdi[] = { 0x48, 0x83, 0xc7, 0x08 };
+        static const uint8_t cmp_rsi_rdi[] = { 0x48, 0x39, 0xf7 };
+        static const uint8_t     jb_near[] = { 0x0f, 0x8c };
+        splice(buf, addq_8_rdi);   // addq $8, %rdi
+        splice(buf, cmp_rsi_rdi);  // cmp %rsi, %rdi
+        splice(buf, jb_near);      // jb <next 4 bytes>  (b == "before", unsigned less than)
+        splice(buf, loop_start - (int)(buf->bytesWritten() + 4));
+    }
+    static void ret(SkWStream* buf) {
+        static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
+        static const uint8_t        ret[] = { 0xc3 };
+        splice(buf, vzeroupper);
+        splice(buf, ret);
+    }
+#endif
 
 #ifdef IACA_DUMP
     static const uint8_t      ud2[] = { 0x0f, 0x0b };         // undefined... crashes when run
     static const uint8_t     nop3[] = { 0x64, 0x67, 0x90 };   // 3 byte no-op
     static const uint8_t movl_ebx[] = { 0xbb };               // move next 4 bytes into ebx
 
-    static void iaca_start(SkWStream* stream) {
-        splice(stream, ud2);
-        splice(stream, movl_ebx);
-        splice(stream, 111);
-        splice(stream, nop3);
+    static void iaca_start(SkWStream* buf) {
+        splice(buf, ud2);
+        splice(buf, movl_ebx);
+        splice(buf, 111);
+        splice(buf, nop3);
     }
-    static void iaca_end(SkWStream* stream) {
-        splice(stream, movl_ebx);
-        splice(stream, 222);
-        splice(stream, nop3);
-        splice(stream, ud2);
+    static void iaca_end(SkWStream* buf) {
+        splice(buf, movl_ebx);
+        splice(buf, 222);
+        splice(buf, nop3);
+        splice(buf, ud2);
     }
 #else
     static void iaca_start(SkWStream*) {}
@@ -87,32 +135,32 @@ namespace {
         Spliced(const SkRasterPipeline::Stage* stages, int nstages) {
             // We always create a backup interpreter pipeline,
             //   - to handle any program we can't, and
-            //   - to handle the n < 8 tails.
+            //   - to handle the n < kStride tails.
             fBackup     = SkOpts::compile_pipeline(stages, nstages);
             fSplicedLen = 0;
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
+        #if !defined(__aarch64__)
             // To keep things simple, only one target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
+        #endif
 
             SkDynamicMemoryWStream buf;
 
-            // Put the address of kConstants in rcx, Stage argument 4 "k".
-            splice(&buf, movabsq_rcx);
-            splice(&buf, &kConstants);
+            // Put the address of kConstants in rcx/x3, Stage argument 4 "k".
+            set_k(&buf, &kConstants);
 
-            // We'll loop back to here as long as x<n after x+=8.
+            // We'll loop back to here as long as x<n after x += kStride.
             iaca_start(&buf);
             auto loop_start = buf.bytesWritten();  // Think of this like a label, loop_start:
 
             for (int i = 0; i < nstages; i++) {
-                // If a stage has a context pointer, load it into rdx, Stage argument 3 "ctx".
+                // If a stage has a context pointer, load it into rdx/x2, Stage argument 3 "ctx".
                 if (stages[i].ctx) {
-                    splice(&buf, movabsq_rdx);
-                    splice(&buf, stages[i].ctx);
+                    set_ctx(&buf, stages[i].ctx);
                 }
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
@@ -144,16 +192,9 @@ namespace {
                 }
             }
 
-            // See if we should loop back to handle more pixels.
-            splice(&buf, addq_8_rdi);    // x += 8
-            splice(&buf, cmpq_rsi_rdi);  // if (x < n)
-            splice(&buf, jb_near);       //     goto loop_start;
-            splice(&buf, (int)loop_start - (int)(buf.bytesWritten() + 4));
+            loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
             iaca_end(&buf);
-
-            // Nope!  We're done.
-            splice(&buf, vzeroupper);
-            splice(&buf, ret);
+            ret(&buf);  // We're done.
 
             auto data = buf.detachAsData();
             fSplicedLen = data->size();
@@ -175,14 +216,15 @@ namespace {
 
         // Here's where we call fSpliced if we created it, fBackup if not.
         void operator()(size_t x, size_t y, size_t n) const {
-            // TODO: The looping logic is probably not correct for handling n<8 tails.
-            if (fSpliced) {
+            // TODO: The looping logic is probably not correct for n < kStride tails or x != 0.
+
+            size_t body = n/kStride*kStride;   // Largest multiple of kStride (4 or 8) <= n.
+            if (fSpliced && body) {            // Can we run fSpliced for at least one kStride?
                 // TODO: At some point we will want to pass in y...
                 using Fn = void(size_t x, size_t n);
-                ((Fn*)fSpliced)(x,n);
+                ((Fn*)fSpliced)(x,body);
 
-                // Fall through to fBackup for any n<8 last pixels.
-                size_t body = n/8*8;
+                // Fall through to fBackup for any n<kStride last pixels.
                 x += body;
                 n -= body;
             }
