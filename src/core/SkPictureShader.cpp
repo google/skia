@@ -225,9 +225,12 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         tileMatrix.setRectToRect(fTile, SkRect::MakeIWH(tileSize.width(), tileSize.height()),
                                  SkMatrix::kFill_ScaleToFit);
 
+        sk_sp<SkColorSpace> colorSpace = dstColorSpace
+            ? sk_ref_sp(dstColorSpace)
+            : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         sk_sp<SkImage> tileImage(
             SkImage::MakeFromPicture(fPicture, tileSize, &tileMatrix, nullptr,
-                                     SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
+                                     SkImage::BitDepth::kU8, std::move(colorSpace)));
         if (!tileImage) {
             return nullptr;
         }
