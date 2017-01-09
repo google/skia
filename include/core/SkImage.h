@@ -159,15 +159,17 @@ public:
         kF16,
     };
 
-#ifdef SK_USE_LEGACY_MAKE_PICTURE_API
+    /**
+     *  Create a new image from the specified picture.
+     *  This SkImage has no defined BitDepth or SkColorSpace, it is a flexible container for
+     *  draw commands.
+     */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                           const SkMatrix* matrix, const SkPaint* paint);
-#endif
 
     /**
      *  Create a new image from the specified picture.
-     *  Creating an SkImage from an SkPicture requires snapping the picture to a particular
-     *  BitDepth and SkColorSpace.
+     *  On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkColorSpace.
      */
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
                                           const SkMatrix*, const SkPaint*, BitDepth,

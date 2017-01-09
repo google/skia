@@ -44,15 +44,15 @@ SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkP
                                                   const SkMatrix* matrix, const SkPaint* paint,
                                                   SkImage::BitDepth bitDepth,
                                                   sk_sp<SkColorSpace> colorSpace) {
-    if (!picture || size.isEmpty() || !colorSpace) {
+    if (!picture || size.isEmpty()) {
         return nullptr;
     }
 
-    if (SkImage::BitDepth::kF16 == bitDepth && !colorSpace->gammaIsLinear()) {
+    if (SkImage::BitDepth::kF16 == bitDepth && (!colorSpace || !colorSpace->gammaIsLinear())) {
         return nullptr;
     }
 
-    if (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear()) {
+    if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
         return nullptr;
     }
 

@@ -299,13 +299,11 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
     return true;
 }
 
-#ifdef SK_USE_LEGACY_MAKE_PICTURE_API
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                         const SkMatrix* matrix, const SkPaint* paint) {
     return SkImage::MakeFromPicture(std::move(picture), dimensions, matrix, paint, BitDepth::kU8,
-                                    SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                    nullptr);
 }
-#endif
 
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                         const SkMatrix* matrix, const SkPaint* paint,
