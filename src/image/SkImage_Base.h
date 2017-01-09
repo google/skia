@@ -68,6 +68,8 @@ public:
 
     virtual bool onIsLazyGenerated() const { return false; }
 
+    virtual bool onBitDepthAndColorSpace(BitDepth*, sk_sp<SkColorSpace>*) const;
+
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
     void notifyAddedToCache() const {
