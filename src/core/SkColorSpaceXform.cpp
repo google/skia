@@ -773,6 +773,7 @@ static AI void store_f16_1_opaque(void* dst, const uint32_t* src,
                                   const uint8_t* const[3]) {
     uint64_t tmp;
     SkFloatToHalf_finite_ftz(rgba).store(&tmp);
+    tmp &= 0x0000FFFFFFFFFFFF;
     tmp |= static_cast<uint64_t>(SK_Half1) << 48;
     *((uint64_t*) dst) = tmp;
 }
@@ -861,7 +862,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
     LoadFn load;
     Load1Fn load_1;
     const bool kLoadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
-                            (kF16_Linear_DstFormat == kDst);
+                            (kF16_Linear_DstFormat == kDst && kOpaque_SkAlphaType != kAlphaType);
     switch (kSrc) {
         case kRGBA_8888_Linear_SrcFormat:
             if (kLoadAlpha) {
