@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_a32bf245",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-09T20:54:14Z",
+      "side": 1,
+      "message": "nit: maybe some docs on how this behaves differently?",
+      "revId": "534288cf8c7fb4acfb851cf210977d06053aa120",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
