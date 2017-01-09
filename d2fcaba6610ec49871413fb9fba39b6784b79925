@@ -22,6 +22,24 @@
       "revId": "d2fcaba6610ec49871413fb9fba39b6784b79925",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_233622fa",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T19:48:28Z",
+      "side": 1,
+      "message": "Yes, sounds good to me.",
+      "parentUuid": "578ed681_632c2aac",
+      "revId": "d2fcaba6610ec49871413fb9fba39b6784b79925",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
