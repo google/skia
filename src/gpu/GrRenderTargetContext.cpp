@@ -268,7 +268,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         // target before the target is read.
         GrPaint paint;
         paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
         // We don't call drawRect() here to avoid the cropping to the, possibly smaller,
         // RenderTargetProxy bounds
@@ -329,7 +329,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         GrPaint paint;
         paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
         this->drawRect(clip, paint, GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
@@ -675,7 +675,7 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
     AutoCheckFlush acf(fRenderTargetContext->fDrawingManager);
 
     GrPaint paint;
-    paint.setXPFactory(GrDisableColorXPFactory::Get());
+    paint.setXPFactory(GrDisableColorXPFactory::Make());
 
     fRenderTargetContext->drawNonAAFilledRect(clip, paint, viewMatrix, rect, nullptr, nullptr, ss,
                                               aaType);

@@ -1001,7 +1001,7 @@ sk_sp<GrFragmentProcessor> SkXfermode::makeFragmentProcessorForImageFilter(
     return nullptr;
 }
 
-const GrXPFactory* SkXfermode::asXPFactory() const {
+sk_sp<GrXPFactory> SkXfermode::asXPFactory() const {
     // This should never be called.
     // TODO: make pure virtual in SkXfermode once Android update lands
     SkASSERT(0);
@@ -1254,15 +1254,15 @@ sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFil
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(dst), fMode);
 }
 
-const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
+sk_sp<GrXPFactory> SkProcCoeffXfermode::asXPFactory() const {
     if (CANNOT_USE_COEFF != fSrcCoeff) {
-        const GrXPFactory* result(GrPorterDuffXPFactory::Get(fMode));
+        sk_sp<GrXPFactory> result(GrPorterDuffXPFactory::Make(fMode));
         SkASSERT(result);
         return result;
     }
 
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    return GrCustomXfermode::Get(fMode);
+    return GrCustomXfermode::MakeXPFactory(fMode);
 }
 #endif
 
@@ -1469,16 +1469,16 @@ bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
 }
 
 #if SK_SUPPORT_GPU
-const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
+sk_sp<GrXPFactory> SkBlendMode_AsXPFactory(SkBlendMode mode) {
     const ProcCoeff rec = gProcCoeffs[(int)mode];
     if (CANNOT_USE_COEFF != rec.fSC) {
-        const GrXPFactory* result = GrPorterDuffXPFactory::Get(mode);
+        sk_sp<GrXPFactory> result(GrPorterDuffXPFactory::Make(mode));
         SkASSERT(result);
         return result;
     }
 
     SkASSERT(GrCustomXfermode::IsSupportedMode(mode));
-    return GrCustomXfermode::Get(mode);
+    return GrCustomXfermode::MakeXPFactory(mode);
 }
 #endif
 

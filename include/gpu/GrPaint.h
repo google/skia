@@ -84,9 +84,13 @@ public:
         setAllowSRGBInputs(gammaCorrect);
     }
 
-    void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
+    void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
+        fXPFactory = std::move(xpFactory);
+    }
 
-    void setPorterDuffXPFactory(SkBlendMode mode) { fXPFactory = GrPorterDuffXPFactory::Get(mode); }
+    void setPorterDuffXPFactory(SkBlendMode mode) {
+        fXPFactory = GrPorterDuffXPFactory::Make(mode);
+    }
 
     void setCoverageSetOpXPFactory(SkRegion::Op, bool invertCoverage = false);
 
@@ -123,7 +127,9 @@ public:
     int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
                                               this->numCoverageFragmentProcessors(); }
 
-    const GrXPFactory* getXPFactory() const { return fXPFactory; }
+    GrXPFactory* getXPFactory() const {
+        return fXPFactory.get();
+    }
 
     GrFragmentProcessor* getColorFragmentProcessor(int i) const {
         return fColorFragmentProcessors[i].get();
@@ -167,7 +173,7 @@ public:
 private:
     bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
 
-    const GrXPFactory*                        fXPFactory;
+    mutable sk_sp<GrXPFactory>                fXPFactory;
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
     SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
 

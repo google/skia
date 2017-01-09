@@ -14,12 +14,6 @@
 
 class GrProcOptInfo;
 
-// See the comment above GrXPFactory's definition about this warning suppression.
-#if defined(__GNUC__) || defined(__clang)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
-#endif
-
 /**
  * This xfer processor directly blends the the src coverage with the dst using a set operator. It is
  * useful for rendering coverage masks using CSG. It can optionally invert the src coverage before
@@ -27,13 +21,13 @@ class GrProcOptInfo;
  */
 class GrCoverageSetOpXPFactory : public GrXPFactory {
 public:
-    static const GrXPFactory* Get(SkRegion::Op regionOp, bool invertCoverage = false);
+    static sk_sp<GrXPFactory> Make(SkRegion::Op regionOp, bool invertCoverage = false);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
 
 private:
-    constexpr GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
+    GrCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCoverage);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps&,
                                            const GrPipelineAnalysis&,
@@ -44,6 +38,11 @@ private:
         return false;
     }
 
+    bool onIsEqual(const GrXPFactory& xpfBase) const override {
+        const GrCoverageSetOpXPFactory& xpf = xpfBase.cast<GrCoverageSetOpXPFactory>();
+        return fRegionOp == xpf.fRegionOp;
+    }
+
     GR_DECLARE_XP_FACTORY_TEST;
 
     SkRegion::Op fRegionOp;
@@ -51,8 +50,5 @@ private:
 
     typedef GrXPFactory INHERITED;
 };
-#if defined(__GNUC__) || defined(__clang)
-#pragma GCC diagnostic pop
-#endif
 #endif
 

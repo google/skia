@@ -36,7 +36,7 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
                                                 sk_sp<GrFragmentProcessor> dst) const override;
-    const GrXPFactory* asXPFactory() const override {
+    sk_sp<GrXPFactory> asXPFactory() const override {
         SkFAIL("This should only be used as a FP.");
         return nullptr;
     }

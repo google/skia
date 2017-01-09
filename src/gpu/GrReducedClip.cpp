@@ -780,7 +780,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     if (canRenderDirectToStencil) {
                         GrPaint paint;
-                        paint.setXPFactory(GrDisableColorXPFactory::Get());
+                        paint.setXPFactory(GrDisableColorXPFactory::Make());
 
                         GrPathRenderer::DrawPathArgs args;
                         args.fResourceProvider = context->resourceProvider();
@@ -817,7 +817,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                 } else {
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
-                    paint.setXPFactory(GrDisableColorXPFactory::Get());
+                    paint.setXPFactory(GrDisableColorXPFactory::Make());
                     GrPathRenderer::DrawPathArgs args;
                     args.fResourceProvider = context->resourceProvider();
                     args.fPaint = &paint;
