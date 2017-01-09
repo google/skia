@@ -40,6 +40,23 @@
       "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38116d74",
+        "filename": "src/image/SkImage_Generator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-09T14:32:10Z",
+      "side": 1,
+      "message": "It may be moot, based on your API discussion with reed above, but the semantics of this implementation don\u0027t really match what the comments for the public function say. chooseCacheFormat will always make use of the passed-in color space, and passing in null will always cause you to get back an info with a null color space (even if the generator has a definite color space attached due to codec, etc...)",
+      "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
