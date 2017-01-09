@@ -70,8 +70,8 @@ IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
-MacroBlockBegin: ''
-MacroBlockEnd:   ''
+MacroBlockBegin: 'SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START'
+MacroBlockEnd:   'SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END'
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBlockIndentWidth: 2
