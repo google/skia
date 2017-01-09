@@ -115,10 +115,10 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Make(texture.get(), nullptr, textureMatrices[tm],
-                                                GrTextureDomain::MakeTexelDomain(texture.get(),
-                                                                                 texelDomains[d]),
-                                                mode, GrSamplerParams::kNone_FilterMode));
+                        GrTextureDomainEffect::Make(
+                                   texture.get(), nullptr, textureMatrices[tm],
+                                   GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode),
+                                   mode, GrSamplerParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;
