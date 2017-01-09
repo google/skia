@@ -131,6 +131,8 @@ public:
         return fBlitMemory.reset(sz, SkAutoMalloc::kReuse_OnShrink);
     }
 
+    virtual void setReadFrom(const SkPixmap& rf) { sk_throw(); }
+
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);

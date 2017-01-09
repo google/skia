@@ -25,6 +25,7 @@ public:
 
     SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
         : fDst(dst)
+        , fTarget(dst)
         , fBlend(blend)
         , fPaintColor(paintColor)
         , fScratchAlloc(fScratch, sizeof(fScratch))
@@ -39,13 +40,18 @@ public:
     // but some of them like blitV could probably benefit from custom
     // blits using something like a SkRasterPipeline::runFew() method.
 
+    void setReadFrom(const SkPixmap& rf) override {
+        fDst = rf;
+    }
+
 private:
     void append_load_d(SkRasterPipeline*) const;
     void append_blend (SkRasterPipeline*) const;
     void maybe_clamp  (SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
 
-    SkPixmap         fDst;
+    SkPixmap         fDst;      // read from me
+    SkPixmap         fTarget;   // write to me
     SkBlendMode      fBlend;
     SkPM4f           fPaintColor;
     SkRasterPipeline fShader;
@@ -58,7 +64,8 @@ private:
 
     // These values are pointed to by the compiled blit functions
     // above, which allows us to adjust them from call to call.
-    void*       fDstPtr          = nullptr;
+    const void* fDstPtr          = nullptr; // read from me
+    void*       fTargetPtr       = nullptr; // write to me
     const void* fMaskPtr         = nullptr;
     float       fCurrentCoverage = 0.0f;
 
@@ -156,7 +163,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         uint64_t color;  // Big enough for largest dst format, F16.
         SkRasterPipeline p;
         p.extend(*pipeline);
-        blitter->fDstPtr = &color;
+        blitter->fTargetPtr = &color;
         blitter->append_store(&p);
         p.run(0,0, 1);
 
@@ -204,19 +211,19 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
-    if (fDst.info().gammaCloseToSRGB()) {
+    if (fTarget.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
     }
-    if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
+    if (fTarget.info().colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
 
-    SkASSERT(supported(fDst.info()));
-    switch (fDst.info().colorType()) {
-        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fDstPtr); break;
+    SkASSERT(supported(fTarget.info()));
+    switch (fTarget.info().colorType()) {
+        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fTargetPtr); break;
         case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, &fDstPtr); break;
-        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  &fDstPtr); break;
+        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, &fTargetPtr); break;
+        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  &fTargetPtr); break;
         default: break;
     }
 }
@@ -243,7 +250,8 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         this->append_store(&p);
         fBlitH = p.compile();
     }
-    fDstPtr = fDst.writable_addr(0,y);
+    fDstPtr = fDst.addr(0,y);
+    fTargetPtr = fTarget.writable_addr(0,y);
     fBlitH(x,y, w);
 }
 
@@ -265,7 +273,8 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         fBlitAntiH = p.compile();
     }
 
-    fDstPtr = fDst.writable_addr(0,y);
+    fDstPtr = fDst.addr(0,y);
+    fTargetPtr = fTarget.writable_addr(0,y);
     for (int16_t run = *runs; run > 0; run = *runs) {
         switch (*aa) {
             case 0x00:                       break;
@@ -316,7 +325,8 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
     int x = clip.left();
     for (int y = clip.top(); y < clip.bottom(); y++) {
-        fDstPtr = fDst.writable_addr(0,y);
+        fDstPtr = fDst.addr(0,y);
+        fTargetPtr = fTarget.writable_addr(0,y);
 
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
