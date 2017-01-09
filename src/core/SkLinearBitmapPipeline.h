@@ -8,8 +8,8 @@
 #ifndef SkLinearBitmapPipeline_DEFINED
 #define SkLinearBitmapPipeline_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkColor.h"
-#include "SkFixedAlloc.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkShader.h"

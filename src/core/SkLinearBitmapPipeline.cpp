@@ -12,7 +12,7 @@
 #include <limits>
 #include <tuple>
 
-#include "SkFixedAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkLinearBitmapPipeline_core.h"
 #include "SkLinearBitmapPipeline_matrix.h"
 #include "SkLinearBitmapPipeline_tile.h"
