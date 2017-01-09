@@ -18,6 +18,8 @@ struct SkArithmeticParams {
     bool fEnforcePMColor;
 };
 
+// This only exists to unflatten instances that were serialized into old pictures as part of
+// SkXfermodeImageFilter before the advent of SkBlendMode.
 class SK_API SkArithmeticMode {
 public:
     /**
