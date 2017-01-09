@@ -6,52 +6,71 @@
  */
 
 #include "SkSplicer_shared.h"
-#include <immintrin.h>
 #include <string.h>
 
-#if !defined(__clang__) || !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
-    #error This file is not like the rest of Skia.
-    #error It must be compiled with clang and with -mavx2 -mfma -mf16c -fomit-frame-pointer.
+#if !defined(__clang__)
+    #error This file is not like the rest of Skia.  It must be compiled with clang.
 #endif
 
 // We have very specific inlining requirements.  It helps to just take total control.
 #define AI __attribute__((always_inline)) inline
 
+#if defined(__aarch64__)
+    #include <arm_neon.h>
+
+    // Since we know we're using Clang, we can use its vector extensions.
+    using F   = float    __attribute__((ext_vector_type(4)));
+    using I32 =  int32_t __attribute__((ext_vector_type(4)));
+    using U32 = uint32_t __attribute__((ext_vector_type(4)));
+    using U8  = uint8_t  __attribute__((ext_vector_type(4)));
+
+    // We polyfill a few routines that Clang doesn't build into ext_vector_types.
+    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v);       }
+    AI static F   min(F a, F b)                        { return vminq_f32(a,b);          }
+    AI static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
+    AI static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
+    AI static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
+    AI static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
+#else
+    #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
+        #error On x86, compile with -mavx2 -mfma -mf16c.
+    #endif
+    #include <immintrin.h>
+
+    // These are __m256 and __m256i, but friendlier and strongly-typed.
+    using F   = float    __attribute__((ext_vector_type(8)));
+    using I32 =  int32_t __attribute__((ext_vector_type(8)));
+    using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
+
+    AI static U32 round(F v)                    { return _mm256_cvtps_epi32(v); }
+    AI static F   min(F a, F b)                 { return _mm256_min_ps  (a,b);  }
+    AI static F   max(F a, F b)                 { return _mm256_max_ps  (a,b);  }
+    AI static F   fma(F f, F m, F a)            { return _mm256_fmadd_ps(f,m,a);}
+    AI static F   rcp  (F v)                    { return _mm256_rcp_ps     (v); }
+    AI static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
+    AI static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+#endif
+
+AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
+AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
 #define C extern "C"
-
-// Since we know we're using Clang, we can use its vector extensions.
-// These are __m256 and __m256i, but friendlier and strongly-typed.
-using F   = float    __attribute__((ext_vector_type(8)));
-using I32 =  int32_t __attribute__((ext_vector_type(8)));
-using U32 = uint32_t __attribute__((ext_vector_type(8)));
-using U8  = uint8_t  __attribute__((ext_vector_type(8)));
-
-// We polyfill a few routines that Clang doesn't build into ext_vector_types.
-AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F); }
-AI static U32 round (F   v) { return _mm256_cvtps_epi32(v); }
-AI static U32 expand(U8  v) { return __builtin_convertvector(v, U32); }
-
-AI static F rcp  (F v)           { return _mm256_rcp_ps  (v); }
-AI static F rsqrt(F v)           { return _mm256_rsqrt_ps(v); }
-AI static F min  (F a, F b)      { return _mm256_min_ps  (a,b); }
-AI static F max  (F a, F b)      { return _mm256_max_ps  (a,b); }
-AI static F fma  (F f, F m, F a) { return _mm256_fmadd_ps(f,m,a); }
-
-AI static F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using K = const SkSplicer_constants;
 using Stage = void(size_t x, size_t n, void* ctx, K* constants, F,F,F,F, F,F,F,F);
 
 // Stage's arguments act as the working set of registers within the final spliced function.
-// Here's a little primer on the ABI:
-//   x:         rdi         x and n work to drive the loop, like for (; x < n; x += 8)
-//   n:         rsi
-//   ctx:       rdx         Look for movabsq_rdx in SkSplicer.cpp to see how this works.
-//   constants: rcx         Look for movabsq_rcx in SkSplicer.cpp to see how this works.
-//   vectors:   ymm0-ymm7
+// Here's a little primer on the x86-64/aarch64 ABIs:
+//   x:         rdi/x0          x and n work to drive the loop, like for (; x < n; x += 4 or 8)
+//   n:         rsi/x1
+//   ctx:       rdx/x2          Look for movabsq_rdx in SkSplicer.cpp to see how this works.
+//   constants: rcx/x3          Look for movabsq_rcx in SkSplicer.cpp to see how this works.
+//   vectors:   ymm0-ymm7/v0-v7
 
 
 // done() is the key to this entire splicing strategy.
@@ -231,6 +250,13 @@ STAGE(store_8888) {
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
+#if defined(__aarch64__)
+    auto halfs = vld4_f16((const float16_t*)ptr);
+    r = vcvt_f32_f16(halfs.val[0]);
+    g = vcvt_f32_f16(halfs.val[1]);
+    b = vcvt_f32_f16(halfs.val[2]);
+    a = vcvt_f32_f16(halfs.val[3]);
+#else
     auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
          _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
          _45 = _mm_loadu_si128(((__m128i*)ptr) + 2),
@@ -250,11 +276,21 @@ STAGE(load_f16) {
     g = _mm256_cvtph_ps(_mm_unpackhi_epi64(rg0123, rg4567));
     b = _mm256_cvtph_ps(_mm_unpacklo_epi64(ba0123, ba4567));
     a = _mm256_cvtph_ps(_mm_unpackhi_epi64(ba0123, ba4567));
+#endif
 }
 
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
+#if defined(__aarch64__)
+    float16x4x4_t halfs = {{
+        vcvt_f16_f32(r),
+        vcvt_f16_f32(g),
+        vcvt_f16_f32(b),
+        vcvt_f16_f32(a),
+    }};
+    vst4_f16((float16_t*)ptr, halfs);
+#else
     auto R = _mm256_cvtps_ph(r, _MM_FROUND_CUR_DIRECTION),
          G = _mm256_cvtps_ph(g, _MM_FROUND_CUR_DIRECTION),
          B = _mm256_cvtps_ph(b, _MM_FROUND_CUR_DIRECTION),
@@ -269,4 +305,5 @@ STAGE(store_f16) {
     _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg0123, ba0123));
     _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
     _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
+#endif
 }
