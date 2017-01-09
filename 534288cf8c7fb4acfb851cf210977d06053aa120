@@ -16,6 +16,24 @@
       "revId": "534288cf8c7fb4acfb851cf210977d06053aa120",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c3db9636",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T21:00:12Z",
+      "side": 1,
+      "message": "Done, thanks.  Old comments no longer made sense.",
+      "parentUuid": "578ed681_a32bf245",
+      "revId": "534288cf8c7fb4acfb851cf210977d06053aa120",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
