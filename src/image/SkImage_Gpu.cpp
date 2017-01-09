@@ -33,7 +33,8 @@ SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, sk_sp<
     , fTexture(std::move(tex))
     , fAlphaType(at)
     , fBudgeted(budgeted)
-    , fColorSpace(std::move(colorSpace))
+    , fColorSpace(colorSpace ? std::move(colorSpace)
+                             : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
     , fAddedRasterVersionToCache(false)
 {
     SkASSERT(fTexture->width() == w);
