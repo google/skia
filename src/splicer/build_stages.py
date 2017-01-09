@@ -9,11 +9,21 @@ import re
 import subprocess
 import sys
 
-cflags = '-std=c++11 -Os -fomit-frame-pointer -mavx2 -mfma -mf16c'
+cflags = '-std=c++11 -Os -fomit-frame-pointer'.split()
 
-subprocess.check_call(['clang++'] + cflags.split() +
+hsw = '-mavx2 -mfma -mf16c'.split()
+subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
-                      ['-o', 'stages.o'])
+                      ['-o', 'hsw.o'])
+
+aarch64 = [
+    '--target=aarch64-linux-android',
+    '--sysroot=' +
+    '/Users/mtklein/brew/opt/android-ndk/platforms/android-21/arch-arm64',
+]
+subprocess.check_call(['clang++'] + cflags + aarch64 +
+                      ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
+                      ['-o', 'aarch64.o'])
 
 print '''/*
  * Copyright 2017 Google Inc.
@@ -27,11 +37,34 @@ print '''/*
 
 // This file is generated semi-automatically with this command:
 //   $ src/splicer/build_stages.py > src/splicer/SkSplicer_generated.h
+
+#if defined(__aarch64__)
+'''
+for line in subprocess.check_output(['gobjdump', '-d',
+                                     'aarch64.o']).split('\n'):
+  line = line.strip()
+  if not line or line.startswith('aarch64.o') or line.startswith('Disassembly'):
+    continue
+
+  m = re.match('''................ <(.*)>:''', line)
+  if m:
+    print 'static const unsigned int kSplice_' + m.group(1) + '[] = {'
+    continue
+  _, code, inst, args = line.split('\t')
+  code = code.strip()
+  if code == '14000000':
+    print '};'
+    continue
+  print '   ', '0x'+code+',' + '    // ' + inst + ' ' + args
+
+print '''
+#else
 '''
 
-for line in subprocess.check_output(['otool', '-tvj', 'stages.o']).split('\n'):
+# TODO: port this to gobjdump too
+for line in subprocess.check_output(['otool', '-tvj', 'hsw.o']).split('\n'):
   line = line.strip()
-  if line == '' or line == 'stages.o:' or line == '(__TEXT,__text) section':
+  if line == '' or line == 'hsw.o:' or line == '(__TEXT,__text) section':
     continue
 
   m = re.match('_(.*):', line)
@@ -41,10 +74,10 @@ for line in subprocess.check_output(['otool', '-tvj', 'stages.o']).split('\n'):
     continue
 
   # Skip the leading 16 byte address and a tab,
-  # leaving the hex and mnemonics of each instruction.
+  # leaving the code, instruction mnemonic, and its arguments.
   line = line[17:]
   columns = line.split('\t')
-  _hex  = columns[0].strip()
+  code  = columns[0].strip()
   instr = columns[1]
   args  = columns[2:]
 
@@ -53,12 +86,12 @@ for line in subprocess.check_output(['otool', '-tvj', 'stages.o']).split('\n'):
     assert 'rip' not in arg
 
   # jmp done, the end of each stage (the address of done is not yet filled in)
-  if _hex == 'e9 00 00 00 00':
+  if code == 'e9 00 00 00 00':
     print '};'
     continue
 
   sys.stdout.write('    ')
-  _bytes = _hex.split(' ')
+  _bytes = code.split(' ')
   # This is the meat of things: copy the code to a C unsigned char array.
   for byte in _bytes:
     sys.stdout.write('0x' + byte + ',')
@@ -69,5 +102,9 @@ for line in subprocess.check_output(['otool', '-tvj', 'stages.o']).split('\n'):
     sys.stdout.write(' ' * (13 - len(instr)))
     sys.stdout.write(' '.join(args))
   sys.stdout.write('\n')
+
+print '''
+#endif
+'''
 
 print '''#endif//SkSplicer_generated_DEFINED'''
