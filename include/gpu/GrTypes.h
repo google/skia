@@ -219,6 +219,7 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
+    kGray_8_GrPixelConfig,
     kIndex_8_GrPixelConfig,
     kRGB_565_GrPixelConfig,
     /**
@@ -379,6 +380,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     SkASSERT(!GrPixelConfigIsCompressed(config));
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -403,6 +405,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
             return true;
         default:
             return false;
