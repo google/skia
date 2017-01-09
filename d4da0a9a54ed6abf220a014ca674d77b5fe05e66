@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_fe62ed53",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T21:53:11Z",
+      "side": 1,
+      "message": "I\u0027m not sure this will pass on all platforms/gpus...",
+      "range": {
+        "startLine": 989,
+        "startChar": 0,
+        "endLine": 990,
+        "endChar": 52
+      },
+      "revId": "d4da0a9a54ed6abf220a014ca674d77b5fe05e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
