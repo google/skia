@@ -34,6 +34,7 @@ public:
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
                             sk_sp<SkColorSpace>*) const override;
     bool onIsLazyGenerated() const override { return true; }
+    bool onBitDepthAndColorSpace(BitDepth*, sk_sp<SkColorSpace>*) const override;
 
 private:
     mutable SkImageCacherator fCache;
@@ -90,6 +91,26 @@ sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
     const SkIRect generatorSubset = subset.makeOffset(fCache.fOrigin.x(), fCache.fOrigin.y());
     SkImageCacherator::Validator validator(fCache.fSharedGenerator, &generatorSubset);
     return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
+}
+
+bool SkImage_Generator::onBitDepthAndColorSpace(BitDepth* bitDepth, sk_sp<SkColorSpace>* colorSpace)
+const {
+    sk_sp<SkColorSpace> nonNull = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    SkImageCacherator::CachedFormat format = fCache.chooseCacheFormat(nonNull.get());
+    SkImageInfo info = fCache.buildCacheInfo(format);
+    if (!info.colorSpace()) {
+        // Assert that this must be a picture backed image.
+        SkASSERT(!this->refEncoded());
+        return false;
+    }
+
+    *bitDepth = BitDepth::kU8;
+    if (kRGBA_F16_SkColorType == info.colorType()) {
+        *bitDepth = BitDepth::kF16;
+    }
+
+    *colorSpace = sk_ref_sp(info.colorSpace());
+    return true;
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
