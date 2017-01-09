@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_982179b9",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-09T15:07:14Z",
+      "side": 1,
+      "message": "This no longer outputs to a stream, should it be called outputToString? Should it just return an SkString instead of taking one by reference?",
+      "range": {
+        "startLine": 381,
+        "startChar": 12,
+        "endLine": 381,
+        "endChar": 26
+      },
+      "revId": "ff80c2ab305a25434d17fbcbec02b20d69b05227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_582c71ab",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-09T15:07:14Z",
+      "side": 1,
+      "message": "Probably should just return a string instead of taking one by reference, but at the very least this variable should be renamed since its never a file.",
+      "range": {
+        "startLine": 382,
+        "startChar": 49,
+        "endLine": 382,
+        "endChar": 66
+      },
+      "revId": "ff80c2ab305a25434d17fbcbec02b20d69b05227",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
