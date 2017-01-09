@@ -159,10 +159,8 @@ public:
         kF16,
     };
 
-#ifdef SK_USE_LEGACY_MAKE_PICTURE_API
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                           const SkMatrix* matrix, const SkPaint* paint);
-#endif
 
     /**
      *  Create a new image from the specified picture.
