@@ -253,25 +253,6 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
         pmap = &tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
         desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
-    } else if (kGray_8_SkColorType == pixmap.colorType()) {
-        // We don't have Gray8 support as a pixel config, so expand to 8888
-
-        // We should have converted sRGB Gray8 above (if we have sRGB support):
-        SkASSERT(!caps->srgbSupport() || !pixmap.info().colorSpace() ||
-                 !pixmap.info().colorSpace()->gammaCloseToSRGB());
-
-        SkImageInfo info = SkImageInfo::MakeN32(pixmap.width(), pixmap.height(),
-                                                kOpaque_SkAlphaType);
-        tmpBitmap.allocPixels(info);
-        if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
-            return nullptr;
-        }
-        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
-            return nullptr;
-        }
-        pmap = &tmpPixmap;
-        // must rebuild desc, since we've forced the info to be N32
-        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
     } else if (kIndex_8_SkColorType == pixmap.colorType()) {
         if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
             size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
@@ -482,7 +463,7 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkCol
         case kIndex_8_SkColorType:
             return kIndex_8_GrPixelConfig;
         case kGray_8_SkColorType:
-            return kAlpha_8_GrPixelConfig; // TODO: gray8 support on gpu
+            return kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
     }
@@ -495,6 +476,9 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
+            break;
+        case kGray_8_GrPixelConfig:
+            ct = kGray_8_SkColorType;
             break;
         case kIndex_8_GrPixelConfig:
             ct = kIndex_8_SkColorType;
