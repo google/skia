@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_18b34933",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-09T15:55:15Z",
+      "side": 1,
+      "message": "SkScalarRoundToInt(v * 255) ?",
+      "range": {
+        "startLine": 79,
+        "startChar": 19,
+        "endLine": 79,
+        "endChar": 32
+      },
+      "revId": "4bbd24faf29c6ce2ec31b96e3033a83387739ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_9817392d",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-09T15:55:15Z",
+      "side": 1,
+      "message": "unsigned p \u003d SkScalarRoundToInt((SK_Scalar1 - s) * v * 255);\nunsigned q \u003d SkScalarRoundToInt((SK_Scalar1 - (s * f)) * v * 255);\nunsigned t \u003d SkScalarRoundToInt((SK_Scalar1 - (s * (SK_Scalar1 - f))) * v * 255);\n\n(without the SkTMin) also seems to work and is a bit clearer. Is there a reason not to do it like this?",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 33
+      },
+      "revId": "4bbd24faf29c6ce2ec31b96e3033a83387739ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
