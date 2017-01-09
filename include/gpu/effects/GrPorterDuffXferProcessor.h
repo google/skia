@@ -14,9 +14,14 @@
 
 class GrProcOptInfo;
 
+// See the comment above GrXPFactory's definition about this warning suppression.
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
 class GrPorterDuffXPFactory : public GrXPFactory {
 public:
-    static sk_sp<GrXPFactory> Make(SkBlendMode mode);
+    static const GrXPFactory* Get(SkBlendMode blendMode);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
@@ -51,7 +56,7 @@ public:
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
 
 private:
-    GrPorterDuffXPFactory(SkBlendMode);
+    constexpr GrPorterDuffXPFactory(SkBlendMode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
@@ -60,18 +65,16 @@ private:
 
     bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override;
 
-    bool onIsEqual(const GrXPFactory& xpfBase) const override {
-        const GrPorterDuffXPFactory& xpf = xpfBase.cast<GrPorterDuffXPFactory>();
-        return fXfermode == xpf.fXfermode;
-    }
-
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
 
-    SkBlendMode fXfermode;
+    SkBlendMode fBlendMode;
 
     friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
     typedef GrXPFactory INHERITED;
 };
+#if defined(__GNUC__) || defined(__clang)
+#pragma GCC diagnostic pop
+#endif
 
 #endif
