@@ -154,15 +154,24 @@ public:
                                                    const SkISize nv12Sizes[2], GrSurfaceOrigin,
                                                    sk_sp<SkColorSpace> = nullptr);
 
-    /**
-     *  Create a new image from the specified picture. The color space becomes a preferred
-     *  color space for playback of the picture when retrieving the rasterized image contents.
-     */
-    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
-                                          const SkMatrix*, const SkPaint*, sk_sp<SkColorSpace>);
+    enum class BitDepth {
+        kU8,
+        kF16,
+    };
 
+#ifdef SK_USE_LEGACY_MAKE_PICTURE_API
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
                                           const SkMatrix* matrix, const SkPaint* paint);
+#endif
+
+    /**
+     *  Create a new image from the specified picture.
+     *  Creating an SkImage from an SkPicture requires snapping the picture to a particular
+     *  BitDepth and SkColorSpace.
+     */
+    static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
+                                          const SkMatrix*, const SkPaint*, BitDepth,
+                                          sk_sp<SkColorSpace>);
 
     static sk_sp<SkImage> MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
 
