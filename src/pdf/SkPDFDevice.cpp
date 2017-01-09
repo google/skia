@@ -95,7 +95,6 @@ static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     tmp.lockPixels();
     auto img = SkImage::MakeFromBitmap(tmp);
     if (img) {
-        SkASSERT(!bitmap.isImmutable() || img->uniqueID() == bitmap.getGenerationID());
         SkASSERT(img->bounds().contains(subset));
     }
     SkImageSubset imageSubset(std::move(img), subset);
