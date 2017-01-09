@@ -114,17 +114,50 @@ GrProcessor::~GrProcessor() {}
 
 void GrProcessor::addTextureSampler(const TextureSampler* access) {
     fTextureSamplers.push_back(access);
-    this->addGpuResource(access->programTexture());
 }
 
 void GrProcessor::addBufferAccess(const BufferAccess* access) {
     fBufferAccesses.push_back(access);
-    this->addGpuResource(access->programBuffer());
 }
 
 void GrProcessor::addImageStorageAccess(const ImageStorageAccess* access) {
     fImageStorageAccesses.push_back(access);
-    this->addGpuResource(access->programTexture());
+}
+
+void GrProcessor::addPendingIOs() const {
+    for (const auto& sampler : fTextureSamplers) {
+        sampler->programTexture()->markPendingIO();
+    }
+    for (const auto& buffer : fBufferAccesses) {
+        buffer->programBuffer()->markPendingIO();
+    }
+    for (const auto& imageStorage : fImageStorageAccesses) {
+        imageStorage->programTexture()->markPendingIO();
+    }
+}
+
+void GrProcessor::removeRefs() const {
+    for (const auto& sampler : fTextureSamplers) {
+        sampler->programTexture()->removeRef();
+    }
+    for (const auto& buffer : fBufferAccesses) {
+        buffer->programBuffer()->removeRef();
+    }
+    for (const auto& imageStorage : fImageStorageAccesses) {
+        imageStorage->programTexture()->removeRef();
+    }
+}
+
+void GrProcessor::pendingIOComplete() const {
+    for (const auto& sampler : fTextureSamplers) {
+        sampler->programTexture()->pendingIOComplete();
+    }
+    for (const auto& buffer : fBufferAccesses) {
+        buffer->programBuffer()->pendingIOComplete();
+    }
+    for (const auto& imageStorage : fImageStorageAccesses) {
+        imageStorage->programTexture()->pendingIOComplete();
+    }
 }
 
 void* GrProcessor::operator new(size_t size) {
