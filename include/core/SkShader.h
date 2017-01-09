@@ -19,7 +19,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
-class SkFallbackAlloc;
+class SkArenaAlloc;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -475,7 +475,7 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                       const SkMatrix& ctm, const SkPaint&) const;
 
 protected:
@@ -509,7 +509,7 @@ protected:
         return nullptr;
     }
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 const SkMatrix&, const SkPaint&) const {
         return false;
     }

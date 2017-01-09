@@ -40,7 +40,7 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
 
 bool SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
-                                       SkFallbackAlloc* scratch,
+                                       SkArenaAlloc* scratch,
                                        bool shaderIsOpaque) const {
     p->append(SkRasterPipeline::luminance_to_alpha);
     return true;
