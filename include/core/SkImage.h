@@ -421,6 +421,17 @@ public:
      */
     bool isLazyGenerated() const;
 
+
+    /**
+     *  Returns true if the SkImage has a defined BitDepth and SkColorSpace.  Returns
+     *  false otherwise.  On success, |bitDepth| and |colorSpace| will be set to the
+     *  bit depth and color space of the SkImage.
+     *
+     *  @param bitDepth   Out parameter for bit depth.
+     *  @param colorSpace Out parameter for color space.
+     */
+    bool bitDepthAndColorSpace(BitDepth* bitDepth, sk_sp<SkColorSpace>* colorSpace) const;
+
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
