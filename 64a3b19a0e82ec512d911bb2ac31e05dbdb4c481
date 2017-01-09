@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_b8ad5d82",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T17:37:46Z",
+      "side": 1,
+      "message": "Haha I wish!  I was never a reviewer on the recent API change - didn\u0027t know about it until after it landed.\n\nFWIW, I think it is a big improvement over the old API.",
+      "parentUuid": "578ed681_f8ca055f",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_f831a51e",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 20
