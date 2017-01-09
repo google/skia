@@ -73,11 +73,6 @@ public:
         this->validate();
     }
 
-    /**
-     * Gets an id that is unique for this GrProgramElement object. This will never return 0.
-     */
-    uint32_t getUniqueID() const { return fUniqueID; }
-
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
@@ -87,7 +82,7 @@ public:
     }
 
 protected:
-    GrProgramElement() : fRefCnt(1), fPendingExecutions(0), fUniqueID(CreateUniqueID()) {}
+    GrProgramElement() : fRefCnt(1), fPendingExecutions(0) {}
 
     /** Subclasses registers their resources using this function. It is assumed the GrProgramResouce
         is and will remain owned by the subclass and this function will retain a raw ptr. Once a
@@ -126,8 +121,6 @@ private:
         executions. */
     virtual void notifyRefCntIsZero() const = 0;
 
-    static uint32_t CreateUniqueID();
-
     void removeRefs() const;
     void addPendingIOs() const;
     void pendingIOComplete() const;
@@ -135,7 +128,6 @@ private:
     mutable int32_t fRefCnt;
     // Count of deferred executions not yet issued to the 3D API.
     mutable int32_t fPendingExecutions;
-    uint32_t        fUniqueID;
 
     SkSTArray<4, const GrGpuResourceRef*, true> fGpuResources;
 
