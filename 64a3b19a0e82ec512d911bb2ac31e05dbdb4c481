@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "578ed681_38e88dc4",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:29:38Z",
+      "side": 1,
+      "message": "Unnecessary!  PNG is only lossless.  JPEG is only lossy.  \n\nWhy not have quality map to lossiness+quality for WEBP?  i.e.:\n\n   q\u003d100   |-\u003e lossless\n   q\u003d99    |-\u003e  lossy, Q\u003d100\n   q\u003d98    |-\u003e  lossy,Q\u003d99\n    ....",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_d8c5c151",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:29:38Z",
+      "side": 1,
+      "message": "Is this necessary?  Shouldn\u0027t SkEncodeImage try to do the best job it can at the given quality settings?  If the client wants to downsample the image, let them.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_981f3984",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 20
@@ -13,6 +47,23 @@
       "writtenOn": "2017-01-09T14:24:35Z",
       "side": 1,
       "message": "Given the comment, I\u0027d suggest naming this kMaximum8, or something similar. It\u0027s minor, but if my source is 565, I\u0027m not shrinking.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_f8ca055f",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-09T17:29:38Z",
+      "side": 1,
+      "message": "I just moved all the clients to the new API!  Now you want to change it!  You could have told me this a month ago!",
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
