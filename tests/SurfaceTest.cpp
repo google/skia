@@ -842,9 +842,12 @@ static void test_surface_creation_and_snapshot_with_color_space(
         if (shouldWork && surface) {
             sk_sp<SkImage> image(surface->makeImageSnapshot());
             REPORTER_ASSERT_MESSAGE(reporter, image, testConfig.fDescription);
+
+            // It is ok for the image color space to not match the surface when the surface has
+            // a null color space, since images should always be tagged with a color space.
             SkColorSpace* imageColorSpace = as_IB(image)->onImageInfo().colorSpace();
-            REPORTER_ASSERT_MESSAGE(reporter, imageColorSpace == testConfig.fColorSpace.get(),
-                                    fullTestName.c_str());
+            REPORTER_ASSERT_MESSAGE(reporter, imageColorSpace == testConfig.fColorSpace.get() ||
+                                              !testConfig.fColorSpace, fullTestName.c_str());
         }
     }
 }

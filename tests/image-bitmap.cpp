@@ -16,7 +16,7 @@
 // bitmap or a different subset of the image.
 DEF_TEST(ImageBitmapIdentity, r) {
     SkBitmap bm, a, b;
-    bm.allocN32Pixels(32, 64);
+    bm.allocPixels(SkImageInfo::MakeS32(32, 64, kPremul_SkAlphaType));
     bm.eraseColor(SK_ColorBLACK);
     bm.setImmutable();
     (void)bm.extractSubset(&a, SkIRect::MakeXYWH(0, 0, 32, 32));
