@@ -213,7 +213,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     for (auto rec : recs) {
         SkPixmap pm;
         SkBitmap bm;
-        bm.allocN32Pixels(100, 100);
+        bm.allocPixels(SkImageInfo::MakeS32(100, 100, kPremul_SkAlphaType));
 
         auto img = SkMakeImageFromRasterBitmap(bm, rec.fCPM);
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
@@ -372,11 +372,11 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void make_bitmap_mutable(SkBitmap* bm) {
-    bm->allocN32Pixels(10, 10);
+    bm->allocPixels(SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType));
 }
 
 static void make_bitmap_immutable(SkBitmap* bm) {
-    bm->allocN32Pixels(10, 10);
+    bm->allocPixels(SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType));
     bm->setImmutable();
 }
 
@@ -761,7 +761,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendDesc.fTextureHandle);
 }
 
-static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {
+static bool almost_equal(int a, int b, int tolerance) {
+    return SkTAbs(a - b) <= tolerance;
+}
+
+static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b,
+                              int tolerance) {
     if (a->width() != b->width() || a->height() != b->height()) {
         ERRORF(reporter, "Images must have the same size");
         return;
@@ -771,7 +776,7 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
         return;
     }
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(a->width(), a->height());
+    SkImageInfo info = SkImageInfo::MakeS32(a->width(), a->height(), kPremul_SkAlphaType);
     SkAutoPixmapStorage apm;
     SkAutoPixmapStorage bpm;
 
@@ -791,9 +796,14 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
         for (auto x = 0; x < info.width(); ++x) {
             uint32_t pixelA = *apm.addr32(x, y);
             uint32_t pixelB = *bpm.addr32(x, y);
-            if (pixelA != pixelB) {
-                ERRORF(reporter, "Expected image pixels to be the same. At %d,%d 0x%08x != 0x%08x",
-                       x, y, pixelA, pixelB);
+            if (!almost_equal(SkGetPackedR32(pixelA), SkGetPackedR32(pixelB), tolerance) ||
+                !almost_equal(SkGetPackedG32(pixelA), SkGetPackedG32(pixelB), tolerance) ||
+                !almost_equal(SkGetPackedB32(pixelA), SkGetPackedB32(pixelB), tolerance) ||
+                !almost_equal(SkGetPackedA32(pixelA), SkGetPackedA32(pixelB), tolerance))
+            {
+                ERRORF(reporter, "Expected image pixels to be the same within tolerance. "
+                                  "At %d,%d 0x%08x != 0x%08x, tolerance = %d.",
+                       x, y, pixelA, pixelB, tolerance);
                 return;
             }
         }
@@ -819,7 +829,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
             if (!texImage) {
                 ERRORF(reporter, "NewTextureFromPixmap failed.");
             } else {
-                check_images_same(reporter, image.get(), texImage.get());
+                check_images_same(reporter, image.get(), texImage.get(), 1);
             }
         }
     }
@@ -916,7 +926,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                     REPORTER_ASSERT(reporter, newImage != nullptr);
                     if (newImage) {
                         // Scale the image in software for comparison.
-                        SkImageInfo scaled_info = SkImageInfo::MakeN32(
+                        SkImageInfo scaled_info = SkImageInfo::MakeS32(
                                                     image->width() / testCase.fExpectedScaleFactor,
                                                     image->height() / testCase.fExpectedScaleFactor,
                                                     image->alphaType());
@@ -924,7 +934,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                         scaled.alloc(scaled_info);
                         image->scalePixels(scaled, testCase.fExpectedQuality);
                         sk_sp<SkImage> scaledImage = SkImage::MakeRasterCopy(scaled);
-                        check_images_same(reporter, scaledImage.get(), newImage.get());
+                        check_images_same(reporter, scaledImage.get(), newImage.get(), 0);
                     }
                     // The other context should not be able to create images from texture data
                     // created by the original context.
