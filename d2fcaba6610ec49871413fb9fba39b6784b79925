@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_632c2aac",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-09T19:43:43Z",
+      "side": 1,
+      "message": "Nit: looks like we could avoid some ref churn when dstColorSpace is non-null.  How about something like this:\n\n  sk_sp\u003cSkColorSpace\u003e colorSpace \u003d dstColorSpace\n      ? sk_ref_sp(dstColorSpace)\n      : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);\n\n  sk_sp\u003cSkImage\u003e tileImage(SkImage::MakeFromPicture(..., std::move(colorSpace));",
+      "range": {
+        "startLine": 228,
+        "startChar": 35,
+        "endLine": 228,
+        "endChar": 58
+      },
+      "revId": "d2fcaba6610ec49871413fb9fba39b6784b79925",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
