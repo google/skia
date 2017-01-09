@@ -17,7 +17,7 @@
 class SkPictureImageGenerator : SkImageGenerator {
 public:
     static SkImageGenerator* Create(const SkISize&, const SkPicture*, const SkMatrix*,
-                                    const SkPaint*, sk_sp<SkColorSpace>);
+                                    const SkPaint*, SkImage::BitDepth, sk_sp<SkColorSpace>);
 
 protected:
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
@@ -42,18 +42,23 @@ private:
 
 SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkPicture* picture,
                                                   const SkMatrix* matrix, const SkPaint* paint,
+                                                  SkImage::BitDepth bitDepth,
                                                   sk_sp<SkColorSpace> colorSpace) {
-    if (!picture || size.isEmpty()) {
+    if (!picture || size.isEmpty() || !colorSpace) {
         return nullptr;
     }
 
-    SkColorType colorType;
-    if (!colorSpace || colorSpace->gammaCloseToSRGB()) {
-        colorType = kN32_SkColorType;
-    } else if (colorSpace->gammaIsLinear()) {
-        colorType = kRGBA_F16_SkColorType;
-    } else {
+    if (SkImage::BitDepth::kF16 == bitDepth && !colorSpace->gammaIsLinear()) {
         return nullptr;
+    }
+
+    if (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear()) {
+        return nullptr;
+    }
+
+    SkColorType colorType = kN32_SkColorType;
+    if (SkImage::BitDepth::kF16 == bitDepth) {
+        colorType = kRGBA_F16_SkColorType;
     }
 
     SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), colorType,
@@ -134,8 +139,10 @@ bool SkPictureImageGenerator::onGenerateScaledPixels(const SkPixmap& scaledPixel
 
 SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const SkPicture* picture,
                                                    const SkMatrix* matrix, const SkPaint* paint,
+                                                   SkImage::BitDepth bitDepth,
                                                    sk_sp<SkColorSpace> colorSpace) {
-    return SkPictureImageGenerator::Create(size, picture, matrix, paint, std::move(colorSpace));
+    return SkPictureImageGenerator::Create(size, picture, matrix, paint, bitDepth,
+                                           std::move(colorSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

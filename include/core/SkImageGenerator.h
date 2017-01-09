@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkColor.h"
+#include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkYUVSizeInfo.h"
 
@@ -19,8 +20,6 @@ class GrTexture;
 class GrSamplerParams;
 class SkBitmap;
 class SkData;
-class SkImage;
-class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
 class SkPicture;
@@ -228,7 +227,7 @@ public:
      *  time.
      */
     static SkImageGenerator* NewFromPicture(const SkISize&, const SkPicture*, const SkMatrix*,
-                                            const SkPaint*, sk_sp<SkColorSpace>);
+                                            const SkPaint*, SkImage::BitDepth, sk_sp<SkColorSpace>);
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo& info, SkBitmap::Allocator* allocator);
 
