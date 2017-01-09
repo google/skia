@@ -258,6 +258,13 @@ public:
         return *(T*)item;
     }
 
+    template <typename... Args> T& emplace_back(Args&&... args) {
+        void* item = fAllocator.push_back();
+        SkASSERT(item);
+        new (item) T(std::forward<Args>(args)...);
+        return *(T*)item;
+    }
+
     /**
      * Remove the last item, only call if count() != 0
      */
