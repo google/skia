@@ -268,10 +268,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         SkIRect dstRect(srcRect);
         if (srcBounds && i == 1) {
-            SkRect domain;
-            matrix.mapRect(&domain, SkRect::Make(*srcBounds));
-            domain.inset((i < scaleFactorX) ? SK_ScalarHalf / srcTexture->width() : 0.0f,
-                         (i < scaleFactorY) ? SK_ScalarHalf / srcTexture->height() : 0.0f);
+            SkRect domain = SkRect::Make(*srcBounds);
+            domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
+                         (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         srcTexture.get(),
                                                         nullptr,

@@ -124,7 +124,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    fDomain.setData(pdman, bicubicEffect.domain(), texture->origin());
+    fDomain.setData(pdman, bicubicEffect.domain(), texture);
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
         pdman.setSkMatrix44(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
     }
@@ -146,7 +146,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkRect& domain)
   : INHERITED(texture, std::move(colorSpaceXform), matrix,
               GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-  , fDomain(domain, GrTextureDomain::kClamp_Mode) {
+  , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
 }
 

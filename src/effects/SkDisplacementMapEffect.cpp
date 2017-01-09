@@ -499,7 +499,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
     : fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
     , fDisplacementSampler(displacement)
     , fColorTransform(color, GrSamplerParams::kNone_FilterMode)
-    , fDomain(GrTextureDomain::MakeTexelDomain(color, SkIRect::MakeSize(colorDimensions)),
+    , fDomain(color, GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
               GrTextureDomain::kDecal_Mode)
     , fColorSampler(color)
     , fColorSpaceXform(std::move(colorSpaceXform))
@@ -651,7 +651,7 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
                 colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
-    fGLDomain.setData(pdman, displacementMap.domain(), colorTex->origin());
+    fGLDomain.setData(pdman, displacementMap.domain(), colorTex);
     if (SkToBool(displacementMap.colorSpaceXform())) {
         pdman.setSkMatrix44(fColorSpaceXformUni, displacementMap.colorSpaceXform()->srcToDst());
     }

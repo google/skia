@@ -1066,16 +1066,16 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         // Use a constrained texture domain to avoid color bleeding
         SkRect domain;
         if (srcRect.width() > SK_Scalar1) {
-            domain.fLeft  = (srcRect.fLeft + 0.5f) * iw;
-            domain.fRight = (srcRect.fRight - 0.5f) * iw;
+            domain.fLeft  = srcRect.fLeft + 0.5f;
+            domain.fRight = srcRect.fRight - 0.5f;
         } else {
-            domain.fLeft = domain.fRight = srcRect.centerX() * iw;
+            domain.fLeft = domain.fRight = srcRect.centerX();
         }
         if (srcRect.height() > SK_Scalar1) {
-            domain.fTop  = (srcRect.fTop + 0.5f) * ih;
-            domain.fBottom = (srcRect.fBottom - 0.5f) * ih;
+            domain.fTop  = srcRect.fTop + 0.5f;
+            domain.fBottom = srcRect.fBottom - 0.5f;
         } else {
-            domain.fTop = domain.fBottom = srcRect.centerY() * ih;
+            domain.fTop = domain.fBottom = srcRect.centerY();
         }
         if (bicubic) {
             fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,

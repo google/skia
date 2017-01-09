@@ -30,20 +30,13 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
     GrPaint paint;
     paint.setGammaCorrect(true);
 
-    SkScalar sx SK_INIT_TO_AVOID_WARNING;
-    SkScalar sy SK_INIT_TO_AVOID_WARNING;
-    if (subset) {
-        sx = 1.f / inputTexture->width();
-        sy = 1.f / inputTexture->height();
-    }
-
     if (copyParams.fFilter != GrSamplerParams::kNone_FilterMode && subset &&
         (subset->width() != copyParams.fWidth || subset->height() != copyParams.fHeight)) {
         SkRect domain;
-        domain.fLeft = (subset->fLeft + 0.5f) * sx;
-        domain.fTop = (subset->fTop + 0.5f)* sy;
-        domain.fRight = (subset->fRight - 0.5f) * sx;
-        domain.fBottom = (subset->fBottom - 0.5f) * sy;
+        domain.fLeft = subset->fLeft + 0.5f;
+        domain.fTop = subset->fTop + 0.5f;
+        domain.fRight = subset->fRight - 0.5f;
+        domain.fBottom = subset->fBottom - 0.5f;
         // This would cause us to read values from outside the subset. Surely, the caller knows
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
@@ -59,6 +52,9 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
 
     SkRect localRect;
     if (subset) {
+        SkScalar sx = SK_Scalar1 / inputTexture->width();
+        SkScalar sy = SK_Scalar1 / inputTexture->height();
+
         localRect = SkRect::Make(*subset);
         localRect.fLeft *= sx;
         localRect.fTop *= sy;
@@ -149,10 +145,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     // Unless we know the amount of outset and the texture matrix we have to conservatively enforce
     // the domain.
     if (restrictFilterToRect) {
-        domainRect->fLeft = constraintRect.fLeft + kDomainInset;
-        domainRect->fTop = constraintRect.fTop + kDomainInset;
-        domainRect->fRight = constraintRect.fRight - kDomainInset;
-        domainRect->fBottom = constraintRect.fBottom - kDomainInset;
+        *domainRect = constraintRect.makeInset(kDomainInset, kDomainInset);
     } else if (textureContentArea) {
         // If we got here then: there is a textureContentArea, the coords are limited to the
         // constraint rect, and we're allowed to filter across the constraint rect boundary. So
@@ -213,10 +206,6 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     if (domainRect->fTop > domainRect->fBottom) {
         domainRect->fTop = domainRect->fBottom = SkScalarAve(domainRect->fTop, domainRect->fBottom);
     }
-    domainRect->fLeft /= texW;
-    domainRect->fTop /= texH;
-    domainRect->fRight /= texW;
-    domainRect->fBottom /= texH;
     return kDomain_DomainMode;
 }
 
