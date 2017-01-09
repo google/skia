@@ -347,6 +347,8 @@ public:
         kIsOpaque_SaveLayerFlag         = 1 << 0,
         kPreserveLCDText_SaveLayerFlag  = 1 << 1,
 
+        kLast_SaveLayerFlag             = kPreserveLCDText_SaveLayerFlag,
+
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
 #endif
@@ -355,12 +357,17 @@ public:
 
     struct SaveLayerRec {
         SaveLayerRec()
-            : fBounds(nullptr), fPaint(nullptr), fBackdrop(nullptr), fSaveLayerFlags(0)
+            : fBounds(nullptr)
+            , fPaint(nullptr)
+            , fBackdrop(nullptr)
+            , fColorSpace(nullptr)
+            , fSaveLayerFlags(0)
         {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
             : fBounds(bounds)
             , fPaint(paint)
             , fBackdrop(nullptr)
+            , fColorSpace(nullptr)
             , fSaveLayerFlags(saveLayerFlags)
         {}
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -368,13 +375,32 @@ public:
             : fBounds(bounds)
             , fPaint(paint)
             , fBackdrop(backdrop)
+            , fColorSpace(nullptr)
             , fSaveLayerFlags(saveLayerFlags)
         {}
+        SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                     SkColorSpace* colorSpace, SaveLayerFlags saveLayerFlags)
+            : fBounds(bounds)
+            , fPaint(paint)
+            , fBackdrop(backdrop)
+            , fColorSpace(colorSpace)
+            , fSaveLayerFlags(saveLayerFlags | kOverrideColorSpace_SaveLayerFlag)
+        {}
 
-        const SkRect*           fBounds;    // optional
-        const SkPaint*          fPaint;     // optional
-        const SkImageFilter*    fBackdrop;  // optional
+        const SkRect*           fBounds;     // optional
+        const SkPaint*          fPaint;      // optional
+        const SkImageFilter*    fBackdrop;   // optional
+        SkColorSpace*           fColorSpace; // optional
         SaveLayerFlags          fSaveLayerFlags;
+
+        bool overrideColorSpace() const {
+            return SkToBool(fSaveLayerFlags & kOverrideColorSpace_SaveLayerFlag);
+        }
+
+    private:
+        enum {
+            kOverrideColorSpace_SaveLayerFlag = kLast_SaveLayerFlag << 1,
+        };
     };
 
     int saveLayer(const SaveLayerRec&);

@@ -1163,7 +1163,8 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 }
 
 static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool isOpaque,
-                                   const SkPaint* paint) {
+                                   const SkPaint* paint, bool useOverrideColorSpace,
+                                   SkColorSpace* overrideColorSpace) {
     // need to force L32 for now if we have an image filter. Once filters support other colortypes
     // e.g. sRGB or F16, we can remove this check
     // SRGBTODO: Can we remove this check now?
@@ -1174,8 +1175,15 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
         // force to L32
         return SkImageInfo::MakeN32(w, h, alphaType);
     } else {
-        // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, sk_ref_sp(prev.colorSpace()));
+        // keep the same characteristics as the prev, or the override we were given
+        SkColorType colorType = prev.colorType();
+        SkColorSpace* colorSpace = prev.colorSpace();
+        if (useOverrideColorSpace) {
+            colorType = (overrideColorSpace && overrideColorSpace->gammaIsLinear())
+                ? kRGBA_F16_SkColorType : kN32_SkColorType;
+            colorSpace = overrideColorSpace;
+        }
+        return SkImageInfo::Make(w, h, colorType, alphaType, sk_ref_sp(colorSpace));
     }
 }
 
@@ -1252,7 +1260,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
 
     SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), isOpaque,
-                                       paint);
+                                       paint, rec.overrideColorSpace(), rec.fColorSpace);
 
     sk_sp<SkBaseDevice> newDevice;
     {
