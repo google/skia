@@ -57,6 +57,24 @@
       "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_7e791d30",
+        "filename": "src/image/SkImage_Generator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-09T21:53:11Z",
+      "side": 1,
+      "message": "Understood.  I was counting on the fact that the passed in color space is always non-null - so this will force color correct output here.",
+      "parentUuid": "578ed681_38116d74",
+      "revId": "0b316b268b7ba4e5ae1e6ff8cafd9f4d3b211bc0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
