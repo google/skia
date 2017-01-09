@@ -22,14 +22,6 @@
 #include "SkGrPriv.h"
 #endif
 
-// fixes https://bug.skia.org/5096
-static bool is_not_subset(const SkBitmap& bm) {
-    SkASSERT(bm.pixelRef());
-    SkISize dim = bm.pixelRef()->info().dimensions();
-    SkASSERT(dim != bm.dimensions() || bm.pixelRefOrigin().isZero());
-    return dim == bm.dimensions();
-}
-
 class SkImage_Raster : public SkImage_Base {
 public:
     static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
@@ -74,10 +66,11 @@ public:
     }
 
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
+    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false);
     virtual ~SkImage_Raster();
 
     SkImageInfo onImageInfo() const override {
-        return fBitmap.info();
+        return fBitmap.info().makeColorSpace(fColorSpace);
     }
     SkAlphaType onAlphaType() const override {
         return fBitmap.alphaType();
@@ -96,20 +89,6 @@ public:
 
     bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const override;
 
-    SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
-        : INHERITED(bm.width(), bm.height(),
-                    is_not_subset(bm) ? bm.getGenerationID()
-                                      : (uint32_t)kNeedNewImageUniqueID)
-        , fBitmap(bm)
-    {
-        if (bm.pixelRef()->isPreLocked()) {
-            // we only preemptively lock if there is no chance of triggering something expensive
-            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
-            fBitmap.lockPixels();
-        }
-        SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
-    }
-
     bool onIsLazyGenerated() const override {
         return fBitmap.pixelRef() && fBitmap.pixelRef()->isLazyGenerated();
     }
@@ -122,6 +101,7 @@ public:
 
 private:
     SkBitmap fBitmap;
+    sk_sp<SkColorSpace> fColorSpace;
 
 #if SK_SUPPORT_GPU
     mutable sk_sp<GrTexture> fPinnedTexture;
@@ -139,15 +119,59 @@ static void release_data(void* addr, void* context) {
     data->unref();
 }
 
+static sk_sp<SkColorSpace> color_space_for_image(const SkImageInfo& info) {
+    if (info.colorSpace()) {
+        return sk_ref_sp(info.colorSpace());
+    }
+
+    if (kRGBA_F16_SkColorType == info.colorType()) {
+        return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    }
+
+    return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+}
+
 SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowBytes,
                                SkColorTable* ctable)
     : INHERITED(info.width(), info.height(), kNeedNewImageUniqueID)
+    , fColorSpace(color_space_for_image(info))
 {
     void* addr = const_cast<void*>(data->data());
 
-    fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
+    fBitmap.installPixels(info.makeColorSpace(fColorSpace), addr, rowBytes, ctable, release_data,
+                          data.release());
     fBitmap.setImmutable();
     fBitmap.lockPixels();
+}
+
+static uint32_t image_id(const SkBitmap& bm) {
+    SkASSERT(bm.pixelRef());
+    SkISize dim = bm.pixelRef()->info().dimensions();
+    SkASSERT(dim != bm.dimensions() || bm.pixelRefOrigin().isZero());
+    // Fixes https://bug.skia.org/5096
+    if (dim != bm.dimensions()) {
+        return kNeedNewImageUniqueID;
+    }
+
+    // Images created from untagged bitmaps will be treated as sRGB.
+    if (!bm.colorSpace()) {
+        return kNeedNewImageUniqueID;
+    }
+
+    return bm.getGenerationID();
+}
+
+SkImage_Raster::SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable)
+    : INHERITED(bm.width(), bm.height(), image_id(bm))
+    , fBitmap(bm)
+    , fColorSpace(color_space_for_image(bm.info()))
+{
+    if (bm.pixelRef()->isPreLocked()) {
+        // we only preemptively lock if there is no chance of triggering something expensive
+        // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
+        fBitmap.lockPixels();
+    }
+    SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
 }
 
 SkImage_Raster::~SkImage_Raster() {
