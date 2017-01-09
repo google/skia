@@ -370,54 +370,54 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
 static int testNumber = 55;
 static const char* testName = "pathOpTest";
 
-static void writeTestName(const char* nameSuffix, SkString& outFile) {
-    outFile.appendf("%s%d", testName, testNumber);
+static void appendTestName(const char* nameSuffix, SkString& out) {
+    out.appendf("%s%d", testName, testNumber);
     ++testNumber;
     if (nameSuffix) {
-        outFile.append(nameSuffix);
+        out.append(nameSuffix);
     }
 }
 
-static void outputToStream(const char* pathStr, const char* pathPrefix, const char* nameSuffix,
-        const char* testFunction, bool twoPaths, SkString& outFile) {
+static void appendTest(const char* pathStr, const char* pathPrefix, const char* nameSuffix,
+                       const char* testFunction, bool twoPaths, SkString& out) {
 #if 0
-    outFile.writeText("\n<div id=\"");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText("\">\n");
+    out.append("\n<div id=\"");
+    appendTestName(nameSuffix, out);
+    out.append("\">\n");
     if (pathPrefix) {
-        outFile.writeText(pathPrefix);
+        out.append(pathPrefix);
     }
-    outFile.writeText(pathStr);
-    outFile.writeText("</div>\n\n");
+    out.append(pathStr);
+    out.append("</div>\n\n");
 
-    outFile.writeText(marker);
-    outFile.writeText("    ");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText(",\n\n\n");
+    out.append(marker);
+    out.append("    ");
+    appendTestName(nameSuffix, out);
+    out.append(",\n\n\n");
 #endif
-    outFile.append("static void ");
-    writeTestName(nameSuffix, outFile);
-    outFile.append("(skiatest::Reporter* reporter) {\n    SkPath path");
+    out.append("static void ");
+    appendTestName(nameSuffix, out);
+    out.append("(skiatest::Reporter* reporter) {\n    SkPath path");
     if (twoPaths) {
-        outFile.append(", pathB");
+        out.append(", pathB");
     }
-    outFile.append(";\n");
+    out.append(";\n");
     if (pathPrefix) {
-        outFile.append(pathPrefix);
+        out.append(pathPrefix);
     }
-    outFile.appendf("%s    %s\n}\n\n", pathStr, testFunction);
+    out.appendf("%s    %s\n}\n\n", pathStr, testFunction);
 #if 0
-    outFile.writeText("static void (*firstTest)() = ");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText(";\n\n");
+    out.append("static void (*firstTest)() = ");
+    appendTestName(nameSuffix, out);
+    out.append(";\n\n");
 
-    outFile.writeText("static struct {\n");
-    outFile.writeText("    void (*fun)();\n");
-    outFile.writeText("    const char* str;\n");
-    outFile.writeText("} tests[] = {\n");
-    outFile.writeText("    TEST(");
-    writeTestName(nameSuffix, outFile);
-    outFile.writeText("),\n");
+    out.append("static struct {\n");
+    out.append("    void (*fun)();\n");
+    out.append("    const char* str;\n");
+    out.append("} tests[] = {\n");
+    out.append("    TEST(");
+    appendTestName(nameSuffix, out);
+    out.append("),\n");
 #endif
 }
 
@@ -447,7 +447,7 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
             nameSuffix = "x";
         }
         const char testFunction[] = "testSimplify(reporter, path);";
-        outputToStream(pathStr, pathPrefix, nameSuffix, testFunction, false, str);
+        appendTest(pathStr, pathPrefix, nameSuffix, testFunction, false, str);
         SkDebugf("%s", str.c_str());
         REPORTER_ASSERT(state.fReporter, 0);
     }
@@ -634,14 +634,14 @@ void PathOpsThreadState::outputProgress(const char* pathStr, SkPath::FillType pa
         pathPrefix = "    path.setFillType(SkPath::kEvenOdd_FillType);\n";
         nameSuffix = "x";
     }
-    outputToStream(pathStr, pathPrefix, nameSuffix, testFunction, false, fPathStr);
+    appendTest(pathStr, pathPrefix, nameSuffix, testFunction, false, fPathStr);
 }
 
 void PathOpsThreadState::outputProgress(const char* pathStr, SkPathOp op) {
     const char testFunction[] = "testOp(path);";
     SkASSERT((size_t) op < SK_ARRAY_COUNT(opSuffixes));
     const char* nameSuffix = opSuffixes[op];
-    outputToStream(pathStr, nullptr, nameSuffix, testFunction, true, fPathStr);
+    appendTest(pathStr, nullptr, nameSuffix, testFunction, true, fPathStr);
 }
 
 void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
