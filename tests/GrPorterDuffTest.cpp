@@ -67,7 +67,7 @@ public:
     struct XPInfo {
         XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
                const GrPipelineAnalysis& analysis) {
-            sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
+            const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
             sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
             TEST_ASSERT(!xpf->willNeedDstTexture(caps, analysis));
             xpf->getInvariantBlendedColor(analysis.fColorPOI, &fBlendedColor);
@@ -1097,7 +1097,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
     SkASSERT(covPOI.isFourChannelOutput());
 
-    sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(SkBlendMode::kSrcOver));
+    const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
     TEST_ASSERT(!xpf->willNeedDstTexture(caps, analysis));
 
     sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(analysis, false, nullptr, caps));
@@ -1171,7 +1171,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
             }
             for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
                 SkBlendMode xfermode = static_cast<SkBlendMode>(m);
-                sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
+                const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(xfermode);
                 GrXferProcessor::DstTexture* dstTexture =
                         xpf->willNeedDstTexture(caps, analysis) ? &fakeDstTexture : 0;
                 sk_sp<GrXferProcessor> xp(
