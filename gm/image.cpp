@@ -246,7 +246,7 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                    info.dimensions(), nullptr, nullptr,
+                                    info.dimensions(), nullptr, nullptr, SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
@@ -345,6 +345,7 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
     draw_opaque_contents(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
     return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr,
+                                            SkImage::BitDepth::kU8,
                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 

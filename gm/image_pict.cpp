@@ -66,11 +66,13 @@ protected:
 
         SkMatrix matrix;
         matrix.setTranslate(-100, -100);
-        fImage0 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr, srgbColorSpace);
+        fImage0 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr,
+                                           SkImage::BitDepth::kU8, srgbColorSpace);
         matrix.postTranslate(-50, -50);
         matrix.postRotate(45);
         matrix.postTranslate(50, 50);
-        fImage1 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr, srgbColorSpace);
+        fImage1 = SkImage::MakeFromPicture(fPicture, size, &matrix, nullptr,
+                                           SkImage::BitDepth::kU8, srgbColorSpace);
     }
 
     void drawSet(SkCanvas* canvas) const {
@@ -109,6 +111,7 @@ static SkImageGenerator* make_pic_generator(GrContext*, SkPicture* pic) {
     SkMatrix matrix;
     matrix.setTranslate(-100, -100);
     return SkImageGenerator::NewFromPicture(SkISize::Make(100, 100), pic, &matrix, nullptr,
+                                            SkImage::BitDepth::kU8,
                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
