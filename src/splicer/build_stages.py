@@ -9,11 +9,21 @@ import re
 import subprocess
 import sys
 
-cflags = '-std=c++11 -Os -fomit-frame-pointer -mavx2 -mfma -mf16c'
+cflags = '-std=c++11 -Os -fomit-frame-pointer'.split()
 
-subprocess.check_call(['clang++'] + cflags.split() +
+hsw = '-mavx2 -mfma -mf16c'.split()
+subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
-                      ['-o', 'stages.o'])
+                      ['-o', 'hsw.o'])
+
+aarch64 = [
+    '--target=aarch64-linux-android',
+    '--sysroot=' +
+    '/Users/mtklein/brew/opt/android-ndk/platforms/android-21/arch-arm64',
+]
+subprocess.check_call(['clang++'] + cflags + aarch64 +
+                      ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
+                      ['-o', 'aarch64.o'])
 
 print '''/*
  * Copyright 2017 Google Inc.

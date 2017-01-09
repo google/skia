@@ -93,10 +93,12 @@ namespace {
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
+        #if !defined(__aarch64__)
             // To keep things simple, only one target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
+        #endif
 
             SkDynamicMemoryWStream buf;
 
