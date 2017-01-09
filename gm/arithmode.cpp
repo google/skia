@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
@@ -13,7 +14,6 @@
 #include "SkImageSource.h"
 #include "SkShader.h"
 #include "SkSurface.h"
-#include "SkXfermodeImageFilter.h"
 
 #define WW  100
 #define HH  32
@@ -109,8 +109,8 @@ protected:
                 canvas->drawImage(dst, 0, 0);
                 canvas->translate(gap, 0);
                 SkPaint paint;
-                paint.setImageFilter(SkXfermodeImageFilter::MakeArithmetic(k[0], k[1], k[2], k[3],
-                                     true, dstFilter, srcFilter, nullptr));
+                paint.setImageFilter(SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], true,
+                                                                   dstFilter, srcFilter, nullptr));
                 canvas->saveLayer(&rect, &paint);
                 canvas->restore();
 
@@ -137,12 +137,10 @@ protected:
                 canvas->translate(gap, 0);
 
                 sk_sp<SkImageFilter> bg =
-                    SkXfermodeImageFilter::MakeArithmetic(0, 0, -one / 2, 1, enforcePMColor,
-                                                          dstFilter);
+                        SkArithmeticImageFilter::Make(0, 0, -one / 2, 1, enforcePMColor, dstFilter);
                 SkPaint p;
-                p.setImageFilter(SkXfermodeImageFilter::MakeArithmetic(0, one / 2, -one, 1, true,
-                                                                       std::move(bg), dstFilter,
-                                                                       nullptr));
+                p.setImageFilter(SkArithmeticImageFilter::Make(0, one / 2, -one, 1, true,
+                                                               std::move(bg), dstFilter, nullptr));
                 canvas->saveLayer(&rect, &p);
                 canvas->restore();
                 canvas->translate(gap, 0);
