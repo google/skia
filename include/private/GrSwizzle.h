@@ -93,6 +93,7 @@ public:
     static GrSwizzle RGBA() { return GrSwizzle("rgba"); }
     static GrSwizzle AAAA() { return GrSwizzle("aaaa"); }
     static GrSwizzle RRRR() { return GrSwizzle("rrrr"); }
+    static GrSwizzle RRRA() { return GrSwizzle("rrra"); }
     static GrSwizzle BGRA() { return GrSwizzle("bgra"); }
 
     static GrSwizzle CreateRandom(SkRandom* random) {
