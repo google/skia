@@ -21,6 +21,7 @@ class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
 class SkMetaData;
+class SkRasterHandleAllocator;
 class SkRegion;
 class SkSpecialImage;
 class GrRenderTarget;
@@ -111,6 +112,8 @@ public:
      *  the default origin in its canvas' matrix/clip
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
+
+    virtual void* getRasterHandle() const { return nullptr; }
 
 protected:
     enum TileUsage {
@@ -292,15 +295,18 @@ protected:
         CreateInfo(const SkImageInfo& info,
                    TileUsage tileUsage,
                    SkPixelGeometry geo,
-                   bool preserveLCDText)
+                   bool preserveLCDText,
+                   SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(AdjustGeometry(info, tileUsage, geo, preserveLCDText))
+            , fAllocator(allocator)
         {}
 
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        SkRasterHandleAllocator* fAllocator = nullptr;
     };
 
     /**
