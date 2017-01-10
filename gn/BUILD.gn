@@ -82,11 +82,13 @@ config("default") {
       "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
       "$windk/../Windows Kits/8.1/Include/shared",
       "$windk/../Windows Kits/8.1/Include/um",
+      "$windk/../Windows Kits/8.1/Include/winrt",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.10586.0/shared",
-      "$windk/win_sdk/Include/10.0.10586.0/ucrt",
-      "$windk/win_sdk/Include/10.0.10586.0/um",
+      "$windk/win_sdk/Include/10.0.14393.0/shared",
+      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
+      "$windk/win_sdk/Include/10.0.14393.0/um",
+      "$windk/win_sdk/Include/10.0.14393.0/winrt",
     ]
     lib_dirs = [
       # For local builds.
@@ -94,8 +96,8 @@ config("default") {
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.10586.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.10586.0/um/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
     ]
     if (target_cpu == "x86") {
       lib_dirs += [ "$windk/VC/lib" ]
