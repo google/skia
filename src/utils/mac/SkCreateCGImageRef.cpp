@@ -178,6 +178,30 @@ void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+CGContextRef SkCreateCGContext(const SkPixmap& pmap) {
+    CGBitmapInfo cg_bitmap_info = 0;
+    size_t bitsPerComponent = 0;
+    switch (pmap.colorType()) {
+        case kRGBA_8888_SkColorType:
+            bitsPerComponent = 8;
+            cg_bitmap_info = ComputeCGAlphaInfo_RGBA(pmap.alphaType());
+            break;
+        case kBGRA_8888_SkColorType:
+            bitsPerComponent = 8;
+            cg_bitmap_info = ComputeCGAlphaInfo_BGRA(pmap.alphaType());
+            break;
+        default:
+            return nullptr;   // no other colortypes are supported (for now)
+    }
+
+    size_t rb = pmap.addr() ? pmap.rowBytes() : 0;
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGContextRef cg = CGBitmapContextCreate(pmap.writable_addr(), pmap.width(), pmap.height(),
+                                            bitsPerComponent, rb, cs, cg_bitmap_info);
+    CFRelease(cs);
+    return cg;
+}
+
 SK_API bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, void* pixels,
                                     CGImageRef image) {
     CGBitmapInfo cg_bitmap_info = 0;
