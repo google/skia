@@ -119,7 +119,7 @@ private:
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
     bool initializeXforms(const SkImageInfo& dstInfo, const Options&, SkPMColor* colorPtr,
                           int* colorCount);
-    void initializeSwizzler(const SkImageInfo& dstInfo, const Options&);
+    void initializeSwizzler(const SkImageInfo& dstInfo, const Options&, bool skipFormatConversion);
     void allocateStorage(const SkImageInfo& dstInfo);
     void destroyReadStruct();
 
