@@ -15,6 +15,7 @@
 #include "SkDeque.h"
 #include "SkImage.h"
 #include "SkPaint.h"
+#include "SkRasterHandleAllocator.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
@@ -216,6 +217,8 @@ public:
      *  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
      */
     void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL);
+
+    SkRasterHandleAllocator::Handle accessTopRasterHandle() const;
 
     /**
      *  If the canvas has readable pixels in its base layer (and is not recording to a picture
@@ -1569,6 +1572,7 @@ private:
     int         fSaveCount;         // value returned by getSaveCount()
 
     SkMetaData* fMetaData;
+    std::unique_ptr<SkRasterHandleAllocator> fAllocator;
 
     SkSurface_Base*  fSurfaceBase;
     SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
@@ -1599,6 +1603,7 @@ private:
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
     friend class SkDeferredCanvas;  // For use of resetForNextPicture
     friend class SkOverdrawCanvas;
+    friend class SkRasterHandleAllocator;
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
@@ -1606,6 +1611,8 @@ private:
     };
     SkCanvas(const SkIRect& bounds, InitFlags);
     SkCanvas(SkBaseDevice* device, InitFlags);
+    SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
+             SkRasterHandleAllocator::Handle);
 
     void resetForNextPicture(const SkIRect& bounds);
 
