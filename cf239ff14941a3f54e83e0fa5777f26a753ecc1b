@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_2414e863",
+        "filename": "include/core/SkRasterHandleAllocator.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-10T16:37:53Z",
+      "side": 1,
+      "message": "SK_API",
+      "range": {
+        "startLine": 35,
+        "startChar": 6,
+        "endLine": 35,
+        "endChar": 29
+      },
+      "revId": "cf239ff14941a3f54e83e0fa5777f26a753ecc1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
