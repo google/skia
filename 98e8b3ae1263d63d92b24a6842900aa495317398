@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_49bb4570",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T14:00:19Z",
+      "side": 1,
+      "message": "I think it\u0027d be easier to follow the parallels between load_u16_be and load_tables_u16_be if from_u16_be were inlined here.",
+      "revId": "98e8b3ae1263d63d92b24a6842900aa495317398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_29be0161",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T14:00:19Z",
+      "side": 1,
+      "message": "A little endianness reminder might help here.\n\n// ctx-\u003efSrc is big-endian, so \u0026 SkNh(0xFF) grabs the 8 most significant bits of each component.\n\nI think you may be able to just write \u0026 0xff.   If not, \u0026 SkNh(0xFF) is perfectly fine of course.",
+      "revId": "98e8b3ae1263d63d92b24a6842900aa495317398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
