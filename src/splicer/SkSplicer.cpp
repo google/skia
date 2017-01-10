@@ -14,10 +14,16 @@
 #include "SkSplicer_generated.h"
 #include "SkSplicer_shared.h"
 
-// Uncomment to dump output with IACA markers.
-// #define IACA_DUMP "/tmp/dump.o"
-// https://software.intel.com/en-us/articles/intel-architecture-code-analyzer
-// $ ./iaca.sh -arch HSW -64 -mark 0 /tmp/dump.o | less
+// Uncomment to dump output JIT'd pipeline.
+//#define DUMP "/tmp/dump.bin"
+//
+// On x86, we'll include IACA markers too.
+//   https://software.intel.com/en-us/articles/intel-architecture-code-analyzer
+// Running IACA will disassemble, and more.
+//   $ ./iaca.sh -arch HSW -64 -mark 0 /tmp/dump.bin | less
+//
+// To disassemble an aarch64 dump,
+//   $ gobjdump -b binary -m aarch64 -D dump.bin
 
 namespace {
 
@@ -56,7 +62,7 @@ namespace {
     static void loop(SkWStream* buf, int loop_start) {
         splice(buf, 0x91001000);        // add x0, x0, #4
         splice(buf, 0xeb01001f);        // cmp x0, x1
-        int off = loop_start - (int)(buf->bytesWritten() + 4);  // TODO: check that this is right
+        int off = loop_start - (int)buf->bytesWritten();
         off /= 4;   // bytes -> instructions, still signed
         off = (off & 0x7ffff) << 5;  // 19 bit maximum range (+- 256K instructions)
         splice(buf, 0x54000003 | off); // b.cc loop_start  (cc == "carry clear", unsigned less than)
@@ -93,7 +99,7 @@ namespace {
     }
 #endif
 
-#ifdef IACA_DUMP
+#if !defined(__aarch64__) && defined(DUMP)
     static const uint8_t      ud2[] = { 0x0f, 0x0b };         // undefined... crashes when run
     static const uint8_t     nop3[] = { 0x64, 0x67, 0x90 };   // 3 byte no-op
     static const uint8_t movl_ebx[] = { 0xbb };               // move next 4 bytes into ebx
@@ -204,8 +210,8 @@ namespace {
             fSplicedLen = data->size();
             fSpliced    = copy_to_executable_mem(data->data(), fSplicedLen);
 
-        #ifdef IACA_DUMP
-            SkFILEWStream(IACA_DUMP).write(data->data(), data->size());
+        #if defined(DUMP)
+            SkFILEWStream(DUMP).write(data->data(), data->size());
         #endif
         }
 
