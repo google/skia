@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "578ed681_a48c588a",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T17:15:36Z",
+      "side": 1,
+      "message": "\"Tries to return a conservative depth/space that will be lossess when use in readpixels ...\"",
+      "range": {
+        "startLine": 425,
+        "startChar": 5,
+        "endLine": 425,
+        "endChar": 6
+      },
+      "revId": "d4da0a9a54ed6abf220a014ca674d77b5fe05e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_64875066",
+        "filename": "src/image/SkImage_Generator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T17:15:36Z",
+      "side": 1,
+      "message": "this sequence using a \"cache\" seems confusing for a result that ought to be purely a function of the generator and skia\u0027s heuristics for wacky spaces/configs",
+      "range": {
+        "startLine": 98,
+        "startChar": 24,
+        "endLine": 98,
+        "endChar": 31
+      },
+      "revId": "d4da0a9a54ed6abf220a014ca674d77b5fe05e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_fe62ed53",
         "filename": "tests/ImageTest.cpp",
         "patchSetId": 11
