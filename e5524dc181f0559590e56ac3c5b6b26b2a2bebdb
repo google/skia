@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_78ba90c0",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T22:40:22Z",
+      "side": 1,
+      "message": "According to the standard, at this point the bytes are not unicode, and should have no mutation. Maybe you should just return if you can.",
+      "range": {
+        "startLine": 445,
+        "startChar": 20,
+        "endLine": 445,
+        "endChar": 25
+      },
+      "revId": "e5524dc181f0559590e56ac3c5b6b26b2a2bebdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_5b32264e",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T22:40:22Z",
+      "side": 1,
+      "message": "I think this may be dangerous behavior. Could it leave *ptr unchanged.  Please see: http://unicode.org/reports/tr36/#UTF-8_Exploit. Specifically, section 3.1.1 if you must change *ptr. According to the std, the correct response is:\nC10 When a process interprets a code unit sequence which purports to be in a Unicode character\nencoding form, it shall treat ill-formed code unit sequences as an error condition\nand shall not interpret such sequences as characters.",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 46
+      },
+      "revId": "e5524dc181f0559590e56ac3c5b6b26b2a2bebdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
