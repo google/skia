@@ -43,14 +43,6 @@ namespace {
 
 #if defined(__aarch64__)
     static constexpr int kStride = 4;
-    static void set_k(SkWStream* buf, const SkSplicer_constants* k) {
-        uint16_t parts[4];
-        memcpy(parts, &k, 8);
-        splice(buf, 0xd2f00000 | (parts[3] << 5) | 0x3);  // move  16-bit intermediate << 48 into x3
-        splice(buf, 0xf2c00000 | (parts[2] << 5) | 0x3);  // merge 16-bit intermediate << 32 into x3
-        splice(buf, 0xf2a00000 | (parts[1] << 5) | 0x3);  // merge 16-bit intermediate << 16 into x3
-        splice(buf, 0xf2800000 | (parts[0] << 5) | 0x3);  // merge 16-bit intermediate <<  0 into x3
-    }
     static void set_ctx(SkWStream* buf, void* ctx) {
         uint16_t parts[4];
         memcpy(parts, &ctx, 8);
@@ -72,11 +64,6 @@ namespace {
     }
 #else
     static constexpr int kStride = 8;
-    static void set_k(SkWStream* buf, const SkSplicer_constants* k) {
-        static const uint8_t movabsq_rcx[] = { 0x48, 0xb9 };
-        splice(buf, movabsq_rcx);  // movabsq <next 8 bytes>, %rcx
-        splice(buf, k);
-    }
     static void set_ctx(SkWStream* buf, void* ctx) {
         static const uint8_t movabsq_rdx[] = { 0x48, 0xba };
         splice(buf, movabsq_rdx);  // movabsq <next 8 bytes>, %rdx
@@ -156,9 +143,6 @@ namespace {
 
             SkDynamicMemoryWStream buf;
 
-            // Put the address of kConstants in rcx/x3, Stage argument 4 "k".
-            set_k(&buf, &kConstants);
-
             // Our loop is the equivalent of this C++ code:
             //    do {
             //        ... run spliced stages...
@@ -229,8 +213,8 @@ namespace {
             size_t body = n/kStride*kStride;   // Largest multiple of kStride (4 or 8) <= n.
             if (fSpliced && body) {            // Can we run fSpliced for at least one kStride?
                 // TODO: At some point we will want to pass in y...
-                using Fn = void(size_t x, size_t limit);
-                ((Fn*)fSpliced)(x, x+body);
+                using Fn = void(size_t x, size_t limit, void* ctx, const SkSplicer_constants* k);
+                ((Fn*)fSpliced)(x, x+body, nullptr, &kConstants);
 
                 // Fall through to fBackup for any n<kStride last pixels.
                 x += body;

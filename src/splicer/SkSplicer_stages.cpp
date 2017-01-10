@@ -69,7 +69,7 @@ using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 //   x:         rdi/x0          x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
 //   limit:     rsi/x1
 //   ctx:       rdx/x2          Look for set_ctx in SkSplicer.cpp to see how this works.
-//   k:         rcx/x3          Look for set_k in SkSplicer.cpp to see how this works.
+//   k:         rcx/x3
 //   vectors:   ymm0-ymm7/v0-v7
 
 
