@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_237062f4",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "This would be easier to follow if you didn\u0027t refer to probabilities, and instead just named the parameters what they do:\n\ne.g. (char* block, size_t block_size, size_t firstMallocSize \u003d 0 /*automatic*/)",
+      "revId": "9c8725db0ac9015ddee77df8667a9cac87db5926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
