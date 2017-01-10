@@ -25,7 +25,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTypes.h"
 #include <memory>
 
 #if defined(SK_CAN_USE_DLOPEN)
@@ -291,7 +290,7 @@ static void ft_face_setup_axes(FT_Face face, const SkFontData& data) {
             SkDEBUGF(("INFO: font %s claims variations, but none found.\n", face->family_name));
             return;
         }
-        SkAutoFree autoFreeVariations(variations);
+        std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>> autoFreeVariations(variations);
 
         if (static_cast<FT_UInt>(data.getAxisCount()) != variations->num_axis) {
             SkDEBUGF(("INFO: font %s has %d variations, but %d were specified.\n",
@@ -1713,7 +1712,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
                       face->family_name));
             return false;
         }
-        SkAutoFree autoFreeVariations(variations);
+        std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>> autoFreeVariations(variations);
 
         axes->reset(variations->num_axis);
         for (FT_UInt i = 0; i < variations->num_axis; ++i) {

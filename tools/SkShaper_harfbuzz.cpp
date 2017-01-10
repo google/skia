@@ -28,10 +28,9 @@ std::unique_ptr<hb_blob_t, HBFBlobDel> stream_to_blob(std::unique_ptr<SkStreamAs
                                   [](void* p) { delete (SkStreamAsset*)p; }));
     } else {
         // SkDebugf("Extra SkStreamAsset copy\n");
-        SkAutoMalloc autoMalloc(size);
-        asset->read(autoMalloc.get(), size);
-        void* ptr = autoMalloc.get();
-        blob.reset(hb_blob_create((char*)autoMalloc.release(), SkToUInt(size),
+        void* ptr = size ? sk_malloc_throw(size) : nullptr;
+        asset->read(ptr, size);
+        blob.reset(hb_blob_create((char*)ptr, SkToUInt(size),
                                   HB_MEMORY_MODE_READONLY, ptr, sk_free));
     }
     SkASSERT(blob);

@@ -345,9 +345,8 @@ private:
         SkDEBUGCODE(lines.verticesEnd = lines.vertices + fMaxLineVertices;)
 
         MSAAQuadVertices quads;
-        size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
-        SkAutoFree quadVertexPtr(sk_malloc_throw(fMaxQuadVertices * quadVertexStride));
-        quads.vertices = (MSAAQuadVertices::Vertex*) quadVertexPtr.get();
+        SkAutoTMalloc<MSAAQuadVertices::Vertex> quadVertexArray(SkToSizeT(fMaxQuadVertices));
+        quads.vertices = quadVertexArray.get();
         quads.nextVertex = quads.vertices;
         SkDEBUGCODE(quads.verticesEnd = quads.vertices + fMaxQuadVertices;)
 
@@ -366,15 +365,9 @@ private:
             lines.nextIndex = nullptr;
         }
 
-        SkAutoFree quadIndexPtr;
-        if (fIsIndexed) {
-            quads.indices = (uint16_t*)sk_malloc_throw(3 * fMaxQuadVertices * sizeof(uint16_t));
-            quadIndexPtr.set(quads.indices);
-            quads.nextIndex = quads.indices;
-        } else {
-            quads.indices = nullptr;
-            quads.nextIndex = nullptr;
-        }
+        SkAutoTMalloc<uint16_t> quadIndexArray(fIsIndexed ? SkToSizeT(3 * fMaxQuadVertices) : 0);
+        quads.indices = quadIndexArray.get();
+        quads.nextIndex = quads.indices;
 
         // fill buffers
         for (int i = 0; i < fPaths.count(); i++) {
@@ -421,6 +414,7 @@ private:
 
         if (quadVertexOffset) {
             sk_sp<const GrGeometryProcessor> quadGP(MSAAQuadProcessor::Create(fViewMatrix));
+            constexpr size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
             SkASSERT(quadVertexStride == quadGP->getVertexStride());
 
             const GrBuffer* quadVertexBuffer;
