@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_495905a2",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T13:37:03Z",
+      "side": 1,
+      "message": "To what?\n\nIt\u0027s still dst in the sense that it takes the same role in blending math.  We only change where we write the result.\n\n    b \u003d blend_fn(d,s)\n    d\u0027 \u003d lerp(d,b, coverage)\n\njust becomes\n\n    b \u003d blend_fn(d,s)\n    t \u003d lerp(d,b, coverage)",
+      "parentUuid": "578ed681_29036179",
+      "revId": "c4316de32cb573dcbd8eac5f7eff376a1fff9056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_4900256a",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 2
