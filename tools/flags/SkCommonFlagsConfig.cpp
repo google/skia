@@ -58,9 +58,11 @@ static const struct {
     { "debug",                 "gpu", "api=debug" },
     { "nullgpu",               "gpu", "api=null" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
+    { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
     { "angle_d3d11_es2_msaa4", "gpu", "api=angle_d3d11_es2,samples=4" },
     { "angle_gl_es2",          "gpu", "api=angle_gl_es2" },
+    { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
     { "commandbuffer",         "gpu", "api=commandbuffer" }
 #if SK_MESA
     ,{ "mesa",                 "gpu", "api=mesa" }
