@@ -25,6 +25,39 @@ subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
+def parse_object_file(dot_o, array_type, done):
+  for line in subprocess.check_output(['gobjdump', '-d', dot_o]).split('\n'):
+    line = line.strip()
+    if not line or line.startswith(dot_o) or line.startswith('Disassembly'):
+      continue
+
+    # E.g. 00000000000003a4 <_load_f16>:
+    m = re.match('''................ <_?(.*)>:''', line)
+    if m:
+      print 'static const', array_type, 'kSplice_' + m.group(1) + '[] = {'
+      continue
+
+    columns = line.split('\t')
+    code = columns[1]
+    if len(columns) == 4:
+      inst = columns[2]
+      args = columns[3]
+    else:
+      inst, args = columns[2].split(' ', 1)
+    code, inst, args = code.strip(), inst.strip(), args.strip()
+
+    # We can't splice code that uses ip-relative addressing.
+    for arg in args:
+      assert 'rip' not in arg  # TODO: detect on aarch64 too
+
+    if code == done:
+      print '};'
+      continue
+
+    hexed = ''.join('0x'+x+',' for x in code.split(' '))
+    print '    ' + hexed + ' '*(44-len(hexed)) + \
+          '//  ' + inst  + ' '*(14-len(inst))  + args
+
 print '''/*
  * Copyright 2017 Google Inc.
  *
@@ -40,74 +73,8 @@ print '''/*
 
 #if defined(__aarch64__)
 '''
-for line in subprocess.check_output(['gobjdump', '-d',
-                                     'aarch64.o']).split('\n'):
-  line = line.strip()
-  if not line or line.startswith('aarch64.o') or line.startswith('Disassembly'):
-    continue
-
-  m = re.match('''................ <(.*)>:''', line)
-  if m:
-    print 'static const unsigned int kSplice_' + m.group(1) + '[] = {'
-    continue
-
-  _, code, inst, args = line.split('\t')
-  code = code.strip()
-
-  # b done, where done has not yet been filled in by the linker.
-  if code == '14000000':
-    print '};'
-    continue
-  print '   ', '0x'+code+',' + '    // ' + inst + ' ' + args
-
-print '''
-#else
-'''
-
-# TODO: port this to gobjdump too
-for line in subprocess.check_output(['otool', '-tvj', 'hsw.o']).split('\n'):
-  line = line.strip()
-  if line == '' or line == 'hsw.o:' or line == '(__TEXT,__text) section':
-    continue
-
-  m = re.match('_(.*):', line)
-  if m:
-    name = m.group(1)
-    print 'static const unsigned char kSplice_' + m.group(1) + '[] = {'
-    continue
-
-  # Skip the leading 16 byte address and a tab,
-  # leaving the code, instruction mnemonic, and its arguments.
-  line = line[17:]
-  columns = line.split('\t')
-  code = columns[0].strip()
-  inst = columns[1]
-  args = columns[2:]
-
-  # We can't splice code that uses rip relative addressing.
-  for arg in args:
-    assert 'rip' not in arg
-
-  # jmp done, the end of each stage (the address of done is not yet filled in)
-  if code == 'e9 00 00 00 00':
-    print '};'
-    continue
-
-  sys.stdout.write('    ')
-  _bytes = code.split(' ')
-  # This is the meat of things: copy the code to a C unsigned char array.
-  for byte in _bytes:
-    sys.stdout.write('0x' + byte + ',')
-  # From here on we're just making the generated file readable and pretty.
-  sys.stdout.write(' ' * (44 - 5*len(_bytes)))
-  sys.stdout.write('// ' + inst)
-  if args:
-    sys.stdout.write(' ' * (13 - len(inst)))
-    sys.stdout.write(' '.join(args))
-  sys.stdout.write('\n')
-
-print '''
-#endif
-'''
-
-print '''#endif//SkSplicer_generated_DEFINED'''
+parse_object_file('aarch64.o', 'unsigned int', '14000000')
+print '\n#else\n'
+parse_object_file('hsw.o', 'unsigned char', 'e9 00 00 00 00')
+print '\n#endif\n'
+print '#endif//SkSplicer_generated_DEFINED'
