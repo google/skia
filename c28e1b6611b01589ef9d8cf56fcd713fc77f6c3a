@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "578ed681_04a0c42a",
+        "filename": "include/core/SkBitmapDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:28:25Z",
+      "side": 1,
+      "message": "I know it\u0027s the same type, but I think the intention would be clearer if this type were SkRasterHandleAllocator::Handle. At least, I think that\u0027s what this is. It appears that the definition actually is SkRasterHandleAllocator::Handle.",
+      "range": {
+        "startLine": 59,
+        "startChar": 19,
+        "endLine": 59,
+        "endChar": 24
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_a49458d1",
+        "filename": "include/core/SkBitmapDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:28:25Z",
+      "side": 1,
+      "message": "This is also SkRasterHandleAllocator::Handle, is it not?",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 9
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c4995c08",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1614,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:28:25Z",
+      "side": 1,
+      "message": "This is also SkRasterHandleAllocator::Handle?",
+      "range": {
+        "startLine": 1614,
+        "startChar": 72,
+        "endLine": 1614,
+        "endChar": 77
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_248948b6",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:28:25Z",
+      "side": 1,
+      "message": "Not sure what this void* is. Is it SkRasterHandleAllocator::Handle or something else? If something else can it be commented what it is?",
+      "range": {
+        "startLine": 1626,
+        "startChar": 49,
+        "endLine": 1626,
+        "endChar": 54
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_39ff87f4",
         "filename": "include/core/SkDevice.h",
         "patchSetId": 6
