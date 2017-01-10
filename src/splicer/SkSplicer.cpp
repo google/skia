@@ -113,7 +113,9 @@ namespace {
         if (src && len) {
             // TODO: w^x
             auto fn = mmap(nullptr, len, PROT_WRITE|PROT_EXEC, MAP_ANON|MAP_PRIVATE, -1, 0);
-            return memcpy(fn, src, len);
+            memcpy(fn, src, len);
+            __builtin___clear_cache((char*)fn, (char*)fn + len);
+            return fn;
         }
         return nullptr;
     }
