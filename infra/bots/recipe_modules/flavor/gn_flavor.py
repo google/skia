@@ -40,7 +40,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
-      '95ddda401ec5678f15eeed01d2bee08fcbc5ee97'))
+      'd3cb0e37bdd120ad0ac4650b674b09e81be45616'))
     win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
 
     cc, cxx = None, None

@@ -2835,7 +2835,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -2867,7 +2867,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -2899,7 +2899,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -2931,7 +2931,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -2963,7 +2963,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -2995,7 +2995,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3027,7 +3027,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3059,7 +3059,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3091,7 +3091,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3123,7 +3123,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3155,7 +3155,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         },
         {
           "name": "skia/bots/win_vulkan_sdk",
@@ -3192,7 +3192,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3224,7 +3224,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3256,7 +3256,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "dimensions": [
@@ -3288,7 +3288,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:5"
+          "version": "version:6"
         },
         {
           "name": "skia/bots/win_vulkan_sdk",
