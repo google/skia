@@ -22,6 +22,24 @@
       "revId": "cf239ff14941a3f54e83e0fa5777f26a753ecc1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_243628fa",
+        "filename": "include/core/SkRasterHandleAllocator.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:58:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_2414e863",
+      "revId": "cf239ff14941a3f54e83e0fa5777f26a753ecc1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
