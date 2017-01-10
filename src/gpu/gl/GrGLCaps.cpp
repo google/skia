@@ -1726,6 +1726,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
+    fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    fConfigTable[kAlpha_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     if (this->textureRedSupport()) {
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
@@ -1742,9 +1745,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             GR_GL_ALPHA;
         fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
-    fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kAlpha_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     if (this->textureRedSupport() ||
         (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
         // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
@@ -1756,6 +1756,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
+    fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kGray_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    fConfigTable[kGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     if (this->textureRedSupport()) {
         fConfigTable[kGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
@@ -1772,9 +1775,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             GR_GL_LUMINANCE;
         fConfigTable[kGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
     }
-    fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kGray_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
 #if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster
     if (this->textureRedSupport() ||
         (kDesktop_ARB_MSFBOType == this->msFBOType() &&
@@ -1842,6 +1842,16 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_float_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
+    if (hasHalfFPTextures) {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+        // ES requires either 3.2 or the combination of EXT_color_buffer_half_float and support for
+        // GL_RED internal format.
+        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
+            (this->textureRedSupport() &&
+             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
+            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
+        }
+    }
     if (this->textureRedSupport()) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R16F;
@@ -1869,16 +1879,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
     }
     fConfigTable[kAlpha_half_GrPixelConfig].fFormatType = kFloat_FormatType;
-    if (hasHalfFPTextures) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        // ES requires either 3.2 or the combination of EXT_color_buffer_half_float and support for
-        // GL_RED internal format.
-        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3,2) ||
-            (this->textureRedSupport() &&
-             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
-            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
-        }
-    }
     if (texStorageSupported) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
