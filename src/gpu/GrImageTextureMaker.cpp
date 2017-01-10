@@ -9,6 +9,7 @@
 
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
+#include "SkConservativeInfo.h"
 #include "SkGrPriv.h"
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
@@ -39,10 +40,10 @@ GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped, SkColorSpa
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
                                       SkColorSpace* dstColorSpace) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
-        SkImageCacherator::CachedFormat cacheFormat =
-            fCacher->chooseCacheFormat(dstColorSpace, this->context()->caps());
+        SkConservativeInfo::Format format = SkConservativeInfo::ChooseFormat(
+                fCacher->info(), dstColorSpace, this->context()->caps());
         GrUniqueKey cacheKey;
-        fCacher->makeCacheKeyFromOrigKey(fOriginalKey, cacheFormat, &cacheKey);
+        fCacher->makeCacheKeyFromOrigKey(fOriginalKey, format, &cacheKey);
         MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
 }
