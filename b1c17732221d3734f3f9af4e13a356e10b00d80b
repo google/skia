@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_fe7d0d59",
+        "filename": "src/splicer/build_stages.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T03:04:49Z",
+      "side": 1,
+      "message": "It would be useful if there was an example line(s) of what you are trying to parse, here and below.",
+      "range": {
+        "startLine": 49,
+        "startChar": 9,
+        "endLine": 49,
+        "endChar": 14
+      },
+      "revId": "b1c17732221d3734f3f9af4e13a356e10b00d80b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
