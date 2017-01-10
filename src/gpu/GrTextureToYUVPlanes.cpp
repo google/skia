@@ -32,7 +32,7 @@ static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW
     }
 
     sk_sp<GrFragmentProcessor> fp(
-            GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::MakeScale(xScale, yScale), filter));
+            GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::MakeScale(xScale, yScale), filter)); //$$
     if (!fp) {
         return false;
     }

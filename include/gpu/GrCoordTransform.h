@@ -63,7 +63,7 @@ public:
 
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
-        fMatrix = that.fMatrix;
+        fMatrix1 = that.fMatrix1;
         fReverseY = that.fReverseY;
         fPrecision = that.fPrecision;
         return *this;
@@ -75,19 +75,19 @@ public:
      */
     SkMatrix* accessMatrix() {
         SkASSERT(!fInProcessor);
-        return &fMatrix;
+        return &fMatrix1;
     }
 
     bool operator==(const GrCoordTransform& that) const {
-        return fMatrix.cheapEqualTo(that.fMatrix) &&
+        return fMatrix1.cheapEqualTo(that.fMatrix1) &&
                fReverseY == that.fReverseY &&
                fPrecision == that.fPrecision;
     }
 
     bool operator!=(const GrCoordTransform& that) const { return !(*this == that); }
 
-    const SkMatrix& getMatrix() const { return fMatrix; }
-    bool reverseY() const { return fReverseY; }
+    const SkMatrix& getMatrix() const { return fMatrix1; }
+    bool reverseY1() const { return fReverseY; }
     GrSLPrecision precision() const { return fPrecision; }
 
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
@@ -100,7 +100,7 @@ public:
     }
 
 private:
-    SkMatrix                fMatrix;
+    SkMatrix                fMatrix1;
     bool                    fReverseY;
     GrSLPrecision           fPrecision;
     typedef SkNoncopyable INHERITED;

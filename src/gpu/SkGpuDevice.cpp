@@ -1090,7 +1090,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
         fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, params);
+        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, params); //$$
     }
 
     GrPaint grPaint;
@@ -1182,7 +1182,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     GrPaint grPaint;
     sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
                                                               std::move(colorSpaceXform),
-                                                              SkMatrix::I()));
+                                                              SkMatrix::I())); //$$
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {

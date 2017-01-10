@@ -28,11 +28,11 @@ void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const SkMatrix& matrix) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
                                                                 std::move(colorSpaceXform),
-                                                                matrix));
+                                                                matrix)); //$$
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix)); //$$
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
@@ -41,14 +41,14 @@ void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        const GrSamplerParams& params) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
                                                                 std::move(colorSpaceXform),
-                                                                matrix, params));
+                                                                matrix, params)); //$$
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                           const SkMatrix& matrix,
                                           const GrSamplerParams& params) {
     this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                   params));
+                                                                   params)); //$$
 }
 
 bool GrPaint::internalIsConstantBlendedColor(GrColor paintColor, GrColor* color) const {

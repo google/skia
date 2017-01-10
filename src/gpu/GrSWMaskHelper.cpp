@@ -188,7 +188,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
                                                      maskMatrix,
-                                                     GrSamplerParams::kNone_FilterMode));
+                                                     GrSamplerParams::kNone_FilterMode)); //$$
 
     std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
                                                                   dstRect, nullptr, &invert);

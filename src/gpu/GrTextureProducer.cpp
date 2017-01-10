@@ -225,7 +225,7 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
             return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
-                                               params);
+                                               params); //$$
         }
     } else {
         if (kDomain_DomainMode == domainMode) {

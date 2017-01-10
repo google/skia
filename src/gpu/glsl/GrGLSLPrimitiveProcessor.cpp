@@ -16,7 +16,9 @@ SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatri
                                                       const GrCoordTransform& coordTransform) {
     SkMatrix combined;
     combined.setConcat(coordTransform.getMatrix(), localMatrix);
-    if (coordTransform.reverseY()) {
+    // munge here
+
+    if (coordTransform.reverseY1()) {
         // combined.postScale(1,-1);
         // combined.postTranslate(0,1);
         combined.set(SkMatrix::kMSkewY,

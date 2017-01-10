@@ -86,5 +86,5 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix); //$$
 }

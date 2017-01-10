@@ -15,7 +15,7 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     SkASSERT(texture);
     SkASSERT(!fInProcessor);
 
-    fMatrix = m;
+    fMatrix1 = m;
     fReverseY = kBottomLeft_GrSurfaceOrigin == texture->origin();
 
     // Always start at kDefault. Then if precisions differ we see if the precision needs to be
@@ -54,7 +54,7 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
 
 void GrCoordTransform::reset(const SkMatrix& m, GrSLPrecision precision) {
     SkASSERT(!fInProcessor);
-    fMatrix = m;
+    fMatrix1 = m;
     fReverseY = false;
     fPrecision = precision;
 }

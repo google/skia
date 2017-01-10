@@ -76,25 +76,25 @@ public:
      * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
      */
     void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
+        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix)); //$$
     }
 
     void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
+        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix)); //$$
     }
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
                                   const GrSamplerParams& params) {
         this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                    params));
+                                                                    params)); //$$
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
                                      const GrSamplerParams& params) {
         this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                       params));
+                                                                       params)); //$$
     }
 
     /**
