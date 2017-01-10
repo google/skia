@@ -7,6 +7,7 @@
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
+#include "SkAutoMalloc.h"
 #include "SkBuffer.h"
 #include "SkDataTable.h"
 #include "SkFixed.h"
@@ -19,7 +20,6 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
-#include "SkTypes.h"
 
 #include <fontconfig/fontconfig.h>
 #include <unistd.h>
