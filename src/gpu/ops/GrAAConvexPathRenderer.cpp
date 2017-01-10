@@ -970,9 +970,9 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fShape->asPath(&path);
 
     std::unique_ptr<GrDrawOp> op =
-            AAConvexPathOp::Make(args.fPaint->getColor(), *args.fViewMatrix, path);
+            AAConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path);
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));

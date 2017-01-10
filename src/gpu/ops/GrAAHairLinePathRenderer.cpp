@@ -952,9 +952,9 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       &devClipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrDrawOp> op = AAHairlineOp::Make(args.fPaint->getColor(), *args.fViewMatrix,
+    std::unique_ptr<GrDrawOp> op = AAHairlineOp::Make(args.fPaint.getColor(), *args.fViewMatrix,
                                                       path, args.fShape->style(), devClipBounds);
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;

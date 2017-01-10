@@ -108,7 +108,7 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    void testingOnly_addDrawOp(const GrPaint&,
+    void testingOnly_addDrawOp(GrPaint&&,
                                GrAAType,
                                std::unique_ptr<GrDrawOp>,
                                const GrUserStencilSettings* = nullptr,

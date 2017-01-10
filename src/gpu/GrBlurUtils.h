@@ -49,13 +49,12 @@ namespace GrBlurUtils {
                                 GrRenderTargetContext*,
                                 const GrClip&,
                                 const SkPath& path,
-                                GrPaint*,
+                                GrPaint&&,
                                 GrAA,
                                 const SkMatrix& viewMatrix,
                                 const SkMaskFilter*,
                                 const GrStyle&,
                                 bool pathIsMutable);
-
 };
 
 #endif

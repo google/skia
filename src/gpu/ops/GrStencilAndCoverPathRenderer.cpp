@@ -113,7 +113,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
         std::unique_ptr<GrDrawOp> coverOp(GrRectOpFactory::MakeNonAAFill(
-                args.fPaint->getColor(), viewM, bounds, nullptr, &invert));
+                args.fPaint.getColor(), viewM, bounds, nullptr, &invert));
 
         // fake inverse with a stencil and cover
         args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,
@@ -138,7 +138,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             if (GrAAType::kMixedSamples == coverAAType) {
                 coverAAType = GrAAType::kNone;
             }
-            GrPipelineBuilder pipelineBuilder(*args.fPaint, coverAAType);
+            GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), coverAAType);
             pipelineBuilder.setUserStencil(&kInvertedCoverPass);
 
             args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(coverOp));
@@ -155,9 +155,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         );
 
         std::unique_ptr<GrDrawOp> op =
-                GrDrawPathOp::Make(viewMatrix, args.fPaint->getColor(), path.get());
+                GrDrawPathOp::Make(viewMatrix, args.fPaint.getColor(), path.get());
 
-        GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+        GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
         pipelineBuilder.setUserStencil(&kCoverPass);
         args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     }

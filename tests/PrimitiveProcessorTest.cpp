@@ -125,7 +125,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     GrPaint grPaint;
     // This one should succeed.
-    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+    renderTargetContext->priv().testingOnly_addDrawOp(GrPaint(grPaint), GrAAType::kNone,
                                                       Op::Make(attribCnt));
     context->flush();
 #if GR_GPU_STATS
@@ -133,7 +133,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
     context->resetGpuStats();
-    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+    renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), GrAAType::kNone,
                                                       Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS

@@ -89,8 +89,8 @@ protected:
 
                     std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
             canvas->restore();
             x = x + fTestOffsetX;

@@ -160,7 +160,7 @@ sk_sp<GrTexture> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
 
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                GrRenderTargetContext* renderTargetContext,
-                                               const GrPaint& paint,
+                                               GrPaint&& paint,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
@@ -181,16 +181,14 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                             SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
+                                                                  dstRect, nullptr, &invert);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
-
     pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
                                                      maskMatrix,
                                                      GrSamplerParams::kNone_FilterMode));
-
-    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
-                                                                  dstRect, nullptr, &invert);
     renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 }

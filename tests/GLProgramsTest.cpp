@@ -339,8 +339,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
         GrAAType aaType = kAATypes[random.nextULessThan(SK_ARRAY_COUNT(kAATypes))];
 
-        renderTargetContext->priv().testingOnly_addDrawOp(grPaint, aaType, std::move(op), uss,
-                                                          snapToCenters);
+        renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), aaType, std::move(op),
+                                                          uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -374,7 +374,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
+            renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint), GrAAType::kNone,
                                                               std::move(op));
             drawingManager->flush();
         }
