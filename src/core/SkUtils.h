@@ -9,6 +9,7 @@
 #define SkUtils_DEFINED
 
 #include "SkTypes.h"
+#include "SkMath.h"
 
 /** Similar to memset(), but it assigns a 16bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -58,7 +59,26 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
 }
 
 int         SkUTF8_CountUnichars(const char utf8[]);
-int         SkUTF8_CountUnichars(const char utf8[], size_t byteLength);
+
+/** This function is safe: invalid UTF8 sequences will return -1; */
+int         SkUTF8_CountUnicharsWithError(const char utf8[], size_t byteLength);
+
+/** This function is safe: invalid UTF8 sequences will return 0; */
+inline int  SkUTF8_CountUnichars(const char utf8[], size_t byteLength) {
+    return SkClampPos(SkUTF8_CountUnicharsWithError(utf8, byteLength));
+}
+
+/** This function is safe: invalid UTF8 sequences will return -1
+ *  *ptr is always advanced at least one byte.
+ *  Precondition: *ptr < end;
+ */
+SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end);
+
+/** this version replaces invalid utf-8 sequences with code point 0. */
+inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
+    return SkClampPos(SkUTF8_NextUnicharWithError(ptr, end));
+}
+
 SkUnichar   SkUTF8_ToUnichar(const char utf8[]);
 SkUnichar   SkUTF8_NextUnichar(const char**);
 SkUnichar   SkUTF8_PrevUnichar(const char**);
@@ -99,5 +119,4 @@ inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
     }
     return true;
 }
-
 #endif
