@@ -22,6 +22,24 @@
       "revId": "506fdb0d68848fea537047774c4bf5e8bd37a6b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_585f8c57",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-10T20:33:22Z",
+      "side": 1,
+      "message": "I\u0027m not overly concerned about sending really small paths through the sw upload case.",
+      "parentUuid": "578ed681_499a6559",
+      "revId": "506fdb0d68848fea537047774c4bf5e8bd37a6b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
