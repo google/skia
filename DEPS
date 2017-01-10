@@ -42,8 +42,6 @@ deps = {
 
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
-
-  "third_party/externals/xbyak" : "https://skia.googlesource.com/third_party/xbyak@3a99e90",
 }
 
 recursedeps = [ "common" ]
