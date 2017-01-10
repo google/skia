@@ -9,6 +9,7 @@
 #define CodecBench_DEFINED
 
 #include "Benchmark.h"
+#include "SkAutoMalloc.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"

@@ -8,11 +8,12 @@
 #include "DMSrcSink.h"
 #include "Resources.h"
 #include "SkAndroidCodec.h"
+#include "SkAutoMalloc.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDebugCanvas.h"
@@ -37,10 +38,10 @@
 #include "SkRecorder.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
-#include "SkTLogic.h"
 #include "SkSwizzler.h"
-#include <functional>
+#include "SkTLogic.h"
 #include <cmath>
+#include <functional>
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"

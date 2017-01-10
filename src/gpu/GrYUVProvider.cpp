@@ -11,6 +11,7 @@
 #include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
 
+#include "SkAutoMalloc.h"
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"

@@ -462,4 +462,6 @@ private:
     SkAlignedSStorage<sizeof(T)*N> fStorage;
 };
 
+using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>>;
+
 #endif

@@ -6,6 +6,7 @@
  */
 
 #include "Resources.h"
+#include "SkAutoMalloc.h"
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
 #include "SkOSFile.h"

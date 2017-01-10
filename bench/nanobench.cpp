@@ -25,8 +25,9 @@
 #include "Stats.h"
 
 #include "SkAndroidCodec.h"
-#include "SkBitmapRegionDecoder.h"
+#include "SkAutoMalloc.h"
 #include "SkBBoxHierarchy.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
@@ -38,13 +39,13 @@
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
+#include "SkSVGDOM.h"
+#include "SkScan.h"
 #include "SkString.h"
 #include "SkSurface.h"
-#include "SkSVGDOM.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
-#include "SkScan.h"
 
 #include <stdlib.h>
 

@@ -28,14 +28,16 @@
 #undef INT64_MAX
 #undef UINT64_MAX
 
-#include <wincodec.h>
 #include "SkAutoCoInitialize.h"
+#include "SkAutoMalloc.h"
 #include "SkBitmap.h"
 #include "SkImageEncoderPriv.h"
 #include "SkIStream.h"
+#include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
 #include "SkUnPreMultiply.h"
+#include <wincodec.h>
 
 //All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.
 //In the Windows8 SDK the CLSID_WICImagingFactory symbol is still exported
