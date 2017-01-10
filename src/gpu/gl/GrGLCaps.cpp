@@ -1756,39 +1756,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
-    if (this->textureRedSupport()) {
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_RED;
-        fConfigTable[kGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RRRA();
-        if (texelBufferSupport) {
-            fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
-        }
-    } else {
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_LUMINANCE;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_LUMINANCE8;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_LUMINANCE;
-        fConfigTable[kGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-    }
-    fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kGray_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-#if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster
-    if (this->textureRedSupport() ||
-        (kDesktop_ARB_MSFBOType == this->msFBOType() &&
-         ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
-        // desktop ARB extension/3.0+ supports LUMINANCE8 as renderable.
-        // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
-        // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
-        fConfigTable[kGray_8_GrPixelConfig].fFlags |= allRenderFlags;
-    }
-#endif
-    if (texStorageSupported) {
-        fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-
     // Check for [half] floating point texture support
     // NOTE: We disallow floating point textures on ES devices if linear filtering modes are not
     // supported. This is for simplicity, but a more granular approach is possible. Coincidentally,
