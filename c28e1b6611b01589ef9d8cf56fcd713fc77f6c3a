@@ -52,6 +52,121 @@
       "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_84b11494",
+        "filename": "include/core/SkRasterHandleAllocator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:21:08Z",
+      "side": 1,
+      "message": "nit: trailing whitespace here and below",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 4
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_a4c218ee",
+        "filename": "samplecode/SampleBigGradient.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:21:08Z",
+      "side": 1,
+      "message": "nit: lots of trailing whitespace in this file",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 8
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_84da74d0",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:21:08Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 4
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_24d708ab",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3423,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:21:08Z",
+      "side": 1,
+      "message": "nit: trailing whitespace here and below",
+      "range": {
+        "startLine": 3423,
+        "startChar": 0,
+        "endLine": 3423,
+        "endChar": 8
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_a47bf8db",
+        "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-10T16:21:08Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 4
+      },
+      "revId": "c28e1b6611b01589ef9d8cf56fcd713fc77f6c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
