@@ -66,30 +66,29 @@ namespace {
     }
 #else
     static constexpr int kStride = 8;
+
+    template <size_t N>
+    static void splice(SkWStream* buf, const uint8_t(&vals)[N]) {
+        buf->write(vals, N);
+    }
+
     static void set_k(SkWStream* buf, const SkSplicer_constants* k) {
-        static const uint8_t movabsq_rcx[] = { 0x48, 0xb9 };
-        splice(buf, movabsq_rcx);  // movabsq <next 8 bytes>, %rcx
+        splice(buf, {0x48, 0xb9});  // movabsq <next 8 bytes>, %rcx
         splice(buf, k);
     }
     static void set_ctx(SkWStream* buf, void* ctx) {
-        static const uint8_t movabsq_rdx[] = { 0x48, 0xba };
-        splice(buf, movabsq_rdx);  // movabsq <next 8 bytes>, %rdx
+        splice(buf, {0x48, 0xba});  // movabsq <next 8 bytes>, %rdx
         splice(buf, ctx);
     }
     static void loop(SkWStream* buf, int loop_start) {
-        static const uint8_t  addq_8_rdi[] = { 0x48, 0x83, 0xc7, 0x08 };
-        static const uint8_t cmp_rsi_rdi[] = { 0x48, 0x39, 0xf7 };
-        static const uint8_t     jb_near[] = { 0x0f, 0x8c };
-        splice(buf, addq_8_rdi);   // addq $8, %rdi
-        splice(buf, cmp_rsi_rdi);  // cmp %rsi, %rdi
-        splice(buf, jb_near);      // jb <next 4 bytes>  (b == "before", unsigned less than)
+        splice(buf, {0x48, 0x83, 0xc7, 0x08});  // addq $8, %rdi
+        splice(buf, {0x48, 0x39, 0xf7});        // cmp %rsi, %rdi
+        splice(buf, {0x0f, 0x8c});              // jb <next 4 bytes>  (b == "before", unsigned <)
         splice(buf, loop_start - (int)(buf->bytesWritten() + 4));
     }
     static void ret(SkWStream* buf) {
-        static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
-        static const uint8_t        ret[] = { 0xc3 };
-        splice(buf, vzeroupper);
-        splice(buf, ret);
+        splice(buf, {0xc5, 0xf8, 0x77});  // vzeroupper
+        splice(buf, {0xc3});              // ret
     }
 #endif
 
