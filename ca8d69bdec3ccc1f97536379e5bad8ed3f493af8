@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_c452bc54",
+        "filename": "include/core/SkBitmapDevice.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Yea, I did it this way for the forward-declaration",
+      "parentUuid": "578ed681_44d48ca3",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_a4a9b82f",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 9
@@ -36,6 +54,24 @@
       "writtenOn": "2017-01-10T16:23:16Z",
       "side": 1,
       "message": "explicit",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_8455943b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_a4a9b82f",
       "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_2462a820",
+        "filename": "include/core/SkRasterHandleAllocator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_24be2861",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_44bb2c70",
         "filename": "include/core/SkRasterHandleAllocator.h",
         "patchSetId": 9
@@ -70,6 +124,24 @@
       "writtenOn": "2017-01-10T16:23:16Z",
       "side": 1,
       "message": "ditto",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_445fac57",
+        "filename": "include/core/SkRasterHandleAllocator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_44bb2c70",
       "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -93,6 +165,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_e42ca0c9",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_64667047",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_84635434",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 9
@@ -104,6 +194,24 @@
       "writtenOn": "2017-01-10T16:23:16Z",
       "side": 1,
       "message": "tabs",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_a42698e5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 3423,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_84635434",
       "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -127,6 +235,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_c42b9cac",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 3460,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_247068f4",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_446d6c1b",
         "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
         "patchSetId": 9
@@ -138,6 +264,24 @@
       "writtenOn": "2017-01-10T16:23:16Z",
       "side": 1,
       "message": "tab",
+      "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_64419078",
+        "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-10T16:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_446d6c1b",
       "revId": "ca8d69bdec3ccc1f97536379e5bad8ed3f493af8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
