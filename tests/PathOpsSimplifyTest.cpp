@@ -4871,7 +4871,7 @@ static void fuzz864a(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(10, 30);
     path.lineTo(10, 90);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 static void cr514118(skiatest::Reporter* reporter,const char* filename) {
@@ -4954,7 +4954,7 @@ path.lineTo(SkBits2Float(0x41200000), SkBits2Float(0x41f00000));  // 10, 30
 path.lineTo(SkBits2Float(0x41200000), SkBits2Float(0x42b40000));  // 10, 90
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 static void fuzz994s_3414(skiatest::Reporter* reporter, const char* filename) {
@@ -5021,7 +5021,7 @@ path.lineTo(3.35546e+07f, 0);
 path.lineTo(123, 0);
 path.lineTo(123, 600);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 static void fuzz_twister2(skiatest::Reporter* reporter, const char* filename) {
@@ -6784,6 +6784,9 @@ path.close();
 }
 
 static void joel_6(skiatest::Reporter* reporter, const char* filename) {
+#if !DEBUG_UNDER_DEVLOPMENT
+    return;
+#endif
     SkPath path;
 path.moveTo(SkBits2Float(0x43c38c6a), SkBits2Float(0x43a739fc));  // 391.097f, 334.453f
 path.lineTo(SkBits2Float(0x43c36168), SkBits2Float(0x43a74efa));  // 390.761f, 334.617f
