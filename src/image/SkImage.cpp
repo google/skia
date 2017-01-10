@@ -200,20 +200,6 @@ GrBackendObject SkImage::getTextureHandle(bool) const { return 0; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool raster_canvas_supports(const SkImageInfo& info) {
-    switch (info.colorType()) {
-        case kN32_SkColorType:
-            return kUnpremul_SkAlphaType != info.alphaType();
-        case kRGB_565_SkColorType:
-            return true;
-        case kAlpha_8_SkColorType:
-            return true;
-        default:
-            break;
-    }
-    return false;
-}
-
 SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID)
     : INHERITED(width, height, uniqueID)
     , fAddedToCache(false)
@@ -223,23 +209,6 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
-}
-
-bool SkImage_Base::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                                int srcX, int srcY, CachingHint) const {
-    if (!raster_canvas_supports(dstInfo)) {
-        return false;
-    }
-
-    SkBitmap bm;
-    bm.installPixels(dstInfo, dstPixels, dstRowBytes);
-    SkCanvas canvas(bm);
-
-    SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
-    canvas.drawImage(this, -SkIntToScalar(srcX), -SkIntToScalar(srcY), &paint);
-
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
