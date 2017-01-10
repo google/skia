@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkColorSpace_Base.h"
+#include "SkConservativeInfo.h"
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkMallocPixelRef.h"
@@ -112,8 +113,8 @@ SkImageCacherator::SkImageCacherator(Validator* validator)
     , fInfo(validator->fInfo)
     , fOrigin(validator->fOrigin)
 {
-    fUniqueIDs[kLegacy_CachedFormat] = validator->fUniqueID;
-    for (int i = 1; i < kNumCachedFormats; ++i) {
+    fUniqueIDs[SkConservativeInfo::kLegacy_Format] = validator->fUniqueID;
+    for (int i = 1; i < SkConservativeInfo::kNumFormats; ++i) {
         // We lazily allocate IDs for non-default caching cases
         fUniqueIDs[i] = kNeedNewImageUniqueID;
     }
@@ -184,14 +185,16 @@ bool SkImageCacherator::directAccessScaledImage(const SkRect& srcRect,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, CachedFormat format) {
+bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap,
+                                                        SkConservativeInfo::Format format) {
     return kNeedNewImageUniqueID != fUniqueIDs[format] &&
         SkBitmapCache::Find(fUniqueIDs[format], bitmap) &&
         check_output_bitmap(*bitmap, fUniqueIDs[format]);
 }
 
 bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
-                                        SkImage::CachingHint chint, CachedFormat format,
+                                        SkImage::CachingHint chint,
+                                        SkConservativeInfo::Format format,
                                         const SkImageInfo& info) {
     if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap, format)) {
         return true;
@@ -216,8 +219,9 @@ bool SkImageCacherator::tryLockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
                                      SkColorSpace* dstColorSpace,
                                      SkImage::CachingHint chint) {
-    CachedFormat format = this->chooseCacheFormat(dstColorSpace);
-    SkImageInfo cacheInfo = this->buildCacheInfo(format);
+    SkConservativeInfo::Format format =
+            SkConservativeInfo::ChooseFormat(fInfo, dstColorSpace, nullptr);
+    SkImageInfo cacheInfo = SkConservativeInfo::Make(fInfo, format);
 
     if (kNeedNewImageUniqueID == fUniqueIDs[format]) {
         fUniqueIDs[format] = SkNextID::ImageID();
@@ -269,181 +273,10 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Abstraction of GrCaps that handles the cases where we don't have a caps pointer (because
-// we're in raster mode), or where GPU support is entirely missing. In theory, we only need the
-// chosen format to be texturable, but that lets us choose F16 on GLES implemenations where we
-// won't be able to read the texture back. We'd like to ensure that SkImake::makeNonTextureImage
-// works, so we require that the formats we choose are renderable (as a proxy for being readable).
-struct CacheCaps {
-    CacheCaps(const GrCaps* caps) : fCaps(caps) {}
-
-#if SK_SUPPORT_GPU
-    bool supportsHalfFloat() const {
-        return !fCaps ||
-            (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig) &&
-             fCaps->isConfigRenderable(kRGBA_half_GrPixelConfig, false));
-    }
-
-    bool supportsSRGB() const {
-        return !fCaps ||
-            (fCaps->srgbSupport() && fCaps->isConfigTexturable(kSRGBA_8888_GrPixelConfig));
-    }
-
-    bool supportsSBGR() const {
-        return !fCaps || fCaps->srgbSupport();
-    }
-#else
-    bool supportsHalfFloat() const { return true; }
-    bool supportsSRGB() const { return true; }
-    bool supportsSBGR() const { return true; }
-#endif
-
-    const GrCaps* fCaps;
-};
-
-SkImageCacherator::CachedFormat SkImageCacherator::chooseCacheFormat(SkColorSpace* dstColorSpace,
-                                                                     const GrCaps* grCaps) {
-    SkColorSpace* cs = fInfo.colorSpace();
-    if (!cs || !dstColorSpace) {
-        return kLegacy_CachedFormat;
-    }
-
-    CacheCaps caps(grCaps);
-    switch (fInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-            // We don't support color space on these formats, so always decode in legacy mode:
-            // TODO: Ask the codec to decode these to something else (at least sRGB 8888)?
-            return kLegacy_CachedFormat;
-
-        case kIndex_8_SkColorType:
-            // We can't draw from indexed textures with a color space, so ask the codec to expand
-            if (cs->gammaCloseToSRGB()) {
-                if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            }
-
-        case kGray_8_SkColorType:
-            // TODO: What do we do with grayscale sources that have strange color spaces attached?
-            // The codecs and color space xform don't handle this correctly (yet), so drop it on
-            // the floor. (Also, inflating by a factor of 8 is going to be unfortunate).
-            // As it is, we don't directly support sRGB grayscale, so ask the codec to convert
-            // it for us. This bypasses some really sketchy code GrUploadPixmapToTexture.
-            if (cs->gammaCloseToSRGB() && caps.supportsSRGB()) {
-                return kSRGB8888_CachedFormat;
-            } else {
-                return kLegacy_CachedFormat;
-            }
-
-        case kRGBA_8888_SkColorType:
-            if (cs->gammaCloseToSRGB()) {
-                if (caps.supportsSRGB()) {
-                    return kAsIs_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            }
-
-        case kBGRA_8888_SkColorType:
-            // Odd case. sBGRA isn't a real thing, so we may not have this texturable.
-            if (caps.supportsSBGR()) {
-                if (cs->gammaCloseToSRGB()) {
-                    return kAsIs_CachedFormat;
-                } else if (caps.supportsHalfFloat()) {
-                    return kLinearF16_CachedFormat;
-                } else if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    // sBGRA support without sRGBA is highly unlikely (impossible?) Nevertheless.
-                    return kLegacy_CachedFormat;
-                }
-            } else {
-                if (cs->gammaCloseToSRGB()) {
-                    if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
-                } else {
-                    if (caps.supportsHalfFloat()) {
-                        return kLinearF16_CachedFormat;
-                    } else if (caps.supportsSRGB()) {
-                        return kSRGB8888_CachedFormat;
-                    } else {
-                        return kLegacy_CachedFormat;
-                    }
-                }
-            }
-
-        case kRGBA_F16_SkColorType:
-            if (!caps.supportsHalfFloat()) {
-                if (caps.supportsSRGB()) {
-                    return kSRGB8888_CachedFormat;
-                } else {
-                    return kLegacy_CachedFormat;
-                }
-            } else if (cs->gammaIsLinear()) {
-                return kAsIs_CachedFormat;
-            } else {
-                return kLinearF16_CachedFormat;
-            }
-    }
-    SkDEBUGFAIL("Unreachable");
-    return kLegacy_CachedFormat;
-}
-
-SkImageInfo SkImageCacherator::buildCacheInfo(CachedFormat format) {
-    switch (format) {
-        case kLegacy_CachedFormat:
-            return fInfo.makeColorSpace(nullptr);
-        case kAsIs_CachedFormat:
-            return fInfo;
-        case kLinearF16_CachedFormat:
-            return fInfo
-                .makeColorType(kRGBA_F16_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
-        case kSRGB8888_CachedFormat:
-            return fInfo
-                .makeColorType(kRGBA_8888_SkColorType)
-                .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
-        default:
-            SkDEBUGFAIL("Invalid cached format");
-            return fInfo;
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
 #if SK_SUPPORT_GPU
 
-void SkImageCacherator::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, CachedFormat format,
+void SkImageCacherator::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey,
+                                                SkConservativeInfo::Format format,
                                                 GrUniqueKey* cacheKey) {
     SkASSERT(!cacheKey->isValid());
     if (origKey.isValid()) {
@@ -493,8 +326,7 @@ sk_sp<SkColorSpace> SkImageCacherator::getColorSpace(GrContext* ctx, SkColorSpac
     // TODO: This isn't always correct. Picture generator currently produces textures in N32,
     // and will (soon) emit them in an arbitrary (destination) space. We will need to stash that
     // information in/on the key so we can return the correct space in case #1 of lockTexture.
-    CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->caps());
-    SkImageInfo cacheInfo = this->buildCacheInfo(format);
+    SkImageInfo cacheInfo = SkConservativeInfo::Make(fInfo, dstColorSpace, ctx->caps());
     return sk_ref_sp(cacheInfo.colorSpace());
 }
 
@@ -525,7 +357,8 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 
     // Determine which cached format we're going to use (which may involve decoding to a different
     // info than the generator provides).
-    CachedFormat format = this->chooseCacheFormat(dstColorSpace, ctx->caps());
+    SkConservativeInfo::Format format =
+            SkConservativeInfo::ChooseFormat(fInfo, dstColorSpace, ctx->caps());
 
     // Fold the cache format into our texture key
     GrUniqueKey key;
@@ -543,7 +376,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
     // The CachedFormat is both an index for which cache "slot" we'll use to store this particular
     // decoded variant of the encoded data, and also a recipe for how to transform the original
     // info to get the one that we're going to decode to.
-    SkImageInfo cacheInfo = this->buildCacheInfo(format);
+    SkImageInfo cacheInfo = SkConservativeInfo::Make(fInfo, format);
 
     // 2. Ask the generator to natively create one
     {

@@ -421,6 +421,17 @@ public:
      */
     bool isLazyGenerated() const;
 
+
+    /**
+     *  Tries to return a conservative bit depth and color space that will be lossless when
+     *  used in readPixels().  Returns true on success and sets |bitDepth| and |colorSpace|.
+     *  Returns false if the bit depth and color space of the SkImage are undefined.
+     *
+     *  @param bitDepth   Out parameter for bit depth.
+     *  @param colorSpace Out parameter for color space.
+     */
+    bool bitDepthAndColorSpace(BitDepth* bitDepth, sk_sp<SkColorSpace>* colorSpace) const;
+
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 
