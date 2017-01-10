@@ -92,9 +92,6 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
 
 SkData* SkImage::encode(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
         SkDynamicMemoryWStream buf;
@@ -112,9 +109,6 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
 
     SkBitmap bm;
     SkAutoPixmapUnlock apu;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace) &&
         bm.requestLock(&apu)) {

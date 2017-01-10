@@ -38,34 +38,55 @@ static void sk_write_fn(png_structp png_ptr, png_bytep data, png_size_t len) {
     }
 }
 
-static transform_scanline_proc choose_proc(SkColorType ct, SkAlphaType alphaType) {
-    static const struct {
-        SkColorType             fColorType;
-        SkAlphaType             fAlphaType;
-        transform_scanline_proc fProc;
-    } gMap[] = {
-        { kRGB_565_SkColorType,   kOpaque_SkAlphaType,   transform_scanline_565    },
-        { kRGBA_8888_SkColorType, kOpaque_SkAlphaType,   transform_scanline_RGBX   },
-        { kBGRA_8888_SkColorType, kOpaque_SkAlphaType,   transform_scanline_BGRX   },
-        { kRGBA_8888_SkColorType, kPremul_SkAlphaType,   transform_scanline_rgbA   },
-        { kBGRA_8888_SkColorType, kPremul_SkAlphaType,   transform_scanline_bgrA   },
-        { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, transform_scanline_memcpy },
-        { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, transform_scanline_BGRA   },
-        { kARGB_4444_SkColorType, kOpaque_SkAlphaType,   transform_scanline_444    },
-        { kARGB_4444_SkColorType, kPremul_SkAlphaType,   transform_scanline_4444   },
-        { kIndex_8_SkColorType,   kOpaque_SkAlphaType,   transform_scanline_memcpy },
-        { kIndex_8_SkColorType,   kPremul_SkAlphaType,   transform_scanline_memcpy },
-        { kIndex_8_SkColorType,   kUnpremul_SkAlphaType, transform_scanline_memcpy },
-        { kGray_8_SkColorType,    kOpaque_SkAlphaType,   transform_scanline_memcpy },
-    };
-
-    for (auto entry : gMap) {
-        if (entry.fColorType == ct && entry.fAlphaType == alphaType) {
-            return entry.fProc;
-        }
+static transform_scanline_proc choose_proc(const SkImageInfo& info) {
+    const bool isGammaEncoded = info.gammaCloseToSRGB();
+    switch (info.colorType()) {
+        case kRGBA_8888_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_RGBX;
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_memcpy;
+                case kPremul_SkAlphaType:
+                    return isGammaEncoded ? transform_scanline_srgbA :
+                                            transform_scanline_rgbA;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
+        case kBGRA_8888_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_BGRX;
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_BGRA;
+                case kPremul_SkAlphaType:
+                    return isGammaEncoded ? transform_scanline_sbgrA :
+                                            transform_scanline_bgrA;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
+        case kRGB_565_SkColorType:
+            return transform_scanline_565;
+        case kARGB_4444_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                    return transform_scanline_444;
+                case kPremul_SkAlphaType:
+                    // 4444 is assumed to be legacy premul.
+                    return transform_scanline_4444;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
+        case kIndex_8_SkColorType:
+        case kGray_8_SkColorType:
+            return transform_scanline_memcpy;
+        default:
+            SkASSERT(false);
+            return nullptr;
     }
-    sk_throw();
-    return nullptr;
 }
 
 /*  Pack palette[] with the corresponding colors, and if the image has alpha, also
@@ -73,29 +94,28 @@ static transform_scanline_proc choose_proc(SkColorType ct, SkAlphaType alphaType
     opaque, the return value will always be 0.
 */
 static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT palette,
-                               png_byte* SK_RESTRICT alphas, SkAlphaType alphaType) {
-    const SkPMColor* SK_RESTRICT colors = ctable->readColors();
+                               png_byte* SK_RESTRICT alphas, const SkImageInfo& info) {
+    const SkPMColor* colors = ctable->readColors();
     const int count = ctable->count();
-    int numWithAlpha = 0;
-    if (kOpaque_SkAlphaType != alphaType) {
-        auto getUnpremulColor = [alphaType](uint8_t color, uint8_t alpha) {
-            if (kPremul_SkAlphaType == alphaType) {
-                const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
-                const SkUnPreMultiply::Scale scale = table[alpha];
-                return (uint8_t) SkUnPreMultiply::ApplyScale(scale, color);
-            } else {
-                return color;
-            }
-        };
+    SkPMColor storage[256];
+    if (kPremul_SkAlphaType == info.alphaType()) {
+        // Unpremultiply the colors.
+        const SkImageInfo rgbaInfo = info.makeColorType(kRGBA_8888_SkColorType);
+        transform_scanline_proc proc = choose_proc(rgbaInfo);
+        proc((char*) storage, (const char*) colors, ctable->count(), 4);
+        colors = storage;
+    }
 
+    int numWithAlpha = 0;
+    if (kOpaque_SkAlphaType != info.alphaType()) {
         // PNG requires that all non-opaque colors come first in the palette.  Write these first.
         for (int i = 0; i < count; i++) {
             uint8_t alpha = SkGetPackedA32(colors[i]);
             if (0xFF != alpha) {
                 alphas[numWithAlpha] = alpha;
-                palette[numWithAlpha].red   = getUnpremulColor(SkGetPackedR32(colors[i]), alpha);
-                palette[numWithAlpha].green = getUnpremulColor(SkGetPackedG32(colors[i]), alpha);
-                palette[numWithAlpha].blue  = getUnpremulColor(SkGetPackedB32(colors[i]), alpha);
+                palette[numWithAlpha].red   = SkGetPackedR32(colors[i]);
+                palette[numWithAlpha].green = SkGetPackedG32(colors[i]);
+                palette[numWithAlpha].blue  = SkGetPackedB32(colors[i]);
                 numWithAlpha++;
             }
         }
@@ -132,12 +152,24 @@ static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT pale
 
 static bool do_encode(SkWStream*, const SkPixmap&, int, int, png_color_8&);
 
-bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
+bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOptions& opts) {
+    SkASSERT(!src.colorSpace() || src.colorSpace()->gammaCloseToSRGB() ||
+             src.colorSpace()->gammaIsLinear());
+
+    SkPixmap pixmap = src;
+    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+        pixmap.setColorSpace(nullptr);
+    } else {
+        if (!pixmap.colorSpace()) {
+            return false;
+        }
+    }
+
     if (!pixmap.addr() || pixmap.info().isEmpty()) {
         return false;
     }
-    const SkColorType ct = pixmap.colorType();
-    switch (ct) {
+    const SkColorType colorType = pixmap.colorType();
+    switch (colorType) {
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
         case kRGBA_8888_SkColorType:
@@ -152,7 +184,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
     const SkAlphaType alphaType = pixmap.alphaType();
     switch (alphaType) {
         case kUnpremul_SkAlphaType:
-            if (kARGB_4444_SkColorType == ct) {
+            if (kARGB_4444_SkColorType == colorType) {
                 return false;
             }
 
@@ -169,18 +201,18 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
     png_color_8 sig_bit;
     sk_bzero(&sig_bit, sizeof(png_color_8));
 
-    int colorType;
-    switch (ct) {
+    int pngColorType;
+    switch (colorType) {
         case kIndex_8_SkColorType:
             sig_bit.red = 8;
             sig_bit.green = 8;
             sig_bit.blue = 8;
             sig_bit.alpha = 8;
-            colorType = PNG_COLOR_TYPE_PALETTE;
+            pngColorType = PNG_COLOR_TYPE_PALETTE;
             break;
         case kGray_8_SkColorType:
             sig_bit.gray = 8;
-            colorType = PNG_COLOR_TYPE_GRAY;
+            pngColorType = PNG_COLOR_TYPE_GRAY;
             SkASSERT(isOpaque);
             break;
         case kRGBA_8888_SkColorType:
@@ -189,26 +221,26 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
             sig_bit.green = 8;
             sig_bit.blue = 8;
             sig_bit.alpha = 8;
-            colorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
+            pngColorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
             break;
         case kARGB_4444_SkColorType:
             sig_bit.red = 4;
             sig_bit.green = 4;
             sig_bit.blue = 4;
             sig_bit.alpha = 4;
-            colorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
+            pngColorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
             break;
         case kRGB_565_SkColorType:
             sig_bit.red = 5;
             sig_bit.green = 6;
             sig_bit.blue = 5;
-            colorType = PNG_COLOR_TYPE_RGB;
+            pngColorType = PNG_COLOR_TYPE_RGB;
             SkASSERT(isOpaque);
             break;
         default:
             return false;
     }
-    if (kIndex_8_SkColorType == ct) {
+    if (kIndex_8_SkColorType == colorType) {
         SkColorTable* ctable = pixmap.ctable();
         if (!ctable || ctable->count() == 0) {
             return false;
@@ -218,14 +250,11 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
         // When ctable->count() <= 16, we could potentially use 1, 2,
         // or 4 bit indices.
     }
-    return do_encode(stream, pixmap, colorType, bitDepth, sig_bit);
+    return do_encode(stream, pixmap, pngColorType, bitDepth, sig_bit);
 }
 
 static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
-                      int colorType, int bitDepth, png_color_8& sig_bit) {
-    SkAlphaType alphaType = pixmap.alphaType();
-    SkColorType ct = pixmap.colorType();
-
+                      int pngColorType, int bitDepth, png_color_8& sig_bit) {
     png_structp png_ptr;
     png_infop info_ptr;
 
@@ -260,17 +289,17 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
     */
 
     png_set_IHDR(png_ptr, info_ptr, pixmap.width(), pixmap.height(),
-                 bitDepth, colorType,
+                 bitDepth, pngColorType,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
     // set our colortable/trans arrays if needed
     png_color paletteColors[256];
     png_byte trans[256];
-    if (kIndex_8_SkColorType == ct) {
+    if (kIndex_8_SkColorType == pixmap.colorType()) {
         SkColorTable* colorTable = pixmap.ctable();
         SkASSERT(colorTable);
-        int numTrans = pack_palette(colorTable, paletteColors, trans, alphaType);
+        int numTrans = pack_palette(colorTable, paletteColors, trans, pixmap.info());
         png_set_PLTE(png_ptr, info_ptr, paletteColors, colorTable->count());
         if (numTrans > 0) {
             png_set_tRNS(png_ptr, info_ptr, trans, numTrans, nullptr);
@@ -283,11 +312,11 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
     const char* srcImage = (const char*)pixmap.addr();
     SkAutoSTMalloc<1024, char> rowStorage(pixmap.width() << 2);
     char* storage = rowStorage.get();
-    transform_scanline_proc proc = choose_proc(ct, alphaType);
+    transform_scanline_proc proc = choose_proc(pixmap.info());
 
     for (int y = 0; y < pixmap.height(); y++) {
         png_bytep row_ptr = (png_bytep)storage;
-        proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(ct));
+        proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(pixmap.colorType()));
         png_write_rows(png_ptr, &row_ptr, 1);
         srcImage += pixmap.rowBytes();
     }
