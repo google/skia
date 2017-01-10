@@ -116,6 +116,42 @@
     },
     {
       "key": {
+        "uuid": "578ed681_e421006a",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_0950ddd4",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_0427647d",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_e94a3928",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_693f2977",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -162,6 +198,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_e44a6028",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_690889dc",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_097e9d55",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -173,6 +227,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "Might be neat to have a constructor like\n\n    template \u003csize_t kSize\u003e\n    explicit SkArenaAlloc(char (\u0026block)[kSize], size_t extra_size \u003d 0) \n        : SkArenaAlloc(block, kSize, extraSize) {}\n\nSo that in the common case you never have to write anything redundant:\n\n    char buf[256];\n    SkArenaAlloc alloc(buf);\n    ...",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e4c58051",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_097e9d55",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -196,6 +268,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_78661047",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_69f169b2",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_29c4c14d",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -207,6 +297,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "It\u0027s confusing that allocObject() doesn\u0027t move fCursor but allocObjectWithFooter() does.  Seems like if we just move this line into allocObject() things will read more consistently.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_5886aca7",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Both allocObject and allocObjectWithFooter return objStart, and fCursor padding before objStart. It may seem that allocObjectWithFooter is adjusting the fCursor with to compensate for the object, but really it is adding a skipFunction if it needs to. Really allocObjectWithFooter and allocObject have the same objStart and fCursor invariants.",
+      "parentUuid": "578ed681_29c4c14d",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -230,6 +338,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_78585072",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_c9adf581",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_e467c093",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -241,6 +367,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "Probably kill this line?  There\u0027s nothing that it\u0027s really last of...",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_b8f8f808",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_e467c093",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -264,6 +408,42 @@
     },
     {
       "key": {
+        "uuid": "578ed681_78f3702c",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_046d2472",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_f89200a7",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_046d2472",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_c4763c44",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -275,6 +455,42 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "So -\u003e E.g. ?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_98f0941f",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_c4763c44",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_189824c4",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_c4763c44",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -298,6 +514,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_b88c788a",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_24862800",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_0496842a",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -309,6 +543,42 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "Lately I\u0027ve been thinking code looks a little clearer if you typedef function types instead of function pointer types.\n\n    using FooterAction \u003d char*(char*);\n    ...\n    void installFooter(FooterAction* releaser, ptrdiff_t padding);\n\netc.  If nothing else it reminds the reader that you\u0027re passing around a pointer-sized thing.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38ede845",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_0496842a",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_d8913ca1",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_0496842a",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -332,6 +602,42 @@
     },
     {
       "key": {
+        "uuid": "578ed681_7887f065",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_44832cef",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_181d847c",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_44832cef",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_c4c87c47",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -343,6 +649,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "return Action()(objEnd, data)?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38dac879",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_c4c87c47",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -366,6 +690,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_18aa64bc",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_09cbfd64",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_29eb61c4",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -377,6 +719,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "I don\u0027t think these comments add much that the argument names don\u0027t.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_b89eb89e",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_29eb61c4",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -406,6 +766,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_78b93011",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_49e825c5",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_c9d41502",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -423,6 +801,24 @@
         "endLine": 279,
         "endChar": 49
       },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_38b3a833",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "I want to do this in another CL. I thing I have a better way for handling this.",
+      "parentUuid": "578ed681_c9d41502",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -469,6 +865,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_58b0ec23",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_64a51088",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_e4b900af",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -503,6 +917,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_f80d2020",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_04bf6492",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_64ae7066",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 10
@@ -514,6 +946,24 @@
       "writtenOn": "2017-01-10T15:38:50Z",
       "side": 1,
       "message": "ArrayDestroyer or ArrayDestructor?  Releaser sounds like it\u0027s going to call free / delete.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_b817982c",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_64ae7066",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -537,6 +987,24 @@
         "endLine": 347,
         "endChar": 36
       },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_18134444",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-10T21:24:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_09e21ded",
       "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
