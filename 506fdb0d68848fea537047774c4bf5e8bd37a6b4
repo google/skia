@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_499a6559",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-10T14:58:18Z",
+      "side": 1,
+      "message": "I could probably remove these checks if you\u0027re concerned about performance -- though this is mainly for desktop. In the pinch zoom case on a phone I don\u0027t think we\u0027ll get that small anyway because of pixel resolution. And a path that\u0027s smaller than 16x16 probably isn\u0027t going to produce a very good distance field.",
+      "range": {
+        "startLine": 117,
+        "startChar": 11,
+        "endLine": 117,
+        "endChar": 40
+      },
+      "revId": "506fdb0d68848fea537047774c4bf5e8bd37a6b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
