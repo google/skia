@@ -173,23 +173,6 @@ private:
     typedef PathBench INHERITED;
 };
 
-class NonAACirclePathBench: public CirclePathBench {
-public:
-    NonAACirclePathBench(Flags flags) : INHERITED(flags) {}
-
-    void appendName(SkString* name) override {
-        name->append("nonaacircle");
-    }
-
-    void setupPaint(SkPaint* paint) override {
-        CirclePathBench::setupPaint(paint);
-        paint->setAntiAlias(false);
-    }
-
-private:
-    typedef CirclePathBench INHERITED;
-};
-
 // Test max speedup of Analytic AA for concave paths
 class AAAConcavePathBench : public PathBench {
 public:
@@ -1106,9 +1089,6 @@ DEF_BENCH( return new CirclePathBench(FLAGS00); )
 DEF_BENCH( return new CirclePathBench(FLAGS01); )
 DEF_BENCH( return new CirclePathBench(FLAGS10); )
 DEF_BENCH( return new CirclePathBench(FLAGS11); )
-
-DEF_BENCH( return new NonAACirclePathBench(FLAGS00); )
-DEF_BENCH( return new NonAACirclePathBench(FLAGS10); )
 
 DEF_BENCH( return new AAAConcavePathBench(FLAGS00); )
 DEF_BENCH( return new AAAConcavePathBench(FLAGS10); )
