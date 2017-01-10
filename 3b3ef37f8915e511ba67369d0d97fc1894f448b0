@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_d8f5bcd0",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T21:36:18Z",
+      "side": 1,
+      "message": "Haha, we have extraSpace, extra_size, and extraSize... better pick one!",
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_78eb70f5",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T21:36:18Z",
+      "side": 1,
+      "message": "I mean, just splitting hairs, but these are not other words that mean the same thing as the first sentence.  These words are a specific example of the general case in the first sentence.  \"For example...\" is what you want here.",
+      "range": {
+        "startLine": 200,
+        "startChar": 61,
+        "endLine": 201,
+        "endChar": 21
+      },
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_58e22c18",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T21:36:18Z",
+      "side": 1,
+      "message": "You can probably s/int32_t/int/g.  int\u0027s always 4 bytes on every platform Skia supports.",
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
