@@ -39,16 +39,4 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
     return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
 }
 
-//TODO(halcanary):  remove this code once all changes land.
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
-class SkImageEncoder {
-public:
-    enum Type {
-        kPNG_Type     = (int)SkEncodedImageFormat::kPNG,
-    };
-    static bool EncodeStream(SkWStream* dst, const SkBitmap& bm, Type t, int quality) {
-        return SkEncodeImage(dst, bm, (SkEncodedImageFormat)t, quality);
-    }
-};
-#endif  // SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
 #endif  // SkImageEncoder_DEFINED
