@@ -24,6 +24,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
+#include "Resources.h"
 #include "Test.h"
 
 #include "sk_tool_utils.h"
@@ -70,6 +71,12 @@ static void draw_image_test_pattern(SkCanvas* canvas) {
 }
 static sk_sp<SkImage> create_image() {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
+    auto surface(SkSurface::MakeRaster(info));
+    draw_image_test_pattern(surface->getCanvas());
+    return surface->makeImageSnapshot();
+}
+static sk_sp<SkImage> create_raster_image_srgb() {
+    const SkImageInfo info = SkImageInfo::MakeS32(20, 20, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
     draw_image_test_pattern(surface->getCanvas());
     return surface->makeImageSnapshot();
@@ -133,6 +140,13 @@ static sk_sp<SkImage> create_picture_image() {
                                     nullptr, nullptr, SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 };
+static sk_sp<SkImage> create_picture_image_untagged() {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(10, 10);
+    canvas->clear(SK_ColorCYAN);
+    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
+                                    nullptr, nullptr);
+};
 #endif
 // Want to ensure that our Release is called when the owning image is destroyed
 struct RasterDataHolder {
@@ -159,6 +173,10 @@ static sk_sp<SkImage> create_codec_image() {
     bitmap.installPixels(info, data->writable_data(), info.minRowBytes());
     sk_sp<SkData> src(sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100));
     return SkImage::MakeFromEncoded(std::move(src));
+}
+static sk_sp<SkImage> create_codec_image_nonstd() {
+    sk_sp<SkData> data = GetResourceAsData("webp-color-profile-lossless.webp");
+    return SkImage::MakeFromEncoded(std::move(data));
 }
 #if SK_SUPPORT_GPU
 static sk_sp<SkImage> create_gpu_image(GrContext* context) {
@@ -939,6 +957,38 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DEF_TEST(Image_bitDepthAndColorSpace, r) {
+    SkImage::BitDepth bitDepth;
+    sk_sp<SkColorSpace> colorSpace;
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    sk_sp<SkColorSpace> srgbLinear = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+
+    sk_sp<SkImage> image = create_picture_image();
+    REPORTER_ASSERT(r, image->bitDepthAndColorSpace(&bitDepth, &colorSpace));
+    REPORTER_ASSERT(r, SkImage::BitDepth::kU8 == bitDepth);
+    REPORTER_ASSERT(r, srgb == colorSpace);
+
+    image = create_picture_image_untagged();
+    REPORTER_ASSERT(r, !image->bitDepthAndColorSpace(&bitDepth, &colorSpace));
+
+    image = create_raster_image_srgb();
+    REPORTER_ASSERT(r, image->bitDepthAndColorSpace(&bitDepth, &colorSpace));
+    REPORTER_ASSERT(r, SkImage::BitDepth::kU8 == bitDepth);
+    REPORTER_ASSERT(r, srgb == colorSpace);
+
+    image = create_codec_image();
+    REPORTER_ASSERT(r, image->bitDepthAndColorSpace(&bitDepth, &colorSpace));
+    REPORTER_ASSERT(r, SkImage::BitDepth::kU8 == bitDepth);
+    REPORTER_ASSERT(r, srgb == colorSpace);
+
+    image = create_codec_image_nonstd();
+    REPORTER_ASSERT(r, image->bitDepthAndColorSpace(&bitDepth, &colorSpace));
+    REPORTER_ASSERT(r, SkImage::BitDepth::kF16 == bitDepth);
+    REPORTER_ASSERT(r, colorSpace->gammaIsLinear());
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

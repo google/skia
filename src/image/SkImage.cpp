@@ -366,6 +366,25 @@ bool SkImage::isAlphaOnly() const {
     return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
 }
 
+bool SkImage::bitDepthAndColorSpace(BitDepth* bitDepth, sk_sp<SkColorSpace>* colorSpace) const {
+    return as_IB(this)->onBitDepthAndColorSpace(bitDepth, colorSpace);
+}
+
+bool SkImage_Base::onBitDepthAndColorSpace(BitDepth* bitDepth, sk_sp<SkColorSpace>* colorSpace)
+const {
+    SkImageInfo info = this->onImageInfo();
+
+    *bitDepth = BitDepth::kU8;
+    if (kRGBA_F16_SkColorType == info.colorType()) {
+        *bitDepth = BitDepth::kF16;
+    }
+
+    // TODO: Once we update raster and gpu backed images to always have a color space,
+    //       we should assert that the color space is non-null here.
+    *colorSpace = sk_ref_sp(info.colorSpace());
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU

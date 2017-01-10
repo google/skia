@@ -484,11 +484,8 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         }
         if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
             // Generator backed image. Tweak info to trigger correct kind of decode.
-            SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
-                dstColorSpace, proxy.fCaps.get());
-            info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
-                                                              scaledSize.height());
-
+            info = SkConservativeInfo::Make(cacher->info(), dstColorSpace, proxy.fCaps.get())
+                    .makeWH(scaledSize.width(), scaledSize.height());
         } else {
             info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
         }
