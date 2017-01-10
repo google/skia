@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_69dde9c8",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T14:12:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_49bb4570",
+      "revId": "98e8b3ae1263d63d92b24a6842900aa495317398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_29be0161",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-10T14:00:19Z",
       "side": 1,
       "message": "A little endianness reminder might help here.\n\n// ctx-\u003efSrc is big-endian, so \u0026 SkNh(0xFF) grabs the 8 most significant bits of each component.\n\nI think you may be able to just write \u0026 0xff.   If not, \u0026 SkNh(0xFF) is perfectly fine of course.",
+      "revId": "98e8b3ae1263d63d92b24a6842900aa495317398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_89da8dd0",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T14:12:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_29be0161",
       "revId": "98e8b3ae1263d63d92b24a6842900aa495317398",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
