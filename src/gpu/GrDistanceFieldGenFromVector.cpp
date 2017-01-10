@@ -775,12 +775,10 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     workingPath.transform(dfMatrix);
 
     // create temp data
-    size_t dataSize = width * height * sizeof(DFData);
-    SkAutoSMalloc<1024> dfStorage(dataSize);
-    DFData* dataPtr = (DFData*) dfStorage.get();
+    SkAutoSTMalloc<1024, DFData> dfStorage(width * height);
 
     // create initial distance data
-    init_distances(dataPtr, width * height);
+    init_distances(dfStorage.get(), width * height);
 
     SkPath::Iter iter(workingPath, true);
     SkSTArray<15, PathSegment, true> segments;
@@ -819,13 +817,13 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
         }
     }
 
-    calculate_distance_field_data(&segments, dataPtr, width, height);
+    calculate_distance_field_data(&segments, dfStorage.get(), width, height);
 
     for (int row = 0; row < height; ++row) {
         int windingNumber = 0; // Winding number start from zero for each scanline
         for (int col = 0; col < width; ++col) {
             int idx = (row * width) + col;
-            windingNumber += dataPtr[idx].fDeltaWindingScore;
+            windingNumber += dfStorage[idx].fDeltaWindingScore;
 
             enum DFSign {
                 kInside = -1,
@@ -851,7 +849,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                 for (int col = 0; col < width; ++col) {
                     int idx = (row * width) + col;
                     dfSign = workingPath.contains(col + 0.5, row + 0.5) ? kInside : kOutside;
-                    const float miniDist = sqrt(dataPtr[idx].fDistSq);
+                    const float miniDist = sqrt(dfStorage[idx].fDistSq);
                     const float dist = dfSign * miniDist;
 
                     unsigned char pixelVal = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
@@ -861,7 +859,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                 continue;
             }
 
-            const float miniDist = sqrt(dataPtr[idx].fDistSq);
+            const float miniDist = sqrt(dfStorage[idx].fDistSq);
             const float dist = dfSign * miniDist;
 
             unsigned char pixelVal = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
