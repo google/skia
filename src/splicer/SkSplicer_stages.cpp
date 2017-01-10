@@ -62,14 +62,14 @@ AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using K = const SkSplicer_constants;
-using Stage = void(size_t x, size_t n, void* ctx, K* constants, F,F,F,F, F,F,F,F);
+using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
 // Stage's arguments act as the working set of registers within the final spliced function.
 // Here's a little primer on the x86-64/aarch64 ABIs:
-//   x:         rdi/x0          x and n work to drive the loop, like for (; x < n; x += 4 or 8)
-//   n:         rsi/x1
-//   ctx:       rdx/x2          Look for movabsq_rdx in SkSplicer.cpp to see how this works.
-//   constants: rcx/x3          Look for movabsq_rcx in SkSplicer.cpp to see how this works.
+//   x:         rdi/x0          x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
+//   limit:     rsi/x1
+//   ctx:       rdx/x2          Look for set_ctx in SkSplicer.cpp to see how this works.
+//   k:         rcx/x3          Look for set_k in SkSplicer.cpp to see how this works.
 //   vectors:   ymm0-ymm7/v0-v7
 
 
@@ -85,14 +85,14 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
 // It's just a convenience to make a valid, spliceable Stage, nothing magic.
 #define STAGE(name)                                                              \
-    AI static void name##_k(size_t x, size_t n, void* ctx, K* k,                 \
+    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    C void name(size_t x, size_t n, void* ctx, K* k,                             \
+    C void name(size_t x, size_t limit, void* ctx, K* k,                         \
                 F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
-        name##_k(x,n,ctx,k, r,g,b,a, dr,dg,db,da);                               \
-        done    (x,n,ctx,k, r,g,b,a, dr,dg,db,da);                               \
+        name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
+        done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
     }                                                                            \
-    AI static void name##_k(size_t x, size_t n, void* ctx, K* k,                 \
+    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
                             F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 // We can now define Stages!
@@ -128,7 +128,7 @@ STAGE(srcover) {
     b = fma(db, A, b);
     a = fma(db, A, a);
 }
-STAGE(dstover) { srcover_k(x,n,ctx,k, dr,dg,db,da, r,g,b,a); }
+STAGE(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
 
 STAGE(clamp_0) {
     r = max(r, 0);

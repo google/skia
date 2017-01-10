@@ -153,7 +153,11 @@ namespace {
             // Put the address of kConstants in rcx/x3, Stage argument 4 "k".
             set_k(&buf, &kConstants);
 
-            // We'll loop back to here as long as x<n after x += kStride.
+            // Our loop is the equivalent of this C++ code:
+            //    do {
+            //        ... run spliced stages...
+            //        x += kStride;
+            //    } while(x < limit);
             iaca_start(&buf);
             auto loop_start = buf.bytesWritten();  // Think of this like a label, loop_start:
 
@@ -216,13 +220,11 @@ namespace {
 
         // Here's where we call fSpliced if we created it, fBackup if not.
         void operator()(size_t x, size_t y, size_t n) const {
-            // TODO: The looping logic is probably not correct for n < kStride tails or x != 0.
-
             size_t body = n/kStride*kStride;   // Largest multiple of kStride (4 or 8) <= n.
             if (fSpliced && body) {            // Can we run fSpliced for at least one kStride?
                 // TODO: At some point we will want to pass in y...
-                using Fn = void(size_t x, size_t n);
-                ((Fn*)fSpliced)(x,body);
+                using Fn = void(size_t x, size_t limit);
+                ((Fn*)fSpliced)(x, x+body);
 
                 // Fall through to fBackup for any n<kStride last pixels.
                 x += body;
