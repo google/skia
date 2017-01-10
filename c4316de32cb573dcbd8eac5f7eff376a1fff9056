@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_29036179",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-10T13:19:45Z",
+      "side": 1,
+      "message": "Can we rename fDst ?",
+      "revId": "c4316de32cb573dcbd8eac5f7eff376a1fff9056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_4900256a",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-10T13:19:45Z",
+      "side": 1,
+      "message": "and fDstPtr ?",
+      "revId": "c4316de32cb573dcbd8eac5f7eff376a1fff9056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
