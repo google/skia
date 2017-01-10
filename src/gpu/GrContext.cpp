@@ -680,7 +680,6 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     static const GrPixelConfig kFallback[] = {
         kUnknown_GrPixelConfig,        // kUnknown_GrPixelConfig
         kRGBA_8888_GrPixelConfig,      // kAlpha_8_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kGray_8_GrPixelConfig
         kUnknown_GrPixelConfig,        // kIndex_8_GrPixelConfig
         kRGBA_8888_GrPixelConfig,      // kRGB_565_GrPixelConfig
         kRGBA_8888_GrPixelConfig,      // kRGBA_4444_GrPixelConfig
@@ -701,22 +700,21 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
 
     GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
     GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kGray_8_GrPixelConfig);
-    GR_STATIC_ASSERT(3  == kIndex_8_GrPixelConfig);
-    GR_STATIC_ASSERT(4  == kRGB_565_GrPixelConfig);
-    GR_STATIC_ASSERT(5  == kRGBA_4444_GrPixelConfig);
-    GR_STATIC_ASSERT(6  == kRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kRGBA_8888_sint_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(16 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(17 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(2  == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
+    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
+    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
+    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFallback) == kGrPixelConfigCnt);
 }
 
