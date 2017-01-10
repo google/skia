@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_8406f486",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Agreed that there are multiple ways to express this and that this might not be the best choice.  Removed this option.",
+      "parentUuid": "578ed681_38e88dc4",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_d8c5c151",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 20
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_24038879",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "I was attempting to provide some choice of whether to encode high bit depth SkImages to 16 or 8 bit encoding.  Not necessary for this CL, removed.",
+      "parentUuid": "578ed681_d8c5c151",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_981f3984",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 20
@@ -47,6 +83,24 @@
       "writtenOn": "2017-01-09T14:24:35Z",
       "side": 1,
       "message": "Given the comment, I\u0027d suggest naming this kMaximum8, or something similar. It\u0027s minor, but if my source is 565, I\u0027m not shrinking.",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_44000c6a",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Acknowledged.  Removed from this CL.",
+      "parentUuid": "578ed681_981f3984",
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -105,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_6420b011",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_f831a51e",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_78b7f5d6",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 20
@@ -116,6 +188,24 @@
       "writtenOn": "2017-01-09T17:34:02Z",
       "side": 1,
       "message": "If the user wants to set the colorspace to null before calling this function, let them.  Why change it for them?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e45d8096",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "This is an implementation detail - I was just trying to tell the PNG encoder to ignore the color space.  This has been moved somewhere more appropriate.",
+      "parentUuid": "578ed681_78b7f5d6",
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -139,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_0463e459",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Ahh thanks...  I finally understand why we use the write stream.  FWIW, I think having a version that returns an SkData is convenient.  Removing this though.",
+      "parentUuid": "578ed681_18c4a94d",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_58ba31c0",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 20
@@ -150,6 +258,24 @@
       "writtenOn": "2017-01-09T17:34:02Z",
       "side": 1,
       "message": "this is missing from chrome\u0027s implementation ( https://cs.chromium.org/chromium/src/skia/ext/skia_encode_image.cc ).  Do we use this API internally?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_a4677862",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Didn\u0027t know there was interdependence between our and Chrome\u0027s encoders, thanks.  Deleting this anyway for now.",
+      "parentUuid": "578ed681_58ba31c0",
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -173,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_6452f085",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "I think it\u0027s fair to require that the pixmap must be tagged with a color space to get gamma correct behavior.",
+      "parentUuid": "578ed681_38c16d3e",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_d8ae2180",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 20
@@ -184,6 +328,24 @@
       "writtenOn": "2017-01-09T17:34:02Z",
       "side": 1,
       "message": "You don\u0027t support other formats?  Why?",
+      "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_844fd4da",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-10T16:07:22Z",
+      "side": 1,
+      "message": "Trying to keep the size of the CL sane.  There are follow-ups coming.",
+      "parentUuid": "578ed681_d8ae2180",
       "revId": "64a3b19a0e82ec512d911bb2ac31e05dbdb4c481",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
