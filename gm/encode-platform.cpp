@@ -70,7 +70,8 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
     #else
         switch (type) {
             case SkEncodedImageFormat::kPNG:
-                return SkEncodeImageAsPNG(&buf, src) ? buf.detachAsData() : nullptr;
+                return SkEncodeImageAsPNG(&buf, src, SkEncodeOptions()) ? buf.detachAsData()
+                                                                        : nullptr;
             case SkEncodedImageFormat::kJPEG:
                 return SkEncodeImageAsJPEG(&buf, src, 100) ? buf.detachAsData() : nullptr;
             case SkEncodedImageFormat::kWEBP:

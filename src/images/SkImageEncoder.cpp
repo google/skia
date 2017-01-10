@@ -16,10 +16,14 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
         return SkEncodeImageWithWIC(dst, src, format, quality);
     #else
         switch(format) {
-            case SkEncodedImageFormat::kJPEG: return SkEncodeImageAsJPEG(dst, src, quality);
-            case SkEncodedImageFormat::kPNG:  return SkEncodeImageAsPNG(dst, src);
-            case SkEncodedImageFormat::kWEBP: return SkEncodeImageAsWEBP(dst, src, quality);
-            default:                          return false;
+            case SkEncodedImageFormat::kJPEG:
+                return SkEncodeImageAsJPEG(dst, src, quality);
+            case SkEncodedImageFormat::kPNG:
+                return SkEncodeImageAsPNG(dst, src, SkEncodeOptions());
+            case SkEncodedImageFormat::kWEBP:
+                return SkEncodeImageAsWEBP(dst, src, quality);
+            default:
+                return false;
         }
     #endif
 }
