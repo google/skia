@@ -1,0 +1,545 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_44b56caa",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "This name is weird to read, given that you just said we can\u0027t use max_align_t.  Is this, what alignment we get from new?  Let\u0027s call it guaranteed_alignment?\n\nAs for the value, I think it\u0027s typically 2*sizeof(void*).  I guess if you write alignof(double) instead of 8 here, it\u0027s more obvious we\u0027re being conservative?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_64d750dc",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Might as well just +\u003d alignment?  We\u0027ll burn that last byte anyway, right?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e4e260bd",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Might make more sense to just ask for what you want, letting malloc() decide how bucket it, then query with malloc_size() / malloc_usable_size() / _msize() to see how much you actually got?\n\nIf you stick with this strategy, it\u0027s probably better to call malloc_good_size() on Mac/iOS than guess.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_84d4b4d6",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Might be nice to assert that newBlock is aligned to alignof_max_align_t.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e94a3928",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "object -\u003e objects",
+      "range": {
+        "startLine": 118,
+        "startChar": 26,
+        "endLine": 118,
+        "endChar": 66
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_0950ddd4",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "It\u0027s",
+      "range": {
+        "startLine": 118,
+        "startChar": 83,
+        "endLine": 118,
+        "endChar": 86
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_693f2977",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "minimize?  or mange... intelligently?",
+      "range": {
+        "startLine": 119,
+        "startChar": 6,
+        "endLine": 119,
+        "endChar": 12
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_690889dc",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "The large made-up numbers made this hard to follow.  I think it\u0027d be easier follow if you just explain mechanically what happens instead of making up probabilities.  Something like\n\nSkArenaAlloc allocates first out of an (optional) user-provided block of memory, and when that\u0027s exhausted it allocates on the heap, starting with an allocation of extra_size bytes.  If your data (plus a small overhead) fits in the user-provided block, SkArenaAlloc never uses the heap, and if it fits in extra_size bytes, it\u0027ll use the heap only once.  If you pass extra_size \u003d 0, we\u0027ll use the heap in Some Reasonable Way.",
+      "range": {
+        "startLine": 119,
+        "startChar": 46,
+        "endLine": 122,
+        "endChar": 35
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_097e9d55",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Might be neat to have a constructor like\n\n    template \u003csize_t kSize\u003e\n    explicit SkArenaAlloc(char (\u0026block)[kSize], size_t extra_size \u003d 0) \n        : SkArenaAlloc(block, kSize, extraSize) {}\n\nSo that in the common case you never have to write anything redundant:\n\n    char buf[256];\n    SkArenaAlloc alloc(buf);\n    ...",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_69f169b2",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Seems like this can go in .cpp?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_29c4c14d",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "It\u0027s confusing that allocObject() doesn\u0027t move fCursor but allocObjectWithFooter() does.  Seems like if we just move this line into allocObject() things will read more consistently.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c9adf581",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "This line might be clearer if you don\u0027t name sizeof(T) + sizeof(Footer) totalSize above, instead just writing it out long form in the call to allocObjectWithFooter().  Otherwise when you get here you\u0027ll find yourself wondering, why don\u0027t we just write objEnd - totalSize here?   It\u0027s to make the lambda closure-free, of course, but the question just won\u0027t come up if totalSize isn\u0027t named.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e467c093",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Probably kill this line?  There\u0027s nothing that it\u0027s really last of...",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_046d2472",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c4763c44",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "So -\u003e E.g. ?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_24862800",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Guess we should write something about what reset() does?\n\n// Destroy all allocated objects, free any heap allocations.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_0496842a",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Lately I\u0027ve been thinking code looks a little clearer if you typedef function types instead of function pointer types.\n\n    using FooterAction \u003d char*(char*);\n    ...\n    void installFooter(FooterAction* releaser, ptrdiff_t padding);\n\netc.  If nothing else it reminds the reader that you\u0027re passing around a pointer-sized thing.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_44832cef",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Into .cpp?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c4c87c47",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "return Action()(objEnd, data)?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_09cbfd64",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Seems like both allocObject and allocObjectWithFooter can go into the .cpp?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_29eb61c4",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "I don\u0027t think these comments add much that the argument names don\u0027t.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_49e825c5",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "more like, objectAndFooterSize, or sizeIncludingFooter?",
+      "range": {
+        "startLine": 270,
+        "startChar": 39,
+        "endLine": 270,
+        "endChar": 52
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_c9d41502",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Is this realistically ever going to happen?  We never allocating anything in Skia anywhere near larger than an int.  I think we can probably just assert SkTFitsIn\u003cint\u003e?",
+      "range": {
+        "startLine": 279,
+        "startChar": 30,
+        "endLine": 279,
+        "endChar": 49
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_84a2747f",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Given that we\u0027re only returning objStart in this function, it might be clearer to write as returning from each branch directly, and folding the else away.\n\n    if (is_trivially_destructible) {\n       return this-\u003eallocObject(...);\n    }\n\n    size_t countSize \u003d ...\n    ...\n    return objStart;",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_64a51088",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "awkward space?",
+      "range": {
+        "startLine": 317,
+        "startChar": 34,
+        "endLine": 317,
+        "endChar": 35
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_e4b900af",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "I think this can be static, perhaps even file-scope static in the .cpp?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_04bf6492",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "Can probably move to the .cpp?",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_64ae7066",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "ArrayDestroyer or ArrayDestructor?  Releaser sounds like it\u0027s going to call free / delete.",
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_09e21ded",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-10T15:38:50Z",
+      "side": 1,
+      "message": "These 3 initializers never have any effect... probably clearer to leave them off.",
+      "range": {
+        "startLine": 347,
+        "startChar": 27,
+        "endLine": 347,
+        "endChar": 36
+      },
+      "revId": "ea922e06bf1303fb3b699e3f8c31e8ad0e687fd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
