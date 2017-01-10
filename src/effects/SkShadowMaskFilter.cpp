@@ -42,14 +42,14 @@ public:
                           SkRect* maskRect) const override;
     bool directFilterMaskGPU(GrTextureProvider* texProvider,
                              GrRenderTargetContext* drawContext,
-                             GrPaint* grp,
+                             GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const SkStrokeRec& strokeRec,
                              const SkPath& path) const override;
     bool directFilterRRectMaskGPU(GrContext*,
                                   GrRenderTargetContext* drawContext,
-                                  GrPaint* grp,
+                                  GrPaint&&,
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
                                   const SkStrokeRec& strokeRec,
@@ -166,7 +166,7 @@ bool SkShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
 
 bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
                                                  GrRenderTargetContext* drawContext,
-                                                 GrPaint* grp,
+                                                 GrPaint&& paint,
                                                  const GrClip& clip,
                                                  const SkMatrix& viewMatrix,
                                                  const SkStrokeRec& strokeRec,
@@ -179,12 +179,12 @@ bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
     // have our own GeometryProc.
     if (path.isOval(nullptr) && path.getBounds().width() == path.getBounds().height()) {
         SkRRect rrect = SkRRect::MakeOval(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, grp, clip, SkMatrix::I(),
-                                              strokeRec, rrect, rrect);
+        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+                                              SkMatrix::I(), strokeRec, rrect, rrect);
     } else if (path.isRect(nullptr)) {
         SkRRect rrect = SkRRect::MakeRect(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, grp, clip, SkMatrix::I(),
-                                              strokeRec, rrect, rrect);
+        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+                                              SkMatrix::I(), strokeRec, rrect, rrect);
     }
 
     // TODO
@@ -193,7 +193,7 @@ bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
 
 bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                       GrRenderTargetContext* renderTargetContext,
-                                                      GrPaint* grp,
+                                                      GrPaint&& paint,
                                                       const GrClip& clip,
                                                       const SkMatrix& viewMatrix,
                                                       const SkStrokeRec& strokeRec,
@@ -252,14 +252,14 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         const SkScalar devSpaceAmbientRadius = srcSpaceAmbientRadius * scaleFactor;
 
-        GrPaint newPaint(*grp);
+        GrPaint newPaint(paint);
         GrColor4f color = newPaint.getColor4f();
         color.fRGBA[3] *= fAmbientAlpha;
         newPaint.setColor4f(color);
         SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
         ambientStrokeRec.setStrokeStyle(srcSpaceAmbientRadius, false);
 
-        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, ambientRRect,
+        renderTargetContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
                                              devSpaceAmbientRadius,
                                              GrStyle(ambientStrokeRec, nullptr));
     }
@@ -310,11 +310,10 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         SkScalar filledArea = (spotShadowRRect.height() + srcSpaceSpotRadius) *
                               (spotShadowRRect.width() + srcSpaceSpotRadius);
 
-        GrPaint newPaint(*grp);
-        GrColor4f color = newPaint.getColor4f();
+        GrColor4f color = paint.getColor4f();
         color.fRGBA[3] *= fSpotAlpha;
-        newPaint.setColor4f(color);
-        
+        paint.setColor4f(color);
+
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
         // If the area of the stroked geometry is larger than the fill geometry,
         // or if the caster is transparent, just fill it.
@@ -337,9 +336,8 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
-        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, spotShadowRRect,
-                                             devSpaceSpotRadius,
-                                             GrStyle(spotStrokeRec, nullptr));
+        renderTargetContext->drawShadowRRect(clip, std::move(paint), viewMatrix, spotShadowRRect,
+                                             devSpaceSpotRadius, GrStyle(spotStrokeRec, nullptr));
     }
 
     return true;

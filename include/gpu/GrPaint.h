@@ -12,9 +12,10 @@
 
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
-#include "GrXferProcessor.h"
-#include "effects/GrPorterDuffXferProcessor.h"
 #include "GrFragmentProcessor.h"
+#include "GrXferProcessor.h"
+#include "SkTLazy.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 
 #include "SkBlendMode.h"
 #include "SkRefCnt.h"
@@ -39,11 +40,9 @@
  */
 class GrPaint {
 public:
-    GrPaint();
-
-    GrPaint(const GrPaint& paint) { *this = paint; }
-
-    ~GrPaint() { }
+    GrPaint() = default;
+    explicit GrPaint(const GrPaint&) = default;
+    ~GrPaint() = default;
 
     /**
      * The initial color of the drawn primitive. Defaults to solid white.
@@ -132,20 +131,6 @@ public:
         return fCoverageFragmentProcessors[i].get();
     }
 
-    GrPaint& operator=(const GrPaint& paint) {
-        fDisableOutputConversionToSRGB = paint.fDisableOutputConversionToSRGB;
-        fAllowSRGBInputs = paint.fAllowSRGBInputs;
-        fUsesDistanceVectorField = paint.fUsesDistanceVectorField;
-
-        fColor = paint.fColor;
-        fColorFragmentProcessors = paint.fColorFragmentProcessors;
-        fCoverageFragmentProcessors = paint.fCoverageFragmentProcessors;
-
-        fXPFactory = paint.fXPFactory;
-
-        return *this;
-    }
-
     /**
      * Returns true if the paint's output color will be constant after blending. If the result is
      * true, constantColor will be updated to contain the constant color. Note that we can conflate
@@ -165,17 +150,62 @@ public:
     }
 
 private:
+    template <bool> class MoveOrImpl;
+
+public:
+    /**
+     * A temporary instance of this class can be used to select between moving an existing paint or
+     * a temporary copy of an existing paint into a call site. MoveOrClone(paint, false) is a rvalue
+     * reference to paint while MoveOrClone(paint, true) is a rvalue reference to a copy of paint.
+     */
+    using MoveOrClone = MoveOrImpl<true>;
+
+    /**
+     * A temporary instance of this class can be used to select between moving an existing or a
+     * newly default constructed paint into a call site. MoveOrNew(paint, false) is a rvalue
+     * reference to paint while MoveOrNew(paint, true) is a rvalue reference to a default paint.
+     */
+    using MoveOrNew = MoveOrImpl<false>;
+
+private:
+    GrPaint& operator=(const GrPaint&) = delete;
+
+    friend class GrPipelineBuilder;
+
     bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
 
-    const GrXPFactory*                        fXPFactory;
+    const GrXPFactory* fXPFactory = nullptr;
     SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
     SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
 
-    bool                                      fDisableOutputConversionToSRGB;
-    bool                                      fAllowSRGBInputs;
-    bool                                      fUsesDistanceVectorField;
+    bool fDisableOutputConversionToSRGB = false;
+    bool fAllowSRGBInputs = false;
+    bool fUsesDistanceVectorField = false;
+    GrColor4f fColor = GrColor4f::OpaqueWhite();
+};
 
-    GrColor4f                                 fColor;
+/** This is the implementation of MoveOrCopy and MoveOrNew. */
+template <bool COPY_IF_NEW>
+class GrPaint::MoveOrImpl {
+public:
+    MoveOrImpl(GrPaint& paint, bool newPaint) {
+        if (newPaint) {
+            if (COPY_IF_NEW) {
+                fStorage.init(paint);
+            } else {
+                fStorage.init();
+            };
+            fPaint = fStorage.get();
+        } else {
+            fPaint = &paint;
+        }
+    }
+
+    operator GrPaint&&() { return std::move(*fPaint); }
+
+private:
+    SkTLazy<GrPaint> fStorage;
+    GrPaint* fPaint;
 };
 
 #endif

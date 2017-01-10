@@ -400,7 +400,8 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
                                                               boundaryMode));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(clip, paint, GrAA::kNo, SkMatrix::I(), dstRect, srcRect);
+    renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+                                        srcRect);
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(

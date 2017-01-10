@@ -81,7 +81,7 @@ public:
     // local coords are provided to any fragment processors in the paint.
     static void DrawToTargetWithShapeMask(GrTexture* texture,
                                           GrRenderTargetContext*,
-                                          const GrPaint& paint,
+                                          GrPaint&& paint,
                                           const GrUserStencilSettings& userStencilSettings,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
