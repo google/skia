@@ -112,58 +112,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 //////////////////////////////////////////////////////////////////////////////
 
 /**
- * Fill out buffer with the compressed format Ganesh expects from a colortable
- * based bitmap. [palette (colortable) + indices].
- *
- * At the moment Ganesh only supports 8bit version. If Ganesh allowed we others
- * we could detect that the colortable.count is <= 16, and then repack the
- * indices as nibbles to save RAM, but it would take more time (i.e. a lot
- * slower than memcpy), so skipping that for now.
- *
- * Ganesh wants a full 256 palette entry, even though Skia's ctable is only as big
- * as the colortable.count says it is.
- */
-static void build_index8_data(void* buffer, const SkPixmap& pixmap) {
-    SkASSERT(kIndex_8_SkColorType == pixmap.colorType());
-
-    const SkColorTable* ctable = pixmap.ctable();
-    char* dst = (char*)buffer;
-
-    const int count = ctable->count();
-
-    SkDstPixelInfo dstPI;
-    dstPI.fColorType = kRGBA_8888_SkColorType;
-    dstPI.fAlphaType = kPremul_SkAlphaType;
-    dstPI.fPixels = buffer;
-    dstPI.fRowBytes = count * sizeof(SkPMColor);
-
-    SkSrcPixelInfo srcPI;
-    srcPI.fColorType = kN32_SkColorType;
-    srcPI.fAlphaType = kPremul_SkAlphaType;
-    srcPI.fPixels = ctable->readColors();
-    srcPI.fRowBytes = count * sizeof(SkPMColor);
-
-    srcPI.convertPixelsTo(&dstPI, count, 1);
-
-    // always skip a full 256 number of entries, even if we memcpy'd fewer
-    dst += 256 * sizeof(GrColor);
-
-    if ((unsigned)pixmap.width() == pixmap.rowBytes()) {
-        memcpy(dst, pixmap.addr(), pixmap.getSafeSize());
-    } else {
-        // need to trim off the extra bytes per row
-        size_t width = pixmap.width();
-        size_t rowBytes = pixmap.rowBytes();
-        const uint8_t* src = pixmap.addr8();
-        for (int y = 0; y < pixmap.height(); y++) {
-            memcpy(dst, src, width);
-            src += rowBytes;
-            dst += width;
-        }
-    }
-}
-
-/**
  *  Once we have made SkImages handle all lazy/deferred/generated content, the YUV apis will
  *  be gone from SkPixelRef, and we can remove this subclass entirely.
  */
@@ -224,6 +172,9 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     const GrCaps* caps = ctx->caps();
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
 
+    // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
+    // config (which may not be supported). We need better fallback management here.
+
     if (caps->srgbSupport() &&
         pixmap.info().colorSpace() && pixmap.info().colorSpace()->gammaCloseToSRGB() &&
         !(GrPixelConfigIsSRGB(desc.fConfig) ||
@@ -254,29 +205,17 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
         // must rebuild desc, since we've forced the info to be N32
         desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
     } else if (kIndex_8_SkColorType == pixmap.colorType()) {
-        if (caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
-            size_t imageSize = GrCompressedFormatDataSize(kIndex_8_GrPixelConfig,
-                                                          pixmap.width(), pixmap.height());
-            SkAutoMalloc storage(imageSize);
-            build_index8_data(storage.get(), pixmap);
-
-            // our compressed data will be trimmed, so pass width() for its
-            // "rowBytes", since they are the same now.
-            return ctx->textureProvider()->createTexture(desc, budgeted, storage.get(),
-                                                         pixmap.width());
-        } else {
-            SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-            tmpBitmap.allocPixels(info);
-            if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
-                return nullptr;
-            }
-            if (!tmpBitmap.peekPixels(&tmpPixmap)) {
-                return nullptr;
-            }
-            pmap = &tmpPixmap;
-            // must rebuild desc, since we've forced the info to be N32
-            desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
+        SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
+        tmpBitmap.allocPixels(info);
+        if (!pixmap.readPixels(info, tmpBitmap.getPixels(), tmpBitmap.rowBytes())) {
+            return nullptr;
         }
+        if (!tmpBitmap.peekPixels(&tmpPixmap)) {
+            return nullptr;
+        }
+        pmap = &tmpPixmap;
+        // must rebuild desc, since we've forced the info to be N32
+        desc = GrImageInfoToSurfaceDesc(pmap->info(), *caps);
     }
 
     return ctx->textureProvider()->createTexture(desc, budgeted, pmap->addr(),
@@ -461,7 +400,7 @@ GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkCol
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
         case kIndex_8_SkColorType:
-            return kIndex_8_GrPixelConfig;
+            return kSkia8888_GrPixelConfig;
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:
@@ -479,9 +418,6 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
             break;
         case kGray_8_GrPixelConfig:
             ct = kGray_8_SkColorType;
-            break;
-        case kIndex_8_GrPixelConfig:
-            ct = kIndex_8_SkColorType;
             break;
         case kRGB_565_GrPixelConfig:
             ct = kRGB_565_SkColorType;

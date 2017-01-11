@@ -1922,29 +1922,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // No sized/unsized internal format distinction for compressed formats, no external format.
     // Below we set the external formats and types to 0.
 
-    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_PALETTE8_RGBA8;
-    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_PALETTE8_RGBA8;
-    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
-    fConfigTable[kIndex_8_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kIndex_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    // Disable this for now, while we investigate https://bug.skia.org/4333
-    if ((false)) {
-        // Check for 8-bit palette..
-        GrGLint numFormats;
-        GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-        if (numFormats) {
-            SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-            GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
-            for (int i = 0; i < numFormats; ++i) {
-                if (GR_GL_PALETTE8_RGBA8 == formats[i]) {
-                    fConfigTable[kIndex_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-                    break;
-                }
-            }
-        }
-    }
-    fConfigTable[kIndex_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-
     // May change the internal format based on extensions.
     fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
         GR_GL_COMPRESSED_LUMINANCE_LATC1;

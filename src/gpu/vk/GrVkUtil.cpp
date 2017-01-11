@@ -42,9 +42,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             // store the data is if it was B4G4R4A4 and swizzle in shaders
             *format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
             return true;
-        case kIndex_8_GrPixelConfig:
-            // No current vulkan support for this config
-            return false;
         case kAlpha_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
