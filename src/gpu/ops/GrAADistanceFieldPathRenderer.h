@@ -71,9 +71,8 @@ private:
         };
         Key fKey;
         GrDrawOpAtlas::AtlasID fID;
-        SkRect   fBounds;
-        SkScalar fScale;
-        SkVector fTranslate;
+        SkRect fBounds;
+        SkRect fTexCoords;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
         static inline const Key& GetKey(const ShapeData& data) {
