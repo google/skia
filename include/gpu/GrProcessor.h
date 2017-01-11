@@ -252,6 +252,11 @@ private:
  */
 class GrProcessor::BufferAccess : public SkNoncopyable {
 public:
+    BufferAccess() = default;
+    BufferAccess(GrPixelConfig texelConfig, GrBuffer* buffer,
+                 GrShaderFlags visibility = kFragment_GrShaderFlag) {
+        this->reset(texelConfig, buffer, visibility);
+    }
     /**
      * Must be initialized before adding to a GrProcessor's buffer access list.
      */

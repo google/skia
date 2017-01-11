@@ -160,6 +160,7 @@ tests_sources = [
   "$_tests/PointTest.cpp",
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PrimitiveProcessorTest.cpp",
+  "$_tests/ProcessorTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyRefTest.cpp",
   "$_tests/ProxyTest.cpp",
