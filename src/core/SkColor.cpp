@@ -73,30 +73,32 @@ void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
 SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     SkASSERT(hsv);
 
-    U8CPU s = SkUnitScalarClampToByte(hsv[1]);
-    U8CPU v = SkUnitScalarClampToByte(hsv[2]);
+    SkScalar s = SkScalarPin(hsv[1], 0, 1);
+    SkScalar v = SkScalarPin(hsv[2], 0, 1);
 
-    if (0 == s) { // shade of gray
-        return SkColorSetARGB(a, v, v, v);
+    U8CPU v_byte = SkScalarRoundToInt(v * 255);
+
+    if (SkScalarNearlyZero(s)) { // shade of gray
+        return SkColorSetARGB(a, v_byte, v_byte, v_byte);
     }
-    SkFixed hx = (hsv[0] < 0 || hsv[0] >= SkIntToScalar(360)) ? 0 : SkScalarToFixed(hsv[0]/60);
-    SkFixed f = hx & 0xFFFF;
+    SkScalar hx = (hsv[0] < 0 || hsv[0] >= SkIntToScalar(360)) ? 0 : hsv[0]/60;
+    SkScalar w = SkScalarFloorToScalar(hx);
+    SkScalar f = hx - w;
 
-    unsigned v_scale = SkAlpha255To256(v);
-    unsigned p = SkAlphaMul(255 - s, v_scale);
-    unsigned q = SkAlphaMul(255 - (s * f >> 16), v_scale);
-    unsigned t = SkAlphaMul(255 - (s * (SK_Fixed1 - f) >> 16), v_scale);
+    unsigned p = SkScalarRoundToInt((SK_Scalar1 - s) * v * 255);
+    unsigned q = SkScalarRoundToInt((SK_Scalar1 - (s * f)) * v * 255);
+    unsigned t = SkScalarRoundToInt((SK_Scalar1 - (s * (SK_Scalar1 - f))) * v * 255);
 
     unsigned r, g, b;
 
-    SkASSERT((unsigned)(hx >> 16) < 6);
-    switch (hx >> 16) {
-        case 0: r = v; g = t; b = p; break;
-        case 1: r = q; g = v; b = p; break;
-        case 2: r = p; g = v; b = t; break;
-        case 3: r = p; g = q; b = v; break;
-        case 4: r = t;  g = p; b = v; break;
-        default: r = v; g = p; b = q; break;
+    SkASSERT((unsigned)(w) < 6);
+    switch ((unsigned)(w)) {
+        case 0: r = v_byte;  g = t;      b = p; break;
+        case 1: r = q;       g = v_byte; b = p; break;
+        case 2: r = p;       g = v_byte; b = t; break;
+        case 3: r = p;       g = q;      b = v_byte; break;
+        case 4: r = t;       g = p;      b = v_byte; break;
+        default: r = v_byte; g = p;      b = q; break;
     }
     return SkColorSetARGB(a, r, g, b);
 }
