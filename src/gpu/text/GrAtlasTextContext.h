@@ -32,14 +32,12 @@ public:
 
     bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                  const GrShaderCaps&);
-    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, const GrPaint&, const SkPaint&,
+    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, GrPaint&&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
-                  size_t byteLength, SkScalar x, SkScalar y,
-                  const SkIRect& regionClipBounds);
-    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, const GrPaint&,
-                     const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
-                     const char text[], size_t byteLength,
-                     const SkScalar pos[], int scalarsPerPosition,
+                  size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
+    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, GrPaint&&, const SkPaint&,
+                     const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
+                     size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
     void drawTextBlob(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,

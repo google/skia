@@ -65,7 +65,8 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
     }
 
     SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
-    copyRTC->fillRectToRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(), dstRect, localRect);
+    copyRTC->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
+                            localRect);
     return copyRTC->asTexture().release();
 }
 

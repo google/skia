@@ -128,8 +128,8 @@ protected:
 
                     std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

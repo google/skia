@@ -926,9 +926,8 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    std::unique_ptr<GrDrawOp> op =
-            PLSPathOp::Make(args.fPaint->getColor(), path, *args.fViewMatrix);
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    std::unique_ptr<GrDrawOp> op = PLSPathOp::Make(args.fPaint.getColor(), path, *args.fViewMatrix);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));

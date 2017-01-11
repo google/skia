@@ -102,14 +102,13 @@ protected:
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
 #if SK_SUPPORT_GPU
-                        GrPaint grPaint;
-                        grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
                         sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                         if (fp) {
+                            GrPaint grPaint;
+                            grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                             grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                             SkRect bounds = rrect.getBounds();
@@ -117,9 +116,8 @@ protected:
 
                             std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                                     0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                            renderTargetContext->priv().testingOnly_addDrawOp(grPaint,
-                                                                              GrAAType::kNone,
-                                                                              std::move(op));
+                            renderTargetContext->priv().testingOnly_addDrawOp(
+                                    std::move(grPaint), GrAAType::kNone, std::move(op));
                         } else {
                             drew = false;
                         }

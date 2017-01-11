@@ -15,7 +15,7 @@
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
 
-void GrPathRenderingRenderTargetContext::drawText(const GrClip& clip, const GrPaint& grPaint,
+void GrPathRenderingRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint,
                                                   const SkPaint& skPaint,
                                                   const SkMatrix& viewMatrix, const char text[],
                                                   size_t byteLength, SkScalar x, SkScalar y,
@@ -30,15 +30,15 @@ void GrPathRenderingRenderTargetContext::drawText(const GrClip& clip, const GrPa
         fStencilAndCoverTextContext.reset(GrStencilAndCoverTextContext::Create(fallbackContext));
     }
 
-    fStencilAndCoverTextContext->drawText(this->drawingManager()->getContext(), this, clip, grPaint,
-                                          skPaint, viewMatrix, this->surfaceProps(),
-                                          text, byteLength, x, y, clipBounds);
+    fStencilAndCoverTextContext->drawText(this->drawingManager()->getContext(), this, clip,
+                                          std::move(grPaint), skPaint, viewMatrix,
+                                          this->surfaceProps(), text, byteLength, x, y, clipBounds);
 }
 
-void GrPathRenderingRenderTargetContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
+void GrPathRenderingRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
                                                      const SkPaint& skPaint,
                                                      const SkMatrix& viewMatrix, const char text[],
-                                                     size_t byteLength,  const SkScalar pos[],
+                                                     size_t byteLength, const SkScalar pos[],
                                                      int scalarsPerPosition, const SkPoint& offset,
                                                      const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
@@ -53,9 +53,9 @@ void GrPathRenderingRenderTargetContext::drawPosText(const GrClip& clip, const G
     }
 
     fStencilAndCoverTextContext->drawPosText(this->drawingManager()->getContext(), this, clip,
-                                             grPaint, skPaint, viewMatrix, this->surfaceProps(),
-                                             text, byteLength, pos, scalarsPerPosition, offset,
-                                             clipBounds);
+                                             std::move(grPaint), skPaint, viewMatrix,
+                                             this->surfaceProps(), text, byteLength, pos,
+                                             scalarsPerPosition, offset, clipBounds);
 }
 
 void GrPathRenderingRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
