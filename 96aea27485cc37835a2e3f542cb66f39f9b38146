@@ -16,6 +16,24 @@
       "revId": "96aea27485cc37835a2e3f542cb66f39f9b38146",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_ec524254",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1185,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T22:09:30Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "578ed681_31398390",
+      "revId": "96aea27485cc37835a2e3f542cb66f39f9b38146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
