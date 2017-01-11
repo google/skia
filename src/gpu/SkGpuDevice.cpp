@@ -34,6 +34,7 @@
 #include "SkPictureData.h"
 #include "SkRRect.h"
 #include "SkRasterClip.h"
+#include "SkReadPixelsRec.h"
 #include "SkRecord.h"
 #include "SkSpecialImage.h"
 #include "SkStroke.h"
@@ -203,6 +204,15 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
 
 bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                int x, int y) {
+    SkReadPixelsRec rec(dstInfo, dstPixels, dstRowBytes, x, y);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    if (!SkImageInfo::ValidConversion(dstInfo, this->imageInfo())) {
+        return false;
+    }
+
     ASSERT_SINGLE_OWNER
 
     return fRenderTargetContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
@@ -210,6 +220,15 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                 size_t srcRowBytes, int x, int y) {
+    SkReadPixelsRec rec(srcInfo, srcPixels, srcRowBytes, x, y);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    if (!SkImageInfo::ValidConversion(this->imageInfo(), srcInfo)) {
+        return false;
+    }
+
     ASSERT_SINGLE_OWNER
 
     return fRenderTargetContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);

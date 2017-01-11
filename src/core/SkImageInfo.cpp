@@ -60,6 +60,57 @@ void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+static bool is_valid(const SkImageInfo& info) {
+    if (info.width() <= 0 || info.height() <= 0) {
+        return false;
+    }
+
+    if (kUnknown_SkColorType == info.colorType() || kUnknown_SkAlphaType == info.alphaType()) {
+        return false;
+    }
+
+    if (kOpaque_SkAlphaType != info.alphaType() &&
+       (kRGB_565_SkColorType == info.colorType() || kGray_8_SkColorType == info.colorType())) {
+        return false;
+    }
+
+    if (kRGBA_F16_SkColorType == info.colorType() &&
+       (!info.colorSpace() || !info.colorSpace()->gammaIsLinear())) {
+        return false;
+    }
+
+    if (info.colorSpace() &&
+       (!info.colorSpace()->gammaCloseToSRGB() && !info.colorSpace()->gammaIsLinear())) {
+        return false;
+    }
+
+    return true;
+}
+
+bool SkImageInfo::ValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
+    if (!is_valid(dst) || !is_valid(src)) {
+        return false;
+    }
+
+    if (kIndex_8_SkColorType == dst.colorType() && kIndex_8_SkColorType != src.colorType()) {
+        return false;
+    }
+
+    //if (kGray_8_SkColorType == dst.colorType() && kGray_8_SkColorType != src.colorType()) {
+    //    return false;
+    //}
+
+    if (kAlpha_8_SkColorType != dst.colorType() && kAlpha_8_SkColorType == src.colorType()) {
+        return false;
+    }
+
+    if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                                   SkAlphaType* canonical) {
     switch (colorType) {
@@ -98,17 +149,13 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 #include "SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
-    switch (fInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
+    if (kIndex_8_SkColorType == fInfo.colorType()) {
+        return false;
     }
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
         return false;
     }
-    if (0 == fInfo.width() || 0 == fInfo.height()) {
+    if (0 >= fInfo.width() || 0 >= fInfo.height()) {
         return false;
     }
 

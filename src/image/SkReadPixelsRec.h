@@ -14,8 +14,8 @@
  *  Helper class to package and trim the parameters passed to readPixels()
  */
 struct SkReadPixelsRec {
-    SkReadPixelsRec(const SkImageInfo& info, void* pixels, size_t rowBytes, int x, int y)
-        : fPixels(pixels)
+    SkReadPixelsRec(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y)
+        : fPixels(const_cast<void*>(pixels))
         , fRowBytes(rowBytes)
         , fInfo(info)
         , fX(x)

@@ -911,15 +911,8 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
     if (!device) {
         return false;
     }
-    const SkISize size = this->getBaseLayerSize();
 
-    SkReadPixelsRec rec(dstInfo, dstP, rowBytes, x, y);
-    if (!rec.trim(size.width(), size.height())) {
-        return false;
-    }
-
-    // The device can assert that the requested area is always contained in its bounds
-    return device->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
+    return device->readPixels(dstInfo, dstP, rowBytes, x, y);
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
@@ -933,47 +926,18 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
-    switch (origInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
-    }
-    if (nullptr == pixels || rowBytes < origInfo.minRowBytes()) {
-        return false;
-    }
-
-    const SkISize size = this->getBaseLayerSize();
-    SkIRect target = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
-    if (!target.intersect(0, 0, size.width(), size.height())) {
-        return false;
-    }
-
     SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
 
-    // the intersect may have shrunk info's logical size
-    const SkImageInfo info = origInfo.makeWH(target.width(), target.height());
-
-    // if x or y are negative, then we have to adjust pixels
-    if (x > 0) {
-        x = 0;
-    }
-    if (y > 0) {
-        y = 0;
-    }
-    // here x,y are either 0 or negative
-    pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
-
     // Tell our owning surface to bump its generation ID
-    const bool completeOverwrite = info.dimensions() == size;
+    SkIRect dstRect = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
+    const bool completeOverwrite = dstRect.contains(SkIRect::MakeWH(this->imageInfo().width(),
+                                                                    this->imageInfo().height()));
     this->predrawNotify(completeOverwrite);
 
-    // The device can assert that the requested area is always contained in its bounds
-    return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
+    return device->writePixels(origInfo, pixels, rowBytes, x, y);
 }
 
 //////////////////////////////////////////////////////////////////////////////
