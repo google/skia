@@ -262,8 +262,12 @@ protected:
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
+    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override;
+    #else
+    int onCharsToGlyphs(SkEncodedText, uint16_t[], int) const override;
+    #endif
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
@@ -2038,9 +2042,16 @@ private:
 };
 #define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                      uint16_t userGlyphs[], int glyphCount) const
 {
+#else
+int LogFontTypeface::onCharsToGlyphs(SkEncodedText text, uint16_t userGlyphs[], int glyphCount) const {
+    const void* chars = text.fText;
+    const char* end = (const char*)text.fText + text.fByteLength;
+    Encoding encoding = (Encoding)text.fEncoding;
+#endif
     SkAutoHDC hdc(fLogFont);
 
     TEXTMETRIC tm;
@@ -2069,7 +2080,11 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         const char* currentUtf8 = reinterpret_cast<const char*>(chars);
         SkUnichar currentChar;
         if (glyphCount) {
+            #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
             currentChar = SkUTF8_NextUnichar(&currentUtf8);
+            #else
+            currentChar = (currentUtf8 < end) ? SkUTF8_NextUnichar(&currentUtf8, end) : 0;
+            #endif
         }
         while (glyphIndex < glyphCount) {
             // Try a run of bmp.
@@ -2079,7 +2094,11 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                 scratch[runLength] = static_cast<WCHAR>(currentChar);
                 ++runLength;
                 if (runLength < glyphsLeft) {
+                    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
                     currentChar = SkUTF8_NextUnichar(&currentUtf8);
+                    #else
+                    currentChar = (currentUtf8 < end) ? SkUTF8_NextUnichar(&currentUtf8, end) : 0;
+                    #endif
                 }
             }
             if (runLength) {
@@ -2093,7 +2112,11 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                 glyphs[glyphIndex] = nonBmpCharToGlyph(hdc, &sc, scratch);
                 ++glyphIndex;
                 if (glyphIndex < glyphCount) {
+                    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
                     currentChar = SkUTF8_NextUnichar(&currentUtf8);
+                    #else
+                    currentChar = (currentUtf8 < end) ? SkUTF8_NextUnichar(&currentUtf8, end) : 0;
+                    #endif
                 }
             }
         }

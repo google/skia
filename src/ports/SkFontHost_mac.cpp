@@ -440,8 +440,12 @@ protected:
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
             PerGlyphInfo, const uint32_t* glyphIDs, uint32_t glyphIDsCount) const override;
+    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
+    #else
+    int onCharsToGlyphs(SkEncodedText, uint16_t[], int) const override;
+    #endif
     int onCountGlyphs() const override;
 
 private:
@@ -1860,9 +1864,17 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = fIsLocalStream;
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
                                     uint16_t glyphs[], int glyphCount) const
 {
+#else
+int SkTypeface_Mac::onCharsToGlyphs(SkEncodedText text, uint16_t glyphs[], int glyphCount) const
+{
+    const void* chars = text.fText;
+    const char* end = (const char*)text.fText + text.fByteLength;
+    Encoding encoding = (Encoding)text.fEncoding;
+#endif
     // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
     // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
     // It is documented that if a mapping is unavailable, the glyph will be set to 0.
@@ -1876,7 +1888,11 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
             UniChar* utf16 = charStorage.reset(2 * glyphCount);
             src = utf16;
             for (int i = 0; i < glyphCount; ++i) {
+                #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
                 SkUnichar uni = SkUTF8_NextUnichar(&utf8);
+                #else
+                SkUnichar uni = utf8 < end ? SkUTF8_NextUnichar(&utf8, end) : 0;
+                #endif
                 utf16 += SkUTF16_FromUnichar(uni, utf16);
             }
             srcCount = SkToInt(utf16 - src);

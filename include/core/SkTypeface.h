@@ -14,6 +14,7 @@
 #include "SkFontStyle.h"
 #include "SkRect.h"
 #include "SkString.h"
+#include "SkTextEncoding.h"
 
 class SkDescriptor;
 class SkFontData;
@@ -146,17 +147,18 @@ public:
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
 
     enum Encoding {
-        kUTF8_Encoding,
-        kUTF16_Encoding,
-        kUTF32_Encoding
+        kUTF8_Encoding  = (int)SkTextEncoding::kUTF8,
+        kUTF16_Encoding = (int)SkTextEncoding::kUTF16,
+        kUTF32_Encoding = (int)SkTextEncoding::kUTF32
     };
 
     /**
      *  Given an array of character codes, of the specified encoding,
      *  optionally return their corresponding glyph IDs (if glyphs is not NULL).
      *
-     *  @param chars pointer to the array of character codes
-     *  @param encoding how the characters are encoded
+     *  @param chars pointer to the array of character codes, length of
+     *          character code array in bytes, and how the characters are
+     *          encoded.
      *  @param glyphs (optional) returns the corresponding glyph IDs for each
      *          character code, up to glyphCount values. If a character code is
      *          not found in the typeface, the corresponding glyph ID will be 0.
@@ -167,8 +169,12 @@ public:
      *          from the beginning of chars. This value is valid, even if the
      *          glyphs parameter is NULL.
      */
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
+#else
+    int charsToGlyphs(SkEncodedText chars, SkGlyphID glyphs[], int glyphCount) const;
+#endif  // SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 
     /**
      *  Return the number of glyphs in the typeface.
@@ -343,8 +349,12 @@ protected:
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     virtual int onCharsToGlyphs(const void* chars, Encoding, SkGlyphID glyphs[],
                                 int glyphCount) const = 0;
+#else
+    virtual int onCharsToGlyphs(SkEncodedText chars, SkGlyphID glyphs[], int glyphCount) const = 0;
+#endif
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
