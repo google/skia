@@ -289,6 +289,7 @@ gm_sources = [
   "$_gm/textblobuseaftergpufree.cpp",
   "$_gm/texteffects.cpp",
   "$_gm/texturedomaineffect.cpp",
+  "$_gm/thinconcavepaths.cpp",
   "$_gm/thinrects.cpp",
   "$_gm/thinstrokedrects.cpp",
   "$_gm/tiledscaledbitmap.cpp",
