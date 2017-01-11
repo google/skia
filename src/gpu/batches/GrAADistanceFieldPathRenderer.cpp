@@ -35,6 +35,7 @@ static int g_NumFreedShapes = 0;
 #endif
 
 // mip levels
+static const int kMinSize = 16;
 static const int kSmallMIP = 32;
 static const int kMediumMIP = 73;
 static const int kLargeMIP = 162;
@@ -103,14 +104,17 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         return false;
     }
 
-    // only support paths with bounds within kMediumMIP by kMediumMIP,
-    // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
-    // the goal is to accelerate rendering of lots of small paths that may be scaling
+    // Only support paths with bounds within kMediumMIP by kMediumMIP,
+    // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP.
+    // For clarity, the original or scaled path should be at least kMinSize by kMinSize.
+    // TODO: revisit this last criteria with Joel's patch.
+    // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     SkRect bounds = args.fShape->styledBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
-    return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
+    return maxDim <= kMediumMIP &&
+           maxDim * maxScale >= kMinSize && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -385,29 +389,12 @@ private:
         // set the bounds rect to the original bounds
         shapeData->fBounds = bounds;
 
-        // set up texture coordinates
-        SkScalar texLeft = bounds.fLeft;
-        SkScalar texTop = bounds.fTop;
-        SkScalar texRight = bounds.fRight;
-        SkScalar texBottom = bounds.fBottom;
-
-        // transform original path's bounds to texture space
-        texLeft *= scale;
-        texTop *= scale;
-        texRight *= scale;
-        texBottom *= scale;
+        // set up path to texture coordinate transform
+        shapeData->fScale = scale;
         dx -= SK_DistanceFieldPad + kAntiAliasPad;
         dy -= SK_DistanceFieldPad + kAntiAliasPad;
-        texLeft += atlasLocation.fX - dx;
-        texTop += atlasLocation.fY - dy;
-        texRight += atlasLocation.fX - dx;
-        texBottom += atlasLocation.fY - dy;
-
-        GrTexture* texture = atlas->getTexture();
-        shapeData->fTexCoords.setLTRB(texLeft / texture->width(),
-                                      texTop / texture->height(),
-                                      texRight / texture->width(),
-                                      texBottom / texture->height());
+        shapeData->fTranslate.fX = atlasLocation.fX - dx;
+        shapeData->fTranslate.fY = atlasLocation.fY - dy;
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -427,10 +414,15 @@ private:
 
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
+        // outset bounds to include ~1 pixel of AA in device space
+        SkRect bounds = shapeData->fBounds;
+        SkScalar outset = SkScalarInvert(maxScale);
+        bounds.outset(outset, outset);
+
         // vertex positions
         // TODO make the vertex attributes a struct
-        positions->setRectFan(shapeData->fBounds.left(), shapeData->fBounds.top(),
-                              shapeData->fBounds.right(), shapeData->fBounds.bottom(), vertexStride);
+        positions->setRectFan(bounds.left(), bounds.top(), bounds.right(), bounds.bottom(),
+                              vertexStride);
 
         // colors
         for (int i = 0; i < kVerticesPerQuad; i++) {
@@ -438,11 +430,32 @@ private:
             *colorPtr = color;
         }
 
+        // set up texture coordinates
+        SkScalar texLeft = bounds.fLeft;
+        SkScalar texTop = bounds.fTop;
+        SkScalar texRight = bounds.fRight;
+        SkScalar texBottom = bounds.fBottom;
+
+        // transform original path's bounds to texture space
+        SkScalar scale = shapeData->fScale;
+        const SkVector& translate = shapeData->fTranslate;
+        texLeft *= scale;
+        texTop *= scale;
+        texRight *= scale;
+        texBottom *= scale;
+        texLeft += translate.fX;
+        texTop += translate.fY;
+        texRight += translate.fX;
+        texBottom += translate.fY;
+
         // vertex texture coords
         // TODO make these int16_t
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        textureCoords->setRectFan(shapeData->fTexCoords.left(), shapeData->fTexCoords.top(),
-                                  shapeData->fTexCoords.right(), shapeData->fTexCoords.bottom(),
+        GrTexture* texture = atlas->getTexture();
+        textureCoords->setRectFan(texLeft / texture->width(),
+                                  texTop / texture->height(),
+                                  texRight / texture->width(),
+                                  texBottom / texture->height(),
                                   vertexStride);
     }
 
