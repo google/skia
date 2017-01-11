@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_51ce8746",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T18:33:16Z",
+      "side": 1,
+      "message": "when i remove \u0027*\u0027,  i get an error \"no known conversion for argument 1 from ‘const SkIRect* const’ to ‘const SkIRect\u0026’\"",
+      "parentUuid": "578ed681_2eeb62c4",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_0ecbfe64",
         "filename": "tools/debugger/SkDrawCommand.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
       "writtenOn": "2017-01-11T17:09:57Z",
       "side": 1,
       "message": "100 char limit",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_1111dfc9",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2204,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T18:33:16Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "578ed681_0ecbfe64",
       "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_911dcfda",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2212,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T18:33:16Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "578ed681_ced41602",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_6ebacac0",
         "filename": "tools/debugger/SkDrawCommand.cpp",
         "patchSetId": 1
@@ -76,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_91b14f94",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T18:33:16Z",
+      "side": 1,
+      "message": "looking at SkDebugCanvas, I could not find where SkDrawCommand::render is invoked.  Maybe Joe can chime in?\nIt looks like render is a dead code, but I may be missing something. I copied SkDrawImageLatticeCommand::render from SkDrawImageRectCommand::render.",
+      "parentUuid": "578ed681_6ebacac0",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_6ef16ab2",
         "filename": "tools/debugger/SkDrawCommand.h",
         "patchSetId": 1
@@ -87,6 +159,24 @@
       "writtenOn": "2017-01-11T17:09:57Z",
       "side": 1,
       "message": "line exceeds 100 char",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_f10bfb9a",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-01-11T18:33:16Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "578ed681_6ef16ab2",
       "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
