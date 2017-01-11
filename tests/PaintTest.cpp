@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"

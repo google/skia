@@ -7,14 +7,12 @@
 
 #include "SkDistanceFieldGen.h"
 #include "GrDistanceFieldGenFromVector.h"
-
-#include "GrConfig.h"
-#include "GrPathUtils.h"
-#include "SkAutoMalloc.h"
-#include "SkGeometry.h"
 #include "SkMatrix.h"
-#include "SkPathOps.h"
 #include "SkPoint.h"
+#include "SkGeometry.h"
+#include "SkPathOps.h"
+#include "GrPathUtils.h"
+#include "GrConfig.h"
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide

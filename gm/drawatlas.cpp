@@ -6,8 +6,6 @@
  */
 
 #include "gm.h"
-
-#include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"

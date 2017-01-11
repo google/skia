@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 #include "SkPoint.h"
-#include "SkTemplates.h"
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel

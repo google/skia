@@ -6,12 +6,11 @@
  */
 
 #include "GrGLShaderStringBuilder.h"
-#include "SkAutoMalloc.h"
-#include "SkSLCompiler.h"
-#include "SkSLGLSLCodeGenerator.h"
-#include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLSLPrettyPrint.h"
+#include "SkTraceEvent.h"
+#include "SkSLCompiler.h"
+#include "SkSLGLSLCodeGenerator.h"
 #include "ir/SkSLProgram.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)

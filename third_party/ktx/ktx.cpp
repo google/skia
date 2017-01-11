@@ -6,11 +6,9 @@
  */
 
 #include "ktx.h"
-
-#include "SkAutoMalloc.h"
 #include "SkBitmap.h"
-#include "SkEndian.h"
 #include "SkStream.h"
+#include "SkEndian.h"
 
 #include "gl/GrGLDefines.h"
 #include "GrConfig.h"

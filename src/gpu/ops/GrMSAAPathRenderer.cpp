@@ -16,7 +16,6 @@
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
-#include "SkAutoMalloc.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLVaryingHandler.h"
@@ -347,7 +346,7 @@ private:
 
         MSAAQuadVertices quads;
         size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
-        SkAutoMalloc quadVertexPtr(fMaxQuadVertices * quadVertexStride);
+        SkAutoFree quadVertexPtr(sk_malloc_throw(fMaxQuadVertices * quadVertexStride));
         quads.vertices = (MSAAQuadVertices::Vertex*) quadVertexPtr.get();
         quads.nextVertex = quads.vertices;
         SkDEBUGCODE(quads.verticesEnd = quads.vertices + fMaxQuadVertices;)
@@ -370,7 +369,7 @@ private:
         SkAutoFree quadIndexPtr;
         if (fIsIndexed) {
             quads.indices = (uint16_t*)sk_malloc_throw(3 * fMaxQuadVertices * sizeof(uint16_t));
-            quadIndexPtr.reset(quads.indices);
+            quadIndexPtr.set(quads.indices);
             quads.nextIndex = quads.indices;
         } else {
             quads.indices = nullptr;

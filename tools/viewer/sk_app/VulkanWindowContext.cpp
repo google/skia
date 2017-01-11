@@ -8,7 +8,6 @@
 
 #include "GrContext.h"
 #include "GrRenderTarget.h"
-#include "SkAutoMalloc.h"
 #include "SkSurface.h"
 #include "VulkanWindowContext.h"
 

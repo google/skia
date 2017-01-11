@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Resources.h"
-#include "SkAutoMalloc.h"
 #include "SkCodec.h"
+#include "Resources.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkYUVSizeInfo.h"
