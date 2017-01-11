@@ -32,7 +32,7 @@ declare_args() {
   skia_enable_pdf = true
   skia_enable_splicer =
       is_skia_standalone && sanitize != "MSAN" &&
-      (is_linux || is_mac || (is_android && target_cpu == "arm64"))
+      (is_linux || is_mac || is_win || (is_android && target_cpu == "arm64"))
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
