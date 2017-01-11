@@ -8,7 +8,7 @@
 #define skiatest_Test_DEFINED
 
 #include "SkString.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "SkTypes.h"
 #include "SkClipOpPriv.h"
 
@@ -96,7 +96,7 @@ struct Test {
     TestProc proc;
 };
 
-typedef SkTRegistry<Test> TestRegistry;
+typedef sk_tools::Registry<Test> TestRegistry;
 
 /*
     Use the following macros to make use of the skiatest classes, e.g.

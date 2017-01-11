@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -6,25 +5,26 @@
  * found in the LICENSE file.
  */
 
-
-#ifndef SkTRegistry_DEFINED
-#define SkTRegistry_DEFINED
+#ifndef sk_tools_Registry_DEFINED
+#define sk_tools_Registry_DEFINED
 
 #include "SkTypes.h"
+
+namespace sk_tools {
 
 /** Template class that registers itself (in the constructor) into a linked-list
     and provides a function-pointer. This can be used to auto-register a set of
     services, e.g. a set of image codecs.
  */
-template <typename T> class SkTRegistry : SkNoncopyable {
+template <typename T> class Registry : SkNoncopyable {
 public:
     typedef T Factory;
 
-    explicit SkTRegistry(T fact) : fFact(fact) {
+    explicit Registry(T fact) : fFact(fact) {
 #ifdef SK_BUILD_FOR_ANDROID
         // work-around for double-initialization bug
         {
-            SkTRegistry* reg = gHead;
+            Registry* reg = gHead;
             while (reg) {
                 if (reg == this) {
                     return;
@@ -37,19 +37,21 @@ public:
         gHead  = this;
     }
 
-    static const SkTRegistry* Head() { return gHead; }
+    static const Registry* Head() { return gHead; }
 
-    const SkTRegistry* next() const { return fChain; }
+    const Registry* next() const { return fChain; }
     const Factory& factory() const { return fFact; }
 
 private:
-    Factory      fFact;
-    SkTRegistry* fChain;
+    Factory   fFact;
+    Registry* fChain;
 
-    static SkTRegistry* gHead;
+    static Registry* gHead;
 };
 
 // The caller still needs to declare an instance of this somewhere
-template <typename T> SkTRegistry<T>* SkTRegistry<T>::gHead;
+template <typename T> Registry<T>* Registry<T>::gHead;
+
+}  // namespace sk_tools
 
 #endif

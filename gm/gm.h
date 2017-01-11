@@ -13,7 +13,7 @@
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "sk_tool_utils.h"
 #include "SkClipOpPriv.h"
 
@@ -130,7 +130,7 @@ namespace skiagm {
         SkMatrix fStarterMatrix;
     };
 
-    typedef SkTRegistry<GM*(*)(void*)> GMRegistry;
+    typedef sk_tools::Registry<GM*(*)(void*)> GMRegistry;
 
     class SimpleGM : public skiagm::GM {
     public:

@@ -11,7 +11,7 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 
 #define DEF_BENCH3(code, N) \
     static BenchRegistry gBench##N([](void*) -> Benchmark* { code; });
@@ -150,6 +150,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef SkTRegistry<Benchmark*(*)(void*)> BenchRegistry;
+typedef sk_tools::Registry<Benchmark*(*)(void*)> BenchRegistry;
 
 #endif
