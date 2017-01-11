@@ -124,20 +124,18 @@ public:
      * fGammaCorrect          true if gamma-correct rendering is to be used.
      */
     struct DrawPathArgs {
-        GrResourceProvider*         fResourceProvider;
-        const GrPaint*              fPaint;
-        const GrUserStencilSettings*fUserStencilSettings;
-
-        GrRenderTargetContext*      fRenderTargetContext;
-        const GrClip*               fClip;
-        const SkMatrix*             fViewMatrix;
-        const GrShape*              fShape;
-        GrAAType                    fAAType;
-        bool                        fGammaCorrect;
+        GrResourceProvider*          fResourceProvider;
+        GrPaint&&                    fPaint;
+        const GrUserStencilSettings* fUserStencilSettings;
+        GrRenderTargetContext*       fRenderTargetContext;
+        const GrClip*                fClip;
+        const SkMatrix*              fViewMatrix;
+        const GrShape*               fShape;
+        GrAAType                     fAAType;
+        bool                         fGammaCorrect;
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fResourceProvider);
-            SkASSERT(fPaint);
             SkASSERT(fUserStencilSettings);
             SkASSERT(fRenderTargetContext);
             SkASSERT(fClip);
@@ -279,15 +277,15 @@ private:
 
         GrPaint paint;
 
-        DrawPathArgs drawArgs;
-        drawArgs.fResourceProvider = args.fResourceProvider;
-        drawArgs.fPaint = &paint;
-        drawArgs.fUserStencilSettings = &kIncrementStencil;
-        drawArgs.fRenderTargetContext = args.fRenderTargetContext;
-        drawArgs.fViewMatrix = args.fViewMatrix;
-        drawArgs.fShape = args.fShape;
-        drawArgs.fAAType = args.fAAType;
-        drawArgs.fGammaCorrect = false;
+        DrawPathArgs drawArgs{args.fResourceProvider,
+                              std::move(paint),
+                              &kIncrementStencil,
+                              args.fRenderTargetContext,
+                              nullptr,  // clip
+                              args.fViewMatrix,
+                              args.fShape,
+                              args.fAAType,
+                              false};
         this->drawPath(drawArgs);
     }
 

@@ -15,18 +15,18 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "ops/GrOp.h"
 
-GrPipelineBuilder::GrPipelineBuilder(const GrPaint& paint, GrAAType aaType)
+GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
         : fFlags(0x0)
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fDrawFace(GrDrawFace::kBoth) {
     SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
 
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
-        fColorFragmentProcessors.emplace_back(SkRef(paint.getColorFragmentProcessor(i)));
+        fColorFragmentProcessors.emplace_back(paint.fColorFragmentProcessors[i].release());
     }
 
     for (int i = 0; i < paint.numCoverageFragmentProcessors(); ++i) {
-        fCoverageFragmentProcessors.emplace_back(SkRef(paint.getCoverageFragmentProcessor(i)));
+        fCoverageFragmentProcessors.emplace_back(paint.fCoverageFragmentProcessors[i].release());
     }
 
     fXPFactory = paint.getXPFactory();

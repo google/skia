@@ -110,8 +110,6 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
-                GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 sk_sp<GrFragmentProcessor> fp(
                         GrYUVEffect::MakeYUVToRGB(texture[indices[i][0]].get(),
                                                   texture[indices[i][1]].get(),
@@ -120,13 +118,15 @@ protected:
                                                   static_cast<SkYUVColorSpace>(space),
                                                   false));
                 if (fp) {
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+                    grPaint.addColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    grPaint.addColorFragmentProcessor(std::move(fp));
                     std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -238,8 +238,8 @@ protected:
                 grPaint.addColorFragmentProcessor(fp);
                 std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                         GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                  std::move(op));
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
+                                                                  GrAAType::kNone, std::move(op));
             }
         }
     }

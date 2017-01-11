@@ -112,23 +112,23 @@ public:
                                   SkRect* maskRect) const;
 
     /**
-     *  Try to directly render the mask filter into the target.  Returns
-     *  true if drawing was successful.
+     *  Try to directly render the mask filter into the target. Returns true if drawing was
+     *  successful. If false is returned then paint is unmodified.
      */
     virtual bool directFilterMaskGPU(GrTextureProvider* texProvider,
                                      GrRenderTargetContext* renderTargetContext,
-                                     GrPaint* grp,
+                                     GrPaint&& paint,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const;
     /**
      *  Try to directly render a rounded rect mask filter into the target.  Returns
-     *  true if drawing was successful.
+     *  true if drawing was successful.  If false is returned then paint is unmodified.
      */
     virtual bool directFilterRRectMaskGPU(GrContext*,
                                           GrRenderTargetContext* renderTargetContext,
-                                          GrPaint* grp,
+                                          GrPaint&& paint,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
                                           const SkStrokeRec& strokeRec,

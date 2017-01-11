@@ -530,9 +530,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     std::unique_ptr<GrDrawOp> op = AADistanceFieldPathOp::Make(
-            args.fPaint->getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
+            args.fPaint.getColor(), *args.fShape, *args.fViewMatrix, fAtlas.get(), &fShapeCache,
             &fShapeList, args.fGammaCorrect);
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));

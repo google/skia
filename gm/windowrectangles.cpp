@@ -127,10 +127,8 @@ private:
     constexpr static int kMaskCheckerSize = 5;
     SkString onShortName() final { return SkString("windowrectangles_mask"); }
     void onCoverClipStack(const SkClipStack&, SkCanvas*) final;
-    void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&,
-                            const GrPaint&);
-    void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&,
-                              const GrPaint&);
+    void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
+    void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void stencilCheckerboard(GrRenderTargetContext*, bool flip);
     void fail(SkCanvas*);
 };
@@ -192,16 +190,15 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     GrPaint paint;
     if (!rtc->isStencilBufferMultisampled()) {
         paint.setColor4f(GrColor4f(0, 0.25f, 1, 1));
-        this->visualizeAlphaMask(ctx, rtc, reducedClip, paint);
+        this->visualizeAlphaMask(ctx, rtc, reducedClip, std::move(paint));
     } else {
         paint.setColor4f(GrColor4f(1, 0.25f, 0.25f, 1));
-        this->visualizeStencilMask(ctx, rtc, reducedClip, paint);
+        this->visualizeStencilMask(ctx, rtc, reducedClip, std::move(paint));
     }
 }
 
 void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
-                                                const GrReducedClip& reducedClip,
-                                                const GrPaint& paint) {
+                                                const GrReducedClip& reducedClip, GrPaint&& paint) {
     sk_sp<GrRenderTargetContext> maskRTC(
         ctx->makeRenderTargetContextWithFallback(SkBackingFit::kExact, kLayerRect.width(),
                                                  kLayerRect.height(), kAlpha_8_GrPixelConfig,
@@ -228,13 +225,13 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // inside window rectangles or outside the scissor should still have the initial checkerboard
     // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
     AlphaOnlyClip clip(mask.get(), x, y);
-    rtc->drawRect(clip, paint, GrAA::kYes, SkMatrix::I(),
-                 SkRect::Make(SkIRect::MakeXYWH(x, y, mask->width(), mask->height())));
+    rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
+                  SkRect::Make(SkIRect::MakeXYWH(x, y, mask->width(), mask->height())));
 }
 
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
-                                                  const GrPaint& paint) {
+                                                  GrPaint&& paint) {
     if (!ctx->resourceProvider()->attachStencilAttachment(rtc->accessRenderTarget())) {
         return;
     }
@@ -247,7 +244,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTarget
     // Now visualize the stencil mask by covering the entire render target. The regions inside
     // window rectangless or outside the scissor should still have the initial checkerboard intact.
     // (This verifies we didn't spend any time modifying those pixels in the mask.)
-    rtc->drawPaint(StencilOnlyClip(), paint, SkMatrix::I());
+    rtc->drawPaint(StencilOnlyClip(), std::move(paint), SkMatrix::I());
 }
 
 void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, bool flip) {

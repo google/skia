@@ -241,7 +241,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
 #define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
 
-void GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrPaint& paint,
+void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
                                                       GrAAType aaType,
                                                       std::unique_ptr<GrDrawOp>
                                                               op,
@@ -253,7 +253,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrPaint& paint,
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_addDrawOp");
 
-    GrPipelineBuilder pipelineBuilder(paint, aaType);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }

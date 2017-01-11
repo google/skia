@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     fp = TestFP::Make(std::move(fp));
                 }
                 paint.addColorFragmentProcessor(std::move(fp));
-                renderTargetContext->priv().testingOnly_addDrawOp(paint, GrAAType::kNone,
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(paint), GrAAType::kNone,
                                                                   std::move(op));
             }
             int refCnt, readCnt, writeCnt;

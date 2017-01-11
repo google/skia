@@ -71,7 +71,7 @@ static bool get_shape_and_clip_bounds(int width, int height,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetContext,
-                                           const GrPaint& paint,
+                                           GrPaint&& paint,
                                            const GrUserStencilSettings& userStencilSettings,
                                            const GrClip& clip,
                                            const SkMatrix& viewMatrix,
@@ -80,13 +80,13 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
     std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix, rect,
                                                                 nullptr, &localMatrix));
 
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     pipelineBuilder.setUserStencil(&userStencilSettings);
     renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
-                                               const GrPaint& paint,
+                                               GrPaint&& paint,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
@@ -101,25 +101,25 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTarg
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        DrawNonAARect(renderTargetContext, paint, userStencilSettings, clip,
-                      SkMatrix::I(), rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
+                      rect, invert);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        DrawNonAARect(renderTargetContext, paint, userStencilSettings, clip,
-                      SkMatrix::I(), rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
+                      rect, invert);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        DrawNonAARect(renderTargetContext, paint, userStencilSettings, clip,
-                      SkMatrix::I(), rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
+                      rect, invert);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
                   devClipBounds.fRight, devClipBounds.fBottom);
-        DrawNonAARect(renderTargetContext, paint, userStencilSettings, clip,
+        DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip,
                       SkMatrix::I(), rect, invert);
     }
 }
@@ -152,10 +152,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                    &clippedDevShapeBounds,
                                    &devClipBounds)) {
         if (inverseFilled) {
-            DrawAroundInvPath(args.fRenderTargetContext, *args.fPaint, *args.fUserStencilSettings,
-                              *args.fClip,
-                              *args.fViewMatrix, devClipBounds, unclippedDevShapeBounds);
-
+            DrawAroundInvPath(args.fRenderTargetContext, std::move(args.fPaint),
+                              *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
+                              devClipBounds, unclippedDevShapeBounds);
         }
         return true;
     }
@@ -223,16 +222,15 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             texture->resourcePriv().setUniqueKey(maskKey);
         }
     }
-    GrSWMaskHelper::DrawToTargetWithShapeMask(texture.get(), args.fRenderTargetContext,
-                                              *args.fPaint, *args.fUserStencilSettings,
-                                              *args.fClip, *args.fViewMatrix,
-                                              SkIPoint {boundsForMask->fLeft, boundsForMask->fTop},
-                                              *boundsForMask);
     if (inverseFilled) {
-        DrawAroundInvPath(args.fRenderTargetContext, *args.fPaint, *args.fUserStencilSettings,
-                          *args.fClip,
-                          *args.fViewMatrix, devClipBounds, unclippedDevShapeBounds);
+        DrawAroundInvPath(args.fRenderTargetContext, GrPaint(args.fPaint),
+                          *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
+                          unclippedDevShapeBounds);
     }
+    GrSWMaskHelper::DrawToTargetWithShapeMask(
+            texture.get(), args.fRenderTargetContext, std::move(args.fPaint),
+            *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
+            SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 
     return true;
 }

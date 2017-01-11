@@ -53,13 +53,13 @@ public:
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
     // akin to GrStyle (GrTextInfo?)
-    virtual void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
-                          const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                          SkScalar x, SkScalar y, const SkIRect& clipBounds);
-    virtual void drawPosText(const GrClip&, const GrPaint&, const SkPaint&,
-                             const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                             const SkScalar pos[], int scalarsPerPosition,
-                             const SkPoint& offset, const SkIRect& clipBounds);
+    virtual void drawText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+                          const char text[], size_t byteLength, SkScalar x, SkScalar y,
+                          const SkIRect& clipBounds);
+    virtual void drawPosText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+                             const char text[], size_t byteLength, const SkScalar pos[],
+                             int scalarsPerPosition, const SkPoint& offset,
+                             const SkIRect& clipBounds);
     virtual void drawTextBlob(const GrClip&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkTextBlob*,
                               SkScalar x, SkScalar y,
@@ -83,7 +83,7 @@ public:
     /**
      *  Draw everywhere (respecting the clip) with the paint.
      */
-    void drawPaint(const GrClip&, const GrPaint&, const SkMatrix& viewMatrix);
+    void drawPaint(const GrClip&, GrPaint&&, const SkMatrix& viewMatrix);
 
     /**
      * Draw the rect using a paint.
@@ -95,11 +95,11 @@ public:
      * The rects coords are used to access the paint (through texture matrix)
      */
     void drawRect(const GrClip&,
-                  const GrPaint& paint,
+                  GrPaint&& paint,
                   GrAA,
                   const SkMatrix& viewMatrix,
                   const SkRect&,
-                  const GrStyle* style  = nullptr);
+                  const GrStyle* style = nullptr);
 
     /**
      * Maps a rectangle of shader coordinates to a rectangle and fills that rectangle.
@@ -111,7 +111,7 @@ public:
      * @param localRect    the rectangle of shader coordinates applied to rectToDraw
      */
     void fillRectToRect(const GrClip&,
-                        const GrPaint& paint,
+                        GrPaint&& paint,
                         GrAA,
                         const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
@@ -121,7 +121,7 @@ public:
      * Fills a rect with a paint and a localMatrix.
      */
     void fillRectWithLocalMatrix(const GrClip& clip,
-                                 const GrPaint& paint,
+                                 GrPaint&& paint,
                                  GrAA,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
@@ -137,7 +137,7 @@ public:
      * @param style       style to apply to the rrect. Currently path effects are not allowed.
      */
     void drawRRect(const GrClip&,
-                   const GrPaint&,
+                   GrPaint&&,
                    GrAA,
                    const SkMatrix& viewMatrix,
                    const SkRRect& rrect,
@@ -154,7 +154,7 @@ public:
      * @param style        style to apply to the rrect. Currently path effects are not allowed.
      */
     void drawShadowRRect(const GrClip&,
-                         const GrPaint&,
+                         GrPaint&&,
                          const SkMatrix& viewMatrix,
                          const SkRRect& rrect,
                          SkScalar blurRadius,
@@ -171,7 +171,7 @@ public:
      * @param inner        the inner roundrect
      */
     void drawDRRect(const GrClip&,
-                    const GrPaint&,
+                    GrPaint&&,
                     GrAA,
                     const SkMatrix& viewMatrix,
                     const SkRRect& outer,
@@ -187,7 +187,7 @@ public:
      * @param style         style to apply to the path.
      */
     void drawPath(const GrClip&,
-                  const GrPaint&,
+                  GrPaint&&,
                   GrAA,
                   const SkMatrix& viewMatrix,
                   const SkPath&,
@@ -211,7 +211,7 @@ public:
      *                          number of indices.
      */
     void drawVertices(const GrClip&,
-                      const GrPaint& paint,
+                      GrPaint&& paint,
                       const SkMatrix& viewMatrix,
                       GrPrimitiveType primitiveType,
                       int vertexCount,
@@ -234,7 +234,7 @@ public:
      *                          the paint's color field.
      */
     void drawAtlas(const GrClip&,
-                   const GrPaint& paint,
+                   GrPaint&& paint,
                    const SkMatrix& viewMatrix,
                    int spriteCount,
                    const SkRSXform xform[],
@@ -251,7 +251,7 @@ public:
      * @param style         style to apply to the region
      */
     void drawRegion(const GrClip&,
-                    const GrPaint& paint,
+                    GrPaint&& paint,
                     GrAA aa,
                     const SkMatrix& viewMatrix,
                     const SkRegion& region,
@@ -267,7 +267,7 @@ public:
      * @param style         style to apply to the oval. Currently path effects are not allowed.
      */
     void drawOval(const GrClip&,
-                  const GrPaint& paint,
+                  GrPaint&& paint,
                   GrAA,
                   const SkMatrix& viewMatrix,
                   const SkRect& oval,
@@ -288,7 +288,7 @@ public:
      * @param style         style to apply to the oval.
      */
     void drawArc(const GrClip&,
-                 const GrPaint& paint,
+                 GrPaint&& paint,
                  GrAA,
                  const SkMatrix& viewMatrix,
                  const SkRect& oval,
@@ -301,7 +301,7 @@ public:
      * Draw the image as a set of rects, specified by |iter|.
      */
     void drawImageLattice(const GrClip&,
-                          const GrPaint& paint,
+                          GrPaint&& paint,
                           const SkMatrix& viewMatrix,
                           int imageWidth,
                           int imageHeight,
@@ -437,22 +437,24 @@ private:
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
+    // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,
-                          const GrPaint& paint,
+                          GrPaint&& paint,
                           GrAA,
                           const SkMatrix& viewMatrix,
                           const SkRRect& origOuter,
                           const SkRRect& origInner);
 
+    // Only consumes the GrPaint if successful.
     bool drawFilledRect(const GrClip& clip,
-                        const GrPaint& paint,
+                        GrPaint&& paint,
                         GrAA,
                         const SkMatrix& viewMatrix,
                         const SkRect& rect,
                         const GrUserStencilSettings* ss);
 
     void drawNonAAFilledRect(const GrClip&,
-                             const GrPaint&,
+                             GrPaint&&,
                              const SkMatrix& viewMatrix,
                              const SkRect& rect,
                              const SkRect* localRect,
@@ -460,12 +462,8 @@ private:
                              const GrUserStencilSettings* ss,
                              GrAAType hwOrNoneAAType);
 
-    void internalDrawPath(const GrClip&,
-                          const GrPaint&,
-                          GrAA,
-                          const SkMatrix&,
-                          const SkPath&,
-                          const GrStyle&);
+    void internalDrawPath(
+            const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
 
     bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 

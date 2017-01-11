@@ -185,8 +185,8 @@ protected:
 
                 std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(p.getBounds(), 0xff000000);
 
-                renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                  std::move(op));
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
+                                                                  GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -225,8 +225,8 @@ protected:
 
                 std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
 
-                renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                  std::move(op));
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
+                                                                  GrAAType::kNone, std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

@@ -563,7 +563,7 @@ private:
 };
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
-                                          const GrPaint& paint,
+                                          GrPaint&& paint,
                                           GrAAType aaType,
                                           const GrUserStencilSettings& userStencilSettings,
                                           const GrClip& clip,
@@ -574,21 +574,15 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
     SkPath path;
     shape.asPath(&path);
 
-    static const int kMaxNumPasses = 2;
-
-    int                          passCount = 0;
-    const GrUserStencilSettings* passes[kMaxNumPasses];
+    const GrUserStencilSettings* passes[2] = {nullptr, nullptr};
     bool                         reverse = false;
-    bool                         lastPassIsBounds;
 
     if (single_pass_shape(shape)) {
-        passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
             passes[0] = &userStencilSettings;
         }
-        lastPassIsBounds = false;
     } else {
         switch (path.getFillType()) {
             case SkPath::kInverseEvenOdd_FillType:
@@ -596,17 +590,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 // fallthrough
             case SkPath::kEvenOdd_FillType:
                 passes[0] = &gEOStencilPass;
-                if (stencilOnly) {
-                    passCount = 1;
-                    lastPassIsBounds = false;
-                } else {
-                    passCount = 2;
-                    lastPassIsBounds = true;
-                    if (reverse) {
-                        passes[1] = &gInvEOColorPass;
-                    } else {
-                        passes[1] = &gEOColorPass;
-                    }
+                if (!stencilOnly) {
+                    passes[1] = reverse ? &gInvEOColorPass : &gEOColorPass;
                 }
                 break;
 
@@ -615,17 +600,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 // fallthrough
             case SkPath::kWinding_FillType:
                 passes[0] = &gWindStencilSeparateWithWrap;
-                passCount = 2;
-                if (stencilOnly) {
-                    lastPassIsBounds = false;
-                    passCount = 1;
-                } else {
-                    lastPassIsBounds = true;
-                    if (reverse) {
-                        passes[1] = &gInvWindColorPass;
-                    } else {
-                        passes[1] = &gWindColorPass;
-                    }
+                if (!stencilOnly) {
+                    passes[1] = reverse ? &gInvWindColorPass : &gWindColorPass;
                 }
                 break;
             default:
@@ -637,50 +613,48 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
     SkRect devBounds;
     GetPathDevBounds(path, renderTargetContext->width(), renderTargetContext->height(), viewMatrix,
                      &devBounds);
+    SkASSERT(passes[0]);
 
-    SkASSERT(passCount <= kMaxNumPasses);
+    std::unique_ptr<GrDrawOp> op = MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
+    if (!op) {
+        return false;
+    }
+    // If we have a cover pass then we ignore the paint in the first pass and apply it in the
+    // second.
+    GrPipelineBuilder pipelineBuilder(GrPaint::MoveOrNew(paint, passes[1]), aaType);
+    pipelineBuilder.setUserStencil(passes[0]);
+    if (passes[1]) {
+        pipelineBuilder.setDisableColorXPFactory();
+    }
+    renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 
-    for (int p = 0; p < passCount; ++p) {
-        if (lastPassIsBounds && (p == passCount-1)) {
-            SkRect bounds;
-            SkMatrix localMatrix = SkMatrix::I();
-            if (reverse) {
-                // draw over the dev bounds (which will be the whole dst surface for inv fill).
-                bounds = devBounds;
-                SkMatrix vmi;
-                // mapRect through persp matrix may not be correct
-                if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
-                    vmi.mapRect(&bounds);
-                } else {
-                    if (!viewMatrix.invert(&localMatrix)) {
-                        return false;
-                    }
-                }
+    if (passes[1]) {
+        SkRect bounds;
+        SkMatrix localMatrix = SkMatrix::I();
+        if (reverse) {
+            // draw over the dev bounds (which will be the whole dst surface for inv fill).
+            bounds = devBounds;
+            SkMatrix vmi;
+            // mapRect through persp matrix may not be correct
+            if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
+                vmi.mapRect(&bounds);
             } else {
-                bounds = path.getBounds();
+                if (!viewMatrix.invert(&localMatrix)) {
+                    return false;
+                }
             }
-            const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
-                                                                               viewMatrix;
-            std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
-                    paint.getColor(), viewM, bounds, nullptr, &localMatrix));
-
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
-            pipelineBuilder.setUserStencil(passes[p]);
-
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
-            std::unique_ptr<GrDrawOp> op =
-                    MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
-            if (!op) {
-                return false;
-            }
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
-            pipelineBuilder.setUserStencil(passes[p]);
-            if (passCount > 1) {
-                pipelineBuilder.setDisableColorXPFactory();
-            }
-            renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+            bounds = path.getBounds();
         }
+        const SkMatrix& viewM =
+                (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
+        std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewM, bounds,
+                                                                    nullptr, &localMatrix));
+
+        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+        pipelineBuilder.setUserStencil(passes[1]);
+
+        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
     }
     return true;
 }
@@ -703,7 +677,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
         shape = tmpShape.get();
     }
     return this->internalDrawPath(args.fRenderTargetContext,
-                                  *args.fPaint,
+                                  std::move(args.fPaint),
                                   args.fAAType,
                                   *args.fUserStencilSettings,
                                   *args.fClip,
@@ -721,7 +695,7 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-    this->internalDrawPath(args.fRenderTargetContext, paint, args.fAAType,
+    this->internalDrawPath(args.fRenderTargetContext, std::move(paint), args.fAAType,
                            GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
                            *args.fShape, true);
 }

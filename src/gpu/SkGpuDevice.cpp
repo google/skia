@@ -280,7 +280,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
         return;
     }
 
-    fRenderTargetContext->drawPaint(fClip, grPaint, *draw.fMatrix);
+    fRenderTargetContext->drawPaint(fClip, std::move(grPaint), *draw.fMatrix);
 }
 
 // must be in SkCanvas::PointMode order
@@ -339,7 +339,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         path.setIsVolatile(true);
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
-        fRenderTargetContext->drawPath(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()),
+        fRenderTargetContext->drawPath(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
                                        *draw.fMatrix, path, style);
         return;
     }
@@ -378,7 +378,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     fRenderTargetContext->drawVertices(fClip,
-                                       grPaint,
+                                       std::move(grPaint),
                                        *viewMatrix,
                                        primitiveType,
                                        SkToS32(count),
@@ -416,8 +416,8 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect, const SkPaint
     }
 
     GrStyle style(paint);
-    fRenderTargetContext->drawRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                   rect, &style);
+    fRenderTargetContext->drawRect(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+                                   *draw.fMatrix, rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -455,7 +455,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPa
                         return;
                     }
                     if (mf->directFilterRRectMaskGPU(fContext.get(), fRenderTargetContext.get(),
-                                                     &grPaint, fClip, *draw.fMatrix,
+                                                     std::move(grPaint), fClip, *draw.fMatrix,
                                                      style.strokeRec(), rrect, devRRect)) {
                         return;
                     }
@@ -481,8 +481,8 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPa
 
     SkASSERT(!style.pathEffect());
 
-    fRenderTargetContext->drawRRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                    rrect, style);
+    fRenderTargetContext->drawRRect(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+                                    *draw.fMatrix, rrect, style);
 }
 
 
@@ -509,7 +509,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
             return;
         }
 
-        fRenderTargetContext->drawDRRect(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()),
+        fRenderTargetContext->drawDRRect(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
                                          *draw.fMatrix, outer, inner);
         return;
     }
@@ -542,8 +542,8 @@ void SkGpuDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const S
         return;
     }
 
-    fRenderTargetContext->drawRegion(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                     region, GrStyle(paint));
+    fRenderTargetContext->drawRegion(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+                                     *draw.fMatrix, region, GrStyle(paint));
 }
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
@@ -572,8 +572,8 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint
         return;
     }
 
-    fRenderTargetContext->drawOval(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                   oval, GrStyle(paint));
+    fRenderTargetContext->drawOval(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+                                   *draw.fMatrix, oval, GrStyle(paint));
 }
 
 void SkGpuDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
@@ -592,8 +592,9 @@ void SkGpuDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar start
         return;
     }
 
-    fRenderTargetContext->drawArc(fClip, grPaint, GrBoolToAA(paint.isAntiAlias()), *draw.fMatrix,
-                                  oval, startAngle, sweepAngle, useCenter, GrStyle(paint));
+    fRenderTargetContext->drawArc(fClip, std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+                                  *draw.fMatrix, oval, startAngle, sweepAngle, useCenter,
+                                  GrStyle(paint));
 }
 
 #include "SkMaskFilter.h"
@@ -649,9 +650,8 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
         return;
     }
 
-    fRenderTargetContext->fillRectWithLocalMatrix(fClip, grPaint,
-                                                  GrBoolToAA(newPaint.isAntiAlias()), m, rect,
-                                                  local);
+    fRenderTargetContext->fillRectWithLocalMatrix(
+            fClip, std::move(grPaint), GrBoolToAA(newPaint.isAntiAlias()), m, rect, local);
 }
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
@@ -1103,7 +1103,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // Coverage-based AA would cause seams between tiles.
     GrAA aa = GrBoolToAA(paint.isAntiAlias() &&
                          fRenderTargetContext->isStencilBufferMultisampled());
-    fRenderTargetContext->drawRect(fClip, grPaint, aa, viewMatrix, dstRect);
+    fRenderTargetContext->drawRect(fClip, std::move(grPaint), aa, viewMatrix, dstRect);
 }
 
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1195,19 +1195,17 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
 
     const SkIRect& subset = result->subset();
 
-    fRenderTargetContext->fillRectToRect(fClip,
-                                         grPaint,
-                                         GrBoolToAA(paint.isAntiAlias()),
-                                         SkMatrix::I(),
-                                         SkRect::Make(SkIRect::MakeXYWH(left + offset.fX,
-                                                                        top + offset.fY,
-                                                                        subset.width(),
-                                                                        subset.height())),
-                                        SkRect::MakeXYWH(
-                                            SkIntToScalar(subset.fLeft) / texture->width(),
-                                            SkIntToScalar(subset.fTop) / texture->height(),
-                                            SkIntToScalar(subset.width()) / texture->width(),
-                                            SkIntToScalar(subset.height()) / texture->height()));
+    fRenderTargetContext->fillRectToRect(
+            fClip,
+            std::move(grPaint),
+            GrBoolToAA(paint.isAntiAlias()),
+            SkMatrix::I(),
+            SkRect::Make(SkIRect::MakeXYWH(
+                    left + offset.fX, top + offset.fY, subset.width(), subset.height())),
+            SkRect::MakeXYWH(SkIntToScalar(subset.fLeft) / texture->width(),
+                             SkIntToScalar(subset.fTop) / texture->height(),
+                             SkIntToScalar(subset.width()) / texture->width(),
+                             SkIntToScalar(subset.height()) / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1476,8 +1474,9 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
 
     std::unique_ptr<SkLatticeIter> iter(
             new SkLatticeIter(producer->width(), producer->height(), center, dst));
-    fRenderTargetContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
-                                           producer->height(), std::move(iter), dst);
+    fRenderTargetContext->drawImageLattice(fClip, std::move(grPaint), *draw.fMatrix,
+                                           producer->width(), producer->height(), std::move(iter),
+                                           dst);
 }
 
 void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
@@ -1529,8 +1528,9 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
 
     std::unique_ptr<SkLatticeIter> iter(
             new SkLatticeIter(lattice, dst));
-    fRenderTargetContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
-                                           producer->height(), std::move(iter), dst);
+    fRenderTargetContext->drawImageLattice(fClip, std::move(grPaint), *draw.fMatrix,
+                                           producer->width(), producer->height(), std::move(iter),
+                                           dst);
 }
 
 void SkGpuDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
@@ -1627,7 +1627,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
             i += 6;
         }
         fRenderTargetContext->drawVertices(fClip,
-                                           grPaint,
+                                           std::move(grPaint),
                                            *draw.fMatrix,
                                            kLines_GrPrimitiveType,
                                            vertexCount,
@@ -1684,7 +1684,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     }
 
     fRenderTargetContext->drawVertices(fClip,
-                                       grPaint,
+                                       std::move(grPaint),
                                        *draw.fMatrix,
                                        primType,
                                        vertexCount,
@@ -1726,7 +1726,8 @@ void SkGpuDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRS
     }
 
     SkDEBUGCODE(this->validate();)
-    fRenderTargetContext->drawAtlas(fClip, grPaint, *draw.fMatrix, count, xform, texRect, colors);
+    fRenderTargetContext->drawAtlas(fClip, std::move(grPaint), *draw.fMatrix, count, xform, texRect,
+                                    colors);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1746,8 +1747,8 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawText(fClip, grPaint, paint, *draw.fMatrix,
-                                   (const char *)text, byteLength, x, y, draw.fRC->getBounds());
+    fRenderTargetContext->drawText(fClip, std::move(grPaint), paint, *draw.fMatrix,
+                                   (const char*)text, byteLength, x, y, draw.fRC->getBounds());
 }
 
 void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteLength,
@@ -1765,8 +1766,8 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawPosText(fClip, grPaint, paint, *draw.fMatrix,
-                                      (const char *)text, byteLength, pos, scalarsPerPos, offset,
+    fRenderTargetContext->drawPosText(fClip, std::move(grPaint), paint, *draw.fMatrix,
+                                      (const char*)text, byteLength, pos, scalarsPerPos, offset,
                                       draw.fRC->getBounds());
 }
 

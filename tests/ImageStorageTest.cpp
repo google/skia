@@ -139,7 +139,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                 GrPaint paint;
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.addColorFragmentProcessor(TestFP::Make(imageStorageTexture, mm, restrict));
-                rtContext->drawPaint(GrNoClip(), paint, SkMatrix::I());
+                rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
                 std::unique_ptr<uint32_t[]> readData(new uint32_t[kS * kS]);
                 SkImageInfo info = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                      kPremul_SkAlphaType);

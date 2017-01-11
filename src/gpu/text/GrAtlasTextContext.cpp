@@ -168,7 +168,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
     }
 
     cacheBlob->flushCached(context, rtc, blob, props, fDistanceAdjustTable.get(), skPaint,
-                           grPaint, drawFilter, clip, viewMatrix, clipBounds, x, y);
+                           std::move(grPaint), drawFilter, clip, viewMatrix, clipBounds, x, y);
 }
 
 void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
@@ -312,14 +312,11 @@ GrAtlasTextContext::CreateDrawPosTextBlob(GrTextBlobCache* blobCache, GrAtlasGly
     return blob;
 }
 
-void GrAtlasTextContext::drawText(GrContext* context,
-                                  GrRenderTargetContext* rtc,
-                                  const GrClip& clip,
-                                  const GrPaint& paint, const SkPaint& skPaint,
-                                  const SkMatrix& viewMatrix,
-                                  const SkSurfaceProps& props,
-                                  const char text[], size_t byteLength,
-                                  SkScalar x, SkScalar y, const SkIRect& regionClipBounds) {
+void GrAtlasTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc,
+                                  const GrClip& clip, GrPaint&& paint, const SkPaint& skPaint,
+                                  const SkMatrix& viewMatrix, const SkSurfaceProps& props,
+                                  const char text[], size_t byteLength, SkScalar x, SkScalar y,
+                                  const SkIRect& regionClipBounds) {
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
@@ -330,8 +327,8 @@ void GrAtlasTextContext::drawText(GrContext* context,
                                ComputeScalerContextFlags(rtc),
                                viewMatrix, props,
                                text, byteLength, x, y));
-        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), skPaint, paint,
-                             clip, viewMatrix, regionClipBounds, x, y);
+        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), skPaint,
+                             std::move(paint), clip, viewMatrix, regionClipBounds, x, y);
         return;
     }
 
@@ -340,15 +337,12 @@ void GrAtlasTextContext::drawText(GrContext* context,
                                 regionClipBounds);
 }
 
-void GrAtlasTextContext::drawPosText(GrContext* context,
-                                     GrRenderTargetContext* rtc,
-                                     const GrClip& clip,
-                                     const GrPaint& paint, const SkPaint& skPaint,
-                                     const SkMatrix& viewMatrix,
-                                     const SkSurfaceProps& props,
-                                     const char text[], size_t byteLength,
-                                     const SkScalar pos[], int scalarsPerPosition,
-                                     const SkPoint& offset, const SkIRect& regionClipBounds) {
+void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* rtc,
+                                     const GrClip& clip, GrPaint&& paint, const SkPaint& skPaint,
+                                     const SkMatrix& viewMatrix, const SkSurfaceProps& props,
+                                     const char text[], size_t byteLength, const SkScalar pos[],
+                                     int scalarsPerPosition, const SkPoint& offset,
+                                     const SkIRect& regionClipBounds) {
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
@@ -362,8 +356,9 @@ void GrAtlasTextContext::drawPosText(GrContext* context,
                                   text, byteLength,
                                   pos, scalarsPerPosition,
                                   offset));
-        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), skPaint, paint,
-                             clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
+        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), skPaint,
+                             std::move(paint), clip, viewMatrix, regionClipBounds, offset.fX,
+                             offset.fY);
         return;
     }
 

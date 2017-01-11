@@ -45,16 +45,15 @@ static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrP
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
     GrNoClip noClip;
-    GrPathRenderer::DrawPathArgs args;
-    args.fPaint = &paint;
-    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fRenderTargetContext = renderTargetContext;
-    args.fClip = &noClip;
-    args.fResourceProvider = rp;
-    args.fViewMatrix = &matrix;
-    args.fShape = &shape;
-    args.fAAType = GrAAType::kCoverage;
-    args.fGammaCorrect = false;
+    GrPathRenderer::DrawPathArgs args{rp,
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      renderTargetContext,
+                                      &noClip,
+                                      &matrix,
+                                      &shape,
+                                      GrAAType::kCoverage,
+                                      false};
     pr->drawPath(args);
 }
 

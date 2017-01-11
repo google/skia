@@ -181,30 +181,18 @@ public:
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrContext* context,
-                     GrRenderTargetContext* rtc,
-                     const SkTextBlob* blob,
+    void flushCached(GrContext* context, GrRenderTargetContext* rtc, const SkTextBlob* blob,
                      const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                     const SkPaint& skPaint,
-                     const GrPaint& grPaint,
-                     SkDrawFilter* drawFilter,
-                     const GrClip& clip,
-                     const SkMatrix& viewMatrix,
-                     const SkIRect& clipBounds,
-                     SkScalar x, SkScalar y);
+                     const GrDistanceFieldAdjustTable* distanceAdjustTable, const SkPaint& skPaint,
+                     GrPaint&& grPaint, SkDrawFilter* drawFilter, const GrClip& clip,
+                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrContext* context,
-                        GrRenderTargetContext* rtc,
-                        const SkSurfaceProps& props,
+    void flushThrowaway(GrContext* context, GrRenderTargetContext* rtc, const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const SkPaint& skPaint,
-                        const GrPaint& grPaint,
-                        const GrClip& clip,
-                        const SkMatrix& viewMatrix,
-                        const SkIRect& clipBounds,
-                        SkScalar x, SkScalar y);
+                        const SkPaint& skPaint, GrPaint&& grPaint, const GrClip& clip,
+                        const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                        SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
@@ -295,9 +283,9 @@ private:
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    inline void flushRun(GrRenderTargetContext* rtc, const GrPaint&, const GrClip&,
-                         int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                         const SkPaint& skPaint, const SkSurfaceProps& props,
+    inline void flushRun(GrRenderTargetContext* rtc, GrPaint&&, const GrClip&, int run,
+                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkPaint& skPaint,
+                         const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrAtlasGlyphCache* cache);
 

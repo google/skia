@@ -46,12 +46,12 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
     std::unique_ptr<GrDrawOp> op = GrDashOp::MakeDashLineOp(
-            args.fPaint->getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
+            args.fPaint.getColor(), *args.fViewMatrix, pts, aaMode, args.fShape->style());
     if (!op) {
         return false;
     }
 
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));

@@ -558,19 +558,18 @@ static bool stencil_element(GrRenderTargetContext* rtc,
 }
 
 static void draw_element(GrRenderTargetContext* rtc,
-                         const GrClip& clip, // TODO: can this just always be WideOpen?
-                         const GrPaint &paint,
+                         const GrClip& clip,  // TODO: can this just always be WideOpen?
+                         GrPaint&& paint,
                          GrAA aa,
                          const SkMatrix& viewMatrix,
                          const SkClipStack::Element* element) {
-
     // TODO: Draw rrects directly here.
     switch (element->getType()) {
         case Element::kEmpty_Type:
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
         case Element::kRect_Type:
-            rtc->drawRect(clip, paint, aa, viewMatrix, element->getRect());
+            rtc->drawRect(clip, std::move(paint), aa, viewMatrix, element->getRect());
             break;
         default: {
             SkPath path;
@@ -579,7 +578,7 @@ static void draw_element(GrRenderTargetContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            rtc->drawPath(clip, paint, aa, viewMatrix, path, GrStyle::SimpleFill());
+            rtc->drawPath(clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
             break;
         }
     }
@@ -645,7 +644,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
             GrPaint paint;
             paint.setCoverageSetOpXPFactory(op, false);
 
-            draw_element(rtc, clip, paint, aa, translate, element);
+            draw_element(rtc, clip, std::move(paint), aa, translate, element);
         }
     }
 
@@ -782,16 +781,15 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         GrPaint paint;
                         paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-                        GrPathRenderer::DrawPathArgs args;
-                        args.fResourceProvider = context->resourceProvider();
-                        args.fPaint = &paint;
-                        args.fUserStencilSettings = &kDrawToStencil;
-                        args.fRenderTargetContext = renderTargetContext;
-                        args.fClip = &stencilClip.fixedClip();
-                        args.fViewMatrix = &viewMatrix;
-                        args.fShape = &shape;
-                        args.fAAType = aaType;
-                        args.fGammaCorrect = false;
+                        GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                                                          std::move(paint),
+                                                          &kDrawToStencil,
+                                                          renderTargetContext,
+                                                          &stencilClip.fixedClip(),
+                                                          &viewMatrix,
+                                                          &shape,
+                                                          aaType,
+                                                          false};
                         pr->drawPath(args);
                     } else {
                         GrPathRenderer::StencilPathArgs args;
@@ -818,16 +816,15 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;
                     paint.setXPFactory(GrDisableColorXPFactory::Get());
-                    GrPathRenderer::DrawPathArgs args;
-                    args.fResourceProvider = context->resourceProvider();
-                    args.fPaint = &paint;
-                    args.fUserStencilSettings = *pass;
-                    args.fRenderTargetContext = renderTargetContext;
-                    args.fClip = &stencilClip;
-                    args.fViewMatrix = &viewMatrix;
-                    args.fShape = &shape;
-                    args.fAAType = aaType;
-                    args.fGammaCorrect = false;
+                    GrPathRenderer::DrawPathArgs args{context->resourceProvider(),
+                                                      std::move(paint),
+                                                      *pass,
+                                                      renderTargetContext,
+                                                      &stencilClip,
+                                                      &viewMatrix,
+                                                      &shape,
+                                                      aaType,
+                                                      false};
                     pr->drawPath(args);
                 }
             } else {

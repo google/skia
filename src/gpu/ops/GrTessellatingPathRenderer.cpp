@@ -354,12 +354,12 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(args.fPaint->getColor(),
+    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(args.fPaint.getColor(),
                                                             *args.fShape,
                                                             *args.fViewMatrix,
                                                             clipBoundsI,
                                                             GrAAType::kCoverage == args.fAAType);
-    GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(pipelineBuilder, *args.fClip, std::move(op));
     return true;

@@ -367,7 +367,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
             paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
             paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-            renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, matrix, rect, nullptr);
+            renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix, rect,
+                                          nullptr);
 
             if (kFlushWrites_PixelOp & pixelOpsFlags) {
                 this->flushSurfaceWrites(surface);
@@ -488,7 +489,8 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                tempRTC->drawRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(), rect, nullptr);
+                tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
+                                  nullptr);
                 surfaceToRead.reset(tempRTC->asTexture().release());
                 left = 0;
                 top = 0;

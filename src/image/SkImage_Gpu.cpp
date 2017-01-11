@@ -298,7 +298,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(), rect);
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
     if (!renderTargetContext->accessRenderTarget()) {
         return nullptr;

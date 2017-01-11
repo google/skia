@@ -148,7 +148,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(), r);
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
     return renderTargetContext->asTexture();
 }

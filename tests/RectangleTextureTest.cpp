@@ -118,7 +118,7 @@ static void test_basic_draw(skiatest::Reporter* reporter, GrContext* context,
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
-        rtContext->drawPaint(GrNoClip(), paint, SkMatrix::I());
+        rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
         test_read_pixels(reporter, context, rtContext->asTexture().get(), expectedPixelValues);
     }
 }

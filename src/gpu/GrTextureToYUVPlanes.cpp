@@ -43,7 +43,8 @@ static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     paint.addColorFragmentProcessor(std::move(fp));
-    dst->drawRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(), SkRect::MakeIWH(dstW, dstH));
+    dst->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                  SkRect::MakeIWH(dstW, dstH));
     return true;
 }
 

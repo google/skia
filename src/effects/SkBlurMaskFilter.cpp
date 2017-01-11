@@ -52,14 +52,14 @@ public:
                           SkRect* maskRect) const override;
     bool directFilterMaskGPU(GrTextureProvider* texProvider,
                              GrRenderTargetContext* renderTargetContext,
-                             GrPaint* grp,
+                             GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const SkStrokeRec& strokeRec,
                              const SkPath& path) const override;
     bool directFilterRRectMaskGPU(GrContext*,
                                   GrRenderTargetContext* renderTargetContext,
-                                  GrPaint* grp,
+                                  GrPaint&&,
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
                                   const SkStrokeRec& strokeRec,
@@ -1014,10 +1014,9 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
                                   sigma);
 }
 
-
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
                                                GrRenderTargetContext* renderTargetContext,
-                                               GrPaint* grp,
+                                               GrPaint&& paint,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
                                                const SkStrokeRec& strokeRec,
@@ -1057,15 +1056,14 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
         return false;
     }
 
-    grp->addCoverageFragmentProcessor(std::move(fp));
-
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
 
-    renderTargetContext->fillRectWithLocalMatrix(clip, *grp, GrAA::kNo, SkMatrix::I(), rect,
-                                                 inverse);
+    paint.addCoverageFragmentProcessor(std::move(fp));
+    renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                                 rect, inverse);
     return true;
 }
 
@@ -1132,10 +1130,10 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
             return nullptr;
         }
 
-        GrPaint grPaint;
+        GrPaint paint;
 
         rtc->clear(nullptr, 0x0, true);
-        rtc->drawRRect(GrNoClip(), grPaint, GrAA::kYes, SkMatrix::I(), rrectToDraw,
+        rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 
         sk_sp<GrTexture> srcTexture(rtc->asTexture());
@@ -1342,7 +1340,7 @@ GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
                                                     GrRenderTargetContext* renderTargetContext,
-                                                    GrPaint* grp,
+                                                    GrPaint&& paint,
                                                     const GrClip& clip,
                                                     const SkMatrix& viewMatrix,
                                                     const SkStrokeRec& strokeRec,
@@ -1381,13 +1379,12 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             return false;
         }
 
-        GrPaint newPaint(*grp);
-        newPaint.addCoverageFragmentProcessor(std::move(fp));
+        paint.addCoverageFragmentProcessor(std::move(fp));
 
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
 
-        renderTargetContext->drawRect(clip, newPaint, GrAA::kNo, viewMatrix, srcProxyRect);
+        renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
         return true;
     }
 
@@ -1396,9 +1393,6 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     if (!fp) {
         return false;
     }
-
-    GrPaint newPaint(*grp);
-    newPaint.addCoverageFragmentProcessor(std::move(fp));
 
     if (!this->ignoreXform()) {
         SkRect srcProxyRect = srcRRect.rect();
@@ -1431,8 +1425,10 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             numIndices = 6;
         }
 
-        renderTargetContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
-                                          numPoints, points, nullptr, nullptr, indices, numIndices);
+        paint.addCoverageFragmentProcessor(std::move(fp));
+        renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix,
+                                          kTriangles_GrPrimitiveType, numPoints, points, nullptr,
+                                          nullptr, indices, numIndices);
 
     } else {
         SkMatrix inverse;
@@ -1444,9 +1440,9 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         SkRect proxyRect = devRRect.rect();
         proxyRect.outset(extra, extra);
 
-
-        renderTargetContext->fillRectWithLocalMatrix(clip, newPaint, GrAA::kNo, SkMatrix::I(),
-                                                     proxyRect, inverse);
+        paint.addCoverageFragmentProcessor(std::move(fp));
+        renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo,
+                                                     SkMatrix::I(), proxyRect, inverse);
     }
 
     return true;
@@ -1543,7 +1539,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        renderTargetContext->drawRect(GrNoClip(), paint, GrAA::kNo, SkMatrix::I(),
+        renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                                       SkRect::Make(clipRect));
     }
 

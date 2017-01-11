@@ -198,8 +198,8 @@ protected:
                     std::unique_ptr<GrDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, klmSigns[c]);
 
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
                 ++col;
                 if (numCols == col) {
@@ -331,8 +331,8 @@ protected:
                     std::unique_ptr<GrDrawOp> op =
                             BezierCubicOrConicTestOp::Make(gp, bounds, color, klmEqs, 1.f);
 
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
                 ++col;
                 if (numCols == col) {
@@ -547,8 +547,8 @@ protected:
                     std::unique_ptr<GrDrawOp> op =
                             BezierQuadTestOp::Make(gp, bounds, color, DevToUV);
 
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
                 ++col;
                 if (numCols == col) {
