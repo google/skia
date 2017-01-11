@@ -13,6 +13,7 @@
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
+#include "SkTextEncoding.h"
 
 class SkAutoDescriptor;
 class SkAutoGlyphCache;
@@ -683,10 +684,11 @@ public:
         methods like measureText() and getTextWidths().
     */
     enum TextEncoding {
-        kUTF8_TextEncoding,     //!< the text parameters are UTF8
-        kUTF16_TextEncoding,    //!< the text parameters are UTF16
-        kUTF32_TextEncoding,    //!< the text parameters are UTF32
-        kGlyphID_TextEncoding   //!< the text parameters are glyph indices
+        kUTF8_TextEncoding    = (int)SkTextEncoding::kUTF8,    //!< the text parameters are UTF8
+        kUTF16_TextEncoding   = (int)SkTextEncoding::kUTF16,   //!< the text parameters are UTF16
+        kUTF32_TextEncoding   = (int)SkTextEncoding::kUTF32,   //!< the text parameters are UTF32
+        kGlyphID_TextEncoding = (int)SkTextEncoding::kGlyphID  //!< the text parameters are glyph
+                                                               //   indices
     };
 
     TextEncoding getTextEncoding() const {

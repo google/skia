@@ -1423,22 +1423,22 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 #include "SkUtils.h"
 
-static SkUnichar next_utf8(const void** chars) {
+static SkUnichar next_utf8(const void** chars, const void* end) {
     return SkUTF8_NextUnichar((const char**)chars);
 }
 
-static SkUnichar next_utf16(const void** chars) {
+static SkUnichar next_utf16(const void** chars, const void* end) {
     return SkUTF16_NextUnichar((const uint16_t**)chars);
 }
 
-static SkUnichar next_utf32(const void** chars) {
+static SkUnichar next_utf32(const void** chars, const void* end) {
     const SkUnichar** uniChars = (const SkUnichar**)chars;
     SkUnichar uni = **uniChars;
     *uniChars += 1;
     return uni;
 }
 
-typedef SkUnichar (*EncodingProc)(const void**);
+typedef SkUnichar (*EncodingProc)(const void**, const void* end);
 
 static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
     static const EncodingProc gProcs[] = {
@@ -1448,9 +1448,18 @@ static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
     return gProcs[enc];
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
                                          uint16_t glyphs[], int glyphCount) const
 {
+    const char* endChars = nullptr;
+#else
+int SkTypeface_FreeType::onCharsToGlyphs(SkText text, uint16_t glyphs[], int glyphCount) const
+{
+    const void* chars = text.fText;
+    Encoding encoding = (Encoding)text.fEncoding;
+    const char* endChars = (const char*)chars + text.fByteLength;
+#endif
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -1464,7 +1473,7 @@ int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
 
     if (nullptr == glyphs) {
         for (int i = 0; i < glyphCount; ++i) {
-            if (0 == FT_Get_Char_Index(face, next_uni_proc(&chars))) {
+            if (0 == FT_Get_Char_Index(face, next_uni_proc(&chars, endChars))) {
                 return i;
             }
         }
@@ -1472,7 +1481,7 @@ int SkTypeface_FreeType::onCharsToGlyphs(const void* chars, Encoding encoding,
     } else {
         int first = glyphCount;
         for (int i = 0; i < glyphCount; ++i) {
-            unsigned id = FT_Get_Char_Index(face, next_uni_proc(&chars));
+            unsigned id = FT_Get_Char_Index(face, next_uni_proc(&chars, endChars));
             glyphs[i] = SkToU16(id);
             if (0 == id && i < first) {
                 first = i;

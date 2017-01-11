@@ -65,16 +65,16 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     int count = 0;  // fix uninitialized warning (even though the switch is complete!)
 
     switch (encoding) {
-        case kUTF8_SkTextEncoding:
+        case SkTextEncoding::kUTF8:
             count = SkUTF8_CountUnichars((const char*)text, byteLength);
             break;
-        case kUTF16_SkTextEncoding:
+        case SkTextEncoding::kUTF16:
             count = SkUTF16_CountUnichars((const uint16_t*)text, SkToInt(byteLength >> 1));
             break;
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             count = SkToInt(byteLength >> 2);
             break;
-        case kGlyphID_SkTextEncoding:
+        case SkTextEncoding::kGlyphID:
             count = SkToInt(byteLength >> 1);
             break;
     }
@@ -85,23 +85,28 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     // TODO: unify/eliminate SkTypeface::Encoding with SkTextEncoding
     SkTypeface::Encoding typefaceEncoding;
     switch (encoding) {
-        case kUTF8_SkTextEncoding:
+        case SkTextEncoding::kUTF8:
             typefaceEncoding = SkTypeface::kUTF8_Encoding;
             break;
-        case kUTF16_SkTextEncoding:
+        case SkTextEncoding::kUTF16:
             typefaceEncoding = SkTypeface::kUTF16_Encoding;
             break;
-        case kUTF32_SkTextEncoding:
+        case SkTextEncoding::kUTF32:
             typefaceEncoding = SkTypeface::kUTF32_Encoding;
             break;
         default:
-            SkASSERT(kGlyphID_SkTextEncoding == encoding);
+            SkASSERT(SkTextEncoding::kGlyphID == encoding);
             // we can early exit, since we already have glyphIDs
             memcpy(glyphs, text, count << 1);
             return count;
     }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     (void)fTypeface->charsToGlyphs(text, typefaceEncoding, glyphs, count);
+#else
+    (void)fTypeface->charsToGlyphs(SkText{text, byteLength, (SkTextEncoding)typefaceEncoding},
+                                   glyphs, count);
+#endif
     return count;
 }
 
