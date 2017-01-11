@@ -896,13 +896,15 @@ void remove_edge_below(Edge* edge) {
         edge, &edge->fTop->fFirstEdgeBelow, &edge->fTop->fLastEdgeBelow);
 }
 
-void erase_edge_if_zero_winding(Edge* edge, EdgeList* edges) {
-    if (edge->fWinding != 0) {
-        return;
-    }
-    LOG("erasing edge (%g -> %g)\n", edge->fTop->fID, edge->fBottom->fID);
+void disconnect(Edge* edge)
+{
     remove_edge_above(edge);
     remove_edge_below(edge);
+}
+
+void erase_edge(Edge* edge, EdgeList* edges) {
+    LOG("erasing edge (%g -> %g)\n", edge->fTop->fID, edge->fBottom->fID);
+    disconnect(edge);
     if (edges && edges->contains(edge)) {
         remove_edge(edge, edges);
     }
@@ -934,16 +936,12 @@ void merge_edges_above(Edge* edge, Edge* other, EdgeList* activeEdges, Comparato
             edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
             edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
         other->fWinding += edge->fWinding;
-        erase_edge_if_zero_winding(other, activeEdges);
-        edge->fWinding = 0;
-        erase_edge_if_zero_winding(edge, activeEdges);
+        erase_edge(edge, activeEdges);
     } else if (c.sweep_lt(edge->fTop->fPoint, other->fTop->fPoint)) {
         other->fWinding += edge->fWinding;
-        erase_edge_if_zero_winding(other, activeEdges);
         set_bottom(edge, other->fTop, activeEdges, c);
     } else {
         edge->fWinding += other->fWinding;
-        erase_edge_if_zero_winding(edge, activeEdges);
         set_bottom(other, edge->fTop, activeEdges, c);
     }
 }
@@ -954,16 +952,12 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Comparato
             edge->fTop->fPoint.fX, edge->fTop->fPoint.fY,
             edge->fBottom->fPoint.fX, edge->fBottom->fPoint.fY);
         other->fWinding += edge->fWinding;
-        erase_edge_if_zero_winding(other, activeEdges);
-        edge->fWinding = 0;
-        erase_edge_if_zero_winding(edge, activeEdges);
+        erase_edge(edge, activeEdges);
     } else if (c.sweep_lt(edge->fBottom->fPoint, other->fBottom->fPoint)) {
         edge->fWinding += other->fWinding;
-        erase_edge_if_zero_winding(edge, activeEdges);
         set_top(other, edge->fBottom, activeEdges, c);
     } else {
         other->fWinding += edge->fWinding;
-        erase_edge_if_zero_winding(other, activeEdges);
         set_top(edge, other->fBottom, activeEdges, c);
     }
 }
@@ -1455,8 +1449,7 @@ void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType
         for (Edge* e = v->fFirstEdgeBelow; e != nullptr;) {
             Edge* next = e->fNextEdgeBelow;
             if (!is_boundary_edge(e, fillType)) {
-                remove_edge_above(e);
-                remove_edge_below(e);
+                disconnect(e);
             }
             e = next;
         }
@@ -1612,8 +1605,7 @@ void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, Sk
                 down = true;
             }
         }
-        remove_edge_above(e);
-        remove_edge_below(e);
+        disconnect(e);
         e = next;
     }
 }
