@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_2eeb62c4",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-11T17:09:57Z",
+      "side": 1,
+      "message": "the * should not be needed.",
+      "range": {
+        "startLine": 1188,
+        "startChar": 41,
+        "endLine": 1188,
+        "endChar": 42
+      },
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_0ecbfe64",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2204,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-11T17:09:57Z",
+      "side": 1,
+      "message": "100 char limit",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_ced41602",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2212,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-11T17:09:57Z",
+      "side": 1,
+      "message": "move this into the if statement at the end of this method.",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_6ebacac0",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-11T17:09:57Z",
+      "side": 1,
+      "message": "what is this method doing?",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_6ef16ab2",
+        "filename": "tools/debugger/SkDrawCommand.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-01-11T17:09:57Z",
+      "side": 1,
+      "message": "line exceeds 100 char",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
