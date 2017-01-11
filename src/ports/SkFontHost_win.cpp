@@ -2487,10 +2487,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_LEGACY_FONTMGR_FACTORY
-SkFontMgr* SkFontMgr_New_GDI() { return new SkFontMgrGDI; }
-#else
 sk_sp<SkFontMgr> SkFontMgr_New_GDI() { return sk_make_sp<SkFontMgrGDI>(); }
-#endif
 
 #endif//defined(SK_BUILD_FOR_WIN32)
