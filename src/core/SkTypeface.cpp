@@ -54,13 +54,18 @@ protected:
                                 PerGlyphInfo,
                                 const uint32_t*, uint32_t) const override { return nullptr; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override {
+#else
+    int onCharsToGlyphs(SkText, uint16_t glyphs[], int glyphCount) const override {
+#endif
         if (glyphs && glyphCount > 0) {
             sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
         }
         return 0;
     }
+
     int onCountGlyphs() const override { return 0; }
     int onGetUPEM() const override { return 0; }
     class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
@@ -239,6 +244,7 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
                               uint16_t glyphs[], int glyphCount) const {
     if (glyphCount <= 0) {
@@ -252,6 +258,20 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
     }
     return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
+#else
+int SkTypeface::charsToGlyphs(SkText chars, uint16_t glyphs[], int glyphCount) const {
+    if (glyphCount <= 0) {
+        return 0;
+    }
+    if (nullptr == chars.fText || (unsigned)chars.fEncoding > (unsigned)SkTextEncoding::kUTF32) {
+        if (glyphs) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
+    }
+    return this->onCharsToGlyphs(chars, glyphs, glyphCount);
+}
+#endif  // SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 
 int SkTypeface::countGlyphs() const {
     return this->onCountGlyphs();

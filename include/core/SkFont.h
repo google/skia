@@ -10,16 +10,10 @@
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
+#include "SkTextEncoding.h"
 
 class SkPaint;
 class SkTypeface;
-
-enum SkTextEncoding {
-    kUTF8_SkTextEncoding,
-    kUTF16_SkTextEncoding,
-    kUTF32_SkTextEncoding,
-    kGlyphID_SkTextEncoding,
-};
 
 /*
  1. The Hinting enum in SkPaint is gone entirely, absorbed into SkFont's flags.
