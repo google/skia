@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_0e045e32",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-11T14:41:15Z",
+      "side": 1,
+      "message": "return zero?",
+      "parentUuid": "578ed681_78ba90c0",
+      "revId": "e5524dc181f0559590e56ac3c5b6b26b2a2bebdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_5b32264e",
         "filename": "src/core/SkUtils.h",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 72,
         "endChar": 46
       },
+      "revId": "e5524dc181f0559590e56ac3c5b6b26b2a2bebdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_cefdf6f7",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-11T14:41:15Z",
+      "side": 1,
+      "message": "Many call sites do this:\n\n    void foo(const char* ptr, const char* end, void(*bar)(SkUnichar)) {\n        while (ptr \u003c end) {\n            bar(SkUTF8_NextUnichar(\u0026ptr, end));\n        }\n    }\n\nBy always incrementing ptr, we prevent an infinite loop. Maybe I should just set *ptr\u003dend?",
+      "parentUuid": "578ed681_5b32264e",
       "revId": "e5524dc181f0559590e56ac3c5b6b26b2a2bebdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
