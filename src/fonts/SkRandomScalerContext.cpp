@@ -221,10 +221,17 @@ void SkRandomTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkRandomTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                  uint16_t glyphs[], int glyphCount) const {
     return fProxy->charsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
+#else
+int SkRandomTypeface::onCharsToGlyphs(const void* chars, size_t len, Encoding encoding,
+                                      uint16_t glyphs[], int glyphCount) const {
+    return fProxy->charsToGlyphs(chars, len, encoding, glyphs, glyphCount);
+}
+#endif
 
 int SkRandomTypeface::onCountGlyphs() const {
     return fProxy->countGlyphs();

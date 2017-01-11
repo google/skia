@@ -48,7 +48,11 @@ static void charsToGlyphs_proc(int loops, const SkPaint& paint, const void* text
 
     SkTypeface* face = paint.getTypeface();
     for (int i = 0; i < loops; ++i) {
-        face->charsToGlyphs(text, encoding, glyphs, glyphCount);
+        face->charsToGlyphs(text,
+#ifndef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
+                            len,
+#endif
+                            encoding, glyphs, glyphCount);
     }
 }
 
@@ -58,7 +62,11 @@ static void charsToGlyphsNull_proc(int loops, const SkPaint& paint, const void* 
 
     SkTypeface* face = paint.getTypeface();
     for (int i = 0; i < loops; ++i) {
-        face->charsToGlyphs(text, encoding, nullptr, glyphCount);
+        face->charsToGlyphs(text,
+#ifndef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
+                            len,
+#endif
+                            encoding, nullptr, glyphCount);
     }
 }
 

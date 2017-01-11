@@ -29,8 +29,13 @@ protected:
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int onCharsToGlyphs(const void* chars, Encoding encoding,
                         uint16_t glyphs[], int glyphCount) const override;
+#else
+    int onCharsToGlyphs(const void* chars, size_t bytes, Encoding encoding,
+                        uint16_t glyphs[], int glyphCount) const override;
+#endif
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
 

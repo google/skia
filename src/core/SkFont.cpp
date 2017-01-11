@@ -101,7 +101,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             return count;
     }
 
-    (void)fTypeface->charsToGlyphs(text, typefaceEncoding, glyphs, count);
+    (void)fTypeface->charsToGlyphs(text, byteLength, typefaceEncoding, glyphs, count);
     return count;
 }
 

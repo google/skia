@@ -401,8 +401,12 @@ protected:
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
             PerGlyphInfo, const uint32_t* glyphIDs, uint32_t glyphIDsCount) const override;
+    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
+    #endif
+    int onCharsToGlyphs(const void*, size_t, Encoding, uint16_t[], int) const override;
+    #else
     int onCountGlyphs() const override;
 
 private:
@@ -1821,9 +1825,17 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = fIsLocalStream;
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
                                     uint16_t glyphs[], int glyphCount) const
 {
+#else
+int SkTypeface_Mac::onCharsToGlyphs(const void* chars, size_t byteLength, Encoding encoding,
+                                    uint16_t glyphs[], int glyphCount) const
+{
+    (void)byteLength; // TODO(halcanary) use safer version of SkUTF8_NextUnichar.
+                      // See https://review.skia.org/6849 for more info.
+#endif
     // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
     // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
     // It is documented that if a mapping is unavailable, the glyph will be set to 0.

@@ -98,7 +98,11 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypef
         paint.setTextEncoding((SkPaint::TextEncoding)test.typefaceEncoding);
         paint.textToGlyphs(test.chars, test.charsByteLength, paintGlyphIds);
 
-        face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
+        face->charsToGlyphs(test.chars,
+#ifndef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
+                            test.charsByteLength,
+#endif
+                            test.typefaceEncoding, faceGlyphIds, test.charCount);
 
         for (int i = 0; i < test.charCount; ++i) {
             SkString name;

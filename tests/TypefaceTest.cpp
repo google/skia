@@ -122,8 +122,11 @@ protected:
                                 PerGlyphInfo,
                                 const uint32_t*, uint32_t) const override { return nullptr; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const override {
+    virtual int onCharsToGlyphs(const void* chars,
+#ifndef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
+                                size_t,
+#endif
+                                Encoding encoding, uint16_t glyphs[], int glyphCount) const override {
         SK_ABORT("unimplemented");
         return 0;
     }

@@ -184,10 +184,17 @@ void SkGTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkGTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                  uint16_t glyphs[], int glyphCount) const {
     return fProxy->charsToGlyphs(chars, encoding, glyphs, glyphCount);
 }
+#else
+int SkGTypeface::onCharsToGlyphs(const void* chars, size_t byteLength, Encoding encoding,
+                                 uint16_t glyphs[], int glyphCount) const {
+    return fProxy->charsToGlyphs(chars, byteLength, encoding, glyphs, glyphCount);
+}
+#endif
 
 int SkGTypeface::onCountGlyphs() const {
     return fProxy->countGlyphs();
