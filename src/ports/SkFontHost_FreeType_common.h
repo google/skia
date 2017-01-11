@@ -82,8 +82,12 @@ protected:
     int onGetUPEM() const override;
     bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                      int32_t adjustments[]) const override;
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                         int glyphCount) const override;
+#else
+    int onCharsToGlyphs(SkText, uint16_t glyphs[], int glyphCount) const override;
+#endif
     int onCountGlyphs() const override;
 
     LocalizedStrings* onCreateFamilyNameIterator() const override;

@@ -30,7 +30,8 @@ static void test_font(skiatest::Reporter* reporter) {
     uint16_t glyphs[5];
     sk_bzero(glyphs, sizeof(glyphs));
 
-    int count = font->textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, SK_ARRAY_COUNT(glyphs));
+    int count = font->textToGlyphs("Hello", 5, SkTextEncoding::kUTF8,
+                                   glyphs, SK_ARRAY_COUNT(glyphs));
 
     REPORTER_ASSERT(reporter, 5 == count);
     for (int i = 0; i < count; ++i) {
@@ -131,8 +132,12 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
             PerGlyphInfo,
             const uint32_t*, uint32_t) const override { return nullptr; }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
         virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
             uint16_t glyphs[], int glyphCount) const override {
+#else
+        int onCharsToGlyphs(SkText, uint16_t glyphs[], int glyphCount) const override {
+#endif
             if (glyphs && glyphCount > 0) {
                 sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
             }
