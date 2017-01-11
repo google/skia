@@ -562,6 +562,11 @@ void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar to
     this->addDrawCommand(new SkDrawImageCommand(image, left, top, paint));
 }
 
+void SkDebugCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
+                                       const SkRect& dst, const SkPaint* paint) {
+    this->addDrawCommand(new SkDrawImageLatticeCommand(image, lattice, dst, paint));
+}
+
 void SkDebugCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, SrcRectConstraint constraint) {
     this->addDrawCommand(new SkDrawImageRectCommand(image, src, dst, paint, constraint));
