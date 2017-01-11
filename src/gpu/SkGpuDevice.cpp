@@ -163,21 +163,10 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         return nullptr;
     }
 
-    SkColorType ct = origInfo.colorType();
-    SkAlphaType at = origInfo.alphaType();
-    SkColorSpace* cs = origInfo.colorSpace();
-    if (kRGB_565_SkColorType == ct || kGray_8_SkColorType == ct) {
-        at = kOpaque_SkAlphaType;  // force this setting
-    }
-    if (kOpaque_SkAlphaType != at) {
-        at = kPremul_SkAlphaType;  // force this setting
-    }
-
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
-
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
     return context->makeRenderTargetContext(SkBackingFit::kExact,               // Why exact?
                                     origInfo.width(), origInfo.height(),
-                                    config, sk_ref_sp(cs), sampleCount,
+                                    config, sk_ref_sp(origInfo.colorSpace()), sampleCount,
                                     origin, surfaceProps, budgeted);
 }
 

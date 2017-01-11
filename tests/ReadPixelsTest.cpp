@@ -449,10 +449,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
                 if (startsWithPixels) {
                     fill_dst_bmp_with_init_data(&bmp);
                     GrPixelConfig dstConfig =
-                            SkImageInfo2GrPixelConfig(gReadPixelsConfigs[c].fColorType,
-                                                      gReadPixelsConfigs[c].fAlphaType,
-                                                      nullptr,
-                                                      *texture->getContext()->caps());
+                            SkImageInfo2GrPixelConfig(bmp.info(), *texture->getContext()->caps());
                     uint32_t flags = 0;
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
                         flags = GrContext::kUnpremul_PixelOpsFlag;
