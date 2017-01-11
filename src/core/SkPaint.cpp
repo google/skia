@@ -440,7 +440,11 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
     switch (this->getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding:
             while (text < stop) {
-                *gptr++ = cache->unicharToGlyph(SkUTF8_NextUnichar(&text));
+                SkUnichar u = SkUTF8_NextUnicharWithError(&text, stop);
+                if (u < 0) {
+                    return 0;  // bad UTF-8 sequence
+                }
+                *gptr++ = cache->unicharToGlyph(u);
             }
             break;
         case SkPaint::kUTF16_TextEncoding: {
