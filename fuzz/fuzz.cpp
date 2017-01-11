@@ -135,7 +135,7 @@ static uint8_t calculate_option(SkData* bytes) {
 static void fuzz_api(sk_sp<SkData> bytes) {
     const char* name = FLAGS_name.isEmpty() ? "" : FLAGS_name[0];
 
-    for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
+    for (auto r = sk_tools::Registry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
         if (0 == strcmp(name, fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
@@ -147,7 +147,7 @@ static void fuzz_api(sk_sp<SkData> bytes) {
     }
 
     SkDebugf("When using --type api, please choose an API to fuzz with --name/-n:\n");
-    for (auto r = SkTRegistry<Fuzzable>::Head(); r; r = r->next()) {
+    for (auto r = sk_tools::Registry<Fuzzable>::Head(); r; r = r->next()) {
         auto fuzzable = r->factory();
         SkDebugf("\t%s\n", fuzzable.name);
     }
