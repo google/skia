@@ -17,6 +17,10 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+#ifdef GOOGLE3
+#include "../private/SkAutoMalloc.h"
+#endif
+
 class SkColorFilter;
 class SkColorSpace;
 class SkFallbackAlloc;
