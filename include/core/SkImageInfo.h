@@ -330,6 +330,8 @@ public:
         fAlphaType = kUnknown_SkAlphaType;
     }
 
+    static bool ValidConversion(const SkImageInfo& dst, const SkImageInfo& src);
+
     SkDEBUGCODE(void validate() const;)
 
 private:
