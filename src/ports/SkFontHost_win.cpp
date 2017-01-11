@@ -262,8 +262,12 @@ protected:
     SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 PerGlyphInfo, const uint32_t*, uint32_t) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
+    #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
                                 uint16_t glyphs[], int glyphCount) const override;
+    #else
+    int onCharsToGlyphs(SkEncodedText, uint16_t[], int) const override;
+    #endif
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
@@ -2038,9 +2042,17 @@ private:
 };
 #define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                      uint16_t userGlyphs[], int glyphCount) const
 {
+#else
+int LogFontTypeface::onCharsToGlyphs(SkEncodedText text, uint16_t userGlyphs[], int glyphCount) const {
+    const void* chars = text.fText;
+    Encoding encoding = (Encoding)text.fEncoding;
+    // TODO(halcanary) use safer version of SkUTF8_NextUnichar.
+    // See https://review.skia.org/6849 for more info.
+#endif
     SkAutoHDC hdc(fLogFont);
 
     TEXTMETRIC tm;
