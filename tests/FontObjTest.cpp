@@ -103,7 +103,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, width1 == width2);
 
                 sk_sp<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
-                SkScalar font_width1 = font->measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
+                SkScalar font_width1 = font->measureText(txt, strlen(txt), SkTextEncoding::kUTF8);
                 // measureText not yet implemented...
                 REPORTER_ASSERT(reporter, font_width1 == -1);
 //                REPORTER_ASSERT(reporter, width1 == font_width1);
