@@ -88,7 +88,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     // Test that draw restricts itself to the subset
     SkImageFilter::OutputProperties outProps(img->getColorSpace());
     sk_sp<SkSpecialSurface> surf(img->makeSurface(outProps, SkISize::Make(kFullSize, kFullSize),
-                                                  kOpaque_SkAlphaType));
+                                                  kPremul_SkAlphaType));
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -96,7 +96,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     img->draw(canvas, SkIntToScalar(kPad), SkIntToScalar(kPad), nullptr);
 
     SkBitmap bm;
-    bm.allocN32Pixels(kFullSize, kFullSize, true);
+    bm.allocN32Pixels(kFullSize, kFullSize, false);
 
     bool result = canvas->readPixels(bm.info(), bm.getPixels(), bm.rowBytes(), 0, 0);
     SkASSERT_RELEASE(result);
