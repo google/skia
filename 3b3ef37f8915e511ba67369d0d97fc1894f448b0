@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_91daafd0",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-11T18:44:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_d8f5bcd0",
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_78eb70f5",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 11
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_71662b47",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-11T18:44:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_78eb70f5",
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_58e22c18",
         "filename": "src/core/SkFixedAlloc.h",
         "patchSetId": 11
@@ -53,6 +89,24 @@
       "writtenOn": "2017-01-10T21:36:18Z",
       "side": 1,
       "message": "You can probably s/int32_t/int/g.  int\u0027s always 4 bytes on every platform Skia supports.",
+      "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_518687a7",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-11T18:44:09Z",
+      "side": 1,
+      "message": "I usually take int to mean I don\u0027t care what the size is. In this code when I use int32_t it\u0027s often in sizeof(int32_t) and other expressions of that flavor. Using int32_t reminds me that I\u0027m dealing with 4 bytes.",
+      "parentUuid": "578ed681_58e22c18",
       "revId": "3b3ef37f8915e511ba67369d0d97fc1894f448b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
