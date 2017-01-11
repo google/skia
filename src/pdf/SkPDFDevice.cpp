@@ -1340,9 +1340,11 @@ void SkPDFDevice::internalDrawText(
         if (c.fUtf8Text) {  // real cluster
             // Check if `/ActualText` needed.
             const char* textPtr = c.fUtf8Text;
-            // TODO(halcanary): validate utf8 input.
-            SkUnichar unichar = SkUTF8_NextUnichar(&textPtr);
             const char* textEnd = c.fUtf8Text + c.fTextByteLength;
+            SkUnichar unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+            if (unichar < 0) {
+                return;
+            }
             if (textPtr < textEnd ||                                  // more characters left
                 glyphLimit > index + 1 ||                             // toUnicode wouldn't work
                 unichar != map_glyph(glyphToUnicode, glyphs[index]))  // test single Unichar map
@@ -1353,7 +1355,10 @@ void SkPDFDevice::internalDrawText(
                 // the BOM marks this text as UTF-16BE, not PDFDocEncoding.
                 SkPDFUtils::WriteUTF16beHex(out, unichar);  // first char
                 while (textPtr < textEnd) {
-                    unichar = SkUTF8_NextUnichar(&textPtr);
+                    unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+                    if (unichar < 0) {
+                        break;
+                    }
                     SkPDFUtils::WriteUTF16beHex(out, unichar);
                 }
                 out->writeText("> >> BDC\n");  // begin marked-content sequence
