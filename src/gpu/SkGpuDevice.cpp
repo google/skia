@@ -205,12 +205,20 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
                                int x, int y) {
     ASSERT_SINGLE_OWNER
 
+    if (!SkImageInfo::ValidConversion(dstInfo, this->imageInfo())) {
+        return false;
+    }
+
     return fRenderTargetContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                 size_t srcRowBytes, int x, int y) {
     ASSERT_SINGLE_OWNER
+
+    if (!SkImageInfo::ValidConversion(this->imageInfo(), srcInfo)) {
+        return false;
+    }
 
     return fRenderTargetContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);
 }
