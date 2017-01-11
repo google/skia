@@ -91,7 +91,7 @@ static void testChalkboard(PathOpsThreadState* data) {
 }
 
 static void chalkboard_threaded(skiatest::Reporter* reporter, const char* filename) {
-#if DEBUG_UNDER_DEVELOPMENT
+#if !DEBUG_UNDER_DEVELOPMENT
     return;
 #endif
     initializeTests(reporter, "chalkboard");

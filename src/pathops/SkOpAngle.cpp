@@ -62,22 +62,9 @@ bool SkOpAngle::after(SkOpAngle* test) {
     SkOpAngle* lh = test;
     SkOpAngle* rh = lh->fNext;
     SkASSERT(lh != rh);
-    fPart.fCurve = fOriginalCurvePart;
-    lh->fPart.fCurve = lh->fOriginalCurvePart;
-    lh->fPart.fCurve.offset(lh->segment()->verb(), fPart.fCurve[0] - lh->fPart.fCurve[0]);
-    rh->fPart.fCurve = rh->fOriginalCurvePart;
-    rh->fPart.fCurve.offset(rh->segment()->verb(), fPart.fCurve[0] - rh->fPart.fCurve[0]);
-
 #if DEBUG_ANGLE
     SkString bugOut;
-    bugOut.printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
-            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
-            lh->fStart->t(), lh->fEnd->t(),
-            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
-            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
-            rh->fStart->t(), rh->fEnd->t());
+    this->debugAfter(lh, rh, &bugOut);
     SkString bugPart[3] = { lh->debugPart(), this->debugPart(), rh->debugPart() };
 #endif
     if (lh->fComputeSector && !lh->computeSector()) {
@@ -90,43 +77,124 @@ bool SkOpAngle::after(SkOpAngle* test) {
         return COMPARE_RESULT(3, true);
     }
 #if DEBUG_ANGLE  // reset bugOut with computed sectors
-    bugOut.printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
-            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
-            lh->fStart->t(), lh->fEnd->t(),
-            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
-            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
-            rh->fStart->t(), rh->fEnd->t());
+    this->debugAfter(lh, rh, &bugOut);
 #endif
-    bool ltrOverlap = (lh->fSectorMask | rh->fSectorMask) & fSectorMask;
-    bool lrOverlap = lh->fSectorMask & rh->fSectorMask;
+    /* If the curve pairs share a point, the computed sector is valid. Otherwise, the sectors must
+       be sufficiently different that translating them won't change the sort order. For instance,
+       curves with different origins may mis-sort if the computed sectors are 1 and 5.
+
+       Curves with different origins have more information though -- there are more ways for their
+       convex hulls not to overlap. Try to resolve different origins directly before translating
+       one curve to share the opposite's origin.
+    */
+    bool lrOverlap, ltrOverlap;
+    SkDVector lhOffset = fOriginalCurvePart[0] - lh->fOriginalCurvePart[0];
+    bool lhHasOffset = lhOffset.fX || lhOffset.fY;
+    SkDVector rhOffset = fOriginalCurvePart[0] - rh->fOriginalCurvePart[0];
+    bool rhHasOffset = rhOffset.fX || rhOffset.fY;
+    int lhStart, lhEnd, thStart, thEnd, rhStart, rhEnd;
+    bool lhX0, thX0, rhX0;
+    if (lhHasOffset | rhHasOffset) {
+        lhX0 = lh->sectorRange(&lhStart, &lhEnd, lhHasOffset);
+        thX0 = this->sectorRange(&thStart, &thEnd, false);
+        rhX0 = rh->sectorRange(&rhStart, &rhEnd, rhHasOffset);
+        lrOverlap = lhX0 + rhX0 + (lhStart <= rhEnd) + (rhStart <= lhEnd) >= 2;
+        ltrOverlap = thX0 + lhX0 + (lhStart <= thEnd) + (thStart <= lhEnd) >= 2
+                || rhX0 + thX0 + (thStart <= rhEnd) + (rhStart <= thEnd) >= 2;
+    } else {
+        lrOverlap = lh->fSectorMask & rh->fSectorMask;
+        ltrOverlap = (lh->fSectorMask | rh->fSectorMask) & fSectorMask;
+    }
+    if (!lrOverlap & !ltrOverlap) {  // no lh/this/rh sector overlap
+        return COMPARE_RESULT(4, (lh->fSectorEnd > rh->fSectorStart)
+                ^ (fSectorStart > lh->fSectorEnd) ^ (fSectorStart > rh->fSectorStart));
+    }
     int lrOrder;  // set to -1 if either order works
-    if (!lrOverlap) {  // no lh/rh sector overlap
-        if (!ltrOverlap) {  // no lh/this/rh sector overlap
-            return COMPARE_RESULT(4,  (lh->fSectorEnd > rh->fSectorStart)
-                    ^ (fSectorStart > lh->fSectorEnd) ^ (fSectorStart > rh->fSectorStart));
+    fPart.fCurve = fOriginalCurvePart;
+    lh->fPart.fCurve = lh->fOriginalCurvePart;
+    rh->fPart.fCurve = rh->fOriginalCurvePart;
+    if (lhHasOffset | rhHasOffset) {
+        bool lhSweepsCCW = lh->sweepsCCW();
+        bool thSweepsCCW = this->sweepsCCW();
+        bool rhSweepsCCW = rh->sweepsCCW();
+        Turn thStartFromLhEnd = this->ccwOf(lh, lhSweepsCCW, !thSweepsCCW);
+        Turn thEndFromRhStart = this->ccwOf(rh, !rhSweepsCCW, thSweepsCCW);
+        if (!lrOverlap && Turn::kCcw == thStartFromLhEnd && Turn::kCw == thEndFromRhStart) {
+            return COMPARE_RESULT(5, true); 
         }
+        Turn lhStartFromRhStart = lh->ccwOf(rh, !rhSweepsCCW, !lhSweepsCCW);
+        Turn lhEndFromRhStart = lh->fPart.isCurve()
+                ? lh->ccwOf(rh, !rhSweepsCCW, lhSweepsCCW) : lhStartFromRhStart;
+        bool lhOrRhIsCurve = lh->fPart.isCurve() || rh->fPart.isCurve();
+        Turn lhStartFromRhEnd, lhEndFromRhEnd;
+        if (lhOrRhIsCurve) {
+            if (rh->fPart.isCurve()) {
+                lhStartFromRhEnd = lh->ccwOf(rh, rhSweepsCCW, !lhSweepsCCW);
+                lhEndFromRhEnd = lh->fPart.isCurve()
+                    ? lh->ccwOf(rh, rhSweepsCCW, !lhSweepsCCW) : lhStartFromRhEnd;
+            } else {
+                lhStartFromRhEnd = lhStartFromRhStart;
+                lhEndFromRhEnd = lhEndFromRhStart;
+            }
+            // clear overlap if both turn in the same direction
+            lrOverlap &= (int) lhStartFromRhEnd * (int) lhEndFromRhStart < 0;
+        } else {
+            lrOverlap = false;
+        }
+        Turn thStartFromRhEnd  SkDEBUGCODE(= Turn::kDebugUninitialized);
+        Turn thEndFromLhStart  SkDEBUGCODE(= Turn::kDebugUninitialized);
+        if (lhOrRhIsCurve || fPart.isCurve()) {
+            thStartFromRhEnd = rh->fPart.isCurve() || fPart.isCurve()
+                    ? this->ccwOf(rh, rhSweepsCCW, !thSweepsCCW) : thEndFromRhStart;
+            thEndFromLhStart = lh->fPart.isCurve() || fPart.isCurve()
+                    ? this->ccwOf(lh, !lhSweepsCCW, thSweepsCCW) : thStartFromLhEnd;
+            // clear overlap if both pairs turn in the same direction
+            ltrOverlap &= (int) thStartFromRhEnd * (int) thEndFromRhStart <= 0
+                    || (int) thStartFromLhEnd * (int) thEndFromLhStart <= 0;
+        } else {
+            ltrOverlap = false;
+        }
+        if (!lrOverlap & !ltrOverlap) {
+            Turn lhFromRh = (Turn) ((int) lhEndFromRhStart | (int) lhStartFromRhStart);
+            Turn thFromLh = (Turn) ((int) thEndFromLhStart | (int) thStartFromLhEnd);
+            Turn thFromRh = (Turn) ((int) thEndFromRhStart | (int) thStartFromRhEnd);
+            bool result = Turn::kCw == lhFromRh ?
+                     Turn::kCcw == thFromLh && Turn::kCw == thFromRh :
+                     Turn::kCcw == thFromLh || Turn::kCw == thFromRh;
+            return COMPARE_RESULT(7, result);
+        }
+        if (lhHasOffset) {
+            lh->fPart.fCurve.offset(lh->segment()->verb(), lhOffset);
+        }
+        if (rhHasOffset) {
+            rh->fPart.fCurve.offset(rh->segment()->verb(), rhOffset);
+        }
+        lrOverlap = lh->fSectorMask & rh->fSectorMask;
+        ltrOverlap = (lh->fSectorMask | rh->fSectorMask) & fSectorMask;
+    }
+    if (!lrOverlap) {  // no lh/rh sector overlap, no offsets
         int lrGap = (rh->fSectorStart - lh->fSectorStart + 32) & 0x1f;
         /* A tiny change can move the start +/- 4. The order can only be determined if
-           lr gap is not 12 to 20 or -12 to -20.
-               -31 ..-21      1
-               -20 ..-12     -1
-               -11 .. -1      0
-                 0          shouldn't get here
+            lr gap is not 12 to 20 or -12 to -20.
+                -31 ..-21      1
+                -20 ..-12     -1
+                -11 .. -1      0
+                    0          shouldn't get here
                 11 ..  1      1
                 12 .. 20     -1
                 21 .. 31      0
-         */
+            */
         lrOrder = lrGap > 20 ? 0 : lrGap > 11 ? -1 : 1;
     } else {
         lrOrder = (int) lh->orderable(rh);
         if (!ltrOverlap) {
-            return COMPARE_RESULT(5, !lrOrder);
+            return COMPARE_RESULT(8, !lrOrder);
         }
     }
     int ltOrder;
-    SkASSERT((lh->fSectorMask & fSectorMask) || (rh->fSectorMask & fSectorMask));
+    bool ltOverlap = lhHasOffset || lh->fSectorMask & fSectorMask;
+    bool trOverlap = rhHasOffset || rh->fSectorMask & fSectorMask;
+    SkASSERT(ltOverlap || trOverlap);
     if (lh->fSectorMask & fSectorMask) {
         ltOrder = (int) lh->orderable(this);
     } else {
@@ -143,7 +211,7 @@ bool SkOpAngle::after(SkOpAngle* test) {
     this->alignmentSameSide(lh, &ltOrder);
     this->alignmentSameSide(rh, &trOrder);
     if (lrOrder >= 0 && ltOrder >= 0 && trOrder >= 0) {
-        return COMPARE_RESULT(7, lrOrder ? (ltOrder & trOrder) : (ltOrder | trOrder));
+        return COMPARE_RESULT(9, lrOrder ? (ltOrder & trOrder) : (ltOrder | trOrder));
     }
     SkASSERT(lrOrder >= 0 || ltOrder >= 0 || trOrder >= 0);
 // There's not enough information to sort. Get the pairs of angles in opposite planes.
@@ -155,25 +223,25 @@ bool SkOpAngle::after(SkOpAngle* test) {
         SkDEBUGCODE(bool lrOpposite = lh->oppositePlanes(rh));
         bool ltOpposite = lh->oppositePlanes(this);
         SkOPASSERT(lrOpposite != ltOpposite);
-        return COMPARE_RESULT(8, ltOpposite);
+        return COMPARE_RESULT(10, ltOpposite);
     } else if (ltOrder == 1 && trOrder == 0) {
         SkASSERT(lrOrder < 0);
         bool trOpposite = oppositePlanes(rh);
-        return COMPARE_RESULT(9, trOpposite);
+        return COMPARE_RESULT(11, trOpposite);
     } else if (lrOrder == 1 && trOrder == 1) {
         SkASSERT(ltOrder < 0);
 //        SkDEBUGCODE(bool trOpposite = oppositePlanes(rh));
         bool lrOpposite = lh->oppositePlanes(rh);
 //        SkASSERT(lrOpposite != trOpposite);
-        return COMPARE_RESULT(10, lrOpposite);
+        return COMPARE_RESULT(12, lrOpposite);
     }
     if (lrOrder < 0) {
         if (ltOrder < 0) {
-            return COMPARE_RESULT(11, trOrder);
+            return COMPARE_RESULT(13, trOrder);
         }
-        return COMPARE_RESULT(12, ltOrder);
+        return COMPARE_RESULT(14, ltOrder);
     }
-    return COMPARE_RESULT(13, !lrOrder);
+    return COMPARE_RESULT(15, !lrOrder);
 }
 
 // given a line, see if the opposite curve's convex hull is all on one side
@@ -248,10 +316,57 @@ void SkOpAngle::alignmentSameSide(const SkOpAngle* test, int* order) const {
     }
 }
 
-bool SkOpAngle::checkCrossesZero() const {
-    int start = SkTMin(fSectorStart, fSectorEnd);
-    int end = SkTMax(fSectorStart, fSectorEnd);
-    bool crossesZero = end - start > 16;
+SkOpAngle::Turn SkOpAngle::ccwOf(const SkOpAngle* rh, bool rhCW, bool thisCCW, double firstTry)
+        const {
+    const SkDVector& halfPlane = fPart.fSweep[(int) thisCCW];
+    const SkDVector& rhSweep = rh->fPart.fSweep[(int) rhCW];
+    const SkDPoint& rhStartPt = rh->fPart.fCurve[0];
+    SkDPoint rhHullEnd = rhStartPt;
+    rhHullEnd += rhSweep;
+    const SkDPoint& startPt = fPart.fCurve[0];
+    SkDVector test = rhHullEnd - startPt;
+    double endCheck = halfPlane.crossCheck(test);
+#if 01 && DEBUG_ANGLE
+    SkDebugf("%s {{{%g,%g}, {%g,%g}}} id=1\n", __func__, rhStartPt.fX, rhStartPt.fY,
+            rhHullEnd.fX, rhHullEnd.fY);
+    SkDebugf("%s {{{%g,%g}, {%g,%g}}} id=2\n", __func__, startPt.fX, startPt.fY,
+            startPt.fX + halfPlane.fX, startPt.fY + halfPlane.fY);
+#endif
+    if (0 == endCheck) {
+        if (halfPlane.dot(test) < 0) {
+            return Turn::kNone;  // neither clockwise nor counterclockwise
+        }
+        // if the pair of angles share an edge, use its other sweep to check the turn value
+        if (!firstTry && (fPart.isCurve() || rh->fPart.isCurve())) {
+            return this->ccwOf(rh, !rhCW, !thisCCW, FLT_EPSILON);
+        }
+    }
+    if (rhStartPt == startPt) {
+        return toTurn(endCheck > 0);
+    }
+    SkDVector rhTest = rhStartPt - startPt;
+    double startCheck = halfPlane.crossCheck(rhTest);
+    if ((startCheck == 0 || rhTest.lengthSquared() < FLT_EPSILON_SQUARED * 2049) &&
+            (endCheck == 0 || test.lengthSquared() < FLT_EPSILON_SQUARED * 2049)) {
+        double cross = halfPlane.cross(rhSweep);
+        if (cross != 0)
+            return toTurn(cross > 0);
+    }
+    double larger = SkTAbs(startCheck) < SkTAbs(endCheck) ? endCheck : startCheck;
+    if (startCheck * endCheck >= 0  // if they both have the same sign or one is nearly zero
+            || roughly_zero_when_compared_to(startCheck, endCheck)) {
+        return toTurn(larger > 0);
+    }
+    if (firstTry) {
+        return toTurn((SkTAbs(firstTry) < SkTAbs(larger) ? larger : firstTry) < 0);
+    }
+    return (Turn) -(int) rh->ccwOf(this, thisCCW, rhCW, larger);
+}
+
+bool SkOpAngle::checkCrossesZero(int* start, int* end) const {
+    *start = SkTMin(fSectorStart, fSectorEnd);
+    *end = SkTMax(fSectorStart, fSectorEnd);
+    bool crossesZero = *end - *start > 16;
     return crossesZero;
 }
 
@@ -626,7 +741,6 @@ SkOpGlobalState* SkOpAngle::globalState() const {
     return this->segment()->globalState();
 }
 
-
 // OPTIMIZE: if this loops to only one other angle, after first compare fails, insert on other side
 // OPTIMIZE: return where insertion succeeded. Then, start next insertion on opposite side
 bool SkOpAngle::insert(SkOpAngle* angle) {
@@ -849,6 +963,19 @@ SkOpAngle* SkOpAngle::previous() const {
     } while (true);
 }
 
+// returns true if rounded sector range crosses zero
+bool SkOpAngle::sectorRange(int* start, int* end, bool roundOut) const {
+    if (checkCrossesZero(start, end)) {
+        SkTSwap(*start, *end);
+    }
+    // round away since the offset curves may swap order
+    if (roundOut) {
+        *start = (*start + 1 & ~0x03) - 1 & 0x1f;
+        *end |= 0x03;
+    }
+    return *end < *start;
+}
+
 SkOpSegment* SkOpAngle::segment() const {
     return fStart->segment();
 }
@@ -985,28 +1112,41 @@ deferTilLater:
         fSectorMask = 1 << fSectorStart;
         return;
     }
-    bool crossesZero = this->checkCrossesZero();
-    int start = SkTMin(fSectorStart, fSectorEnd);
-    bool curveBendsCCW = (fSectorStart == start) ^ crossesZero;
-    // bump the start and end of the sector span if they are on exact compass points
-    if ((fSectorStart & 3) == 3) {
-        fSectorStart = (fSectorStart + (curveBendsCCW ? 1 : 31)) & 0x1f;
+    int start, end;
+    bool crossesZero = this->checkCrossesZero(&start, &end);
+    bool bumpStart = (fSectorStart & 3) == 3;
+    bool bumpEnd = (fSectorEnd & 3) == 3;
+    if (bumpStart | bumpEnd) {
+        bool curveBendsCCW = (fSectorStart == start) ^ crossesZero;
+        // bump the start and end of the sector span if they are on exact compass points
+        if (bumpStart) {
+            fSectorStart = (fSectorStart + (curveBendsCCW ? 1 : 31)) & 0x1f;
+        }
+        if (bumpEnd) {
+            fSectorEnd = (fSectorEnd + (curveBendsCCW ? 31 : 1)) & 0x1f;
+        }
+        crossesZero = this->checkCrossesZero(&start, &end);
     }
-    if ((fSectorEnd & 3) == 3) {
-        fSectorEnd = (fSectorEnd + (curveBendsCCW ? 31 : 1)) & 0x1f;
-    }
-    crossesZero = this->checkCrossesZero();
-    start = SkTMin(fSectorStart, fSectorEnd);
-    int end = SkTMax(fSectorStart, fSectorEnd);
     if (!crossesZero) {
         fSectorMask = (unsigned) -1 >> (31 - end + start) << start;
     } else {
-        fSectorMask = (unsigned) -1 >> (31 - start) | ((unsigned) -1 << end);
+        fSectorMask = (unsigned) -1 >> (31 - start) | (unsigned) -1 << end;
     }
 }
 
 SkOpSpan* SkOpAngle::starter() {
     return fStart->starter(fEnd);
+}
+
+bool SkOpAngle::sweepsCCW() const {
+    if (!fPart.isCurve()) {
+        return false;   // lines have no sweep
+    }
+#if 0 && DEBUG_ANGLE
+    SkDebugf("%s {{{0,0}, {%g,%g}}} id=1\n", __func__, fPart.fSweep[0].fX, fPart.fSweep[0].fY);
+    SkDebugf("%s {{{0,0}, {%g,%g}}} id=2\n", __func__, fPart.fSweep[1].fX, fPart.fSweep[1].fY);
+#endif
+    return fPart.fSweep[0].crossCheck(fPart.fSweep[1]) < 0;
 }
 
 bool SkOpAngle::tangentsDiverge(const SkOpAngle* rh, double s0xt0) {

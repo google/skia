@@ -512,6 +512,23 @@ bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path, const c
             ExpectSuccess::kYes : ExpectSuccess::kNo, SkipAssert::kNo, ExpectMatch::kNo);
 }
 
+bool testSimplifyFail(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
+#if DEBUG_SHOW_TEST_NAME
+    showPathData(path);
+#endif
+    SkPath orig;
+    orig.lineTo(54, 43);
+    SkPath out = orig;
+    if (Simplify(path, &out) ) {
+        SkDebugf("%s test is expected to fail\n", __FUNCTION__);
+        REPORTER_ASSERT(reporter, 0);
+        return false;
+    }
+    SkASSERT(out == orig);
+    return true;
+}
+
+
 #if DEBUG_SHOW_TEST_NAME
 static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
     SkDebugf("\n");

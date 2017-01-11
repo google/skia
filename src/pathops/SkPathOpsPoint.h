@@ -89,6 +89,13 @@ struct SkDVector {
         fX *= inverseLength;
         fY *= inverseLength;
     }
+
+    void setLengthSquared(double lenSquared) {
+        double inverseLength = lenSquared / this->lengthSquared();
+        fX *= inverseLength;
+        fY *= inverseLength;
+    }
+
 };
 
 struct SkDPoint {
