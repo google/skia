@@ -109,11 +109,11 @@ private:
 };
 }
 
-template <typename D>
-inline void GrIORef<D>::testingOnly_getCounts(int* refCnt, int* readCnt, int* writeCnt) const {
-    *refCnt = fRefCnt;
-    *readCnt = fPendingReads;
-    *writeCnt = fPendingWrites;
+template <typename T>
+inline void testingOnly_getIORefCnts(const T* resource, int* refCnt, int* readCnt, int* writeCnt) {
+    *refCnt = resource->fRefCnt;
+    *readCnt = resource->fPendingReads;
+    *writeCnt = resource->fPendingWrites;
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
@@ -168,30 +168,30 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
             int refCnt, readCnt, writeCnt;
 
-            texture1->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+            testingOnly_getIORefCnts(texture1.get(), &refCnt, &readCnt, &writeCnt);
             REPORTER_ASSERT(reporter, 1 == refCnt);
             REPORTER_ASSERT(reporter, 1 == readCnt);
             REPORTER_ASSERT(reporter, 0 == writeCnt);
 
             if (texelBufferSupport) {
-                buffer->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
             }
 
             if (imageLoadStoreSupport) {
-                texture2->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                texture3->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
 
-                texture4->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
@@ -199,30 +199,30 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
             context->flush();
 
-            texture1->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+            testingOnly_getIORefCnts(texture1.get(), &refCnt, &readCnt, &writeCnt);
             REPORTER_ASSERT(reporter, 1 == refCnt);
             REPORTER_ASSERT(reporter, 0 == readCnt);
             REPORTER_ASSERT(reporter, 0 == writeCnt);
 
             if (texelBufferSupport) {
-                buffer->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
             }
 
             if (texelBufferSupport) {
-                texture2->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                texture3->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                texture4->testingOnly_getCounts(&refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
