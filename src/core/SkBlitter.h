@@ -8,12 +8,12 @@
 #ifndef SkBlitter_DEFINED
 #define SkBlitter_DEFINED
 
+#include "SkAutoMalloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTypes.h"
 
 class SkMatrix;
 class SkPaint;

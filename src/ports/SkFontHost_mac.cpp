@@ -20,6 +20,7 @@
 #endif
 
 #include "SkAdvancedTypefaceMetrics.h"
+#include "SkAutoMalloc.h"
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"

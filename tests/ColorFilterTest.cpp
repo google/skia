@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkLumaColorFilter.h"
+#include "SkRandom.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRandom.h"

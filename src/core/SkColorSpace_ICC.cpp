@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
-#include "SkColorSpacePriv.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkICCPriv.h"

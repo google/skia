@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkData.h"
 #include "SkMallocPixelRef.h"
 #include "Test.h"
