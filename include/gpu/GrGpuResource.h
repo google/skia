@@ -75,6 +75,8 @@ public:
 #endif
     }
 
+    void testingOnly_getCounts(int* refCnt, int* readCnt, int* writeCnt) const;
+
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
 
