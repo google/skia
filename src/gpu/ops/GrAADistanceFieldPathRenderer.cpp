@@ -21,7 +21,6 @@
 #include "ops/GrMeshDrawOp.h"
 
 #include "SkPathOps.h"
-#include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 #include "GrDistanceFieldGenFromVector.h"
 

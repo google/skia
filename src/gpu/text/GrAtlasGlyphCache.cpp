@@ -11,7 +11,6 @@
 #include "GrRectanizer.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
-#include "SkAutoMalloc.h"
 #include "SkString.h"
 
 #include "SkDistanceFieldGen.h"

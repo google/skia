@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
@@ -18,17 +19,16 @@
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
-#include "SkAutoMalloc.h"
 #include "SkBlendModePriv.h"
-#include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
+#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
-#include "SkPM4fPriv.h"
 #include "SkPixelRef.h"
+#include "SkPM4fPriv.h"
 #include "SkResourceCache.h"
 #include "SkTemplates.h"
 #include "SkYUVPlanesCache.h"
