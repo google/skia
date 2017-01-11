@@ -148,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_b126d3e5",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-11T18:44:08Z",
+      "side": 1,
+      "message": "This method should create a temporary image of just this op\u0027s behavior.\n\nIt is used by the old debugger and should probably be used by the web-based debugger.",
+      "parentUuid": "578ed681_91b14f94",
+      "revId": "0b94f22d40cf5f9030658e83dcd58e0d214aaf8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_6ef16ab2",
         "filename": "tools/debugger/SkDrawCommand.h",
         "patchSetId": 1
