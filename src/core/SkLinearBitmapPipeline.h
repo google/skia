@@ -34,14 +34,14 @@ public:
         SkShader::TileMode xTile, SkShader::TileMode yTile,
         SkColor paintColor,
         const SkPixmap& srcPixmap,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     SkLinearBitmapPipeline(
         const SkLinearBitmapPipeline& pipeline,
         const SkPixmap& srcPixmap,
         SkBlendMode,
         const SkImageInfo& dstInfo,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     static SkLinearBitmapPipeline* ClonePipelineForBlitting(
         const SkLinearBitmapPipeline& pipeline,
@@ -51,7 +51,7 @@ public:
         float finalAlpha,
         SkBlendMode,
         const SkImageInfo& dstInfo,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     ~SkLinearBitmapPipeline();
 
@@ -65,23 +65,23 @@ public:
     class PixelAccessorInterface;
 
     using MatrixCloner =
-        std::function<PointProcessorInterface* (PointProcessorInterface*, SkArenaAlloc*)>;
+        std::function<PointProcessorInterface* (PointProcessorInterface*, SkFallbackAlloc*)>;
     using TilerCloner =
-        std::function<PointProcessorInterface* (SampleProcessorInterface*, SkArenaAlloc*)>;
+        std::function<PointProcessorInterface* (SampleProcessorInterface*, SkFallbackAlloc*)>;
 
     PointProcessorInterface* chooseMatrix(
         PointProcessorInterface* next,
         const SkMatrix& inverse,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     template <typename Tiler>
     PointProcessorInterface* createTiler(SampleProcessorInterface* next, SkISize dimensions,
-                                         SkArenaAlloc* allocator);
+                                         SkFallbackAlloc* allocator);
 
     template <typename XStrategy>
     PointProcessorInterface* chooseTilerYMode(
         SampleProcessorInterface* next, SkShader::TileMode yMode, SkISize dimensions,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     PointProcessorInterface* chooseTiler(
         SampleProcessorInterface* next,
@@ -89,16 +89,16 @@ public:
         SkShader::TileMode xMode, SkShader::TileMode yMode,
         SkFilterQuality filterQuality,
         SkScalar dx,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     template <SkColorType colorType>
     PixelAccessorInterface* chooseSpecificAccessor(const SkPixmap& srcPixmap,
-                                                   SkArenaAlloc* allocator);
+                                                   SkFallbackAlloc* allocator);
 
     PixelAccessorInterface* choosePixelAccessor(
         const SkPixmap& srcPixmap,
         const SkColor A8TintColor,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     SampleProcessorInterface* chooseSampler(
         BlendProcessorInterface* next,
@@ -106,12 +106,12 @@ public:
         SkShader::TileMode xTile, SkShader::TileMode yTile,
         const SkPixmap& srcPixmap,
         const SkColor A8TintColor,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     BlendProcessorInterface* chooseBlenderForShading(
         SkAlphaType alphaType,
         float postAlpha,
-        SkArenaAlloc* allocator);
+        SkFallbackAlloc* allocator);
 
     PointProcessorInterface* fFirstStage;
     MatrixCloner             fMatrixStageCloner;
