@@ -378,13 +378,11 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceX
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
-// alpha info, that will be considered.
-GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkColorSpace* cs,
-                                        const GrCaps& caps) {
+GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps) {
     // We intentionally ignore profile type for non-8888 formats. Anything we can't support
     // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
-    switch (ct) {
+    SkColorSpace* cs = info.colorSpace();
+    switch (info.colorType()) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
         case kAlpha_8_SkColorType:
