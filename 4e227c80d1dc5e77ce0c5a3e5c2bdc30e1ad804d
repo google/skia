@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_b1eed394",
+        "filename": "gm/bigrrectaaeffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_6e8dea52",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_ce773677",
         "filename": "gm/rrects.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-11T17:36:56Z",
       "side": 1,
       "message": "mv grPaint definition here ?",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_d1f3577b",
+        "filename": "gm/rrects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_ce773677",
       "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_3103c379",
+        "filename": "gm/yuvtorgbeffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_0e50ded4",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_ae44321b",
         "filename": "include/gpu/GrPaint.h",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-11T17:36:56Z",
       "side": 1,
       "message": "This seems an odd order",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_5100c769",
+        "filename": "include/gpu/GrPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_ae44321b",
       "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_d16cb746",
+        "filename": "src/effects/SkAlphaThresholdFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "fixed, moved GrPaint into the loop.",
+      "parentUuid": "578ed681_8eee0ed2",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_2ec4c24d",
         "filename": "src/gpu/GrBlurUtils.cpp",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-11T17:36:56Z",
       "side": 1,
       "message": "tempPaint -\u003e maskPaint ?",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_7152ab85",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_2ec4c24d",
       "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_5159a7a1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "Yep, added a comment that drawFilledRect doesn\u0027t modify the paint if it fails.",
+      "parentUuid": "578ed681_eeaeba7f",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_0eb45ecc",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 2
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-11T17:36:56Z",
       "side": 1,
       "message": "Does this work with the drawPath fallback ?",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_f1469bc4",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "578ed681_0eb45ecc",
       "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_114c7fe1",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "same, doesn\u0027t modify the paint upon failure.",
+      "parentUuid": "578ed681_31866300",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_f190db30",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 2
@@ -166,6 +328,24 @@
       "writtenOn": "2017-01-11T17:36:56Z",
       "side": 1,
       "message": "Does this corrupt the drawPathWithMaskFilter fallback ?",
+      "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_b14013a8",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-11T18:28:33Z",
+      "side": 1,
+      "message": "same, doesn\u0027t modify the paint on failure",
+      "parentUuid": "578ed681_f190db30",
       "revId": "4e227c80d1dc5e77ce0c5a3e5c2bdc30e1ad804d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
