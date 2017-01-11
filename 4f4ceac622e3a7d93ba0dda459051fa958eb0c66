@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_4e3826fb",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-11T14:21:49Z",
+      "side": 1,
+      "message": "Excellent question.  I did not know if SkAutoMalloc.h should depend on SkTemplates.h, or vice versa.  So I did neither.  Since SkFunctionWrapper is defined here,  use it here.",
+      "parentUuid": "578ed681_ce2bb6ac",
+      "revId": "4f4ceac622e3a7d93ba0dda459051fa958eb0c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_ee2c7ac9",
         "filename": "src/core/SkAutoMalloc.h",
         "patchSetId": 12
@@ -42,6 +60,24 @@
         "endLine": 75,
         "endChar": 35
       },
+      "revId": "4f4ceac622e3a7d93ba0dda459051fa958eb0c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_ee155a67",
+        "filename": "src/core/SkAutoMalloc.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-11T14:21:49Z",
+      "side": 1,
+      "message": "Same thing.  Should this header depend on the other header or vice versa?  I picked neither.",
+      "parentUuid": "578ed681_ee2c7ac9",
       "revId": "4f4ceac622e3a7d93ba0dda459051fa958eb0c66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
