@@ -149,7 +149,8 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
 
 
         char storage[600];
-        SkArenaAlloc allocator{storage, sizeof(storage), 512};
+        SkFixedAlloc fixedAlloc{storage, sizeof(storage)};
+        SkFallbackAlloc allocator{&fixedAlloc};
         SkLinearBitmapPipeline pipeline{
             fInvert, filterQuality, fXTile, fYTile, SK_ColorBLACK, srcPixmap, &allocator};
 

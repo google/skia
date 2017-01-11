@@ -171,7 +171,8 @@ public:
 
 private:
     char                    fStorage[512 + 96];
-    SkArenaAlloc            fAllocator {fStorage, sizeof(fStorage)};
+    SkFixedAlloc            fFixedAlloc {fStorage, sizeof(fStorage)};
+    SkFallbackAlloc         fAllocator {&fFixedAlloc};
     SkLinearBitmapPipeline* fShaderPipeline;
     SkLinearBitmapPipeline* fBlitterPipeline;
     SkXfermode::D32Proc     fSrcModeProc;
