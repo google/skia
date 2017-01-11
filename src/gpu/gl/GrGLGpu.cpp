@@ -778,7 +778,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                    GrPixelConfig srcConfig,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
-    if (kIndex_8_GrPixelConfig == srcConfig || GrPixelConfigIsCompressed(dstSurface->config())) {
+    if (GrPixelConfigIsCompressed(dstSurface->config())) {
         return false;
     }
 
@@ -1420,10 +1420,6 @@ bool GrGLGpu::uploadCompressedTexData(const GrSurfaceDesc& desc,
         return allocate_and_populate_compressed_texture(desc, *interface, caps, target,
                                                         internalFormat, texels, width, height);
     } else {
-        // Paletted textures can't be updated.
-        if (GR_GL_PALETTE8_RGBA8 == internalFormat) {
-            return false;
-        }
         for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
             SkASSERT(texels[currentMipLevel].fPixels || kTransfer_UploadType == uploadType);
 
