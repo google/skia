@@ -42,7 +42,7 @@ protected:
         GrContext* ctx = inputCanvas->getGrContext();
         SkISize size = onISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
-                                                sk_ref_sp(inputCanvas->imageInfo().colorSpace()));
+                                                inputCanvas->imageInfo().refColorSpace());
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                              SkSurfaceProps::kLegacyFontHost_InitType);
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));

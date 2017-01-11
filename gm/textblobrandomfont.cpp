@@ -99,7 +99,7 @@ protected:
 
         SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, canvas->imageInfo().colorType(),
                                              kPremul_SkAlphaType,
-                                             sk_ref_sp(canvas->imageInfo().colorSpace()));
+                                             canvas->imageInfo().refColorSpace());
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         auto surface(canvas->makeSurface(info, &props));
         if (surface) {
