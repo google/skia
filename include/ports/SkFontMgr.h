@@ -166,11 +166,7 @@ public:
     SkTypeface* legacyCreateTypeface(const char familyName[], SkFontStyle style) const;
 
     /** Return the default fontmgr. */
-#ifdef SK_LEGACY_FONTMGR_FACTORY
-    static SkFontMgr* RefDefault();
-#else
     static sk_sp<SkFontMgr> RefDefault();
-#endif
 
 protected:
     virtual int onCountFamilies() const = 0;
@@ -200,11 +196,7 @@ protected:
 private:
 
     /** Implemented by porting layer to return the default factory. */
-#ifdef SK_LEGACY_FONTMGR_FACTORY
-    static SkFontMgr* Factory();
-#else
     static sk_sp<SkFontMgr> Factory();
-#endif
 
     typedef SkRefCnt INHERITED;
 };
