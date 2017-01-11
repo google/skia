@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "578ed681_cef5f6d0",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-11T15:51:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_18b34933",
+      "revId": "4bbd24faf29c6ce2ec31b96e3033a83387739ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "578ed681_9817392d",
         "filename": "src/core/SkColor.cpp",
         "patchSetId": 1
@@ -42,6 +60,24 @@
         "endLine": 94,
         "endChar": 33
       },
+      "revId": "4bbd24faf29c6ce2ec31b96e3033a83387739ef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_2ee5a21e",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-11T15:51:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "578ed681_9817392d",
       "revId": "4bbd24faf29c6ce2ec31b96e3033a83387739ef9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
