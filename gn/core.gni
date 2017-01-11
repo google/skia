@@ -436,7 +436,6 @@ skia_core_sources = [
   "$_include/core/SkStrokeRec.h",
   "$_include/core/SkSurface.h",
   "$_include/core/SkSwizzle.h",
-  "$_include/core/SkTRegistry.h",
   "$_include/core/SkTextBlob.h",
   "$_include/core/SkTime.h",
   "$_include/core/SkTLazy.h",
