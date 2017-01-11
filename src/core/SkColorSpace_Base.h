@@ -185,14 +185,12 @@ public:
 
     virtual Type type() const = 0;
 
-    enum class InputColorFormat {
-        kRGB,
-        kCMYK,
-        kGray
-    };
+    typedef uint8_t ICCTypeFlag;
+    static constexpr ICCTypeFlag kRGB_ICCTypeFlag  = 1 << 0;
+    static constexpr ICCTypeFlag kCMYK_ICCTypeFlag = 1 << 1;
+    static constexpr ICCTypeFlag kGray_ICCTypeFlag = 1 << 2;
 
-    static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len,
-                                       InputColorFormat inputColorFormat);
+    static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len, ICCTypeFlag type);
 
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
