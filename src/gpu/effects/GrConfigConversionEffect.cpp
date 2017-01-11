@@ -237,19 +237,22 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), paint1, GrAA::kNo, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempRTC->fillRectToRect(GrNoClip(), paint2, GrAA::kNo, SkMatrix::I(), kDstRect, kSrcRect);
+        tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readRTC->fillRectToRect(GrNoClip(), paint3, GrAA::kNo, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
+                                kSrcRect);
 
         readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 

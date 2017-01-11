@@ -158,37 +158,34 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
 }
 
-void GrRenderTargetContext::drawText(const GrClip& clip, const GrPaint& grPaint,
-                                     const SkPaint& skPaint,
-                                     const SkMatrix& viewMatrix,
-                                     const char text[], size_t byteLength,
-                                     SkScalar x, SkScalar y, const SkIRect& clipBounds) {
+void GrRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint, const SkPaint& skPaint,
+                                     const SkMatrix& viewMatrix, const char text[],
+                                     size_t byteLength, SkScalar x, SkScalar y,
+                                     const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawText(fContext, this, clip, grPaint, skPaint, viewMatrix, fSurfaceProps,
-                               text, byteLength, x, y, clipBounds);
+    atlasTextContext->drawText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
+                               fSurfaceProps, text, byteLength, x, y, clipBounds);
 }
 
-void GrRenderTargetContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
-                                        const SkPaint& skPaint,
-                                        const SkMatrix& viewMatrix,
-                                        const char text[], size_t byteLength,
-                                        const SkScalar pos[], int scalarsPerPosition,
-                                        const SkPoint& offset, const SkIRect& clipBounds) {
+void GrRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
+                                        const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                        const char text[], size_t byteLength, const SkScalar pos[],
+                                        int scalarsPerPosition, const SkPoint& offset,
+                                        const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawPosText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawPosText(fContext, this, clip, grPaint, skPaint, viewMatrix,
-                                  fSurfaceProps, text, byteLength, pos, scalarsPerPosition,
-                                  offset, clipBounds);
-
+    atlasTextContext->drawPosText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
+                                  fSurfaceProps, text, byteLength, pos, scalarsPerPosition, offset,
+                                  clipBounds);
 }
 
 void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
@@ -272,9 +269,9 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
 
         // We don't call drawRect() here to avoid the cropping to the, possibly smaller,
         // RenderTargetProxy bounds
-        fRenderTargetContext->drawNonAAFilledRect(GrNoClip(), paint, SkMatrix::I(),
-                                                  SkRect::Make(rtRect),
-                                                  nullptr, nullptr, nullptr, GrAAType::kNone);
+        fRenderTargetContext->drawNonAAFilledRect(GrNoClip(), std::move(paint), SkMatrix::I(),
+                                                  SkRect::Make(rtRect), nullptr, nullptr, nullptr,
+                                                  GrAAType::kNone);
 
     } else {
         if (!fRenderTargetContext->accessRenderTarget()) {
@@ -331,7 +328,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         paint.setColor4f(GrColor4f::FromGrColor(color));
         paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-        this->drawRect(clip, paint, GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
+        this->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
         if (this->accessRenderTarget()) {
             this->getOpList()->fullClear(this, color);
@@ -349,7 +346,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 }
 
 void GrRenderTargetContext::drawPaint(const GrClip& clip,
-                                      const GrPaint& paint,
+                                      GrPaint&& paint,
                                       const SkMatrix& viewMatrix) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -369,7 +366,8 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     // because they may depend on having correct local coords and this path draws in device space
     // without a local matrix.
     if (!paint.numTotalFragmentProcessors() && clip.isRRect(r, &rrect, &aa) && !rrect.isRect()) {
-        this->drawRRect(GrNoClip(), paint, aa, SkMatrix::I(), rrect, GrStyle::SimpleFill());
+        this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
+                        GrStyle::SimpleFill());
         return;
     }
 
@@ -384,7 +382,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
             SkDebugf("Could not invert matrix\n");
             return;
         }
-        this->drawRect(clip, paint, GrAA::kNo, viewMatrix, r);
+        this->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
@@ -394,7 +392,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
 
         AutoCheckFlush acf(fDrawingManager);
 
-        this->drawNonAAFilledRect(clip, paint, SkMatrix::I(), r, nullptr, &localMatrix,
+        this->drawNonAAFilledRect(clip, std::move(paint), SkMatrix::I(), r, nullptr, &localMatrix,
                                   nullptr, GrAAType::kNone);
     }
 }
@@ -454,7 +452,7 @@ static bool crop_filled_rect(int width, int height, const GrClip& clip,
 }
 
 bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
-                                           const GrPaint& paint,
+                                           GrPaint&& paint,
                                            GrAA aa,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
@@ -472,7 +470,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         op = ir->recordRect(croppedRect, viewMatrix, paint.getColor(), aa, fInstancedPipelineInfo,
                             &aaType);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             if (ss) {
                 pipelineBuilder.setUserStencil(ss);
             }
@@ -489,7 +487,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
 
             op = GrRectOpFactory::MakeAAFill(paint, viewMatrix, rect, croppedRect, devBoundRect);
             if (op) {
-                GrPipelineBuilder pipelineBuilder(paint, aaType);
+                GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
                 if (ss) {
                     pipelineBuilder.setUserStencil(ss);
                 }
@@ -498,8 +496,8 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
             }
         }
     } else {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr, nullptr, ss,
-                                  aaType);
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect, nullptr, nullptr,
+                                  ss, aaType);
         return true;
     }
 
@@ -507,7 +505,7 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
 }
 
 void GrRenderTargetContext::drawRect(const GrClip& clip,
-                                     const GrPaint& paint,
+                                     GrPaint&& paint,
                                      GrAA aa,
                                      const SkMatrix& viewMatrix,
                                      const SkRect& rect,
@@ -555,7 +553,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
             }
         }
 
-        if (this->drawFilledRect(clip, paint, aa, viewMatrix, rect, nullptr)) {
+        if (this->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect, nullptr)) {
             return;
         }
     } else if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
@@ -566,25 +564,26 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
             // TODO: Move these stroke->fill fallbacks to GrShape?
             switch (stroke.getJoin()) {
                 case SkPaint::kMiter_Join:
-                    this->drawRect(clip, paint, aa, viewMatrix,
-                                   {rect.fLeft - r, rect.fTop - r,
-                                    rect.fRight + r, rect.fBottom + r},
-                                   &GrStyle::SimpleFill());
+                    this->drawRect(
+                            clip, std::move(paint), aa, viewMatrix,
+                            {rect.fLeft - r, rect.fTop - r, rect.fRight + r, rect.fBottom + r},
+                            &GrStyle::SimpleFill());
                     return;
                 case SkPaint::kRound_Join:
                     // Raster draws nothing when both dimensions are empty.
                     if (rect.width() || rect.height()){
                         SkRRect rrect = SkRRect::MakeRectXY(rect.makeOutset(r, r), r, r);
-                        this->drawRRect(clip, paint, aa, viewMatrix, rrect, GrStyle::SimpleFill());
+                        this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect,
+                                        GrStyle::SimpleFill());
                         return;
                     }
                 case SkPaint::kBevel_Join:
                     if (!rect.width()) {
-                        this->drawRect(clip, paint, aa, viewMatrix,
+                        this->drawRect(clip, std::move(paint), aa, viewMatrix,
                                        {rect.fLeft - r, rect.fTop, rect.fRight + r, rect.fBottom},
                                        &GrStyle::SimpleFill());
                     } else {
-                        this->drawRect(clip, paint, aa, viewMatrix,
+                        this->drawRect(clip, std::move(paint), aa, viewMatrix,
                                        {rect.fLeft, rect.fTop - r, rect.fRight, rect.fBottom + r},
                                        &GrStyle::SimpleFill());
                     }
@@ -613,7 +612,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
 
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
 
             if (snapToPixelCenters) {
                 pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
@@ -628,7 +627,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     SkPath path;
     path.setIsVolatile(true);
     path.addRect(rect);
-    this->internalDrawPath(clip, paint, aa, viewMatrix, path, *style);
+    this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, *style);
 }
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
@@ -677,8 +676,8 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-    fRenderTargetContext->drawNonAAFilledRect(clip, paint, viewMatrix, rect, nullptr, nullptr, ss,
-                                              aaType);
+    fRenderTargetContext->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, rect, nullptr,
+                                              nullptr, ss, aaType);
 }
 
 bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
@@ -699,7 +698,7 @@ bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
 
-    if (fRenderTargetContext->drawFilledRect(clip, paint, aa, viewMatrix, rect, ss)) {
+    if (fRenderTargetContext->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect, ss)) {
         return true;
     }
     SkPath path;
@@ -709,7 +708,7 @@ bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
 }
 
 void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
-                                           const GrPaint& paint,
+                                           GrPaint&& paint,
                                            GrAA aa,
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rectToDraw,
@@ -735,7 +734,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
                                                     croppedLocalRect, aa, fInstancedPipelineInfo,
                                                     &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -743,15 +742,15 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
 
     aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage != aaType) {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect, nullptr,
-                                  nullptr, aaType);
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect,
+                                  &croppedLocalRect, nullptr, nullptr, aaType);
         return;
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         std::unique_ptr<GrDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
                 paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
-        GrPipelineBuilder pipelineBuilder(paint, aaType);
+        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         this->addDrawOp(pipelineBuilder, clip, std::move(op));
         return;
     }
@@ -766,11 +765,11 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     SkPath path;
     path.setIsVolatile(true);
     path.addRect(localRect);
-    this->internalDrawPath(clip, paint, aa, viewAndUnLocalMatrix, path, GrStyle());
+    this->internalDrawPath(clip, std::move(paint), aa, viewAndUnLocalMatrix, path, GrStyle());
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
-                                                    const GrPaint& paint,
+                                                    GrPaint&& paint,
                                                     GrAA aa,
                                                     const SkMatrix& viewMatrix,
                                                     const SkRect& rectToDraw,
@@ -794,7 +793,7 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
                                                     localMatrix, aa, fInstancedPipelineInfo,
                                                     &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -802,15 +801,15 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     aaType = this->decideAAType(aa);
     if (GrAAType::kCoverage != aaType) {
-        this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr, &localMatrix,
-                                  nullptr, aaType);
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect, nullptr,
+                                  &localMatrix, nullptr, aaType);
         return;
     }
 
     if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
         std::unique_ptr<GrDrawOp> op =
                 GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
-        GrPipelineBuilder pipelineBuilder(paint, aaType);
+        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
         this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
         return;
     }
@@ -826,11 +825,11 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     path.setIsVolatile(true);
     path.addRect(rectToDraw);
     path.transform(localMatrix);
-    this->internalDrawPath(clip, paint, aa, viewAndUnLocalMatrix, path, GrStyle());
+    this->internalDrawPath(clip, std::move(paint), aa, viewAndUnLocalMatrix, path, GrStyle());
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
-                                         const GrPaint& paint,
+                                         GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
                                          GrPrimitiveType primitiveType,
                                          int vertexCount,
@@ -859,14 +858,14 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
             GrDrawVerticesOp::Make(paint.getColor(), primitiveType, viewMatrix, positions,
                                    vertexCount, indices, indexCount, colors, texCoords, bounds);
 
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrRenderTargetContext::drawAtlas(const GrClip& clip,
-                                      const GrPaint& paint,
+                                      GrPaint&& paint,
                                       const SkMatrix& viewMatrix,
                                       int spriteCount,
                                       const SkRSXform xform[],
@@ -881,14 +880,14 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     std::unique_ptr<GrDrawOp> op =
             GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrRenderTargetContext::drawRRect(const GrClip& origClip,
-                                      const GrPaint& paint,
+                                      GrPaint&& paint,
                                       GrAA aa,
                                       const SkMatrix& viewMatrix,
                                       const SkRRect& rrect,
@@ -926,7 +925,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
         std::unique_ptr<GrDrawOp> op(ir->recordRRect(rrect, viewMatrix, paint.getColor(), aa,
                                                      fInstancedPipelineInfo, &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
             return;
         }
@@ -942,7 +941,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                                                     stroke,
                                                                     shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, *clip, std::move(op));
             return;
         }
@@ -951,13 +950,13 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     SkPath path;
     path.setIsVolatile(true);
     path.addRRect(rrect);
-    this->internalDrawPath(*clip, paint, aa, viewMatrix, path, style);
+    this->internalDrawPath(*clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
-                                            const GrPaint& paint,
+                                            GrPaint&& paint,
                                             const SkMatrix& viewMatrix,
                                             const SkRRect& rrect,
                                             SkScalar blurRadius,
@@ -980,7 +979,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
     std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(paint.getColor(), viewMatrix, rrect,
                                                          blurRadius, stroke, shaderCaps);
     if (op) {
-        GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+        GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
         this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
         return;
     }
@@ -989,7 +988,7 @@ void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
-                                             const GrPaint& paintIn,
+                                             GrPaint&& paint,
                                              GrAA aa,
                                              const SkMatrix& viewMatrix,
                                              const SkRRect& origOuter,
@@ -1001,10 +1000,10 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
     if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
         InstancedRendering* ir = this->getOpList()->instancedRendering();
         std::unique_ptr<GrDrawOp> op(ir->recordDRRect(origOuter, origInner, viewMatrix,
-                                                      paintIn.getColor(), aa,
-                                                      fInstancedPipelineInfo, &aaType));
+                                                      paint.getColor(), aa, fInstancedPipelineInfo,
+                                                      &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paintIn, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return true;
         }
@@ -1037,8 +1036,6 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         inverseVM.reset();
     }
 
-    GrPaint grPaint(paintIn);
-
     // TODO these need to be a geometry processors
     sk_sp<GrFragmentProcessor> innerEffect(GrRRectEffect::Make(innerEdgeType, *inner));
     if (!innerEffect) {
@@ -1050,20 +1047,21 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         return false;
     }
 
-    grPaint.addCoverageFragmentProcessor(std::move(innerEffect));
-    grPaint.addCoverageFragmentProcessor(std::move(outerEffect));
+    paint.addCoverageFragmentProcessor(std::move(innerEffect));
+    paint.addCoverageFragmentProcessor(std::move(outerEffect));
 
     SkRect bounds = outer->getBounds();
     if (GrAAType::kCoverage == aaType) {
         bounds.outset(SK_ScalarHalf, SK_ScalarHalf);
     }
 
-    this->fillRectWithLocalMatrix(clip, grPaint, GrAA::kNo, SkMatrix::I(), bounds, inverseVM);
+    this->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), bounds,
+                                  inverseVM);
     return true;
 }
 
 void GrRenderTargetContext::drawDRRect(const GrClip& clip,
-                                       const GrPaint& paint,
+                                       GrPaint&& paint,
                                        GrAA aa,
                                        const SkMatrix& viewMatrix,
                                        const SkRRect& outer,
@@ -1078,7 +1076,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
 
     AutoCheckFlush acf(fDrawingManager);
 
-    if (this->drawFilledDRRect(clip, paint, aa, viewMatrix, outer, inner)) {
+    if (this->drawFilledDRRect(clip, std::move(paint), aa, viewMatrix, outer, inner)) {
         return;
     }
 
@@ -1088,7 +1086,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     path.addRRect(outer);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    this->internalDrawPath(clip, paint, aa, viewMatrix, path, GrStyle::SimpleFill());
+    this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1098,7 +1096,7 @@ static inline bool is_int(float x) {
 }
 
 void GrRenderTargetContext::drawRegion(const GrClip& clip,
-                                       const GrPaint& paint,
+                                       GrPaint&& paint,
                                        GrAA aa,
                                        const SkMatrix& viewMatrix,
                                        const SkRegion& region,
@@ -1121,16 +1119,16 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     if (complexStyle || GrAA::kYes == aa) {
         SkPath path;
         region.getBoundaryPath(&path);
-        return this->drawPath(clip, paint, aa, viewMatrix, path, style);
+        return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
     std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
-                                     const GrPaint& paint,
+                                     GrPaint&& paint,
                                      GrAA aa,
                                      const SkMatrix& viewMatrix,
                                      const SkRect& oval,
@@ -1156,7 +1154,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         std::unique_ptr<GrDrawOp> op(ir->recordOval(oval, viewMatrix, paint.getColor(), aa,
                                                     fInstancedPipelineInfo, &aaType));
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -1168,7 +1166,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         std::unique_ptr<GrDrawOp> op =
                 GrOvalOpFactory::MakeOvalOp(paint.getColor(), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -1177,11 +1175,11 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     SkPath path;
     path.setIsVolatile(true);
     path.addOval(oval);
-    this->internalDrawPath(clip, paint, aa, viewMatrix, path, style);
+    this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,
-                                    const GrPaint& paint,
+                                    GrPaint&& paint,
                                     GrAA aa,
                                     const SkMatrix& viewMatrix,
                                     const SkRect& oval,
@@ -1201,7 +1199,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                                                   style,
                                                                   shaderCaps);
         if (op) {
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
@@ -1209,11 +1207,11 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
     SkPath path;
     SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
                                   style.isSimpleFill());
-    this->internalDrawPath(clip, paint, aa, viewMatrix, path, style);
+    this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
-                                             const GrPaint& paint,
+                                             GrPaint&& paint,
                                              const SkMatrix& viewMatrix,
                                              int imageWidth,
                                              int imageHeight,
@@ -1229,7 +1227,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     std::unique_ptr<GrDrawOp> op = GrLatticeOp::MakeNonAA(paint.getColor(), viewMatrix, imageWidth,
                                                           imageHeight, std::move(iter), dst);
 
-    GrPipelineBuilder pipelineBuilder(paint, GrAAType::kNone);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }
 
@@ -1252,7 +1250,7 @@ void GrRenderTargetContext::prepareForExternalIO() {
 }
 
 void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
-                                                const GrPaint& paint,
+                                                GrPaint&& paint,
                                                 const SkMatrix& viewMatrix,
                                                 const SkRect& rect,
                                                 const SkRect* localRect,
@@ -1263,7 +1261,7 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
     SkASSERT(hwOrNoneAAType == GrAAType::kNone || this->isStencilBufferMultisampled());
     std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), viewMatrix,
                                                                   rect, localRect, localMatrix);
-    GrPipelineBuilder pipelineBuilder(paint, hwOrNoneAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(paint), hwOrNoneAAType);
     if (ss) {
         pipelineBuilder.setUserStencil(ss);
     }
@@ -1364,7 +1362,7 @@ static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,
-                                     const GrPaint& paint,
+                                     GrPaint&& paint,
                                      GrAA aa,
                                      const SkMatrix& viewMatrix,
                                      const SkPath& path,
@@ -1376,7 +1374,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
 
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
-           this->drawPaint(clip, paint, viewMatrix);
+           this->drawPaint(clip, std::move(paint), viewMatrix);
        }
        return;
     }
@@ -1393,7 +1391,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
                 std::unique_ptr<GrDrawOp> op =
                         GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
                 if (op) {
-                    GrPipelineBuilder pipelineBuilder(paint, aaType);
+                    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
                     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
                 }
                 return;
@@ -1407,7 +1405,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeOvalOp(
                     paint.getColor(), viewMatrix, ovalRect, style.strokeRec(), shaderCaps);
             if (op) {
-                GrPipelineBuilder pipelineBuilder(paint, aaType);
+                GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
                 this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
                 return;
             }
@@ -1419,7 +1417,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    this->internalDrawPath(clip, paint, aa, viewMatrix, path, style);
+    this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
 bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
@@ -1470,17 +1468,16 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
 
-    GrPathRenderer::DrawPathArgs args;
-    args.fResourceProvider =
-        fRenderTargetContext->fDrawingManager->getContext()->resourceProvider();
-    args.fPaint = &paint;
-    args.fUserStencilSettings = ss;
-    args.fRenderTargetContext = fRenderTargetContext;
-    args.fClip = &clip;
-    args.fViewMatrix = &viewMatrix;
-    args.fShape = &shape;
-    args.fAAType = aaType;
-    args.fGammaCorrect = fRenderTargetContext->isGammaCorrect();
+    GrPathRenderer::DrawPathArgs args{
+            fRenderTargetContext->fDrawingManager->getContext()->resourceProvider(),
+            std::move(paint),
+            ss,
+            fRenderTargetContext,
+            &clip,
+            &viewMatrix,
+            &shape,
+            aaType,
+            fRenderTargetContext->isGammaCorrect()};
     pr->drawPath(args);
     return true;
 }
@@ -1498,7 +1495,7 @@ SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
 }
 
 void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
-                                             const GrPaint& paint,
+                                             GrPaint&& paint,
                                              GrAA aa,
                                              const SkMatrix& viewMatrix,
                                              const SkPath& path,
@@ -1569,16 +1566,15 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
         return;
     }
 
-    GrPathRenderer::DrawPathArgs args;
-    args.fResourceProvider = fDrawingManager->getContext()->resourceProvider();
-    args.fPaint = &paint;
-    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fRenderTargetContext = this;
-    args.fClip = &clip;
-    args.fViewMatrix = &viewMatrix;
-    args.fShape = &shape;
-    args.fAAType = aaType;
-    args.fGammaCorrect = this->isGammaCorrect();
+    GrPathRenderer::DrawPathArgs args{fDrawingManager->getContext()->resourceProvider(),
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      this,
+                                      &clip,
+                                      &viewMatrix,
+                                      &shape,
+                                      aaType,
+                                      this->isGammaCorrect()};
     pr->drawPath(args);
 }
 

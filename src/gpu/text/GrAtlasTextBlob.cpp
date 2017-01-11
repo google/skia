@@ -297,14 +297,14 @@ inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
     return std::move(op);
 }
 
-inline
-void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPaint,
-                               const GrClip& clip, int run, const SkMatrix& viewMatrix, SkScalar x,
-                               SkScalar y,
-                               const SkPaint& skPaint, const SkSurfaceProps& props,
-                               const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                               GrAtlasGlyphCache* cache) {
-    for (int subRun = 0; subRun < fRuns[run].fSubRunInfo.count(); subRun++) {
+inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, GrPaint&& grPaint,
+                                      const GrClip& clip, int run, const SkMatrix& viewMatrix,
+                                      SkScalar x, SkScalar y, const SkPaint& skPaint,
+                                      const SkSurfaceProps& props,
+                                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                      GrAtlasGlyphCache* cache) {
+    int lastRun = fRuns[run].fSubRunInfo.count() - 1;
+    for (int subRun = 0; subRun <= lastRun; subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.glyphCount();
         if (0 == glyphCount) {
@@ -316,7 +316,8 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
         std::unique_ptr<GrDrawOp> op(this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y,
                                                   color, skPaint, props, distanceAdjustTable,
                                                   rtc->isGammaCorrect(), cache));
-        GrPipelineBuilder pipelineBuilder(grPaint, GrAAType::kNone);
+        GrPipelineBuilder pipelineBuilder(GrPaint::MoveOrClone(grPaint, subRun < lastRun),
+                                          GrAAType::kNone);
 
         rtc->addDrawOp(pipelineBuilder, clip, std::move(op));
     }
@@ -403,18 +404,13 @@ void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrRenderTargetContext*
     }
 }
 
-void GrAtlasTextBlob::flushCached(GrContext* context,
-                                  GrRenderTargetContext* rtc,
-                                  const SkTextBlob* blob,
-                                  const SkSurfaceProps& props,
+void GrAtlasTextBlob::flushCached(GrContext* context, GrRenderTargetContext* rtc,
+                                  const SkTextBlob* blob, const SkSurfaceProps& props,
                                   const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                  const SkPaint& skPaint,
-                                  const GrPaint& grPaint,
-                                  SkDrawFilter* drawFilter,
-                                  const GrClip& clip,
-                                  const SkMatrix& viewMatrix,
-                                  const SkIRect& clipBounds,
-                                  SkScalar x, SkScalar y) {
+                                  const SkPaint& skPaint, GrPaint&& grPaint,
+                                  SkDrawFilter* drawFilter, const GrClip& clip,
+                                  const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                                  SkScalar y) {
     // We loop through the runs of the blob, flushing each.  If any run is too large, then we flush
     // it as paths
     SkTextBlobRunIterator it(blob);
@@ -424,27 +420,24 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
                                   drawFilter, viewMatrix, clipBounds, x, y);
             continue;
         }
-        this->flushRun(rtc, grPaint, clip, run, viewMatrix, x, y, skPaint, props,
-                       distanceAdjustTable, context->getAtlasGlyphCache());
+        this->flushRun(rtc, GrPaint::MoveOrClone(grPaint, !it.done()), clip, run, viewMatrix, x, y,
+                       skPaint, props, distanceAdjustTable, context->getAtlasGlyphCache());
     }
 
     // Now flush big glyphs
     this->flushBigGlyphs(context, rtc, clip, skPaint, viewMatrix, x, y, clipBounds);
 }
 
-void GrAtlasTextBlob::flushThrowaway(GrContext* context,
-                                     GrRenderTargetContext* rtc,
+void GrAtlasTextBlob::flushThrowaway(GrContext* context, GrRenderTargetContext* rtc,
                                      const SkSurfaceProps& props,
                                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                     const SkPaint& skPaint,
-                                     const GrPaint& grPaint,
-                                     const GrClip& clip,
-                                     const SkMatrix& viewMatrix,
-                                     const SkIRect& clipBounds,
+                                     const SkPaint& skPaint, GrPaint&& grPaint, const GrClip& clip,
+                                     const SkMatrix& viewMatrix, const SkIRect& clipBounds,
                                      SkScalar x, SkScalar y) {
     for (int run = 0; run < fRunCount; run++) {
-        this->flushRun(rtc, grPaint, clip, run, viewMatrix, x, y, skPaint, props,
-                       distanceAdjustTable, context->getAtlasGlyphCache());
+        this->flushRun(rtc, GrPaint::MoveOrClone(grPaint, run + 1 != fRunCount), clip, run,
+                       viewMatrix, x, y, skPaint, props, distanceAdjustTable,
+                       context->getAtlasGlyphCache());
     }
 
     // Now flush big glyphs

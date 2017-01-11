@@ -405,7 +405,7 @@ private:
 };
 
 bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
-                                             const GrPaint& paint,
+                                             GrPaint&& paint,
                                              GrAAType aaType,
                                              const GrUserStencilSettings& userStencilSettings,
                                              const GrClip& clip,
@@ -550,15 +550,16 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                     paint.getColor(), viewM, bounds, nullptr, &localMatrix));
 
             SkASSERT(GrDrawFace::kBoth == drawFace[p]);
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         } else {
             std::unique_ptr<GrDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
+
                                         viewMatrix, isHairline, devBounds);
-            GrPipelineBuilder pipelineBuilder(paint, aaType);
+            GrPipelineBuilder pipelineBuilder(GrPaint::MoveOrNew(paint, lastPassIsBounds), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
@@ -581,7 +582,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDefaultPathRenderer::onDrawPath");
     return this->internalDrawPath(args.fRenderTargetContext,
-                                  *args.fPaint,
+                                  std::move(args.fPaint),
                                   args.fAAType,
                                   *args.fUserStencilSettings,
                                   *args.fClip,
@@ -598,7 +599,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
 
-    this->internalDrawPath(args.fRenderTargetContext, paint, args.fAAType,
+    this->internalDrawPath(args.fRenderTargetContext, std::move(paint), args.fAAType,
                            GrUserStencilSettings::kUnused, *args.fClip, *args.fViewMatrix,
                            *args.fShape, true);
 }

@@ -258,16 +258,16 @@ static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProv
 
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
-    GrPathRenderer::DrawPathArgs args;
-    args.fPaint = &paint;
-    args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fRenderTargetContext = renderTargetContext;
-    args.fClip = &noClip;
-    args.fResourceProvider = rp;
-    args.fViewMatrix = &SkMatrix::I();
     GrShape shape(path, style);
-    args.fShape = &shape;
-    args.fAAType = GrAAType::kNone;
+    GrPathRenderer::DrawPathArgs args{rp,
+                                      std::move(paint),
+                                      &GrUserStencilSettings::kUnused,
+                                      renderTargetContext,
+                                      &noClip,
+                                      &SkMatrix::I(),
+                                      &shape,
+                                      GrAAType::kNone,
+                                      false};
     tess.drawPath(args);
 }
 

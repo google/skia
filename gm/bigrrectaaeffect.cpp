@@ -74,14 +74,13 @@ protected:
                 paint.setColor(SK_ColorWHITE);
                 canvas->drawRect(testBounds, paint);
 
-                GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
                 sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                 SkASSERT(fp);
                 if (fp) {
+                    GrPaint grPaint;
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     grPaint.addCoverageFragmentProcessor(std::move(fp));
 
                     SkRect bounds = testBounds;
@@ -89,8 +88,8 @@ protected:
 
                     std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             0xff000000, SkMatrix::I(), bounds, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_addDrawOp(grPaint, GrAAType::kNone,
-                                                                      std::move(op));
+                    renderTargetContext->priv().testingOnly_addDrawOp(
+                            std::move(grPaint), GrAAType::kNone, std::move(op));
                 }
             canvas->restore();
             x = x + fTestOffsetX;
