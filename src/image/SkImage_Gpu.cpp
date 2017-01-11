@@ -124,6 +124,10 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                int srcX, int srcY, CachingHint) const {
+    if (!SkImageInfo::ValidConversion(info, this->onImageInfo())) {
+        return false;
+    }
+
     GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == info.alphaType() && kPremul_SkAlphaType == fAlphaType) {

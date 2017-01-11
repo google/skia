@@ -934,7 +934,6 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
     switch (origInfo.colorType()) {
-        case kUnknown_SkColorType:
         case kIndex_8_SkColorType:
             return false;
         default:
