@@ -13,7 +13,7 @@
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "sk_tool_utils.h"
 #include "SkClipOpPriv.h"
 

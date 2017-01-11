@@ -8,7 +8,7 @@
 #define skiatest_Test_DEFINED
 
 #include "SkString.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "SkTypes.h"
 #include "SkClipOpPriv.h"
 

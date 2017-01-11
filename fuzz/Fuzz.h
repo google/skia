@@ -9,7 +9,7 @@
 #define Fuzz_DEFINED
 
 #include "SkData.h"
-#include "SkTRegistry.h"
+#include "../tools/Registry.h"
 #include "SkTypes.h"
 
 #include <cmath>
