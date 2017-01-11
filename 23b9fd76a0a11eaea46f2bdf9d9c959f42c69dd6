@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_acabda52",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-11T20:49:45Z",
+      "side": 1,
+      "message": "The code for this is the replacement character U+FFFD, but 0 is nice and easy to check, and maybe they can substitute U+FFFD if they get a zero.",
+      "range": {
+        "startLine": 82,
+        "startChar": 15,
+        "endLine": 82,
+        "endChar": 17
+      },
+      "revId": "23b9fd76a0a11eaea46f2bdf9d9c959f42c69dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
