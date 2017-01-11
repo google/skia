@@ -22,6 +22,24 @@
       "revId": "23b9fd76a0a11eaea46f2bdf9d9c959f42c69dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_ccdc1e02",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-11T20:54:30Z",
+      "side": 1,
+      "message": "I\u0027ll use 0xFFFD, and move all callers to SkUTF8_NextUnicharWithError",
+      "parentUuid": "578ed681_acabda52",
+      "revId": "23b9fd76a0a11eaea46f2bdf9d9c959f42c69dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
