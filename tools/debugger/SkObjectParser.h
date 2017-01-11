@@ -129,6 +129,12 @@ public:
      */
     static SkString* TextToString(const void* text, size_t byteLength,
                                   SkPaint::TextEncoding encoding);
+
+    /**
+        Returns a string representation of the SkCanvas::Lattice.
+        @param lattice  SkCanvas::Lattice
+     */
+    static SkString* LatticeToString(const SkCanvas::Lattice& lattice);
 };
 
 #endif
