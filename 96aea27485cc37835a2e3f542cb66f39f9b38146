@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_31398390",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1185,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2017-01-11T20:02:14Z",
+      "side": 1,
+      "message": "Make all the attributes snakeCase.\nMake each attribute name a #define, see top of this file.",
+      "revId": "96aea27485cc37835a2e3f542cb66f39f9b38146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
