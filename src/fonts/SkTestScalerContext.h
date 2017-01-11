@@ -76,8 +76,12 @@ protected:
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) const override;
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int onCharsToGlyphs(const void* chars, Encoding encoding,
                         uint16_t glyphs[], int glyphCount) const override;
+#else
+    int onCharsToGlyphs(const void*, size_t, Encoding, uint16_t[], int) const override;
+#endif
 
     int onCountGlyphs() const override {
         return (int) fTestFont->fCharCodesCount;

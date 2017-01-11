@@ -156,6 +156,7 @@ public:
      *  optionally return their corresponding glyph IDs (if glyphs is not NULL).
      *
      *  @param chars pointer to the array of character codes
+     *  @param byteLength length of character code array in bytes.
      *  @param encoding how the characters are encoded
      *  @param glyphs (optional) returns the corresponding glyph IDs for each
      *          character code, up to glyphCount values. If a character code is
@@ -167,8 +168,13 @@ public:
      *          from the beginning of chars. This value is valid, even if the
      *          glyphs parameter is NULL.
      */
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
+#else
+    int charsToGlyphs(const void* chars, size_t byteLength, Encoding encoding,
+                      SkGlyphID glyphs[], int glyphCount) const;
+#endif  // SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 
     /**
      *  Return the number of glyphs in the typeface.
@@ -343,8 +349,13 @@ protected:
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
     virtual int onCharsToGlyphs(const void* chars, Encoding, SkGlyphID glyphs[],
                                 int glyphCount) const = 0;
+#else
+    virtual int onCharsToGlyphs(const void* chars, size_t, Encoding, SkGlyphID glyphs[],
+                                int glyphCount) const = 0;
+#endif
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;

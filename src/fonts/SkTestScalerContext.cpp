@@ -170,6 +170,7 @@ void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
     *isLocal = false;
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                             uint16_t glyphs[], int glyphCount) const {
     SkASSERT(encoding == kUTF16_Encoding);
@@ -179,6 +180,18 @@ int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
     }
     return glyphCount;
 }
+#else
+int SkTestTypeface::onCharsToGlyphs(const void* chars, size_t len, Encoding encoding,
+                                    uint16_t glyphs[], int glyphCount) const {
+    SkASSERT(encoding == kUTF16_Encoding);
+    int count = SkTMin(glyphCount, SkToInt(len / sizeof(uint16_t)));
+    for (int index = 0; index < count; ++index) {
+        SkUnichar ch = ((SkUnichar*) chars)[index];
+        glyphs[index] = fTestFont->codeToIndex(ch);
+    }
+    return count;
+}
+#endif  // SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 
 void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
     *familyName = fTestFont->fName;
@@ -213,8 +226,13 @@ protected:
 
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         uint16_t glyph;
+        #ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
         (void) this->getTestTypeface()->onCharsToGlyphs((const void *) &uni,
                                                         SkTypeface::kUTF16_Encoding, &glyph, 1);
+        #else
+        (void)this->getTestTypeface()->onCharsToGlyphs((const void *) &uni, sizeof(SkUnichar),
+                                                        SkTypeface::kUTF16_Encoding, &glyph, 1);
+        #endif
         return glyph;
     }
 
