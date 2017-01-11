@@ -59,6 +59,12 @@ static int find_first_zero(const uint16_t glyphs[], int count) {
     return count;
 }
 
+template <typename T> size_t generic_strlen(const void* ptr) {
+    const T* tPtr = reinterpret_cast<const T*>(ptr);
+    while (*tPtr++) {}
+    return (tPtr - reinterpret_cast<const T*>(ptr)) * sizeof(T);
+}
+
 DEF_TEST(Paint_cmap, reporter) {
     // need to implement charsToGlyphs on other backends (e.g. linux, win)
     // before we can run this tests everywhere
@@ -72,10 +78,11 @@ DEF_TEST(Paint_cmap, reporter) {
     static const struct {
         size_t (*fSeedTextProc)(const SkUnichar[], void* dst, int count);
         SkPaint::TextEncoding   fEncoding;
+        size_t (*fStrlen)(const void*);
     } gRec[] = {
-        { uni_to_utf8,  SkPaint::kUTF8_TextEncoding },
-        { uni_to_utf16, SkPaint::kUTF16_TextEncoding },
-        { uni_to_utf32, SkPaint::kUTF32_TextEncoding },
+        { uni_to_utf8,  SkPaint::kUTF8_TextEncoding,  generic_strlen<char>     },
+        { uni_to_utf16, SkPaint::kUTF16_TextEncoding, generic_strlen<uint16_t> },
+        { uni_to_utf32, SkPaint::kUTF32_TextEncoding, generic_strlen<uint32_t> },
     };
 
     SkRandom rand;
@@ -100,7 +107,13 @@ DEF_TEST(Paint_cmap, reporter) {
 
             bool contains = paint.containsText(dst, len);
             int nglyphs = paint.textToGlyphs(dst, len, glyphs0);
-            int first = face->charsToGlyphs(dst, paint2encoding(paint), glyphs1, NGLYPHS);
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
+            int first = face->charsToGlyphs(dst,
+                                            paint2encoding(paint), glyphs1, NGLYPHS);
+#else
+            SkText text{dst, gRec[k].fStrlen(dst), (SkTextEncoding)paint2encoding(paint)};
+            int first = face->charsToGlyphs(text, glyphs1, NGLYPHS);
+#endif
             int index = find_first_zero(glyphs1, NGLYPHS);
 
             REPORTER_ASSERT(reporter, NGLYPHS == nglyphs);
