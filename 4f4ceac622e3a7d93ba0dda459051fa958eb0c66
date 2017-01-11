@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_ce2bb6ac",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-11T14:18:05Z",
+      "side": 1,
+      "message": "Any reason for this to be here and not in SkAutoMalloc.h? I know \u0027free\u0027 doesn\u0027t actually do any malloc-ing, but it does logically belong to the *alloc family of functions. Note that in src/ports the files are named like SkMemory_port.cpp, so if the name is an issue, maybe SkAutoMemory.h (not that it needs to be)? This is probably more in line with the standard \u003cmemory\u003e include naming as well.\n\nAlso, SkAutoFree isn\u0027t actually templated itself, so it seems rather strange to put it here. Also, this file is kinda a generic \u0027utils\u0027 sytle dumping ground, if we have a better place to put things I\u0027d rather they go there (it\u0027s one of the reasons this file was made private to begin with, so that we could eventually re-organize it).",
+      "range": {
+        "startLine": 465,
+        "startChar": 0,
+        "endLine": 465,
+        "endChar": 81
+      },
+      "revId": "4f4ceac622e3a7d93ba0dda459051fa958eb0c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_ee2c7ac9",
+        "filename": "src/core/SkAutoMalloc.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-11T14:18:05Z",
+      "side": 1,
+      "message": "Isn\u0027t this the same type as SkAutoFree? Since this is being re-written here anyway, why not use SkAutoFree?",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 35
+      },
+      "revId": "4f4ceac622e3a7d93ba0dda459051fa958eb0c66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
