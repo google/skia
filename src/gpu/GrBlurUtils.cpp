@@ -46,9 +46,9 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     SkMatrix matrix;
     matrix.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     // TODO: this divide relies on the instantiated texture's size!
-    matrix.postIDiv(maskTex->width(), maskTex->height());
+//    matrix.postIDiv(maskTex->width(), maskTex->height());
     matrix.preConcat(viewMatrix);
-    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(maskTex, nullptr, matrix));
+    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(maskTex, nullptr, matrix, true)); //$$
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {

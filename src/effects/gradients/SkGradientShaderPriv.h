@@ -330,12 +330,14 @@ public:
         CreateArgs(GrContext* context,
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
+                   bool bFoo,
                    SkShader::TileMode tileMode,
                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                    bool gammaCorrect)
             : fContext(context)
             , fShader(shader)
             , fMatrix(matrix)
+            , fFoo(bFoo)
             , fTileMode(tileMode)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fGammaCorrect(gammaCorrect) {}
@@ -343,6 +345,7 @@ public:
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
+        bool                        fFoo;
         SkShader::TileMode          fTileMode;
         sk_sp<GrColorSpaceXform>    fColorSpaceXform;
         bool                        fGammaCorrect;

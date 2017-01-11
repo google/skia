@@ -130,7 +130,7 @@ protected:
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
         GrTexture* texture,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
-        const SkMatrix& textureMatrix,
+        const SkMatrix& textureMatrix, bool bFoo,
         DomainMode domainMode,
         const SkRect& domain,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic);

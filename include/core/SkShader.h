@@ -341,17 +341,20 @@ public:
         AsFPArgs(GrContext* context,
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
+                 bool bFoo,
                  SkFilterQuality filterQuality,
                  SkColorSpace* dstColorSpace)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
+            , fFoo(bFoo)
             , fFilterQuality(filterQuality)
             , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                    fContext;
         const SkMatrix*               fViewMatrix;
         const SkMatrix*               fLocalMatrix;
+        bool                          fFoo;
         SkFilterQuality               fFilterQuality;
         SkColorSpace*                 fDstColorSpace;
     };
