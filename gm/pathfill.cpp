@@ -140,6 +140,49 @@ static SkScalar make_line(SkPath* path) {
     return SkIntToScalar(40);
 }
 
+static SkScalar make_info(SkPath* path) {
+    path->moveTo(24, 4);
+    path->cubicTo(12.94999980926514f,
+                  4,
+                  4,
+                  12.94999980926514f,
+                  4,
+                  24);
+    path->cubicTo(4,
+                  35.04999923706055f,
+                  12.94999980926514f,
+                  44,
+                  24,
+                  44);
+    path->cubicTo(35.04999923706055f,
+                  44,
+                  44,
+                  35.04999923706055f,
+                  44,
+                  24);
+    path->cubicTo(44,
+                  12.95000076293945f,
+                  35.04999923706055f,
+                  4,
+                  24,
+                  4);
+    path->close();
+    path->moveTo(26, 34);
+    path->lineTo(22, 34);
+    path->lineTo(22, 22);
+    path->lineTo(26, 22);
+    path->lineTo(26, 34);
+    path->close();
+    path->moveTo(26, 18);
+    path->lineTo(22, 18);
+    path->lineTo(22, 14);
+    path->lineTo(26, 14);
+    path->lineTo(26, 18);
+    path->close();
+
+    return SkIntToScalar(44);
+}
+
 constexpr MakePathProc gProcs[] = {
     make_frame,
     make_triangle,
@@ -158,11 +201,14 @@ constexpr MakePathProc gProcs[] = {
 class PathFillGM : public skiagm::GM {
     SkPath  fPath[N];
     SkScalar fDY[N];
+    SkPath  fInfoPath;
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {
             fDY[i] = gProcs[i](&fPath[i]);
         }
+
+        (void) make_info(&fInfoPath);
     }
 
 
@@ -182,6 +228,10 @@ protected:
             canvas->drawPath(fPath[i], paint);
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
+
+        canvas->scale(0.300000011920929f, 0.300000011920929f);
+        canvas->translate(50, 50);
+        canvas->drawPath(fInfoPath, paint);
     }
 
 private:
