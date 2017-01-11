@@ -74,9 +74,16 @@ static EncodingProc find_encoding_proc(SkTypeface::Encoding enc) {
     return gProcs[enc];
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_CHARS_TO_GLYPHS
 int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                         uint16_t glyphs[], int glyphCount) const
 {
+#else
+int DWriteFontTypeface::onCharsToGlyphs(SkEncodedText text, uint16_t glyphs[], int glyphCount) const
+{
+    const void* chars = text.fText;
+    Encoding encoding = (Encoding)text.fEncoding;
+#endif
     if (nullptr == glyphs) {
         EncodingProc next_ucs4_proc = find_encoding_proc(encoding);
         for (int i = 0; i < glyphCount; ++i) {
