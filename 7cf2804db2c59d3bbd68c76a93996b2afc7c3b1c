@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_4c86ee00",
+        "filename": "src/core/SkImageInfo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-11T20:46:09Z",
+      "side": 1,
+      "message": "I could be convinced to remove this...  we do have a functioning version of gray-\u003e32-bit.\n\nMy preference is to remove it, and then if we (or clients) decide that it is wanted, we can add it back with an understanding of color spaces and with full support for gray-\u003e565, gray-\u003e4444 etc.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 5
+      },
+      "revId": "7cf2804db2c59d3bbd68c76a93996b2afc7c3b1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
