@@ -52,7 +52,7 @@ public:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };
 
-    SkSpecialImage* get(const Key& key, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> get(const Key& key, SkIPoint* offset) const override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             *offset = v->fOffset;
@@ -60,7 +60,7 @@ public:
                 fLRU.remove(v);
                 fLRU.addToHead(v);
             }
-            return v->fImage.get();
+            return v->fImage;
         }
         return nullptr;
     }
