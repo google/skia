@@ -12,9 +12,11 @@ import sys
 host, serial, stamp = sys.argv[1:]
 device = '/data/local/tmp/' + os.path.basename(host)
 
+restrict = [] if serial == 'auto' else ['-s', serial]
+
 # adb push is verbose, so eat its output with check_output().
-subprocess.check_output(['adb', '-s', serial, 'push', host, device])
-subprocess.check_call(['adb', '-s', serial, 'shell', 'chmod', '+x', device])
+subprocess.check_output(['adb'] + restrict + ['push', host, device])
+subprocess.check_call(['adb'] + restrict + ['shell', 'chmod', '+x', device])
 
 # Touch a file to let GN/Ninja know we succeeded.
 with open(stamp, 'w'):
