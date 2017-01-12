@@ -25,21 +25,35 @@ subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'aarch64.o'])
 
-def parse_object_file(dot_o, array_type, done):
-  for line in subprocess.check_output(['gobjdump', '-d', dot_o]).split('\n'):
+armv7 = [
+    '--target=arm-linux-androideabi',
+    '--sysroot=' +
+    '/Users/mtklein/brew/opt/android-ndk/platforms/android-18/arch-arm',
+    '-march=armv7-a',
+    '-mfpu=neon-vfpv4',
+]
+subprocess.check_call(['clang++'] + cflags + armv7 +
+                      ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
+                      ['-o', 'armv7.o'])
+
+def parse_object_file(dot_o, array_type, done, target=None):
+  cmd = ['gobjdump', '-d', dot_o]
+  if target:
+    cmd += ['--target', target]
+  for line in subprocess.check_output(cmd).split('\n'):
     line = line.strip()
     if not line or line.startswith(dot_o) or line.startswith('Disassembly'):
       continue
 
     # E.g. 00000000000003a4 <_load_f16>:
-    m = re.match('''................ <_?(.*)>:''', line)
+    m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print 'static const', array_type, 'kSplice_' + m.group(1) + '[] = {'
       continue
 
     columns = line.split('\t')
     code = columns[1]
-    if len(columns) == 4:
+    if len(columns) >= 4:
       inst = columns[2]
       args = columns[3]
     else:
@@ -74,6 +88,9 @@ print '''/*
 #if defined(__aarch64__)
 '''
 parse_object_file('aarch64.o', 'unsigned int', '14000000')
+print '\n#elif defined(__ARM_NEON__)\n'
+parse_object_file('armv7.o', 'unsigned int', 'eafffffe',
+                  target='elf32-littlearm')
 print '\n#else\n'
 parse_object_file('hsw.o', 'unsigned char', 'e9 00 00 00 00')
 print '\n#endif\n'

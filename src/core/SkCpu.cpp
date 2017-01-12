@@ -8,6 +8,10 @@
 #include "SkCpu.h"
 #include "SkOnce.h"
 
+#if !defined(__has_include)
+    #define __has_include(x) 0
+#endif
+
 #if defined(SK_CPU_X86)
     #if defined(SK_BUILD_FOR_WIN32)
         #include <intrin.h>
@@ -66,6 +70,32 @@
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
         if (hwcaps & HWCAP_CRC32) { features |= SkCpu::CRC32; }
+        return features;
+    }
+
+#elif defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID) && \
+    __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
+    // asm/hwcap.h and sys/auxv.h won't be present on builds targeting NDK APIs before 21.
+    #include <asm/hwcap.h>
+    #include <sys/auxv.h>
+
+    static uint32_t read_cpu_features() {
+        uint32_t features = 0;
+        uint32_t hwcaps = getauxval(AT_HWCAP);
+        if (hwcaps & HWCAP_VFPv4) { features |= SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
+        return features;
+    }
+
+#elif defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID) && \
+    !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    #include <cpu-features.h>
+
+    static uint32_t read_cpu_features() {
+        uint32_t features = 0;
+        uint64_t cpu_features = android_getCpuFeatures();
+        if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON)     { features |= SkCpu::NEON; }
+        if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) { features |= SkCpu::NEON_FMA; }
+        if (cpu_features & ANDROID_CPU_ARM_FEATURE_VFP_FP16) { features |= SkCpu::VFP_FP16; }
         return features;
     }
 

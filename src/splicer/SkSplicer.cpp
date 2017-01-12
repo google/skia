@@ -27,7 +27,10 @@
 //   $ ./iaca.sh -arch HSW -64 -mark 0 /tmp/dump.bin | less
 //
 // To disassemble an aarch64 dump,
-//   $ gobjdump -b binary -m aarch64 -D dump.bin
+//   $ gobjdump -b binary -D dump.bin -m aarch64
+//
+// To disassemble an armv7 dump,
+//   $ gobjdump -b binary -D dump.bin -m arm
 
 namespace {
 
@@ -65,6 +68,28 @@ namespace {
     }
     static void ret(SkWStream* buf) {
         splice(buf, 0xd65f03c0);  // ret
+    }
+#elif defined(__ARM_NEON__)
+    static constexpr int kStride = 2;
+    static void set_ctx(SkWStream* buf, void* ctx) {
+        uint16_t parts[2];
+        auto encode = [](uint16_t part) -> uint32_t {
+            return (part & 0xf000) << 4 | (part & 0xfff);
+        };
+        memcpy(parts, &ctx, 4);
+        splice(buf, 0xe3002000 | encode(parts[0]));  // mov  r2, <bottom 16 bits>
+        splice(buf, 0xe3402000 | encode(parts[1]));  // movt r2,    <top 16 bits>
+    }
+    static void loop(SkWStream* buf, int loop_start) {
+        splice(buf, 0xe2800002);  // add r0, r0, #2
+        splice(buf, 0xe1500001);  // cmp r0, r1
+        int off = loop_start - ((int)buf->bytesWritten() + 8 /*ARM is weird*/);
+        off /= 4;   // bytes -> instructions, still signed
+        off = (off & 0x00ffffff);
+        splice(buf,  0x3a000000 | off);  // bcc loop_start
+    }
+    static void ret(SkWStream* buf) {
+        splice(buf, 0xe12fff1e);  // bx lr
     }
 #else
     static constexpr int kStride = 8;
@@ -132,7 +157,7 @@ namespace {
         };
         splice(buf, system_v_to_ms);
     }
-#elif !defined(__aarch64__) && defined(DUMP)
+#elif !defined(__aarch64__) && !defined(__ARM_NEON__) && defined(DUMP)
     // IACA start and end markers.
     static const uint8_t      ud2[] = { 0x0f, 0x0b };         // undefined... crashes when run
     static const uint8_t     nop3[] = { 0x64, 0x67, 0x90 };   // 3 byte no-op
@@ -222,8 +247,14 @@ namespace {
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
-        #if !defined(__aarch64__)
-            // To keep things simple, only one target supported: Haswell+ x86-64.
+        #if defined(__aarch64__)
+        #elif defined(__ARM_NEON__)
+            // Late generation ARMv7, e.g. Cortex A15 or Krait.
+            if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
+                return;
+            }
+        #else
+            // To keep things simple, only one x86 target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
