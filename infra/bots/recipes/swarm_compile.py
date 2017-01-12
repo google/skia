@@ -7,15 +7,10 @@
 
 
 DEPS = [
-  'core',
-  'recipe_engine/json',
+  'compile',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
-  'recipe_engine/python',
-  'flavor',
-  'run',
-  'vars',
 ]
 
 
@@ -56,75 +51,8 @@ TEST_BUILDERS = {
 }
 
 
-def build_targets_from_builder_dict(builder_dict):
-  """Return a list of targets to build, depending on the builder type."""
-  if builder_dict.get('extra_config') == 'iOS':
-    return ['iOSShell']
-  return ['most']
-
-
-def get_extra_env_vars(builder_dict):
-  env = {}
-  if builder_dict.get('compiler') == 'Clang':
-    env['CC'] = '/usr/bin/clang'
-    env['CXX'] = '/usr/bin/clang++'
-
-  # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
-  extra_config = builder_dict.get('extra_config', '')
-  if extra_config.startswith('SK') and extra_config.isupper():
-    env['CPPFLAGS'] = '-D' + extra_config
-
-  return env
-
-
-def get_gyp_defines(builder_dict):
-  gyp_defs = {}
-
-  if (builder_dict.get('os') == 'iOS' or
-      builder_dict.get('extra_config') == 'iOS'):
-    gyp_defs['skia_arch_type']  = 'arm'
-    gyp_defs['skia_clang_build'] = '1'
-    gyp_defs['skia_os'] = 'ios'
-    gyp_defs['skia_warnings_as_errors'] = 1
-
-  return gyp_defs
-
-
 def RunSteps(api):
-  api.core.setup()
-
-  env = get_extra_env_vars(api.vars.builder_cfg)
-  gyp_defs = get_gyp_defines(api.vars.builder_cfg)
-  gyp_defs_list = ['%s=%s' % (k, v) for k, v in gyp_defs.iteritems()]
-  gyp_defs_list.sort()
-  env['GYP_DEFINES'] = ' '.join(gyp_defs_list)
-
-  build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
-
-  try:
-    for target in build_targets:
-      api.flavor.compile(target, env=env)
-    api.run.copy_build_products(
-        api.flavor.out_dir,
-        api.vars.swarming_out_dir.join(
-            'out', api.vars.configuration))
-    api.flavor.copy_extra_build_products(api.vars.swarming_out_dir)
-  finally:
-    if 'Win' in api.vars.builder_cfg.get('os', ''):
-      api.python.inline(
-          name='cleanup',
-          program='''import psutil
-for p in psutil.process_iter():
-  try:
-    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):
-      p.kill()
-  except psutil._error.AccessDenied:
-    pass
-''',
-          infra_step=True)
-
-  api.flavor.cleanup_steps()
-  api.run.check_failure()
+  api.compile.run()
 
 
 def GenTests(api):
