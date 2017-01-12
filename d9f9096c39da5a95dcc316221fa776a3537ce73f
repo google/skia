@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "578ed681_cc72de89",
+        "filename": "gm/thinconcavepaths.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-12T02:16:50Z",
+      "side": 1,
+      "message": "Could this use DEF_SIMPLE_GM?",
+      "revId": "d9f9096c39da5a95dcc316221fa776a3537ce73f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
