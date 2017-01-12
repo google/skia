@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_53123cd2",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-12T21:50:55Z",
+      "side": 1,
+      "message": "Delete these two lines (this is handled by the loop below?)",
+      "range": {
+        "startLine": 1450,
+        "startChar": 0,
+        "endLine": 1452,
+        "endChar": 0
+      },
+      "revId": "67b9c683f4e47993946c39f7cb92f8cd6aab6f4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
