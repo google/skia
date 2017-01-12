@@ -15,7 +15,7 @@
 // We have very specific inlining requirements.  It helps to just take total control.
 #define AI __attribute__((always_inline)) inline
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__ARM_NEON__)
     #include <arm_neon.h>
 
     // Since we know we're using Clang, we can use its vector extensions.
@@ -25,13 +25,19 @@
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v);       }
     AI static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     AI static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
     AI static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
     AI static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     AI static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
+    AI static U32 round(F v) {
+    #if defined(__aarch64__)
+        return vcvtnq_u32_f32(v);
+    #else
+        return vcvtq_u32_f32(v);  // TODO: this truncates; actually round.
+    #endif
+    }
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -44,13 +50,13 @@
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    AI static U32 round(F v)                    { return _mm256_cvtps_epi32(v); }
     AI static F   min(F a, F b)                 { return _mm256_min_ps  (a,b);  }
     AI static F   max(F a, F b)                 { return _mm256_max_ps  (a,b);  }
     AI static F   fma(F f, F m, F a)            { return _mm256_fmadd_ps(f,m,a);}
     AI static F   rcp  (F v)                    { return _mm256_rcp_ps     (v); }
     AI static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
     AI static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+    AI static U32 round(F v)                    { return _mm256_cvtps_epi32(v); }
 #endif
 
 AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
@@ -58,7 +64,11 @@ AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
-#define C extern "C"
+#if defined(__ARM_NEON__)
+    #define C extern "C" __attribute__((pcs("aapcs-vfp")))
+#else
+    #define C extern "C"
+#endif
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using K = const SkSplicer_constants;
@@ -250,7 +260,7 @@ STAGE(store_8888) {
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__ARM_NEON__)
     auto halfs = vld4_f16((const float16_t*)ptr);
     r = vcvt_f32_f16(halfs.val[0]);
     g = vcvt_f32_f16(halfs.val[1]);
@@ -282,7 +292,7 @@ STAGE(load_f16) {
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__ARM_NEON__)
     float16x4x4_t halfs = {{
         vcvt_f16_f32(r),
         vcvt_f16_f32(g),
