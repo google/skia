@@ -327,7 +327,6 @@ BASE_HDRS = struct(
     ],
     exclude = PRIVATE_HDRS_INCLUDE_LIST + [
         # Not used.
-        "include/animator/**/*",
         "include/views/**/*",
     ],
 )
