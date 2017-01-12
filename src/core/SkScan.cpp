@@ -16,8 +16,6 @@
     std::atomic<bool> gSkUseAnalyticAA{true};
 #endif
 
-std::atomic<bool> gSkForceAnalyticAA{false};
-
 static inline void blitrect(SkBlitter* blitter, const SkIRect& r) {
     blitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());
 }
