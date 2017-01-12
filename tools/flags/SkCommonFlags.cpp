@@ -68,6 +68,10 @@ DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehe
 
 DEFINE_bool(analyticAA, true, "If false, disable analytic anti-aliasing");
 
+DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the path is complicated: "
+                                    "whether it's concave or convex, we consider a path complicated"
+                                    "if its number of points is comparable to its resolution.");
+
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
 
