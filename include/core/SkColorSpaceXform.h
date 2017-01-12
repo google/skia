@@ -27,8 +27,12 @@ public:
     enum ColorFormat {
         kRGBA_8888_ColorFormat,
         kBGRA_8888_ColorFormat,
-        kRGBA_F16_ColorFormat,
-        kRGBA_F32_ColorFormat,
+
+        // Unsigned, big-endian, 16-bit integer
+        kRGBA_U16_BE_ColorFormat,  // Src only
+
+        kRGBA_F16_ColorFormat,     // Dst only
+        kRGBA_F32_ColorFormat,     // Dst only
     };
 
     /**
@@ -42,7 +46,6 @@ public:
      *  @param len            Number of pixels in the buffers
      *  @param dstColorFormat Describes color format of |dst|
      *  @param srcColorFormat Describes color format of |src|
-     *                        Must be kRGBA_8888 or kBGRA_8888
      *  @param alphaType      Describes alpha properties of the |dst| (and |src|)
      *                        kUnpremul preserves input alpha values
      *                        kPremul   performs a premultiplication and also preserves alpha values
