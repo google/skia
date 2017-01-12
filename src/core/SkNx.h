@@ -8,10 +8,10 @@
 #ifndef SkNx_DEFINED
 #define SkNx_DEFINED
 
-#include "SkSafe_math.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 #include <limits>
+#include <math.h>
 #include <type_traits>
 
 // Every single SkNx method wants to be fully inlined.  (We know better than MSVC).
