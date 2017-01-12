@@ -92,7 +92,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
     : fCircle(circle)
     , fSolidRadius(solidRadius)
     , fTextureRadius(textureRadius)
-    , fBlurProfileSampler(blurProfile, GrSamplerParams::kBilerp_FilterMode) {
+    , fBlurProfileSampler(blurProfile, GrSamplerParams::FilterMode::kBilerp_FilterMode) {
     this->initClassID<GrCircleBlurFragmentProcessor>();
     this->addTextureSampler(&fBlurProfileSampler);
     this->setWillReadFragmentPosition();

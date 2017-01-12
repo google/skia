@@ -89,7 +89,7 @@ protected:
         }
 
         SkTArray<SkMatrix> textureMatrices;
-        textureMatrices.push_back().setIDiv(texture->width(), texture->height());
+        textureMatrices.push_back() = SkMatrix::I(); //.setIDiv(texture->width(), texture->height());
         textureMatrices.push_back() = textureMatrices[0];
         textureMatrices.back().postScale(1.5f, 0.85f);
         textureMatrices.push_back() = textureMatrices[0];
@@ -116,9 +116,9 @@ protected:
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(
-                                   texture.get(), nullptr, textureMatrices[tm],
+                                   texture.get(), nullptr, textureMatrices[tm], true,
                                    GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode),
-                                   mode, GrSamplerParams::kNone_FilterMode));
+                                   mode, GrSamplerParams::FilterMode::kNone_FilterMode));
 
                     if (!fp) {
                         continue;

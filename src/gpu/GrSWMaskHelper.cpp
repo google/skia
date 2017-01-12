@@ -177,8 +177,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
     // matrix to normalized coords.
     SkMatrix maskMatrix;
-    maskMatrix.setIDiv(texture->width(), texture->height());
-    maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
+//    maskMatrix.setIDiv(texture->width(), texture->height());
+    maskMatrix.setTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                             SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
@@ -188,7 +188,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     pipelineBuilder.addCoverageFragmentProcessor(
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
-                                                     maskMatrix,
-                                                     GrSamplerParams::kNone_FilterMode));
+                                                     maskMatrix, true,
+                                                     GrSamplerParams::FilterMode::kNone_FilterMode)); //$$
+
     renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 }

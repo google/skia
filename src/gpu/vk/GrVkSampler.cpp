@@ -40,8 +40,8 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& para
     createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     createInfo.pNext = 0;
     createInfo.flags = 0;
-    createInfo.magFilter = vkMagFilterModes[params.filterMode()];
-    createInfo.minFilter = vkMinFilterModes[params.filterMode()];
+    createInfo.magFilter = vkMagFilterModes[(int)params.filterMode()];
+    createInfo.minFilter = vkMinFilterModes[(int)params.filterMode()];
     createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     createInfo.addressModeU = tile_to_vk_sampler_address(params.getTileModeX());
     createInfo.addressModeV = tile_to_vk_sampler_address(params.getTileModeY());
@@ -57,7 +57,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& para
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = GrSamplerParams::kMipMap_FilterMode == params.filterMode() && mipLevels > 1;
+    bool useMipMaps = GrSamplerParams::FilterMode::kMipMap_FilterMode == params.filterMode() && mipLevels > 1;
     createInfo.maxLod = !useMipMaps ? 0.0f : (float)(mipLevels);
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;
@@ -81,9 +81,9 @@ uint16_t GrVkSampler::GenerateKey(const GrSamplerParams& params, uint32_t mipLev
     const int kTileModeYShift = 4;
     const int kMipLevelShift = 6;
 
-    uint16_t key = params.filterMode();
+    uint16_t key = (int) params.filterMode();
 
-    SkASSERT(params.filterMode() <= 3);
+    SkASSERT(((int)params.filterMode()) <= 3);
     key |= (params.getTileModeX() << kTileModeXShift);
 
     GR_STATIC_ASSERT(SkShader::kTileModeCount <= 4);

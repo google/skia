@@ -166,8 +166,8 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
-                                                             : GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::FilterMode::kBilerp_FilterMode
+                                                             : GrSamplerParams::FilterMode::kNone_FilterMode);
 
     GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {

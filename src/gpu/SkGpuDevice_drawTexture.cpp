@@ -181,7 +181,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
     // Check for optimization to drop the src rect constraint when on bilerp.
-    if (filterMode && GrSamplerParams::kBilerp_FilterMode == *filterMode &&
+    if (filterMode && GrSamplerParams::FilterMode::kBilerp_FilterMode == *filterMode &&
         GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(viewMatrix, srcToDstMatrix);

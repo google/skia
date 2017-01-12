@@ -81,10 +81,10 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode :
-                                                               GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::FilterMode::kBilerp_FilterMode :
+                                                               GrSamplerParams::FilterMode::kNone_FilterMode);
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix, true); //$$
 }

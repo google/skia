@@ -22,17 +22,17 @@ namespace {
 static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW, int dstH,
                             SkYUVColorSpace colorSpace, MakeFPProc proc) {
 
-    SkScalar xScale = SkIntToScalar(src->width()) / dstW / src->width();
-    SkScalar yScale = SkIntToScalar(src->height()) / dstH / src->height();
+    SkScalar xScale = SkIntToScalar(src->width()) / dstW; // / src->width();
+    SkScalar yScale = SkIntToScalar(src->height()) / dstH; // / src->height();
     GrSamplerParams::FilterMode filter;
     if (dstW == src->width() && dstW == src->height()) {
-        filter = GrSamplerParams::kNone_FilterMode;
+        filter = GrSamplerParams::FilterMode::kNone_FilterMode;
     } else {
-        filter = GrSamplerParams::kBilerp_FilterMode;
+        filter = GrSamplerParams::FilterMode::kBilerp_FilterMode;
     }
 
     sk_sp<GrFragmentProcessor> fp(
-            GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::MakeScale(xScale, yScale), filter));
+            GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::MakeScale(xScale, yScale), true, filter)); //$$
     if (!fp) {
         return false;
     }

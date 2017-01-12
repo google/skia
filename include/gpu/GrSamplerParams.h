@@ -21,7 +21,7 @@ public:
         return gParams;
     }
     static const GrSamplerParams& ClampBilerp() {
-        static const GrSamplerParams gParams(SkShader::kClamp_TileMode, kBilerp_FilterMode);
+        static const GrSamplerParams gParams(SkShader::kClamp_TileMode, FilterMode::kBilerp_FilterMode);
         return gParams;
     }
 
@@ -29,7 +29,7 @@ public:
         this->reset();
     }
 
-    enum FilterMode {
+    enum class FilterMode {
         kNone_FilterMode,
         kBilerp_FilterMode,
         kMipMap_FilterMode
@@ -55,7 +55,7 @@ public:
     }
 
     void reset() {
-        this->reset(SkShader::kClamp_TileMode, kNone_FilterMode);
+        this->reset(SkShader::kClamp_TileMode, FilterMode::kNone_FilterMode);
     }
 
     void reset(SkShader::TileMode tileXAndY, FilterMode filterMode) {
@@ -71,7 +71,7 @@ public:
 
     void setClampNoFilter() {
         fTileModes[0] = fTileModes[1] = SkShader::kClamp_TileMode;
-        fFilterMode = kNone_FilterMode;
+        fFilterMode = FilterMode::kNone_FilterMode;
     }
 
     void setClamp() {

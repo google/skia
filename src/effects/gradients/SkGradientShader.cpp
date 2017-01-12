@@ -1616,7 +1616,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fPremulType = kAfterInterp_PremulType;
             }
 
-            fCoordTransform.reset(*args.fMatrix);
+            fCoordTransform.reset2(*args.fMatrix, args.fFoo);
 
             break;
         case kTexture_ColorType:
@@ -1653,20 +1653,20 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
             // We always filter the gradient table. Each table is one row of a texture, always
             // y-clamp.
             GrSamplerParams params;
-            params.setFilterMode(GrSamplerParams::kBilerp_FilterMode);
+            params.setFilterMode(GrSamplerParams::FilterMode::kBilerp_FilterMode);
             params.setTileModeX(args.fTileMode);
 
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
-                fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
+                fCoordTransform.reset1(*args.fMatrix, args.fFoo, fAtlas->getTexture(), params.filterMode());
                 fTextureSampler.reset(fAtlas->getTexture(), params);
             } else {
                 sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(args.fContext, bitmap, params));
                 if (!texture) {
                     return;
                 }
-                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
+                fCoordTransform.reset1(*args.fMatrix, args.fFoo, texture.get(), params.filterMode());
                 fTextureSampler.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }

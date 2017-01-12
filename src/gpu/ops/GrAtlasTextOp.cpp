@@ -95,7 +95,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
         flushInfo.fGeometryProcessor =
                 this->setupDfProcessor(this->viewMatrix(), fFilteredColor, this->color(), texture);
     } else {
-        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kNone_FilterMode);
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                 this->color(), texture, params, maskFormat, localMatrix, this->usesLocalCoords());
     }
@@ -234,7 +234,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                                                            SkColor filteredColor,
                                                            GrColor color,
                                                            GrTexture* texture) const {
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
+    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kBilerp_FilterMode);
     bool isLCD = this->isLCD();
     // set up any flags
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;

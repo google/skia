@@ -209,7 +209,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
-    : fColorCubeSampler(colorCube, GrSamplerParams::kBilerp_FilterMode) {
+    : fColorCubeSampler(colorCube, GrSamplerParams::FilterMode::kBilerp_FilterMode) {
     this->initClassID<GrColorCubeEffect>();
     this->addTextureSampler(&fColorCubeSampler);
 }

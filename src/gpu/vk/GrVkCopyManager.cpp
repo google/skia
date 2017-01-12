@@ -244,7 +244,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     const GrVkDescriptorSet* samplerDS =
         gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
 
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kNone_FilterMode);
 
     GrVkSampler* sampler =
         resourceProv.findOrCreateCompatibleSampler(params, srcTex->texturePriv().maxMipMapLevel());

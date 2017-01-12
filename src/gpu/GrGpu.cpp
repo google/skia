@@ -65,13 +65,13 @@ bool GrGpu::makeCopyForTextureParams(int width, int height, const GrSamplerParam
         copyParams->fWidth = GrNextPow2(width);
         copyParams->fHeight = GrNextPow2(height);
         switch (textureParams.filterMode()) {
-            case GrSamplerParams::kNone_FilterMode:
-                copyParams->fFilter = GrSamplerParams::kNone_FilterMode;
+            case GrSamplerParams::FilterMode::kNone_FilterMode:
+                copyParams->fFilter = GrSamplerParams::FilterMode::kNone_FilterMode;
                 break;
-            case GrSamplerParams::kBilerp_FilterMode:
-            case GrSamplerParams::kMipMap_FilterMode:
+            case GrSamplerParams::FilterMode::kBilerp_FilterMode:
+            case GrSamplerParams::FilterMode::kMipMap_FilterMode:
                 // We are only ever scaling up so no reason to ever indicate kMipMap.
-                copyParams->fFilter = GrSamplerParams::kBilerp_FilterMode;
+                copyParams->fFilter = GrSamplerParams::FilterMode::kBilerp_FilterMode;
                 break;
         }
         return true;

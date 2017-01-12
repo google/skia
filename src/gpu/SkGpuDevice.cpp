@@ -822,7 +822,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     int tileFilterPad;
     if (doBicubic) {
         tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-    } else if (GrSamplerParams::kNone_FilterMode == textureFilterMode) {
+    } else if (GrSamplerParams::FilterMode::kNone_FilterMode == textureFilterMode) {
         tileFilterPad = 0;
     } else {
         tileFilterPad = 1;
@@ -875,7 +875,7 @@ void SkGpuDevice::drawBitmap(const SkDraw& origDraw,
 
         if (doBicubic) {
             tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-        } else if (GrSamplerParams::kNone_FilterMode == textureFilterMode) {
+        } else if (GrSamplerParams::FilterMode::kNone_FilterMode == textureFilterMode) {
             tileFilterPad = 0;
         } else {
             tileFilterPad = 1;
@@ -989,7 +989,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             SkRect rectToDraw = SkRect::MakeXYWH(offset.fX, offset.fY,
                                                  tileR.width(), tileR.height());
             dstMatrix.mapRect(&rectToDraw);
-            if (GrSamplerParams::kNone_FilterMode != params.filterMode() || bicubic) {
+            if (GrSamplerParams::FilterMode::kNone_FilterMode != params.filterMode() || bicubic) {
                 SkIRect iClampRect;
 
                 if (SkCanvas::kFast_SrcRectConstraint == constraint) {
@@ -1050,13 +1050,13 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
 
-    SkScalar iw = 1.f / texture->width();
-    SkScalar ih = 1.f / texture->height();
+//    SkScalar iw = 1.f / texture->width();
+//    SkScalar ih = 1.f / texture->height();
 
     SkMatrix texMatrix;
     // Compute a matrix that maps the rect we will draw to the src rect.
     texMatrix.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
-    texMatrix.postScale(iw, ih);
+//    texMatrix.postScale(iw, ih);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
@@ -1078,19 +1078,19 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             domain.fTop = domain.fBottom = srcRect.centerY();
         }
         if (bicubic) {
-            fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
+            fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, true,
                                        domain);
         } else {
-            fp = GrTextureDomainEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix,
+            fp = GrTextureDomainEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, true,
                                              domain, GrTextureDomain::kClamp_Mode,
                                              params.filterMode());
         }
     } else if (bicubic) {
-        SkASSERT(GrSamplerParams::kNone_FilterMode == params.filterMode());
+        SkASSERT(GrSamplerParams::FilterMode::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, tileModes);
+        fp = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, true, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, params);
+        fp = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform), texMatrix, true, params); //$$
     }
 
     GrPaint grPaint;
@@ -1182,7 +1182,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     GrPaint grPaint;
     sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
                                                               std::move(colorSpaceXform),
-                                                              SkMatrix::I()));
+                                                              SkMatrix::I(), true)); //$$ //!!!!
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
     } else {
@@ -1202,10 +1202,10 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
             SkMatrix::I(),
             SkRect::Make(SkIRect::MakeXYWH(
                     left + offset.fX, top + offset.fY, subset.width(), subset.height())),
-            SkRect::MakeXYWH(SkIntToScalar(subset.fLeft) / texture->width(),
-                             SkIntToScalar(subset.fTop) / texture->height(),
-                             SkIntToScalar(subset.width()) / texture->width(),
-                             SkIntToScalar(subset.height()) / texture->height()));
+            SkRect::MakeXYWH(SkIntToScalar(subset.fLeft), // / texture->width(),
+                             SkIntToScalar(subset.fTop), // / texture->height(),
+                             SkIntToScalar(subset.width()), //) / texture->width(),
+                             SkIntToScalar(subset.height()))); // / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1267,7 +1267,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 
         if (doBicubic) {
             tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-        } else if (GrSamplerParams::kNone_FilterMode == textureFilterMode) {
+        } else if (GrSamplerParams::FilterMode::kNone_FilterMode == textureFilterMode) {
             tileFilterPad = 0;
         } else {
             tileFilterPad = 1;
@@ -1448,7 +1448,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
     GrSamplerParams::FilterMode textureFilterMode =
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I(),
                                         &doBicubic);
-    if (useFallback || doBicubic || GrSamplerParams::kNone_FilterMode != textureFilterMode) {
+    if (useFallback || doBicubic || GrSamplerParams::FilterMode::kNone_FilterMode != textureFilterMode) {
         SkLatticeIter iter(producer->width(), producer->height(), center, dst);
 
         SkRect srcR, dstR;
@@ -1459,7 +1459,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
         return;
     }
 
-    static const GrSamplerParams::FilterMode kMode = GrSamplerParams::kNone_FilterMode;
+    static const GrSamplerParams::FilterMode kMode = GrSamplerParams::FilterMode::kNone_FilterMode;
     sk_sp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
@@ -1513,7 +1513,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
 
     CHECK_SHOULD_DRAW(draw);
 
-    static const GrSamplerParams::FilterMode kMode = GrSamplerParams::kNone_FilterMode;
+    static const GrSamplerParams::FilterMode kMode = GrSamplerParams::FilterMode::kNone_FilterMode;
     sk_sp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),

@@ -3255,14 +3255,14 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
     };
     GrSamplerParams::FilterMode filterMode = params.filterMode();
 
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerParams::FilterMode::kMipMap_FilterMode == filterMode) {
         if (!this->caps()->mipMapSupport() || GrPixelConfigIsCompressed(texture->config())) {
-            filterMode = GrSamplerParams::kBilerp_FilterMode;
+            filterMode = GrSamplerParams::FilterMode::kBilerp_FilterMode;
         }
     }
 
-    newTexParams.fMinFilter = glMinFilterModes[filterMode];
-    newTexParams.fMagFilter = glMagFilterModes[filterMode];
+    newTexParams.fMinFilter = glMinFilterModes[(int)filterMode];
+    newTexParams.fMagFilter = glMagFilterModes[(int)filterMode];
 
     if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
         newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
@@ -3274,7 +3274,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
 
 #ifdef SK_DEBUG
     // We were supposed to ensure MipMaps were up-to-date and built correctly before getting here.
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerParams::FilterMode::kMipMap_FilterMode == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
         if (GrPixelConfigIsSRGB(texture->config())) {
             SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
@@ -3401,13 +3401,13 @@ void GrGLGpu::generateMipmaps(const GrSamplerParams& params, bool allowSRGBInput
     // First, figure out if we need mips for this texture at all:
     GrSamplerParams::FilterMode filterMode = params.filterMode();
 
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerParams::FilterMode::kMipMap_FilterMode == filterMode) {
         if (!this->caps()->mipMapSupport() || GrPixelConfigIsCompressed(texture->config())) {
-            filterMode = GrSamplerParams::kBilerp_FilterMode;
+            filterMode = GrSamplerParams::FilterMode::kBilerp_FilterMode;
         }
     }
 
-    if (GrSamplerParams::kMipMap_FilterMode != filterMode) {
+    if (GrSamplerParams::FilterMode::kMipMap_FilterMode != filterMode) {
         return;
     }
 
@@ -4243,7 +4243,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     int w = srcRect.width();
     int h = srcRect.height();
 
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kNone_FilterMode);
     this->bindTexture(0, params, true, srcTex);
 
     GrGLIRect dstVP;
@@ -4481,7 +4481,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
+    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kBilerp_FilterMode);
     this->bindTexture(0, params, gammaCorrect, texture);
 
     // Vertex data:
@@ -4712,11 +4712,11 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& textureParams,
                                          GrTextureProducer::CopyParams* copyParams) const {
     if (textureParams.isTiled() ||
-        GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
+        GrSamplerParams::FilterMode::kMipMap_FilterMode == textureParams.filterMode()) {
         GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);
         if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
             GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
-            copyParams->fFilter = GrSamplerParams::kNone_FilterMode;
+            copyParams->fFilter = GrSamplerParams::FilterMode::kNone_FilterMode;
             copyParams->fWidth = texture->width();
             copyParams->fHeight = texture->height();
             return true;

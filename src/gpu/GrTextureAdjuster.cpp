@@ -75,12 +75,12 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
         return nullptr;
     }
 
-    if (contentArea && GrSamplerParams::kMipMap_FilterMode == params.filterMode()) {
+    if (contentArea && GrSamplerParams::FilterMode::kMipMap_FilterMode == params.filterMode()) {
         // If we generate a MIP chain for texture it will read pixel values from outside the content
         // area.
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
-        copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
+        copyParams.fFilter = GrSamplerParams::FilterMode::kBilerp_FilterMode;
     } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams)) {
         if (outOffset) {
             if (contentArea) {
@@ -146,8 +146,8 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
 
         // We only expect MIP maps to require a tight copy.
         SkASSERT(filterOrNullForBicubic &&
-                 GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic);
-        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
+                 GrSamplerParams::FilterMode::kMipMap_FilterMode == *filterOrNullForBicubic);
+        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::FilterMode::kBilerp_FilterMode;
         domainMode =
             DetermineDomainMode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                                 texture->width(), texture->height(),
@@ -156,10 +156,10 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    textureMatrix.postIDiv(texture->width(), texture->height());
+    //textureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
                                                                        dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
-                                                     textureMatrix, domainMode, domain,
+                                                     textureMatrix, true, domainMode, domain,
                                                      filterOrNullForBicubic);
 }

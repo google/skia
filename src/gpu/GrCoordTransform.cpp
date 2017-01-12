@@ -10,12 +10,16 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 
-void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
+void GrCoordTransform::reset1(const SkMatrix& m, bool bFoo, const GrTexture* texture,
                              GrSamplerParams::FilterMode filter) {
+    SkASSERT(bFoo);
+
     SkASSERT(texture);
     SkASSERT(!fInProcessor);
 
-    fMatrix = m;
+    fMatrix2 = m;
+    fFoo1 = bFoo;
+    fTexture = texture,
     fReverseY = kBottomLeft_GrSurfaceOrigin == texture->origin();
 
     // Always start at kDefault. Then if precisions differ we see if the precision needs to be
@@ -23,7 +27,7 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     // coords between 0 to 1 when bi- or tri-lerping and 1 value when nearest filtering. Note that
     // this still might not be enough when drawing with repeat or mirror-repeat modes but that case
     // can be arbitrarily bad.
-    int subPixelThresh = filter > GrSamplerParams::kNone_FilterMode ? 4 : 1;
+    int subPixelThresh = filter > GrSamplerParams::FilterMode::kNone_FilterMode ? 4 : 1;
     fPrecision = kDefault_GrSLPrecision;
     if (texture->getContext()) {
         const GrShaderCaps* caps = texture->getContext()->caps()->shaderCaps();
@@ -52,9 +56,12 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     }
 }
 
-void GrCoordTransform::reset(const SkMatrix& m, GrSLPrecision precision) {
+void GrCoordTransform::reset2(const SkMatrix& m, bool bFoo, GrSLPrecision precision) {
+    SkASSERT(bFoo);
     SkASSERT(!fInProcessor);
-    fMatrix = m;
+    fMatrix2 = m;
+    fFoo1 = bFoo;
+    fTexture = nullptr;
     fReverseY = false;
     fPrecision = precision;
 }

@@ -249,25 +249,25 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     sk_sp<GrFragmentProcessor> bgFP;
 
     if (backgroundTex) {
-        SkMatrix backgroundMatrix;
-        backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
+        SkMatrix backgroundMatrix = SkMatrix::I();
+//        backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
         backgroundMatrix.preTranslate(-SkIntToScalar(backgroundOffset.fX),
                                       -SkIntToScalar(backgroundOffset.fY));
         sk_sp<GrColorSpaceXform> bgXform = GrColorSpaceXform::Make(background->getColorSpace(),
                                                                    outputProperties.colorSpace());
         bgFP = GrTextureDomainEffect::Make(
-                            backgroundTex.get(), std::move(bgXform), backgroundMatrix,
+                            backgroundTex.get(), std::move(bgXform), backgroundMatrix, true,
                             GrTextureDomain::MakeTexelDomain(background->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrSamplerParams::kNone_FilterMode);
+                            GrSamplerParams::FilterMode::kNone_FilterMode);
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
 
     if (foregroundTex) {
-        SkMatrix foregroundMatrix;
-        foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
+        SkMatrix foregroundMatrix = SkMatrix::I();
+//        foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
         foregroundMatrix.preTranslate(-SkIntToScalar(foregroundOffset.fX),
                                       -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform = GrColorSpaceXform::Make(foreground->getColorSpace(),
@@ -275,10 +275,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                            foregroundTex.get(), std::move(fgXform), foregroundMatrix,
+                            foregroundTex.get(), std::move(fgXform), foregroundMatrix, true,
                             GrTextureDomain::MakeTexelDomain(foreground->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrSamplerParams::kNone_FilterMode);
+                            GrSamplerParams::FilterMode::kNone_FilterMode);
 
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 

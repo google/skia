@@ -14,7 +14,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
                                                SkColorSpace* dstColorSpace,
                                                sk_sp<SkColorSpace>* texColorSpace) {
     CopyParams copyParams;
-    bool willBeMipped = params.filterMode() == GrSamplerParams::kMipMap_FilterMode;
+    bool willBeMipped = params.filterMode() == GrSamplerParams::FilterMode::kMipMap_FilterMode;
 
     if (!fContext->caps()->mipMapSupport()) {
         willBeMipped = false;
@@ -58,14 +58,14 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         SkColorSpace* dstColorSpace) {
 
     const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
-    if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
+    if (filterOrNullForBicubic && GrSamplerParams::FilterMode::kMipMap_FilterMode == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
         // TODo: Here we should force a copy restricted to the constraintRect since MIP maps will
         // read outside the constraint rect. However, as in the adjuster case, we aren't currently
         // doing that.
         // We instead we compute the domain as though were bilerping which is only correct if we
         // only sample level 0.
-        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
+        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::FilterMode::kBilerp_FilterMode;
         fmForDetermineDomain = &kBilerp;
     }
 
@@ -74,7 +74,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         params.reset(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
     } else {
         // Bicubic doesn't use filtering for it's texture accesses.
-        params.reset(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+        params.reset(SkShader::kClamp_TileMode, GrSamplerParams::FilterMode::kNone_FilterMode);
     }
     sk_sp<SkColorSpace> texColorSpace;
     sk_sp<GrTexture> texture(this->refTextureForParams(params, dstColorSpace, &texColorSpace));
@@ -88,11 +88,11 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                             nullptr, fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
     SkMatrix normalizedTextureMatrix = textureMatrix;
-    normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
+    //normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
-                                                     normalizedTextureMatrix, domainMode, domain,
+                                                     normalizedTextureMatrix, true, domainMode, domain,
                                                      filterOrNullForBicubic);
 }
 

@@ -194,30 +194,30 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
 sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
                                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                                       const SkMatrix& matrix,
+                                                       const SkMatrix& matrix, bool bFoo,
                                                        const SkRect& domain,
                                                        GrTextureDomain::Mode mode,
                                                        GrSamplerParams::FilterMode filterMode) {
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && can_ignore_rect(texture, domain))) {
-        return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), matrix, filterMode);
+        return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), matrix, bFoo, filterMode);
     } else {
         return sk_sp<GrFragmentProcessor>(
-            new GrTextureDomainEffect(texture, std::move(colorSpaceXform), matrix, domain, mode,
+            new GrTextureDomainEffect(texture, std::move(colorSpaceXform), matrix, bFoo, domain, mode,
                                       filterMode));
     }
 }
 
 GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                             const SkMatrix& matrix,
+                                             const SkMatrix& matrix, bool bFoo,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrSamplerParams::FilterMode filterMode)
-    : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode)
+    : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, bFoo, filterMode)
     , fTextureDomain(texture, domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
-            filterMode == GrSamplerParams::kNone_FilterMode);
+            filterMode == GrSamplerParams::FilterMode::kNone_FilterMode);
     this->initClassID<GrTextureDomainEffect>();
 }
 
@@ -307,10 +307,10 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
     return GrTextureDomainEffect::Make(
         tex,
         colorSpaceXform,
-        matrix,
+        matrix, true,
         domain,
         mode,
-        bilerp ? GrSamplerParams::kBilerp_FilterMode : GrSamplerParams::kNone_FilterMode);
+        bilerp ? GrSamplerParams::FilterMode::kBilerp_FilterMode : GrSamplerParams::FilterMode::kNone_FilterMode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -27,43 +27,46 @@ public:
      * from the texture size and filter. The texture origin also implies whether a y-reversal should
      * be performed.
      */
-    GrCoordTransform(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
+    GrCoordTransform(bool bFoo, const GrTexture* texture, GrSamplerParams::FilterMode filter) {
         SkASSERT(texture);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(texture, filter);
+        this->reset3(bFoo, texture, filter);
     }
 
     /**
      * Create a transformation from a matrix. The precision is inferred from the texture size and
      * filter. The texture origin also implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
+    GrCoordTransform(const SkMatrix& m, bool bFoo, const GrTexture* texture,
                      GrSamplerParams::FilterMode filter) {
         SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
-        this->reset(m, texture, filter);
+        this->reset1(m, bFoo, texture, filter);
     }
 
     /**
      * Create a transformation that applies the matrix to a coord set.
      */
-    GrCoordTransform(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
+    GrCoordTransform(const SkMatrix& m, bool bFoo, GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(m, precision);
+        this->reset2(m, bFoo, precision);
     }
 
-    void reset(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
+    void reset3(bool bFoo, const GrTexture* texture, GrSamplerParams::FilterMode filter) {
+        SkASSERT(bFoo);
         SkASSERT(!fInProcessor);
         SkASSERT(texture);
-        this->reset(MakeDivByTextureWHMatrix(texture), texture, filter);
+        this->reset1(SkMatrix::I(), bFoo, /*MakeDivByTextureWHMatrix(texture)*/ texture, filter);
     }
 
-    void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter);
-    void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision);
+    void reset1(const SkMatrix&, bool bFoo, const GrTexture*, GrSamplerParams::FilterMode filter);
+    void reset2(const SkMatrix& m, bool bFoo, GrSLPrecision precision = kDefault_GrSLPrecision);
 
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
-        fMatrix = that.fMatrix;
+        fMatrix2 = that.fMatrix2;
+        fFoo1 = that.fFoo1;
+        fTexture = that.fTexture;
         fReverseY = that.fReverseY;
         fPrecision = that.fPrecision;
         return *this;
@@ -75,21 +78,26 @@ public:
      */
     SkMatrix* accessMatrix() {
         SkASSERT(!fInProcessor);
-        return &fMatrix;
+        return &fMatrix2;
     }
 
     bool operator==(const GrCoordTransform& that) const {
-        return fMatrix.cheapEqualTo(that.fMatrix) &&
+        return fMatrix2.cheapEqualTo(that.fMatrix2) &&
+               fFoo1 == that.fFoo1 &&
+               fTexture == that.fTexture &&
                fReverseY == that.fReverseY &&
                fPrecision == that.fPrecision;
     }
 
     bool operator!=(const GrCoordTransform& that) const { return !(*this == that); }
 
-    const SkMatrix& getMatrix() const { return fMatrix; }
-    bool reverseY() const { return fReverseY; }
+    const SkMatrix& getMatrix5() const { return fMatrix2; }
+    bool foo() const { return fFoo1; }
+    const GrTexture* texture() const { return fTexture; }
+    bool reverseY1() const { return fReverseY; }
     GrSLPrecision precision() const { return fPrecision; }
 
+#if 0
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
     static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
@@ -98,9 +106,12 @@ public:
         (void)mat.setIDiv(texture->width(), texture->height());
         return mat;
     }
+#endif
 
 private:
-    SkMatrix                fMatrix;
+    SkMatrix                fMatrix2;
+    bool                    fFoo1;
+    const GrTexture*        fTexture;
     bool                    fReverseY;
     GrSLPrecision           fPrecision;
     typedef SkNoncopyable INHERITED;

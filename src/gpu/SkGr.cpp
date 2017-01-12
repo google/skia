@@ -557,7 +557,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
-            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
+            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr, true,
                                                                       skPaint.getFilterQuality(),
                                                                       rtc->getColorSpace()));
             if (!shaderFP) {
@@ -744,7 +744,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         if (const SkShader* shader = paint.getShader()) {
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context,
                                                                       &viewM,
-                                                                      nullptr,
+                                                                      nullptr, true,
                                                                       paint.getFilterQuality(),
                                                                       rtc->getColorSpace()));
             if (!shaderFP) {
@@ -773,19 +773,19 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
     GrSamplerParams::FilterMode textureFilterMode;
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kNone_FilterMode;
+            textureFilterMode = GrSamplerParams::FilterMode::kNone_FilterMode;
             break;
         case kLow_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+            textureFilterMode = GrSamplerParams::FilterMode::kBilerp_FilterMode;
             break;
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
             if (matrix.getMinScale() < SK_Scalar1) {
-                textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+                textureFilterMode = GrSamplerParams::FilterMode::kMipMap_FilterMode;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+                textureFilterMode = GrSamplerParams::FilterMode::kBilerp_FilterMode;
             }
             break;
         }
@@ -797,7 +797,7 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
         }
         default:
             // Should be unreachable.  If not, fall back to mipmaps.
-            textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+            textureFilterMode = GrSamplerParams::FilterMode::kMipMap_FilterMode;
             break;
 
     }
