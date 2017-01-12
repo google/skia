@@ -35,6 +35,7 @@ public:
         kDrawClear_OpType,
         kDrawDRRect_OpType,
         kDrawImage_OpType,
+        kDrawImageLattice_OpType,
         kDrawImageRect_OpType,
         kDrawOval_OpType,
         kDrawPaint_OpType,
@@ -131,6 +132,7 @@ public:
     static Json::Value MakeJsonPath(const SkPath& path);
     static Json::Value MakeJsonRegion(const SkRegion& region);
     static Json::Value MakeJsonPaint(const SkPaint& paint, UrlDataManager& urlDataManager);
+    static Json::Value MakeJsonLattice(const SkCanvas::Lattice& lattice);
 
     static void flatten(const SkFlattenable* flattenable, Json::Value* target,
                         UrlDataManager& urlDataManager);
@@ -360,6 +362,23 @@ private:
     SkScalar             fLeft;
     SkScalar             fTop;
     SkTLazy<SkPaint>     fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawImageLatticeCommand : public SkDrawCommand {
+public:
+    SkDrawImageLatticeCommand(const SkImage* image, const SkCanvas::Lattice& lattice,
+                              const SkRect& dst, const SkPaint* paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+
+private:
+    sk_sp<const SkImage>        fImage;
+    SkCanvas::Lattice           fLattice;
+    SkRect                      fDst;
+    SkTLazy<SkPaint>            fPaint;
 
     typedef SkDrawCommand INHERITED;
 };

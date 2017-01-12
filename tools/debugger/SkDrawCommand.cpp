@@ -28,6 +28,7 @@
 #include "SkWriteBuffer.h"
 #include "picture_utils.h"
 #include "SkClipOpPriv.h"
+#include <SkLatticeIter.h>
 
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
@@ -105,6 +106,12 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_WIDTH             "width"
 #define SKDEBUGCANVAS_ATTRIBUTE_HEIGHT            "height"
 #define SKDEBUGCANVAS_ATTRIBUTE_ALPHA             "alpha"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICE           "lattice"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICEXCOUNT     "xCount"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICEYCOUNT     "yCount"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICEXDIVS      "xDivs"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICEYDIVS      "yDivs"
+#define SKDEBUGCANVAS_ATTRIBUTE_LATTICEFLAGS      "flags"
 
 #define SKDEBUGCANVAS_VERB_MOVE                   "move"
 #define SKDEBUGCANVAS_VERB_LINE                   "line"
@@ -210,6 +217,7 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawClear_OpType: return "DrawClear";
         case kDrawDRRect_OpType: return "DrawDRRect";
         case kDrawImage_OpType: return "DrawImage";
+        case kDrawImageLattice_OpType: return "DrawImageLattice";
         case kDrawImageRect_OpType: return "DrawImageRect";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
@@ -1175,6 +1183,38 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_imagefilter(paint, &result, urlDataManager);
     apply_paint_colorfilter(paint, &result, urlDataManager);
     apply_paint_typeface(paint, &result, urlDataManager);
+    return result;
+}
+
+Json::Value SkDrawCommand::MakeJsonLattice(const SkCanvas::Lattice& lattice) {
+    Json::Value result(Json::objectValue);
+    result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEXCOUNT] = Json::Value(lattice.fXCount);
+    result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEYCOUNT] = Json::Value(lattice.fYCount);
+    if (nullptr != lattice.fBounds) {
+        result[SKDEBUGCANVAS_ATTRIBUTE_BOUNDS] = MakeJsonIRect(*lattice.fBounds);
+    }
+    Json::Value XDivs(Json::arrayValue);
+    for (int i = 0; i < lattice.fXCount; i++) {
+        XDivs.append(Json::Value(lattice.fXDivs[i]));
+    }
+    result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEXDIVS] = XDivs;
+    Json::Value YDivs(Json::arrayValue);
+    for (int i = 0; i < lattice.fYCount; i++) {
+        YDivs.append(Json::Value(lattice.fYDivs[i]));
+    }
+    result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEYDIVS] = YDivs;
+    if (nullptr != lattice.fFlags) {
+        Json::Value flags(Json::arrayValue);
+        int flagCount = 0;
+        for (int row = 0; row < lattice.fYCount+1; row++) {
+            Json::Value flagsRow(Json::arrayValue);
+            for (int column = 0; column < lattice.fXCount+1; column++) {
+                flagsRow.append(Json::Value(lattice.fFlags[flagCount++]));
+            }
+            flags.append(flagsRow);
+        }
+        result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEFLAGS] = flags;
+    }
     return result;
 }
 
@@ -2164,6 +2204,60 @@ SkDrawImageCommand* SkDrawImageCommand::fromJSON(Json::Value& command,
     }
     SkDrawImageCommand* result = new SkDrawImageCommand(image.get(), point[0].asFloat(),
                                                         point[1].asFloat(), paintPtr);
+    return result;
+}
+
+SkDrawImageLatticeCommand::SkDrawImageLatticeCommand(const SkImage* image,
+                                                     const SkCanvas::Lattice& lattice,
+                                                     const SkRect& dst, const SkPaint* paint)
+    : INHERITED(kDrawImageLattice_OpType)
+    , fImage(SkRef(image))
+    , fLattice(lattice)
+    , fDst(dst) {
+
+      fInfo.push(SkObjectParser::ImageToString(image));
+      fInfo.push(SkObjectParser::LatticeToString(lattice));
+      fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
+      if (paint) {
+          fPaint.set(*paint);
+          fInfo.push(SkObjectParser::PaintToString(*paint));
+      }
+}
+
+void SkDrawImageLatticeCommand::execute(SkCanvas* canvas) const {
+    SkLatticeIter iter(fLattice, fDst);
+    SkRect srcR, dstR;
+    while (iter.next(&srcR, &dstR)) {
+        canvas->legacy_drawImageRect(fImage.get(), &srcR, dstR,
+                                     fPaint.getMaybeNull(), SkCanvas::kStrict_SrcRectConstraint);
+    }
+}
+
+bool SkDrawImageLatticeCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, fDst);
+
+    this->execute(canvas);
+    return true;
+}
+
+Json::Value SkDrawImageLatticeCommand::toJSON(UrlDataManager& urlDataManager) const {
+    Json::Value result = INHERITED::toJSON(urlDataManager);
+    Json::Value encoded;
+    if (flatten(*fImage.get(), &encoded, urlDataManager)) {
+        result[SKDEBUGCANVAS_ATTRIBUTE_BITMAP] = encoded;
+        result[SKDEBUGCANVAS_ATTRIBUTE_LATTICE] = MakeJsonLattice(fLattice);
+        result[SKDEBUGCANVAS_ATTRIBUTE_DST] = MakeJsonRect(fDst);
+        if (fPaint.isValid()) {
+            result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(*fPaint.get(), urlDataManager);
+        }
+    }
+
+    SkString desc;
+    result[SKDEBUGCANVAS_ATTRIBUTE_SHORTDESC] = Json::Value(str_append(&desc, fDst)->c_str());
+
     return result;
 }
 

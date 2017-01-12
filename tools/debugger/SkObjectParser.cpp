@@ -404,3 +404,20 @@ SkString* SkObjectParser::TextToString(const void* text, size_t byteLength,
 
     return decodedText;
 }
+
+SkString* SkObjectParser::LatticeToString(const SkCanvas::Lattice& lattice) {
+    SkString* mLattice = new SkString;
+    mLattice->append("Lattice: ");
+    mLattice->append("(X: ");
+    mLattice->appendS32(lattice.fXCount);
+    mLattice->append(", Y:");
+    mLattice->appendS32(lattice.fYCount);
+    mLattice->append(", Bounds:");
+    if (nullptr != lattice.fBounds) {
+        mLattice->append(*IRectToString(*lattice.fBounds));
+    } else {
+        mLattice->append("null");
+    }
+    mLattice->append(")");
+    return mLattice;
+}
