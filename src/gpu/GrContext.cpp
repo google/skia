@@ -679,45 +679,19 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
 }
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
-    static const GrPixelConfig kFallback[] = {
-        kUnknown_GrPixelConfig,        // kUnknown_GrPixelConfig
-        kRGBA_8888_GrPixelConfig,      // kAlpha_8_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kGray_8_GrPixelConfig
-        kRGBA_8888_GrPixelConfig,      // kRGB_565_GrPixelConfig
-        kRGBA_8888_GrPixelConfig,      // kRGBA_4444_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kRGBA_8888_GrPixelConfig
-        kRGBA_8888_GrPixelConfig,      // kBGRA_8888_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kSRGBA_8888_GrPixelConfig
-        kSRGBA_8888_GrPixelConfig,     // kSBGRA_8888_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kRGBA_8888_sint_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kETC1_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kLATC_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kR11_EAC_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kASTC_12x12_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kRGBA_float_GrPixelConfig
-        kRGBA_half_GrPixelConfig,      // kAlpha_half_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kRGBA_half_GrPixelConfig
-    };
-    return kFallback[config];
-
-    GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
-    GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kGray_8_GrPixelConfig);
-    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
-    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
-    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFallback) == kGrPixelConfigCnt);
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+            return kRGBA_8888_GrPixelConfig;
+        case kSBGRA_8888_GrPixelConfig:
+            return kSRGBA_8888_GrPixelConfig;
+        case kAlpha_half_GrPixelConfig:
+            return kRGBA_half_GrPixelConfig;
+        default:
+            return kUnknown_GrPixelConfig;
+    }
 }
 
 sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContextWithFallback(
