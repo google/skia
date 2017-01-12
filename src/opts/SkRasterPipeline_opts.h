@@ -564,8 +564,25 @@ STAGE_CTX(store_8888, uint32_t**) {
     store(tail, byte(r,0)|byte(g,1)|byte(b,2)|byte(a,3), (int*)ptr);
 }
 
+STAGE_CTX(load_u16_be, const uint64_t**) {
+    auto ptr = *ctx + x;
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
+
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(src, &rh, &gh, &bh, &ah);
+    r = (1.0f / 65535.0f) * SkNx_cast<float>((rh << 8) | (rh >> 8));
+    g = (1.0f / 65535.0f) * SkNx_cast<float>((gh << 8) | (gh >> 8));
+    b = (1.0f / 65535.0f) * SkNx_cast<float>((bh << 8) | (bh >> 8));
+    a = (1.0f / 65535.0f) * SkNx_cast<float>((ah << 8) | (ah >> 8));
+}
+
 STAGE_CTX(load_tables, const LoadTablesContext*) {
-    auto ptr = ctx->fSrc + x;
+    auto ptr = (const uint32_t*)ctx->fSrc + x;
 
     SkNu rgba = load(tail, ptr);
     auto to_int = [](const SkNu& v) { return SkNi::Load(&v); };
@@ -573,6 +590,19 @@ STAGE_CTX(load_tables, const LoadTablesContext*) {
     g = gather(tail, ctx->fG, to_int((rgba >>  8) & 0xff));
     b = gather(tail, ctx->fB, to_int((rgba >> 16) & 0xff));
     a = SkNf_from_byte(rgba >> 24);
+}
+
+STAGE_CTX(load_tables_u16_be, const LoadTablesContext*) {
+    auto ptr = (const uint64_t*)ctx->fSrc + x;
+
+    SkNh rh, gh, bh, ah;
+    SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+
+    // ctx->fSrc is big-endian, so "& 0xff" grabs the 8 most significant bits of each component.
+    r = gather(tail, ctx->fR, SkNx_cast<int>(rh & 0xff));
+    g = gather(tail, ctx->fG, SkNx_cast<int>(gh & 0xff));
+    b = gather(tail, ctx->fB, SkNx_cast<int>(bh & 0xff));
+    a = (1.0f / 65535.0f) * SkNx_cast<float>((ah << 8) | (ah >> 8));
 }
 
 STAGE_CTX(store_tables, const StoreTablesContext*) {
