@@ -25,13 +25,34 @@
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v);       }
+    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v); }
     AI static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     AI static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
     AI static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
     AI static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     AI static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
+
+#elif defined(__ARM_NEON__)
+    #if !defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
+        #error On ARMv7, compile with -mthumb -march=armv7-a -mfpu=neon-vfp4
+    #endif
+    #include <arm_neon.h>
+
+    // We can pass {s0-s15} as arguments under AAPCS-VFP.  We'll slice that as 8 d-registers.
+    using F   = float    __attribute__((ext_vector_type(2)));
+    using I32 =  int32_t __attribute__((ext_vector_type(2)));
+    using U32 = uint32_t __attribute__((ext_vector_type(2)));
+    using U8  = uint8_t  __attribute__((ext_vector_type(2)));
+
+    AI static U32 round(F v)                           { return vcvt_u32_f32(v); } // TODO: round
+    AI static F   min(F a, F b)                        { return vmin_f32(a,b);          }
+    AI static F   max(F a, F b)                        { return vmax_f32(a,b);          }
+    AI static F   fma(F f, F m, F a)                   { return vfma_f32(a,f,m);        }
+    AI static F   rcp  (F v)  { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
+    AI static F   rsqrt(F v)  { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
+    AI static F   if_then_else(I32 c, F t, F e)        { return vbsl_f32((U32)c,t,e);   }
+
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -58,7 +79,12 @@ AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
-#define C extern "C"
+// On ARMv7, use aapcs-vfp calling convention to pass as much data in registers as possible.
+#if defined(__ARM_NEON__)
+    #define C extern "C" __attribute__((pcs("aapcs-vfp")))
+#else
+    #define C extern "C"
+#endif
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using K = const SkSplicer_constants;
@@ -256,6 +282,14 @@ STAGE(load_f16) {
     g = vcvt_f32_f16(halfs.val[1]);
     b = vcvt_f32_f16(halfs.val[2]);
     a = vcvt_f32_f16(halfs.val[3]);
+#elif defined(__ARM_NEON__)
+    auto rb_ga = vld2_f16((const float16_t*)ptr);
+    auto rb = vcvt_f32_f16(rb_ga.val[0]),
+         ga = vcvt_f32_f16(rb_ga.val[1]);
+    r = {rb[0], rb[2]};
+    g = {ga[0], ga[2]};
+    b = {rb[1], rb[3]};
+    a = {ga[1], ga[3]};
 #else
     auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
          _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
@@ -290,6 +324,12 @@ STAGE(store_f16) {
         vcvt_f16_f32(a),
     }};
     vst4_f16((float16_t*)ptr, halfs);
+#elif defined(__ARM_NEON__)
+    float16x4x2_t rb_ga = {{
+        vcvt_f16_f32(float32x4_t{r[0], b[0], r[1], b[1]}),
+        vcvt_f16_f32(float32x4_t{g[0], a[0], g[1], a[1]}),
+    }};
+    vst2_f16((float16_t*)ptr, rb_ga);
 #else
     auto R = _mm256_cvtps_ph(r, _MM_FROUND_CUR_DIRECTION),
          G = _mm256_cvtps_ph(g, _MM_FROUND_CUR_DIRECTION),
