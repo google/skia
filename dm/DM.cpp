@@ -1289,10 +1289,6 @@ int dm_main() {
 
     gSkUseAnalyticAA = FLAGS_analyticAA;
 
-    if (FLAGS_forceAnalyticAA) {
-        gSkForceAnalyticAA = true;
-    }
-
     if (FLAGS_verbose) {
         gVLog = stderr;
     } else if (!FLAGS_writePath.isEmpty()) {

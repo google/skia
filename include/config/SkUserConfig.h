@@ -139,9 +139,4 @@
 //#define SK_HISTOGRAM_BOOLEAN(name, value)
 //#define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
 
-// Use this to check that we successfully guard the change against Chromium layout tests
-#ifndef  SK_SUPPORT_LEGACY_AAA
-# define SK_SUPPORT_LEGACY_AAA
-#endif
-
 #endif
