@@ -1822,12 +1822,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case 'A':
-            if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
-                gSkForceAnalyticAA = true;
-            } else {
-                gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
-                gSkForceAnalyticAA = false;
-            }
+            gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
             this->inval(nullptr);
             this->updateTitle();
             break;
@@ -2181,11 +2176,7 @@ void SampleWindow::updateTitle() {
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
     if (gSkUseAnalyticAA) {
-        if (gSkForceAnalyticAA) {
-            title.prepend("<FAAA> ");
-        } else {
-            title.prepend("<AAA> ");
-        }
+        title.prepend("<AAA> ");
     }
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);
