@@ -34,7 +34,6 @@ private:
 enum SrcGamma {
     kLinear_SrcGamma,
     kTable_SrcGamma,
-    kSRGB_SrcGamma,
 };
 
 enum DstGamma {
@@ -50,7 +49,7 @@ enum ColorSpaceMatch {
     kFull_ColorSpaceMatch,
 };
 
-template <ColorSpaceMatch kCSM>
+template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 class SkColorSpaceXform_XYZ : public SkColorSpaceXform_Base {
 protected:
     bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
@@ -64,26 +63,23 @@ private:
                           SkColorSpace_XYZ* dstSpace);
 
     // Contain pointers into storage or pointers into precomputed tables.
-    const float*         fSrcGammaTables[3];
-    SkAutoTMalloc<float> fSrcStorage;
-    const uint8_t*       fDstGammaTables[3];
-    sk_sp<SkData>        fDstStorage;
+    const float*              fSrcGammaTables[3];
+    SkAutoTMalloc<float>      fSrcStorage;
+    const uint8_t*            fDstGammaTables[3];
+    sk_sp<SkData>             fDstStorage;
 
     // Holds a 3x4 matrix.  Padding is useful for vector loading.
-    float                fSrcToDst[13];
-
-    SrcGamma             fSrcGamma;
-    DstGamma             fDstGamma;
+    float                     fSrcToDst[13];
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 struct LoadTablesContext {
-    const void*  fSrc;
-    const float* fR;
-    const float* fG;
-    const float* fB;
+    const uint32_t* fSrc;
+    const float*    fR;
+    const float*    fG;
+    const float*    fB;
 };
 
 struct StoreTablesContext {
