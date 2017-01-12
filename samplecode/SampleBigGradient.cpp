@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -49,9 +49,6 @@ static SkViewRegister reg(MyFactory);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_MAC
-
-#include "SkCGUtils.h"
 #include "SkRasterHandleAllocator.h"
 
 class GraphicsPort {
@@ -84,6 +81,9 @@ public:
     }
 };
 
+#ifdef SK_BUILD_FOR_MAC
+
+#include "SkCGUtils.h"
 class CGGraphicsPort : public GraphicsPort {
 public:
     CGGraphicsPort(SkCanvas* canvas) : GraphicsPort(canvas) {}
@@ -144,6 +144,117 @@ public:
     }
 };
 
+#define MyPort CGGraphicsPort
+#define MyAllocator Allocator_CG
+
+#elif defined(WIN32)
+
+class GDIGraphicsPort : public GraphicsPort {
+public:
+    GDIGraphicsPort(SkCanvas* canvas) : GraphicsPort(canvas) {}
+
+    void drawRect(const SkRect& r, SkColor c) override {
+        HDC hdc = (HDC)fCanvas->accessTopRasterHandle();
+
+        COLORREF cr = RGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));// SkEndian_Swap32(c) >> 8;
+        SkIRect ir = r.round();
+        RECT rect = { ir.left(), ir.top(), ir.right(), ir.bottom() };
+        FillRect(hdc, &rect, CreateSolidBrush(cr));
+
+        // Assuming GDI wrote zeros for alpha, this will or-in 0xFF for alpha
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kDstATop);
+        fCanvas->drawRect(r, paint);
+    }
+};
+
+static void DeleteHDCCallback(void*, void* context) {
+    HDC hdc = static_cast<HDC>(context);
+    HBITMAP hbitmap = static_cast<HBITMAP>(SelectObject(hdc, nullptr));
+    DeleteObject(hbitmap);
+    DeleteDC(hdc);
+}
+
+// We use this static factory function instead of the regular constructor so
+// that we can create the pixel data before calling the constructor. This is
+// required so that we can call the base class' constructor with the pixel
+// data.
+static bool Create(int width, int height, bool is_opaque, SkRasterHandleAllocator::Rec* rec) {
+    BITMAPINFOHEADER hdr = { 0 };
+    hdr.biSize = sizeof(BITMAPINFOHEADER);
+    hdr.biWidth = width;
+    hdr.biHeight = -height;  // Minus means top-down bitmap.
+    hdr.biPlanes = 1;
+    hdr.biBitCount = 32;
+    hdr.biCompression = BI_RGB;  // No compression.
+    hdr.biSizeImage = 0;
+    hdr.biXPelsPerMeter = 1;
+    hdr.biYPelsPerMeter = 1;
+    void* pixels;
+    HBITMAP hbitmap = CreateDIBSection(nullptr, (const BITMAPINFO*)&hdr, 0, &pixels, 0, 0);
+    if (!hbitmap) {
+        return false;
+    }
+
+    size_t row_bytes = width * sizeof(SkPMColor);
+    sk_bzero(pixels, row_bytes * height);
+
+    HDC hdc = CreateCompatibleDC(nullptr);
+    if (!hdc) {
+        DeleteObject(hbitmap);
+        return false;
+    }
+    SetGraphicsMode(hdc, GM_ADVANCED);
+    SelectObject(hdc, hbitmap);
+
+    rec->fReleaseProc = DeleteHDCCallback;
+    rec->fReleaseCtx = hdc;
+    rec->fPixels = pixels;
+    rec->fRowBytes = row_bytes;
+    rec->fHandle = hdc;
+    return true;
+}
+
+/**
+*  Subclass of SkRasterHandleAllocator that returns an HDC as its "handle".
+*/
+class GDIAllocator : public SkRasterHandleAllocator {
+public:
+    GDIAllocator() {}
+
+    bool allocHandle(const SkImageInfo& info, Rec* rec) override {
+        SkASSERT(info.colorType() == kN32_SkColorType);
+        return Create(info.width(), info.height(), info.isOpaque(), rec);
+    }
+
+    void updateHandle(Handle handle, const SkMatrix& ctm, const SkIRect& clip_bounds) override {
+        HDC hdc = static_cast<HDC>(handle);
+
+        XFORM xf;
+        xf.eM11 = ctm[SkMatrix::kMScaleX];
+        xf.eM21 = ctm[SkMatrix::kMSkewX];
+        xf.eDx = ctm[SkMatrix::kMTransX];
+        xf.eM12 = ctm[SkMatrix::kMSkewY];
+        xf.eM22 = ctm[SkMatrix::kMScaleY];
+        xf.eDy = ctm[SkMatrix::kMTransY];
+        SetWorldTransform(hdc, &xf);
+
+#if 0
+        HRGN hrgn = CreateRectRgnIndirect(&skia::SkIRectToRECT(clip_bounds));
+        int result = SelectClipRgn(hdc, hrgn);
+        SkASSERT(result != ERROR);
+        result = DeleteObject(hrgn);
+        SkASSERT(result != 0);
+#endif
+    }
+};
+
+#define MyPort GDIGraphicsPort
+#define MyAllocator GDIAllocator
+
+#endif
+
+#ifdef MyAllocator
 class RasterAllocatorSample : public SampleView {
 public:
     RasterAllocatorSample() {}
@@ -176,8 +287,8 @@ protected:
 
         const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
         std::unique_ptr<SkCanvas> c2 =
-            SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<Allocator_CG>(), info);
-        CGGraphicsPort cgp(c2.get());
+            SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
+        MyPort cgp(c2.get());
         doDraw(&cgp);
 
         SkPixmap pm;
