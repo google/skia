@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_6dd035aa",
+        "filename": "include/gpu/GrColor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-12T14:26:21Z",
+      "side": 1,
+      "message": "This style of function should really be using a switch statement but I leave it up to you whether you feel like taking this on or not.",
+      "revId": "50283b5bbd0a30cd37373da6d6e88e369708c3a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
