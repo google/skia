@@ -39,7 +39,6 @@ static int g_NumFreedShapes = 0;
 #endif
 
 // mip levels
-static const int kMinSize = 16;
 static const int kSmallMIP = 32;
 static const int kMediumMIP = 73;
 static const int kLargeMIP = 162;
@@ -110,15 +109,12 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 
     // Only support paths with bounds within kMediumMIP by kMediumMIP,
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP.
-    // For clarity, the original or scaled path should be at least kMinSize by kMinSize.
-    // TODO: revisit this last criteria with Joel's patch.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     SkRect bounds = args.fShape->styledBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
-    return maxDim <= kMediumMIP &&
-           maxDim * maxScale >= kMinSize && maxDim * maxScale <= 2.0f*kLargeMIP;
+    return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
