@@ -16,6 +16,24 @@
       "revId": "d9f9096c39da5a95dcc316221fa776a3537ce73f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_acee7ad1",
+        "filename": "gm/thinconcavepaths.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-01-12T04:59:38Z",
+      "side": 1,
+      "message": "Good idea. I\u0027ll update a bunch of them in a followup patch.",
+      "parentUuid": "578ed681_cc72de89",
+      "revId": "d9f9096c39da5a95dcc316221fa776a3537ce73f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
