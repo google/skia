@@ -66,18 +66,20 @@ public:
                                            GrTexture* vTexture, const SkISize sizes[3],
                                            SkYUVColorSpace colorSpace, bool nv12) {
         SkScalar w[3], h[3];
-        w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
-        h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
-        w[1] = SkIntToScalar(sizes[1].fWidth)  / SkIntToScalar(uTexture->width());
-        h[1] = SkIntToScalar(sizes[1].fHeight) / SkIntToScalar(uTexture->height());
-        w[2] = SkIntToScalar(sizes[2].fWidth)  / SkIntToScalar(vTexture->width());
-        h[2] = SkIntToScalar(sizes[2].fHeight) / SkIntToScalar(vTexture->height());
+        w[0] = SkIntToScalar(sizes[0].fWidth);
+        h[0] = SkIntToScalar(sizes[0].fHeight);
+        w[1] = SkIntToScalar(sizes[1].fWidth);
+        h[1] = SkIntToScalar(sizes[1].fHeight);
+        w[2] = SkIntToScalar(sizes[2].fWidth);
+        h[2] = SkIntToScalar(sizes[2].fHeight);
         SkMatrix yuvMatrix[3];
-        yuvMatrix[0] = GrCoordTransform::MakeDivByTextureWHMatrix(yTexture);
-        yuvMatrix[1] = yuvMatrix[0];
-        yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
-        yuvMatrix[2] = yuvMatrix[0];
-        yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
+        bool foos[3];
+        yuvMatrix[0] = SkMatrix::I();
+        foos[0] = true;
+        yuvMatrix[1] = SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]);
+        foos[1] = true;
+        yuvMatrix[2] = SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0]);
+        foos[2] = true;
         GrSamplerParams::FilterMode uvFilterMode =
             ((sizes[1].fWidth  != sizes[0].fWidth) ||
              (sizes[1].fHeight != sizes[0].fHeight) ||
@@ -86,7 +88,7 @@ public:
             GrSamplerParams::kBilerp_FilterMode :
             GrSamplerParams::kNone_FilterMode;
         return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(
-            yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace, nv12));
+            yTexture, uTexture, vTexture, yuvMatrix, foos, uvFilterMode, colorSpace, nv12));
     }
 
     const char* name() const override { return "YUV to RGB"; }
@@ -152,11 +154,11 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   const SkMatrix yuvMatrix[3], GrSamplerParams::FilterMode uvFilterMode,
+                   const SkMatrix yuvMatrix[3], const bool foos[3], GrSamplerParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(yuvMatrix[0], yTexture, GrSamplerParams::kNone_FilterMode)
+        : fYTransform(yuvMatrix[0], foos[0], yTexture, GrSamplerParams::kNone_FilterMode)
         , fYSampler(yTexture)
-        , fUTransform(yuvMatrix[1], uTexture, uvFilterMode)
+        , fUTransform(yuvMatrix[1], foos[1], uTexture, uvFilterMode)
         , fUSampler(uTexture, uvFilterMode)
         , fVSampler(vTexture, uvFilterMode)
         , fColorSpace(colorSpace)
@@ -167,7 +169,7 @@ private:
         this->addCoordTransform(&fUTransform);
         this->addTextureSampler(&fUSampler);
         if (!fNV12) {
-            fVTransform = GrCoordTransform(yuvMatrix[2], vTexture, uvFilterMode);
+            fVTransform = GrCoordTransform(yuvMatrix[2], foos[2], vTexture, uvFilterMode);
             this->addCoordTransform(&fVTransform);
             this->addTextureSampler(&fVSampler);
         }

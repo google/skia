@@ -18,29 +18,29 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                       const SkMatrix& matrix) {
+                                       const SkMatrix& matrix, bool bFoo) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
                                                                 std::move(colorSpaceXform),
-                                                                matrix));
+                                                                matrix, bFoo));
 }
 
-void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
+void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix, bool bFoo) {
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix, bFoo));
 }
 
 void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                       const SkMatrix& matrix,
+                                       const SkMatrix& matrix, bool bFoo,
                                        const GrSamplerParams& params) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture,
                                                                 std::move(colorSpaceXform),
-                                                                matrix, params));
+                                                                matrix, bFoo, params));
 }
 
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
-                                          const SkMatrix& matrix,
+                                          const SkMatrix& matrix, bool bFoo,
                                           const GrSamplerParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix, bFoo,
                                                                    params));
 }
 
