@@ -184,6 +184,17 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 #undef EQUAL
 }
 
+#define DEFINE_REF_FOO(type)    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
+DEFINE_REF_FOO(ColorFilter)
+DEFINE_REF_FOO(DrawLooper)
+DEFINE_REF_FOO(ImageFilter)
+DEFINE_REF_FOO(MaskFilter)
+DEFINE_REF_FOO(PathEffect)
+DEFINE_REF_FOO(Rasterizer)
+DEFINE_REF_FOO(Shader)
+DEFINE_REF_FOO(Typeface)
+#undef DEFINE_REF_FOO
+
 void SkPaint::reset() {
     SkPaint init;
     *this = init;
@@ -2244,12 +2255,12 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     sk_sp<SkPathEffect> pe;
 
     if (!applyStrokeAndPathEffects) {
-        style = paint.getStyle();   // restore
-        pe = sk_ref_sp(paint.getPathEffect());     // restore
+        style = paint.getStyle();       // restore
+        pe = paint.refPathEffect();     // restore
     }
     fPaint.setStyle(style);
     fPaint.setPathEffect(pe);
-    fPaint.setMaskFilter(sk_ref_sp(paint.getMaskFilter()));    // restore
+    fPaint.setMaskFilter(paint.refMaskFilter());    // restore
 
     // now compute fXOffset if needed
 

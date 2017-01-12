@@ -234,6 +234,7 @@ public:
     SkColorType colorType() const { return fColorType; }
     SkAlphaType alphaType() const { return fAlphaType; }
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
 
     bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
 

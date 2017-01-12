@@ -95,7 +95,7 @@ void ColorCodecBench::onDelayedSetup() {
 
     if (FLAGS_xform_only) {
         fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
-        fSrcSpace = sk_ref_sp(codec->getInfo().colorSpace());
+        fSrcSpace = codec->getInfo().refColorSpace();
         codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
     }
 }

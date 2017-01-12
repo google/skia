@@ -535,8 +535,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
-    sk_sp<const SkTypeface> tface(paint.getTypeface() ?
-        sk_ref_sp(paint.getTypeface()) : SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> tface(paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault());
 
     SkASSERT(tface);
     SkTypeface::Style style = tface->style();

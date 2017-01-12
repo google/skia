@@ -481,6 +481,7 @@ public:
         @return the paint's shader (or NULL)
     */
     SkShader* getShader() const { return fShader.get(); }
+    sk_sp<SkShader> refShader() const;
 
     /** Set or clear the shader object.
      *  Shaders specify the source color(s) for what is being drawn. If a paint
@@ -509,6 +510,7 @@ public:
         @return the paint's colorfilter (or NULL)
     */
     SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
+    sk_sp<SkColorFilter> refColorFilter() const;
 
     /** Set or clear the paint's colorfilter.
         <p />
@@ -528,6 +530,7 @@ public:
         @return the paint's patheffect (or NULL)
     */
     SkPathEffect* getPathEffect() const { return fPathEffect.get(); }
+    sk_sp<SkPathEffect> refPathEffect() const;
 
     /** Set or clear the patheffect object.
         <p />
@@ -547,6 +550,7 @@ public:
         @return the paint's maskfilter (or NULL)
     */
     SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
+    sk_sp<SkMaskFilter> refMaskFilter() const;
 
     /** Set or clear the maskfilter object.
         <p />
@@ -569,6 +573,7 @@ public:
         @return the paint's typeface (or NULL)
     */
     SkTypeface* getTypeface() const { return fTypeface.get(); }
+    sk_sp<SkTypeface> refTypeface() const;
 
     /** Set or clear the typeface object.
         <p />
@@ -588,6 +593,7 @@ public:
         @return the paint's rasterizer (or NULL)
     */
     SkRasterizer* getRasterizer() const { return fRasterizer.get(); }
+    sk_sp<SkRasterizer> refRasterizer() const;
 
     /** Set or clear the rasterizer object.
         <p />
@@ -603,6 +609,7 @@ public:
     void setRasterizer(sk_sp<SkRasterizer>);
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
+    sk_sp<SkImageFilter> refImageFilter() const;
     void setImageFilter(sk_sp<SkImageFilter>);
 
     /**
@@ -610,6 +617,8 @@ public:
      *  reference count.
      */
     SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
+    sk_sp<SkDrawLooper> refDrawLooper() const;
+
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
     /**
      *  Set or clear the looper object.
