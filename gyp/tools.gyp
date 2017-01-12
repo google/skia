@@ -531,7 +531,6 @@
       'variables': {
         'includes_to_test': [
           '<(skia_include_path)/android',
-          '<(skia_include_path)/animator',
           '<(skia_include_path)/c',
           '<(skia_include_path)/codec',
           '<(skia_include_path)/config',
