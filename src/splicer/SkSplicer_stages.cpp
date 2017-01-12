@@ -25,13 +25,32 @@
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v);       }
     AI static F   min(F a, F b)                        { return vminq_f32(a,b);          }
     AI static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
     AI static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
     AI static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     AI static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
     AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
+    AI static U32 round(F v)                           { return vcvtnq_u32_f32(v); }
+
+#elif defined(__ARM_NEON__)
+    #include <arm_neon.h>
+
+    // Since we know we're using Clang, we can use its vector extensions.
+    using F   = float    __attribute__((ext_vector_type(2)));
+    using I32 =  int32_t __attribute__((ext_vector_type(2)));
+    using U32 = uint32_t __attribute__((ext_vector_type(2)));
+    using U8  = uint8_t  __attribute__((ext_vector_type(2)));
+
+    // We polyfill a few routines that Clang doesn't build into ext_vector_types.
+    AI static F   min(F a, F b)                        { return vmin_f32(a,b);          }
+    AI static F   max(F a, F b)                        { return vmax_f32(a,b);          }
+    AI static F   fma(F f, F m, F a)                   { return vfma_f32(a,f,m);        }
+    AI static F   rcp  (F v)  { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
+    AI static F   rsqrt(F v)  { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
+    AI static F   if_then_else(I32 c, F t, F e)        { return vbsl_f32((U32)c,t,e);   }
+    AI static U32 round(F v)                           { return vcvt_u32_f32(v); } // TODO: round
+
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -44,13 +63,13 @@
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    AI static U32 round(F v)                    { return _mm256_cvtps_epi32(v); }
     AI static F   min(F a, F b)                 { return _mm256_min_ps  (a,b);  }
     AI static F   max(F a, F b)                 { return _mm256_max_ps  (a,b);  }
     AI static F   fma(F f, F m, F a)            { return _mm256_fmadd_ps(f,m,a);}
     AI static F   rcp  (F v)                    { return _mm256_rcp_ps     (v); }
     AI static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
     AI static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+    AI static U32 round(F v)                    { return _mm256_cvtps_epi32(v); }
 #endif
 
 AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
@@ -58,7 +77,11 @@ AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
-#define C extern "C"
+#if defined(__ARM_NEON__)
+    #define C extern "C" __attribute__((pcs("aapcs-vfp")))
+#else
+    #define C extern "C"
+#endif
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using K = const SkSplicer_constants;
@@ -256,6 +279,12 @@ STAGE(load_f16) {
     g = vcvt_f32_f16(halfs.val[1]);
     b = vcvt_f32_f16(halfs.val[2]);
     a = vcvt_f32_f16(halfs.val[3]);
+#elif defined(__ARM_NEON__)
+    auto halfs = (const float16_t*)ptr;
+    r = F{ halfs[0], halfs[4] };
+    g = F{ halfs[1], halfs[5] };
+    b = F{ halfs[2], halfs[6] };
+    a = F{ halfs[3], halfs[7] };
 #else
     auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
          _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
@@ -290,6 +319,10 @@ STAGE(store_f16) {
         vcvt_f16_f32(a),
     }};
     vst4_f16((float16_t*)ptr, halfs);
+#elif defined(__ARM_NEON__)
+    auto halfs = (float16_t*)ptr;
+    halfs[0] = r[0]; halfs[1] = g[0]; halfs[2] = b[0]; halfs[3] = a[0];
+    halfs[4] = r[1]; halfs[5] = g[1]; halfs[6] = b[1]; halfs[7] = a[1];
 #else
     auto R = _mm256_cvtps_ph(r, _MM_FROUND_CUR_DIRECTION),
          G = _mm256_cvtps_ph(g, _MM_FROUND_CUR_DIRECTION),
