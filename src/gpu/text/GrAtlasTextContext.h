@@ -11,6 +11,7 @@
 #include "GrAtlasTextBlob.h"
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
+#include "GrTextUtils.h"
 #include "SkTextBlobRunIterator.h"
 
 #ifdef GR_TEST_UTILS
@@ -30,12 +31,13 @@ class GrAtlasTextContext {
 public:
     static GrAtlasTextContext* Create();
 
-    bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
+    bool canDraw(const SkPaint& paint, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                  const GrShaderCaps&);
-    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, GrPaint&&, const SkPaint&,
+
+    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
-    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, GrPaint&&, const SkPaint&,
+    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                      size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
@@ -48,13 +50,13 @@ private:
     GrAtlasTextContext();
 
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
-    inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
+    inline static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
     inline static uint32_t ComputeScalerContextFlags(GrRenderTargetContext*);
     static void RegenerateTextBlob(GrAtlasTextBlob* bmp,
                                    GrAtlasGlyphCache*,
                                    const GrShaderCaps&,
-                                   const SkPaint& skPaint, GrColor,
+                                   const GrTextUtils::Paint&,
                                    uint32_t scalerContextFlags,
                                    const SkMatrix& viewMatrix,
                                    const SkSurfaceProps&,
@@ -64,8 +66,7 @@ private:
 
     static inline GrAtlasTextBlob* CreateDrawTextBlob(GrTextBlobCache*,
                                                       GrAtlasGlyphCache*, const GrShaderCaps&,
-                                                      const GrPaint&,
-                                                      const SkPaint&,
+                                                      const GrTextUtils::Paint&,
                                                       uint32_t scalerContextFlags,
                                                       const SkMatrix& viewMatrix,
                                                       const SkSurfaceProps&,
@@ -73,8 +74,7 @@ private:
                                                       SkScalar x, SkScalar y);
     static inline GrAtlasTextBlob* CreateDrawPosTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
                                                          const GrShaderCaps&,
-                                                         const GrPaint&,
-                                                         const SkPaint&,
+                                                         const GrTextUtils::Paint&,
                                                          uint32_t scalerContextFlags,
                                                          const SkMatrix& viewMatrix,
                                                          const SkSurfaceProps&,

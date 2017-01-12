@@ -21,9 +21,11 @@ class GrFragmentProcessor;
 class GrPaint;
 class GrTexture;
 class GrUniqueKey;
+class SkBitmap;
 class SkData;
 class SkPaint;
 class SkPixelRef;
+class SkPixmap;
 struct SkIRect;
 
 /**

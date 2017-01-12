@@ -13,6 +13,7 @@
 #include "SkColorMatrixFilter.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkModeColorFilter.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -42,6 +43,10 @@ static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) 
     return SkBlurImageFilter::Make(amount, amount, std::move(input));
 }
 
+static sk_sp<SkColorFilter> make_color_filter() {
+    return SkModeColorFilter::Make(SK_ColorYELLOW, SkBlendMode::kLuminosity);
+}
+
 namespace skiagm {
 
 class ColorEmojiGM : public GM {
@@ -65,7 +70,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(650, 900);
+        return SkISize::Make(650, 1200);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -94,26 +99,31 @@ protected:
         for (int makeLinear = 0; makeLinear < 2; makeLinear++) {
             for (int makeBlur = 0; makeBlur < 2; makeBlur++) {
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
-                    SkPaint shaderPaint;
-                    shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
-                    if (SkToBool(makeLinear)) {
-                        shaderPaint.setShader(MakeLinear());
-                    }
+                    for (int makeMode = 0; makeMode < 2; ++makeMode) {
+                        SkPaint shaderPaint;
+                        shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
+                        if (SkToBool(makeLinear)) {
+                            shaderPaint.setShader(MakeLinear());
+                        }
 
-                    if (SkToBool(makeBlur) && SkToBool(makeGray)) {
-                        sk_sp<SkImageFilter> grayScale(make_grayscale(nullptr));
-                        sk_sp<SkImageFilter> blur(make_blur(3.0f, std::move(grayScale)));
-                        shaderPaint.setImageFilter(std::move(blur));
-                    } else if (SkToBool(makeBlur)) {
-                        shaderPaint.setImageFilter(make_blur(3.0f, nullptr));
-                    } else if (SkToBool(makeGray)) {
-                        shaderPaint.setImageFilter(make_grayscale(nullptr));
+                        if (SkToBool(makeBlur) && SkToBool(makeGray)) {
+                            sk_sp<SkImageFilter> grayScale(make_grayscale(nullptr));
+                            sk_sp<SkImageFilter> blur(make_blur(3.0f, std::move(grayScale)));
+                            shaderPaint.setImageFilter(std::move(blur));
+                        } else if (SkToBool(makeBlur)) {
+                            shaderPaint.setImageFilter(make_blur(3.0f, nullptr));
+                        } else if (SkToBool(makeGray)) {
+                            shaderPaint.setImageFilter(make_grayscale(nullptr));
+                        }
+                        if (makeMode) {
+                            shaderPaint.setColorFilter(make_color_filter());
+                        }
+                        shaderPaint.setTextSize(30);
+                        shaderPaint.getFontMetrics(&metrics);
+                        y += -metrics.fAscent;
+                        canvas->drawText(text, strlen(text), 380, y, shaderPaint);
+                        y += metrics.fDescent + metrics.fLeading;
                     }
-                    shaderPaint.setTextSize(30);
-                    shaderPaint.getFontMetrics(&metrics);
-                    y += -metrics.fAscent;
-                    canvas->drawText(text, strlen(text), 380, y, shaderPaint);
-                    y += metrics.fDescent + metrics.fLeading;
                 }
             }
         }
