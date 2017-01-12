@@ -16,6 +16,29 @@
       "revId": "5685412099da600c5e41b6198ebecf1ddd51a696",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_ed342500",
+        "filename": "include/gpu/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-12T15:14:58Z",
+      "side": 1,
+      "message": "should this default to 0, or should kUnknown be a case and the default is some failure?",
+      "range": {
+        "startLine": 308,
+        "startChar": 10,
+        "endLine": 309,
+        "endChar": 14
+      },
+      "revId": "5685412099da600c5e41b6198ebecf1ddd51a696",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
