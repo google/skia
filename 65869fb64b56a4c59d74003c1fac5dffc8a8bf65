@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a33d15bf_b3fe42b6",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5175
+      },
+      "writtenOn": "2017-01-12T16:06:52Z",
+      "side": 1,
+      "message": "+1 for this and https://skia-review.googlesource.com/c/6234\n\nWithout the offset and subset, this call behaves the same as getPixels should following the comment in L.71\n\nL.71: A size that does not match getInfo() implies a request\n     *         to scale. If the generator cannot perform this scale,\n     *         it will return kInvalidScale\n...\n\nbool getPixels(const SkImageInfo\u0026 info, void* pixels, size_t rowBytes);\n\nSo, we could remove it and  computeScaledDimensions too and use getPixels where this note is defined by the API:\nNote: this call does NOT allocate the memory for the pixmap; that must be done\n     *  by the caller.",
+      "revId": "65869fb64b56a4c59d74003c1fac5dffc8a8bf65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
