@@ -1198,6 +1198,10 @@ int nanobench_main() {
 
     gSkUseAnalyticAA = FLAGS_analyticAA;
 
+    if (FLAGS_forceAnalyticAA) {
+        gSkForceAnalyticAA = true;
+    }
+
     int runs = 0;
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
