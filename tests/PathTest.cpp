@@ -1923,6 +1923,18 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
 
+    // Same as above path and first test but with the extra moveTo making a degenerate sub-path
+    // following the non-empty sub-path. Verifies that this does not trigger assertions.
+    path.reset();
+    path.moveTo(0, 0);
+    path.lineTo(SkIntToScalar(100), 0);
+    path.lineTo(0, SkIntToScalar(100));
+    path.moveTo(100, 100);
+
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+                                                                               SkIntToScalar(10),
+                                                                               SkIntToScalar(10))));
+
     // Test that multiple move commands do not cause asserts and that the function
     // is not confused by the multiple moves.
     path.reset();
