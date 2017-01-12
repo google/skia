@@ -309,7 +309,7 @@ struct RoundCGFloatToInt {
 
 static int ct_weight_to_fontstyle(CGFloat cgWeight) {
     using Interpolator = LinearInterpolater<CGFloat, int, RoundCGFloatToInt>;
-
+#if 0
     // Values determined by creating font data with every weight, creating a CTFont,
     // and asking the CTFont for its weight. See TypefaceStyle test for basics.
 
@@ -329,6 +329,36 @@ static int ct_weight_to_fontstyle(CGFloat cgWeight) {
         {  1.00, 1000 },
     };
     static constexpr Interpolator interpolater(weightMappings, SK_ARRAY_COUNT(weightMappings));
+#else
+/*
+In an .mm file...
+#include <AppKit/AppKit>
+printf("{ % #.2f,  100 },\n", NSFontWeightUltraLight);
+printf("{ % #.2f,  200 },\n", NSFontWeightThin);
+printf("{ % #.2f,  300 },\n", NSFontWeightLight);
+printf("{ % #.2f,  400 },\n", NSFontWeightRegular);
+printf("{ % #.2f,  500 },\n", NSFontWeightMedium);
+printf("{ % #.2f,  600 },\n", NSFontWeightSemibold);
+printf("{ % #.2f,  700 },\n", NSFontWeightBold);
+printf("{ % #.2f,  800 },\n", NSFontWeightHeavy);
+printf("{ % #.2f,  900 },\n", NSFontWeightBlack);
+*/
+
+    static constexpr Interpolator::Mapping weightMappings[] = {
+        { -1.00,    0 },
+        { -0.80,  100 },
+        { -0.60,  200 },
+        { -0.40,  300 },
+        {  0.00,  400 },
+        {  0.23,  500 },
+        {  0.30,  600 },
+        {  0.40,  700 },
+        {  0.56,  800 },
+        {  0.62,  900 },
+        {  1.00, 1000 },
+    };
+    static constexpr Interpolator interpolater(weightMappings, SK_ARRAY_COUNT(weightMappings));
+#endif
     return interpolater.map(cgWeight);
 }
 
