@@ -177,9 +177,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
 
     if (caps->srgbSupport() &&
         pixmap.info().colorSpace() && pixmap.info().colorSpace()->gammaCloseToSRGB() &&
-        !(GrPixelConfigIsSRGB(desc.fConfig) ||
-          kRGBA_half_GrPixelConfig == desc.fConfig ||
-          kRGBA_float_GrPixelConfig == desc.fConfig)) {
+        !GrPixelConfigIsSRGB(desc.fConfig)) {
         // We were supplied an sRGB-like color space, but we don't have a suitable pixel config.
         // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
         // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
