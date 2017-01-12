@@ -28,6 +28,9 @@
 //
 // To disassemble an aarch64 dump,
 //   $ gobjdump -b binary -m aarch64 -D dump.bin
+//
+// To disassemble an armv7 dump,
+//   $ gobjdump -b binary -m arm -Mforce-thumb -D dump.bin
 
 namespace {
 
@@ -65,6 +68,17 @@ namespace {
     }
     static void ret(SkWStream* buf) {
         splice(buf, 0xd65f03c0);  // ret
+    }
+#elif defined(__ARM_NEON__)
+    static constexpr int kStride = 2;
+    static void set_ctx(SkWStream* buf, void* ctx) {
+        // TODO
+    }
+    static void loop(SkWStream* buf, int loop_start) {
+        // TODO
+    }
+    static void ret(SkWStream* buf) {
+        // TODO
     }
 #else
     static constexpr int kStride = 8;
@@ -132,7 +146,7 @@ namespace {
         };
         splice(buf, system_v_to_ms);
     }
-#elif !defined(__aarch64__) && defined(DUMP)
+#elif !defined(__aarch64__) && !defined(__ARM_NEON__) && defined(DUMP)
     // IACA start and end markers.
     static const uint8_t      ud2[] = { 0x0f, 0x0b };         // undefined... crashes when run
     static const uint8_t     nop3[] = { 0x64, 0x67, 0x90 };   // 3 byte no-op
@@ -222,8 +236,14 @@ namespace {
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
-        #if !defined(__aarch64__)
-            // To keep things simple, only one target supported: Haswell+ x86-64.
+        #if defined(__aarch64__)
+        #elif defined(__ARM_NEON__)
+            // Late generation ARMv7, e.g. Cortex A15 or Krait.
+            if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
+                return;
+            }
+        #else
+            // To keep things simple, only one x86 target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
@@ -300,6 +320,7 @@ namespace {
         void operator()(size_t x, size_t y, size_t n) const {
             size_t body = n/kStride*kStride;   // Largest multiple of kStride (4 or 8) <= n.
             if (fSpliced && body) {            // Can we run fSpliced for at least one kStride?
+                SkDebugf("start: %p\n", fSpliced);
                 // TODO: At some point we will want to pass in y...
                 using Fn = void(size_t x, size_t limit, void* ctx, const SkSplicer_constants* k);
                 ((Fn*)fSpliced)(x, x+body, nullptr, &kConstants);
