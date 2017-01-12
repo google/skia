@@ -263,14 +263,14 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
 
     SkPoint firstPt;
     SkPoint prevPt;
-    RawIter iter(*this);
+    SkPath::Iter iter(*this, true);
     SkPath::Verb verb;
     SkPoint pts[4];
     SkDEBUGCODE(int moveCnt = 0;)
     SkDEBUGCODE(int segmentCount = 0;)
     SkDEBUGCODE(int closeCount = 0;)
 
-    while ((verb = iter.next(pts)) != kDone_Verb) {
+    while ((verb = iter.next(pts, true, true)) != kDone_Verb) {
         int nextPt = -1;
         switch (verb) {
             case kMove_Verb:
