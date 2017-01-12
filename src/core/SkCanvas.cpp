@@ -3423,7 +3423,7 @@ SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
 
         SkIRect clip = fMCRec->fRasterClip.getBounds();
         clip.offset(-origin.x(), -origin.y());
-        if (clip.intersect(0, 0, dev->width(), dev->height())) {
+        if (!clip.intersect(0, 0, dev->width(), dev->height())) {
             clip.setEmpty();
         }
 
