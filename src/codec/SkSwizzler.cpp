@@ -51,6 +51,16 @@ static void sample4(void* dst, const uint8_t* src, int width, int bpp, int delta
     }
 }
 
+static void sample8(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+    src += offset;
+    uint64_t* dst64 = (uint64_t*) dst;
+    for (int x = 0; x < width; x++) {
+        dst64[x] = *((const uint64_t*) src);
+        src += deltaSrc;
+    }
+}
+
 // kBit
 // These routines exclusively choose between white and black
 
@@ -796,7 +806,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
 
     RowProc fastProc = nullptr;
     RowProc proc = nullptr;
+    int srcBPP;
+    const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
     if (skipFormatConversion) {
+        srcBPP = dstBPP;
         switch (dstInfo.colorType()) {
             case kGray_8_SkColorType:
                 proc = &sample1;
@@ -808,7 +821,14 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                 break;
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
-                proc = &sample4;
+                SkASSERT(16 == encodedInfo.bitsPerComponent() ||
+                          8 == encodedInfo.bitsPerComponent());
+                if (8 == encodedInfo.bitsPerComponent()) {
+                    proc = &sample4;
+                } else {
+                    srcBPP = 8;
+                    proc = &sample8;
+                }
                 fastProc = &copy;
                 break;
             default:
@@ -1137,13 +1157,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
             default:
                 return nullptr;
         }
-    }
 
-    int srcBPP;
-    const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
-    if (skipFormatConversion) {
-        srcBPP = dstBPP;
-    } else {
         // Store bpp in bytes if it is an even multiple, otherwise use bits
         uint8_t bitsPerPixel = encodedInfo.bitsPerPixel();
         srcBPP = SkIsAlign8(bitsPerPixel) ? bitsPerPixel / 8 : bitsPerPixel;

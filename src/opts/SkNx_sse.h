@@ -283,6 +283,8 @@ public:
     AI SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+    AI SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     AI SkNx operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
@@ -348,6 +350,8 @@ public:
     AI SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return _mm_mullo_epi16(fVec, o.fVec); }
+    AI SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
+    AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return _mm_slli_epi16(fVec, bits); }
     AI SkNx operator >> (int bits) const { return _mm_srli_epi16(fVec, bits); }
@@ -634,6 +638,14 @@ public:
         return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
     }
 
+    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
+        return _mm256_cvtepu16_epi32(src.fVec);
+    }
+
+    template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8h& src) {
+        return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
+    }
+
     template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8i& src) {
         return _mm256_cvtepi32_ps(src.fVec);
     }
@@ -642,9 +654,6 @@ public:
         return _mm256_cvttps_epi32(src.fVec);
     }
 
-    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8h& src) {
-        return _mm256_cvtepu16_epi32(src.fVec);
-    }
     template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8i& src) {
         __m128i lo = _mm256_extractf128_si256(src.fVec, 0),
                 hi = _mm256_extractf128_si256(src.fVec, 1);

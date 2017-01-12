@@ -419,16 +419,28 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
             // be created later if we are sampling.  We'll go ahead and allocate
             // enough memory to swizzle if necessary.
         case kSwizzleColor_XformMode: {
-            const size_t colorXformBytes = dstInfo.width() * sizeof(uint32_t);
+            const size_t bpp = (this->getEncodedInfo().bitsPerPixel() > 32) ? 8 : 4;
+            const size_t colorXformBytes = dstInfo.width() * bpp;
             fStorage.reset(colorXformBytes);
-            fColorXformSrcRow = (uint32_t*) fStorage.get();
+            fColorXformSrcRow = fStorage.get();
             break;
         }
     }
 }
 
+static SkColorSpaceXform::ColorFormat png_select_xform_format(const SkEncodedInfo& info) {
+    // We always use kRGBA because color PNGs are always RGB or RGBA.
+    // TODO (msarett): Support kRGB_U16 inputs as well.
+    if (16 == info.bitsPerComponent() && SkEncodedInfo::kRGBA_Color == info.color()) {
+        return SkColorSpaceXform::kRGBA_U16_BE_ColorFormat;
+    }
+
+    return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+}
+
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
-    const SkColorSpaceXform::ColorFormat srcColorFormat = select_xform_format(kXformSrcColorType);
+    const SkColorSpaceXform::ColorFormat srcColorFormat =
+            png_select_xform_format(this->getEncodedInfo());
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             fSwizzler->swizzle(dst, (const uint8_t*) src);
@@ -1073,10 +1085,10 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
         return false;
     }
 
-    // If the image is 32-bit RGBA and we have a color xform, we can skip the swizzler.
-    if (this->colorXform() && SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color() &&
-        8 == this->getEncodedInfo().bitsPerComponent() && !options.fSubset)
-    {
+    // If the image is RGBA and we have a color xform, we can skip the swizzler.
+    const bool skipFormatConversion = this->colorXform() &&
+            SkEncodedInfo::kRGBA_Color == this->getEncodedInfo().color();
+    if (skipFormatConversion && !options.fSubset) {
         fXformMode = kColorOnly_XformMode;
         return true;
     }
@@ -1090,7 +1102,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     // Copy the color table to the client if they request kIndex8 mode.
     copy_color_table(dstInfo, fColorTable.get(), ctable, ctableCount);
 
-    this->initializeSwizzler(dstInfo, options);
+    this->initializeSwizzler(dstInfo, options, skipFormatConversion);
     return true;
 }
 
@@ -1113,7 +1125,8 @@ void SkPngCodec::initializeXformParams() {
     }
 }
 
-void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
+void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
+                                    bool skipFormatConversion) {
     SkImageInfo swizzlerInfo = dstInfo;
     Options swizzlerOptions = options;
     fXformMode = kSwizzleOnly_XformMode;
@@ -1135,7 +1148,7 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
 
     const SkPMColor* colors = get_color_ptr(fColorTable.get());
     fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), colors, swizzlerInfo,
-                                               swizzlerOptions));
+                                               swizzlerOptions, nullptr, skipFormatConversion));
     SkASSERT(fSwizzler);
 }
 
@@ -1144,7 +1157,7 @@ SkSampler* SkPngCodec::getSampler(bool createIfNecessary) {
         return fSwizzler.get();
     }
 
-    this->initializeSwizzler(this->dstInfo(), this->options());
+    this->initializeSwizzler(this->dstInfo(), this->options(), true);
     return fSwizzler.get();
 }
 
