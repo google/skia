@@ -90,8 +90,8 @@ static void dump_transfer_fn(const SkGammas& gammas) {
 }
 
 static inline float parametric(const SkColorSpaceTransferFn& fn, float x) {
-    return x >= fn.fD ? powf(fn.fA*x + fn.fB, fn.fG) + fn.fC
-                      : fn.fE*x + fn.fF;
+    return x >= fn.fD ? powf(fn.fA*x + fn.fB, fn.fG) + fn.fE
+                      : fn.fC*x + fn.fF;
 }
 
 static void draw_transfer_fn(SkCanvas* canvas, SkGammaNamed gammaNamed, const SkGammas* gammas,
