@@ -9,7 +9,6 @@
 
 #include "png.h"
 
-#include "SkAutoMalloc.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
@@ -705,7 +704,7 @@ void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned heigh
 bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
                             UrlDataManager& urlDataManager) {
     size_t rowBytes = 4 * image.width();
-    SkAutoMalloc buffer(rowBytes * image.height());
+    SkAutoFree buffer(sk_malloc_throw(rowBytes * image.height()));
     SkImageInfo dstInfo = SkImageInfo::Make(image.width(), image.height(),
                                             kN32_SkColorType, kPremul_SkAlphaType);
     if (!image.readPixels(dstInfo, buffer.get(), rowBytes, 0, 0)) {

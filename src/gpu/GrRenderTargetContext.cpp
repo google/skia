@@ -158,7 +158,7 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
 }
 
-void GrRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint, const SkPaint& skPaint,
+void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix, const char text[],
                                      size_t byteLength, SkScalar x, SkScalar y,
                                      const SkIRect& clipBounds) {
@@ -168,13 +168,13 @@ void GrRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint, cons
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
+    atlasTextContext->drawText(fContext, this, clip, skPaint, viewMatrix,
                                fSurfaceProps, text, byteLength, x, y, clipBounds);
 }
 
-void GrRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
-                                        const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                        const char text[], size_t byteLength, const SkScalar pos[],
+void GrRenderTargetContext::drawPosText(const GrClip& clip,  const SkPaint& skPaint,
+                                        const SkMatrix& viewMatrix, const char text[],
+                                        size_t byteLength, const SkScalar pos[],
                                         int scalarsPerPosition, const SkPoint& offset,
                                         const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
@@ -183,7 +183,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawPosText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawPosText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
+    atlasTextContext->drawPosText(fContext, this, clip, skPaint, viewMatrix,
                                   fSurfaceProps, text, byteLength, pos, scalarsPerPosition, offset,
                                   clipBounds);
 }
