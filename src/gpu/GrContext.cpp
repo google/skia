@@ -308,10 +308,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
     if (tempTexture) {
         sk_sp<GrFragmentProcessor> fp;
-        SkMatrix textureMatrix;
-        textureMatrix.setIDiv(tempTexture->width(), tempTexture->height());
         if (applyPremulToSrc) {
-            fp = this->createUPMToPMEffect(tempTexture.get(), tempDrawInfo.fSwizzle, textureMatrix);
+            fp = this->createUPMToPMEffect(tempTexture.get(), tempDrawInfo.fSwizzle, SkMatrix::I(), true);
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -325,7 +323,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
             if (!fp) {
                 fp = GrConfigConversionEffect::Make(tempTexture.get(), tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
-                                                    textureMatrix);
+                                                    SkMatrix::I(), true);
                 if (!fp) {
                     return false;
                 }
@@ -463,13 +461,11 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
-            SkMatrix textureMatrix;
-            textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            textureMatrix.postIDiv(src->width(), src->height());
+            SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
                 fp = this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwizzle,
-                                               textureMatrix);
+                                               textureMatrix, true);
                 if (fp) {
                     unpremul = false; // we no longer need to do this on CPU after the read back.
                 } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -481,7 +477,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
             if (!fp && tempRTC) {
                 fp = GrConfigConversionEffect::Make(src->asTexture(), tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
-                                                    textureMatrix);
+                                                    textureMatrix, true);
             }
             if (fp) {
                 GrPaint paint;
@@ -847,14 +843,14 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
 
 sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
                                                           const GrSwizzle& swizzle,
-                                                          const SkMatrix& matrix) const {
+                                                          const SkMatrix& matrix, bool bFoo) const {
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
+        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix, bFoo);
     } else {
         return nullptr;
     }
@@ -862,14 +858,14 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
 
 sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(GrTexture* texture,
                                                           const GrSwizzle& swizzle,
-                                                          const SkMatrix& matrix) const {
+                                                          const SkMatrix& matrix, bool bFoo) const {
     ASSERT_SINGLE_OWNER
     // We should have already called this->testPMConversionsIfNecessary().
     SkASSERT(fDidTestPMConversions);
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, upmToPM, matrix);
+        return GrConfigConversionEffect::Make(texture, swizzle, upmToPM, matrix, bFoo);
     } else {
         return nullptr;
     }

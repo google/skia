@@ -557,7 +557,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
-            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
+            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr, true,
                                                                       skPaint.getFilterQuality(),
                                                                       rtc->getColorSpace()));
             if (!shaderFP) {
@@ -744,7 +744,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         if (const SkShader* shader = paint.getShader()) {
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context,
                                                                       &viewM,
-                                                                      nullptr,
+                                                                      nullptr, true,
                                                                       paint.getFilterQuality(),
                                                                       rtc->getColorSpace()));
             if (!shaderFP) {

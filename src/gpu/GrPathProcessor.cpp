@@ -52,7 +52,7 @@ public:
         int i = 0;
         while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
             GrSLType varyingType =
-                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
+                    coordTransform->getMatrix5().hasPerspective() ? kVec3f_GrSLType
                                                                  : kVec2f_GrSLType;
 
             SkString strVaryingName;
