@@ -34,7 +34,7 @@ public:
     };
 
     static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
-                                           const SkMatrix&);
+                                           const SkMatrix&, bool bFoo);
 
     const char* name() const override { return "Config Conversion"; }
 
@@ -54,7 +54,7 @@ private:
     GrConfigConversionEffect(GrTexture*,
                              const GrSwizzle&,
                              PMConversion pmConversion,
-                             const SkMatrix& matrix);
+                             const SkMatrix& matrix, bool bFoo);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

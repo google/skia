@@ -88,11 +88,11 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                             nullptr, fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
     SkMatrix normalizedTextureMatrix = textureMatrix;
-    normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
+    //normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),
-                                                     normalizedTextureMatrix, domainMode, domain,
+                                                     normalizedTextureMatrix, true, domainMode, domain,
                                                      filterOrNullForBicubic);
 }
 

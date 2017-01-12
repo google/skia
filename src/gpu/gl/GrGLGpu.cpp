@@ -3261,8 +3261,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
         }
     }
 
-    newTexParams.fMinFilter = glMinFilterModes[filterMode];
-    newTexParams.fMagFilter = glMagFilterModes[filterMode];
+    newTexParams.fMinFilter = glMinFilterModes[(int)filterMode];
+    newTexParams.fMagFilter = glMagFilterModes[(int)filterMode];
 
     if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
         newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;

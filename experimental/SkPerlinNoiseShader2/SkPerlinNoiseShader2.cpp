@@ -1320,7 +1320,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
 
     if (fType == kImprovedNoise_Type) {
         GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
-                                      GrSamplerParams::FilterMode::kNone_FilterMode);
+                                      GrSamplerParams::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
                                      textureParams));

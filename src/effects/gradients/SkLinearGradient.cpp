@@ -461,7 +461,7 @@ sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs&
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, args.fFoo, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
