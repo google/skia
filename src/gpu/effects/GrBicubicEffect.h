@@ -31,10 +31,10 @@ public:
      */
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
+                                           const SkMatrix& matrix, bool bFoo,
                                            const SkShader::TileMode tileModes[2]) {
         return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(tex, std::move(colorSpaceXform),
-                                                              matrix, tileModes));
+                                                              matrix, bFoo, tileModes));
     }
 
     /**
@@ -42,10 +42,10 @@ public:
      */
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
+                                           const SkMatrix& matrix, bool bFoo,
                                            const SkRect& domain) {
         return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(tex, std::move(colorSpaceXform),
-                                                              matrix, domain));
+                                                              matrix, bFoo, domain));
     }
 
     /**
@@ -59,9 +59,9 @@ public:
                                  GrSamplerParams::FilterMode* filterMode);
 
 private:
-    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix,
+    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix, bool bFoo,
                     const SkShader::TileMode tileModes[2]);
-    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix,
+    GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix &matrix, bool bFoo,
                     const SkRect& domain);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

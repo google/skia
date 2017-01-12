@@ -435,9 +435,9 @@ private:
      * return NULL. They also can perform a swizzle as part of the draw.
      */
     sk_sp<GrFragmentProcessor> createPMToUPMEffect(GrTexture*, const GrSwizzle&,
-                                                   const SkMatrix&) const;
+                                                   const SkMatrix&, bool bFoo) const;
     sk_sp<GrFragmentProcessor> createUPMToPMEffect(GrTexture*, const GrSwizzle&,
-                                                   const SkMatrix&) const;
+                                                   const SkMatrix&, bool bFoo) const;
     /** Called before either of the above two functions to determine the appropriate fragment
         processors for conversions. */
     void testPMConversionsIfNecessary(uint32_t flags);

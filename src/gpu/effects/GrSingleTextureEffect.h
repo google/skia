@@ -34,13 +34,13 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&, bool bFoo);
     /** clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&, bool bFoo,
                           GrSamplerParams::FilterMode filterMode);
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
-                          const SkMatrix&,
+                          const SkMatrix&, bool bFoo,
                           const GrSamplerParams&);
 
     /**
@@ -60,7 +60,7 @@ protected:
     }
 
 private:
-    GrCoordTransform fCoordTransform;
+    GrCoordTransform fCoordTransform1;
     TextureSampler fTextureSampler;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 

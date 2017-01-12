@@ -84,7 +84,7 @@ protected:
         if (origKey.isValid()) {
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey::Builder builder(copyKey, origKey, kDomain, 3);
-            builder[0] = copyParams.fFilter;
+            builder[0] = (int) copyParams.fFilter;
             builder[1] = copyParams.fWidth;
             builder[2] = copyParams.fHeight;
         }
@@ -130,7 +130,7 @@ protected:
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
         GrTexture* texture,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
-        const SkMatrix& textureMatrix,
+        const SkMatrix& textureMatrix, bool bFoo,
         DomainMode domainMode,
         const SkRect& domain,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic);

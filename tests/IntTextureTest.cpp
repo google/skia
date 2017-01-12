@@ -207,9 +207,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     };
 
     for (auto filter : kNamedFilters) {
-        SkMatrix m;
-        m.setIDiv(kS, kS);
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m,
+        SkMatrix m = SkMatrix::I();
+        //m.setIDiv(kS, kS);
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m, true,
                                                                   filter.fMode));
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {
