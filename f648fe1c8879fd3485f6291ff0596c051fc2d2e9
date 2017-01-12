@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_50db52fe",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-12T17:47:28Z",
+      "side": 1,
+      "message": "can we try making SrcGamma (at least) a runtime parameter instead of a template param?",
+      "range": {
+        "startLine": 336,
+        "startChar": 31,
+        "endLine": 336,
+        "endChar": 49
+      },
+      "revId": "f648fe1c8879fd3485f6291ff0596c051fc2d2e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
