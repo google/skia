@@ -77,8 +77,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
                                        this->fColorSpace))) {
         return false;
     }
-    if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
-                              dst->getPixels(), dst->rowBytes())) {
+    if (!fTexture->readPixels(0, 0, dst->info(), dst->getPixels(), dst->rowBytes())) {
         return false;
     }
 
@@ -124,14 +123,12 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                int srcX, int srcY, CachingHint) const {
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == info.alphaType() && kPremul_SkAlphaType == fAlphaType) {
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(fColorSpace.get(), srcX, srcY, info.width(), info.height(), config,
-                              info.colorSpace(), pixels, rowBytes, flags)) {
+    if (!fTexture->readPixels(fColorSpace.get(), srcX, srcY, info, pixels, rowBytes, flags)) {
         return false;
     }
     // do we have to manually fix-up the alpha channel?

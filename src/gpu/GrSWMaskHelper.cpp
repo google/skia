@@ -117,8 +117,7 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit
         return nullptr;
     }
 
-    tex->writePixels(0, 0, fPixels.width(), fPixels.height(), kAlpha_8_GrPixelConfig,
-                     fPixels.addr(), fPixels.rowBytes());
+    tex->writePixels(0, 0, fPixels.info(), fPixels.addr(), fPixels.rowBytes());
 
     return sk_ref_sp(sContext->asDeferredTexture());
 }

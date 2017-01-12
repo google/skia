@@ -105,7 +105,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
         return false;
     }
 
-    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+    texture->writePixels(0, 0, SkImageInfo::MakeA8(desc.fWidth, desc.fHeight),
                          dstM.fImage, dstM.fRowBytes);
 
     return draw_mask(renderTargetContext, context->textureProvider(), clipData, viewMatrix,

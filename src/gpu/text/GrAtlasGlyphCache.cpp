@@ -136,8 +136,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
         return false;
     }
 
-    bool result = tex->readPixels(0, 0, sProxy->width(), sProxy->height(), kSkia8888_GrPixelConfig,
-                                  bm.getPixels(), bm.rowBytes());
+    bool result = tex->readPixels(0, 0, bm.info(), bm.getPixels(), bm.rowBytes());
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;

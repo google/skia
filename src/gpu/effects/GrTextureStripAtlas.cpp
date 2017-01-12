@@ -8,7 +8,6 @@
 #include "GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkGr.h"
 #include "SkPixelRef.h"
 #include "SkTSearch.h"
 
@@ -157,8 +156,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         // Pass in the kDontFlush flag, since we know we're writing to a part of this texture
         // that is not currently in use
         fTexture->writePixels(0,  rowNumber * fDesc.fRowHeight,
-                              fDesc.fWidth, fDesc.fRowHeight,
-                              SkImageInfo2GrPixelConfig(data.info(), *this->getContext()->caps()),
+                              data.info().makeWH(fDesc.fWidth, fDesc.fRowHeight),
                               data.getPixels(),
                               data.rowBytes(),
                               GrContext::kDontFlush_PixelOpsFlag);

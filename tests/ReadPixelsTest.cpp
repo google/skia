@@ -448,16 +448,13 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
                 // Try doing the read directly from a non-renderable texture
                 if (startsWithPixels) {
                     fill_dst_bmp_with_init_data(&bmp);
-                    GrPixelConfig dstConfig =
-                            SkImageInfo2GrPixelConfig(bmp.info(), *texture->getContext()->caps());
                     uint32_t flags = 0;
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
                         flags = GrContext::kUnpremul_PixelOpsFlag;
                     }
                     bmp.lockPixels();
-                    bool success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.width(),
-                                                       bmp.height(), dstConfig, bmp.getPixels(),
-                                                       bmp.rowBytes(), flags);
+                    bool success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.info(),
+                                                       bmp.getPixels(), bmp.rowBytes(), flags);
                     bmp.unlockPixels();
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
                                success, true,

@@ -108,7 +108,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
             yuvTextures[i].reset(ctx->textureProvider()->createApproxTexture(yuvDesc));
         }
         if (!yuvTextures[i] ||
-            !yuvTextures[i]->writePixels(0, 0, yuvDesc.fWidth, yuvDesc.fHeight, yuvDesc.fConfig,
+            !yuvTextures[i]->writePixels(0, 0, SkImageInfo::MakeA8(yuvDesc.fWidth, yuvDesc.fHeight),
                                          planes[i], yuvInfo.fSizeInfo.fWidthBytes[i])) {
                 return nullptr;
             }

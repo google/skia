@@ -10,6 +10,7 @@
 #include "GrOpList.h"
 #include "GrSurfacePriv.h"
 
+#include "SkGr.h"
 #include "SkGrPriv.h"
 #include "SkMathPriv.h"
 
@@ -138,28 +139,56 @@ bool GrSurfacePriv::AdjustWritePixelParams(int surfaceWidth,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrSurface::writePixels(SkColorSpace* dstColorSpace, int left, int top, int width, int height,
-                            GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
+bool GrSurface::writePixels(SkColorSpace* dstColorSpace, int left, int top,
+                            const SkImageInfo& srcInfo, const void* buffer, size_t rowBytes,
+                            uint32_t pixelOpsFlags) {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (nullptr == context) {
+        return false;
+    }
+    return context->writeSurfacePixels(this, dstColorSpace, left, top,
+                                       srcInfo.width(), srcInfo.height(),
+                                       SkImageInfo2GrPixelConfig(srcInfo, *context->caps()),
+                                       srcInfo.colorSpace(), buffer, rowBytes, pixelOpsFlags);
+}
+
+bool GrSurface::readPixels(SkColorSpace* srcColorSpace, int left, int top,
+                           const SkImageInfo& dstInfo, void* buffer, size_t rowBytes,
+                           uint32_t pixelOpsFlags) {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (nullptr == context) {
+        return false;
+    }
+    return context->readSurfacePixels(this, srcColorSpace, left, top,
+                                      dstInfo.width(), dstInfo.height(),
+                                      SkImageInfo2GrPixelConfig(dstInfo, *context->caps()),
+                                      dstInfo.colorSpace(), buffer, rowBytes, pixelOpsFlags);
+}
+
+bool GrSurface::writePixels(int left, int top, int width, int height,
+                            GrPixelConfig config, const void* buffer,
                             size_t rowBytes, uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
     if (nullptr == context) {
         return false;
     }
-    return context->writeSurfacePixels(this, dstColorSpace, left, top, width, height, config,
-                                       srcColorSpace, buffer, rowBytes, pixelOpsFlags);
+    return context->writeSurfacePixels(this, nullptr, left, top, width, height, config,
+                                       nullptr, buffer, rowBytes, pixelOpsFlags);
 }
 
-bool GrSurface::readPixels(SkColorSpace* srcColorSpace, int left, int top, int width, int height,
-                           GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
+bool GrSurface::readPixels(int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer,
                            size_t rowBytes, uint32_t pixelOpsFlags) {
     // go through context so that all necessary flushing occurs
     GrContext* context = this->getContext();
     if (nullptr == context) {
         return false;
     }
-    return context->readSurfacePixels(this, srcColorSpace, left, top, width, height, config,
-                                      dstColorSpace, buffer, rowBytes, pixelOpsFlags);
+    return context->readSurfacePixels(this, nullptr, left, top, width, height, config,
+                                      nullptr, buffer, rowBytes, pixelOpsFlags);
 }
 
 void GrSurface::flushWrites() {

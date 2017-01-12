@@ -168,6 +168,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     *upmToPMRule = kNone_PMConversion;
     static constexpr int kSize = 256;
     static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+    SkImageInfo info = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
     uint32_t* srcData = data.get();
     uint32_t* firstRead = data.get() + kSize * kSize;
@@ -240,7 +241,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kDstRect,
                                 kSrcRect);
 
-        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
+        readRTC->asTexture()->readPixels(0, 0, info, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -254,7 +255,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         readRTC->fillRectToRect(GrNoClip(), std::move(paint3), GrAA::kNo, SkMatrix::I(), kDstRect,
                                 kSrcRect);
 
-        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
+        readRTC->asTexture()->readPixels(0, 0, info, secondRead);
 
         failed = false;
         for (int y = 0; y < kSize && !failed; ++y) {

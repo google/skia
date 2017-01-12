@@ -22,7 +22,6 @@
 #include "GrResourceKey.h"
 #include "GrSamplerParams.h"
 #include "GrYUVProvider.h"
-#include "SkGr.h"
 #include "SkGrPriv.h"
 #endif
 
@@ -246,10 +245,8 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
     }
 
     const uint32_t pixelOpsFlags = 0;
-    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
-                         SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
-                         cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes(),
-                         pixelOpsFlags)) {
+    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, cacheInfo, bitmap->getPixels(),
+                         bitmap->rowBytes(), pixelOpsFlags)) {
         bitmap->reset();
         return false;
     }

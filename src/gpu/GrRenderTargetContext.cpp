@@ -1270,12 +1270,6 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
 
 bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                                        size_t dstRowBytes, int x, int y) {
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
@@ -1288,17 +1282,11 @@ bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuff
         return false;
     }
 
-    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
-                          config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
+    return rt->readPixels(this->getColorSpace(), x, y, dstInfo, dstBuffer, dstRowBytes, flags);
 }
 
 bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                                         size_t srcRowBytes, int x, int y) {
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
     uint32_t flags = 0;
     if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
         flags = GrContext::kUnpremul_PixelOpsFlag;
@@ -1311,8 +1299,7 @@ bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* 
         return false;
     }
 
-    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
-                           config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
+    return rt->writePixels(this->getColorSpace(), x, y, srcInfo, srcBuffer, srcRowBytes, flags);
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?

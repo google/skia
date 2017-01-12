@@ -114,9 +114,8 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
                     ((x + y) % 2) ? (i ? green : red) : blue;
             }
         }
-        texture->writePixels(S, (i ? 0 : S), S, S,
-                                texture->config(), gTextureData.get(),
-                                4 * stride);
+        texture->writePixels(S, (i ? 0 : S), SkImageInfo::MakeN32Premul(S, S),
+                             gTextureData.get(), 4 * stride);
         renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, vm,
                                       SkRect::MakeWH(2 * S, 2 * S));
     }

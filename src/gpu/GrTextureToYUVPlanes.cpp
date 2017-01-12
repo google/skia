@@ -154,8 +154,9 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
             SkISize yuvSize = sizes[0];
             // We have no kRGB_888 pixel format, so readback rgba and then copy three channels.
             SkAutoSTMalloc<128 * 128, uint32_t> tempYUV(yuvSize.fWidth * yuvSize.fHeight);
-            if (!yuvTex->readPixels(0, 0, yuvSize.fWidth, yuvSize.fHeight,
-                                    kRGBA_8888_GrPixelConfig, tempYUV.get(), 0)) {
+            SkImageInfo tempInfo = SkImageInfo::Make(yuvSize.fWidth, yuvSize.fHeight,
+                                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+            if (!yuvTex->readPixels(0, 0, tempInfo, tempYUV.get(), 0)) {
                 return false;
             }
             size_t yRowBytes = rowBytes[0] ? rowBytes[0] : yuvSize.fWidth;
@@ -184,8 +185,8 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
             SkASSERT(yRenderTargetContext);
             sk_sp<GrTexture> yTex(yRenderTargetContext->asTexture());
             SkASSERT(yTex);
-            if (!yTex->readPixels(0, 0, sizes[0].fWidth, sizes[0].fHeight,
-                                  kAlpha_8_GrPixelConfig, planes[0], rowBytes[0])) {
+            if (!yTex->readPixels(0, 0, SkImageInfo::MakeA8(sizes[0].fWidth, sizes[0].fHeight),
+                                  planes[0], rowBytes[0])) {
                 return false;
             }
             if (uvRenderTargetContext) {
@@ -195,8 +196,10 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
                 SkISize uvSize = sizes[1];
                 // We have no kRG_88 pixel format, so readback rgba and then copy two channels.
                 SkAutoSTMalloc<128 * 128, uint32_t> tempUV(uvSize.fWidth * uvSize.fHeight);
-                if (!uvTex->readPixels(0, 0, uvSize.fWidth, uvSize.fHeight,
-                                       kRGBA_8888_GrPixelConfig, tempUV.get(), 0)) {
+                SkImageInfo tempInfo = SkImageInfo::Make(uvSize.fWidth, uvSize.fHeight,
+                                                         kRGBA_8888_SkColorType,
+                                                         kPremul_SkAlphaType);
+                if (!uvTex->readPixels(0, 0, tempInfo, tempUV.get(), 0)) {
                     return false;
                 }
 
@@ -221,14 +224,14 @@ bool GrTextureToYUVPlanes(GrTexture* texture, const SkISize sizes[3], void* cons
                 SkASSERT(uRenderTargetContext && vRenderTargetContext);
                 sk_sp<GrTexture> tex(uRenderTargetContext->asTexture());
                 SkASSERT(tex);
-                if (!tex->readPixels(0, 0, sizes[1].fWidth, sizes[1].fHeight,
-                                     kAlpha_8_GrPixelConfig, planes[1], rowBytes[1])) {
+                if (!tex->readPixels(0, 0, SkImageInfo::MakeA8(sizes[1].fWidth, sizes[1].fHeight),
+                                     planes[1], rowBytes[1])) {
                     return false;
                 }
                 tex = vRenderTargetContext->asTexture();
                 SkASSERT(tex);
-                if (!tex->readPixels(0, 0, sizes[2].fWidth, sizes[2].fHeight,
-                                     kAlpha_8_GrPixelConfig, planes[2], rowBytes[2])) {
+                if (!tex->readPixels(0, 0, SkImageInfo::MakeA8(sizes[2].fWidth, sizes[2].fHeight),
+                                     planes[2], rowBytes[2])) {
                     return false;
                 }
                 return true;
