@@ -233,11 +233,11 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (pathEffect == nullptr)
         paint->setPathEffect(nullptr);
     else if (pathEffect != (SkDrawPathEffect*) -1)
-        paint->setPathEffect(sk_ref_sp(pathEffect->getPathEffect()));
+        paint->setPathEffect(pathEffect->refPathEffect());
     if (shader == nullptr)
         paint->setShader(nullptr);
     else if (shader != (SkDrawShader*) -1)
-        paint->setShader(sk_ref_sp(shader->getShader()));
+        paint->setShader(shader->refShader());
     if (strikeThru != -1)
         paint->setStrikeThruText(SkToBool(strikeThru));
     if (strokeCap != -1)

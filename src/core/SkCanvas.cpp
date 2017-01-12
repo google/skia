@@ -485,7 +485,7 @@ public:
              *      draw onto the previous layer using the xfermode from the original paint.
              */
             SkPaint tmp;
-            tmp.setImageFilter(sk_ref_sp(fPaint->getImageFilter()));
+            tmp.setImageFilter(fPaint->refImageFilter());
             tmp.setBlendMode(fPaint->getBlendMode());
             SkRect storage;
             if (rawBounds) {
@@ -1180,7 +1180,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool i
         return SkImageInfo::MakeN32(w, h, alphaType);
     } else {
         // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, sk_ref_sp(prev.colorSpace()));
+        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.refColorSpace());
     }
 }
 

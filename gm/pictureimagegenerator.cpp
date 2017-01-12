@@ -158,8 +158,7 @@ protected:
                                                  p.getAlpha() != 255 ? &p : nullptr,
                                                  SkImage::BitDepth::kU8, srgbColorSpace));
 
-            SkImageInfo bmInfo = gen->getInfo().makeColorSpace(
-                sk_ref_sp(canvas->imageInfo().colorSpace()));
+            SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
 
             SkBitmap bm;
             SkAssertResult(gen->tryGenerateBitmap(&bm, bmInfo, nullptr));

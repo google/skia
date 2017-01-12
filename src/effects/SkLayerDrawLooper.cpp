@@ -92,16 +92,16 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
     }
 
     if (bits & kPathEffect_Bit) {
-        dst->setPathEffect(sk_ref_sp(src.getPathEffect()));
+        dst->setPathEffect(src.refPathEffect());
     }
     if (bits & kMaskFilter_Bit) {
-        dst->setMaskFilter(sk_ref_sp(src.getMaskFilter()));
+        dst->setMaskFilter(src.refMaskFilter());
     }
     if (bits & kShader_Bit) {
-        dst->setShader(sk_ref_sp(src.getShader()));
+        dst->setShader(src.refShader());
     }
     if (bits & kColorFilter_Bit) {
-        dst->setColorFilter(sk_ref_sp(src.getColorFilter()));
+        dst->setColorFilter(src.refColorFilter());
     }
     if (bits & kXfermode_Bit) {
         dst->setBlendMode(src.getBlendMode());

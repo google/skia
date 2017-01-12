@@ -95,7 +95,7 @@ protected:
             for (int makeBlur = 0; makeBlur < 2; makeBlur++) {
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     SkPaint shaderPaint;
-                    shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
+                    shaderPaint.setTypeface(paint.refTypeface());
                     if (SkToBool(makeLinear)) {
                         shaderPaint.setShader(MakeLinear());
                     }
