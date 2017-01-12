@@ -285,45 +285,29 @@ static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
 }
 
 static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
-    static const uint32_t kFlags[] = {
-        0,                              // kUnknown_GrPixelConfig
-        kA_GrColorComponentFlag,        // kAlpha_8_GrPixelConfig
-        kRGB_GrColorComponentFlags,     // kGray_8_GrPixelConfig
-        kRGB_GrColorComponentFlags,     // kRGB_565_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kRGBA_4444_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kRGBA_8888_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kBGRA_8888_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kSRGBA_8888_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kSBGRA_8888_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kRGBA_8888_sint_GrPixelConfig
-        kRGB_GrColorComponentFlags,     // kETC1_GrPixelConfig
-        kA_GrColorComponentFlag,        // kLATC_GrPixelConfig
-        kA_GrColorComponentFlag,        // kR11_EAC_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kASTC_12x12_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kRGBA_float_GrPixelConfig
-        kA_GrColorComponentFlag,        // kAlpha_16_GrPixelConfig
-        kRGBA_GrColorComponentFlags,    // kRGBA_half_GrPixelConfig
-    };
-    return kFlags[config];
-
-    GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
-    GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kGray_8_GrPixelConfig);
-    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
-    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
-    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFlags) == kGrPixelConfigCnt);
+    switch (config) {
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kASTC_12x12_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return kRGBA_GrColorComponentFlags;
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kETC1_GrPixelConfig:
+            return kRGB_GrColorComponentFlags;
+        case kAlpha_8_GrPixelConfig:
+        case kLATC_GrPixelConfig:
+        case kR11_EAC_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+            return kA_GrColorComponentFlag;
+        default:
+            return 0;
+    }
 }
 
 #endif
