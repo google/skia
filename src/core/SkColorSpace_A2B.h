@@ -159,13 +159,13 @@ public:
 
     PCS pcs() const { return fPCS; }
 
-    InputColorFormat inputColorFormat() const { return fInputColorFormat; }
+    ICCTypeFlag iccType() const { return fICCType; }
 
-    SkColorSpace_A2B(InputColorFormat inputColorFormat, std::vector<Element> elements, PCS pcs,
+    SkColorSpace_A2B(ICCTypeFlag iccType, std::vector<Element> elements, PCS pcs,
                      sk_sp<SkData> profileData);
 
 private:
-    InputColorFormat     fInputColorFormat;
+    ICCTypeFlag          fICCType;
     std::vector<Element> fElements;
     PCS                  fPCS;
 

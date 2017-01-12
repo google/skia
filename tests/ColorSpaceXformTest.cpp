@@ -50,7 +50,7 @@ public:
         srcElements.push_back(SkColorSpace_A2B::Element(arbitraryMatrix));
         auto srcSpace =
                 ColorSpaceXformTest::CreateA2BSpace(SkColorSpace_A2B::PCS::kXYZ,
-                                                    SkColorSpace_Base::InputColorFormat::kRGB,
+                                                    SkColorSpace_Base::kRGB_ICCTypeFlag,
                                                     std::move(srcElements));
         sk_sp<SkColorSpace> dstSpace(new SkColorSpace_XYZ(gammaNamed, gammas, arbitraryMatrix,
                                                           nullptr));
@@ -60,9 +60,9 @@ public:
     }
 
     static sk_sp<SkColorSpace> CreateA2BSpace(SkColorSpace_A2B::PCS pcs,
-                                              SkColorSpace_Base::InputColorFormat inputColorFormat,
+                                              SkColorSpace_Base::ICCTypeFlag iccType,
                                               std::vector<SkColorSpace_A2B::Element> elements) {
-        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(inputColorFormat, std::move(elements),
+        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(iccType, std::move(elements),
                                                         pcs, nullptr));
     }
 };
@@ -302,7 +302,7 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     std::vector<SkColorSpace_A2B::Element> srcElements;
     srcElements.push_back(SkColorSpace_A2B::Element(std::move(colorLUT)));
     auto srcSpace = ColorSpaceXformTest::CreateA2BSpace(SkColorSpace_A2B::PCS::kXYZ,
-                                                        SkColorSpace_Base::InputColorFormat::kRGB,
+                                                        SkColorSpace_Base::kRGB_ICCTypeFlag,
                                                         std::move(srcElements));
     // dst space is entirely identity
     auto dstSpace = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, SkMatrix44::I());
