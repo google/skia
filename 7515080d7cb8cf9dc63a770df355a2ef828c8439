@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "43f0d99f_cd65e920",
+        "filename": "include/core/SkColorSpaceXform.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-12T15:10:21Z",
+      "side": 1,
+      "message": "Unsigned 16-bit integers...  That are also big endian.  I think this is better as kRGBA_U16_BE_ColorFormat.  Also added a comment.",
+      "parentUuid": "43f0d99f_cd8e89c0",
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43f0d99f_4da3b93f",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 16
@@ -36,6 +54,24 @@
       "writtenOn": "2017-01-12T14:44:15Z",
       "side": 1,
       "message": "Should this be static or namespaced?",
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_ed3f05f2",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-12T15:10:21Z",
+      "side": 1,
+      "message": "Good catch, it is static now.",
+      "parentUuid": "43f0d99f_4da3b93f",
       "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
         "endLine": 431,
         "endChar": 26
       },
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_6d2315d9",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-12T15:10:21Z",
+      "side": 1,
+      "message": "sgtm.\n\nYes, we always go RGB-\u003eRGBA before the color xform.  We could potentially consider adding 8-bit RGB as an input (as well as 16-bit RGB).",
+      "parentUuid": "43f0d99f_8d9481d4",
       "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
