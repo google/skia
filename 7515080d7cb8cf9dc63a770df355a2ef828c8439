@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_cd8e89c0",
+        "filename": "include/core/SkColorSpaceXform.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-12T14:44:15Z",
+      "side": 1,
+      "message": "What is U16?",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 29
+      },
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_4da3b93f",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-12T14:44:15Z",
+      "side": 1,
+      "message": "Should this be static or namespaced?",
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_8d9481d4",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-12T14:44:15Z",
+      "side": 1,
+      "message": "I think it\u0027s more interesting to state why we always use kRGBA - because PNG stores its colors in RGB order, right? (And I suppose it\u0027s easier to always consider alpha, even if there is no transparency?)",
+      "range": {
+        "startLine": 431,
+        "startChar": 7,
+        "endLine": 431,
+        "endChar": 26
+      },
+      "revId": "7515080d7cb8cf9dc63a770df355a2ef828c8439",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
