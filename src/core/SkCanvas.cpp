@@ -853,10 +853,7 @@ SkBaseDevice* SkCanvas::getDevice() const {
     return rec->fLayer->fDevice;
 }
 
-SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
-    if (updateMatrixClip) {
-        const_cast<SkCanvas*>(this)->updateDeviceCMCache();
-    }
+SkBaseDevice* SkCanvas::getTopDevice() const {
     return fMCRec->fTopLayer->fDevice;
 }
 
@@ -1403,7 +1400,7 @@ void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoi
         *rowBytes = pmap.rowBytes();
     }
     if (origin) {
-        *origin = this->getTopDevice(false)->getOrigin();
+        *origin = this->getTopDevice()->getOrigin();
     }
     return pmap.writable_addr();
 }
