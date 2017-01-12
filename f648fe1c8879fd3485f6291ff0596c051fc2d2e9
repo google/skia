@@ -22,6 +22,24 @@
       "revId": "f648fe1c8879fd3485f6291ff0596c051fc2d2e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_70b92e8a",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-12T18:17:44Z",
+      "side": 1,
+      "message": "Made SrcGamma and DstGamma class members instead of class templates.  Deleted a bunch of code :).",
+      "parentUuid": "43f0d99f_50db52fe",
+      "revId": "f648fe1c8879fd3485f6291ff0596c051fc2d2e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
