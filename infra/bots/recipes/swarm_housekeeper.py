@@ -6,13 +6,13 @@
 # Recipe for the Skia PerCommit Housekeeper.
 
 DEPS = [
-  'core',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
-  'run',
-  'vars',
+  'skia-recipes/core',
+  'skia-recipes/run',
+  'skia-recipes/vars',
 ]
 
 
