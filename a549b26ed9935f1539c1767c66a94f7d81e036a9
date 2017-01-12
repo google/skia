@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_b09716d8",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-12T18:46:16Z",
+      "side": 1,
+      "message": "https://cloud.google.com/storage/docs/xml-api/reference-uris recommends \"storage-download\" here for \"a small performance benefit\"",
+      "range": {
+        "startLine": 24,
+        "startChar": 49,
+        "endLine": 24,
+        "endChar": 56
+      },
+      "revId": "a549b26ed9935f1539c1767c66a94f7d81e036a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
