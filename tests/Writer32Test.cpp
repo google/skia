@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"

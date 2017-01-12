@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkInterface.h"

@@ -1727,16 +1727,9 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW(draw);
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawText", fContext.get());
-
-    GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), paint, *draw.fMatrix,
-                          &grPaint)) {
-        return;
-    }
-
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawText(fClip, std::move(grPaint), paint, *draw.fMatrix,
+    fRenderTargetContext->drawText(fClip, paint, *draw.fMatrix,
                                    (const char*)text, byteLength, x, y, draw.fRC->getBounds());
 }
 
@@ -1755,7 +1748,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text, size_t byteL
 
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawPosText(fClip, std::move(grPaint), paint, *draw.fMatrix,
+    fRenderTargetContext->drawPosText(fClip, paint, *draw.fMatrix,
                                       (const char*)text, byteLength, pos, scalarsPerPos, offset,
                                       draw.fRC->getBounds());
 }

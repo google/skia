@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnalyticEdge.h"
 #include "SkAntiRun.h"
-#include "SkAutoMalloc.h"
 #include "SkBlitter.h"
 #include "SkEdge.h"
+#include "SkAnalyticEdge.h"
 #include "SkEdgeBuilder.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
@@ -18,8 +17,8 @@
 #include "SkRegion.h"
 #include "SkScan.h"
 #include "SkScanPriv.h"
-#include "SkTSort.h"
 #include "SkTemplates.h"
+#include "SkTSort.h"
 #include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////

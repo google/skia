@@ -10,7 +10,6 @@
 
 #include <tuple>
 
-#include "SkAutoMalloc.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkFixed.h"

@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
+#include "SkPathEffect.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
-#include "SkPathEffect.h"
 #include "SkPipeCanvas.h"
 #include "SkPipeFormat.h"
-#include "SkRSXform.h"
 #include "SkRasterizer.h"
+#include "SkRSXform.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTextBlob.h"

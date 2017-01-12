@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkPaint.h"
 #include "Test.h"
 

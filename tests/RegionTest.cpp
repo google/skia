@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
