@@ -69,70 +69,50 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class DropShadowImageFilterGM : public skiagm::GM {
-public:
-    DropShadowImageFilterGM () {}
+DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
+    void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
+        draw_bitmap, draw_path, draw_paint, draw_text
+    };
 
-protected:
+    sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
+                                                          SkBlendMode::kSrcIn));
+    sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
+    SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
+                                     SkImageFilter::CropRect::kHasAll_CropEdge);
+    SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
+                                      SkImageFilter::CropRect::kHasAll_CropEdge);
 
-    SkString onShortName() override {
-        return SkString("dropshadowimagefilter");
-    }
+    sk_sp<SkImageFilter> filters[] = {
+        nullptr,
+        SkDropShadowImageFilter::Make(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
+        SkDropShadowImageFilter::Make(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
+        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
+        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, std::move(cfif)),
+        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &cropRect),
+        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &bogusRect),
+        SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
+            SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode, nullptr),
+    };
 
-    SkISize onISize() override { return SkISize::Make(400, 656); }
+    SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
+    SkScalar MARGIN = SkIntToScalar(16);
+    SkScalar DX = r.width() + MARGIN;
+    SkScalar DY = r.height() + MARGIN;
 
-    void onDraw(SkCanvas* canvas) override {
-        void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
-            draw_bitmap, draw_path, draw_paint, draw_text
-        };
-
-        sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
-                                                              SkBlendMode::kSrcIn));
-        sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
-        SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
-                                         SkImageFilter::CropRect::kHasAll_CropEdge);
-        SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)),
-                                          SkImageFilter::CropRect::kHasAll_CropEdge);
-
-        sk_sp<SkImageFilter> filters[] = {
-            nullptr,
-            SkDropShadowImageFilter::Make(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            SkDropShadowImageFilter::Make(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
-            SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, std::move(cfif)),
-            SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &cropRect),
-            SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr, &bogusRect),
-            SkDropShadowImageFilter::Make(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE,
-                SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode, nullptr),
-        };
-
-        SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
-        SkScalar MARGIN = SkIntToScalar(16);
-        SkScalar DX = r.width() + MARGIN;
-        SkScalar DY = r.height() + MARGIN;
-
-        canvas->translate(MARGIN, MARGIN);
-        for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
-            canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-                drawProc[j](canvas, r, filters[i]);
-                canvas->translate(0, DY);
-            }
-            canvas->restore();
-            canvas->translate(DX, 0);
+    canvas->translate(MARGIN, MARGIN);
+    for (size_t j = 0; j < SK_ARRAY_COUNT(drawProc); ++j) {
+        canvas->save();
+        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            drawProc[j](canvas, r, filters[i]);
+            canvas->translate(0, DY);
         }
+        canvas->restore();
+        canvas->translate(DX, 0);
     }
-
-private:
-    typedef GM INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-DEF_GM( return new DropShadowImageFilterGM; )
+}

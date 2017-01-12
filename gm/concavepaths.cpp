@@ -9,9 +9,6 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
-#define WIDTH 400
-#define HEIGHT 600
-
 namespace {
 // Concave test
 void test_concave(SkCanvas* canvas, const SkPaint& paint) {
@@ -363,53 +360,34 @@ void test_coincident_edges_4(SkCanvas* canvas, const SkPaint& paint) {
 
 };
 
-class ConcavePathsGM : public skiagm::GM {
-public:
-    ConcavePathsGM() {}
+DEF_SIMPLE_GM(concavepaths, canvas, 400, 600) {
+    SkPaint paint;
 
-protected:
-    SkString onShortName() override {
-        return SkString("concavepaths");
-    }
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kFill_Style);
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kFill_Style);
-
-        test_concave(canvas, paint);
-        test_reverse_concave(canvas, paint);
-        test_bowtie(canvas, paint);
-        test_fake_bowtie(canvas, paint);
-        test_fish(canvas, paint);
-        test_fast_forward(canvas, paint);
-        test_hole(canvas, paint);
-        test_star(canvas, paint);
-        test_stairstep(canvas, paint);
-        test_stairstep2(canvas, paint);
-        test_overlapping(canvas, paint);
-        test_partners(canvas, paint);
-        test_monotone_1(canvas, paint);
-        test_monotone_2(canvas, paint);
-        test_monotone_3(canvas, paint);
-        test_monotone_4(canvas, paint);
-        test_monotone_5(canvas, paint);
-        test_degenerate(canvas, paint);
-        test_coincident_edge(canvas, paint);
-        test_bowtie_coincident_triangle(canvas, paint);
-        test_coincident_edges_1(canvas, paint);
-        test_coincident_edges_2(canvas, paint);
-        test_coincident_edges_3(canvas, paint);
-        test_coincident_edges_4(canvas, paint);
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM( return new ConcavePathsGM; )
+    test_concave(canvas, paint);
+    test_reverse_concave(canvas, paint);
+    test_bowtie(canvas, paint);
+    test_fake_bowtie(canvas, paint);
+    test_fish(canvas, paint);
+    test_fast_forward(canvas, paint);
+    test_hole(canvas, paint);
+    test_star(canvas, paint);
+    test_stairstep(canvas, paint);
+    test_stairstep2(canvas, paint);
+    test_overlapping(canvas, paint);
+    test_partners(canvas, paint);
+    test_monotone_1(canvas, paint);
+    test_monotone_2(canvas, paint);
+    test_monotone_3(canvas, paint);
+    test_monotone_4(canvas, paint);
+    test_monotone_5(canvas, paint);
+    test_degenerate(canvas, paint);
+    test_coincident_edge(canvas, paint);
+    test_bowtie_coincident_triangle(canvas, paint);
+    test_coincident_edges_1(canvas, paint);
+    test_coincident_edges_2(canvas, paint);
+    test_coincident_edges_3(canvas, paint);
+    test_coincident_edges_4(canvas, paint);
+}
