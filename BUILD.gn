@@ -1413,7 +1413,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_android) {
+  if (is_android && is_skia_standalone && ndk != "") {
     copy("gdbserver") {
       sources = [
         "$ndk/$ndk_gdbserver",
