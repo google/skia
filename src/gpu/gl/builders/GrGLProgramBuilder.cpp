@@ -14,7 +14,6 @@
 #include "GrShaderCaps.h"
 #include "GrSwizzle.h"
 #include "GrTexture.h"
-#include "SkAutoMalloc.h"
 #include "SkTraceEvent.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"

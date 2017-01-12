@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SkMaskFilter.h"
 
-#include "SkAutoMalloc.h"
+#include "SkMaskFilter.h"
 #include "SkBlitter.h"
-#include "SkCachedData.h"
 #include "SkDraw.h"
+#include "SkCachedData.h"
 #include "SkPath.h"
-#include "SkRRect.h"
 #include "SkRasterClip.h"
+#include "SkRRect.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"

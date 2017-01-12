@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoMalloc.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
