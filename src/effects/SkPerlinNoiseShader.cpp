@@ -499,10 +499,10 @@ public:
                                            int numOctaves, bool stitchTiles,
                                            SkPerlinNoiseShader::PaintingData* paintingData,
                                            GrTexture* permutationsTexture, GrTexture* noiseTexture,
-                                           const SkMatrix& matrix) {
+                                           const SkMatrix& matrix, bool bFoo) {
         return sk_sp<GrFragmentProcessor>(
             new GrPerlinNoiseEffect(type, numOctaves, stitchTiles, paintingData,
-                                    permutationsTexture, noiseTexture, matrix));
+                                    permutationsTexture, noiseTexture, matrix, bFoo));
     }
 
     virtual ~GrPerlinNoiseEffect() { delete fPaintingData; }
@@ -515,7 +515,6 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-    const SkMatrix& matrix() const { return fCoordTransform.getMatrix(); }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -544,8 +543,9 @@ private:
                         int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
-                        const SkMatrix& matrix)
+                        const SkMatrix& matrix, bool bFoo)
       : fType(type)
+      , fCoordTransform(matrix, bFoo)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
       , fPermutationsSampler(permutationsTexture)
@@ -554,7 +554,6 @@ private:
         this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
-        fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
@@ -941,7 +940,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
                                       fStitchTiles,
                                       paintingData,
                                       permutationsTexture.get(), noiseTexture.get(),
-                                      m));
+                                      m, true));
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
     }
     delete paintingData;

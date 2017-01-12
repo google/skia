@@ -418,7 +418,7 @@ private:
 
     typedef GM INHERITED;
 };
-DEF_GM( return new GradientsDegenrate2PointGM(true); )
+//DEF_GM( return new GradientsDegenrate2PointGM(true); )
 DEF_GM( return new GradientsDegenrate2PointGM(false); )
 
 /* bug.skia.org/517

@@ -36,7 +36,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         strUniName.printf("CoordTransformMatrix_%d", i);
         GrSLType varyingType;
 
-        uint32_t type = coordTransform->getMatrix().getType();
+        uint32_t type = coordTransform->getMatrix5().getType();
         type |= localMatrix.getType();
 
         varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
