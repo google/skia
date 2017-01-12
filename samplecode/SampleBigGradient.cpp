@@ -152,6 +152,10 @@ public:
 
 #elif defined(WIN32)
 
+static RECT toRECT(const SkIRect& r) {
+    return { r.left(), r.top(), r.right(), r.bottom() };
+}
+
 class GDIGraphicsPort : public GraphicsPort {
 public:
     GDIGraphicsPort(SkCanvas* canvas) : GraphicsPort(canvas) {}
@@ -160,9 +164,7 @@ public:
         HDC hdc = (HDC)fCanvas->accessTopRasterHandle();
 
         COLORREF cr = RGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));// SkEndian_Swap32(c) >> 8;
-        SkIRect ir = r.round();
-        RECT rect = { ir.left(), ir.top(), ir.right(), ir.bottom() };
-        FillRect(hdc, &rect, CreateSolidBrush(cr));
+        FillRect(hdc, &toRECT(r.round()), CreateSolidBrush(cr));
 
         // Assuming GDI wrote zeros for alpha, this will or-in 0xFF for alpha
         SkPaint paint;
@@ -242,13 +244,11 @@ public:
         xf.eDy = ctm[SkMatrix::kMTransY];
         SetWorldTransform(hdc, &xf);
 
-#if 0
-        HRGN hrgn = CreateRectRgnIndirect(&skia::SkIRectToRECT(clip_bounds));
+        HRGN hrgn = CreateRectRgnIndirect(&toRECT(clip_bounds));
         int result = SelectClipRgn(hdc, hrgn);
         SkASSERT(result != ERROR);
         result = DeleteObject(hrgn);
         SkASSERT(result != 0);
-#endif
     }
 };
 
