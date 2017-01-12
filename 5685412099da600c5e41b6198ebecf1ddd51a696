@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_6d2155bf",
+        "filename": "include/gpu/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-12T15:14:24Z",
+      "side": 1,
+      "message": "Assuming this is exhaustive, if you remove the default label and move the 0 return out of the switch then clang will give us a warning if someone updates the set of enum values without updating this function.",
+      "revId": "5685412099da600c5e41b6198ebecf1ddd51a696",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
