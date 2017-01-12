@@ -53,10 +53,10 @@ public:
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
     // akin to GrStyle (GrTextInfo?)
-    virtual void drawText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+    virtual void drawText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix,
                           const char text[], size_t byteLength, SkScalar x, SkScalar y,
                           const SkIRect& clipBounds);
-    virtual void drawPosText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+    virtual void drawPosText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength, const SkScalar pos[],
                              int scalarsPerPosition, const SkPoint& offset,
                              const SkIRect& clipBounds);
