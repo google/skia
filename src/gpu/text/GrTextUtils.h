@@ -9,8 +9,10 @@
 #define GrTextUtils_DEFINED
 
 #include "GrColor.h"
+#include "SkColorFilter.h"
 #include "SkPaint.h"
 #include "SkScalar.h"
+#include "SkGr.h"
 
 class GrAtlasGlyphCache;
 class GrAtlasTextBlob;
@@ -33,17 +35,39 @@ class SkSurfaceProps;
  */
 class GrTextUtils {
 public:
+    class PaintWithFilteredColor {
+    public:
+        PaintWithFilteredColor(const SkPaint& paint) : fPaint(paint) {
+            fFilteredSkColor = paint.getColor();
+            if (paint.getColorFilter()) {
+                fFilteredSkColor = paint.getColorFilter()->filterColor(fFilteredSkColor);
+            }
+            fFilteredGrColor = SkColorToPremulGrColor(fFilteredSkColor);
+        }
+        SkColor filteredSkColor() const { return fFilteredSkColor; }
+        GrColor filteredPremulGrColor() const { return fFilteredGrColor; }
+
+        const SkPaint& paint() const { return fPaint; }
+
+    private:
+        const SkPaint& fPaint;
+        // This is the paint's color run through it's color filter, if present. This color should
+        // be used except when rendering bitmap text, in which case each the bitmap must be filtered
+        // in the fragment shader.
+        SkColor fFilteredSkColor;
+        SkColor fFilteredGrColor;
+    };
     // Functions for appending BMP text to GrAtlasTextBlob
     static void DrawBmpText(GrAtlasTextBlob*, int runIndex,
                             GrAtlasGlyphCache*, const SkSurfaceProps&,
-                            const SkPaint&,
-                            GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
-                            const char text[], size_t byteLength,
+                            const SkPaint& runPaint, GrColor color, uint32_t scalerContextFlags,
+                            const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                             SkScalar x, SkScalar y);
 
     static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex,
-                               GrAtlasGlyphCache*, const SkSurfaceProps&, const SkPaint&,
-                               GrColor, uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                               GrAtlasGlyphCache*, const SkSurfaceProps&,
+                               const SkPaint& runPaint, GrColor color,
+                               uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength,
                                const SkScalar pos[], int scalarsPerPosition,
                                const SkPoint& offset);
@@ -54,14 +78,14 @@ public:
 
     static void DrawDFText(GrAtlasTextBlob* blob, int runIndex,
                            GrAtlasGlyphCache*, const SkSurfaceProps&,
-                           const SkPaint& skPaint, GrColor color, uint32_t scalerContextFlags,
+                           const SkPaint& runPaint, GrColor color, uint32_t scalerContextFlags,
                            const SkMatrix& viewMatrix,
                            const char text[], size_t byteLength,
                            SkScalar x, SkScalar y);
 
     static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex,
-                              GrAtlasGlyphCache*, const SkSurfaceProps&, const SkPaint&,
-                              GrColor color, uint32_t scalerContextFlags,
+                              GrAtlasGlyphCache*, const SkSurfaceProps&,
+                              const SkPaint& runPaint, GrColor color, uint32_t scalerContextFlags,
                               const SkMatrix& viewMatrix,
                               const char text[], size_t byteLength,
                               const SkScalar pos[], int scalarsPerPosition,
@@ -69,7 +93,7 @@ public:
 
     // Functions for drawing text as paths
     static void DrawTextAsPath(GrContext*, GrRenderTargetContext*, const GrClip& clip,
-                               const SkPaint& origPaint, const SkMatrix& viewMatrix,
+                               const SkPaint& runPaint, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                const SkIRect& clipBounds);
 
@@ -77,7 +101,8 @@ public:
                                   GrRenderTargetContext* rtc,
                                   const SkSurfaceProps& props,
                                   const GrClip& clip,
-                                  const SkPaint& origPaint, const SkMatrix& viewMatrix,
+                                  const SkPaint&,
+                                  const SkMatrix& viewMatrix,
                                   const char text[], size_t byteLength,
                                   const SkScalar pos[], int scalarsPerPosition,
                                   const SkPoint& offset, const SkIRect& clipBounds);

@@ -12,6 +12,7 @@
 #include "GrColor.h"
 #include "GrDrawOpAtlas.h"
 #include "GrMemoryPool.h"
+#include "GrTextUtils.h"
 #include "SkDescriptor.h"
 #include "SkMaskFilter.h"
 #include "SkOpts.h"
@@ -177,20 +178,20 @@ public:
         }
     }
 
-    bool mustRegenerate(const SkPaint& paint, GrColor color, const SkMaskFilter::BlurRec& blurRec,
+    bool mustRegenerate(const GrTextUtils::PaintWithFilteredColor&, const SkMaskFilter::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
     void flushCached(GrContext* context, GrRenderTargetContext* rtc, const SkTextBlob* blob,
                      const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable, const SkPaint& skPaint,
-                     GrPaint&& grPaint, SkDrawFilter* drawFilter, const GrClip& clip,
+                     const GrDistanceFieldAdjustTable* distanceAdjustTable, const SkPaint&,
+                     SkDrawFilter* drawFilter, const GrClip& clip,
                      const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
     void flushThrowaway(GrContext* context, GrRenderTargetContext* rtc, const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const SkPaint& skPaint, GrPaint&& grPaint, const GrClip& clip,
+                        const SkPaint& paint, const GrClip& clip,
                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                         SkScalar y);
 
@@ -238,8 +239,8 @@ public:
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
     // We use this color vs the SkPaint color because it has the colorfilter applied.
-    void initReusableBlob(GrColor color, const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        fPaintColor = color;
+    void initReusableBlob(SkColor filteredColor, const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+        fFilteredPaintColor = filteredColor;
         this->setupViewMatrix(viewMatrix, x, y);
     }
 
@@ -283,7 +284,7 @@ private:
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    inline void flushRun(GrRenderTargetContext* rtc, GrPaint&&, const GrClip&, int run,
+    inline void flushRun(GrRenderTargetContext* rtc, const GrClip&, int run,
                          const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkPaint& skPaint,
                          const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -534,7 +535,7 @@ private:
     SkMatrix fInitialViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
     size_t fSize;
-    GrColor fPaintColor;
+    SkColor fFilteredPaintColor;
     SkScalar fInitialX;
     SkScalar fInitialY;
 
