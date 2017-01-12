@@ -42,6 +42,8 @@ static int32_t read_big_endian_i32(const uint8_t* ptr) {
     return (int32_t) read_big_endian_u32(ptr);
 }
 
+static constexpr float kWhitePointD50[] = { 0.96420f, 1.00000f, 0.82491f, };
+
 struct ICCProfileHeader {
     uint32_t fSize;
 
@@ -156,10 +158,11 @@ struct ICCProfileHeader {
             SkColorSpacePrintf("Warning, bad rendering intent.\n");
         }
 
-        return_if_false(color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[0]), 0.96420f) &&
-                        color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[1]), 1.00000f) &&
-                        color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[2]), 0.82491f),
-                        "Illuminant must be D50");
+        return_if_false(
+                color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[0]), kWhitePointD50[0]) &&
+                color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[1]), kWhitePointD50[1]) &&
+                color_space_almost_equal(SkFixedToFloat(fIlluminantXYZ[2]), kWhitePointD50[2]),
+                "Illuminant must be D50");
 
         return_if_false(fTagCount <= 100, "Too many tags");
 
@@ -1167,23 +1170,21 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
     return true;
 }
 
-static inline int icf_channels(SkColorSpace_Base::InputColorFormat inputColorFormat) {
-    switch (inputColorFormat) {
-        case SkColorSpace_Base::InputColorFormat::kRGB:
+static inline int icf_channels(SkColorSpace_Base::ICCTypeFlag iccType) {
+    switch (iccType) {
+        case SkColorSpace_Base::kRGB_ICCTypeFlag:
             return 3;
-        case SkColorSpace_Base::InputColorFormat::kCMYK:
+        case SkColorSpace_Base::kCMYK_ICCTypeFlag:
             return 4;
-        case SkColorSpace_Base::InputColorFormat::kGray:
-            return 1;
         default:
             SkASSERT(false);
-            return -1;
+            return 0;
     }
 }
 
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                       size_t len, SkColorSpace_A2B::PCS pcs,
-                      SkColorSpace_Base::InputColorFormat inputColorFormat) {
+                      SkColorSpace_Base::ICCTypeFlag iccType) {
     const uint32_t type = read_big_endian_u32(src);
     switch (type) {
         case kTAG_AtoBType:
@@ -1224,10 +1225,10 @@ static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const ui
     SkASSERT(SkColorSpace_A2B::PCS::kLAB == pcs || SkColorSpace_A2B::PCS::kXYZ == pcs);
     static constexpr int kPCSChannels = 3; // must be PCSLAB or PCSXYZ
     if (elements->empty()) {
-        return kPCSChannels == icf_channels(inputColorFormat);
+        return kPCSChannels == icf_channels(iccType);
     }
     // now let's verify that the input/output channels of each A2B element actually match up
-    if (icf_channels(inputColorFormat) != elements->front().inputChannels()) {
+    if (icf_channels(iccType) != elements->front().inputChannels()) {
         SkColorSpacePrintf("Input channel count does not match first A2B element's input count");
         return false;
     }
@@ -1432,28 +1433,32 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
             parse_gamma(&data, &params, &tagBytes, grayTRC->addr(base), grayTRC->fLength);
     handle_invalid_gamma(&type, &data);
 
-    std::vector<SkColorSpace_A2B::Element> elements;
+    SkMatrix44 toXYZD50(SkMatrix44::kIdentity_Constructor);
+    toXYZD50.setFloat(0, 0, kWhitePointD50[0]);
+    toXYZD50.setFloat(1, 1, kWhitePointD50[1]);
+    toXYZD50.setFloat(2, 2, kWhitePointD50[2]);
     if (SkGammas::Type::kNamed_Type == type) {
-        elements.push_back(SkColorSpace_A2B::Element(data.fNamed, 1));
-    } else {
-        size_t allocSize = sizeof(SkGammas);
-        if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
-            return_null("SkGammas struct is too large to allocate");
-        }
-        void* memory = sk_malloc_throw(allocSize);
-        sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(1));
-        load_gammas(memory, 0, type, &data, params, grayTRC->addr(base));
-        gammas->fType[0] = type;
-        gammas->fData[0] = data;
-        elements.push_back(SkColorSpace_A2B::Element(std::move(gammas)));
+        return SkColorSpace_Base::MakeRGB(data.fNamed, toXYZD50);
     }
-    return sk_sp<SkColorSpace>(new SkColorSpace_A2B(SkColorSpace_Base::InputColorFormat::kGray,
-                                                    std::move(elements),
-                                                    SkColorSpace_A2B::PCS::kXYZ,
-                                                    std::move(profileData)));
+
+    size_t allocSize = sizeof(SkGammas);
+    if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
+        return_null("SkGammas struct is too large to allocate");
+    }
+    void* memory = sk_malloc_throw(allocSize);
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+    load_gammas(memory, 0, type, &data, params, grayTRC->addr(base));
+    for (int i = 0; i < 3; ++i) {
+        gammas->fType[i] = type;
+        gammas->fData[i] = data;
+    }
+
+    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
+                                                    std::move(gammas),
+                                                    toXYZD50, std::move(profileData)));
 }
 
-static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::InputColorFormat inputColorFormat,
+static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
                                     const ICCProfileHeader& header, ICCTag* tags, int tagCount,
                                     const uint8_t* base, sk_sp<SkData> profileData) {
     const ICCTag* a2b0 = ICCTag::Find(tags, tagCount, kTAG_A2B0);
@@ -1462,8 +1467,8 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::InputColorFormat inputCol
                                         ? SkColorSpace_A2B::PCS::kXYZ
                                         : SkColorSpace_A2B::PCS::kLAB;
         std::vector<SkColorSpace_A2B::Element> elements;
-        if (load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs, inputColorFormat)) {
-            return sk_sp<SkColorSpace>(new SkColorSpace_A2B(inputColorFormat, std::move(elements),
+        if (load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs, iccType)) {
+            return sk_sp<SkColorSpace>(new SkColorSpace_A2B(iccType, std::move(elements),
                                                             pcs, std::move(profileData)));
         }
     }
@@ -1472,11 +1477,11 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::InputColorFormat inputCol
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
-    return SkColorSpace_Base::MakeICC(input, len, SkColorSpace_Base::InputColorFormat::kRGB);
+    return SkColorSpace_Base::MakeICC(input, len, SkColorSpace_Base::kRGB_ICCTypeFlag);
 }
 
 sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
-                                               InputColorFormat inputColorFormat) {
+                                               ICCTypeFlag desiredType) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1526,7 +1531,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
 
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
-            if (InputColorFormat::kRGB != inputColorFormat) {
+            if (!(kRGB_ICCTypeFlag & desiredType)) {
                 return_null("Provided input color format (RGB) does not match profile.");
             }
 
@@ -1536,30 +1541,26 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
                 return colorSpace;
             }
 
+            desiredType = kRGB_ICCTypeFlag;
             break;
         }
         case kGray_ColorSpace: {
-            if (InputColorFormat::kGray != inputColorFormat) {
+            if (!(kGray_ICCTypeFlag & desiredType)) {
                 return_null("Provided input color format (Gray) does not match profile.");
             }
 
-            sk_sp<SkColorSpace> colorSpace =
-                    make_gray(header, tags.get(), tagCount, base, profileData);
-            if (colorSpace) {
-                return colorSpace;
-            }
-
-            break;
+            return make_gray(header, tags.get(), tagCount, base, profileData);
         }
         case kCMYK_ColorSpace:
-            if (InputColorFormat::kCMYK != inputColorFormat) {
+            if (!(kCMYK_ICCTypeFlag & desiredType)) {
                 return_null("Provided input color format (CMYK) does not match profile.");
             }
 
+            desiredType = kCMYK_ICCTypeFlag;
             break;
         default:
             return_null("ICC profile contains unsupported colorspace");
     }
 
-    return make_a2b(inputColorFormat, header, tags.get(), tagCount, base, profileData);
+    return make_a2b(desiredType, header, tags.get(), tagCount, base, profileData);
 }

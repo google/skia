@@ -17,10 +17,6 @@
 #include "SkSRGB.h"
 #include "SkTypes.h"
 
-#include <algorithm>
-
-#define AI SK_ALWAYS_INLINE
-
 bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
                                     const void* src, int count, SkAlphaType alphaType) const {
     SkRasterPipeline pipeline;
@@ -147,22 +143,20 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         "None", "Named", "Value", "Table", "Param"
     };
 #endif
-    int currentChannels = -1;
-    switch (srcSpace->inputColorFormat()) {
-        case SkColorSpace_Base::InputColorFormat::kRGB:
+    int currentChannels;
+    switch (srcSpace->iccType()) {
+        case SkColorSpace_Base::kRGB_ICCTypeFlag:
             currentChannels = 3;
             break;
-        case SkColorSpace_Base::InputColorFormat::kCMYK:
+        case SkColorSpace_Base::kCMYK_ICCTypeFlag:
             currentChannels = 4;
             // CMYK images from JPEGs (the only format that supports it) are actually
             // inverted CMYK, so we need to invert every channel.
             // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
             this->addTransferFns({1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 1.f}, 4);
             break;
-        case SkColorSpace_Base::InputColorFormat::kGray:
-            currentChannels = 1;
-            break;
         default:
+            currentChannels = 0;
             SkASSERT(false);
     }
     // add in all input color space -> PCS xforms
@@ -237,20 +231,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 }
                 break;
         }
-    }
-
-    // take care of monochrome ICC profiles (but not A2B with gray input color space!)
-    if (1 == currentChannels) {
-        // Gray color spaces must multiply their channel by the PCS whitepoint to convert to
-        // the PCS however, PCSLAB profiles must be n-component LUT-based ones, which
-        // need to have 3 (to match PCS) output channels, not 1
-        SkASSERT(SkColorSpace_Base::InputColorFormat::kGray == srcSpace->inputColorFormat());
-        SkASSERT(SkColorSpace_A2B::PCS::kXYZ == srcSpace->pcs());
-        constexpr float PCSXYZWhitePoint[3] = {0.9642f, 1.f, 0.8249f};
-        fMatrices.push_front(std::vector<float>(12, 0.f));
-        std::copy_n(PCSXYZWhitePoint, 3, fMatrices.front().begin());
-        fElementsPipeline.append(SkRasterPipeline::matrix_3x4, fMatrices.front().data());
-        currentChannels = 3;
     }
 
     // Lab PCS -> XYZ PCS

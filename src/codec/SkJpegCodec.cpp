@@ -231,21 +231,20 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkColorSpace> colorSpace = nullptr;
         bool unsupportedICC = false;
         if (iccData) {
-            SkColorSpace_Base::InputColorFormat inputColorFormat =
-                    SkColorSpace_Base::InputColorFormat::kRGB;
+            SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
             switch (decoderMgr->dinfo()->jpeg_color_space) {
                 case JCS_CMYK:
                 case JCS_YCCK:
-                    inputColorFormat = SkColorSpace_Base::InputColorFormat::kCMYK;
+                    iccType = SkColorSpace_Base::kCMYK_ICCTypeFlag;
                     break;
                 case JCS_GRAYSCALE:
-                    inputColorFormat = SkColorSpace_Base::InputColorFormat::kGray;
+                    // Note the "or equals".  We will accept gray or rgb profiles for gray images.
+                    iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
                     break;
                 default:
                     break;
             }
-            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(),
-                                                    inputColorFormat);
+            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(), iccType);
             if (!colorSpace) {
                 SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
                 unsupportedICC = true;
