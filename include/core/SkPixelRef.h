@@ -18,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkYUVSizeInfo.h"
 
 class SkColorTable;
 struct SkIRect;
@@ -193,31 +192,6 @@ public:
 
     bool requestLock(const LockRequest&, LockResult*);
 
-    /**
-     *  If this can efficiently return YUV data, this should return true.
-     *  Otherwise this returns false and does not modify any of the parameters.
-     *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, and V planes.
-     *  @param colorSpace Output parameter.
-     */
-    bool queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
-        return this->onQueryYUV8(sizeInfo, colorSpace);
-    }
-
-    /**
-     *  Returns true on success and false on failure.
-     *  Copies YUV data into the provided YUV planes.
-     *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
-     */
-    bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) {
-        return this->onGetYUV8Planes(sizeInfo, planes);
-    }
-
     /** Populates dst with the pixels of this pixelRef, converting them to colorType. */
     bool readPixels(SkBitmap* dst, SkColorType colorType, const SkIRect* subset = NULL);
 
@@ -283,13 +257,6 @@ protected:
 
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
-
-    virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
-        return false;
-    }
-    virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) {
-        return false;
-    }
 
     /**
      *  Returns the size (in bytes) of the internally allocated memory.
