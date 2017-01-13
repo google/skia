@@ -8,7 +8,7 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
-#include "SkDevice.h"
+#include "SkBaseDevice.h"
 #include "SkTemplates.h"
 
 class SkXMLWriter;

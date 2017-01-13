@@ -6,12 +6,12 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkDraw.h"
 #include "SkLayerDrawLooper.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkRasterDevice.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
