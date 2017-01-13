@@ -613,20 +613,25 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
     SkRect devBounds;
     GetPathDevBounds(path, renderTargetContext->width(), renderTargetContext->height(), viewMatrix,
                      &devBounds);
-    SkASSERT(passes[0]);
 
-    std::unique_ptr<GrDrawOp> op = MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
-    if (!op) {
-        return false;
+    SkASSERT(passes[0]);
+    {  // First pass
+        std::unique_ptr<GrDrawOp> op =
+                MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
+        if (!op) {
+            return false;
+        }
+        bool firstPassIsStencil = stencilOnly || passes[1];
+        // If we have a cover pass then we ignore the paint in the first pass and apply it in the
+        // second.
+        GrPaint::MoveOrNew firstPassPaint(paint, firstPassIsStencil);
+        if (firstPassIsStencil) {
+            firstPassPaint.paint().setXPFactory(GrDisableColorXPFactory::Get());
+        }
+        GrPipelineBuilder pipelineBuilder(std::move(firstPassPaint), aaType);
+        pipelineBuilder.setUserStencil(passes[0]);
+        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
     }
-    // If we have a cover pass then we ignore the paint in the first pass and apply it in the
-    // second.
-    GrPipelineBuilder pipelineBuilder(GrPaint::MoveOrNew(paint, passes[1]), aaType);
-    pipelineBuilder.setUserStencil(passes[0]);
-    if (passes[1]) {
-        pipelineBuilder.setDisableColorXPFactory();
-    }
-    renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
 
     if (passes[1]) {
         SkRect bounds;
