@@ -18,42 +18,40 @@ struct GrPipelineInput {
     GrPipelineInput()
             : fValidFlags(kNone_GrColorComponentFlags)
             , fColor(0)
-            , fIsSingleComponent(false)
             , fIsLCDCoverage(false) {}
+
+    GrPipelineInput(GrColor color, GrColorComponentFlags componentFlags, bool isLCDCoverage = false)
+            : fValidFlags(componentFlags)
+            , fColor(color)
+            , fIsLCDCoverage(isLCDCoverage) {}
 
     void setKnownFourComponents(GrColor color) {
         fColor = color;
         fValidFlags = kRGBA_GrColorComponentFlags;
-        fIsSingleComponent = false;
     }
 
     void setUnknownFourComponents() {
         fValidFlags = kNone_GrColorComponentFlags;
-        fIsSingleComponent = false;
     }
 
     void setUnknownOpaqueFourComponents() {
         fColor = 0xffU << GrColor_SHIFT_A;
         fValidFlags = kA_GrColorComponentFlag;
-        fIsSingleComponent = false;
     }
 
     void setKnownSingleComponent(uint8_t alpha) {
         fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
         fValidFlags = kRGBA_GrColorComponentFlags;
-        fIsSingleComponent = true;
     }
 
     void setUnknownSingleComponent() {
         fValidFlags = kNone_GrColorComponentFlags;
-        fIsSingleComponent = true;
     }
 
     void setUsingLCDCoverage() { fIsLCDCoverage = true; }
 
     GrColorComponentFlags   fValidFlags;
     GrColor                 fColor;
-    bool                    fIsSingleComponent;
     bool                    fIsLCDCoverage; // Temorary data member until texture pixel configs are
                                             // updated
 };
@@ -61,10 +59,9 @@ struct GrPipelineInput {
 /** This describes the output of a GrFragmentProcessor in a GrPipeline. */
 class GrInvariantOutput {
 public:
-    GrInvariantOutput(GrColor color, GrColorComponentFlags flags, bool isSingleComponent)
+    GrInvariantOutput(GrColor color, GrColorComponentFlags flags)
         : fColor(color)
         , fValidFlags(flags)
-        , fIsSingleComponent(isSingleComponent)
         , fNonMulStageFound(false)
         , fWillUseInputColor(true)
         , fIsLCDCoverage(false) {}
@@ -72,7 +69,6 @@ public:
     GrInvariantOutput(const GrPipelineInput& input)
             : fColor(input.fColor)
             , fValidFlags(input.fValidFlags)
-            , fIsSingleComponent(input.fIsSingleComponent)
             , fNonMulStageFound(false)
             , fWillUseInputColor(false)
             , fIsLCDCoverage(input.fIsLCDCoverage) {}
@@ -88,7 +84,6 @@ public:
         SkDEBUGCODE(this->validate());
         if (this->isOpaque()) {
             fValidFlags = kA_GrColorComponentFlag;
-            fIsSingleComponent = false;
         } else {
             // Since the current state is not opaque we no longer care if the color being
             // multiplied is opaque.
@@ -147,9 +142,6 @@ public:
                     SkMulDiv255Round(GrColorUnpackG(fColor), GrColorUnpackG(color)),
                     SkMulDiv255Round(GrColorUnpackB(fColor), GrColorUnpackB(color)),
                     SkMulDiv255Round(GrColorUnpackA(fColor), a));
-                if (kRGBA_GrColorComponentFlags == fValidFlags) {
-                    fIsSingleComponent = GetAlphaAndCheckSingleChannel(fColor, &a);
-                }
             }
         }
         SkDEBUGCODE(this->validate());
@@ -167,7 +159,6 @@ public:
                 this->internalSetToTransparentBlack();
             } else {
                 // We know that color has different component values
-                fIsSingleComponent = false;
                 fColor = GrColorPackRGBA(
                     SkMulDiv255Round(preAlpha, GrColorUnpackR(color)),
                     SkMulDiv255Round(preAlpha, GrColorUnpackG(color)),
@@ -176,7 +167,6 @@ public:
                 fValidFlags = kRGBA_GrColorComponentFlags;
             }
         } else {
-            fIsSingleComponent = false;
             fValidFlags = kNone_GrColorComponentFlags;
         }
         SkDEBUGCODE(this->validate());
@@ -197,14 +187,12 @@ public:
             } else {
                 fValidFlags = kNone_GrColorComponentFlags;
             }
-            fIsSingleComponent = true;
         }
         SkDEBUGCODE(this->validate());
     }
 
     void premulFourChannelColor() {
         SkDEBUGCODE(this->validate());
-        SkASSERT(!fIsSingleComponent);
         fNonMulStageFound = true;
         if (!(fValidFlags & kA_GrColorComponentFlag)) {
             fValidFlags = kNone_GrColorComponentFlags;
@@ -217,7 +205,6 @@ public:
     void invalidateComponents(GrColorComponentFlags invalidateFlags, ReadInput readsInput) {
         SkDEBUGCODE(this->validate());
         fValidFlags = (fValidFlags & ~invalidateFlags);
-        fIsSingleComponent = false;
         fNonMulStageFound = true;
         if (kWillNot_ReadInput == readsInput) {
             fWillUseInputColor = false;
@@ -229,16 +216,11 @@ public:
         SkDEBUGCODE(this->validate());
         fValidFlags = validFlags;
         fColor = color;
-        fIsSingleComponent = false;
         fNonMulStageFound = true;
         if (kWillNot_ReadInput == readsInput) {
             fWillUseInputColor = false;
         }
         if (kRGBA_GrColorComponentFlags == fValidFlags) {
-            uint32_t a;
-            if (GetAlphaAndCheckSingleChannel(color, &a)) {
-                fIsSingleComponent = true;
-            }
         }
         SkDEBUGCODE(this->validate());
     }
@@ -251,12 +233,6 @@ public:
             fWillUseInputColor = false;
         }
         SkDEBUGCODE(this->validate());
-    }
-
-    // Temporary setter to handle LCD text correctly until we improve texture pixel config queries
-    // and thus can rely solely on number of coverage components for RGA vs single channel coverage.
-    void setUsingLCDCoverage() {
-        fIsLCDCoverage = true;
     }
 
     GrColor color() const { return fColor; }
@@ -279,18 +255,17 @@ private:
                *alpha == GrColorUnpackB(color);
     }
 
-    void reset(GrColor color, GrColorComponentFlags flags, bool isSingleComponent) {
+    void reset(GrColor color, GrColorComponentFlags flags, bool isLCDCoverage) {
         fColor = color;
         fValidFlags = flags;
-        fIsSingleComponent = isSingleComponent;
         fNonMulStageFound = false;
         fWillUseInputColor = true;
+        fIsLCDCoverage = isLCDCoverage;
     }
 
     void reset(const GrPipelineInput& input) {
         fColor = input.fColor;
         fValidFlags = input.fValidFlags;
-        fIsSingleComponent = input.fIsSingleComponent;
         fNonMulStageFound = false;
         fWillUseInputColor = true;
         fIsLCDCoverage = input.fIsLCDCoverage;
@@ -299,12 +274,10 @@ private:
     void internalSetToTransparentBlack() {
         fValidFlags = kRGBA_GrColorComponentFlags;
         fColor = 0;
-        fIsSingleComponent = true;
     }
 
     void internalSetToUnknown() {
         fValidFlags = kNone_GrColorComponentFlags;
-        fIsSingleComponent = false;
     }
 
     bool hasZeroAlpha() const {
@@ -319,8 +292,6 @@ private:
         return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
     }
 
-    bool isSingleComponent() const { return fIsSingleComponent; }
-
     void resetWillUseInputColor() { fWillUseInputColor = true; }
 
     bool allStagesMulInput() const { return !fNonMulStageFound; }
@@ -328,7 +299,6 @@ private:
 
     bool isLCDCoverage() const { return fIsLCDCoverage; }
 
-    SkDEBUGCODE(bool colorComponentsAllEqual() const;)
     /**
      * If alpha is valid, check that any valid R,G,B values are <= A
      */
@@ -336,7 +306,6 @@ private:
 
     GrColor fColor;
     GrColorComponentFlags fValidFlags;
-    bool fIsSingleComponent;
     bool fNonMulStageFound;
     bool fWillUseInputColor;
     bool fIsLCDCoverage; // Temorary data member until texture pixel configs are updated
