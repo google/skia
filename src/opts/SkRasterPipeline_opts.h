@@ -604,9 +604,15 @@ STAGE_CTX(load_tables, const LoadTablesContext*) {
 
 STAGE_CTX(load_tables_u16_be, const LoadTablesContext*) {
     auto ptr = (const uint64_t*)ctx->fSrc + x;
+    const void* src = ptr;
+    SkNx<N, uint64_t> px;
+    if (tail) {
+        px = load(tail, ptr);
+        src = &px;
+    }
 
     SkNh rh, gh, bh, ah;
-    SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+    SkNh::Load4(src, &rh, &gh, &bh, &ah);
 
     // ctx->fSrc is big-endian, so "& 0xff" grabs the 8 most significant bits of each component.
     r = gather(tail, ctx->fR, SkNx_cast<int>(rh & 0xff));

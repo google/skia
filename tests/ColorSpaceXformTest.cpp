@@ -322,3 +322,18 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     }
 }
 
+DEF_TEST(SkColorSpaceXform_LoadTail, r) {
+    uint64_t* srcPixel = new uint64_t[1];
+    srcPixel[0] = 0;
+    uint32_t dstPixel;
+    sk_sp<SkColorSpace> adobe = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(adobe.get(), srgb.get());
+
+    // ASAN will catch us if we read past the tail.
+    bool success = xform->apply(SkColorSpaceXform::kRGBA_8888_ColorFormat, &dstPixel,
+                                SkColorSpaceXform::kRGBA_U16_BE_ColorFormat, srcPixel, 1,
+                                kUnpremul_SkAlphaType);
+    REPORTER_ASSERT(r, success);
+}
+
