@@ -33,6 +33,7 @@
     AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
     AI static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
 
+    AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 #elif defined(__ARM_NEON__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
         #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
@@ -53,6 +54,7 @@
     AI static F   if_then_else(I32 c, F t, F e)        { return vbsl_f32((U32)c,t,e);   }
     AI static U32 round(F v, F scale)                  { return vcvt_u32_f32(fma(v,scale,0.5f)); }
 
+    AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -72,10 +74,19 @@
     AI static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
     AI static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
     AI static U32 round(F v, F scale)           { return _mm256_cvtps_epi32(v*scale); }
+
+    AI static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
 #endif
 
 AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
 AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+
+template <typename T, typename P>
+AI static T unaligned_load(const P* p) {
+    T v;
+    memcpy(&v, p, sizeof(v));
+    return v;
+}
 
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
@@ -241,8 +252,7 @@ STAGE(to_srgb) {
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
 
-    U8 scales;
-    memcpy(&scales, ptr, sizeof(scales));
+    auto scales = unaligned_load<U8>(ptr);
     auto c = cast(expand(scales)) * k->_1_255;
 
     r = r * c;
@@ -251,12 +261,24 @@ STAGE(scale_u8) {
     a = a * c;
 }
 
+STAGE(load_tables) {
+    struct Ctx {
+        const uint32_t* src;
+        const float *r, *g, *b;
+    };
+    auto c = (const Ctx*)ctx;
+
+    auto px = unaligned_load<U32>(c->src + x);
+    r = gather(c->r, (px      ) & k->_0x000000ff);
+    g = gather(c->g, (px >>  8) & k->_0x000000ff);
+    b = gather(c->b, (px >> 16) & k->_0x000000ff);
+    a = cast(        (px >> 24)) * k->_1_255;
+}
+
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
-    U32 px;
-    memcpy(&px, ptr, sizeof(px));
-
+    auto px = unaligned_load<U32>(ptr);
     r = cast((px      ) & k->_0x000000ff) * k->_1_255;
     g = cast((px >>  8) & k->_0x000000ff) * k->_1_255;
     b = cast((px >> 16) & k->_0x000000ff) * k->_1_255;
@@ -346,4 +368,15 @@ STAGE(store_f16) {
     _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
     _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
 #endif
+}
+
+STAGE(matrix_3x4) {
+    auto m = (const float*)ctx;
+
+    auto R = fma(r,m[0], fma(g,m[3], fma(b,m[6], m[ 9]))),
+         G = fma(r,m[1], fma(g,m[4], fma(b,m[7], m[10]))),
+         B = fma(r,m[2], fma(g,m[5], fma(b,m[8], m[11])));
+    r = R;
+    g = G;
+    b = B;
 }

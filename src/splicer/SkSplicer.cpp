@@ -293,10 +293,12 @@ namespace {
                     case SkRasterPipeline::from_srgb:    splice(&buf, kSplice_from_srgb   ); break;
                     case SkRasterPipeline::to_srgb:      splice(&buf, kSplice_to_srgb     ); break;
                     case SkRasterPipeline::scale_u8:     splice(&buf, kSplice_scale_u8    ); break;
+                    case SkRasterPipeline::load_tables:  splice(&buf, kSplice_load_tables ); break;
                     case SkRasterPipeline::load_8888:    splice(&buf, kSplice_load_8888   ); break;
                     case SkRasterPipeline::store_8888:   splice(&buf, kSplice_store_8888  ); break;
                     case SkRasterPipeline::load_f16:     splice(&buf, kSplice_load_f16    ); break;
                     case SkRasterPipeline::store_f16:    splice(&buf, kSplice_store_f16   ); break;
+                    case SkRasterPipeline::matrix_3x4:   splice(&buf, kSplice_matrix_3x4  ); break;
 
                     // No joy (probably just not yet implemented).
                     default:
