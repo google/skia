@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_1c3d6130",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T18:58:17Z",
+      "side": 1,
+      "message": "move all this into the if too?",
+      "revId": "2a9888eaed195f61adc9757368200282be606b11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
