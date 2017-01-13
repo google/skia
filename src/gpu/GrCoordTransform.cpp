@@ -11,11 +11,13 @@
 #include "GrGpu.h"
 
 void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
-                             GrSamplerParams::FilterMode filter) {
+                             GrSamplerParams::FilterMode filter, bool normalize) {
     SkASSERT(texture);
     SkASSERT(!fInProcessor);
 
     fMatrix = m;
+    fTexture = texture;
+    fNormalize = normalize;
     fReverseY = kBottomLeft_GrSurfaceOrigin == texture->origin();
 
     // Always start at kDefault. Then if precisions differ we see if the precision needs to be
@@ -52,9 +54,3 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     }
 }
 
-void GrCoordTransform::reset(const SkMatrix& m, GrSLPrecision precision) {
-    SkASSERT(!fInProcessor);
-    fMatrix = m;
-    fReverseY = false;
-    fPrecision = precision;
-}
