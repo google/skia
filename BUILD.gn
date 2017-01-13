@@ -646,10 +646,10 @@ component("skia") {
   }
 
   if (is_android) {
-    deps += [
-      "//third_party/cpu-features",
-      "//third_party/expat",
-    ]
+    deps += [ "//third_party/expat" ]
+    if (is_skia_standalone && ndk != "") {
+      deps += [ "//third_party/cpu-features" ]
+    }
     sources += [ "src/ports/SkDebug_android.cpp" ]
     libs += [
       "EGL",
