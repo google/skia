@@ -8,6 +8,7 @@
 #include "GrDrawOpAtlas.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
+#include "GrTextureProxy.h"
 #include "GrTracing.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,18 +120,18 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(sk_sp<GrTexture> texture, int numPlotsX, int numPlotsY)
-        : fTexture(std::move(texture)), fAtlasGeneration(kInvalidAtlasGeneration + 1) {
-    fPlotWidth = fTexture->width() / numPlotsX;
-    fPlotHeight = fTexture->height() / numPlotsY;
+GrDrawOpAtlas::GrDrawOpAtlas(sk_sp<GrTextureProxy> proxy, int numPlotsX, int numPlotsY)
+        : fProxy(std::move(proxy)), fAtlasGeneration(kInvalidAtlasGeneration + 1) {
+    fPlotWidth = fProxy->width() / numPlotsX;
+    fPlotHeight = fProxy->height() / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(fPlotWidth * numPlotsX == fTexture->width());
-    SkASSERT(fPlotHeight * numPlotsY == fTexture->height());
+    SkASSERT(fPlotWidth * numPlotsX == fProxy->width());
+    SkASSERT(fPlotHeight * numPlotsY == fProxy->height());
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
     // We currently do not support compressed atlases...
-    SkASSERT(!GrPixelConfigIsCompressed(fTexture->desc().fConfig));
+    SkASSERT(!GrPixelConfigIsCompressed(fProxy->desc().fConfig));
 
     // set up allocated plots
     fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
@@ -140,7 +141,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(sk_sp<GrTexture> texture, int numPlotsX, int numPlo
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(
-                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fTexture->desc().fConfig));
+                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->desc().fConfig));
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
@@ -164,7 +165,8 @@ inline void GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
     if (target->hasDrawBeenFlushed(plot->lastUploadToken())) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
-        GrTexture* texture = fTexture.get();
+        GrTexture* texture = fProxy->instantiate(nullptr);
+        //GrTexture* texture = fTexture.get();
         GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
             [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
                plotsp->uploadToTexture(writePixels, texture);
@@ -178,7 +180,7 @@ inline void GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
-    SkASSERT(fTexture);
+    SkASSERT(fProxy);
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
     }
@@ -188,7 +190,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     plotIter.init(fPlotList, PlotList::Iter::kHead_IterStart);
     Plot* plot;
     while ((plot = plotIter.get())) {
-        SkASSERT(GrBytesPerPixel(fTexture->desc().fConfig) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
         if (plot->addSubImage(width, height, image, loc)) {
             this->updatePlot(target, id, plot);
             return true;
@@ -203,7 +205,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
         this->processEviction(plot->id());
         plot->resetRects();
-        SkASSERT(GrBytesPerPixel(fTexture->desc().fConfig) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == plot->bpp());
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
         SkASSERT(verify);
         this->updatePlot(target, id, plot);
@@ -226,7 +228,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     newPlot.reset(plot->clone());
 
     fPlotList.addToHead(newPlot.get());
-    SkASSERT(GrBytesPerPixel(fTexture->desc().fConfig) == newPlot->bpp());
+    SkASSERT(GrBytesPerPixel(fProxy->desc().fConfig) == newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
@@ -234,7 +236,11 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     // one it displaced most likely was uploaded asap.
     // With c+14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
-    GrTexture* texture = fTexture.get();
+    GrTexture* texture = fProxy->instantiate(nullptr);
+    if (!texture) {
+        return false;
+    }
+
     GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
         [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
             plotsp->uploadToTexture(writePixels, texture);

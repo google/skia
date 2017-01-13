@@ -226,7 +226,7 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fProxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(as_IB(image)->peekTexture()));
+            fProxy = sk_ref_sp(as_IB(image)->peekProxy()); // GrSurfaceProxy::MakeWrapped(sk_ref_sp(as_IB(image)->peekTexture()));
         }
     }
 protected:
@@ -359,10 +359,14 @@ protected:
             canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), paint);
             return;
         }
+
+        sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
+        sk_sp<SkImage> image(new SkImage_Gpu(canvas->getGrContext(),
+                                             cache->info().width(), cache->info().height(),
                                              cache->uniqueID(), kPremul_SkAlphaType,
-                                             std::move(texture), std::move(texColorSpace),
+                                             std::move(proxy), std::move(texColorSpace),
                                              SkBudgeted::kNo));
         canvas->drawImage(image.get(), x, y);
 #endif

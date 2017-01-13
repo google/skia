@@ -16,6 +16,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrStencilAttachment.h"
+#include "GrTextureProxy.h"
 #include "SkMathPriv.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
@@ -146,6 +147,7 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig confi
     desc.fHeight = height;
     desc.fConfig = config;
 
+#if 0
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
@@ -154,8 +156,16 @@ std::unique_ptr<GrDrawOpAtlas> GrResourceProvider::makeAtlas(GrPixelConfig confi
     if (!texture) {
         return nullptr;
     }
+#endif
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*this->caps(), desc,
+                                                             SkBackingFit::kApprox,
+                                                             SkBudgeted::kYes));
+    if (!proxy || !proxy->asTextureProxy()) {
+        return nullptr;
+    }
+
     std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(std::move(texture), numPlotsX, numPlotsY));
+            new GrDrawOpAtlas(sk_ref_sp(proxy->asTextureProxy()), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }

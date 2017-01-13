@@ -129,9 +129,18 @@ public:
     // if texture returns nullptr, the client must not try to use other functions on the
     // GrAtlasGlyphCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
-    GrTexture* getTexture(GrMaskFormat format) {
+#if 0
+    GrTexture* getTexture1(GrMaskFormat format) {
         if (this->initAtlas(format)) {
             return this->getAtlas(format)->getTexture();
+        }
+        return nullptr;
+    }
+#endif
+
+    GrTextureProxy* getProxy(GrMaskFormat format) {
+        if (this->initAtlas(format)) {
+            return this->getAtlas(format)->getProxy();
         }
         return nullptr;
     }
