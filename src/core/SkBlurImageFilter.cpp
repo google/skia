@@ -176,7 +176,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
                                            renderTargetContext->asTexture(),
-                                           sk_ref_sp(renderTargetContext->getColorSpace()),
+                                           renderTargetContext->refColorSpace(),
                                            &source->props());
     }
 #endif

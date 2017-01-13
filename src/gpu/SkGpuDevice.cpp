@@ -129,7 +129,7 @@ static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool 
     }
     return SkImageInfo::Make(w, h, colorType,
                              opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
-                             sk_ref_sp(context->getColorSpace()));
+                             context->refColorSpace());
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
@@ -1800,7 +1800,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                    fit,
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
                                                    fRenderTargetContext->config(), 
-                                                   sk_ref_sp(fRenderTargetContext->getColorSpace()), 
+                                                   fRenderTargetContext->refColorSpace(), 
                                                    fRenderTargetContext->desc().fSampleCnt, 
                                                    kDefault_GrSurfaceOrigin,
                                                    &props));

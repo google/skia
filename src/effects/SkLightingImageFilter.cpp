@@ -467,7 +467,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                                        SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
                                        sk_ref_sp(renderTargetContext->asDeferredTexture()),
-                                       sk_ref_sp(renderTargetContext->getColorSpace()));
+                                       renderTargetContext->refColorSpace());
 }
 #endif
 

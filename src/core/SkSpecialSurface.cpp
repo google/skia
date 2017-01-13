@@ -143,7 +143,7 @@ public:
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    fRenderTargetContext->asTexture(),
-                                                   sk_ref_sp(fRenderTargetContext->getColorSpace()),
+                                                   fRenderTargetContext->refColorSpace(),
                                                    &this->props()));
         fRenderTargetContext = nullptr;
         return tmp;

@@ -306,7 +306,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     ctx->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType, renderTargetContext->asTexture(),
-                                   sk_ref_sp(renderTargetContext->getColorSpace()), budgeted);
+                                   renderTargetContext->refColorSpace(), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
