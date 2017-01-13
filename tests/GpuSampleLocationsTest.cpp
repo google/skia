@@ -12,10 +12,11 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrAppliedClip.h"
+#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTypesPriv.h"
-#include "GrPipelineBuilder.h"
 #include "gl/GrGLGpu.h"
 #include "gl/debug/DebugGLTestContext.h"
 
@@ -96,13 +97,12 @@ static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* sto
     GrWindowRectsState dummyWindows;
     GrPipelineOptimizations dummyOverrides;
 
+    GrAppliedClip dummyAppliedClip(SkRect::MakeLargest());
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = &dummyBuilder;
     args.fRenderTargetContext = dc;
     args.fCaps = dc->caps();
-    args.fScissor = &dummyScissor;
-    args.fWindowRectsState = &dummyWindows;
-    args.fHasStencilClip = false;
+    args.fAppliedClip = &dummyAppliedClip;
     args.fDstTexture = GrXferProcessor::DstTexture();
 
     GrPipeline::CreateAt(storage, args, &dummyOverrides);

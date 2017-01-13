@@ -275,13 +275,6 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
         return;
     }
 
-    // TODO: this is the only remaining usage of the AutoRestoreFragmentProcessorState - remove it
-    GrPipelineBuilder::AutoRestoreFragmentProcessorState arfps;
-    if (appliedClip.clipCoverageFragmentProcessor()) {
-        arfps.set(&pipelineBuilder);
-        arfps.addCoverageFragmentProcessor(sk_ref_sp(appliedClip.clipCoverageFragmentProcessor()));
-    }
-
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
         if (!renderTargetContext->accessRenderTarget()) {
             return;
@@ -324,9 +317,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     args.fAnalysis.fCoveragePOI.completeCalculations(
             sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
             pipelineBuilder.numCoverageFragmentProcessors());
-    args.fScissor = &appliedClip.scissorState();
-    args.fWindowRectsState = &appliedClip.windowRectsState();
-    args.fHasStencilClip = appliedClip.hasStencilClip();
+    args.fAppliedClip = &appliedClip;
     if (!renderTargetContext->accessRenderTarget()) {
         return;
     }
