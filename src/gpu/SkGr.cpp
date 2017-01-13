@@ -16,7 +16,6 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-#include "GrYUVProvider.h"
 
 #include "SkAutoMalloc.h"
 #include "SkBlendModePriv.h"
@@ -24,6 +23,7 @@
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
@@ -31,13 +31,11 @@
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
 #include "SkTemplates.h"
-#include "SkYUVPlanesCache.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrDitherEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
-#include "effects/GrYUVEffect.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
 #  include "ktx.h"
@@ -111,48 +109,7 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
 
 //////////////////////////////////////////////////////////////////////////////
 
-/**
- *  Once we have made SkImages handle all lazy/deferred/generated content, the YUV apis will
- *  be gone from SkPixelRef, and we can remove this subclass entirely.
- */
-class PixelRef_GrYUVProvider : public GrYUVProvider {
-    SkPixelRef* fPR;
-
-public:
-    PixelRef_GrYUVProvider(SkPixelRef* pr) : fPR(pr) {}
-
-    uint32_t onGetID() override { return fPR->getGenerationID(); }
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
-        return fPR->queryYUV8(sizeInfo, colorSpace);
-    }
-    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
-        return fPR->getYUV8Planes(sizeInfo, planes);
-    }
-};
-
-static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& bm,
-                                                const GrSurfaceDesc& desc) {
-    // Subsets are not supported, the whole pixelRef is loaded when using YUV decoding
-    SkPixelRef* pixelRef = bm.pixelRef();
-    if ((nullptr == pixelRef) ||
-        (pixelRef->info().width() != bm.info().width()) ||
-        (pixelRef->info().height() != bm.info().height())) {
-        return nullptr;
-    }
-
-    PixelRef_GrYUVProvider provider(pixelRef);
-
-    return provider.refAsTexture(ctx, desc, !bm.isVolatile());
-}
-
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
-
-    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
-    if (texture) {
-        return texture.release();
-    }
-
     SkAutoLockPixels alp(bitmap);
     if (!bitmap.readyToDraw()) {
         return nullptr;
@@ -168,6 +125,10 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     const SkPixmap* pmap = &pixmap;
     SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
+
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
 
     const GrCaps* caps = ctx->caps();
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
@@ -243,11 +204,11 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
-    sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
-    if (texture) {
-        return texture.release();
+    if (!SkImageInfoIsValid(bitmap.info())) {
+        return nullptr;
     }
+
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
     // We don't support Gray8 directly in the GL backend, so fail-over to GrUploadBitmapToTexture.
     // That will transform the Gray8 to 8888, then use the driver/GPU to build mipmaps. If we build
@@ -255,11 +216,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
     // TODO: A better option might be to transform the initial bitmap here to 8888, then run the
     // CPU mip-mapper on that data before uploading. This is much less code for a rare case though:
     if (kGray_8_SkColorType == bitmap.colorType()) {
-        return nullptr;
-    }
-
-    SkASSERT(sizeof(int) <= sizeof(uint32_t));
-    if (bitmap.width() < 0 || bitmap.height() < 0) {
         return nullptr;
     }
 
@@ -312,6 +268,10 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
 
 GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
                                    const GrMipLevel* texels, int mipLevelCount) {
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
+
     const GrCaps* caps = ctx->caps();
     return ctx->textureProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
                                                           SkBudgeted::kYes, texels,
