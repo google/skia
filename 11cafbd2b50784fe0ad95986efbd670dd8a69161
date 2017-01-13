@@ -22,6 +22,24 @@
       "revId": "11cafbd2b50784fe0ad95986efbd670dd8a69161",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03a34181_e355f2ff",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2770,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-13T21:41:22Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "43f0d99f_9c77913b",
+      "revId": "11cafbd2b50784fe0ad95986efbd670dd8a69161",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
