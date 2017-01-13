@@ -853,7 +853,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 func main() {
 	b := specs.MustNewTasksCfgBuilder()
 	// Create the JobNameSchema.
-	schema, err := NewJobNameSchema(path.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
+	schema, err := NewJobNameSchema(path.Join(b.CheckoutRoot(), "infra", "bots", ".recipe_deps", "skia-recipes", "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
 	if err != nil {
 		glog.Fatal(err)
 	}

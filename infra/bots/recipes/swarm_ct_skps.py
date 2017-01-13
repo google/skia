@@ -9,17 +9,17 @@ import math
 DEPS = [
   'build/file',
   'build/gsutil',
-  'core',
-  'ct',
-  'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'run',
-  'swarming',
-  'vars',
+  'skia-recipes/core',
+  'skia-recipes/ct',
+  'skia-recipes/flavor',
+  'skia-recipes/run',
+  'skia-recipes/swarming',
+  'skia-recipes/vars',
 ]
 
 

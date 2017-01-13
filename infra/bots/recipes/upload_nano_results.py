@@ -8,7 +8,7 @@
 
 DEPS = [
   'recipe_engine/properties',
-  'upload_nano_results',
+  'skia-recipes/upload_nano_results',
 ]
 
 

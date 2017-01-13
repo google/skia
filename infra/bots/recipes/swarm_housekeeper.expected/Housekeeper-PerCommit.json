@@ -100,7 +100,7 @@
   {
     "cmd": [
       "python",
-      "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py"
+      "RECIPE_MODULE[skia-recipes::core]/resources/generate_and_upload_doxygen.py"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -114,7 +114,7 @@
   {
     "cmd": [
       "python",
-      "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
+      "RECIPE_MODULE[skia-recipes::core]/resources/run_binary_size_analysis.py",
       "--library",
       "[START_DIR]/out/Release/lib/libskia.so",
       "--githash",
