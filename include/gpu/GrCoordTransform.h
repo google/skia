@@ -20,7 +20,7 @@
  */
 class GrCoordTransform : SkNoncopyable {
 public:
-    GrCoordTransform() { SkDEBUGCODE(fInProcessor = false); }
+    GrCoordTransform() : fTexture(nullptr), fNormalize(false) { SkDEBUGCODE(fInProcessor = false); }
 
     /**
      * Create a transformation that maps [0, 1] to a texture's boundaries. The precision is inferred
@@ -30,7 +30,7 @@ public:
     GrCoordTransform(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
         SkASSERT(texture);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(texture, filter);
+        this->reset10(SkMatrix::I(), texture, filter);
     }
 
     /**
@@ -41,7 +41,7 @@ public:
                      GrSamplerParams::FilterMode filter) {
         SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
-        this->reset(m, texture, filter);
+        this->reset10(m, texture, filter);
     }
 
     /**
@@ -49,21 +49,26 @@ public:
      */
     GrCoordTransform(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(m, precision);
+        this->reset2(m, precision);
     }
 
-    void reset(const GrTexture* texture, GrSamplerParams::FilterMode filter) {
+    void reset10(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
+                 bool normalize = true);
+
+    void reset2(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(!fInProcessor);
-        SkASSERT(texture);
-        this->reset(MakeDivByTextureWHMatrix(texture), texture, filter);
+        fMatrix = m;
+        fTexture = nullptr;
+        fNormalize = false;
+        fReverseY = false;
+        fPrecision = precision;
     }
-
-    void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter);
-    void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision);
 
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
         fMatrix = that.fMatrix;
+        fTexture = that.fTexture;
+        fNormalize = that.fNormalize;
         fReverseY = that.fReverseY;
         fPrecision = that.fPrecision;
         return *this;
@@ -80,6 +85,8 @@ public:
 
     bool operator==(const GrCoordTransform& that) const {
         return fMatrix.cheapEqualTo(that.fMatrix) &&
+               fTexture == that.fTexture &&
+               fNormalize == that.fNormalize &&
                fReverseY == that.fReverseY &&
                fPrecision == that.fPrecision;
     }
@@ -87,20 +94,15 @@ public:
     bool operator!=(const GrCoordTransform& that) const { return !(*this == that); }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
+    const GrTexture* texture() const { return fTexture; }
+    bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
     GrSLPrecision precision() const { return fPrecision; }
 
-    /** Useful for effects that want to insert a texture matrix that is implied by the texture
-        dimensions */
-    static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
-        SkASSERT(texture);
-        SkMatrix mat;
-        (void)mat.setIDiv(texture->width(), texture->height());
-        return mat;
-    }
-
 private:
     SkMatrix                fMatrix;
+    const GrTexture*        fTexture;
+    bool                    fNormalize;
     bool                    fReverseY;
     GrSLPrecision           fPrecision;
     typedef SkNoncopyable INHERITED;

@@ -345,6 +345,7 @@ public:
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
+        bool                        fFoo;
         SkShader::TileMode          fTileMode;
         sk_sp<GrColorSpaceXform>    fColorSpaceXform;
         bool                        fGammaCorrect;
