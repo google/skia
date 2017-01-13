@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_d6c3ba35",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-13T16:23:22Z",
+      "side": 1,
+      "message": "dox? I\u0027m not clear when/why I would call this, nor what might make it return false (and what wouldn\u0027t)",
+      "range": {
+        "startLine": 333,
+        "startChar": 16,
+        "endLine": 333,
+        "endChar": 31
+      },
+      "revId": "7ba591a622fdd2e84966edd5813cef863b029267",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
