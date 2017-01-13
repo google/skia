@@ -234,7 +234,7 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         static const float kGeomFactor = 64.0f;
 
         SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
-        const float umbraAlpha = 1.0f / (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
+        const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
         const SkScalar ambientOffset = srcSpaceAmbientRadius * umbraAlpha;
 
         // For the ambient rrect, we inset the offset rect by half the srcSpaceAmbientRadius
