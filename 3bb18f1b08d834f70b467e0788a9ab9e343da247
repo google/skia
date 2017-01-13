@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_7c558531",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T19:22:12Z",
+      "side": 1,
+      "message": "why re-check here?",
+      "revId": "3bb18f1b08d834f70b467e0788a9ab9e343da247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
