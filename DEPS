@@ -13,9 +13,12 @@ deps = {
   "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@57f17473791703ac82add77c3d77d13d8e2dfbc4",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@08fd250e1af0aa16d18012d39462e6ca9bbc6e90",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
-  "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@1.3.0",
-  "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
-  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.2-rc2",
+  #harfbuzz @1.3.0
+  "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@a732e00ea4fffebaa85a89420f09df4c11d650e0",
+  # jsoncpp @1.0.0
+  "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@7165f6ac4c482e68475c9e1dac086f9e12fff0d0",
+  #libwebp @v0.5.2-rc2
+  "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@ece9684f529cd69adbcd2c3de20c097da7ae6fe9",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
 
   "third_party/externals/dng_sdk" : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
@@ -26,8 +29,8 @@ deps = {
   "third_party/externals/yasm/source/patched-yasm/" : "https://chromium.googlesource.com/chromium/deps/yasm/patched-yasm.git@4671120cd8558ce62ee8672ebf3eb6f5216f909b",
   "third_party/externals/yasm/binaries"             : "https://chromium.googlesource.com/chromium/deps/yasm/binaries.git@52f9b3f4b0aa06da24ef8b123058bb61ee468881",
 
-  "third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
-
+  # expat @android-6.0.1_r55
+  "third_party/externals/expat" : "https://android.googlesource.com/platform/external/expat.git@e5aa0a2cb0a5f759ef31c0819dc67d9b14246a4a",
 
   # The line below is needed for compiling SkV8Example. Do not delete.
   #"third_party/externals/v8": "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
