@@ -9,7 +9,7 @@
 #include "SkBlendModePriv.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
-#include "SkFixedAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkModeColorFilter.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -88,7 +88,7 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
-                                       SkFallbackAlloc* scratch,
+                                       SkArenaAlloc* scratch,
                                        bool shaderIsOpaque) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
 

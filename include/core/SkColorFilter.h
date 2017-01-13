@@ -15,9 +15,9 @@
 
 class GrContext;
 class GrFragmentProcessor;
+class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
-class SkFallbackAlloc;
 class SkRasterPipeline;
 
 /**
@@ -73,7 +73,7 @@ public:
 
     virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                       bool shaderIsOpaque) const;
 
     enum Flags {
@@ -160,7 +160,7 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const;
 
 private:

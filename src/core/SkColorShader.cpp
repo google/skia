@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
-#include "SkFixedAlloc.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -311,7 +311,7 @@ bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, B
 
 bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkColorSpace* dst,
-                                   SkFallbackAlloc* scratch,
+                                   SkArenaAlloc* scratch,
                                    const SkMatrix& ctm,
                                    const SkPaint&) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
@@ -322,7 +322,7 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkColorSpace* dst,
-                                    SkFallbackAlloc* scratch,
+                                    SkArenaAlloc* scratch,
                                     const SkMatrix& ctm,
                                     const SkPaint&) const {
     auto color = scratch->make<SkPM4f>(fColor4.premul());
