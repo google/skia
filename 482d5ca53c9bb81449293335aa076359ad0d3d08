@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_13ed5406",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-13T02:30:47Z",
+      "side": 1,
+      "message": "This is the real fix. By removing the earlier creations of GrPaint and deferring it until here we fold SkPaint\u0027s color filter into GrPaint\u0027s color (rather than adding the SkColorFilter\u0027s FP to GrPaint) only when drawing grayscale/lcd and not when drawing color glyphs.\n\nThis does mean we recreate GrPaint from SkPaint on each subrun. On our skps we create 6% more paints than we previously created.  I\u0027m hoping that is is ok. If this proves problematic I was thinking that GrTextUtils::Paint could save the GrPaint and it could be reused when there are multiple runs that don\u0027t change between color and grayscale/lcd.",
+      "range": {
+        "startLine": 295,
+        "startChar": 8,
+        "endLine": 298,
+        "endChar": 9
+      },
+      "revId": "482d5ca53c9bb81449293335aa076359ad0d3d08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
