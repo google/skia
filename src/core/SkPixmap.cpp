@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkHalf.h"
 #include "SkMask.h"
 #include "SkNx.h"
@@ -84,13 +85,11 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
 
 bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y) const {
-    if (kUnknown_SkColorType == requestedDstInfo.colorType()) {
+    if (!SkImageInfoValidConversion(requestedDstInfo, fInfo)) {
         return false;
     }
+
     if (nullptr == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
-        return false;
-    }
-    if (0 == requestedDstInfo.width() || 0 == requestedDstInfo.height()) {
         return false;
     }
 
