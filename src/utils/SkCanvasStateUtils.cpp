@@ -7,9 +7,9 @@
 
 #include "SkCanvasStateUtils.h"
 
-#include "SkBaseDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStack.h"
+#include "SkDevice.h"
 #include "SkRasterClip.h"
 #include "SkWriter32.h"
 #include "SkClipOpPriv.h"

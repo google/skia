@@ -10,8 +10,8 @@
 
 #include "SkGr.h"
 #include "SkGrPriv.h"
-#include "SkBaseDevice.h"
 #include "SkBitmap.h"
+#include "SkDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"

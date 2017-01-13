@@ -6,10 +6,10 @@
  */
 
 #include <functional>
-#include "SkBaseDevice.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkImage_Base.h"
 #include "SkOverdrawCanvas.h"
 #include "SkPath.h"
