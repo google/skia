@@ -320,14 +320,14 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// k = (y2 - y0, x0 - x2, (x2 - x0)*y0 - (y2 - y0)*x0 )
-// l = (2*w * (y1 - y0), 2*w * (x0 - x1), 2*w * (x1*y0 - x0*y1))
-// m = (2*w * (y2 - y1), 2*w * (x1 - x2), 2*w * (x2*y1 - x1*y2))
+// k = (y2 - y0, x0 - x2, x2*y0 - x0*y2)
+// l = (y1 - y0, x0 - x1, x1*y0 - x0*y1) * 2*w
+// m = (y2 - y1, x1 - x2, x2*y1 - x1*y2) * 2*w
 void GrPathUtils::getConicKLM(const SkPoint p[3], const SkScalar weight, SkScalar klm[9]) {
     const SkScalar w2 = 2.f * weight;
     klm[0] = p[2].fY - p[0].fY;
     klm[1] = p[0].fX - p[2].fX;
-    klm[2] = (p[2].fX - p[0].fX) * p[0].fY - (p[2].fY - p[0].fY) * p[0].fX;
+    klm[2] = p[2].fX * p[0].fY - p[0].fX * p[2].fY;
 
     klm[3] = w2 * (p[1].fY - p[0].fY);
     klm[4] = w2 * (p[0].fX - p[1].fX);
