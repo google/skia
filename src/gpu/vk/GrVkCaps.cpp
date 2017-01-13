@@ -148,7 +148,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
             shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
             shaderCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
         } else {
-            if (kGray_8_GrPixelConfig == config) {
+            if (kGray_8_GrPixelConfig == config || kSGray_8_GrPixelConfig == config) {
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRA();
             } else if (kRGBA_4444_GrPixelConfig == config) {
                 // The vulkan spec does not require R4G4B4A4 to be supported for texturing so we

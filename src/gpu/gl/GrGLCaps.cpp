@@ -1789,6 +1789,31 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
+    fConfigTable[kSGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kSGray_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    if (ctxInfo.hasExtension("GL_EXT_texture_sRGB_R8")) {
+        // ES3 extension that adds SR8_EXT
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SR8_EXT;
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
+            GR_GL_RED;
+        fConfigTable[kSGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RRRA();
+        fConfigTable[kSGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    } else {
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_LUMINANCE;
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SLUMINANCE8;
+        fConfigTable[kSGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
+            GR_GL_LUMINANCE;
+        fConfigTable[kSGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+        // SLUMINANCE was removed from GL in 3.1, so we need an old GL, or compatibility profile.
+        if (kGL_GrGLStandard == standard && (version <= GR_GL_VER(3, 0) || !fIsCoreProfile)) {
+            fConfigTable[kSGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+        }
+    }
+    if (texStorageSupported) {
+        fConfigTable[kSGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+
     // Check for [half] floating point texture support
     // NOTE: We disallow floating point textures on ES devices if linear filtering modes are not
     // supported. This is for simplicity, but a more granular approach is possible. Coincidentally,

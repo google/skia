@@ -449,6 +449,7 @@
 
 /* Red sized formats */
 #define GR_GL_R8                             0x8229
+#define GR_GL_SR8_EXT                        0x8FBD
 #define GR_GL_R16                            0x822A
 #define GR_GL_R16F                           0x822D
 #define GR_GL_R32F                           0x822E
@@ -463,6 +464,7 @@
 
 /* Luminance sized formats */
 #define GR_GL_LUMINANCE8                     0x8040
+#define GR_GL_SLUMINANCE8                    0x8C47
 
 /* Alpha sized formats */
 #define GR_GL_ALPHA8                         0x803C

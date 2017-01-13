@@ -220,6 +220,7 @@ enum GrPixelConfig {
     kUnknown_GrPixelConfig,
     kAlpha_8_GrPixelConfig,
     kGray_8_GrPixelConfig,
+    kSGray_8_GrPixelConfig,
     kRGB_565_GrPixelConfig,
     /**
      * Premultiplied
@@ -348,6 +349,7 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
 // all three color components are present in the config or anything about their order.
 static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
     switch (config) {
+        case kSGray_8_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
             return true;
@@ -378,6 +380,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kSGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -403,6 +406,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kETC1_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kSGray_8_GrPixelConfig:
             return true;
         default:
             return false;

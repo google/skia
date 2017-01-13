@@ -249,15 +249,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         return texture.release();
     }
 
-    // We don't support Gray8 directly in the GL backend, so fail-over to GrUploadBitmapToTexture.
-    // That will transform the Gray8 to 8888, then use the driver/GPU to build mipmaps. If we build
-    // the mips on the CPU here, they'll all be Gray8, which isn't useful. (They get treated as A8).
-    // TODO: A better option might be to transform the initial bitmap here to 8888, then run the
-    // CPU mip-mapper on that data before uploading. This is much less code for a rare case though:
-    if (kGray_8_SkColorType == bitmap.colorType()) {
-        return nullptr;
-    }
-
     SkASSERT(sizeof(int) <= sizeof(uint32_t));
     if (bitmap.width() < 0 || bitmap.height() < 0) {
         return nullptr;
@@ -398,7 +389,8 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
         case kIndex_8_SkColorType:
             return kSkia8888_GrPixelConfig;
         case kGray_8_SkColorType:
-            return kGray_8_GrPixelConfig;
+            return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
+                    ? kSGray_8_GrPixelConfig : kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
     }
@@ -413,6 +405,9 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
             ct = kAlpha_8_SkColorType;
             break;
         case kGray_8_GrPixelConfig:
+            ct = kGray_8_SkColorType;
+            break;
+        case kSGray_8_GrPixelConfig:
             ct = kGray_8_SkColorType;
             break;
         case kRGB_565_GrPixelConfig:

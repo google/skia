@@ -930,6 +930,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kSGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
