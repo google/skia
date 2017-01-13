@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_1c08c1a0",
+        "filename": "site/dev/testing/buildbot.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-13T18:47:41Z",
+      "side": 1,
+      "message": "Maybe rename the file?",
+      "revId": "b9a7cac729176ee67ea3687ddef8f22192bbbfc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_3cb5bdc0",
+        "filename": "site/dev/testing/buildbot.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-13T18:47:41Z",
+      "side": 1,
+      "message": "Somewhere, you should mention that you need to set up GOPATH and run \u0027go get -u go.skia.org/infra/...\u0027",
+      "range": {
+        "startLine": 28,
+        "startChar": 1,
+        "endLine": 28,
+        "endChar": 33
+      },
+      "revId": "b9a7cac729176ee67ea3687ddef8f22192bbbfc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_fcb215d1",
+        "filename": "site/dev/testing/buildbot.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-13T18:47:41Z",
+      "side": 1,
+      "message": "s/build/task/g",
+      "revId": "b9a7cac729176ee67ea3687ddef8f22192bbbfc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_5cdb69fe",
+        "filename": "site/dev/testing/buildbot.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-13T18:47:41Z",
+      "side": 1,
+      "message": "no longer accurate, and maybe won\u0027t be for a while?",
+      "range": {
+        "startLine": 70,
+        "startChar": 53,
+        "endLine": 71,
+        "endChar": 30
+      },
+      "revId": "b9a7cac729176ee67ea3687ddef8f22192bbbfc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
