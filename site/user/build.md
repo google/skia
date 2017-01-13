@@ -14,26 +14,27 @@ them.
 Quickstart
 ----------
 
-After gclient sync, run `fetch-gn` to make sure you have GN.
-
-    gclient sync && python bin/fetch-gn
-
 Run GN to generate your build files.
 
-    gn gen out/Static --args='is_official_build=true'
-    gn gen out/Shared --args='is_official_build=true is_component_build=true'
+    bin/gn gen out/Static --args='is_official_build=true'
+    bin/gn gen out/Shared --args='is_official_build=true is_component_build=true'
+
+If you find you don't have `bin/gn`, make sure you've run these steps.
+
+    python tools/git-sync-deps
+    python bin/fetch-gn
 
 GN allows fine-grained settings for developers and special situations.
 
-    gn gen out/Debug
-    gn gen out/Release  --args='is_debug=false'
-    gn gen out/Clang    --args='cc="clang" cxx="clang++"'
-    gn gen out/Cached   --args='cc_wrapper="ccache"'
-    gn gen out/RTTI     --args='extra_cflags_cc=["-frtti"]'
+    bin/gn gen out/Debug
+    bin/gn gen out/Release  --args='is_debug=false'
+    bin/gn gen out/Clang    --args='cc="clang" cxx="clang++"'
+    bin/gn gen out/Cached   --args='cc_wrapper="ccache"'
+    bin/gn gen out/RTTI     --args='extra_cflags_cc=["-frtti"]'
 
 To see all the arguments available, you can run
 
-    gn args out/Debug --list
+    bin/gn args out/Debug --list
 
 Having generated your build files, run Ninja to compile and link Skia.
 
@@ -61,12 +62,12 @@ can use one of these commands to fetch the NDK our bots use:
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
 
-    gn gen out/arm      --args='ndk="/tmp/ndk" target_cpu="arm"'
-    gn gen out/arm64    --args='ndk="/tmp/ndk" target_cpu="arm64"'
-    gn gen out/mips64el --args='ndk="/tmp/ndk" target_cpu="mips64el"'
-    gn gen out/mipsel   --args='ndk="/tmp/ndk" target_cpu="mipsel"'
-    gn gen out/x64      --args='ndk="/tmp/ndk" target_cpu="x64"'
-    gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
+    bin/gn gen out/arm      --args='ndk="/tmp/ndk" target_cpu="arm"'
+    bin/gn gen out/arm64    --args='ndk="/tmp/ndk" target_cpu="arm64"'
+    bin/gn gen out/mips64el --args='ndk="/tmp/ndk" target_cpu="mips64el"'
+    bin/gn gen out/mipsel   --args='ndk="/tmp/ndk" target_cpu="mipsel"'
+    bin/gn gen out/x64      --args='ndk="/tmp/ndk" target_cpu="x64"'
+    bin/gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
 Tweaking `ndk_api` gives you access to newer Android features like Vulkan.
@@ -82,7 +83,7 @@ and run it as normal.  You may find `bin/droid` convenient.
 Mac
 ---
 
-Mac users may want to pass `--ide=xcode` to `gn gen` to generate an Xcode project.
+Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode project.
 
 Windows
 -------
@@ -99,14 +100,14 @@ way we support 32-bit builds, by also setting `target_cpu="x86"`.
 
 ### Visual Studio Solutions
 
-If you use Visual Studio, you may want to pass `--ide=vs` to `gn gen` to
+If you use Visual Studio, you may want to pass `--ide=vs` to `bin/gn gen` to
 generate `all.sln`.  That solution will exist within the GN directory for the
 specific configuration, and will only build/run that configuration.
 
 If you want a Visual Studio Solution that supports multiple GN configurations,
 there is a helper script. It requires that all of your GN directories be inside
 the `out` directory. First, create all of your GN configurations as usual.
-Pass `--ide=vs` when running `gn gen` for each one. Then:
+Pass `--ide=vs` when running `bin/gn gen` for each one. Then:
 
     python gn/gn_meta_sln.py
 
@@ -122,7 +123,7 @@ CMake
 We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
 project descriptions.  This is not meant for any purpose beyond development.
 
-    gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
+    bin/gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 
 Third-party Dependencies
 ------------------------
