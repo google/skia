@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_5ca3693f",
+        "filename": "src/codec/SkBmpRLECodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:24:27Z",
+      "side": 0,
+      "message": "Hmm didn\u0027t realize that we had already thought about this.  I can\u0027t remember why I thought the fixed buffer needed to be at least as big as the width?  But I must have been wrong?",
+      "range": {
+        "startLine": 143,
+        "startChar": 75,
+        "endLine": 145,
+        "endChar": 43
+      },
+      "revId": "2b861d3a391f2a9c93f97163d783c78935b7e72d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

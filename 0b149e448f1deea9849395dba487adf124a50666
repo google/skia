@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_bc5ecd53",
+        "filename": "src/codec/SkBmpRLECodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:24:27Z",
+      "side": 1,
+      "message": "Ahh ok nice",
+      "range": {
+        "startLine": 432,
+        "startChar": 24,
+        "endLine": 432,
+        "endChar": 78
+      },
+      "revId": "0b149e448f1deea9849395dba487adf124a50666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_1ca9e121",
+        "filename": "src/codec/SkBmpRLECodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:24:27Z",
+      "side": 1,
+      "message": "nit: Don\u0027t feel strongly this is fine but...\n\nThis \"feels\" like constexpr.  Not sure if Skia has specific guidelines for const vs. constexpr.",
+      "range": {
+        "startLine": 101,
+        "startChar": 11,
+        "endLine": 101,
+        "endChar": 16
+      },
+      "revId": "0b149e448f1deea9849395dba487adf124a50666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
