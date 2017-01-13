@@ -271,6 +271,12 @@ public:
         *b = ba;
         *a = _mm_srli_si128(ba, 8);
     }
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        const uint16_t* ptr16 = (const uint16_t*) ptr;
+        *r = { ptr16[0], ptr16[3], ptr16[6], ptr16[ 9] };
+        *g = { ptr16[1], ptr16[4], ptr16[7], ptr16[10] };
+        *b = { ptr16[2], ptr16[5], ptr16[8], ptr16[11] };
+    }
     AI static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
         __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
