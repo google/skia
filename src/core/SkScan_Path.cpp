@@ -604,9 +604,8 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
   */
 static inline int round_down_to_int(SkScalar x) {
     double xx = x;
-    xx += 0.5;
-    double floorXX = floor(xx);
-    return (int)floorXX - (xx == floorXX);
+    xx -= 0.5;
+    return (int)ceil(xx);
 }
 
 /**
