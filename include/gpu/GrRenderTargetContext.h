@@ -50,13 +50,15 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
-    // TODO: it is odd that we need both the SkPaint in the following 3 methods.
-    // We should extract the text parameters from SkPaint and pass them separately
-    // akin to GrStyle (GrTextInfo?)
-    virtual void drawText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+    // We use SkPaint rather than GrPaint here for two reasons:
+    //    * The SkPaint carries extra text settings. If these were extracted to a lighter object
+    //      we could use GrPaint except that
+    //    * SkPaint->GrPaint conversion depends upon whether the glyphs are color or grayscale and
+    //      this can vary within a text run.
+    virtual void drawText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix,
                           const char text[], size_t byteLength, SkScalar x, SkScalar y,
                           const SkIRect& clipBounds);
-    virtual void drawPosText(const GrClip&, GrPaint&&, const SkPaint&, const SkMatrix& viewMatrix,
+    virtual void drawPosText(const GrClip&, const SkPaint&, const SkMatrix& viewMatrix,
                              const char text[], size_t byteLength, const SkScalar pos[],
                              int scalarsPerPosition, const SkPoint& offset,
                              const SkIRect& clipBounds);
