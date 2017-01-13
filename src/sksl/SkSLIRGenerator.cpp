@@ -551,11 +551,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         }
     }
     Type* type = new Type(intf.fPosition, intf.fInterfaceName, fields);
-    fSymbolTable->takeOwnership(type);
+    old->takeOwnership(type);
     SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
     Variable* var = new Variable(intf.fPosition, intf.fModifiers, name, *type,
                                  Variable::kGlobal_Storage);
-    fSymbolTable->takeOwnership(var);
+    old->takeOwnership(var);
     if (intf.fValueName.size()) {
         old->addWithoutOwnership(intf.fValueName, var);
     } else {
@@ -624,19 +624,22 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
                                                                             f->fFunctions));
         }
         case Symbol::kVariable_Kind: {
-            const Variable* var = (const Variable*) result;
-            this->markReadFrom(*var);
+            Variable* var = (Variable*) result;
             if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
                 fSettings->fFlipY &&
                 (!fSettings->fCaps || !fSettings->fCaps->fragCoordConventionsExtensionString())) {
                 fInputs.fRTHeight = true;
             }
-            return std::unique_ptr<VariableReference>(new VariableReference(identifier.fPosition,
-                                                                            *var));
+            // default to kRead_RefKind; this will be corrected later if the variable is written to
+            return std::unique_ptr<VariableReference>(new VariableReference(
+                                                                 identifier.fPosition,
+                                                                 *var,
+                                                                 VariableReference::kRead_RefKind));
         }
         case Symbol::kField_Kind: {
             const Field* field = (const Field*) result;
-            VariableReference* base = new VariableReference(identifier.fPosition, field->fOwner);
+            VariableReference* base = new VariableReference(identifier.fPosition, field->fOwner,
+                                                            VariableReference::kRead_RefKind);
             return std::unique_ptr<Expression>(new FieldAccess(
                                                   std::unique_ptr<Expression>(base),
                                                   field->fFieldIndex,
@@ -688,28 +691,6 @@ static bool is_matrix_multiply(const Type& left, const Type& right) {
         return right.kind() == Type::kMatrix_Kind || right.kind() == Type::kVector_Kind;
     }
     return left.kind() == Type::kVector_Kind && right.kind() == Type::kMatrix_Kind;
-}
-
-static bool is_assignment(Token::Kind op) {
-    switch (op) {
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::BITWISEOREQ:  // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALANDEQ:
-            return true;
-        default:
-            return false;
-    }
 }
 
 /**
@@ -842,14 +823,9 @@ static bool determine_binary_type(const Context& context,
     return false;
 }
 
-/**
- * If both operands are compile-time constants and can be folded, returns an expression representing
- * the folded value. Otherwise, returns null. Note that unlike most other functions here, null does
- * not represent a compilation error.
- */
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
-                                                      const Expression& right) {
+                                                      const Expression& right) const {
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense. The plan is to move the
     // Skia caps into SkSL, so we have access to all of them including the precisions of the various
@@ -882,7 +858,12 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 }
                 fErrors.error(right.fPosition, "division by zero");
                 return nullptr;
-            case Token::PERCENT:    return RESULT(Int,  %);
+            case Token::PERCENT:
+                if (rightVal) {
+                    return RESULT(Int, %);
+                }
+                fErrors.error(right.fPosition, "division by zero");
+                return nullptr;
             case Token::BITWISEAND: return RESULT(Int,  &);
             case Token::BITWISEOR:  return RESULT(Int,  |);
             case Token::BITWISEXOR: return RESULT(Int,  ^);
@@ -938,14 +919,15 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     const Type* rightType;
     const Type* resultType;
     if (!determine_binary_type(fContext, expression.fOperator, left->fType, right->fType, &leftType,
-                               &rightType, &resultType, !is_assignment(expression.fOperator))) {
+                               &rightType, &resultType,
+                               !Token::IsAssignment(expression.fOperator))) {
         fErrors.error(expression.fPosition, "type mismatch: '" +
                                             Token::OperatorName(expression.fOperator) +
                                             "' cannot operate on '" + left->fType.fName +
                                             "', '" + right->fType.fName + "'");
         return nullptr;
     }
-    if (is_assignment(expression.fOperator)) {
+    if (Token::IsAssignment(expression.fOperator)) {
         this->markWrittenTo(*left);
     }
     left = this->coerce(std::move(left), *leftType);
@@ -956,6 +938,17 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     std::unique_ptr<Expression> result = this->constantFold(*left.get(), expression.fOperator,
                                                             *right.get());
     if (!result) {
+        if (Token::IsAssignment(expression.fOperator) &&
+            left->fKind == Expression::kVariableReference_Kind) {
+            VariableReference& old = (VariableReference&) *left;
+            ASSERT(old.fRefKind == VariableReference::kRead_RefKind);
+            VariableReference::RefKind refKind = expression.fOperator == Token::EQ ?
+                                                              VariableReference::kWrite_RefKind :
+                                                              VariableReference::kReadWrite_RefKind;
+            left = std::unique_ptr<Expression>(new VariableReference(old.fPosition, old.fVariable,
+                                                                     refKind));
+        }
+
         result = std::unique_ptr<Expression>(new BinaryExpression(expression.fPosition,
                                                                   std::move(left),
                                                                   expression.fOperator,
@@ -1489,10 +1482,6 @@ void IRGenerator::checkValid(const Expression& expr) {
                 fErrors.error(expr.fPosition, "invalid expression");
             }
     }
-}
-
-void IRGenerator::markReadFrom(const Variable& var) {
-    var.fIsReadFrom = true;
 }
 
 static bool has_duplicates(const Swizzle& swizzle) {

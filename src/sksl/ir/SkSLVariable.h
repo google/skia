@@ -33,7 +33,7 @@ struct Variable : public Symbol {
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)
-    , fIsReadFrom(false)
+    , fReadCount(0)
     , fIsWrittenTo(false) {}
 
     virtual SkString description() const override {
@@ -44,7 +44,9 @@ struct Variable : public Symbol {
     const Type& fType;
     const Storage fStorage;
 
-    mutable bool fIsReadFrom;
+    // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
+    // becomes zero during optimization), the variable is dead and may be eliminated.
+    mutable int fReadCount;
     mutable bool fIsWrittenTo;
 
     typedef Symbol INHERITED;

@@ -25,7 +25,7 @@ struct VarDeclarationsStatement : public Statement {
         return fDeclaration->description();
     }
 
-    const std::shared_ptr<VarDeclarations> fDeclaration;
+    std::shared_ptr<VarDeclarations> fDeclaration;
 
     typedef Statement INHERITED;
 };
