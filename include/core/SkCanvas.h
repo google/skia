@@ -157,36 +157,6 @@ public:
     SkISize getDeviceSize() const { return this->getBaseLayerSize(); }
 
     /**
-     *  DEPRECATED.
-     *  Return the canvas' device object, which may be null. The device holds
-     *  the bitmap of the pixels that the canvas draws into. The reference count
-     *  of the returned device is not changed by this call.
-     */
-#ifndef SK_SUPPORT_LEGACY_GETDEVICE
-protected:  // Can we make this private?
-#endif
-    SkBaseDevice* getDevice() const;
-public:
-    /**
-     *  saveLayer() can create another device (which is later drawn onto
-     *  the previous device). getTopDevice() returns the top-most device current
-     *  installed. Note that this can change on other calls like save/restore,
-     *  so do not access this device after subsequent canvas calls.
-     *  The reference count of the device is not changed.
-     *
-     * @param updateMatrixClip If this is true, then before the device is
-     *        returned, we ensure that its has been notified about the current
-     *        matrix and clip. Note: this happens automatically when the device
-     *        is drawn to, but is optional here, as there is a small perf hit
-     *        sometimes.
-     */
-#ifndef SK_SUPPORT_LEGACY_GETTOPDEVICE
-private:
-#endif
-    SkBaseDevice* getTopDevice(bool updateMatrixClip = false) const;
-public:
-
-    /**
      *  Create a new surface matching the specified info, one that attempts to
      *  be maximally compatible when used with this canvas. If there is no matching Surface type,
      *  NULL is returned.
@@ -1551,6 +1521,9 @@ private:
         this->predrawNotify(rect, paint, shaderOverrideIsOpaque ? kOpaque_ShaderOverrideOpacity
                                                                 : kNotOpaque_ShaderOverrideOpacity);
     }
+
+    SkBaseDevice* getDevice() const;
+    SkBaseDevice* getTopDevice() const;
 
     class MCRec;
 
