@@ -261,7 +261,7 @@ static void find_culprit() {
     }
 
     static void setup_crash_handler() {
-        const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
+        const int kSignals[] = { /* SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV */ };
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
         }

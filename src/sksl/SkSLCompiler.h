@@ -60,11 +60,10 @@ public:
     }
 
 private:
-    void addDefinition(const Expression* lvalue, const Expression* expr,
-                       std::unordered_map<const Variable*, const Expression*>* definitions);
+    void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
+                       DefinitionMap* definitions);
 
-    void addDefinitions(const BasicBlock::Node& node,
-                        std::unordered_map<const Variable*, const Expression*>* definitions);
+    void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
 
     void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
 
@@ -76,6 +75,7 @@ private:
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
+
     SkString fSkiaVertText; // FIXME store parsed version instead
 
     Context fContext;

@@ -27,7 +27,7 @@ struct WhileStatement : public Statement {
         return "while (" + fTest->description() + ") " + fStatement->description();
     }
 
-    const std::unique_ptr<Expression> fTest;
+    std::unique_ptr<Expression> fTest;
     const std::unique_ptr<Statement> fStatement;
 
     typedef Statement INHERITED;

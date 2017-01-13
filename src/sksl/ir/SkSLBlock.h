@@ -20,8 +20,8 @@ struct Block : public Statement {
     Block(Position position, std::vector<std::unique_ptr<Statement>> statements,
           const std::shared_ptr<SymbolTable> symbols)
     : INHERITED(position, kBlock_Kind)
-    , fStatements(std::move(statements))
-    , fSymbols(std::move(symbols)) {}
+    , fSymbols(std::move(symbols))
+    , fStatements(std::move(statements)) {}
 
     SkString description() const override {
         SkString result("{");
@@ -33,8 +33,8 @@ struct Block : public Statement {
         return result;
     }
 
-    const std::vector<std::unique_ptr<Statement>> fStatements;
     const std::shared_ptr<SymbolTable> fSymbols;
+    const std::vector<std::unique_ptr<Statement>> fStatements;
 
     typedef Statement INHERITED;
 };
