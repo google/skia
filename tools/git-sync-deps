@@ -223,6 +223,7 @@ def main(argv):
     return 1
 
   git_sync_deps(deps_file_path, argv, verbose)
+  subprocess.check_call([sys.executable, 'bin/fetch-gn'])
   return 0
 
 
