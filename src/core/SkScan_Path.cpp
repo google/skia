@@ -609,6 +609,19 @@ static inline int round_down_to_int(SkScalar x) {
     return (int)floorXX - (xx == floorXX);
 }
 
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+/**
+  * Variant of SkDScalarRoundToInt that allows offseting the input by a small fraction
+  * while trying to preserve intermediate double-precision (rather than directly adding
+  * the bias to the input at lower single-precision).
+  */
+static inline int round_biased_to_int(SkScalar x, SkScalar bias) {
+    double xx = x;
+    xx += 0.5 + bias;
+    return (int)floor(xx);
+}
+#endif
+
 /**
   *  Variant of SkRect::round() that explicitly performs the rounding step (i.e. floor(x + 0.5))
   *  using double instead of SkScalar (float). It does this by calling SkDScalarRoundToInt(),
@@ -626,11 +639,28 @@ static inline int round_down_to_int(SkScalar x) {
   *      SkASSERT(0 == iright);  // <--- fails
   *      iright = SkDScalarRoundToInt(right);
   *      SkASSERT(0 == iright);  // <--- succeeds
+  *
+  *
+  *  If using SK_RASTERIZE_EVEN_ROUNDING, we need to ensure that bottom and right account for
+  *  edges bounded by this rect being rounded to FDot6 format before being later rounded to an
+  *  integer. For example, a value like 0.499 can be below 0.5, but round to 0.5 as FDot6, which
+  *  would finally round to the integer 1, instead of just rounding to 0.
+  *
+  *  To handle this, a small bias of half an FDot6 increment is added before actually rounding to
+  *  an integer value. This simulates the rounding of SkScalarRoundToFDot6 without incurring the
+  *  range loss of converting to FDot6 format first, preserving the integer range for the SkIRect.
+  *  Thus, bottom and right are rounded in this manner (biased up), ensuring the rect is large enough.
+  *  Top and left can round as normal since they will round (biased down) to values less or equal
+  *  to the desired rect origin.
   */
 static void round_asymmetric_to_int(const SkRect& src, SkIRect* dst) {
     SkASSERT(dst);
     dst->set(round_down_to_int(src.fLeft), round_down_to_int(src.fTop),
+#ifdef SK_RASTERIZE_EVEN_ROUNDING
+             round_biased_to_int(src.fRight, 0.5f / SK_FDot6One), round_biased_to_int(src.fBottom, 0.5f / SK_FDot6One));
+#else
              SkDScalarRoundToInt(src.fRight), SkDScalarRoundToInt(src.fBottom));
+#endif
 }
 
 void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
