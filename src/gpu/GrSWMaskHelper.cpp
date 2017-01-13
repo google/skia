@@ -56,7 +56,7 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op, GrAA aa, uint
  */
 void GrSWMaskHelper::drawShape(const GrShape& shape, SkRegion::Op op, GrAA aa, uint8_t alpha) {
     SkPaint paint;
-    paint.setPathEffect(sk_ref_sp(shape.style().pathEffect()));
+    paint.setPathEffect(shape.style().refPathEffect());
     shape.style().strokeRec().applyToPaint(&paint);
     paint.setAntiAlias(GrAA::kYes == aa);
 

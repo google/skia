@@ -381,7 +381,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
         SkStrokeRec strokeRec(SkStrokeRec::kFill_InitStyle);
         strokeRec.setStrokeStyle(stroke.needToApply() ? stroke.getWidth() + extra : extra,
                                  true /*strokeAndFill*/);
-        fStyle = GrStyle(strokeRec, fStyle.pathEffect());
+        fStyle = GrStyle(strokeRec, fStyle.refPathEffect());
         fFont.setFakeBoldText(false);
     }
 
@@ -396,7 +396,7 @@ GrStencilAndCoverTextContext::TextRun::TextRun(const SkPaint& fontAndStroke)
             SkStrokeRec strokeRec(SkStrokeRec::kFill_InitStyle);
             strokeRec.setStrokeStyle(stroke.getWidth() / fTextRatio,
                                      SkStrokeRec::kStrokeAndFill_Style == stroke.getStyle());
-            fStyle = GrStyle(strokeRec, fStyle.pathEffect());
+            fStyle = GrStyle(strokeRec, fStyle.refPathEffect());
         }
 
         fFont.setLinearText(true);
