@@ -21,11 +21,10 @@ Clone the Skia repository
 
 <!--?prettify lang=sh?-->
 
-    mkdir $SRC
-    cd $SRC
-    gclient config --unmanaged https://skia.googlesource.com/skia.git
-    gclient sync
+    git clone https://skia.googlesource.com/skia.git
     cd skia
+    python tools/git-sync-deps
+    python bin/fetch-gn
 
 Getting started with Skia
 -------------------------
