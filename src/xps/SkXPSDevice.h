@@ -16,13 +16,13 @@
 #include <XpsObjectModel.h>
 
 #include "SkAutoCoInitialize.h"
+#include "SkBitmapDevice.h"
 #include "SkBitSet.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
-#include "SkRasterDevice.h"
 #include "SkShader.h"
 #include "SkSize.h"
 #include "SkTArray.h"

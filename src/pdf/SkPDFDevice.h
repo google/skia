@@ -8,11 +8,11 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
-#include "SkBaseDevice.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"

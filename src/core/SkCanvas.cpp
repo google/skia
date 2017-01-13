@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkClipStack.h"
@@ -28,7 +29,6 @@
 #include "SkPicture.h"
 #include "SkRadialShadowMapShader.h"
 #include "SkRasterClip.h"
-#include "SkRasterDevice.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkReadPixelsRec.h"
 #include "SkRRect.h"

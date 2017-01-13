@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkBaseDevice.h"
 #include "SkColorFilter.h"
+#include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"

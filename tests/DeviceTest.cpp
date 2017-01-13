@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SkRasterDevice.h"
+#include "SkBitmapDevice.h"
+#include "SkDevice.h"
 #include "SkSpecialImage.h"
 
 #if SK_SUPPORT_GPU

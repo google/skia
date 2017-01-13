@@ -7,11 +7,11 @@
 #define __STDC_LIMIT_MACROS
 
 #include "SkDraw.h"
-#include "SkBaseDevice.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkDevice.h"
 #include "SkDeviceLooper.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkFixed.h"
