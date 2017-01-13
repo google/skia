@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_3c3e5dde",
+        "filename": "src/splicer/SkSplicer_generated.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:58:16Z",
+      "side": 1,
+      "message": "If the compiler were smarter at least one of these movs could be avoided?",
+      "range": {
+        "startLine": 361,
+        "startChar": 52,
+        "endLine": 361,
+        "endChar": 55
+      },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_fc34d5ff",
+        "filename": "src/splicer/SkSplicer_generated.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:58:16Z",
+      "side": 1,
+      "message": "Weird that this pushes and pops?",
+      "range": {
+        "startLine": 588,
+        "startChar": 52,
+        "endLine": 588,
+        "endChar": 56
+      },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_5c3d29dd",
+        "filename": "src/splicer/SkSplicer_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:58:16Z",
+      "side": 1,
+      "message": "This needs to be kept in sync with the struct that lives in the code?",
+      "range": {
+        "startLine": 265,
+        "startChar": 11,
+        "endLine": 265,
+        "endChar": 14
+      },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_1c43a156",
+        "filename": "src/splicer/SkSplicer_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-13T19:58:16Z",
+      "side": 1,
+      "message": "This is where constants come from?",
+      "range": {
+        "startLine": 272,
+        "startChar": 34,
+        "endLine": 272,
+        "endChar": 48
+      },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
