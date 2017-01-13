@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_c10e52eb",
+        "filename": "src/core/SkScan_Path.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-13T18:26:54Z",
+      "side": 1,
+      "message": "how about\n\nconst double bias \u003d 0.5 / SK_FDot6One;\n\nremoving the bias parameter?",
+      "range": {
+        "startLine": 618,
+        "startChar": 38,
+        "endLine": 618,
+        "endChar": 47
+      },
+      "revId": "51f6454fd5561cf5d2ba754fd5eeb90f950f3e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_01ee9a3d",
+        "filename": "src/core/SkScan_Path.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-13T18:26:54Z",
+      "side": 1,
+      "message": "we have a line limit of 100 characters",
+      "range": {
+        "startLine": 652,
+        "startChar": 95,
+        "endLine": 652,
+        "endChar": 101
+      },
+      "revId": "51f6454fd5561cf5d2ba754fd5eeb90f950f3e49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
