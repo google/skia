@@ -9,10 +9,12 @@
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"
+#include "SkFixedAlloc.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureShader.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkShader.h"
@@ -263,6 +265,29 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             const SkMatrix& ctm,
                             const SkPaint& paint) const {
     return this->onAppendStages(pipeline, dst, scratch, ctm, paint);
+}
+
+
+bool SkShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkFallbackAlloc* alloc,
+                              const SkMatrix& ctm, const SkPaint& paint) const {
+    ContextRec rec{paint, ctm, nullptr, ContextRec::kPM4f_DstType, dstCS};
+    if (this->contextSize(rec) > 4096) {
+        return false;
+    }
+
+    struct Buffer {
+        Context* ctx;
+        uint8_t bytes[4096];
+
+        ~Buffer() { if (ctx) ctx->~Context(); }
+    };
+    auto b = alloc->make<Buffer>();
+    b->ctx = this->createContext(rec, b->bytes);
+    if (!b->ctx) {
+        return false;
+    }
+    p->append(SkRasterPipeline::shader, b->ctx);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

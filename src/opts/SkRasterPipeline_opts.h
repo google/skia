@@ -19,6 +19,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
+#include "SkShader.h"
 
 namespace {
 
@@ -992,6 +993,12 @@ STAGE_CTX(gather_f16, const SkImageShaderContext*) {
     from_f16(&px, &r, &g, &b, &a);
 }
 
+STAGE_CTX(shader, SkShader::Context*) {
+    SkPM4f buf[N];
+    static_assert(sizeof(buf) == sizeof(r) + sizeof(g) + sizeof(b) + sizeof(a), "");
+    ctx->shadeSpan4f(x, (int)g[0], buf, N);
+    SkNf::Load4(buf, &r, &g, &b, &a);
+}
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
