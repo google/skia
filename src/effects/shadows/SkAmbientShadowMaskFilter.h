@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkShadowMaskFilter_DEFINED
-#define SkShadowMaskFilter_DEFINED
+#ifndef SkAmbientShadowMaskFilter_DEFINED
+#define SkAmbientShadowMaskFilter_DEFINED
 
 #include "SkMaskFilter.h"
 
@@ -15,7 +15,7 @@
  * This filter implements a pair of shadows for an occluding object-- one representing
  * ambient occlusion, and one representing a displaced shadow from a point light.
  */
-class SK_API SkShadowMaskFilter {
+class SK_API SkAmbientShadowMaskFilter {
 public:
     enum ShadowFlags {
         kNone_ShadowFlag = 0x00,
@@ -39,13 +39,12 @@ public:
      *  @param flags          Flags to use - defaults to none
      *  @return The new shadow maskfilter
      */
-    static sk_sp<SkMaskFilter> Make(SkScalar occluderHeight, const SkPoint3& lightPos,
-                                    SkScalar lightRadius, SkScalar ambientAlpha,
-                                    SkScalar spotAlpha, uint32_t flags = kNone_ShadowFlag);
+    static sk_sp<SkMaskFilter> Make(SkScalar occluderHeight, SkScalar ambientAlpha,
+                                    uint32_t flags = kNone_ShadowFlag);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 private:
-    SkShadowMaskFilter(); // can't be instantiated
+    SkAmbientShadowMaskFilter(); // can't be instantiated
 };
 #endif

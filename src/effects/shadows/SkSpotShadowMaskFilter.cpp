@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkShadowMaskFilter.h"
+#include "SkSpotShadowMaskFilter.h"
 #include "SkReadBuffer.h"
 #include "SkStringUtils.h"
 #include "SkWriteBuffer.h"
@@ -25,10 +25,10 @@
 #include "SkStrokeRec.h"
 #endif
 
-class SkShadowMaskFilterImpl : public SkMaskFilter {
+class SkSpotShadowMaskFilterImpl : public SkMaskFilter {
 public:
-    SkShadowMaskFilterImpl(SkScalar occluderHeight, const SkPoint3& lightPos, SkScalar lightRadius,
-                           SkScalar ambientAlpha, SkScalar spotAlpha, uint32_t flags);
+    SkSpotShadowMaskFilterImpl(SkScalar occluderHeight, const SkPoint3& lightPos, SkScalar lightRadius,
+                               SkScalar spotAlpha, uint32_t flags);
 
     // overrides from SkMaskFilter
     SkMask::Format getFormat() const override;
@@ -64,89 +64,84 @@ public:
     void computeFastBounds(const SkRect&, SkRect*) const override;
 
     SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkShadowMaskFilterImpl)
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpotShadowMaskFilterImpl)
 
 private:
     SkScalar fOccluderHeight;
     SkPoint3 fLightPos;
     SkScalar fLightRadius;
-    SkScalar fAmbientAlpha;
     SkScalar fSpotAlpha;
     uint32_t fFlags;
 
-    SkShadowMaskFilterImpl(SkReadBuffer&);
+    SkSpotShadowMaskFilterImpl(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
 
-    friend class SkShadowMaskFilter;
+    friend class SkSpotShadowMaskFilter;
 
     typedef SkMaskFilter INHERITED;
 };
 
-sk_sp<SkMaskFilter> SkShadowMaskFilter::Make(SkScalar occluderHeight, const SkPoint3& lightPos,
-                                             SkScalar lightRadius, SkScalar ambientAlpha,
-                                             SkScalar spotAlpha, uint32_t flags) {
+sk_sp<SkMaskFilter> SkSpotShadowMaskFilter::Make(SkScalar occluderHeight, const SkPoint3& lightPos,
+                                                 SkScalar lightRadius, SkScalar spotAlpha,
+                                                 uint32_t flags) {
     // add some param checks here for early exit
 
-    return sk_sp<SkMaskFilter>(new SkShadowMaskFilterImpl(occluderHeight, lightPos, lightRadius,
-                                                          ambientAlpha, spotAlpha, flags));
+    return sk_sp<SkMaskFilter>(new SkSpotShadowMaskFilterImpl(occluderHeight, lightPos, lightRadius,
+                                                              spotAlpha, flags));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkShadowMaskFilterImpl::SkShadowMaskFilterImpl(SkScalar occluderHeight, const SkPoint3& lightPos,
-                                               SkScalar lightRadius, SkScalar ambientAlpha,
-                                               SkScalar spotAlpha, uint32_t flags)
+SkSpotShadowMaskFilterImpl::SkSpotShadowMaskFilterImpl(SkScalar occluderHeight, const SkPoint3& lightPos,
+                                                       SkScalar lightRadius, SkScalar spotAlpha,
+                                                       uint32_t flags)
     : fOccluderHeight(occluderHeight)
     , fLightPos(lightPos)
     , fLightRadius(lightRadius)
-    , fAmbientAlpha(ambientAlpha)
     , fSpotAlpha(spotAlpha)
     , fFlags(flags) {
     SkASSERT(fOccluderHeight > 0);
     SkASSERT(fLightPos.z() > 0 && fLightPos.z() > fOccluderHeight);
     SkASSERT(fLightRadius > 0);
-    SkASSERT(fAmbientAlpha >= 0);
     SkASSERT(fSpotAlpha >= 0);
 }
 
-SkMask::Format SkShadowMaskFilterImpl::getFormat() const {
+SkMask::Format SkSpotShadowMaskFilterImpl::getFormat() const {
     return SkMask::kA8_Format;
 }
 
-bool SkShadowMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
+bool SkSpotShadowMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
                                         const SkMatrix& matrix,
                                         SkIPoint* margin) const {
     // TODO something
     return false;
 }
 
-void SkShadowMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) const {
+void SkSpotShadowMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) const {
     // TODO compute based on ambient + spot data
     dst->set(src.fLeft, src.fTop, src.fRight, src.fBottom);
 }
 
-sk_sp<SkFlattenable> SkShadowMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSpotShadowMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar occluderHeight = buffer.readScalar();
     const SkScalar lightX = buffer.readScalar();
     const SkScalar lightY = buffer.readScalar();
     const SkScalar lightZ = buffer.readScalar();
     const SkPoint3 lightPos = SkPoint3::Make(lightX, lightY, lightZ);
     const SkScalar lightRadius = buffer.readScalar();
-    const SkScalar ambientAlpha = buffer.readScalar();
     const SkScalar spotAlpha = buffer.readScalar();
     const uint32_t flags = buffer.readUInt();
 
-    return SkShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
-                                    ambientAlpha, spotAlpha, flags);
+    return SkSpotShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
+                                        spotAlpha, flags);
 }
 
-void SkShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
+void SkSpotShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fOccluderHeight);
     buffer.writeScalar(fLightPos.fX);
     buffer.writeScalar(fLightPos.fY);
     buffer.writeScalar(fLightPos.fZ);
     buffer.writeScalar(fLightRadius);
-    buffer.writeScalar(fAmbientAlpha);
     buffer.writeScalar(fSpotAlpha);
     buffer.writeUInt(fFlags);
 }
@@ -155,7 +150,7 @@ void SkShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
+bool SkSpotShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
                                               const SkIRect& clipBounds,
                                               const SkMatrix& ctm,
                                               SkRect* maskRect) const {
@@ -164,7 +159,7 @@ bool SkShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     return true;
 }
 
-bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
+bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
                                                  GrRenderTargetContext* drawContext,
                                                  GrPaint&& paint,
                                                  const GrClip& clip,
@@ -191,7 +186,7 @@ bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
     return false;
 }
 
-bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
+bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                       GrRenderTargetContext* renderTargetContext,
                                                       GrPaint&& paint,
                                                       const GrClip& clip,
@@ -228,41 +223,6 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     bool isRect = rrect.getSimpleRadii().fX <= minRadius;
 
     // TODO: take flags into account when generating shadow data
-
-    if (fAmbientAlpha > 0.0f) {
-        static const float kHeightFactor = 1.0f / 128.0f;
-        static const float kGeomFactor = 64.0f;
-
-        SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
-        const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar ambientOffset = srcSpaceAmbientRadius * umbraAlpha;
-
-        // For the ambient rrect, we inset the offset rect by half the srcSpaceAmbientRadius
-        // to get our stroke shape.
-        SkScalar ambientPathOutset = SkTMax(ambientOffset - srcSpaceAmbientRadius * 0.5f,
-                                              minRadius);
-
-        SkRRect ambientRRect;
-        if (isRect) {
-            const SkRect temp = rrect.rect().makeOutset(ambientPathOutset, ambientPathOutset);
-            ambientRRect = SkRRect::MakeRectXY(temp, ambientPathOutset, ambientPathOutset);
-        } else {
-             rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
-        }
-
-        const SkScalar devSpaceAmbientRadius = srcSpaceAmbientRadius * scaleFactor;
-
-        GrPaint newPaint(paint);
-        GrColor4f color = newPaint.getColor4f();
-        color.fRGBA[3] *= fAmbientAlpha;
-        newPaint.setColor4f(color);
-        SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
-        ambientStrokeRec.setStrokeStyle(srcSpaceAmbientRadius, false);
-
-        renderTargetContext->drawShadowRRect(clip, std::move(newPaint), viewMatrix, ambientRRect,
-                                             devSpaceAmbientRadius,
-                                             GrStyle(ambientStrokeRec, nullptr));
-    }
 
     if (fSpotAlpha > 0.0f) {
         float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
@@ -318,7 +278,7 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         // If the area of the stroked geometry is larger than the fill geometry,
         // or if the caster is transparent, just fill it.
         if (strokedArea > filledArea ||
-            fFlags & SkShadowMaskFilter::kTransparentOccluder_ShadowFlag) {
+            fFlags & SkSpotShadowMaskFilter::kTransparentOccluder_ShadowFlag) {
             spotStrokeRec.setStrokeStyle(srcSpaceSpotRadius, true);
         } else {
             // Since we can't have unequal strokes, inset the shadow rect so the inner
@@ -343,7 +303,7 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     return true;
 }
 
-sk_sp<GrTextureProxy> SkShadowMaskFilterImpl::filterMaskGPU(GrContext*,
+sk_sp<GrTextureProxy> SkSpotShadowMaskFilterImpl::filterMaskGPU(GrContext*,
                                                             sk_sp<GrTextureProxy> srcProxy,
                                                             const SkMatrix& ctm,
                                                             const SkIRect& maskRect) const {
@@ -354,8 +314,8 @@ sk_sp<GrTextureProxy> SkShadowMaskFilterImpl::filterMaskGPU(GrContext*,
 #endif
 
 #ifndef SK_IGNORE_TO_STRING
-void SkShadowMaskFilterImpl::toString(SkString* str) const {
-    str->append("SkShadowMaskFilterImpl: (");
+void SkSpotShadowMaskFilterImpl::toString(SkString* str) const {
+    str->append("SkSpotShadowMaskFilterImpl: (");
 
     str->append("occluderHeight: ");
     str->appendScalar(fOccluderHeight);
@@ -373,10 +333,6 @@ void SkShadowMaskFilterImpl::toString(SkString* str) const {
     str->appendScalar(fLightRadius);
     str->append(" ");
 
-    str->append("ambientAlpha: ");
-    str->appendScalar(fAmbientAlpha);
-    str->append(" ");
-
     str->append("spotAlpha: ");
     str->appendScalar(fSpotAlpha);
     str->append(" ");
@@ -385,13 +341,13 @@ void SkShadowMaskFilterImpl::toString(SkString* str) const {
     if (fFlags) {
         bool needSeparator = false;
         SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowMaskFilter::kTransparentOccluder_ShadowFlag),
+                          SkToBool(fFlags & SkSpotShadowMaskFilter::kTransparentOccluder_ShadowFlag),
                           "TransparentOccluder", &needSeparator);
         SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowMaskFilter::kGaussianEdge_ShadowFlag),
+                          SkToBool(fFlags & SkSpotShadowMaskFilter::kGaussianEdge_ShadowFlag),
                           "GaussianEdge", &needSeparator);
         SkAddFlagToString(str,
-                          SkToBool(fFlags & SkShadowMaskFilter::kLargerUmbra_ShadowFlag),
+                          SkToBool(fFlags & SkSpotShadowMaskFilter::kLargerUmbra_ShadowFlag),
                           "LargerUmbra", &needSeparator);
     } else {
         str->append("None");
@@ -400,6 +356,6 @@ void SkShadowMaskFilterImpl::toString(SkString* str) const {
 }
 #endif
 
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShadowMaskFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkShadowMaskFilterImpl)
+SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkSpotShadowMaskFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSpotShadowMaskFilterImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
