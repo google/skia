@@ -158,7 +158,7 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
 }
 
-void GrRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint, const SkPaint& skPaint,
+void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix, const char text[],
                                      size_t byteLength, SkScalar x, SkScalar y,
                                      const SkIRect& clipBounds) {
@@ -168,13 +168,13 @@ void GrRenderTargetContext::drawText(const GrClip& clip, GrPaint&& grPaint, cons
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
-                               fSurfaceProps, text, byteLength, x, y, clipBounds);
+    atlasTextContext->drawText(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, text,
+                               byteLength, x, y, clipBounds);
 }
 
-void GrRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
-                                        const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                        const char text[], size_t byteLength, const SkScalar pos[],
+void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint,
+                                        const SkMatrix& viewMatrix, const char text[],
+                                        size_t byteLength, const SkScalar pos[],
                                         int scalarsPerPosition, const SkPoint& offset,
                                         const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
@@ -183,23 +183,22 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, GrPaint&& grPaint,
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawPosText");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawPosText(fContext, this, clip, std::move(grPaint), skPaint, viewMatrix,
-                                  fSurfaceProps, text, byteLength, pos, scalarsPerPosition, offset,
-                                  clipBounds);
+    atlasTextContext->drawPosText(fContext, this, clip, paint, viewMatrix, fSurfaceProps, text,
+                                  byteLength, pos, scalarsPerPosition, offset, clipBounds);
 }
 
-void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
+void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& paint,
                                          const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                         SkScalar x, SkScalar y,
-                                         SkDrawFilter* filter, const SkIRect& clipBounds) {
+                                         SkScalar x, SkScalar y, SkDrawFilter* filter,
+                                         const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawTextBlob");
 
     GrAtlasTextContext* atlasTextContext = fDrawingManager->getAtlasTextContext();
-    atlasTextContext->drawTextBlob(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, blob,
-                                   x, y, filter, clipBounds);
+    atlasTextContext->drawTextBlob(fContext, this, clip, paint, viewMatrix, fSurfaceProps, blob, x,
+                                   y, filter, clipBounds);
 }
 
 void GrRenderTargetContext::discard() {
