@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "43f0d99f_bc7fed7c",
+        "filename": "src/splicer/SkSplicer_generated.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T20:09:21Z",
+      "side": 1,
+      "message": "Maybe.  fmla makes things tricky because, unlike other NEON instructions that are all 2 read-only registers and 1 write-only register, it\u0027s 2 read-only registers and 1 read-write register.\n\nI\u0027ll follow up with some experimentation to see if reordering the math can make this any tighter.",
+      "parentUuid": "43f0d99f_3c3e5dde",
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43f0d99f_fc34d5ff",
         "filename": "src/splicer/SkSplicer_generated.h",
         "patchSetId": 3
@@ -42,6 +60,24 @@
         "endLine": 588,
         "endChar": 56
       },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_dccd99b5",
+        "filename": "src/splicer/SkSplicer_generated.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T20:09:21Z",
+      "side": 1,
+      "message": "Not super weird.  We use r0-r3, so those can\u0027t be used as temporaries in this ABI.  I think past those, only the ip register can be used freely without saving it.\n\nI do plan to follow up by pushing all the callee-save registers outside the loop (including vector registers), popping them on exit, and omitting them here when generating each splice.  That definitely wants to be its own CL.  :)",
+      "parentUuid": "43f0d99f_fc34d5ff",
       "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "43f0d99f_dc5f591d",
+        "filename": "src/splicer/SkSplicer_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T20:09:21Z",
+      "side": 1,
+      "message": "Yes.  That\u0027s why unifying with SkRasterPipeline_opts.h is a do-next-week task instead of do-eventually.",
+      "parentUuid": "43f0d99f_5c3d29dd",
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43f0d99f_1c43a156",
         "filename": "src/splicer/SkSplicer_stages.cpp",
         "patchSetId": 3
@@ -88,6 +142,24 @@
         "endLine": 272,
         "endChar": 48
       },
+      "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_9c55d101",
+        "filename": "src/splicer/SkSplicer_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-13T20:09:21Z",
+      "side": 1,
+      "message": "Yep.  Read this as 0x000000ff.",
+      "parentUuid": "43f0d99f_1c43a156",
       "revId": "90705ecfa0f94211745a6f479ed0862f02cfe547",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
