@@ -10,6 +10,7 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImageEncoderPriv.h"
 #include "SkPM4f.h"
@@ -22,6 +23,18 @@ static const int imageHeight = 128;
 
 static inline int div_round_up(int a, int b) {
     return (a + b - 1) / b;
+}
+
+sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorType colorType) {
+    if (kRGBA_F16_SkColorType == colorType) {
+        if (!colorSpace) {
+            return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        }
+
+        return as_CSB(colorSpace)->makeLinearGamma();
+    }
+
+    return colorSpace;
 }
 
 static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
@@ -77,7 +90,7 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
                                           .makeAlphaType(alphaType)
-                                          .makeColorSpace(colorSpace);
+                                          .makeColorSpace(fix_for_colortype(colorSpace, colorType));
     bitmap->allocPixels(dstInfo);
     codec->getPixels(dstInfo, bitmap->getPixels(), bitmap->rowBytes());
 }
@@ -107,12 +120,16 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 4);
+        return SkISize::Make(imageWidth * 2, imageHeight * 6);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkColorType colorTypes[] = { kN32_SkColorType, kIndex_8_SkColorType, };
-        const SkAlphaType alphaTypes[] = { kUnpremul_SkAlphaType, kPremul_SkAlphaType, };
+        const SkColorType colorTypes[] = {
+                kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType,
+        };
+        const SkAlphaType alphaTypes[] = {
+                kUnpremul_SkAlphaType, kPremul_SkAlphaType,
+        };
         const sk_sp<SkColorSpace> colorSpaces[] = {
                 nullptr, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
         };

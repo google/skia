@@ -659,6 +659,9 @@ public:
                 hi = _mm256_extractf128_si256(src.fVec, 1);
         return _mm_packus_epi32(lo, hi);
     }
+    template<> AI /*static*/ Sk8h SkNx_cast<uint16_t>(const Sk8f& src) {
+        return SkNx_cast<uint16_t>(SkNx_cast<int>(src));
+    }
 
 #endif
 

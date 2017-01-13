@@ -295,7 +295,10 @@ public:
     AI SkNx operator + (const SkNx& o) const { return vaddq_u16(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return vsubq_u16(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return vmulq_u16(fVec, o.fVec); }
+<<<<<<< HEAD
+=======
     AI SkNx operator & (const SkNx& o) const { return vandq_u16(fVec, o.fVec); }
+>>>>>>> 379938e47bc9edb6edfd21aabefa01aed71dd135
     AI SkNx operator | (const SkNx& o) const { return vorrq_u16(fVec, o.fVec); }
 
     AI SkNx operator << (int bits) const { return fVec << SkNx(bits).fVec; }
