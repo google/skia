@@ -23,6 +23,7 @@
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
@@ -125,6 +126,10 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
     SkPixmap tmpPixmap;
     SkBitmap tmpBitmap;
 
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
+
     const GrCaps* caps = ctx->caps();
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *caps);
 
@@ -199,6 +204,10 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
 
+    if (!SkImageInfoIsValid(bitmap.info())) {
+        return nullptr;
+    }
+
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
     // We don't support Gray8 directly in the GL backend, so fail-over to GrUploadBitmapToTexture.
@@ -207,11 +216,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
     // TODO: A better option might be to transform the initial bitmap here to 8888, then run the
     // CPU mip-mapper on that data before uploading. This is much less code for a rare case though:
     if (kGray_8_SkColorType == bitmap.colorType()) {
-        return nullptr;
-    }
-
-    SkASSERT(sizeof(int) <= sizeof(uint32_t));
-    if (bitmap.width() < 0 || bitmap.height() < 0) {
         return nullptr;
     }
 
@@ -264,6 +268,10 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
 
 GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
                                    const GrMipLevel* texels, int mipLevelCount) {
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
+
     const GrCaps* caps = ctx->caps();
     return ctx->textureProvider()->createMipMappedTexture(GrImageInfoToSurfaceDesc(info, *caps),
                                                           SkBudgeted::kYes, texels,
