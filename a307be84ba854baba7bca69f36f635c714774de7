@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_832b9ee6",
+        "filename": "include/utils/SkShadowUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "Doesn\u0027t this need to go in include/private ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_638ce2d4",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_23b4aa92",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_43b9a689",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "update comment ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_c3ccb61b",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "parameter mismatch",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a3941ad4",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_8370fef4",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a36dfa1b",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "update ?",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_e377f2e7",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-13T21:43:16Z",
+      "side": 1,
+      "message": "dead param",
+      "revId": "a307be84ba854baba7bca69f36f635c714774de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
