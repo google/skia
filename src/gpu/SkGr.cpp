@@ -188,7 +188,7 @@ GrTexture* GrUploadPixmapToTexture(GrContext* ctx, const SkPixmap& pixmap, SkBud
 
         SkImageInfo dstInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
                                                 kN32_SkColorType, kPremul_SkAlphaType,
-                                                sk_ref_sp(pixmap.info().colorSpace()));
+                                                pixmap.info().refColorSpace());
 
         tmpBitmap.allocPixels(dstInfo);
 

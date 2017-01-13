@@ -166,7 +166,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
     return context->makeRenderTargetContext(SkBackingFit::kExact,               // Why exact?
                                     origInfo.width(), origInfo.height(),
-                                    config, sk_ref_sp(origInfo.colorSpace()), sampleCount,
+                                    config, origInfo.refColorSpace(), sampleCount,
                                     origin, surfaceProps, budgeted);
 }
 
@@ -1128,7 +1128,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
                                                              bitmap.getGenerationID(),
                                                              std::move(texture),
-                                                             sk_ref_sp(bitmap.colorSpace()),
+                                                             bitmap.refColorSpace(),
                                                              &this->surfaceProps()));
 
     this->drawSpecial(draw, srcImg.get(), left, top, paint);
@@ -1291,7 +1291,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
     return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
                                        bitmap.getGenerationID(),
                                        texture,
-                                       sk_ref_sp(bitmap.colorSpace()),
+                                       bitmap.refColorSpace(),
                                        &this->surfaceProps());
 }
 
@@ -1303,7 +1303,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(image->width(), image->height()),
                                            image->uniqueID(),
                                            sk_ref_sp(texture),
-                                           sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()),
+                                           as_IB(image)->onImageInfo().refColorSpace(),
                                            &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
@@ -1336,7 +1336,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
                                                srcRect,
                                                kNeedNewImageUniqueID_SpecialImage,
                                                sProxy,
-                                               sk_ref_sp(ii.colorSpace()),
+                                               ii.refColorSpace(),
                                                &this->surfaceProps());
 }
 
