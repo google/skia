@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_36195ea9",
+        "filename": "include/gpu/GrRenderTargetContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "\"use GrPaint\" ?",
+      "range": {
+        "startLine": 55,
+        "startChar": 21,
+        "endLine": 55,
+        "endChar": 29
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_964e5279",
+        "filename": "src/gpu/text/GrTextUtils.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "Indented one extra char?",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 10
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_5626aad8",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "Add period.",
+      "range": {
+        "startLine": 44,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 13
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_9655b201",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "its",
+      "range": {
+        "startLine": 71,
+        "startChar": 49,
+        "endLine": 71,
+        "endChar": 53
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_166a62c6",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "delete?",
+      "range": {
+        "startLine": 72,
+        "startChar": 68,
+        "endLine": 72,
+        "endChar": 72
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_f6feb6b6",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T16:03:01Z",
+      "side": 1,
+      "message": "This is a little confusing. Maybe fModifiedPaint/fOriginalPaint?",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 97,
+        "endChar": 35
+      },
+      "revId": "f355e2d47f263a2737f466c32c5886f97cbf7015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
