@@ -22,6 +22,24 @@
       "revId": "4a0a943d5708b10daf44c26ac1a4a040393b3dec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43f0d99f_414b8297",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-13T17:11:21Z",
+      "side": 0,
+      "message": "I redid the math, and the old function was wrong.",
+      "parentUuid": "43f0d99f_417d42d0",
+      "revId": "4a0a943d5708b10daf44c26ac1a4a040393b3dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
