@@ -61,41 +61,6 @@ public:
         return fCoverageFragmentProcessors[idx].get();
     }
 
-    void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-        SkASSERT(processor);
-        fColorFragmentProcessors.push_back(std::move(processor));
-    }
-
-    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-        SkASSERT(processor);
-        fCoverageFragmentProcessors.push_back(std::move(processor));
-    }
-
-    /**
-     * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
-     */
-    void addColorTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
-    }
-
-    void addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
-    }
-
-    void addColorTextureProcessor(GrTexture* texture,
-                                  const SkMatrix& matrix,
-                                  const GrSamplerParams& params) {
-        this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                    params));
-    }
-
-    void addCoverageTextureProcessor(GrTexture* texture,
-                                     const SkMatrix& matrix,
-                                     const GrSamplerParams& params) {
-        this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
-                                                                       params));
-    }
-
     /**
      * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
      * that were added after its constructor.
@@ -139,18 +104,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Blending
     ////
-
-    /**
-     * Installs a GrXPFactory. This object controls how src color, fractional pixel coverage,
-     * and the dst color are blended.
-     */
-    void setXPFactory(const GrXPFactory* xpFactory) { fXPFactory = xpFactory; }
-
-    /**
-     * Sets a GrXPFactory that disables color writes to the destination. This is useful when
-     * rendering to the stencil buffer.
-     */
-    void setDisableColorXPFactory() { fXPFactory = GrDisableColorXPFactory::Get(); }
 
     const GrXPFactory* getXPFactory() const { return fXPFactory; }
 
@@ -288,6 +241,13 @@ public:
     bool usePLSDstRead(const GrDrawOp*) const;
 
 private:
+    // This exists solely for AutoRestoreFragmentProcessor, which itself exists solely to install
+    // an applied clip's FP. This will be removed soon.
+    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
+        SkASSERT(processor);
+        fCoverageFragmentProcessors.push_back(std::move(processor));
+    }
+
     // Some of the auto restore objects assume that no effects are removed during their lifetime.
     // This is used to assert that this condition holds.
     SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)

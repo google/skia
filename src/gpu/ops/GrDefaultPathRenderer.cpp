@@ -557,14 +557,15 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
         } else {
             std::unique_ptr<GrDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
-
                                         viewMatrix, isHairline, devBounds);
-            GrPipelineBuilder pipelineBuilder(GrPaint::MoveOrNew(paint, lastPassIsBounds), aaType);
+            bool stencilPass = stencilOnly || passCount > 1;
+            GrPaint::MoveOrNew passPaint(paint, stencilPass);
+            if (stencilPass) {
+                passPaint.paint().setXPFactory(GrDisableColorXPFactory::Get());
+            }
+            GrPipelineBuilder pipelineBuilder(std::move(passPaint), aaType);
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
-            if (passCount > 1) {
-                pipelineBuilder.setDisableColorXPFactory();
-            }
             renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
         }
     }

@@ -199,7 +199,8 @@ public:
         }
     }
 
-    operator GrPaint&&() { return std::move(*fPaint); }
+    operator GrPaint&&() && { return std::move(*fPaint); }
+    GrPaint& paint() { return *fPaint; }
 
 private:
     SkTLazy<GrPaint> fStorage;
