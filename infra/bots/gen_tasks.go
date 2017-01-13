@@ -385,7 +385,7 @@ func swarmDimensions(parts map[string]string) []string {
 				"Nexus6p":       {"angler", "NMF26C"},
 				"Nexus7":        {"grouper", "LMY47V"},
 				"Nexus7v2":      {"flo", "M"},
-				"NexusPlayer":   {"fugu", "NRD90R"},
+				"NexusPlayer":   {"fugu", "N2G10B"},
 				"Pixel":         {"sailfish", "NMF26Q"},
 				"PixelC":        {"dragon", "NMF26H"},
 				"PixelXL":       {"marlin", "NMF26Q"},
