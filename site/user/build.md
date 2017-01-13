@@ -19,10 +19,9 @@ Run GN to generate your build files.
     bin/gn gen out/Static --args='is_official_build=true'
     bin/gn gen out/Shared --args='is_official_build=true is_component_build=true'
 
-If you find you don't have `bin/gn`, make sure you've run these steps.
+If you find you don't have `bin/gn`, make sure you've run
 
     python tools/git-sync-deps
-    python bin/fetch-gn
 
 GN allows fine-grained settings for developers and special situations.
 
