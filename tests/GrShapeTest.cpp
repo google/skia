@@ -1406,10 +1406,10 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
             for (unsigned start = 0; start < 8; ++start) {
                 for (Style style : {kFill, kStroke, kHairline, kStrokeAndFill}) {
                     for (bool dash : {false, true}) {
-                        SkPathEffect* pe = dash ? dashEffect.get() : nullptr;
+                        sk_sp<SkPathEffect> pe = dash ? dashEffect : nullptr;
                         shapes[index(inverted, dir, start, style, dash)] =
                                 GrShape(rrect, dir, start, SkToBool(inverted),
-                                        GrStyle(strokeRecs[style], pe));
+                                        GrStyle(strokeRecs[style], std::move(pe)));
                     }
                 }
             }
