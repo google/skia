@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f0d99f_416542f5",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-13T17:27:29Z",
+      "side": 1,
+      "message": "Just need to fix this comment.",
+      "revId": "ae0542e96ada040d4e8acab77851131b7a40af31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
