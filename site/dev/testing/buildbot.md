@@ -1,68 +1,54 @@
-Skia Buildbots
-==============
+Skia Automated Testing
+======================
 
 Overview
 --------
 
-Like the Chromium team, the Skia team uses [buildbot](http://trac.buildbot.net/)
-to run continuous builds and tests.
+Skia uses [Swarming](https://github.com/luci/luci-py/blob/master/appengine/swarming/doc/Design.md)
+to do the heavy lifting for our automated testing. It farms out tasks, which may
+consist of compiling code, running tests, or any number of other things, to our
+bots, which are virtual or real machines living in our local lab, Chrome Infra's
+lab, or in GCE.
 
-Here is a link to our main status page: https://status.skia.org/
+The [Skia Task Scheduler](http://go/skia-task-scheduler) determines what tasks
+should run on what bots at what time. See the link for a detailed explanation of
+how relative task priorities are derived. A *task* corresponds to a single
+Swarming task. A *job* is composed of a directed acyclic graph of one or more
+*tasks*. The job is complete when all of its component tasks have succeeded
+or is considered a failure when any of its component tasks fails. The scheduler
+may automatically retry tasks within its set limits. Jobs are not retried.
+Multiple jobs may share the same task, for example, tests on two different
+Android devices which use the same compiled code.
 
-There are also buildbot console pages for a detailed view of those results:
-  
-  Externally-facing:
+Each Skia repository has an infra/bots/tasks.json file which defines the jobs
+and tasks for the repo. Most jobs will run at every commit, but it is possible
+to specify nightly and weekly jobs as well. For convenience, most repos also
+have a gen_tasks.go which will generate tasks.json. From the repository root:
 
-* http://build.chromium.org/p/client.skia/console
-* http://build.chromium.org/p/client.skia.android/console
-* http://build.chromium.org/p/client.skia.compile/console
-* http://build.chromium.org/p/client.skia.fyi/console
+	$ go run infra/bots/gen_tasks.go
 
-  Internally-facing:
+It is necessary to run gen_tasks.go every time it is changed or every time an
+[asset](https://skia.googlesource.com/skia/+/master/infra/bots/assets/README.md)
+has changed. There is also a test mode which simply verifies that the tasks.json
+file is up to date:
 
-* http://uberchromegw.corp.google.com/i/client.skia/console
-* http://uberchromegw.corp.google.com/i/client.skia.android/console
-* http://uberchromegw.corp.google.com/i/client.skia.compile/console
-* http://uberchromegw.corp.google.com/i/client.skia.fyi/console
-* http://uberchromegw.corp.google.com/i/client.skia.internal/console
+	$ go run infra/bots/gen_tasks.go --test
 
 
-Architecture
-------------
 
-The buildbot system consists of these elements: \(see
-http://buildbot.net/buildbot/docs/current/manual/introduction.html#system-architecture
-for more detail\) 
+Try Jobs
+--------
 
-* Buildbot Master
+It is useful to know how your change will perform before it is submitted. After
+uploading your CL to [Gerrit](https://skia-review.googlesource.com/), you may
+trigger a try job for any job listed in tasks.json:
 
-    * Watches for new commits to land in the Skia repository
-      \(https://skia.googlesource.com/skia\)
-    * Whenever a new commit lands, it triggers a **Build** on each **Builder**
-      to test the new revision.
-    * Serves up status pages whenever anybody requests them
+	$ git cl try -B <bucket name> -b <job name>
 
-* Build
-
-    * One run of a particular **Builder**, at a particular code revision.
-    * "Build" is sort of a misnomer; it's just a list of steps (typically shell
-      commands) which are run by the **Buildslave** process on the host
-      machine, and those may include compiling and running code as well as
-      arbitrary other commands.
-
-* Builder
-
-    * One repeatable build and/or test configuration on a given platform. The
-      Builder is basically a blueprint which provides logic to determine which
-      steps to run within a Build.
-
-* Buildslave \(or "buildbot slave"\)
-    
-    * A process running on a host machine that builds and runs code as directed
-      by the Buildbot Master.
-    * One or more Builders may run on a given Buildslave, but only one runs at
-      a time.
-    * One or more Buildslaves may run on a given host machine.
+The bucket name refers to the [Buildbucket](https://chromium.googlesource.com/infra/infra/+/master/appengine/cr-buildbucket/README.md)
+bucket to which the request will be submitted. Most public Skia repos use the
+"skia.primary" bucket, and most private Skia repos use the "skia.internal"
+bucket.
 
 
 Status View
