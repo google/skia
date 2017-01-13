@@ -9,7 +9,7 @@
 #include "Benchmark.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
-#include "SkFixedAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkImage.h"
 #include "SkLinearBitmapPipeline.h"
 #include "SkPM4f.h"

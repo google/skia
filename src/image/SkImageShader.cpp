@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
 #include "SkColorTable.h"
 #include "SkEmptyShader.h"
-#include "SkFixedAlloc.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
 #include "SkImageShaderContext.h"
@@ -227,7 +227,7 @@ SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSk
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 
-bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFallbackAlloc* scratch,
+bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
                                    const SkMatrix& ctm, const SkPaint& paint) const {
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
     if (!matrix.invert(&matrix)) {

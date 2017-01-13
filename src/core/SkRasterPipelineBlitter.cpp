@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBlitter.h"
 #include "SkBlendModePriv.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkFixedAlloc.h"
 #include "SkOpts.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
@@ -27,8 +27,6 @@ public:
         : fDst(dst)
         , fBlend(blend)
         , fPaintColor(paintColor)
-        , fScratchAlloc(fScratch, sizeof(fScratch))
-        , fScratchFallback(&fScratchAlloc)
     {}
 
     void blitH    (int x, int y, int w)                            override;
@@ -64,8 +62,7 @@ private:
 
     // Scratch space for shaders and color filters to use.
     char            fScratch[64];
-    SkFixedAlloc    fScratchAlloc;
-    SkFallbackAlloc fScratchFallback;
+    SkArenaAlloc    fArena{fScratch, sizeof(fScratch), 128};
 
     typedef SkBlitter INHERITED;
 };
@@ -116,7 +113,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     bool is_opaque   = paintColor->a() == 1.0f,
          is_constant = true;
     if (shader) {
-        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
+        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fArena,
                                   ctm, paint)) {
             return earlyOut();
         }
@@ -132,7 +129,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     }
 
     if (colorFilter) {
-        if (!colorFilter->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
+        if (!colorFilter->appendStages(pipeline, dst.colorSpace(), &blitter->fArena,
                                        is_opaque)) {
             return earlyOut();
         }
