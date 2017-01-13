@@ -11,7 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
-#include "SkFixedAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
@@ -130,7 +130,7 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
     return true;
 }
 
-static inline bool append_gamut_transform(SkRasterPipeline* p, SkFallbackAlloc* scratch,
+static inline bool append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scratch,
                                           SkColorSpace* src, SkColorSpace* dst) {
     struct matrix_3x4 { float arr[12]; };
     return append_gamut_transform(p, scratch->make<matrix_3x4>()->arr, src, dst);
