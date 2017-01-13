@@ -24,6 +24,7 @@
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
@@ -146,6 +147,10 @@ static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& 
 }
 
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
+    if (!SkImageInfoIsValid(bitmap.info())) {
+        return nullptr;
+    }
+
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
     sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));

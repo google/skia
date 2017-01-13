@@ -354,6 +354,11 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pi
     if (!ctx) {
         return nullptr;
     }
+
+    if (!SkImageInfoIsValid(pixmap.info())) {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> texture(GrUploadPixmapToTexture(ctx, pixmap, budgeted));
     if (!texture) {
         return nullptr;
