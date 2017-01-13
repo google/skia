@@ -9,7 +9,6 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkAnnotationKeys.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapKey.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
@@ -33,6 +32,7 @@
 #include "SkPDFUtils.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
+#include "SkRasterDevice.h"
 #include "SkRRect.h"
 #include "SkScopeExit.h"
 #include "SkString.h"

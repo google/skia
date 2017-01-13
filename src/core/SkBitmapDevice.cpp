@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapDevice.h"
 #include "SkConfig8888.h"
 #include "SkDraw.h"
 #include "SkImageFilter.h"
@@ -17,6 +16,7 @@
 #include "SkPixelRef.h"
 #include "SkPixmap.h"
 #include "SkRasterClip.h"
+#include "SkRasterDevice.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkShader.h"
 #include "SkSpecialImage.h"

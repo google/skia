@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkSurface_Base.h"
-#include "SkImagePriv.h"
+#include "SkBaseDevice.h"
 #include "SkCanvas.h"
-#include "SkDevice.h"
+#include "SkImagePriv.h"
 #include "SkMallocPixelRef.h"
+#include "SkSurface_Base.h"
 
 static const size_t kIgnoreRowBytesValue = (size_t)~0;
 
