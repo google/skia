@@ -129,8 +129,7 @@ sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
     // (at least for coeff modes)
     if ((unsigned)fMode <= (unsigned)SkBlendMode::kLastCoeffMode) {
         static SkRandom gRand;
-        GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags,
-                                false);
+        GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags);
         fp->computeInvariantOutput(&io);
         SkASSERT(io.validFlags() == kRGBA_GrColorComponentFlags);
     }

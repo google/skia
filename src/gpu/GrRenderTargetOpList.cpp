@@ -318,10 +318,10 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
             return;
         }
     }
-    args.fAnalysis.fColorPOI.completeCalculations(
+    args.fAnalysis.fColorPOI.addProcessors(
             sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
             pipelineBuilder.numColorFragmentProcessors());
-    args.fAnalysis.fCoveragePOI.completeCalculations(
+    args.fAnalysis.fCoveragePOI.addProcessors(
             sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
             pipelineBuilder.numCoverageFragmentProcessors());
     args.fScissor = &appliedClip.scissorState();

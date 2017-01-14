@@ -102,9 +102,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
         // TODO: Test other color spaces
         sk_sp<GrFragmentProcessor> fp(cf->asFragmentProcessor(ctxInfo.grContext(), nullptr));
         REPORTER_ASSERT(reporter, fp);
-        GrInvariantOutput inout(test.inputColor,
-                                static_cast<GrColorComponentFlags>(test.inputComponents),
-                                false);
+        GrInvariantOutput inout(test.inputColor, static_cast<GrColorComponentFlags>(test.inputComponents));
         fp->computeInvariantOutput(&inout);
         REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) ==
                                   test.outputColor);

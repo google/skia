@@ -185,7 +185,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 return;
             }
 
-            GrInvariantOutput childOutput(GrColor_WHITE, kRGBA_GrColorComponentFlags, false);
+            GrInvariantOutput childOutput(GrColor_WHITE, kRGBA_GrColorComponentFlags);
             this->childProcessor(0).computeInvariantOutput(&childOutput);
 
             if (0 == GrColorUnpackA(inout->color()) || 0 == GrColorUnpackA(childOutput.color())) {
@@ -280,7 +280,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         GrColor4f fColor;
     };
 
-    GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags, false);
+    GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags);
     fp->computeInvariantOutput(&childOut);
     if (childOut.willUseInputColor()) {
         return sk_sp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(fp), color));
@@ -329,9 +329,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            GrProcOptInfo info;
-            info.calcWithInitialValues(fChildProcessors.begin(), fChildProcessors.count(),
-                                       inout->color(), inout->validFlags(), false, false);
             for (int i = 0; i < this->numChildProcessors(); ++i) {
                 this->childProcessor(i).computeInvariantOutput(inout);
             }
@@ -343,9 +340,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     }
 
     // Run the through the series, do the invariant output processing, and look for eliminations.
-    GrProcOptInfo info;
-    info.calcWithInitialValues(sk_sp_address_as_pointer_address(series), cnt,
-                               0x0, kNone_GrColorComponentFlags, false, false);
+    GrProcOptInfo info(0x0, kNone_GrColorComponentFlags);
+    info.addProcessors(sk_sp_address_as_pointer_address(series), cnt);
     if (kRGBA_GrColorComponentFlags == info.validFlags()) {
         // TODO: We need to preserve 4f and color spaces during invariant processing. This color
         // has definitely lost precision, and could easily be in the wrong gamut (or have been
