@@ -93,7 +93,10 @@ int sk_codec_get_frame_count(sk_codec_t* codec) {
 
 void sk_codec_get_frame_info(sk_codec_t* codec, sk_codec_frameinfo_t* frameInfo) {
     std::vector<SkCodec::FrameInfo> frames = AsCodec(codec)->getFrameInfo();
-    std::copy(frames.begin(), frames.end(), AsFrameInfo(frameInfo));
+    size_t size = frames.size();
+    SkCodec::FrameInfo* cframes = AsFrameInfo(frameInfo);
+    for (size_t i = 0; i < size; i++)
+        cframes[i] = frames[i];
 }
 
 int sk_codec_get_repetition_count(sk_codec_t* codec) {
