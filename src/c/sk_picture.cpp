@@ -44,6 +44,8 @@ uint32_t sk_picture_get_unique_id(sk_picture_t* cpic) {
     return AsPicture(cpic)->uniqueID();
 }
 
-sk_rect_t sk_picture_get_bounds(sk_picture_t* cpic) {
-    return ToRect(AsPicture(cpic)->cullRect());
+void sk_picture_get_cull_rect(sk_picture_t* cpic, sk_rect_t* crect) {
+    if (crect) {
+        *crect = ToRect(AsPicture(cpic)->cullRect());
+    }
 }

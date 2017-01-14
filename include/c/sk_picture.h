@@ -65,7 +65,7 @@ SK_API uint32_t sk_picture_get_unique_id(sk_picture_t*);
 /**
     Return the cull rect specified when this picture was recorded.
 */
-SK_API sk_rect_t sk_picture_get_bounds(sk_picture_t*);
+SK_API void sk_picture_get_cull_rect(sk_picture_t*, sk_rect_t*);
 
 SK_C_PLUS_PLUS_END_GUARD
 

@@ -23,7 +23,7 @@ SK_API bool sk_region_set_rect(sk_region_t* dst, const sk_irect_t* rect);
 SK_API bool sk_region_set_region(sk_region_t* r, const sk_region_t* region);
 SK_API bool sk_region_op(sk_region_t* dst, int left, int top, int right, int bottom, sk_region_op_t op);
 SK_API bool sk_region_op2(sk_region_t* dst, sk_region_t* src, sk_region_op_t op);
-SK_API sk_irect_t sk_region_get_bounds(sk_region_t* r);
+SK_API void sk_region_get_bounds(sk_region_t* r, sk_irect_t* rect);
 
 SK_C_PLUS_PLUS_END_GUARD
 

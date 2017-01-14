@@ -54,6 +54,8 @@ bool sk_region_op2(sk_region_t *dst, sk_region_t *src, sk_region_op_t op) {
   return AsRegion(dst)->op(AsRegion(*src), (SkRegion::Op)op);
 }
 
-sk_irect_t sk_region_get_bounds(sk_region_t *r) {
-  return ToIRect(AsRegion(r)->getBounds());
+void sk_region_get_bounds(sk_region_t* r, sk_irect_t* rect) {
+  if (rect) {
+    *rect = ToIRect(AsRegion(r)->getBounds());
+  }
 }
