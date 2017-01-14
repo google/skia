@@ -26,7 +26,6 @@
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
-#include "SkImageInfoPriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
 #include "SkMaskFilter.h"
@@ -195,20 +194,12 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
                                int x, int y) {
     ASSERT_SINGLE_OWNER
 
-    if (!SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
-        return false;
-    }
-
     return fRenderTargetContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                 size_t srcRowBytes, int x, int y) {
     ASSERT_SINGLE_OWNER
-
-    if (!SkImageInfoValidConversion(this->imageInfo(), srcInfo)) {
-        return false;
-    }
 
     return fRenderTargetContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);
 }
