@@ -10,6 +10,11 @@
 
 #include "SkEdge.h"
 
+// Use this to check that we successfully guard the change against Chromium layout tests
+#ifndef  SK_SUPPORT_LEGACY_AAA
+# define SK_SUPPORT_LEGACY_AAA
+#endif
+
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges
     enum Type {
