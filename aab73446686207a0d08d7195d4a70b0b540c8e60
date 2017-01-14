@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_261e7891",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-14T22:17:32Z",
+      "side": 1,
+      "message": "The main motivation for this change was to make this function capable of being run piecemeal. I want to run through a GrPaint\u0027s processors and then later incorporate the clips processor.  The other changes were just opportunistic attempts to simplify things a bit.",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "aab73446686207a0d08d7195d4a70b0b540c8e60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
