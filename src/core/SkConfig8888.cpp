@@ -12,7 +12,6 @@
 #include "SkConfig8888.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
-#include "SkImageInfoPriv.h"
 #include "SkMathPriv.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -174,7 +173,9 @@ static void memcpy32_row(uint32_t* dst, const uint32_t* src, int count) {
 }
 
 bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height) const {
-    SkASSERT(width > 0 && height > 0);
+    if (width <= 0 || height <= 0) {
+        return false;
+    }
 
     if (!is_32bit_colortype(fColorType) || !is_32bit_colortype(dst->fColorType)) {
         return false;
@@ -233,6 +234,34 @@ static void copy_g8_to_32(void* dst, size_t dstRB, const void* src, size_t srcRB
         }
         dst32 = (uint32_t*)((char*)dst32 + dstRB);
         src8 += srcRB;
+    }
+}
+
+static void copy_32_to_g8(void* dst, size_t dstRB, const void* src, size_t srcRB,
+                          const SkImageInfo& srcInfo) {
+    uint8_t* dst8 = (uint8_t*)dst;
+    const uint32_t* src32 = (const uint32_t*)src;
+
+    const int w = srcInfo.width();
+    const int h = srcInfo.height();
+    const bool isBGRA = (kBGRA_8888_SkColorType == srcInfo.colorType());
+
+    for (int y = 0; y < h; ++y) {
+        if (isBGRA) {
+            // BGRA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance((s >> 16) & 0xFF, (s >> 8) & 0xFF, s & 0xFF);
+            }
+        } else {
+            // RGBA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance(s & 0xFF, (s >> 8) & 0xFF, (s >> 16) & 0xFF);
+            }
+        }
+        src32 = (const uint32_t*)((const char*)src32 + srcRB);
+        dst8 += dstRB;
     }
 }
 
@@ -364,14 +393,38 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
 bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                              const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
                              SkColorTable* ctable) {
-    SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
-    SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
+    if (srcInfo.dimensions() != dstInfo.dimensions()) {
+        return false;
+    }
+
+    if (srcInfo.colorType() == kAlpha_8_SkColorType &&
+        dstInfo.colorType() != kAlpha_8_SkColorType)
+    {
+        return false;   // can't convert from alpha to non-alpha
+    }
+
+    if (dstInfo.colorSpace() &&
+        SkColorSpace_Base::Type::kXYZ != as_CSB(dstInfo.colorSpace())->type())
+    {
+        return false;   // unsupported dst space
+    }
+
+    const bool srcIsF16 = kRGBA_F16_SkColorType == srcInfo.colorType();
+    const bool dstIsF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
+    if (srcIsF16 || dstIsF16) {
+        if (!srcInfo.colorSpace() || !dstInfo.colorSpace() ||
+           (srcIsF16 && !srcInfo.colorSpace()->gammaIsLinear()) ||
+           (dstIsF16 && !dstInfo.colorSpace()->gammaIsLinear()))
+        {
+            return false;
+        }
+    }
 
     const int width = srcInfo.width();
     const int height = srcInfo.height();
 
     // Do the easiest one first : both configs are equal
-    if (srcInfo == dstInfo && kIndex_8_SkColorType != srcInfo.colorType()) {
+    if ((srcInfo == dstInfo) && !ctable) {
         size_t bytes = width * srcInfo.bytesPerPixel();
         for (int y = 0; y < height; ++y) {
             memcpy(dstPixels, srcPixels, bytes);
@@ -438,6 +491,10 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         copy_g8_to_32(dstPixels, dstRB, srcPixels, srcRB, width, height);
         return true;
     }
+    if (kGray_8_SkColorType == dstInfo.colorType() && 4 == srcInfo.bytesPerPixel()) {
+        copy_32_to_g8(dstPixels, dstRB, srcPixels, srcRB, srcInfo);
+        return true;
+    }
 
     if (kAlpha_8_SkColorType == dstInfo.colorType() &&
         extract_alpha(dstPixels, dstRB, srcPixels, srcRB, srcInfo, ctable)) {
@@ -460,7 +517,9 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
 
         const SkPMColor* table = nullptr;
         if (kIndex_8_SkColorType == srcInfo.colorType()) {
-            SkASSERT(ctable);
+            if (nullptr == ctable) {
+                return false;
+            }
             table = ctable->readColors();
         }
 

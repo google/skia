@@ -216,46 +216,6 @@ DEF_GM( return new ShowMipLevels(256); )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void copy_32_to_g8(void* dst, size_t dstRB, const void* src, const SkImageInfo& srcInfo,
-                          size_t srcRB) {
-    uint8_t* dst8 = (uint8_t*)dst;
-    const uint32_t* src32 = (const uint32_t*)src;
-
-    const int w = srcInfo.width();
-    const int h = srcInfo.height();
-    const bool isBGRA = (kBGRA_8888_SkColorType == srcInfo.colorType());
-
-    for (int y = 0; y < h; ++y) {
-        if (isBGRA) {
-            // BGRA
-            for (int x = 0; x < w; ++x) {
-                uint32_t s = src32[x];
-                dst8[x] = SkComputeLuminance((s >> 16) & 0xFF, (s >> 8) & 0xFF, s & 0xFF);
-            }
-        } else {
-            // RGBA
-            for (int x = 0; x < w; ++x) {
-                uint32_t s = src32[x];
-                dst8[x] = SkComputeLuminance(s & 0xFF, (s >> 8) & 0xFF, (s >> 16) & 0xFF);
-            }
-        }
-        src32 = (const uint32_t*)((const char*)src32 + srcRB);
-        dst8 += dstRB;
-    }
-}
-
-void copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
-    if (kGray_8_SkColorType == dstColorType) {
-        SkImageInfo grayInfo = src.info().makeColorType(kGray_8_SkColorType);
-        dst->allocPixels(grayInfo);
-        copy_32_to_g8(dst->getPixels(), dst->rowBytes(), src.getPixels(), src.info(),
-                      src.rowBytes());
-        return;
-    }
-
-    src.copyTo(dst, dstColorType);
-}
-
 /**
  *  Show mip levels that were built, for all supported colortypes
  */
@@ -323,7 +283,7 @@ protected:
 
         for (auto ctype : ctypes) {
             SkBitmap bm;
-            copy_to(&bm, ctype, orig);
+            orig.copyTo(&bm, ctype);
             drawLevels(canvas, bm);
             canvas->translate(orig.width()/2 + 8.0f, 0);
         }
