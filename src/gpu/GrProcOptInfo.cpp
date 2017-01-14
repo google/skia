@@ -6,35 +6,10 @@
  */
 
 #include "GrProcOptInfo.h"
-
 #include "GrGeometryProcessor.h"
-
 #include "ops/GrDrawOp.h"
 
-void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const processors[],
-                                          int cnt,
-                                          GrColor startColor,
-                                          GrColorComponentFlags flags,
-                                          bool areCoverageStages,
-                                          bool isLCD) {
-    GrPipelineInput out;
-    out.fIsSingleComponent = areCoverageStages;
-    out.fColor = startColor;
-    out.fValidFlags = flags;
-    out.fIsLCDCoverage = isLCD;
-    fInOut.reset(out);
-    this->internalCalc(processors, cnt);
-}
-
-void GrProcOptInfo::completeCalculations(const GrFragmentProcessor * const processors[], int cnt) {
-    this->internalCalc(processors, cnt);
-}
-
-void GrProcOptInfo::internalCalc(const GrFragmentProcessor* const processors[], int cnt) {
-    fFirstEffectiveProcessorIndex = 0;
-    fInputColorIsUsed = true;
-    fInputColor = fInOut.color();
-
+void GrProcOptInfo::addProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
         const GrFragmentProcessor* processor = processors[i];
         fInOut.resetWillUseInputColor();
