@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_c6168472",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-14T22:53:26Z",
+      "side": 1,
+      "message": "Should we make it so that you indicate non-normalization by using a reset() that doesn\u0027t take a texture?",
+      "revId": "acbedf893320ea9250c4f59b150b1fb5f2b72d5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
