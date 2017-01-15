@@ -25,6 +25,12 @@ static const unsigned int kSplice_plus[] = {
     0x4e26d442,                                 //  fadd          v2.4s, v2.4s, v6.4s
     0x4e27d463,                                 //  fadd          v3.4s, v3.4s, v7.4s
 };
+static const unsigned int kSplice_multiply[] = {
+    0x6e24dc00,                                 //  fmul          v0.4s, v0.4s, v4.4s
+    0x6e25dc21,                                 //  fmul          v1.4s, v1.4s, v5.4s
+    0x6e26dc42,                                 //  fmul          v2.4s, v2.4s, v6.4s
+    0x6e27dc63,                                 //  fmul          v3.4s, v3.4s, v7.4s
+};
 static const unsigned int kSplice_srcover[] = {
     0x91001068,                                 //  add           x8, x3, #0x4
     0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
@@ -374,6 +380,12 @@ static const unsigned int kSplice_plus[] = {
     0xf2011d05,                                 //  vadd.f32      d1, d1, d5
     0xf2022d06,                                 //  vadd.f32      d2, d2, d6
     0xf2033d07,                                 //  vadd.f32      d3, d3, d7
+};
+static const unsigned int kSplice_multiply[] = {
+    0xf3000d14,                                 //  vmul.f32      d0, d0, d4
+    0xf3011d15,                                 //  vmul.f32      d1, d1, d5
+    0xf3022d16,                                 //  vmul.f32      d2, d2, d6
+    0xf3033d17,                                 //  vmul.f32      d3, d3, d7
 };
 static const unsigned int kSplice_srcover[] = {
     0xe283c004,                                 //  add           ip, r3, #4
@@ -744,11 +756,89 @@ static const unsigned char kSplice_clear[] = {
     0xc5,0xec,0x57,0xd2,                        //  vxorps        %ymm2,%ymm2,%ymm2
     0xc5,0xe4,0x57,0xdb,                        //  vxorps        %ymm3,%ymm3,%ymm3
 };
+static const unsigned char kSplice_clear_lowp[] = {
+    0xc5,0xfc,0x57,0xc0,                        //  vxorps        %ymm0,%ymm0,%ymm0
+    0xc5,0xf4,0x57,0xc9,                        //  vxorps        %ymm1,%ymm1,%ymm1
+    0xc5,0xec,0x57,0xd2,                        //  vxorps        %ymm2,%ymm2,%ymm2
+    0xc5,0xe4,0x57,0xdb,                        //  vxorps        %ymm3,%ymm3,%ymm3
+};
 static const unsigned char kSplice_plus[] = {
     0xc5,0xfc,0x58,0xc4,                        //  vaddps        %ymm4,%ymm0,%ymm0
     0xc5,0xf4,0x58,0xcd,                        //  vaddps        %ymm5,%ymm1,%ymm1
     0xc5,0xec,0x58,0xd6,                        //  vaddps        %ymm6,%ymm2,%ymm2
     0xc5,0xe4,0x58,0xdf,                        //  vaddps        %ymm7,%ymm3,%ymm3
+};
+static const unsigned char kSplice_plus_lowp[] = {
+    0xc5,0xfd,0xec,0xc4,                        //  vpaddsb       %ymm4,%ymm0,%ymm0
+    0xc5,0xf5,0xec,0xcd,                        //  vpaddsb       %ymm5,%ymm1,%ymm1
+    0xc5,0xed,0xec,0xd6,                        //  vpaddsb       %ymm6,%ymm2,%ymm2
+    0xc5,0xe5,0xec,0xdf,                        //  vpaddsb       %ymm7,%ymm3,%ymm3
+};
+static const unsigned char kSplice_multiply[] = {
+    0xc5,0xfc,0x59,0xc4,                        //  vmulps        %ymm4,%ymm0,%ymm0
+    0xc5,0xf4,0x59,0xcd,                        //  vmulps        %ymm5,%ymm1,%ymm1
+    0xc5,0xec,0x59,0xd6,                        //  vmulps        %ymm6,%ymm2,%ymm2
+    0xc5,0xe4,0x59,0xdf,                        //  vmulps        %ymm7,%ymm3,%ymm3
+};
+static const unsigned char kSplice_multiply_lowp[] = {
+    0xb8,0x80,0x00,0x80,0x00,                   //  mov           $0x800080,%eax
+    0x41,0xb8,0x01,0x01,0x01,0x01,              //  mov           $0x1010101,%r8d
+    0xc4,0x62,0x7d,0x30,0xc0,                   //  vpmovzxbw     %xmm0,%ymm8
+    0xc4,0x62,0x7d,0x30,0xcc,                   //  vpmovzxbw     %xmm4,%ymm9
+    0xc4,0x41,0x35,0xd5,0xc8,                   //  vpmullw       %ymm8,%ymm9,%ymm9
+    0xc4,0xe3,0x7d,0x39,0xc0,0x01,              //  vextracti128  $0x1,%ymm0,%xmm0
+    0xc4,0x62,0x7d,0x30,0xc0,                   //  vpmovzxbw     %xmm0,%ymm8
+    0xc4,0xe3,0x7d,0x39,0xe0,0x01,              //  vextracti128  $0x1,%ymm4,%xmm0
+    0xc4,0xe2,0x7d,0x30,0xc0,                   //  vpmovzxbw     %xmm0,%ymm0
+    0xc4,0x41,0x7d,0xd5,0xd0,                   //  vpmullw       %ymm8,%ymm0,%ymm10
+    0xc5,0xf9,0x6e,0xc0,                        //  vmovd         %eax,%xmm0
+    0xc4,0x62,0x7d,0x58,0xc0,                   //  vpbroadcastd  %xmm0,%ymm8
+    0xc4,0x41,0x3d,0xfd,0xd9,                   //  vpaddw        %ymm9,%ymm8,%ymm11
+    0xc4,0x41,0x3d,0xfd,0xd2,                   //  vpaddw        %ymm10,%ymm8,%ymm10
+    0xc4,0xc1,0x79,0x6e,0xc0,                   //  vmovd         %r8d,%xmm0
+    0xc4,0x62,0x7d,0x58,0xc8,                   //  vpbroadcastd  %xmm0,%ymm9
+    0xc4,0xc1,0x25,0xe4,0xc1,                   //  vpmulhuw      %ymm9,%ymm11,%ymm0
+    0xc4,0x41,0x2d,0xe4,0xd1,                   //  vpmulhuw      %ymm9,%ymm10,%ymm10
+    0xc4,0xc1,0x7d,0x67,0xc2,                   //  vpackuswb     %ymm10,%ymm0,%ymm0
+    0xc4,0x62,0x7d,0x30,0xd1,                   //  vpmovzxbw     %xmm1,%ymm10
+    0xc4,0x62,0x7d,0x30,0xdd,                   //  vpmovzxbw     %xmm5,%ymm11
+    0xc4,0x41,0x25,0xd5,0xd2,                   //  vpmullw       %ymm10,%ymm11,%ymm10
+    0xc4,0xe3,0x7d,0x39,0xc9,0x01,              //  vextracti128  $0x1,%ymm1,%xmm1
+    0xc4,0x62,0x7d,0x30,0xd9,                   //  vpmovzxbw     %xmm1,%ymm11
+    0xc4,0xe3,0x7d,0x39,0xe9,0x01,              //  vextracti128  $0x1,%ymm5,%xmm1
+    0xc4,0xe2,0x7d,0x30,0xc9,                   //  vpmovzxbw     %xmm1,%ymm1
+    0xc4,0xc1,0x75,0xd5,0xcb,                   //  vpmullw       %ymm11,%ymm1,%ymm1
+    0xc4,0x41,0x3d,0xfd,0xd2,                   //  vpaddw        %ymm10,%ymm8,%ymm10
+    0xc5,0xbd,0xfd,0xc9,                        //  vpaddw        %ymm1,%ymm8,%ymm1
+    0xc4,0x41,0x2d,0xe4,0xd1,                   //  vpmulhuw      %ymm9,%ymm10,%ymm10
+    0xc4,0xc1,0x75,0xe4,0xc9,                   //  vpmulhuw      %ymm9,%ymm1,%ymm1
+    0xc5,0xad,0x67,0xc9,                        //  vpackuswb     %ymm1,%ymm10,%ymm1
+    0xc4,0x62,0x7d,0x30,0xd2,                   //  vpmovzxbw     %xmm2,%ymm10
+    0xc4,0x62,0x7d,0x30,0xde,                   //  vpmovzxbw     %xmm6,%ymm11
+    0xc4,0x41,0x25,0xd5,0xd2,                   //  vpmullw       %ymm10,%ymm11,%ymm10
+    0xc4,0xe3,0x7d,0x39,0xd2,0x01,              //  vextracti128  $0x1,%ymm2,%xmm2
+    0xc4,0x62,0x7d,0x30,0xda,                   //  vpmovzxbw     %xmm2,%ymm11
+    0xc4,0xe3,0x7d,0x39,0xf2,0x01,              //  vextracti128  $0x1,%ymm6,%xmm2
+    0xc4,0xe2,0x7d,0x30,0xd2,                   //  vpmovzxbw     %xmm2,%ymm2
+    0xc4,0xc1,0x6d,0xd5,0xd3,                   //  vpmullw       %ymm11,%ymm2,%ymm2
+    0xc4,0x41,0x3d,0xfd,0xd2,                   //  vpaddw        %ymm10,%ymm8,%ymm10
+    0xc5,0xbd,0xfd,0xd2,                        //  vpaddw        %ymm2,%ymm8,%ymm2
+    0xc4,0x41,0x2d,0xe4,0xd1,                   //  vpmulhuw      %ymm9,%ymm10,%ymm10
+    0xc4,0xc1,0x6d,0xe4,0xd1,                   //  vpmulhuw      %ymm9,%ymm2,%ymm2
+    0xc5,0xad,0x67,0xd2,                        //  vpackuswb     %ymm2,%ymm10,%ymm2
+    0xc4,0x62,0x7d,0x30,0xd3,                   //  vpmovzxbw     %xmm3,%ymm10
+    0xc4,0x62,0x7d,0x30,0xdf,                   //  vpmovzxbw     %xmm7,%ymm11
+    0xc4,0x41,0x25,0xd5,0xd2,                   //  vpmullw       %ymm10,%ymm11,%ymm10
+    0xc4,0xe3,0x7d,0x39,0xdb,0x01,              //  vextracti128  $0x1,%ymm3,%xmm3
+    0xc4,0x62,0x7d,0x30,0xdb,                   //  vpmovzxbw     %xmm3,%ymm11
+    0xc4,0xe3,0x7d,0x39,0xfb,0x01,              //  vextracti128  $0x1,%ymm7,%xmm3
+    0xc4,0xe2,0x7d,0x30,0xdb,                   //  vpmovzxbw     %xmm3,%ymm3
+    0xc4,0xc1,0x65,0xd5,0xdb,                   //  vpmullw       %ymm11,%ymm3,%ymm3
+    0xc4,0x41,0x3d,0xfd,0xd2,                   //  vpaddw        %ymm10,%ymm8,%ymm10
+    0xc5,0xbd,0xfd,0xdb,                        //  vpaddw        %ymm3,%ymm8,%ymm3
+    0xc4,0x41,0x2d,0xe4,0xc1,                   //  vpmulhuw      %ymm9,%ymm10,%ymm8
+    0xc4,0xc1,0x65,0xe4,0xd9,                   //  vpmulhuw      %ymm9,%ymm3,%ymm3
+    0xc5,0xbd,0x67,0xdb,                        //  vpackuswb     %ymm3,%ymm8,%ymm3
 };
 static const unsigned char kSplice_srcover[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
@@ -773,6 +863,8 @@ static const unsigned char kSplice_clamp_0[] = {
     0xc4,0xc1,0x6c,0x5f,0xd0,                   //  vmaxps        %ymm8,%ymm2,%ymm2
     0xc4,0xc1,0x64,0x5f,0xd8,                   //  vmaxps        %ymm8,%ymm3,%ymm3
 };
+static const unsigned char kSplice_clamp_0_lowp[] = {
+};
 static const unsigned char kSplice_clamp_1[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
     0xc4,0xc1,0x7c,0x5d,0xc0,                   //  vminps        %ymm8,%ymm0,%ymm0
@@ -780,12 +872,19 @@ static const unsigned char kSplice_clamp_1[] = {
     0xc4,0xc1,0x6c,0x5d,0xd0,                   //  vminps        %ymm8,%ymm2,%ymm2
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
 };
+static const unsigned char kSplice_clamp_1_lowp[] = {
+};
 static const unsigned char kSplice_clamp_a[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
     0xc5,0xfc,0x5d,0xc3,                        //  vminps        %ymm3,%ymm0,%ymm0
     0xc5,0xf4,0x5d,0xcb,                        //  vminps        %ymm3,%ymm1,%ymm1
     0xc5,0xec,0x5d,0xd3,                        //  vminps        %ymm3,%ymm2,%ymm2
+};
+static const unsigned char kSplice_clamp_a_lowp[] = {
+    0xc5,0xfd,0xda,0xc3,                        //  vpminub       %ymm3,%ymm0,%ymm0
+    0xc5,0xf5,0xda,0xcb,                        //  vpminub       %ymm3,%ymm1,%ymm1
+    0xc5,0xed,0xda,0xd3,                        //  vpminub       %ymm3,%ymm2,%ymm2
 };
 static const unsigned char kSplice_swap[] = {
     0xc5,0x7c,0x28,0xc3,                        //  vmovaps       %ymm3,%ymm8
