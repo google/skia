@@ -119,14 +119,14 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
 // It's just a convenience to make a valid, spliceable Stage, nothing magic.
 #define STAGE(name)                                                           \
-    static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+    static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
     C void name(size_t x, size_t limit, void* ctx, K* k,                      \
                 F r, F g, F b, F a, F dr, F dg, F db, F da) {                 \
         name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
         done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
     }                                                                         \
-    static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+    static void name##_k(size_t& x, size_t limit, void* ctx, K* k,            \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 // We can now define Stages!
@@ -144,11 +144,15 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 //   - lambdas;
 //   - memcpy() with a compile-time constant size argument.
 
+STAGE(inc_x) {
+    x += sizeof(F) / sizeof(float);
+}
+
 STAGE(clear) {
     r = g = b = a = 0;
 }
 
-STAGE(plus) {
+STAGE(plus_) {
     r = r + dr;
     g = g + dg;
     b = b + db;
