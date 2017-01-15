@@ -40,4 +40,9 @@ struct SkSplicer_constants {
     float    _00043;       //  0.0043f
 };
 
+struct SkSplicer_constants_lowp {
+    uint16_t _0x0001;      // 0x0001 ==     1 == epsilon
+    uint16_t _1;           // 0x8000 == 32768 == 1.0
+};
+
 #endif//SkSplicer_shared_DEFINED
