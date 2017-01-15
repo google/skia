@@ -76,6 +76,31 @@
     AI static U32 round(F v, F scale)           { return _mm256_cvtps_epi32(v*scale); }
 
     AI static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
+
+    struct L {
+        // See SkFix15.h
+        using V = uint16_t __attribute__((ext_vector_type(16)));
+
+        V vec;
+
+        L(__m256 v) : vec(v) {}
+        operator V() const { return vec; }
+
+        L() = default;
+        L(int v) : vec(v) {}
+        L(float v) {
+            float _32768f;
+            asm("mov $0x47000000, %0" : "=r"(_32768f));
+            vec = L((int)(v * _32768f));
+        }
+
+        L operator+(L o) { return _mm256_adds_epu16(vec, o.vec); }
+        L operator-(L o) { return _mm256_subs_epu16(vec, o.vec); }
+        L operator*(L o) { return _mm256_abs_epi16(_mm256_mulhrs_epi16(vec, o.vec)); }
+    };
+    AI static L min(L a, L b) { return _mm256_min_epu16(a,b); }
+    AI static L max(L a, L b) { return _mm256_max_epu16(a,b); }
+    AI static L fma(L f, L m, L a) { return f*m+a; }
 #endif
 
 AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
@@ -101,6 +126,14 @@ AI static T unaligned_load(const P* p) {
 using K = const SkSplicer_constants;
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
+template <typename V>
+AI static V one(K*);
+
+template <> AI F one(K* k) { return k->_1; }
+#if !defined(__aarch64__) && !defined(__ARM_NEON__)
+template <> AI L one(K* k) { return k->_1_lowp; }
+#endif
+
 // Stage's arguments act as the working set of registers within the final spliced function.
 // Here's a little primer on the x86-64/aarch64 ABIs:
 //   x:         rdi/x0          x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
@@ -117,20 +150,48 @@ using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 // which marks the point where we can splice one Stage onto the next.
 //
 // The lovely bit is that we don't have to define done(), just declare it.
-C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
+C void done     (size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
+
+#if defined(__AVX2__)
+C void done_lowp(size_t, size_t, void*, K*, L,L,L,L, L,L,L,L);
+#endif
 
 // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
 // It's just a convenience to make a valid, spliceable Stage, nothing magic.
 #define STAGE(name)                                                              \
+    template <typename V>                                                        \
     AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da); \
     C void name(size_t x, size_t limit, void* ctx, K* k,                         \
                 F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
         name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
         done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
     }                                                                            \
+    template <typename V>                                                        \
     AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da)
+
+#if defined(__AVX2__)
+    #define STAGE_LOWP(name)                                                         \
+        template <typename V>                                                        \
+        AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                                V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da); \
+        C void name(size_t x, size_t limit, void* ctx, K* k,                         \
+                    F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
+            name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
+            done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
+        }                                                                            \
+        C void name##_lowp(size_t x, size_t limit, void* ctx, K* k,                  \
+                           L r, L g, L b, L a, L dr, L dg, L db, L da) {             \
+            name##_k (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+            done_lowp(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+        }                                                                            \
+        template <typename V>                                                        \
+        AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                                V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da)
+#else
+    #define STAGE_LOWP STAGE
+#endif
 
 // We can now define Stages!
 
@@ -147,49 +208,55 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 //   - lambdas;
 //   - memcpy() with a compile-time constant size argument.
 
-STAGE(clear) {
+STAGE_LOWP(clear) {
     r = g = b = a = 0;
 }
 
-STAGE(plus) {
+STAGE_LOWP(plus) {
     r = r + dr;
     g = g + dg;
     b = b + db;
     a = a + da;
 }
+STAGE_LOWP(multiply) {
+    r = r * dr;
+    g = g * dg;
+    b = b * db;
+    a = a * da;
+}
 
-STAGE(srcover) {
-    auto A = k->_1 - a;
+STAGE_LOWP(srcover) {
+    auto A = one<V>(k) - a;
     r = fma(dr, A, r);
     g = fma(dg, A, g);
     b = fma(db, A, b);
     a = fma(db, A, a);
 }
-STAGE(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
+STAGE_LOWP(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
 
-STAGE(clamp_0) {
+STAGE_LOWP(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
     b = max(b, 0);
     a = max(a, 0);
 }
 
-STAGE(clamp_1) {
-    r = min(r, k->_1);
-    g = min(g, k->_1);
-    b = min(b, k->_1);
-    a = min(a, k->_1);
+STAGE_LOWP(clamp_1) {
+    r = min(r, one<V>(k));
+    g = min(g, one<V>(k));
+    b = min(b, one<V>(k));
+    a = min(a, one<V>(k));
 }
 
-STAGE(clamp_a) {
-    a = min(a, k->_1);
+STAGE_LOWP(clamp_a) {
+    a = min(a, one<V>(k));
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
 }
 
-STAGE(swap) {
-    auto swap = [](F& v, F& dv) {
+STAGE_LOWP(swap) {
+    auto swap = [](V& v, V& dv) {
         auto tmp = v;
         v = dv;
         dv = tmp;
@@ -199,20 +266,20 @@ STAGE(swap) {
     swap(b, db);
     swap(a, da);
 }
-STAGE(move_src_dst) {
+STAGE_LOWP(move_src_dst) {
     dr = r;
     dg = g;
     db = b;
     da = a;
 }
-STAGE(move_dst_src) {
+STAGE_LOWP(move_dst_src) {
     r = dr;
     g = dg;
     b = db;
     a = da;
 }
 
-STAGE(premul) {
+STAGE_LOWP(premul) {
     r = r * a;
     g = g * a;
     b = b * a;
