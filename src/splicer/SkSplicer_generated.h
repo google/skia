@@ -9,17 +9,20 @@
 #define SkSplicer_generated_DEFINED
 
 // This file is generated semi-automatically with this command:
-//   $ src/splicer/build_stages.py > src/splicer/SkSplicer_generated.h
+//   $ src/splicer/build_stages.py
 
 #if defined(__aarch64__)
 
+static const unsigned int kSplice_inc_x[] = {
+    0x91001000,                                 //  add           x0, x0, #0x4
+};
 static const unsigned int kSplice_clear[] = {
     0x6f00e400,                                 //  movi          v0.2d, #0x0
     0x6f00e401,                                 //  movi          v1.2d, #0x0
     0x6f00e402,                                 //  movi          v2.2d, #0x0
     0x6f00e403,                                 //  movi          v3.2d, #0x0
 };
-static const unsigned int kSplice_plus[] = {
+static const unsigned int kSplice_plus_[] = {
     0x4e24d400,                                 //  fadd          v0.4s, v0.4s, v4.4s
     0x4e25d421,                                 //  fadd          v1.4s, v1.4s, v5.4s
     0x4e26d442,                                 //  fadd          v2.4s, v2.4s, v6.4s
@@ -363,13 +366,16 @@ static const unsigned int kSplice_matrix_3x4[] = {
 
 #elif defined(__ARM_NEON__)
 
+static const unsigned int kSplice_inc_x[] = {
+    0xe2800002,                                 //  add           r0, r0, #2
+};
 static const unsigned int kSplice_clear[] = {
     0xf2800010,                                 //  vmov.i32      d0, #0
     0xf2801010,                                 //  vmov.i32      d1, #0
     0xf2802010,                                 //  vmov.i32      d2, #0
     0xf2803010,                                 //  vmov.i32      d3, #0
 };
-static const unsigned int kSplice_plus[] = {
+static const unsigned int kSplice_plus_[] = {
     0xf2000d04,                                 //  vadd.f32      d0, d0, d4
     0xf2011d05,                                 //  vadd.f32      d1, d1, d5
     0xf2022d06,                                 //  vadd.f32      d2, d2, d6
@@ -738,13 +744,16 @@ static const unsigned int kSplice_matrix_3x4[] = {
 
 #else
 
+static const unsigned char kSplice_inc_x[] = {
+    0x48,0x83,0xc7,0x08,                        //  add           $0x8,%rdi
+};
 static const unsigned char kSplice_clear[] = {
     0xc5,0xfc,0x57,0xc0,                        //  vxorps        %ymm0,%ymm0,%ymm0
     0xc5,0xf4,0x57,0xc9,                        //  vxorps        %ymm1,%ymm1,%ymm1
     0xc5,0xec,0x57,0xd2,                        //  vxorps        %ymm2,%ymm2,%ymm2
     0xc5,0xe4,0x57,0xdb,                        //  vxorps        %ymm3,%ymm3,%ymm3
 };
-static const unsigned char kSplice_plus[] = {
+static const unsigned char kSplice_plus_[] = {
     0xc5,0xfc,0x58,0xc4,                        //  vaddps        %ymm4,%ymm0,%ymm0
     0xc5,0xf4,0x58,0xcd,                        //  vaddps        %ymm5,%ymm1,%ymm1
     0xc5,0xec,0x58,0xd6,                        //  vaddps        %ymm6,%ymm2,%ymm2
