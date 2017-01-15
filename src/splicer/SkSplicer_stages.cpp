@@ -34,6 +34,29 @@
     AI static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
 
     AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+
+    struct L {
+        // See SkFixed15.h
+        using V = uint16_t __attribute__((ext_vector_type(8)));
+
+        V vec;
+
+        L(uint16x8_t v) : vec(v) {}
+        operator V() const { return vec; }
+
+        L() = default;
+        L(uint16_t v) : vec(v) {}
+
+        L operator+(L o) { return vqaddq_u16(vec, o.vec); }
+        L operator-(L o) { return vqsubq_u16(vec, o.vec); }
+        L operator*(L o) {
+            return vsraq_n_u16(vabsq_s16(vqrdmulhq_s16(vec, o.vec)),
+                               vandq_s16(vec, o.vec), 15);
+        }
+    };
+    AI static L min(L a, L b) { return vminq_u16(a,b); }
+    AI static L max(L a, L b) { return vmaxq_u16(a,b); }
+    AI static L fma(L f, L m, L a) { return f*m+a; }
 #elif defined(__ARM_NEON__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
         #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
@@ -55,6 +78,29 @@
     AI static U32 round(F v, F scale)                  { return vcvt_u32_f32(fma(v,scale,0.5f)); }
 
     AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+
+    struct L {
+        // See SkFixed15.h
+        using V = uint16_t __attribute__((ext_vector_type(4)));
+
+        V vec;
+
+        L(uint16x4_t v) : vec(v) {}
+        operator V() const { return vec; }
+
+        L() = default;
+        L(uint16_t v) : vec(v) {}
+
+        L operator+(L o) { return vqadd_u16(vec, o.vec); }
+        L operator-(L o) { return vqsub_u16(vec, o.vec); }
+        L operator*(L o) {
+            return vsra_n_u16(vabs_s16(vqrdmulh_s16(vec, o.vec)),
+                              vand_s16(vec, o.vec), 15);
+        }
+    };
+    AI static L min(L a, L b) { return vmin_u16(a,b); }
+    AI static L max(L a, L b) { return vmax_u16(a,b); }
+    AI static L fma(L f, L m, L a) { return f*m+a; }
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -76,6 +122,26 @@
     AI static U32 round(F v, F scale)           { return _mm256_cvtps_epi32(v*scale); }
 
     AI static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
+
+    struct L {
+        // See SkFixed15.h
+        using V = uint16_t __attribute__((ext_vector_type(16)));
+
+        V vec;
+
+        L(__m256 v) : vec(v) {}
+        operator V() const { return vec; }
+
+        L() = default;
+        L(uint16_t v) : vec(v) {}
+
+        L operator+(L o) { return _mm256_adds_epu16(vec, o.vec); }
+        L operator-(L o) { return _mm256_subs_epu16(vec, o.vec); }
+        L operator*(L o) { return _mm256_abs_epi16(_mm256_mulhrs_epi16(vec, o.vec)); }
+    };
+    AI static L min(L a, L b) { return _mm256_min_epu16(a,b); }
+    AI static L max(L a, L b) { return _mm256_max_epu16(a,b); }
+    AI static L fma(L f, L m, L a) { return f*m+a; }
 #endif
 
 AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
@@ -101,6 +167,12 @@ AI static T unaligned_load(const P* p) {
 using K = const SkSplicer_constants;
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
+template <typename V>
+AI static V one(K*);
+
+template <> AI F one(K* k) { return k->_1; }
+template <> AI L one(K* k) { return k->_1_lowp; }
+
 // Stage's arguments act as the working set of registers within the final spliced function.
 // Here's a little primer on the x86-64/aarch64 ABIs:
 //   x:         rdi/x0          x and limit work to drive the loop, see loop_start in SkSplicer.cpp.
@@ -117,20 +189,58 @@ using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 // which marks the point where we can splice one Stage onto the next.
 //
 // The lovely bit is that we don't have to define done(), just declare it.
-C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
+C void done     (size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
+C void done_lowp(size_t, size_t, void*, K*, L::V,L::V,L::V,L::V, L::V,L::V,L::V,L::V);
 
 // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
 // It's just a convenience to make a valid, spliceable Stage, nothing magic.
 #define STAGE(name)                                                              \
+    template <typename V>                                                        \
     AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da); \
     C void name(size_t x, size_t limit, void* ctx, K* k,                         \
                 F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
         name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
         done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
     }                                                                            \
+    template <typename V>                                                        \
     AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da)
+
+#define LOWP(name)                                                               \
+    template <typename V>                                                        \
+    AI static void name##_l(size_t x, size_t limit, void* ctx, K* k,             \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da); \
+    C void name##_lowp(size_t x, size_t limit, void* ctx, K* k,                  \
+                       L::V  R, L::V  G, L::V  B, L::V  A,                       \
+                       L::V DR, L::V DG, L::V DB, L::V DA) {                     \
+        L r = R, g = G, b = B, a = A, dr = DR, dg = DG, db = DB, da = DA;        \
+        name##_l (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+        done_lowp(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+    }                                                                            \
+    template <typename V>                                                        \
+    AI static void name##_l(size_t x, size_t limit, void* ctx, K* k,             \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da)
+
+#define STAGE_AND_LOWP(name)                                                     \
+    template <typename V>                                                        \
+    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da); \
+    C void name(size_t x, size_t limit, void* ctx, K* k,                         \
+                F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
+        name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
+        done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
+    }                                                                            \
+    C void name##_lowp(size_t x, size_t limit, void* ctx, K* k,                  \
+                       L::V  R, L::V  G, L::V  B, L::V  A,                       \
+                       L::V DR, L::V DG, L::V DB, L::V DA) {                     \
+        L r = R, g = G, b = B, a = A, dr = DR, dg = DG, db = DB, da = DA;        \
+        name##_k (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+        done_lowp(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                          \
+    }                                                                            \
+    template <typename V>                                                        \
+    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                            V& r, V& g, V& b, V& a, V& dr, V& dg, V& db, V& da)
 
 // We can now define Stages!
 
@@ -147,49 +257,55 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 //   - lambdas;
 //   - memcpy() with a compile-time constant size argument.
 
-STAGE(clear) {
+STAGE_AND_LOWP(clear) {
     r = g = b = a = 0;
 }
 
-STAGE(plus) {
+STAGE_AND_LOWP(plus) {
     r = r + dr;
     g = g + dg;
     b = b + db;
     a = a + da;
 }
+STAGE_AND_LOWP(multiply) {
+    r = r * dr;
+    g = g * dg;
+    b = b * db;
+    a = a * da;
+}
 
-STAGE(srcover) {
-    auto A = k->_1 - a;
+STAGE_AND_LOWP(srcover) {
+    auto A = one<V>(k) - a;
     r = fma(dr, A, r);
     g = fma(dg, A, g);
     b = fma(db, A, b);
-    a = fma(db, A, a);
+    a = fma(da, A, a);
 }
-STAGE(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
+STAGE_AND_LOWP(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
 
-STAGE(clamp_0) {
+STAGE_AND_LOWP(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
     b = max(b, 0);
     a = max(a, 0);
 }
 
-STAGE(clamp_1) {
-    r = min(r, k->_1);
-    g = min(g, k->_1);
-    b = min(b, k->_1);
-    a = min(a, k->_1);
+STAGE_AND_LOWP(clamp_1) {
+    r = min(r, one<V>(k));
+    g = min(g, one<V>(k));
+    b = min(b, one<V>(k));
+    a = min(a, one<V>(k));
 }
 
-STAGE(clamp_a) {
-    a = min(a, k->_1);
+STAGE_AND_LOWP(clamp_a) {
+    a = min(a, one<V>(k));
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
 }
 
-STAGE(swap) {
-    auto swap = [](F& v, F& dv) {
+STAGE_AND_LOWP(swap) {
+    auto swap = [](V& v, V& dv) {
         auto tmp = v;
         v = dv;
         dv = tmp;
@@ -199,20 +315,20 @@ STAGE(swap) {
     swap(b, db);
     swap(a, da);
 }
-STAGE(move_src_dst) {
+STAGE_AND_LOWP(move_src_dst) {
     dr = r;
     dg = g;
     db = b;
     da = a;
 }
-STAGE(move_dst_src) {
+STAGE_AND_LOWP(move_dst_src) {
     r = dr;
     g = dg;
     b = db;
     a = da;
 }
 
-STAGE(premul) {
+STAGE_AND_LOWP(premul) {
     r = r * a;
     g = g * a;
     b = b * a;
@@ -284,6 +400,23 @@ STAGE(load_8888) {
     b = cast((px >> 16) & k->_0x000000ff) * k->_1_255;
     a = cast((px >> 24)                 ) * k->_1_255;
 }
+LOWP(load_8888) {
+#if defined(__aarch64__)
+    auto ptr = *(const uint32_t**)ctx + x;
+
+    auto to_fixed15 = [](uint8x8_t v) {
+        // v * (32768/255) == v * 128.50196... == v*128 + v/2 + (v+1)>>8  ( see SkFixed15.h)
+        L::V u16 = vmovl_u8(v);  // TODO: tighten up by starting off with vshll_n_u8(v, 7)?
+        return (u16 << 7) + (u16 >> 1) + ((u16+1)>>8);
+    };
+
+    uint8x8x4_t rgba = vld4_u8((const uint8_t*)ptr);
+    r = to_fixed15(rgba.val[0]);
+    g = to_fixed15(rgba.val[1]);
+    b = to_fixed15(rgba.val[2]);
+    a = to_fixed15(rgba.val[3]);
+#endif
+}
 
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
@@ -293,6 +426,24 @@ STAGE(store_8888) {
            | round(b, k->_255) << 16
            | round(a, k->_255) << 24;
     memcpy(ptr, &px, sizeof(px));
+}
+LOWP(store_8888) {
+#if defined(__aarch64__)
+    auto ptr = *(uint32_t**)ctx + x;
+
+    auto from_fixed15 = [](L::V v) {
+        // (v - (v>>8)) >> 7  (see SkFixed15.h)
+        return vshrn_n_u16(v - (v>>8), 7);
+    };
+
+    uint8x8x4_t rgba = {{
+        from_fixed15(r),
+        from_fixed15(g),
+        from_fixed15(b),
+        from_fixed15(a),
+    }};
+    vst4_u8((uint8_t*)ptr, rgba);
+#endif
 }
 
 STAGE(load_f16) {

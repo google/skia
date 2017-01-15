@@ -20,6 +20,7 @@
 
 // Uncomment to dump output JIT'd pipeline.
 //#define DUMP "/tmp/dump.bin"
+//#define DUMP "/data/local/tmp/dump.bin"
 //
 // On x86, we'll include IACA markers too.
 //   https://software.intel.com/en-us/articles/intel-architecture-code-analyzer
@@ -27,10 +28,10 @@
 //   $ ./iaca.sh -arch HSW -64 -mark 0 /tmp/dump.bin | less
 //
 // To disassemble an aarch64 dump,
-//   $ gobjdump -b binary -D dump.bin -m aarch64
+//   $ adb pull /data/local/tmp/dump.bin; gobjdump -b binary -D dump.bin -m aarch64 | less
 //
 // To disassemble an armv7 dump,
-//   $ gobjdump -b binary -D dump.bin -m arm
+//   $ adb pull /data/local/tmp/dump.bin; gobjdump -b binary -D dump.bin -m arm | less
 
 namespace {
 
@@ -40,16 +41,18 @@ namespace {
         0x000000ff, 1.0f, 255.0f, 1/255.0f,
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
+        0x8000,                                            // lowp
     };
 
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
     template <typename T>
     static void splice(SkWStream* buf, const T& val) {
-        buf->write(&val, sizeof(val));
+        if (buf) {
+            buf->write(&val, sizeof(val));
+        }
     }
 
 #if defined(__aarch64__)
-    static constexpr int kStride = 4;
     static void set_ctx(SkWStream* buf, void* ctx) {
         uint16_t parts[4];
         memcpy(parts, &ctx, 8);
@@ -58,8 +61,12 @@ namespace {
         splice(buf, 0xf2a00000 | (parts[1] << 5) | 0x2);  // merge 16-bit intermediate << 16 into x2
         splice(buf, 0xf2800000 | (parts[0] << 5) | 0x2);  // merge 16-bit intermediate <<  0 into x2
     }
-    static void loop(SkWStream* buf, int loop_start) {
-        splice(buf, 0x91001000);        // add x0, x0, #4
+    static void loop(SkWStream* buf, bool lowp, int loop_start) {
+        if (lowp) {
+            splice(buf, 0x91002000);    // add x0, x0, #8
+        } else {
+            splice(buf, 0x91001000);    // add x0, x0, #4
+        }
         splice(buf, 0xeb01001f);        // cmp x0, x1
         int off = loop_start - (int)buf->bytesWritten();
         off /= 4;   // bytes -> instructions, still signed
@@ -70,7 +77,6 @@ namespace {
         splice(buf, 0xd65f03c0);  // ret
     }
 #elif defined(__ARM_NEON__)
-    static constexpr int kStride = 2;
     static void set_ctx(SkWStream* buf, void* ctx) {
         uint16_t parts[2];
         auto encode = [](uint16_t part) -> uint32_t {
@@ -92,7 +98,6 @@ namespace {
         splice(buf, 0xe12fff1e);  // bx lr
     }
 #else
-    static constexpr int kStride = 8;
     static void set_ctx(SkWStream* buf, void* ctx) {
         static const uint8_t movabsq_rdx[] = { 0x48, 0xba };
         splice(buf, movabsq_rdx);  // movabsq <next 8 bytes>, %rdx
@@ -236,39 +241,94 @@ namespace {
     }
 #endif
 
+    static bool splice_lowp(SkWStream* buf, SkRasterPipeline::StockStage st) {
+        switch (st) {
+            case SkRasterPipeline::load_8888:    splice(buf, kSplice_load_8888_lowp );   break;
+            case SkRasterPipeline::store_8888:   splice(buf, kSplice_store_8888_lowp);   break;
+            case SkRasterPipeline::move_src_dst: splice(buf, kSplice_move_src_dst_lowp); break;
+            case SkRasterPipeline::srcover:      splice(buf, kSplice_srcover_lowp);      break;
+            default: return false;
+        }
+        return true;
+    }
+
+    static bool splice_highp(SkWStream* buf, SkRasterPipeline::StockStage st) {
+        switch (st) {
+            case SkRasterPipeline::clear:        splice(buf, kSplice_clear       ); break;
+            case SkRasterPipeline::plus_:        splice(buf, kSplice_plus        ); break;
+            case SkRasterPipeline::multiply:     splice(buf, kSplice_multiply    ); break;
+            case SkRasterPipeline::srcover:      splice(buf, kSplice_srcover     ); break;
+            case SkRasterPipeline::dstover:      splice(buf, kSplice_dstover     ); break;
+            case SkRasterPipeline::clamp_0:      splice(buf, kSplice_clamp_0     ); break;
+            case SkRasterPipeline::clamp_1:      splice(buf, kSplice_clamp_1     ); break;
+            case SkRasterPipeline::clamp_a:      splice(buf, kSplice_clamp_a     ); break;
+            case SkRasterPipeline::swap:         splice(buf, kSplice_swap        ); break;
+            case SkRasterPipeline::move_src_dst: splice(buf, kSplice_move_src_dst); break;
+            case SkRasterPipeline::move_dst_src: splice(buf, kSplice_move_dst_src); break;
+            case SkRasterPipeline::premul:       splice(buf, kSplice_premul      ); break;
+            case SkRasterPipeline::unpremul:     splice(buf, kSplice_unpremul    ); break;
+            case SkRasterPipeline::from_srgb:    splice(buf, kSplice_from_srgb   ); break;
+            case SkRasterPipeline::to_srgb:      splice(buf, kSplice_to_srgb     ); break;
+            case SkRasterPipeline::scale_u8:     splice(buf, kSplice_scale_u8    ); break;
+            case SkRasterPipeline::load_tables:  splice(buf, kSplice_load_tables ); break;
+            case SkRasterPipeline::load_8888:    splice(buf, kSplice_load_8888   ); break;
+            case SkRasterPipeline::store_8888:   splice(buf, kSplice_store_8888  ); break;
+            case SkRasterPipeline::load_f16:     splice(buf, kSplice_load_f16    ); break;
+            case SkRasterPipeline::store_f16:    splice(buf, kSplice_store_f16   ); break;
+            case SkRasterPipeline::matrix_3x4:   splice(buf, kSplice_matrix_3x4  ); break;
+            default: return false;
+        }
+        return true;
+    }
+
     struct Spliced {
 
         Spliced(const SkRasterPipeline::Stage* stages, int nstages) {
             // We always create a backup interpreter pipeline,
             //   - to handle any program we can't, and
-            //   - to handle the n < kStride tails.
+            //   - to handle the n < fStride tails.
             fBackup     = SkOpts::compile_pipeline(stages, nstages);
             fSplicedLen = 0;
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
         #if defined(__aarch64__)
+            fStride = 4;
         #elif defined(__ARM_NEON__)
             // Late generation ARMv7, e.g. Cortex A15 or Krait.
             if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
                 return;
             }
+            fStride = 2;
         #else
             // To keep things simple, only one x86 target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
+            fStride = 8;
         #endif
+
+            // See if all the stages can run in lowp mode.  If so, we can run at ~2x speed.
+            bool lowp = true;
+            for (int i = 0; i < nstages; i++) {
+                if (!splice_lowp(nullptr, stages[i].stage)) {
+                    //SkDebugf("SkSplicer can't yet handle stage %d in lowp.\n", stages[i].stage);
+                    lowp = false;
+                    break;
+                }
+            }
+            if (lowp) { fStride *= 2; }
 
             SkDynamicMemoryWStream buf;
 
             // Our loop is the equivalent of this C++ code:
             //    do {
             //        ... run spliced stages...
-            //        x += kStride;
+            //        x += fStride;
             //    } while(x < limit);
             before_loop(&buf);
             auto loop_start = buf.bytesWritten();  // Think of this like a label, loop_start:
+
 
             for (int i = 0; i < nstages; i++) {
                 // If a stage has a context pointer, load it into rdx/x2, Stage argument 3 "ctx".
@@ -277,37 +337,17 @@ namespace {
                 }
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
-                switch(stages[i].stage) {
-                    case SkRasterPipeline::clear:        splice(&buf, kSplice_clear       ); break;
-                    case SkRasterPipeline::plus_:        splice(&buf, kSplice_plus        ); break;
-                    case SkRasterPipeline::srcover:      splice(&buf, kSplice_srcover     ); break;
-                    case SkRasterPipeline::dstover:      splice(&buf, kSplice_dstover     ); break;
-                    case SkRasterPipeline::clamp_0:      splice(&buf, kSplice_clamp_0     ); break;
-                    case SkRasterPipeline::clamp_1:      splice(&buf, kSplice_clamp_1     ); break;
-                    case SkRasterPipeline::clamp_a:      splice(&buf, kSplice_clamp_a     ); break;
-                    case SkRasterPipeline::swap:         splice(&buf, kSplice_swap        ); break;
-                    case SkRasterPipeline::move_src_dst: splice(&buf, kSplice_move_src_dst); break;
-                    case SkRasterPipeline::move_dst_src: splice(&buf, kSplice_move_dst_src); break;
-                    case SkRasterPipeline::premul:       splice(&buf, kSplice_premul      ); break;
-                    case SkRasterPipeline::unpremul:     splice(&buf, kSplice_unpremul    ); break;
-                    case SkRasterPipeline::from_srgb:    splice(&buf, kSplice_from_srgb   ); break;
-                    case SkRasterPipeline::to_srgb:      splice(&buf, kSplice_to_srgb     ); break;
-                    case SkRasterPipeline::scale_u8:     splice(&buf, kSplice_scale_u8    ); break;
-                    case SkRasterPipeline::load_tables:  splice(&buf, kSplice_load_tables ); break;
-                    case SkRasterPipeline::load_8888:    splice(&buf, kSplice_load_8888   ); break;
-                    case SkRasterPipeline::store_8888:   splice(&buf, kSplice_store_8888  ); break;
-                    case SkRasterPipeline::load_f16:     splice(&buf, kSplice_load_f16    ); break;
-                    case SkRasterPipeline::store_f16:    splice(&buf, kSplice_store_f16   ); break;
-                    case SkRasterPipeline::matrix_3x4:   splice(&buf, kSplice_matrix_3x4  ); break;
-
-                    // No joy (probably just not yet implemented).
-                    default:
-                        //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
-                        return;
+                if (lowp) {
+                    SkAssertResult(splice_lowp(&buf, stages[i].stage));
+                    continue;
+                }
+                if (!splice_highp(&buf, stages[i].stage)) {
+                    //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
+                    return;
                 }
             }
 
-            loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
+            loop(&buf, lowp, loop_start);  // Loop back to handle fStride more pixels if not done.
             after_loop(&buf);
             ret(&buf);  // We're done.
 
@@ -323,7 +363,8 @@ namespace {
         // Spliced is stored in a std::function, so it needs to be copyable.
         Spliced(const Spliced& o) : fBackup    (o.fBackup)
                                   , fSplicedLen(o.fSplicedLen)
-                                  , fSpliced   (copy_to_executable_mem(o.fSpliced, &fSplicedLen)) {}
+                                  , fSpliced   (copy_to_executable_mem(o.fSpliced, &fSplicedLen))
+                                  , fStride    (o.fStride) {}
 
         ~Spliced() {
             cleanup_executable_mem(fSpliced, fSplicedLen);
@@ -331,13 +372,13 @@ namespace {
 
         // Here's where we call fSpliced if we created it, fBackup if not.
         void operator()(size_t x, size_t y, size_t n) const {
-            size_t body = n/kStride*kStride;   // Largest multiple of kStride (4 or 8) <= n.
-            if (fSpliced && body) {            // Can we run fSpliced for at least one kStride?
+            size_t body = n/fStride*fStride;   // Largest multiple of fStride (2, 4, 8, or 16) <= n.
+            if (fSpliced && body) {            // Can we run fSpliced for at least one fStride?
                 // TODO: At some point we will want to pass in y...
                 using Fn = void(size_t x, size_t limit, void* ctx, const SkSplicer_constants* k);
                 ((Fn*)fSpliced)(x, x+body, nullptr, &kConstants);
 
-                // Fall through to fBackup for any n<kStride last pixels.
+                // Fall through to fBackup for any n<fStride last pixels.
                 x += body;
                 n -= body;
             }
@@ -347,6 +388,7 @@ namespace {
         std::function<void(size_t, size_t, size_t)> fBackup;
         size_t                                      fSplicedLen;
         void*                                       fSpliced;
+        size_t                                      fStride;
     };
 
 }
