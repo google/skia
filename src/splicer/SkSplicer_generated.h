@@ -9,7 +9,7 @@
 #define SkSplicer_generated_DEFINED
 
 // This file is generated semi-automatically with this command:
-//   $ src/splicer/build_stages.py > src/splicer/SkSplicer_generated.h
+//   $ src/splicer/build_stages.py
 
 #if defined(__aarch64__)
 
