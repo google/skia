@@ -157,6 +157,12 @@ STAGE(plus) {
     b = b + db;
     a = a + da;
 }
+STAGE(multiply) {
+    r = r * dr;
+    g = g * dg;
+    b = b * db;
+    a = a * da;
+}
 
 STAGE(srcover) {
     auto A = k->_1 - a;

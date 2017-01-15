@@ -9,7 +9,7 @@
 #define SkSplicer_generated_DEFINED
 
 // This file is generated semi-automatically with this command:
-//   $ src/splicer/build_stages.py > src/splicer/SkSplicer_generated.h
+//   $ src/splicer/build_stages.py
 
 #if defined(__aarch64__)
 
@@ -24,6 +24,12 @@ static const unsigned int kSplice_plus[] = {
     0x4e25d421,                                 //  fadd          v1.4s, v1.4s, v5.4s
     0x4e26d442,                                 //  fadd          v2.4s, v2.4s, v6.4s
     0x4e27d463,                                 //  fadd          v3.4s, v3.4s, v7.4s
+};
+static const unsigned int kSplice_multiply[] = {
+    0x6e24dc00,                                 //  fmul          v0.4s, v0.4s, v4.4s
+    0x6e25dc21,                                 //  fmul          v1.4s, v1.4s, v5.4s
+    0x6e26dc42,                                 //  fmul          v2.4s, v2.4s, v6.4s
+    0x6e27dc63,                                 //  fmul          v3.4s, v3.4s, v7.4s
 };
 static const unsigned int kSplice_srcover[] = {
     0x91001068,                                 //  add           x8, x3, #0x4
@@ -374,6 +380,12 @@ static const unsigned int kSplice_plus[] = {
     0xf2011d05,                                 //  vadd.f32      d1, d1, d5
     0xf2022d06,                                 //  vadd.f32      d2, d2, d6
     0xf2033d07,                                 //  vadd.f32      d3, d3, d7
+};
+static const unsigned int kSplice_multiply[] = {
+    0xf3000d14,                                 //  vmul.f32      d0, d0, d4
+    0xf3011d15,                                 //  vmul.f32      d1, d1, d5
+    0xf3022d16,                                 //  vmul.f32      d2, d2, d6
+    0xf3033d17,                                 //  vmul.f32      d3, d3, d7
 };
 static const unsigned int kSplice_srcover[] = {
     0xe283c004,                                 //  add           ip, r3, #4
@@ -749,6 +761,12 @@ static const unsigned char kSplice_plus[] = {
     0xc5,0xf4,0x58,0xcd,                        //  vaddps        %ymm5,%ymm1,%ymm1
     0xc5,0xec,0x58,0xd6,                        //  vaddps        %ymm6,%ymm2,%ymm2
     0xc5,0xe4,0x58,0xdf,                        //  vaddps        %ymm7,%ymm3,%ymm3
+};
+static const unsigned char kSplice_multiply[] = {
+    0xc5,0xfc,0x59,0xc4,                        //  vmulps        %ymm4,%ymm0,%ymm0
+    0xc5,0xf4,0x59,0xcd,                        //  vmulps        %ymm5,%ymm1,%ymm1
+    0xc5,0xec,0x59,0xd6,                        //  vmulps        %ymm6,%ymm2,%ymm2
+    0xc5,0xe4,0x59,0xdf,                        //  vmulps        %ymm7,%ymm3,%ymm3
 };
 static const unsigned char kSplice_srcover[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
