@@ -40,6 +40,7 @@ namespace {
         0x000000ff, 1.0f, 255.0f, 1/255.0f,
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
+        0x8000,                                            // lowp
     };
 
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
@@ -280,6 +281,7 @@ namespace {
                 switch(stages[i].stage) {
                     case SkRasterPipeline::clear:        splice(&buf, kSplice_clear       ); break;
                     case SkRasterPipeline::plus_:        splice(&buf, kSplice_plus        ); break;
+                    case SkRasterPipeline::multiply:     splice(&buf, kSplice_multiply    ); break;
                     case SkRasterPipeline::srcover:      splice(&buf, kSplice_srcover     ); break;
                     case SkRasterPipeline::dstover:      splice(&buf, kSplice_dstover     ); break;
                     case SkRasterPipeline::clamp_0:      splice(&buf, kSplice_clamp_0     ); break;
