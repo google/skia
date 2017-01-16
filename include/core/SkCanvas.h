@@ -539,7 +539,6 @@ public:
     */
     virtual bool getClipDeviceBounds(SkIRect* bounds) const;
 
-
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
         @param a    the alpha component (0..255) of the color to fill the canvas
@@ -1289,15 +1288,6 @@ public:
     */
     const SkMatrix& getTotalMatrix() const;
 
-    /** Return the clip stack. The clip stack stores all the individual
-     *  clips organized by the save/restore frame in which they were
-     *  added.
-     *  @return the current clip stack ("list" of individual clip elements)
-     */
-    const SkClipStack* getClipStack() const {
-        return fClipStack.get();
-    }
-
     typedef SkCanvasClipVisitor ClipVisitor;
     /**
      *  Replays the clip operations, back to front, that have been applied to
@@ -1636,6 +1626,18 @@ private:
      */
     bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK
+public:
+#endif
+    /** Return the clip stack. The clip stack stores all the individual
+     *  clips organized by the save/restore frame in which they were
+     *  added.
+     *  @return the current clip stack ("list" of individual clip elements)
+     */
+    const SkClipStack* getClipStack() const {
+        return fClipStack.get();
+    }
+private:
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
