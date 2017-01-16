@@ -58,8 +58,6 @@ skia_effects_sources = [
   "$_src/effects/SkPerlinNoiseShader.cpp",
   "$_src/effects/SkPictureImageFilter.cpp",
   "$_src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
-  "$_src/effects/SkShadowMaskFilter.cpp",
-  "$_src/effects/SkShadowMaskFilter.h",
   "$_src/effects/SkTableColorFilter.cpp",
   "$_src/effects/SkTableMaskFilter.cpp",
   "$_src/effects/SkTileImageFilter.cpp",
@@ -86,6 +84,11 @@ skia_effects_sources = [
   "$_src/effects/gradients/SkTwoPointConicalGradient_gpu.h",
   "$_src/effects/gradients/SkSweepGradient.cpp",
   "$_src/effects/gradients/SkSweepGradient.h",
+
+  "$_src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+  "$_src/effects/shadows/SkAmbientShadowMaskFilter.h",
+  "$_src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+  "$_src/effects/shadows/SkSpotShadowMaskFilter.h",
 
   "$_include/effects/Sk1DPathEffect.h",
   "$_include/effects/Sk2DPathEffect.h",

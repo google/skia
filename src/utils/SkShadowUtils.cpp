@@ -7,7 +7,8 @@
 
 #include "SkShadowUtils.h"
 #include "SkCanvas.h"
-#include "../effects/SkShadowMaskFilter.h"
+#include "../effects/shadows/SkAmbientShadowMaskFilter.h"
+#include "../effects/shadows/SkSpotShadowMaskFilter.h"
 
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar occluderHeight,
@@ -16,8 +17,9 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                                uint32_t flags) {
     SkPaint newPaint;
     newPaint.setColor(color);
-    newPaint.setMaskFilter(SkShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
-                                                    ambientAlpha, spotAlpha, flags));
-
+    newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderHeight, ambientAlpha, flags));
+    canvas->drawPath(path, newPaint);
+    newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
+                                                        spotAlpha, flags));
     canvas->drawPath(path, newPaint);
 }

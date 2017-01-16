@@ -457,6 +457,7 @@ skia_core_sources = [
   "$_include/private/SkOnce.h",
   "$_include/private/SkRecords.h",
   "$_include/private/SkSemaphore.h",
+  "$_include/private/SkShadowFlags.h",
   "$_include/private/SkShadowParams.h",
   "$_include/private/SkSpinlock.h",
   "$_include/private/SkTemplates.h",
