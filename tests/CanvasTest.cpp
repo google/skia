@@ -188,6 +188,7 @@ private:
 };
 
 static void test_clipstack(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK
     // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
     // ref'd it.
     const SkClipStack* cs = nullptr;
@@ -197,6 +198,7 @@ static void test_clipstack(skiatest::Reporter* reporter) {
     }
     REPORTER_ASSERT(reporter, cs->unique());
     cs->unref();
+#endif
 }
 
 // Format strings that describe the test context.  The %s token is where

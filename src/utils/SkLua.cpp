@@ -39,7 +39,7 @@ extern "C" {
 template <typename T> const char* get_mtname();
 #define DEF_MTNAME(T)                           \
     template <> const char* get_mtname<T>() {   \
-        return #T "_LuaMetaTableName";          \
+        return #T "_LuaMetaTableName";          \aasdf
     }
 
 DEF_MTNAME(SkCanvas)
