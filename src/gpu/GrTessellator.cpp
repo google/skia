@@ -1457,8 +1457,8 @@ void remove_non_boundary_edges(const VertexList& mesh, SkPath::FillType fillType
 }
 
 void get_edge_normal(const Edge* e, SkVector* normal) {
-    normal->setNormalize(SkDoubleToScalar(-e->fLine.fB) * e->fWinding,
-                         SkDoubleToScalar(e->fLine.fA) * e->fWinding);
+    normal->setNormalize(SkDoubleToScalar(e->fLine.fA) * e->fWinding,
+                         SkDoubleToScalar(e->fLine.fB) * e->fWinding);
 }
 
 // Stage 5c: detect and remove "pointy" vertices whose edge normals point in opposite directions
@@ -1475,7 +1475,7 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkChunkAlloc& alloc) {
         double dist = e->dist(prev->fPoint);
         SkVector normal;
         get_edge_normal(e, &normal);
-        float denom = 0.25f * static_cast<float>(e->fLine.magSq());
+        float denom = 0.0625f * static_cast<float>(e->fLine.magSq());
         if (prevNormal.dot(normal) < 0.0 && (dist * dist) <= denom) {
             Edge* join = new_edge(prev, next, Edge::Type::kInner, c, alloc);
             insert_edge(join, e, boundary);

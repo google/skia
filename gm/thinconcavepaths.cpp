@@ -24,6 +24,17 @@ void draw_thin_stroked_rect(SkCanvas* canvas, const SkPaint& paint, SkScalar wid
     canvas->drawPath(path, paint);
 }
 
+void draw_thin_right_angle(SkCanvas* canvas, const SkPaint& paint, SkScalar width) {
+    SkPath path;
+    path.moveTo(10 + width, 10 + width);
+    path.lineTo(40,         10 + width);
+    path.lineTo(40,         20);
+    path.lineTo(40 + width, 20 + width);
+    path.lineTo(40 + width, 10);
+    path.lineTo(10,         10);
+    canvas->drawPath(path, paint);
+}
+
 };
 
 DEF_SIMPLE_GM(thinconcavepaths, canvas, 400, 400) {
@@ -38,4 +49,12 @@ DEF_SIMPLE_GM(thinconcavepaths, canvas, 400, 400) {
         canvas->translate(0, 25);
     }
     canvas->restore();
+    canvas->translate(50, 0);
+    canvas->save();
+    for (SkScalar width = 0.5; width < 2.05; width += 0.25) {
+        draw_thin_right_angle(canvas, paint, width);
+        canvas->translate(0, 25);
+    }
+    canvas->restore();
+    canvas->translate(100, 0);
 }
