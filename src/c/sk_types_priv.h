@@ -24,6 +24,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkMask.h"
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
 #include "SkXMLWriter.h"
@@ -151,6 +152,14 @@ static inline SkPixmap& AsPixmap(sk_pixmap_t& cpixmap) {
 
 static inline sk_pixmap_t* ToPixmap(SkPixmap* pixmap) {
     return reinterpret_cast<sk_pixmap_t*>(pixmap);
+}
+
+static inline SkMask* AsMask(sk_mask_t* cmask) {
+    return reinterpret_cast<SkMask*>(cmask);
+}
+
+static inline sk_mask_t* ToMask(SkMask* mask) {
+    return reinterpret_cast<sk_mask_t*>(mask);
 }
 
 static inline SkData* AsData(const sk_data_t* cdata) {

@@ -275,6 +275,12 @@ typedef struct sk_pixmap_t sk_pixmap_t;
 typedef struct sk_colorfilter_t sk_colorfilter_t;
 typedef struct sk_imagefilter_t sk_imagefilter_t;
 typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
+
+/**
+    A sk_mask_t is a small struct that wraps a byte array of pixels for masking bitmaps
+*/
+typedef struct sk_mask_t sk_mask_t;
+
 /**
    A sk_typeface_t pecifies the typeface and intrinsic style of a font.
     This is used in the paint, along with optionally algorithmic settings like
@@ -577,6 +583,14 @@ typedef enum {
     ALPHA_HALF_GR_PIXEL_CONFIG,
     RGBA_HALF_GR_PIXEL_CONFIG,
 } gr_pixelconfig_t;
+
+typedef enum {
+    BW_Format,             //!< 1bit per pixel mask (e.g. monochrome)
+    A8_Format,             //!< 8bits per pixel mask (e.g. antialiasing)
+    THREE_D_Format,             //!< 3 8bit per pixl planes: alpha, mul, add
+    ARGB32_Format,         //!< SkPMColor
+    LCD16_Format,          //!< 565 alpha for r/g/b
+} sk_mask_format_t;
 
 typedef enum {
     NONE_GR_CONTEXT_FLUSHBITS = 0,
