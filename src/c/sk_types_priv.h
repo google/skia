@@ -158,6 +158,10 @@ static inline SkMask* AsMask(sk_mask_t* cmask) {
     return reinterpret_cast<SkMask*>(cmask);
 }
 
+static inline const SkMask* AsMask(const sk_mask_t* cmask) {
+    return reinterpret_cast<const SkMask*>(cmask);
+}
+
 static inline sk_mask_t* ToMask(SkMask* mask) {
     return reinterpret_cast<sk_mask_t*>(mask);
 }
