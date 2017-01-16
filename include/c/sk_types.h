@@ -720,6 +720,11 @@ typedef struct {
     size_t fDuration;
 } sk_codec_frameinfo_t;
 
+typedef struct sk_xmlstreamwriter_t sk_xmlstreamwriter_t;
+typedef struct sk_xmlwriter_t sk_xmlwriter_t;
+
+typedef struct sk_svgcanvas_t sk_svgcanvas_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

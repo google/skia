@@ -31,6 +31,8 @@ skia_core_sources = [
   "$_include/c/sk_surface.h",
   "$_include/c/sk_typeface.h",
   "$_include/c/sk_types.h",
+  "$_include/c/sk_xml.h",
+  "$_include/c/sk_svg.h",
   "$_include/c/gr_context.h",
   "$_src/c/sk_bitmap.cpp",
   "$_src/c/sk_canvas.cpp",
@@ -55,6 +57,8 @@ skia_core_sources = [
   "$_src/c/sk_string.cpp",
   "$_src/c/sk_surface.cpp",
   "$_src/c/sk_typeface.cpp",
+  "$_src/c/sk_xml.cpp",
+  "$_src/c/sk_svg.cpp",
   "$_src/c/sk_types_priv.h",
   "$_src/c/gr_context.cpp",
 

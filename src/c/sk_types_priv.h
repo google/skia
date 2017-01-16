@@ -26,6 +26,7 @@
 #include "SkMatrixConvolutionImageFilter.h"
 #include "Sk1DPathEffect.h"
 #include "SkFontStyle.h"
+#include "SkXMLWriter.h"
 #include "GrContext.h"
 #include "SkPathOps.h"
 #include "SkRegion.h"
@@ -598,6 +599,38 @@ static inline const sk_codec_frameinfo_t* ToFrameInfo(const SkCodec::FrameInfo *
 
 static inline const sk_codec_frameinfo_t& ToFrameInfo(const SkCodec::FrameInfo &p) {
     return reinterpret_cast<const sk_codec_frameinfo_t&>(p);
+}
+
+static inline const SkXMLStreamWriter* AsXMLStreamWriter(const sk_xmlstreamwriter_t* p) {
+    return reinterpret_cast<const SkXMLStreamWriter*>(p);
+}
+
+static inline SkXMLStreamWriter* AsXMLStreamWriter(sk_xmlstreamwriter_t* p) {
+    return reinterpret_cast<SkXMLStreamWriter*>(p);
+}
+
+static inline sk_xmlstreamwriter_t* ToXMLStreamWriter(SkXMLStreamWriter* p) {
+    return reinterpret_cast<sk_xmlstreamwriter_t*>(p);
+}
+
+static inline const sk_xmlstreamwriter_t* ToXMLStreamWriter(const SkXMLStreamWriter* p) {
+    return reinterpret_cast<const sk_xmlstreamwriter_t*>(p);
+}
+
+static inline const SkXMLWriter* AsXMLWriter(const sk_xmlwriter_t* p) {
+    return reinterpret_cast<const SkXMLWriter*>(p);
+}
+
+static inline SkXMLWriter* AsXMLWriter(sk_xmlwriter_t* p) {
+    return reinterpret_cast<SkXMLWriter*>(p);
+}
+
+static inline sk_xmlwriter_t* ToXMLWriter(SkXMLWriter* p) {
+    return reinterpret_cast<sk_xmlwriter_t*>(p);
+}
+
+static inline const sk_xmlwriter_t* ToXMLWriter(const SkXMLWriter* p) {
+    return reinterpret_cast<const sk_xmlwriter_t*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

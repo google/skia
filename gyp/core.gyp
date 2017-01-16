@@ -24,6 +24,8 @@
         '../include/utils',
         '../include/images',
         '../include/gpu',
+        '../include/xml',
+        '../include/svg',
         '../src/core',
         '../src/sfnt',
         '../src/image',
