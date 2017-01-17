@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_cc3f83f2",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-17T16:06:51Z",
+      "side": 1,
+      "message": "Ideally yes, but this enum is used extensively by clients, so that change will take some time.\n\nCan I do that in a later CL?",
+      "parentUuid": "036b4132_ec227f06",
+      "revId": "afb6a8cef64af9351feced1508cfed7cd83c642f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_2cb49792",
         "filename": "include/core/SkTextEncoding.h",
         "patchSetId": 7
@@ -42,6 +60,24 @@
         "endLine": 20,
         "endChar": 13
       },
+      "revId": "afb6a8cef64af9351feced1508cfed7cd83c642f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_4c2393d8",
+        "filename": "include/core/SkTextEncoding.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-17T16:06:51Z",
+      "side": 1,
+      "message": "Whatever you want.\n\nSkEncodedText ?\nSkEncodedTextPointer ?  \nSkEncodedTextBlock?",
+      "parentUuid": "036b4132_2cb49792",
       "revId": "afb6a8cef64af9351feced1508cfed7cd83c642f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
