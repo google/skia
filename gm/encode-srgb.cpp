@@ -73,7 +73,9 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
         return;
     }
 
-    sk_sp<SkData> data = GetResourceAsData("color_wheel.png");
+    const char* resource = (kOpaque_SkAlphaType == alphaType) ? "color_wheel.jpg"
+                                                              : "color_wheel.png";
+    sk_sp<SkData> data = GetResourceAsData(resource);
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
                                           .makeAlphaType(alphaType)
@@ -107,12 +109,16 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 4);
+        return SkISize::Make(imageWidth * 2, imageHeight * 6);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkColorType colorTypes[] = { kN32_SkColorType, kIndex_8_SkColorType, };
-        const SkAlphaType alphaTypes[] = { kUnpremul_SkAlphaType, kPremul_SkAlphaType, };
+        const SkColorType colorTypes[] = {
+                kN32_SkColorType, kIndex_8_SkColorType,
+        };
+        const SkAlphaType alphaTypes[] = {
+                kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
+        };
         const sk_sp<SkColorSpace> colorSpaces[] = {
                 nullptr, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
         };
