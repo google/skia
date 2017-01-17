@@ -22,33 +22,35 @@ class GrPrimitiveProcessor;
  */
 class GrProcOptInfo {
 public:
-    GrProcOptInfo()
-        : fInOut(0, static_cast<GrColorComponentFlags>(0), false)
-        , fFirstEffectiveProcessorIndex(0)
-        , fInputColorIsUsed(true)
-        , fInputColor(0) {}
+    GrProcOptInfo() : fInOut(0, static_cast<GrColorComponentFlags>(0)) {}
 
-    void calcWithInitialValues(const GrFragmentProcessor* const *, int cnt, GrColor startColor,
-                               GrColorComponentFlags, bool areCoverageStages, bool isLCD = false);
-    void initFromPipelineInput(const GrPipelineInput& input) { fInOut.reset(input); }
-    void completeCalculations(const GrFragmentProcessor * const processors[], int cnt);
+    GrProcOptInfo(GrColor color, GrColorComponentFlags colorFlags)
+            : fInOut(color, colorFlags), fInputColor(color) {}
+
+    void resetToLCDCoverage(GrColor color, GrColorComponentFlags colorFlags) {
+        this->internalReset(color, colorFlags, true);
+    }
+
+    void reset(GrColor color, GrColorComponentFlags colorFlags) {
+        this->internalReset(color, colorFlags, false);
+    }
+
+    void reset(const GrPipelineInput& input) {
+        this->internalReset(input.fColor, input.fValidFlags, input.fIsLCDCoverage);
+    }
+
+    /**
+     * Runs through a series of processors and updates calculated values. This can be called
+     * repeatedly for cases when the sequence of processors is not in a contiguous array.
+     */
+    void addProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
-    bool isSingleComponent() const { return fInOut.isSingleComponent(); }
     bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
-
-    // TODO: Once texture pixel configs quaries are updated, we no longer need this function.
-    // For now this function will correctly tell us if we are using LCD text or not and should only
-    // be called when looking at the coverage output.
-    bool isFourChannelOutput() const { return !fInOut.isSingleComponent() &&
-                                               fInOut.isLCDCoverage(); }
-
+    bool isLCDCoverage() const { return fIsLCDCoverage; }
     GrColor color() const { return fInOut.color(); }
-
-    GrColorComponentFlags validFlags() const {
-        return fInOut.validFlags();
-    }
+    GrColorComponentFlags validFlags() const { return fInOut.validFlags(); }
 
     /**
      * Returns the index of the first effective color processor. If an intermediate processor
@@ -74,12 +76,21 @@ public:
     GrColor inputColorToFirstEffectiveProccesor() const { return fInputColor; }
 
 private:
+    void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
+        fInOut.reset(color, colorFlags);
+        fFirstEffectiveProcessorIndex = 0;
+        fInputColorIsUsed = true;
+        fInputColor = color;
+        fIsLCDCoverage = isLCDCoverage;
+    }
+
     void internalCalc(const GrFragmentProcessor* const[], int cnt);
 
     GrInvariantOutput fInOut;
-    int fFirstEffectiveProcessorIndex;
-    bool fInputColorIsUsed;
-    GrColor fInputColor;
+    int fFirstEffectiveProcessorIndex = 0;
+    bool fInputColorIsUsed = true;
+    bool fIsLCDCoverage = false;
+    GrColor fInputColor = 0;
 };
 
 #endif
