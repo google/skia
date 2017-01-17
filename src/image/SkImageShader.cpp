@@ -144,6 +144,8 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrSimpleTextureEffect.h"
 
 sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args) const {
+    SkMatrix matrix;
+    matrix.setIDiv(fImage->width(), fImage->height());
 
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {
@@ -156,6 +158,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
         }
         lmInverse.postConcat(inv);
     }
+    matrix.preConcat(lmInverse);
 
     SkShader::TileMode tm[] = { fTileModeX, fTileModeY };
 
@@ -179,10 +182,10 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), lmInverse, tm);
+        inner = GrBicubicEffect::Make(texture.get(), std::move(colorSpaceXform), matrix, tm);
     } else {
         inner = GrSimpleTextureEffect::Make(texture.get(), std::move(colorSpaceXform),
-                                            lmInverse, params);
+                                            matrix, params);
     }
 
     if (GrPixelConfigIsAlphaOnly(texture->config())) {

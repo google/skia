@@ -348,8 +348,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     sk_sp<GrFragmentProcessor> bgFP;
 
     if (backgroundTex) {
-        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
-                                                        -SkIntToScalar(backgroundOffset.fY));
+        SkMatrix backgroundMatrix;
+        backgroundMatrix.setIDiv(backgroundTex->width(), backgroundTex->height());
+        backgroundMatrix.preTranslate(-SkIntToScalar(backgroundOffset.fX),
+                                      -SkIntToScalar(backgroundOffset.fY));
         sk_sp<GrColorSpaceXform> bgXform =
                 GrColorSpaceXform::Make(background->getColorSpace(), outputProperties.colorSpace());
         bgFP = GrTextureDomainEffect::Make(
@@ -362,8 +364,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     if (foregroundTex) {
-        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
-                                                        -SkIntToScalar(foregroundOffset.fY));
+        SkMatrix foregroundMatrix;
+        foregroundMatrix.setIDiv(foregroundTex->width(), foregroundTex->height());
+        foregroundMatrix.preTranslate(-SkIntToScalar(foregroundOffset.fX),
+                                      -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform =
                 GrColorSpaceXform::Make(foreground->getColorSpace(), outputProperties.colorSpace());
         sk_sp<GrFragmentProcessor> foregroundFP;

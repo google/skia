@@ -52,9 +52,16 @@ GrTexture* GrTextureProducer::CopyOnGpu(GrTexture* inputTexture, const SkIRect* 
 
     SkRect localRect;
     if (subset) {
+        SkScalar sx = SK_Scalar1 / inputTexture->width();
+        SkScalar sy = SK_Scalar1 / inputTexture->height();
+
         localRect = SkRect::Make(*subset);
+        localRect.fLeft *= sx;
+        localRect.fTop *= sy;
+        localRect.fRight *= sx;
+        localRect.fBottom *= sy;
     } else {
-        localRect = SkRect::MakeWH(inputTexture->width(), inputTexture->height());
+        localRect = SkRect::MakeWH(1.f, 1.f);
     }
 
     SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);

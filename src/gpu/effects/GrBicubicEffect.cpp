@@ -181,7 +181,8 @@ sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     static const SkShader::TileMode kClampClamp[] =
         { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
     return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform,
-                                 SkMatrix::I(), kClampClamp);
+                                 GrCoordTransform::MakeDivByTextureWHMatrix(d->fTextures[texIdx]),
+                                 kClampClamp);
 }
 
 //////////////////////////////////////////////////////////////////////////////

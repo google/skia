@@ -1659,17 +1659,14 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
-                // This is 1/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(),
-                                      params.filterMode(), false);
+                fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
                 fTextureSampler.reset(fAtlas->getTexture(), params);
             } else {
                 sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(args.fContext, bitmap, params));
                 if (!texture) {
                     return;
                 }
-                // This is 2/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode(), false);
+                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
                 fTextureSampler.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }

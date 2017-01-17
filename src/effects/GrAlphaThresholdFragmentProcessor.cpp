@@ -32,6 +32,12 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::Make(
                                                                 bounds));
 }
 
+static SkMatrix make_div_and_translate_matrix(GrTexture* texture, int x, int y) {
+    SkMatrix matrix = GrCoordTransform::MakeDivByTextureWHMatrix(texture);
+    matrix.preTranslate(SkIntToScalar(x), SkIntToScalar(y));
+    return matrix;
+}
+
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            GrTexture* texture,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -41,11 +47,11 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            const SkIRect& bounds)
     : fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold)
-    , fImageCoordTransform(SkMatrix::I(), texture, GrSamplerParams::kNone_FilterMode)
+    , fImageCoordTransform(GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
+                           GrSamplerParams::kNone_FilterMode)
     , fImageTextureSampler(texture)
     , fColorSpaceXform(std::move(colorSpaceXform))
-    , fMaskCoordTransform(SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()),
-                                              SkIntToScalar(-bounds.y())),
+    , fMaskCoordTransform(make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
                           maskTexture,
                           GrSamplerParams::kNone_FilterMode)
     , fMaskTextureSampler(maskTexture) {

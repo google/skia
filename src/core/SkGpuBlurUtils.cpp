@@ -262,6 +262,10 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
+        // TODO: this matrix relies on the final instantiated size of the texture. This
+        // will have to be deferred for TextureProxys
+        SkMatrix matrix;
+        matrix.setIDiv(srcTexture->width(), srcTexture->height());
         SkIRect dstRect(srcRect);
         if (srcBounds && i == 1) {
             SkRect domain = SkRect::Make(*srcBounds);
@@ -270,7 +274,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         srcTexture.get(),
                                                         nullptr,
-                                                        SkMatrix::I(),
+                                                        matrix,
                                                         domain,
                                                         GrTextureDomain::kDecal_Mode,
                                                         GrSamplerParams::kBilerp_FilterMode));
@@ -279,7 +283,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcOffset.set(0, 0);
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(srcTexture.get(), nullptr, SkMatrix::I(), params);
+            paint.addColorTextureProcessor(srcTexture.get(), nullptr, matrix, params);
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
@@ -365,7 +369,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(tex.get(), nullptr, SkMatrix::I(), params);
+        // TODO: this matrix relies on the final instantiated size of the texture. This
+        // will have to be deferred for TextureProxys
+        SkMatrix matrix;
+        matrix.setIDiv(tex->width(), tex->height());
+
+        paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);
