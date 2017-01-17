@@ -28,6 +28,8 @@ public:
     *
     * The GrVkPipelineState implements what is specified in the GrPipeline and GrPrimitiveProcessor
     * as input. After successful generation, the builder result objects are available to be used.
+    * This function may modify the program key by setting the surface origin key to 0 (unspecified)
+    * if it turns out the program does not care about the surface origin.
     * @return true if generation was successful.
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
@@ -35,7 +37,7 @@ public:
                                                   const GrStencilSettings&,
                                                   const GrPrimitiveProcessor&,
                                                   GrPrimitiveType,
-                                                  const GrVkPipelineState::Desc&,
+                                                  GrVkPipelineState::Desc*,
                                                   const GrVkRenderPass& renderPass);
 
     const GrCaps* caps() const override;
@@ -49,18 +51,19 @@ private:
     GrVkPipelineStateBuilder(GrVkGpu*,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
-                             const GrProgramDesc&);
+                             GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,
                                 GrPrimitiveType primitiveType,
                                 const GrVkRenderPass& renderPass,
-                                const GrVkPipelineState::Desc&);
+                                GrVkPipelineState::Desc*);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,
                               const GrGLSLShaderBuilder& builder,
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
-                              const SkSL::Program::Settings& settings);
+                              const SkSL::Program::Settings& settings,
+                              GrVkPipelineState::Desc* desc);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
