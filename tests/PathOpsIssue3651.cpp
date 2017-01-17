@@ -472,9 +472,7 @@ path.close();
 static void issue3651_1a(skiatest::Reporter* reporter, const char* filename) {
     SkPath path = path1_a();
     SkPath pathB = path2_a();
-    // DEBUG_UNDER_DEVELOPMENT  issue3651_1a disable expectation check for now
-    testPathOpCheck(reporter, path, pathB, SkPathOp::kUnion_SkPathOp, filename,
-            !SkOpGlobalState::DebugRunFail());
+    testPathOpTry(reporter, path, pathB, SkPathOp::kUnion_SkPathOp, filename);
 }
 
 static SkPath path3() {
@@ -1204,9 +1202,7 @@ path.close();
 static void issue3651_1(skiatest::Reporter* reporter, const char* filename) {
     SkPath path = path1();
     SkPath pathB = path2();
-    // DEBUG_UNDER_DEVELOPMENT  issue3651_1 disable expectation check for now
-    testPathOpCheck(reporter, path, pathB, SkPathOp::kUnion_SkPathOp, filename,
-            !SkOpGlobalState::DebugRunFail());
+    testPathOpTry(reporter, path, pathB, SkPathOp::kUnion_SkPathOp, filename);
 }
 
 static void issue3651_2(skiatest::Reporter* reporter, const char* filename) {
