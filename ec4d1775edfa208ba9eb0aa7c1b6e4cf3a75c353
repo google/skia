@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_cc6223e8",
+        "filename": "tests/DeviceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T16:33:50Z",
+      "side": 1,
+      "message": "Aren\u0027t we missing a drawBitmap here ?",
+      "revId": "ec4d1775edfa208ba9eb0aa7c1b6e4cf3a75c353",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
