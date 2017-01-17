@@ -26,7 +26,7 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = fContext->resourceProvider()->makeAtlas(
+        fAtlases[index] = fContext->resourceProvider()->makeAtlas1(
                 config, width, height, numPlotsX, numPlotsY, &GrAtlasGlyphCache::HandleEviction,
                 (void*)this);
         if (!fAtlases[index]) {
@@ -166,8 +166,8 @@ void GrAtlasGlyphCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            GrTexture* texture = fAtlases[i]->getTexture();
-            if (texture) {
+            GrTextureProxy* proxy = fAtlases[i]->getProxy();
+            if (proxy) {
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
                 filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);
@@ -175,9 +175,9 @@ void GrAtlasGlyphCache::dump() const {
                 filename.printf("fontcache_%d%d.png", gDumpCount, i);
 #endif
 
-                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(texture)));
+//                sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(texture)));
 
-                save_pixels(fContext, sProxy.get(), filename.c_str());
+                save_pixels(fContext, proxy, filename.c_str());
             }
         }
     }

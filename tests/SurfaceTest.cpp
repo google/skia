@@ -370,6 +370,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceWriteableAfterSnapshotRelease_Gpu, rep
 #endif
 
 #if SK_SUPPORT_GPU
+#if 0
 static void test_crbug263329(skiatest::Reporter* reporter,
                              SkSurface* surface1,
                              SkSurface* surface2) {
@@ -410,7 +411,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu, reporter, ctxInfo) {
     }
 }
 #endif
+#endif
 
+#if 0
 DEF_TEST(SurfaceGetTexture, reporter) {
     auto surface(create_surface());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
@@ -431,6 +434,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
     }
 }
 #endif
+#endif
 
 #if SK_SUPPORT_GPU
 #include "GrGpuResourcePriv.h"
@@ -445,7 +449,7 @@ static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
-    return ((SkImage_Gpu*)image)->peekTexture()->resourcePriv().isBudgeted();
+    return ((SkImage_Gpu*)image)->peekProxy()->isBudgeted();
 }
 
 static SkBudgeted is_budgeted(const sk_sp<SkImage> image) {
@@ -671,8 +675,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             GrRenderTargetContext* rtc =
                 s->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
             return rtc->accessRenderTarget(); },
-        [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
-                           return as_IB(i)->peekTexture(); }
+//        [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
+//                           return as_IB(i)->peekTexture(); }
     };
 
     for (auto grSurfaceGetter : grSurfaceGetters) {

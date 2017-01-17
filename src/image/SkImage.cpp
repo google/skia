@@ -162,22 +162,29 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset) const {
 
 #if SK_SUPPORT_GPU
 
-GrTexture* SkImage::getTexture() const {
-    return as_IB(this)->peekTexture();
+GrSurfaceProxy* SkImage::getProxy() const {
+    return as_IB(this)->peekProxy();
 }
 
-bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
+bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekProxy()); }
+
+#include "GrSurfaceProxy.h"
 
 GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
-    GrTexture* texture = as_IB(this)->peekTexture();
-    if (texture) {
-        GrContext* context = texture->getContext();
+    GrSurfaceProxy* proxy = as_IB(this)->peekProxy();
+    if (!proxy) {
+        return 0;
+    }
+
+    GrSurface* surface = proxy->instantiate(nullptr);
+    if (surface && surface->asTexture()) {
+        GrContext* context = surface->getContext();
         if (context) {
             if (flushPendingGrContextIO) {
-                context->prepareSurfaceForExternalIO(texture);
+                context->prepareSurfaceForExternalIO(surface);
             }
         }
-        return texture->getTextureHandle();
+        return surface->asTexture()->getTextureHandle();
     }
     return 0;
 }
@@ -220,8 +227,8 @@ bool SkImage::readPixels(const SkPixmap& pmap, int srcX, int srcY, CachingHint c
 bool SkImage::readYUV8Planes(const SkISize sizes[3], void* const planes[3],
                              const size_t rowBytes[3], SkYUVColorSpace colorSpace) const {
 #if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(this)->peekTexture()) {
-        if (GrTextureToYUVPlanes(texture, sizes, planes, rowBytes, colorSpace)) {
+    if (GrSurfaceProxy* proxy = as_IB(this)->peekProxy()) {
+        if (GrTextureToYUVPlanes(nullptr, sizes, planes, rowBytes, colorSpace)) {
             return true;
         }
     }

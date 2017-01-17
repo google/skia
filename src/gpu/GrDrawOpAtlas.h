@@ -8,13 +8,14 @@
 #ifndef GrDrawOpAtlas_DEFINED
 #define GrDrawOpAtlas_DEFINED
 
-#include "GrTexture.h"
 #include "SkPoint.h"
 #include "SkTDArray.h"
 #include "SkTInternalLList.h"
 
 #include "ops/GrDrawOp.h"
 
+class GrTextureProvider;
+class GrTextureProxy;
 class GrRectanizer;
 
 struct GrDrawOpAtlasConfig {
@@ -55,7 +56,7 @@ public:
      */
     typedef void (*EvictionFunc)(GrDrawOpAtlas::AtlasID, void*);
 
-    GrDrawOpAtlas(sk_sp<GrTexture>, int numPlotsX, int numPlotsY);
+    GrDrawOpAtlas(GrTextureProvider*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns an ID and the subimage's
@@ -72,7 +73,7 @@ public:
     bool addToAtlas(AtlasID*, GrDrawOp::Target*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
-    GrTexture* getTexture() const { return fTexture.get(); }
+    GrTextureProxy* getProxy() const { return fProxy1.get(); }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
@@ -265,7 +266,8 @@ private:
 
     inline void processEviction(AtlasID);
 
-    sk_sp<GrTexture> fTexture;
+    GrTextureProvider* fTextureProvider;
+    sk_sp<GrTextureProxy> fProxy1;
     int fPlotWidth;
     int fPlotHeight;
     SkDEBUGCODE(uint32_t fNumPlots;)

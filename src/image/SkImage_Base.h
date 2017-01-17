@@ -19,6 +19,9 @@
 #include <new>
 
 class GrSamplerParams;
+
+class GrSurfaceProxy;
+
 class SkImageCacherator;
 
 enum {
@@ -43,7 +46,8 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    virtual GrTexture* peekTexture() const { return nullptr; }
+    virtual GrSurfaceProxy* peekProxy() const { return nullptr; }
+    virtual GrTexture* peekTexture1() const { return nullptr; }
 #if SK_SUPPORT_GPU
     virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
 #endif
