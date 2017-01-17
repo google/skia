@@ -16,6 +16,24 @@
       "revId": "acbedf893320ea9250c4f59b150b1fb5f2b72d5c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_2c93b740",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T14:24:15Z",
+      "side": 1,
+      "message": "I tried that at first but it gets a bit weird since we probably still want the precision calculation to occur.",
+      "parentUuid": "036b4132_c6168472",
+      "revId": "acbedf893320ea9250c4f59b150b1fb5f2b72d5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
