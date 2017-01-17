@@ -39,7 +39,11 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
     fY          = y0;
     fUpperY     = y0;
     fLowerY     = y1;
+#ifdef SK_SUPPORT_LEGACY_AAA
     fDY         = (absSlope | dx) == 0
+#else
+    fDY         = (dx == 0 || slope == 0)
+#endif
                   ? SK_MaxS32
                   : absSlope < kInverseTableSize
                     ? QuickFDot6Inverse::Lookup(absSlope)
@@ -113,7 +117,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
 #ifndef SK_SUPPORT_LEGACY_AAA
             SkASSERT(slope == SK_MaxS32 ||
                     SkAbs32(fSnappedX + SkFixedMul(slope, newSnappedY - fSnappedY) - newSnappedX)
-                    < SK_FixedHalf);
+                    < SkFixedMul(SK_Fixed1 >> 4, SkTMax(SK_Fixed1, SkAbs32(slope))));
 #endif
             dx += fQEdge.fQDDx;
             dy += fQEdge.fQDDy;
