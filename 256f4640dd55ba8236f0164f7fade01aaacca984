@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_cca783f7",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T17:05:04Z",
+      "side": 1,
+      "message": "As an alternative, in SkPNGImageEncoder, we can recognize that if the input 565, we still want to use packed RGB as the representation...  Just didn\u0027t seem to be worth the extra complexity to me.",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "256f4640dd55ba8236f0164f7fade01aaacca984",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
