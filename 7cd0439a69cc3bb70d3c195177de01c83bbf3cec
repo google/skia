@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_37b5c0d7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T21:00:23Z",
+      "side": 1,
+      "message": "I still like it.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 64
+      },
+      "revId": "7cd0439a69cc3bb70d3c195177de01c83bbf3cec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_b7b9b0d9",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T21:00:23Z",
+      "side": 1,
+      "message": "Can this be an assert?",
+      "range": {
+        "startLine": 418,
+        "startChar": 5,
+        "endLine": 420,
+        "endChar": 5
+      },
+      "revId": "7cd0439a69cc3bb70d3c195177de01c83bbf3cec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
