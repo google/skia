@@ -681,6 +681,7 @@ bool SkBitmap::canCopyTo(SkColorType dstCT) const {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             break;
+        case kGray_8_SkColorType:
         case kIndex_8_SkColorType:
             if (!sameConfigs) {
                 return false;
@@ -688,16 +689,6 @@ bool SkBitmap::canCopyTo(SkColorType dstCT) const {
             break;
         case kARGB_4444_SkColorType:
             return sameConfigs || kN32_SkColorType == srcCT || kIndex_8_SkColorType == srcCT;
-        case kGray_8_SkColorType:
-            switch (srcCT) {
-                case kGray_8_SkColorType:
-                case kRGBA_8888_SkColorType:
-                case kBGRA_8888_SkColorType:
-                    return true;
-                default:
-                    break;
-            }
-            return false;
         default:
             return false;
     }
@@ -774,7 +765,13 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     if (!src->requestLock(&srcUnlocker)) {
         return false;
     }
-    const SkPixmap& srcPM = srcUnlocker.pixmap();
+    SkPixmap srcPM = srcUnlocker.pixmap();
+    if (kRGB_565_SkColorType == dstColorType && kOpaque_SkAlphaType != srcPM.alphaType()) {
+        // copyTo() is not strict on alpha type.  Here we set the src to opaque to allow
+        // the call to readPixels() to succeed and preserve this lenient behavior.
+        srcPM = SkPixmap(srcPM.info().makeAlphaType(kOpaque_SkAlphaType), srcPM.addr(),
+                         srcPM.rowBytes(), srcPM.ctable());
+    }
 
     const SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
     SkBitmap tmpDst;
