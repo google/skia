@@ -22,6 +22,24 @@
       "revId": "986480a71f4e860663ced7ad90a1fe346a164afb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_2cef3790",
+        "filename": "include/gpu/GrInvariantOutput.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-17T15:10:44Z",
+      "side": 0,
+      "message": "I assume it only cared about the return value of GetAlphaAndCheckSingleChannel since \u0027a\u0027 isn\u0027t used after this line.",
+      "parentUuid": "036b4132_2cbad7b0",
+      "revId": "986480a71f4e860663ced7ad90a1fe346a164afb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
