@@ -32,6 +32,7 @@
 #include "SkRegion.h"
 #include "SkTypeface.h"
 #include "SkEncodedInfo.h"
+#include "SkTime.h"
 #include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
@@ -421,8 +422,16 @@ static inline sk_fontmetrics_t* ToFontMetrics(SkPaint::FontMetrics* p) {
     return reinterpret_cast<sk_fontmetrics_t*>(p);
 }
 
-static inline SkString* AsString(const sk_string_t* cdata) {
-    return reinterpret_cast<SkString*>(const_cast<sk_string_t*>(cdata));
+static inline const SkString* AsString(const sk_string_t* str) {
+    return reinterpret_cast<const SkString*>(str);
+}
+
+static inline SkString* AsString(sk_string_t* str) {
+    return reinterpret_cast<SkString*>(str);
+}
+
+static inline SkString& AsString(sk_string_t& str) {
+    return reinterpret_cast<SkString&>(str);
 }
 
 static inline sk_string_t* ToString(SkString* data) {
@@ -557,6 +566,10 @@ static inline const SkCanvas::Lattice& AsLattice(const sk_lattice_t& p) {
     return reinterpret_cast<const SkCanvas::Lattice&>(p);
 }
 
+static inline const SkTime::DateTime& AsTimeDateTime(const sk_time_datetime_t& p) {
+    return reinterpret_cast<const SkTime::DateTime&>(p);
+}
+
 static inline sk_pathmeasure_t* ToPathMeasure(SkPathMeasure* p) {
     return reinterpret_cast<sk_pathmeasure_t*>(p);
 }
@@ -665,6 +678,27 @@ static inline bool from_sk(const SkImageInfo& info, sk_imageinfo_t* cinfo) {
         }; 
     } 
     return true; 
+} 
+
+static inline void from_c(const sk_document_pdf_metadata_t& cmetadata, SkDocument::PDFMetadata* metadata) {
+    if (metadata) {
+        SkDocument::PDFMetadata md;
+        if (cmetadata.fTitle) md.fTitle = AsString(*cmetadata.fTitle);
+        if (cmetadata.fAuthor) md.fAuthor = AsString(*cmetadata.fAuthor);
+        if (cmetadata.fSubject) md.fSubject = AsString(*cmetadata.fSubject);
+        if (cmetadata.fKeywords) md.fKeywords = AsString(*cmetadata.fKeywords);
+        if (cmetadata.fCreator) md.fCreator = AsString(*cmetadata.fCreator);
+        if (cmetadata.fProducer) md.fProducer = AsString(*cmetadata.fProducer);
+        if (cmetadata.fCreation) {
+            md.fCreation.fEnabled = true;
+            md.fCreation.fDateTime = AsTimeDateTime(*cmetadata.fCreation);
+        }
+        if (cmetadata.fModified) {
+            md.fModified.fEnabled = true;
+            md.fModified.fDateTime = AsTimeDateTime(*cmetadata.fModified);
+        }
+        *metadata = md;
+    } 
 } 
 
 static inline void from_c(const sk_surfaceprops_t* cprops, SkSurfaceProps* props) {

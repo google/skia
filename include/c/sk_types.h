@@ -680,6 +680,28 @@ typedef enum {
 
 typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
 
+typedef struct {
+    int16_t  fTimeZoneMinutes;
+    uint16_t fYear;
+    uint8_t  fMonth;
+    uint8_t  fDayOfWeek;
+    uint8_t  fDay;
+    uint8_t  fHour;
+    uint8_t  fMinute;
+    uint8_t  fSecond;
+} sk_time_datetime_t;
+
+typedef struct {
+    sk_string_t*        fTitle;
+    sk_string_t*        fAuthor;
+    sk_string_t*        fSubject;
+    sk_string_t*        fKeywords;
+    sk_string_t*        fCreator;
+    sk_string_t*        fProducer;
+    sk_time_datetime_t* fCreation;
+    sk_time_datetime_t* fModified;
+} sk_document_pdf_metadata_t;
+
 typedef enum {
     NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x00,
     TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x01,

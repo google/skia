@@ -18,6 +18,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
 SK_API void sk_document_unref(sk_document_t* document);
 
 SK_API sk_document_t* sk_document_create_pdf_from_stream(sk_wstream_t* stream, float dpi);
+SK_API sk_document_t* sk_document_create_pdf_from_stream_with_metadata(sk_wstream_t* stream, float dpi, const sk_document_pdf_metadata_t* metadata);
 SK_API sk_document_t* sk_document_create_pdf_from_filename(const char* path, float dpi);
 
 //SK_API sk_document_t* sk_document_create_xps_from_stream(sk_wstream_t* stream, float dpi);

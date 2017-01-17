@@ -19,6 +19,12 @@ sk_document_t* sk_document_create_pdf_from_stream(sk_wstream_t* stream, float dp
     return ToDocument(SkDocument::MakePDF(AsWStream(stream), dpi).release());
 }
 
+sk_document_t* sk_document_create_pdf_from_stream_with_metadata(sk_wstream_t* stream, float dpi, const sk_document_pdf_metadata_t* cmetadata) {
+    SkDocument::PDFMetadata metadata;
+    from_c(*cmetadata, &metadata);
+    return ToDocument(SkDocument::MakePDF(AsWStream(stream), dpi, metadata, nullptr, false).release());
+}
+
 sk_document_t* sk_document_create_pdf_from_filename(const char* path, float dpi) {
     return ToDocument(SkDocument::MakePDF(path, dpi).release());
 }
