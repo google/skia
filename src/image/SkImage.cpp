@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
@@ -408,4 +409,29 @@ void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
     SkASSERT(image);
     SkASSERT(ctx);
     as_IB(image)->onUnpinAsTexture(ctx);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkMakeImageWithColorSpace(const SkImage* src, SkColorSpace* colorSpace) {
+    // Read the pixels out of the source image, with no conversion
+    SkImageInfo info = as_IB(src)->onImageInfo();
+    if (kUnknown_SkColorType == info.colorType()) {
+        return nullptr;
+    }
+
+    size_t rowBytes = info.minRowBytes();
+    size_t size = info.getSafeSize(rowBytes);
+    auto data = SkData::MakeUninitialized(size);
+    if (!data) {
+        return nullptr;
+    }
+
+    SkPixmap pm(info, data->writable_data(), rowBytes);
+    if (!src->readPixels(pm, 0, 0, SkImage::kDisallow_CachingHint)) {
+        return nullptr;
+    }
+
+    // Wrap them in a new image with a different color space
+    return SkImage::MakeRasterData(info.makeColorSpace(sk_ref_sp(colorSpace)), data, rowBytes);
 }
