@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_69d8412a",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T13:44:49Z",
+      "side": 1,
+      "message": "// This GM tests out the deprecated Android-specific unclipped saveLayer \"feature\"",
+      "revId": "113fd3461eb9b8b96ee2692944839077a20e4ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_e9ec31d6",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T13:44:49Z",
+      "side": 1,
+      "message": "save_layer ?",
+      "revId": "113fd3461eb9b8b96ee2692944839077a20e4ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_09c98d5e",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T13:44:49Z",
+      "side": 1,
+      "message": "Can this be kSecretDeprecated_DontClipToLayerFlag ?",
+      "revId": "113fd3461eb9b8b96ee2692944839077a20e4ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a9a07991",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T13:44:49Z",
+      "side": 1,
+      "message": "Seems like this is surplus to requirements",
+      "revId": "113fd3461eb9b8b96ee2692944839077a20e4ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_09b0ade6",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-17T13:44:49Z",
+      "side": 1,
+      "message": "Add a:     bool runAsBench() const override { return true; } ?",
+      "revId": "113fd3461eb9b8b96ee2692944839077a20e4ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
