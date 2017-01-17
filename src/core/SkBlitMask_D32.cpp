@@ -144,15 +144,6 @@ static void A8_RowProc_Blend(
     }
 }
 
-// expand the steps that SkAlphaMulQ performs, but this way we can
-//  exand.. add.. combine
-// instead of
-// expand..combine add expand..combine
-//
-#define EXPAND0(v, m, s)    ((v) & (m)) * (s)
-#define EXPAND1(v, m, s)    (((v) >> 8) & (m)) * (s)
-#define COMBINE(e0, e1, m)  ((((e0) >> 8) & (m)) | ((e1) & ~(m)))
-
 static void A8_RowProc_Opaque(
         SkPMColor* SK_RESTRICT dst, const void* maskIn, const SkPMColor* SK_RESTRICT src, int count) {
     const uint8_t* SK_RESTRICT mask = static_cast<const uint8_t*>(maskIn);
@@ -160,20 +151,7 @@ static void A8_RowProc_Opaque(
         int m = mask[i];
         if (m) {
             m += (m >> 7);
-#if 1
-            // this is slightly slower than the expand/combine version, but it
-            // is much closer to the old results, so we use it for now to reduce
-            // rebaselining.
-            dst[i] = SkAlphaMulQ(src[i], m) + SkAlphaMulQ(dst[i], 256 - m);
-#else
-            uint32_t v = src[i];
-            uint32_t s0 = EXPAND0(v, rbmask, m);
-            uint32_t s1 = EXPAND1(v, rbmask, m);
-            v = dst[i];
-            uint32_t d0 = EXPAND0(v, rbmask, m);
-            uint32_t d1 = EXPAND1(v, rbmask, m);
-            dst[i] = COMBINE(s0 + d0, s1 + d1, rbmask);
-#endif
+            dst[i] = SkPMLerp(src[i], dst[i], m);
         }
     }
 }
