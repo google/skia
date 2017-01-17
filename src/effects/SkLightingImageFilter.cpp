@@ -1707,7 +1707,7 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
-    : INHERITED(texture, nullptr, SkMatrix::I())
+    : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
     , fLight(light)
     , fSurfaceScale(surfaceScale)
     , fFilterMatrix(matrix)

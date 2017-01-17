@@ -22,8 +22,8 @@ namespace {
 static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW, int dstH,
                             SkYUVColorSpace colorSpace, MakeFPProc proc) {
 
-    SkScalar xScale = SkIntToScalar(src->width()) / dstW;
-    SkScalar yScale = SkIntToScalar(src->height()) / dstH;
+    SkScalar xScale = SkIntToScalar(src->width()) / dstW / src->width();
+    SkScalar yScale = SkIntToScalar(src->height()) / dstH / src->height();
     GrSamplerParams::FilterMode filter;
     if (dstW == src->width() && dstW == src->height()) {
         filter = GrSamplerParams::kNone_FilterMode;

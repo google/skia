@@ -176,8 +176,10 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     // We use device coords to compute the texture coordinates. We take the device coords and apply
     // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
     // matrix to normalized coords.
-    SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
-                                              SkIntToScalar(-textureOriginInDeviceSpace.fY));
+    SkMatrix maskMatrix;
+    maskMatrix.setIDiv(texture->width(), texture->height());
+    maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
+                            SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(paint.getColor(), SkMatrix::I(),
                                                                   dstRect, nullptr, &invert);

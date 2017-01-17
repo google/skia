@@ -1038,7 +1038,7 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
 
 const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
     SkMatrix::Identity_pts, SkMatrix::Trans_pts,
-    SkMatrix::Scale_pts,    SkMatrix::Scale_pts,
+    SkMatrix::Scale_pts,   SkMatrix::Scale_pts,
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
     SkMatrix::Affine_vpts,  SkMatrix::Affine_vpts,
     // repeat the persp proc 8 times
