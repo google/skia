@@ -25,6 +25,40 @@
     },
     {
       "key": {
+        "uuid": "036b4132_f7c32835",
+        "filename": "samplecode/SampleApp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-17T21:01:41Z",
+      "side": 1,
+      "message": "Would this use the new helper function if we had the surface?",
+      "revId": "7cd0439a69cc3bb70d3c195177de01c83bbf3cec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_b7a0d091",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-17T21:01:41Z",
+      "side": 1,
+      "message": "I have slight concern that this name looks fairly innocuous and someone might decide to call it internally without realizing that if the image is gpu backed it\u0027d be really expensive. Could we give it a scarier sounding name or include \"raster\" or something like that so its obvious that it isn\u0027t as simple as referring to the same instance of the data with a new color space?",
+      "revId": "7cd0439a69cc3bb70d3c195177de01c83bbf3cec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_b7b9b0d9",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 2
