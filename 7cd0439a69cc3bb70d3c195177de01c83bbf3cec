@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_f79a485d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-17T21:02:26Z",
+      "side": 1,
+      "message": "Ah this answers my question",
+      "parentUuid": "036b4132_37b5c0d7",
+      "revId": "7cd0439a69cc3bb70d3c195177de01c83bbf3cec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_f7c32835",
         "filename": "samplecode/SampleApp.cpp",
         "patchSetId": 2
