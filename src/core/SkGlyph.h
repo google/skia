@@ -8,10 +8,12 @@
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkChecksum.h"
-#include "SkTypes.h"
 #include "SkFixed.h"
 #include "SkMask.h"
+#include "SkTypes.h"
+
 
 class SkPath;
 class SkGlyphCache;
@@ -161,13 +163,17 @@ public:
         fForceBW        = 0;
     }
 
+    static size_t BitsToBytes(size_t bits) {
+        return (bits + 7) >> 3;
+    }
+
     /**
      *  Compute the rowbytes for the specified width and mask-format.
      */
     static unsigned ComputeRowBytes(unsigned width, SkMask::Format format) {
         unsigned rb = width;
         if (SkMask::kBW_Format == format) {
-            rb = (rb + 7) >> 3;
+            rb = BitsToBytes(rb);
         } else if (SkMask::kARGB32_Format == format) {
             rb <<= 2;
         } else if (SkMask::kLCD16_Format == format) {
@@ -176,6 +182,26 @@ public:
             rb = SkAlign4(rb);
         }
         return rb;
+    }
+
+    size_t allocImage(SkArenaAlloc* alloc) {
+        size_t allocSize;
+        if (SkMask::kBW_Format == fMaskFormat) {
+            allocSize = BitsToBytes(fWidth) * fHeight;
+            fImage = alloc->makeArrayDefault<char>(allocSize);
+        } else if (SkMask::kARGB32_Format == fMaskFormat) {
+            allocSize = fWidth * fHeight;
+            fImage = alloc->makeArrayDefault<uint32_t>(fWidth * fHeight);
+            allocSize *= sizeof(uint32_t);
+        } else if (SkMask::kLCD16_Format == fMaskFormat) {
+            allocSize = SkAlign2(fWidth) * fHeight;
+            fImage = alloc->makeArrayDefault<uint16_t>(allocSize);
+            allocSize *= sizeof(uint16_t);
+        } else {
+            allocSize = SkAlign4(fWidth) * fHeight;
+            fImage = alloc->makeArrayDefault<char>(allocSize);
+        }
+        return allocSize;
     }
 
     unsigned rowBytes() const {
