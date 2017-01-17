@@ -41,8 +41,12 @@ public:
 #endif
 
 #if DEBUG_ANGLE
+    void debugAfter(const SkOpAngle* lh, const SkOpAngle* rh, SkString* bugOut) const;
     bool debugCheckCoincidence() const { return fCheckCoincidence; }
     void debugCheckNearCoincidence() const;
+#endif
+    SkDPoint* debugFirstPt() { return &fOriginalCurvePart.fLine.fPts[0]; }
+#if DEBUG_ANGLE
     SkString debugPart() const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
@@ -96,10 +100,20 @@ public:
     }
 
 private:
+    enum class Turn {
+#ifdef SK_DEBUG
+        kDebugUninitialized = -2,
+#endif
+        kCcw = -1,
+        kNone,
+        kCw
+    };
+
     bool after(SkOpAngle* test);
     void alignmentSameSide(const SkOpAngle* test, int* order) const;
     int allOnOneSide(const SkOpAngle* test);
-    bool checkCrossesZero() const;
+    Turn ccwOf(const SkOpAngle* rh, bool rhCW, bool thisCCW, bool recursed = false) const;
+    bool checkCrossesZero(int* start, int* end) const;
     bool checkParallel(SkOpAngle* );
     bool computeSector();
     int convexHullOverlaps(const SkOpAngle* );
@@ -112,9 +126,13 @@ private:
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
     bool oppositePlanes(const SkOpAngle* rh) const;
     bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
+    bool sectorRange(int* start, int* end, bool roundOut) const;
     void setSector();
     void setSpans();
+    bool sweepContains(const SkOpAngle* rh) const;
+    bool sweepsCCW() const;
     bool tangentsDiverge(const SkOpAngle* rh, double s0xt0);
+    Turn toTurn(bool ccw) const { return ccw ? Turn::kCcw : Turn::kCw; }
 
     SkDCurve fOriginalCurvePart;  // the curve from start to end
     SkDCurveSweep fPart;  // the curve from start to end offset as needed
