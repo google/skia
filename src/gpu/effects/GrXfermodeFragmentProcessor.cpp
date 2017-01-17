@@ -182,7 +182,7 @@ protected:
         if (SkXfermode::ModeAsCoeff(fMode, &skSrcCoeff, &skDstCoeff)) {
             GrBlendCoeff srcCoeff = SkXfermodeCoeffToGrBlendCoeff(skSrcCoeff);
             GrBlendCoeff dstCoeff = SkXfermodeCoeffToGrBlendCoeff(skDstCoeff);
-            GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags, false);
+            GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags);
             this->childProcessor(0).computeInvariantOutput(&childOutput);
             GrColor blendColor;
             GrColorComponentFlags blendFlags;

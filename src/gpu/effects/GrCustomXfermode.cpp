@@ -62,7 +62,7 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
     if (analysis.fUsesPLSDstRead) {
         return false;
     }
-    if (analysis.fCoveragePOI.isFourChannelOutput()) {
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {

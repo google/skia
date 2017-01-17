@@ -20,8 +20,8 @@ void GrDrawOp::initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
     GrPipelineInput coverage;
     GrPipelineAnalysisDrawOpInput input(&color, &coverage);
     this->getPipelineAnalysisInput(&input);
-    analysis->fColorPOI.initFromPipelineInput(color);
-    analysis->fCoveragePOI.initFromPipelineInput(coverage);
+    analysis->fColorPOI.reset(color);
+    analysis->fCoveragePOI.reset(coverage);
     analysis->fUsesPLSDstRead = input.usesPLSDstRead();
 }
 
