@@ -46,36 +46,7 @@ static void transform_scanline_565(char* SK_RESTRICT dst, const char* SK_RESTRIC
         *dst++ = SkPacked16ToR32(c);
         *dst++ = SkPacked16ToG32(c);
         *dst++ = SkPacked16ToB32(c);
-    }
-}
-
-/**
- * Transform from kRGBA_8888_SkColorType to 3-bytes-per-pixel RGB.
- * Alpha channel data is abandoned.
- */
-static void transform_scanline_RGBX(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                    int width, int) {
-    const uint32_t* srcP = (const SkPMColor*)src;
-    for (int i = 0; i < width; i++) {
-        uint32_t c = *srcP++;
-        *dst++ = (c >>  0) & 0xFF;
-        *dst++ = (c >>  8) & 0xFF;
-        *dst++ = (c >> 16) & 0xFF;
-    }
-}
-
-/**
- * Transform from kBGRA_8888_SkColorType to 3-bytes-per-pixel RGB.
- * Alpha channel data is abandoned.
- */
-static void transform_scanline_BGRX(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                    int width, int) {
-    const uint32_t* srcP = (const SkPMColor*)src;
-    for (int i = 0; i < width; i++) {
-        uint32_t c = *srcP++;
-        *dst++ = (c >> 16) & 0xFF;
-        *dst++ = (c >>  8) & 0xFF;
-        *dst++ = (c >>  0) & 0xFF;
+        *dst++ = (char) 0xFF;
     }
 }
 
@@ -91,6 +62,7 @@ static void transform_scanline_444(char* SK_RESTRICT dst, const char* SK_RESTRIC
         *dst++ = SkPacked4444ToR32(c);
         *dst++ = SkPacked4444ToG32(c);
         *dst++ = SkPacked4444ToB32(c);
+        *dst++ = (char) 0xFF;
     }
 }
 
