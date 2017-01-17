@@ -64,16 +64,22 @@ var (
 		"Build-Ubuntu-Clang-x86-Release-Android",
 		"Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
 		"Build-Ubuntu-Clang-x86_64-Debug",
+		"Build-Ubuntu-Clang-x86_64-Debug-ANGLE",
 		"Build-Ubuntu-Clang-x86_64-Debug-ASAN",
 		"Build-Ubuntu-Clang-x86_64-Debug-MSAN",
+		"Build-Ubuntu-Clang-x86_64-Debug-Vulkan",
 		"Build-Ubuntu-Clang-x86_64-Release",
+		"Build-Ubuntu-Clang-x86_64-Release-ANGLE",
 		"Build-Ubuntu-Clang-x86_64-Release-Fast",
 		"Build-Ubuntu-Clang-x86_64-Release-TSAN",
+		"Build-Ubuntu-Clang-x86_64-Release-Vulkan",
 		"Build-Ubuntu-GCC-x86-Debug",
 		"Build-Ubuntu-GCC-x86-Release",
 		"Build-Ubuntu-GCC-x86_64-Debug",
+		"Build-Ubuntu-GCC-x86_64-Debug-ANGLE",
 		"Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
 		"Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+		"Build-Ubuntu-GCC-x86_64-Debug-Vulkan",
 		"Build-Ubuntu-GCC-x86_64-Release",
 		"Build-Ubuntu-GCC-x86_64-Release-ANGLE",
 		"Build-Ubuntu-GCC-x86_64-Release-Mesa",
@@ -83,6 +89,7 @@ var (
 		"Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
 		"Build-Ubuntu-GCC-x86_64-Release-Shared",
 		"Build-Ubuntu-GCC-x86_64-Release-Valgrind",
+		"Build-Ubuntu-GCC-x86_64-Release-Vulkan",
 		"Build-Win-Clang-arm64-Release-Android",
 		"Build-Win-MSVC-x86-Debug",
 		"Build-Win-MSVC-x86-Debug-ANGLE",
@@ -160,6 +167,12 @@ var (
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
@@ -256,6 +269,12 @@ var (
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
@@ -326,6 +345,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
+		} else if strings.Contains(task_os, "Ubuntu") {
+			task_os = "Ubuntu"
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
@@ -354,14 +375,15 @@ func swarmDimensions(parts map[string]string) []string {
 	}
 	if os, ok := parts["os"]; ok {
 		d["os"] = map[string]string{
-			"Android": "Android",
-			"Mac":     "Mac-10.11",
-			"Ubuntu":  DEFAULT_OS_LINUX,
-			"Win":     "Windows-2008ServerR2-SP1",
-			"Win10":   "Windows-10-14393",
-			"Win2k8":  "Windows-2008ServerR2-SP1",
-			"Win8":    "Windows-8.1-SP0",
-			"iOS":     "iOS-9.3.1",
+			"Android":  "Android",
+			"Mac":      "Mac-10.11",
+			"Ubuntu":   DEFAULT_OS_LINUX,
+			"Ubuntu16": "Ubuntu-16.04",
+			"Win":      "Windows-2008ServerR2-SP1",
+			"Win10":    "Windows-10-14393",
+			"Win2k8":   "Windows-2008ServerR2-SP1",
+			"Win8":     "Windows-8.1-SP0",
+			"iOS":      "iOS-9.3.1",
 		}[os]
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
