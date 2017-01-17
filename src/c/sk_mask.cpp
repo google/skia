@@ -9,6 +9,14 @@
 
 #include "sk_mask.h"
 
+uint8_t* sk_mask_alloc_image(size_t bytes) {
+    return SkMask::AllocImage(bytes);
+}
+
+void sk_mask_free_image(void* image) {
+    SkMask::FreeImage(image);
+}
+
 bool sk_mask_is_empty(sk_mask_t* cmask) {
     return AsMask(cmask)->isEmpty();
 }
