@@ -111,7 +111,7 @@
   },
   {
     "cmd": [
-      "gn",
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
       "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false"

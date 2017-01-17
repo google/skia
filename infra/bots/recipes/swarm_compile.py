@@ -25,6 +25,7 @@ def GenTests(api):
                    mastername='fake-master',
                    slavename='fake-slave',
                    buildnumber=5,
+                   repository='https://skia.googlesource.com/skia.git',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +

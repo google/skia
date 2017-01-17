@@ -35,7 +35,7 @@
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--gerrit_repo",
-      "https://skia.googlesource.com/skia",
+      "https://skia.googlesource.com/skia.git",
       "--gerrit_ref",
       "refs/changes/89/456789/12",
       "--output_json",
