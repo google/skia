@@ -34,6 +34,10 @@
 
 using namespace sk_gpu_test;
 
+static SkAlphaType image_alphatype(const SkImage* img) {
+    return img->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+}
+
 static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
                          SkImage* b) {
     const int widthA = subsetA ? subsetA->width() : a->width();
@@ -46,7 +50,7 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
     // The codecs may have given us back F16, we can't read from F16 raster to N32, only S32.
-    SkImageInfo info = SkImageInfo::MakeS32(widthA, heightA, a->alphaType());
+    SkImageInfo info = SkImageInfo::MakeS32(widthA, heightA, image_alphatype(a));
     SkAutoPixmapStorage pmapA, pmapB;
     pmapA.alloc(info);
     pmapB.alloc(info);
@@ -615,7 +619,7 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
                                 const SkBitmap& bitmap, SkImage::LegacyBitmapMode mode) {
     REPORTER_ASSERT(reporter, image->width() == bitmap.width());
     REPORTER_ASSERT(reporter, image->height() == bitmap.height());
-    REPORTER_ASSERT(reporter, image->alphaType() == bitmap.alphaType());
+    REPORTER_ASSERT(reporter, image_alphatype(image) == bitmap.alphaType());
 
     if (SkImage::kRO_LegacyBitmapMode == mode) {
         REPORTER_ASSERT(reporter, bitmap.isImmutable());
@@ -766,7 +770,7 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
         ERRORF(reporter, "Images must have the same size");
         return;
     }
-    if (a->alphaType() != b->alphaType()) {
+    if (a->isOpaque() != b->isOpaque()) {
         ERRORF(reporter, "Images must have the same alpha type");
         return;
     }
@@ -919,7 +923,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
                         SkImageInfo scaled_info = SkImageInfo::MakeN32(
                                                     image->width() / testCase.fExpectedScaleFactor,
                                                     image->height() / testCase.fExpectedScaleFactor,
-                                                    image->alphaType());
+                                                    image_alphatype(image.get()));
                         SkAutoPixmapStorage scaled;
                         scaled.alloc(scaled_info);
                         image->scalePixels(scaled, testCase.fExpectedQuality);

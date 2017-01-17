@@ -184,13 +184,17 @@ public:
     SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
     SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
     uint32_t uniqueID() const { return fUniqueID; }
-    SkAlphaType alphaType() const;
 
     /**
      *  Returns true fi the image will be drawn as a mask, with no intrinsic color of its own.
      */
     bool isAlphaOnly() const;
-    bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
+    bool isOpaque() const;
+
+    // deprecated
+    SkAlphaType alphaType() const {
+        return this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    }
 
     /**
      * Extracts YUV planes from the SkImage and stores them in client-provided memory. The sizes

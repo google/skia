@@ -131,19 +131,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu, reporter, ctxInfo) {
 #endif
 
 static void test_snapshot_alphatype(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
-                                    SkAlphaType expectedAlphaType) {
+                                    SkAlphaType alphaType) {
     REPORTER_ASSERT(reporter, surface);
     if (surface) {
         sk_sp<SkImage> image(surface->makeImageSnapshot());
         REPORTER_ASSERT(reporter, image);
         if (image) {
-            REPORTER_ASSERT(reporter, image->alphaType() == expectedAlphaType);
+            REPORTER_ASSERT(reporter, image->isOpaque() == (kOpaque_SkAlphaType == alphaType));
         }
     }
 }
 DEF_TEST(SurfaceSnapshotAlphaType, reporter) {
     for (auto& surface_func : { &create_surface, &create_direct_surface }) {
-        for (auto& at: { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+        for (auto& at: { kOpaque_SkAlphaType, kPremul_SkAlphaType }) {
             auto surface(surface_func(at, nullptr));
             test_snapshot_alphatype(reporter, surface, at);
         }
@@ -817,7 +817,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
         { kN32_SkColorType,       adobeColorSpace,  true,  "N32-adobe"   },
         { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
-        { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
+        { kRGBA_F16_SkColorType,  nullptr,          false, "F16-nullptr" },
         { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
         { kRGBA_F16_SkColorType,  srgbColorSpace,   false, "F16-srgb"    },
         { kRGBA_F16_SkColorType,  adobeColorSpace,  false, "F16-adobe"   },

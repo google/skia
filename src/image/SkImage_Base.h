@@ -30,6 +30,8 @@ public:
     SkImage_Base(int width, int height, uint32_t uniqueID);
     virtual ~SkImage_Base();
 
+    static bool ValidInfo(const SkImageInfo&);
+
     // User: returns image info for this SkImage.
     // Implementors: if you can not return the value, return an invalid ImageInfo with w=0 & h=0
     // & unknown color space.

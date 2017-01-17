@@ -19,6 +19,8 @@ public:
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     virtual ~SkSurface_Base();
 
+    static bool ValidInfo(const SkImageInfo&);
+
     virtual GrBackendObject onGetTextureHandle(BackendHandleAccess) {
         return 0;
     }

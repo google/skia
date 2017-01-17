@@ -74,7 +74,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
         return true;
     }
 
-    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->alphaType(),
+    if (!dst->tryAllocPixels(make_info(this->width(), this->height(), this->onAlphaType(),
                                        this->fColorSpace))) {
         return false;
     }
@@ -97,8 +97,8 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& para
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
-                               this->uniqueID(), this->fColorSpace.get());
+    GrTextureAdjuster adjuster(this->peekTexture(), this->onAlphaType(),
+                               this->bounds(), this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, nullptr);
 }
 

@@ -216,7 +216,7 @@ DEF_SIMPLE_GM(not_native32_bitmap_config, canvas, SCALE, SCALE) {
     canvas->drawImage(notN32image.get(), 0.0f, 0.0f);
 }
 
-static uint32_t make_pixel(int x, int y, SkAlphaType alphaType) {
+static uint32_t make_pixel(int x, int y) {
     SkASSERT(x >= 0 && x < SCALE);
     SkASSERT(y >= 0 && y < SCALE);
 
@@ -227,42 +227,27 @@ static uint32_t make_pixel(int x, int y, SkAlphaType alphaType) {
     if ((x - R) * (x - R) + (y - R) * (y - R) < R * R) {
         alpha = 0xFF;
     }
-
-    uint32_t component;
-    switch (alphaType) {
-        case kPremul_SkAlphaType:
-            component = alpha;
-            break;
-        case kUnpremul_SkAlphaType:
-            component = 0xFF;
-            break;
-        default:
-            SkFAIL("Should not get here - invalid alpha type");
-            return 0xFF000000;
-    }
-    return alpha << 24 | component;
+    return alpha << 24 | alpha;
 }
 
 static void make_color_test_bitmap_variant(
     SkColorType colorType,
-    SkAlphaType alphaType,
     sk_sp<SkColorSpace> colorSpace,
     SkBitmap* bm)
 {
     SkASSERT(colorType == kRGBA_8888_SkColorType || colorType == kBGRA_8888_SkColorType);
-    SkASSERT(alphaType == kPremul_SkAlphaType || alphaType == kUnpremul_SkAlphaType);
     bm->allocPixels(
-        SkImageInfo::Make(SCALE, SCALE, colorType, alphaType, colorSpace));
+        SkImageInfo::Make(SCALE, SCALE, colorType, kPremul_SkAlphaType, colorSpace));
     SkPixmap pm;
     bm->peekPixels(&pm);
     for (int y = 0; y < bm->height(); y++) {
         for (int x = 0; x < bm->width(); x++) {
-            *pm.writable_addr32(x, y) = make_pixel(x, y, alphaType);
+            *pm.writable_addr32(x, y) = make_pixel(x, y);
         }
     }
 }
 
-DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
+DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, SCALE + 10) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     sk_sp<SkColorSpace> colorSpaces[] {
@@ -271,16 +256,11 @@ DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
     };
     for (auto colorSpace : colorSpaces) {
         canvas->save();
-        for (auto alphaType : {kPremul_SkAlphaType, kUnpremul_SkAlphaType}) {
-            canvas->save();
-            for (auto colorType : {kRGBA_8888_SkColorType, kBGRA_8888_SkColorType}) {
-                SkBitmap bm;
-                make_color_test_bitmap_variant(colorType, alphaType, colorSpace, &bm);
-                canvas->drawBitmap(bm, 0.0f, 0.0f);
-                canvas->translate(SCALE + 10, 0.0f);
-            }
-            canvas->restore();
-            canvas->translate(0.0f, SCALE + 10);
+        for (auto colorType : {kRGBA_8888_SkColorType, kBGRA_8888_SkColorType}) {
+            SkBitmap bm;
+            make_color_test_bitmap_variant(colorType, colorSpace, &bm);
+            canvas->drawBitmap(bm, 0.0f, 0.0f);
+            canvas->translate(SCALE + 10, 0.0f);
         }
         canvas->restore();
         canvas->translate(2 * (SCALE + 10), 0.0f);

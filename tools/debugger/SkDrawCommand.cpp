@@ -2168,19 +2168,10 @@ Json::Value SkDrawImageCommand::toJSON(UrlDataManager& urlDataManager) const {
         result[SKDEBUGCANVAS_ATTRIBUTE_UNIQUE_ID] = fImage->uniqueID();
         result[SKDEBUGCANVAS_ATTRIBUTE_WIDTH] = fImage->width();
         result[SKDEBUGCANVAS_ATTRIBUTE_HEIGHT] = fImage->height();
-        switch (fImage->alphaType()) {
-            case kOpaque_SkAlphaType:
-                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_OPAQUE;
-                break;
-            case kPremul_SkAlphaType:
-                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_PREMUL;
-                break;
-            case kUnpremul_SkAlphaType:
-                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_UNPREMUL;
-                break;
-            default:
-                result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_UNKNOWN;
-                break;
+        if (fImage->isOpaque()) {
+            result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_OPAQUE;
+        } else {
+            result[SKDEBUGCANVAS_ATTRIBUTE_ALPHA] = SKDEBUGCANVAS_ALPHATYPE_PREMUL;
         }
     }
     return result;

@@ -304,7 +304,8 @@ DEF_GM( return new ScalePixelsGM; )
 #include "SkImageGenerator.h"
 
 static SkImageInfo make_info(SkImage* img) {
-    return SkImageInfo::MakeN32(img->width(), img->height(), img->alphaType());
+    return SkImageInfo::MakeN32(img->width(), img->height(),
+                                img->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 }
 
 // Its simple, but I wonder if we should expose this formally?
