@@ -15,21 +15,15 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "ops/GrOp.h"
 
+constexpr int GrProcessorSet::kMaxColorFragmentProcessors;
+
 GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
         : fFlags(0x0)
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-        , fDrawFace(GrDrawFace::kBoth) {
-    for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
-        fColorFragmentProcessors.emplace_back(paint.fColorFragmentProcessors[i].release());
-    }
-
-    for (int i = 0; i < paint.numCoverageFragmentProcessors(); ++i) {
-        fCoverageFragmentProcessors.emplace_back(paint.fCoverageFragmentProcessors[i].release());
-    }
-
-    fXPFactory = paint.getXPFactory();
-
+        , fDrawFace(GrDrawFace::kBoth)
+        , fProcessors(std::move(paint)) {
     this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAATypeIsHW(aaType));
+    // The processors have been moved out of paint, but its flags should still be unmodified.
     this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
     this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,

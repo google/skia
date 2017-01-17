@@ -8,6 +8,7 @@
 #ifndef GrPipelineBuilder_DEFINED
 #define GrPipelineBuilder_DEFINED
 
+#include <GrPaint.h>
 #include "GrBlend.h"
 #include "GrCaps.h"
 #include "GrGpuResourceRef.h"
@@ -21,11 +22,74 @@
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "GrPipeline.h"
 
 class GrDrawOp;
 class GrCaps;
 class GrPaint;
 class GrTexture;
+
+class GrProcessorSet {
+public:
+    GrProcessorSet(GrPaint&& paint) {
+        fXPFactory = paint.fXPFactory;
+        SkASSERT(paint.numColorFragmentProcessors() <= kMaxColorFragmentProcessors);
+        fColorFragmentProcessorCnt = SkTMin(paint.numColorFragmentProcessors(), kMaxColorFragmentProcessors);
+        int totalCnt = fColorFragmentProcessorCnt + paint.numCoverageFragmentProcessors();
+        fFragmentProcessors.reset(totalCnt);
+        int i;
+        for (i = 0; i < fColorFragmentProcessorCnt; ++i) {
+            fFragmentProcessors[i] = paint.fColorFragmentProcessors[i].release();
+        }
+        for (auto& fp : paint.fCoverageFragmentProcessors) {
+            fFragmentProcessors[i++] = fp.release();
+        }
+    }
+
+    ~GrProcessorSet() {
+        for (auto fp : fFragmentProcessors) {
+            fIsRecorded ? fp->completedExecution() : fp->unref();
+        }
+    }
+
+    int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
+    int numCoverageFragmentProcessors() const { return this->fFragmentProcessors.count() - fColorFragmentProcessorCnt; }
+    int numFragmentProcessors() const { return fFragmentProcessors.count(); }
+
+    const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
+        SkASSERT(idx < fColorFragmentProcessorCnt);
+        return fFragmentProcessors[idx];
+    }
+    const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
+        SkASSERT(idx >= fColorFragmentProcessorCnt);
+        return fFragmentProcessors[idx + fColorFragmentProcessorCnt];
+    }
+
+    const GrXPFactory* xpFactory() const { return fXPFactory; }
+
+    void didRecordInOpList() {
+        for (auto fp : fFragmentProcessors) {
+            fp->addPendingExecution();
+            fp->unref();
+        }
+        fIsRecorded = true;
+    }
+
+    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
+        const GrFragmentProcessor* const* fps = fFragmentProcessors.get();
+        analysis->fColorPOI.addProcessors(fps, fColorFragmentProcessorCnt);
+        fps += fColorFragmentProcessorCnt;
+        analysis->fCoveragePOI.addProcessors(fps, this->numCoverageFragmentProcessors());
+    }
+
+private:
+    // This is far higher than would ever be needed and allows this class to be a bit more compact.
+    static constexpr int kMaxColorFragmentProcessors = 64;
+    const GrXPFactory* fXPFactory = nullptr;
+    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+    int8_t fColorFragmentProcessorCnt;
+    int8_t fIsRecorded = false;
+};
 
 class GrPipelineBuilder : public SkNoncopyable {
 public:
@@ -47,16 +111,19 @@ public:
     /// feed their output to the GrXferProcessor which controls blending.
     ////
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
-    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
-    int numFragmentProcessors() const { return this->numColorFragmentProcessors() +
-                                               this->numCoverageFragmentProcessors(); }
+    int numColorFragmentProcessors() const { return fProcessors.numColorFragmentProcessors(); }
+    int numCoverageFragmentProcessors() const { return fProcessors.numCoverageFragmentProcessors(); }
+    int numFragmentProcessors() const { return fProcessors.numFragmentProcessors(); }
 
     const GrFragmentProcessor* getColorFragmentProcessor(int idx) const {
-        return fColorFragmentProcessors[idx].get();
+        return fProcessors.colorFragmentProcessor(idx);
     }
     const GrFragmentProcessor* getCoverageFragmentProcessor(int idx) const {
-        return fCoverageFragmentProcessors[idx].get();
+        return fProcessors.coverageFragmentProcessor(idx);
+    }
+
+    void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
+        fProcessors.analyzeFragmentProcessors(analysis);
     }
 
     /// @}
@@ -65,7 +132,7 @@ public:
     /// @name Blending
     ////
 
-    const GrXPFactory* getXPFactory() const { return fXPFactory; }
+    const GrXPFactory* getXPFactory() const { return fProcessors.xpFactory(); }
 
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
@@ -201,20 +268,12 @@ public:
     bool usePLSDstRead(const GrDrawOp*) const;
 
 private:
-    typedef SkSTArray<4, sk_sp<GrFragmentProcessor>> FragmentProcessorArray;
-
     uint32_t                                fFlags;
     const GrUserStencilSettings*            fUserStencilSettings;
     GrDrawFace                              fDrawFace;
-    const GrXPFactory*                      fXPFactory;
-    FragmentProcessorArray                  fColorFragmentProcessors;
-    FragmentProcessorArray                  fCoverageFragmentProcessors;
+    GrProcessorSet                          fProcessors;
 
     friend class GrPipeline;
-    // This gives the GrRenderTargetOpList raw access to fColorFragmentProcessors &
-    // fCoverageFragmentProcessors
-    // TODO: that access seems a little dodgy
-    friend class GrRenderTargetOpList;
 };
 
 #endif
