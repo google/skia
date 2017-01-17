@@ -113,7 +113,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
 #ifndef SK_SUPPORT_LEGACY_AAA
             SkASSERT(slope == SK_MaxS32 ||
                     SkAbs32(fSnappedX + SkFixedMul(slope, newSnappedY - fSnappedY) - newSnappedX)
-                    < SK_FixedHalf);
+                    < SkFixedMul(SK_Fixed1 >> 4, SkTMax(SK_Fixed1, SkAbs32(slope))));
 #endif
             dx += fQEdge.fQDDx;
             dy += fQEdge.fQDDy;
