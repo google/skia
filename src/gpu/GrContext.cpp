@@ -308,10 +308,8 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
     if (tempTexture) {
         sk_sp<GrFragmentProcessor> fp;
-        SkMatrix textureMatrix;
-        textureMatrix.setIDiv(tempTexture->width(), tempTexture->height());
         if (applyPremulToSrc) {
-            fp = this->createUPMToPMEffect(tempTexture.get(), tempDrawInfo.fSwizzle, textureMatrix);
+            fp = this->createUPMToPMEffect(tempTexture.get(), tempDrawInfo.fSwizzle, SkMatrix::I());
             // If premultiplying was the only reason for the draw, fall back to a straight write.
             if (!fp) {
                 if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
@@ -325,7 +323,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
             if (!fp) {
                 fp = GrConfigConversionEffect::Make(tempTexture.get(), tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
-                                                    textureMatrix);
+                                                    SkMatrix::I());
                 if (!fp) {
                     return false;
                 }
@@ -463,9 +461,7 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
-            SkMatrix textureMatrix;
-            textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
-            textureMatrix.postIDiv(src->width(), src->height());
+            SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrFragmentProcessor> fp;
             if (unpremul) {
                 fp = this->createPMToUPMEffect(src->asTexture(), tempDrawInfo.fSwizzle,

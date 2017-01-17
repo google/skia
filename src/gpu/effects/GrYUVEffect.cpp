@@ -66,18 +66,17 @@ public:
                                            GrTexture* vTexture, const SkISize sizes[3],
                                            SkYUVColorSpace colorSpace, bool nv12) {
         SkScalar w[3], h[3];
-        w[0] = SkIntToScalar(sizes[0].fWidth)  / SkIntToScalar(yTexture->width());
-        h[0] = SkIntToScalar(sizes[0].fHeight) / SkIntToScalar(yTexture->height());
-        w[1] = SkIntToScalar(sizes[1].fWidth)  / SkIntToScalar(uTexture->width());
-        h[1] = SkIntToScalar(sizes[1].fHeight) / SkIntToScalar(uTexture->height());
-        w[2] = SkIntToScalar(sizes[2].fWidth)  / SkIntToScalar(vTexture->width());
-        h[2] = SkIntToScalar(sizes[2].fHeight) / SkIntToScalar(vTexture->height());
-        SkMatrix yuvMatrix[3];
-        yuvMatrix[0] = GrCoordTransform::MakeDivByTextureWHMatrix(yTexture);
-        yuvMatrix[1] = yuvMatrix[0];
-        yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
-        yuvMatrix[2] = yuvMatrix[0];
-        yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
+        w[0] = SkIntToScalar(sizes[0].fWidth);
+        h[0] = SkIntToScalar(sizes[0].fHeight);
+        w[1] = SkIntToScalar(sizes[1].fWidth);
+        h[1] = SkIntToScalar(sizes[1].fHeight);
+        w[2] = SkIntToScalar(sizes[2].fWidth);
+        h[2] = SkIntToScalar(sizes[2].fHeight);
+        const SkMatrix yuvMatrix[3] = {
+            SkMatrix::I(),
+            SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]),
+            SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0])
+        };
         GrSamplerParams::FilterMode uvFilterMode =
             ((sizes[1].fWidth  != sizes[0].fWidth) ||
              (sizes[1].fHeight != sizes[0].fHeight) ||
