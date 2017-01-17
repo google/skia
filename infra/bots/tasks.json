@@ -204,6 +204,12 @@
         "Build-Ubuntu-GCC-x86_64-Debug"
       ]
     },
+    "Build-Ubuntu-GCC-x86_64-Debug-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Debug-ANGLE"
+      ]
+    },
     "Build-Ubuntu-GCC-x86_64-Debug-NoGPU": {
       "priority": 0.8,
       "tasks": [
@@ -214,6 +220,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+      ]
+    },
+    "Build-Ubuntu-GCC-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Debug-Vulkan"
       ]
     },
     "Build-Ubuntu-GCC-x86_64-Release": {
@@ -268,6 +280,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+      ]
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-Vulkan"
       ]
     },
     "Build-Win-Clang-arm64-Release-Android": {
@@ -702,6 +720,42 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE"
+      ]
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan"
       ]
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -1267,6 +1321,42 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE"
+      ]
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan"
       ]
     },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -2523,6 +2613,31 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Ubuntu-GCC-x86_64-Debug-ANGLE": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-GCC-x86_64-Debug-NoGPU": {
       "dimensions": [
         "gpu:none",
@@ -2560,6 +2675,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Debug-Vulkan": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Debug-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2785,6 +2925,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-Valgrind",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-Vulkan": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -5925,6 +6090,294 @@
       ],
       "io_timeout_ns": 3600000000000,
       "isolate": "ct_skps_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -10445,6 +10898,294 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:8086:1926",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
       "cipd_packages": [
         {
@@ -13019,6 +13760,93 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "dependencies": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "dependencies": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
       "dependencies": [
         "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
@@ -14920,6 +15748,180 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
