@@ -32,6 +32,12 @@ public:
              + ((val+1)>>8);       // All val but 255 are correct.  +1 if val == 255 to get 32768.
     }
 
+    uint8_t to_u8() const {
+        // FromU8() and to_u8() roundtrip all bytes.
+        // There is still much room to tweak this towards the ideal, a rounding scale by 255/32768.
+        return (fVal - (fVal>>8))>>7;
+    }
+
     SkFixed15 operator +(SkFixed15 o) const { return fVal + o.fVal; }
     SkFixed15 operator -(SkFixed15 o) const { return fVal - o.fVal; }
     SkFixed15 operator *(SkFixed15 o) const { return (fVal * o.fVal + (1<<14)) >> 15; }
