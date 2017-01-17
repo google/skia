@@ -12,9 +12,6 @@
     #error This file is not like the rest of Skia.  It must be compiled with clang.
 #endif
 
-// We have very specific inlining requirements.  It helps to just take total control.
-#define AI __attribute__((always_inline)) inline
-
 #if defined(__aarch64__)
     #include <arm_neon.h>
 
@@ -25,15 +22,15 @@
     using U8  = uint8_t  __attribute__((ext_vector_type(4)));
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    AI static F   min(F a, F b)                        { return vminq_f32(a,b);          }
-    AI static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
-    AI static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
-    AI static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    AI static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
-    AI static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
-    AI static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
+    static F   min(F a, F b)                        { return vminq_f32(a,b);          }
+    static F   max(F a, F b)                        { return vmaxq_f32(a,b);          }
+    static F   fma(F f, F m, F a)                   { return vfmaq_f32(a,f,m);        }
+    static F   rcp  (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
+    static F   rsqrt(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    static F   if_then_else(I32 c, F t, F e)        { return vbslq_f32((U32)c,t,e);   }
+    static U32 round(F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
 
-    AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
+    static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]}; }
 #elif defined(__ARM_NEON__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
         #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
@@ -46,15 +43,15 @@
     using U32 = uint32_t __attribute__((ext_vector_type(2)));
     using U8  = uint8_t  __attribute__((ext_vector_type(2)));
 
-    AI static F   min(F a, F b)                        { return vmin_f32(a,b);          }
-    AI static F   max(F a, F b)                        { return vmax_f32(a,b);          }
-    AI static F   fma(F f, F m, F a)                   { return vfma_f32(a,f,m);        }
-    AI static F   rcp  (F v)  { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
-    AI static F   rsqrt(F v)  { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
-    AI static F   if_then_else(I32 c, F t, F e)        { return vbsl_f32((U32)c,t,e);   }
-    AI static U32 round(F v, F scale)                  { return vcvt_u32_f32(fma(v,scale,0.5f)); }
+    static F   min(F a, F b)                        { return vmin_f32(a,b);          }
+    static F   max(F a, F b)                        { return vmax_f32(a,b);          }
+    static F   fma(F f, F m, F a)                   { return vfma_f32(a,f,m);        }
+    static F   rcp  (F v)  { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
+    static F   rsqrt(F v)  { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
+    static F   if_then_else(I32 c, F t, F e)        { return vbsl_f32((U32)c,t,e);   }
+    static U32 round(F v, F scale)                  { return vcvt_u32_f32(fma(v,scale,0.5f)); }
 
-    AI static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
+    static F gather(const float* p, U32 ix) { return {p[ix[0]], p[ix[1]]}; }
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
@@ -67,22 +64,22 @@
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
 
-    AI static F   min(F a, F b)                 { return _mm256_min_ps  (a,b);  }
-    AI static F   max(F a, F b)                 { return _mm256_max_ps  (a,b);  }
-    AI static F   fma(F f, F m, F a)            { return _mm256_fmadd_ps(f,m,a);}
-    AI static F   rcp  (F v)                    { return _mm256_rcp_ps     (v); }
-    AI static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
-    AI static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
-    AI static U32 round(F v, F scale)           { return _mm256_cvtps_epi32(v*scale); }
+    static F   min(F a, F b)                 { return _mm256_min_ps  (a,b);  }
+    static F   max(F a, F b)                 { return _mm256_max_ps  (a,b);  }
+    static F   fma(F f, F m, F a)            { return _mm256_fmadd_ps(f,m,a);}
+    static F   rcp  (F v)                    { return _mm256_rcp_ps     (v); }
+    static F   rsqrt(F v)                    { return _mm256_rsqrt_ps   (v); }
+    static F   if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e,t,c); }
+    static U32 round(F v, F scale)           { return _mm256_cvtps_epi32(v*scale); }
 
-    AI static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
+    static F gather(const float* p, U32 ix) { return _mm256_i32gather_ps(p, ix, 4); }
 #endif
 
-AI static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
-AI static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
+static F   cast  (U32 v) { return __builtin_convertvector((I32)v, F);   }
+static U32 expand(U8  v) { return __builtin_convertvector(     v, U32); }
 
 template <typename T, typename P>
-AI static T unaligned_load(const P* p) {
+static T unaligned_load(const P* p) {
     T v;
     memcpy(&v, p, sizeof(v));
     return v;
@@ -121,16 +118,16 @@ C void done(size_t, size_t, void*, K*, F,F,F,F, F,F,F,F);
 
 // This should feel familiar to anyone who's read SkRasterPipeline_opts.h.
 // It's just a convenience to make a valid, spliceable Stage, nothing magic.
-#define STAGE(name)                                                              \
-    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
-    C void name(size_t x, size_t limit, void* ctx, K* k,                         \
-                F r, F g, F b, F a, F dr, F dg, F db, F da) {                    \
-        name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
-        done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                           \
-    }                                                                            \
-    AI static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
-                            F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#define STAGE(name)                                                           \
+    static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da); \
+    C void name(size_t x, size_t limit, void* ctx, K* k,                      \
+                F r, F g, F b, F a, F dr, F dg, F db, F da) {                 \
+        name##_k(x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
+        done    (x,limit,ctx,k, r,g,b,a, dr,dg,db,da);                        \
+    }                                                                         \
+    static void name##_k(size_t x, size_t limit, void* ctx, K* k,             \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 // We can now define Stages!
 
