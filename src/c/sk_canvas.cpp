@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkAnnotation.h"
 
 #include "sk_canvas.h"
 
@@ -248,6 +249,22 @@ void sk_canvas_flush(sk_canvas_t* ccanvas) {
 
 sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap) {
     return ToCanvas(new SkCanvas(AsBitmap(*bitmap)));
+}
+
+void sk_canvas_draw_annotation(sk_canvas_t* t, const sk_rect_t* rect, const char* key, sk_data_t* value) {
+    AsCanvas(t)->drawAnnotation(AsRect(*rect), key, AsData(value));
+}
+
+void sk_canvas_draw_url_annotation(sk_canvas_t* t, const sk_rect_t* rect, sk_data_t* value) {
+    SkAnnotateRectWithURL(AsCanvas(t), AsRect(*rect), AsData(value));
+}
+
+void sk_canvas_draw_named_destination_annotation(sk_canvas_t* t, const sk_point_t* point, sk_data_t* value) {
+    SkAnnotateNamedDestination(AsCanvas(t), AsPoint(*point), AsData(value));
+}
+
+void sk_canvas_draw_link_destination_annotation(sk_canvas_t* t, const sk_rect_t* rect, sk_data_t* value) {
+    SkAnnotateLinkToDestination(AsCanvas(t), AsRect(*rect), AsData(value));
 }
 
 void sk_canvas_draw_bitmap_lattice(sk_canvas_t* ccanvas, 
