@@ -332,6 +332,8 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
 void Compiler::internalConvertProgram(SkString text,
                                       Modifiers::Flag* defaultPrecision,
                                       std::vector<std::unique_ptr<ProgramElement>>* result) {
+    static int count = 0;
+    SkDebugf("count: %d\n", ++count);
     Parser parser(text, *fTypes, *this);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
     if (fErrorCount) {

@@ -626,10 +626,13 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         case Symbol::kVariable_Kind: {
             const Variable* var = (const Variable*) result;
             this->markReadFrom(*var);
-            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-                fSettings->fFlipY &&
-                (!fSettings->fCaps || !fSettings->fCaps->fragCoordConventionsExtensionString())) {
-                fInputs.fRTHeight = true;
+            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+                fInputs.fFlipY = true;
+                if (fSettings->fFlipY &&
+                    (!fSettings->fCaps || 
+                     !fSettings->fCaps->fragCoordConventionsExtensionString())) {
+                    fInputs.fRTHeight = true;
+                }
             }
             return std::unique_ptr<VariableReference>(new VariableReference(identifier.fPosition,
                                                                             *var));
