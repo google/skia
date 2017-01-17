@@ -26,6 +26,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+class GrAppliedClip;
 class GrDeviceCoordTexture;
 class GrOp;
 class GrPipelineBuilder;
@@ -70,12 +71,10 @@ public:
 
     struct CreateArgs {
         const GrPipelineBuilder* fPipelineBuilder;
+        GrAppliedClip* fAppliedClip;
         GrRenderTargetContext* fRenderTargetContext;
         const GrCaps* fCaps;
         GrPipelineAnalysis fAnalysis;
-        const GrScissorState* fScissor;
-        const GrWindowRectsState* fWindowRectsState;
-        bool fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
 

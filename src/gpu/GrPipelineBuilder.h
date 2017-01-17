@@ -37,8 +37,6 @@ public:
      */
     GrPipelineBuilder(GrPaint&&, GrAAType);
 
-    virtual ~GrPipelineBuilder();
-
     ///////////////////////////////////////////////////////////////////////////
     /// @name Fragment Processors
     ///
@@ -60,44 +58,6 @@ public:
     const GrFragmentProcessor* getCoverageFragmentProcessor(int idx) const {
         return fCoverageFragmentProcessors[idx].get();
     }
-
-    /**
-     * When this object is destroyed it will remove any color/coverage FPs from the pipeline builder
-     * that were added after its constructor.
-     * This class can transiently modify its "const" GrPipelineBuilder object but will restore it
-     * when done - so it is notionally "const" correct.
-     */
-    class AutoRestoreFragmentProcessorState : public ::SkNoncopyable {
-    public:
-        AutoRestoreFragmentProcessorState()
-            : fPipelineBuilder(nullptr)
-            , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {}
-
-        AutoRestoreFragmentProcessorState(const GrPipelineBuilder& ds)
-            : fPipelineBuilder(nullptr)
-            , fColorEffectCnt(0)
-            , fCoverageEffectCnt(0) {
-            this->set(&ds);
-        }
-
-        ~AutoRestoreFragmentProcessorState() { this->set(nullptr); }
-
-        void set(const GrPipelineBuilder* ds);
-
-        bool isSet() const { return SkToBool(fPipelineBuilder); }
-
-        void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-            SkASSERT(this->isSet());
-            return fPipelineBuilder->addCoverageFragmentProcessor(std::move(processor));
-        }
-
-    private:
-        // notionally const (as marginalia)
-        GrPipelineBuilder*    fPipelineBuilder;
-        int                   fColorEffectCnt;
-        int                   fCoverageEffectCnt;
-    };
 
     /// @}
 
@@ -241,17 +201,6 @@ public:
     bool usePLSDstRead(const GrDrawOp*) const;
 
 private:
-    // This exists solely for AutoRestoreFragmentProcessor, which itself exists solely to install
-    // an applied clip's FP. This will be removed soon.
-    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
-        SkASSERT(processor);
-        fCoverageFragmentProcessors.push_back(std::move(processor));
-    }
-
-    // Some of the auto restore objects assume that no effects are removed during their lifetime.
-    // This is used to assert that this condition holds.
-    SkDEBUGCODE(mutable int fBlockEffectRemovalCnt;)
-
     typedef SkSTArray<4, sk_sp<GrFragmentProcessor>> FragmentProcessorArray;
 
     uint32_t                                fFlags;
