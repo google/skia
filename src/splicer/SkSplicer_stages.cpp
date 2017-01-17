@@ -163,7 +163,7 @@ STAGE(srcover) {
     r = fma(dr, A, r);
     g = fma(dg, A, g);
     b = fma(db, A, b);
-    a = fma(db, A, a);
+    a = fma(da, A, a);
 }
 STAGE(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
 

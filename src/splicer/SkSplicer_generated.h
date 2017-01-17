@@ -32,7 +32,7 @@ static const unsigned int kSplice_srcover[] = {
     0x4e24ce00,                                 //  fmla          v0.4s, v16.4s, v4.4s
     0x4e25ce01,                                 //  fmla          v1.4s, v16.4s, v5.4s
     0x4e26ce02,                                 //  fmla          v2.4s, v16.4s, v6.4s
-    0x4e26ce03,                                 //  fmla          v3.4s, v16.4s, v6.4s
+    0x4e27ce03,                                 //  fmla          v3.4s, v16.4s, v7.4s
 };
 static const unsigned int kSplice_dstover[] = {
     0x91001068,                                 //  add           x8, x3, #0x4
@@ -41,7 +41,7 @@ static const unsigned int kSplice_dstover[] = {
     0x4e20ce04,                                 //  fmla          v4.4s, v16.4s, v0.4s
     0x4e21ce05,                                 //  fmla          v5.4s, v16.4s, v1.4s
     0x4e22ce06,                                 //  fmla          v6.4s, v16.4s, v2.4s
-    0x4e22ce07,                                 //  fmla          v7.4s, v16.4s, v2.4s
+    0x4e23ce07,                                 //  fmla          v7.4s, v16.4s, v3.4s
 };
 static const unsigned int kSplice_clamp_0[] = {
     0x6f00e410,                                 //  movi          v16.2d, #0x0
@@ -382,7 +382,7 @@ static const unsigned int kSplice_srcover[] = {
     0xf2040c30,                                 //  vfma.f32      d0, d4, d16
     0xf2051c30,                                 //  vfma.f32      d1, d5, d16
     0xf2062c30,                                 //  vfma.f32      d2, d6, d16
-    0xf2063c30,                                 //  vfma.f32      d3, d6, d16
+    0xf2073c30,                                 //  vfma.f32      d3, d7, d16
 };
 static const unsigned int kSplice_dstover[] = {
     0xe283c004,                                 //  add           ip, r3, #4
@@ -391,7 +391,7 @@ static const unsigned int kSplice_dstover[] = {
     0xf2004c30,                                 //  vfma.f32      d4, d0, d16
     0xf2015c30,                                 //  vfma.f32      d5, d1, d16
     0xf2026c30,                                 //  vfma.f32      d6, d2, d16
-    0xf2027c30,                                 //  vfma.f32      d7, d2, d16
+    0xf2037c30,                                 //  vfma.f32      d7, d3, d16
 };
 static const unsigned int kSplice_clamp_0[] = {
     0xf2c00010,                                 //  vmov.i32      d16, #0
@@ -756,7 +756,7 @@ static const unsigned char kSplice_srcover[] = {
     0xc4,0xc2,0x5d,0xb8,0xc0,                   //  vfmadd231ps   %ymm8,%ymm4,%ymm0
     0xc4,0xc2,0x55,0xb8,0xc8,                   //  vfmadd231ps   %ymm8,%ymm5,%ymm1
     0xc4,0xc2,0x4d,0xb8,0xd0,                   //  vfmadd231ps   %ymm8,%ymm6,%ymm2
-    0xc4,0xc2,0x4d,0xb8,0xd8,                   //  vfmadd231ps   %ymm8,%ymm6,%ymm3
+    0xc4,0xc2,0x45,0xb8,0xd8,                   //  vfmadd231ps   %ymm8,%ymm7,%ymm3
 };
 static const unsigned char kSplice_dstover[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
@@ -764,7 +764,7 @@ static const unsigned char kSplice_dstover[] = {
     0xc4,0xc2,0x7d,0xb8,0xe0,                   //  vfmadd231ps   %ymm8,%ymm0,%ymm4
     0xc4,0xc2,0x75,0xb8,0xe8,                   //  vfmadd231ps   %ymm8,%ymm1,%ymm5
     0xc4,0xc2,0x6d,0xb8,0xf0,                   //  vfmadd231ps   %ymm8,%ymm2,%ymm6
-    0xc4,0xc2,0x6d,0xb8,0xf8,                   //  vfmadd231ps   %ymm8,%ymm2,%ymm7
+    0xc4,0xc2,0x65,0xb8,0xf8,                   //  vfmadd231ps   %ymm8,%ymm3,%ymm7
 };
 static const unsigned char kSplice_clamp_0[] = {
     0xc4,0x41,0x3c,0x57,0xc0,                   //  vxorps        %ymm8,%ymm8,%ymm8
