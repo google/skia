@@ -68,6 +68,16 @@ struct SkNx {
         *c = SkNx{cl, ch};
         *d = SkNx{dl, dh};
     }
+    AI static void Load3(const void* vptr, SkNx* a, SkNx* b, SkNx* c) {
+        auto ptr = (const char*)vptr;
+        Half al, bl, cl,
+             ah, bh, ch;
+        Half::Load3(ptr                  , &al, &bl, &cl);
+        Half::Load3(ptr + 3*N/2*sizeof(T), &ah, &bh, &ch);
+        *a = SkNx{al, ah};
+        *b = SkNx{bl, bh};
+        *c = SkNx{cl, ch};
+    }
     AI static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
         auto ptr = (char*)vptr;
         Half::Store4(ptr,                   a.fLo, b.fLo, c.fLo, d.fLo);
@@ -148,6 +158,12 @@ struct SkNx<1,T> {
         *b = Load(ptr + 1*sizeof(T));
         *c = Load(ptr + 2*sizeof(T));
         *d = Load(ptr + 3*sizeof(T));
+    }
+    AI static void Load3(const void* vptr, SkNx* a, SkNx* b, SkNx* c) {
+        auto ptr = (const char*)vptr;
+        *a = Load(ptr + 0*sizeof(T));
+        *b = Load(ptr + 1*sizeof(T));
+        *c = Load(ptr + 2*sizeof(T));
     }
     AI static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
         auto ptr = (char*)vptr;
