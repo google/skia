@@ -10,11 +10,6 @@
 
 #include "SkEdge.h"
 
-// Use this to check that we successfully guard the change against Chromium layout tests
-#ifndef  SK_SUPPORT_LEGACY_AAA
-# define SK_SUPPORT_LEGACY_AAA
-#endif
-
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges
     enum Type {
@@ -166,7 +161,6 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     SkFDot6 dy = SkFixedToFDot6(y1 - y0);
     SkFDot6 dx = SkFixedToFDot6(x1 - x0);
     SkFixed slope = dy ? QuickSkFDot6Div(dx, dy) : SK_MaxS32;
-    SkASSERT(dx == 0 || slope != 0);
     SkFixed absSlope = SkAbs32(slope);
 #endif
 
@@ -179,9 +173,9 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
 #ifdef SK_SUPPORT_LEGACY_AAA
     fDY         = x1 != x0 ? SkAbs32(SkFixedDiv(y1 - y0, x1 - x0)) : SK_MaxS32;
 #else
-    fDY         = dx == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
-                                                 ? QuickFDot6Inverse::Lookup(absSlope)
-                                                 : SkAbs32(QuickSkFDot6Div(dy, dx));
+    fDY         = dx == 0 || slope == 0 ? SK_MaxS32 : absSlope < kInverseTableSize
+                                                    ? QuickFDot6Inverse::Lookup(absSlope)
+                                                    : SkAbs32(QuickSkFDot6Div(dy, dx));
 #endif
     fCurveCount = 0;
     fWinding    = SkToS8(winding);

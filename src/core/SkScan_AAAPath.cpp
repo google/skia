@@ -736,14 +736,14 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter, int y,
     int uL = SkFixedFloorToInt(ul);
     int lL = SkFixedCeilToInt(ll);
     if (uL + 2 == lL) { // We only need to compute two triangles, accelerate this special case
-        SkFixed first = (uL << 16) + SK_Fixed1 - ul;
+        SkFixed first = SkIntToFixed(uL) + SK_Fixed1 - ul;
         SkFixed second = ll - ul - first;
         SkAlpha a1 = fullAlpha - partialTriangleToAlpha(first, lDY);
         SkAlpha a2 = partialTriangleToAlpha(second, lDY);
         alphas[0] = alphas[0] > a1 ? alphas[0] - a1 : 0;
         alphas[1] = alphas[1] > a2 ? alphas[1] - a2 : 0;
     } else {
-        computeAlphaBelowLine(tempAlphas + uL - L, ul - (uL << 16), ll - (uL << 16),
+        computeAlphaBelowLine(tempAlphas + uL - L, ul - SkIntToFixed(uL), ll - SkIntToFixed(uL),
                 lDY, fullAlpha);
         for (int i = uL; i < lL; ++i) {
             if (alphas[i - L] > tempAlphas[i - L]) {
@@ -757,14 +757,14 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter, int y,
     int uR = SkFixedFloorToInt(ur);
     int lR = SkFixedCeilToInt(lr);
     if (uR + 2 == lR) { // We only need to compute two triangles, accelerate this special case
-        SkFixed first = (uR << 16) + SK_Fixed1 - ur;
+        SkFixed first = SkIntToFixed(uR) + SK_Fixed1 - ur;
         SkFixed second = lr - ur - first;
         SkAlpha a1 = partialTriangleToAlpha(first, rDY);
         SkAlpha a2 = fullAlpha - partialTriangleToAlpha(second, rDY);
         alphas[len-2] = alphas[len-2] > a1 ? alphas[len-2] - a1 : 0;
         alphas[len-1] = alphas[len-1] > a2 ? alphas[len-1] - a2 : 0;
     } else {
-        computeAlphaAboveLine(tempAlphas + uR - L, ur - (uR << 16), lr - (uR << 16),
+        computeAlphaAboveLine(tempAlphas + uR - L, ur - SkIntToFixed(uR), lr - SkIntToFixed(uR),
                 rDY, fullAlpha);
         for (int i = uR; i < lR; ++i) {
             if (alphas[i - L] > tempAlphas[i - L]) {
@@ -1605,7 +1605,9 @@ static void aaa_walk_edges(SkAnalyticEdge* prevHead, SkAnalyticEdge* nextTail,
                         leftEnds, false, blitter, maskRow, isUsingMask, noRealBlitter,
                         leftClip, rightClip, yShift);
             } else {
-                blit_trapezoid_row(blitter, y >> 16, left, rightClip, leftE->fX, rightClip,
+                blit_trapezoid_row(blitter, y >> 16,
+                        SkTMax(leftClip, left), rightClip,
+                        SkTMax(leftClip, leftE->fX), rightClip,
                         leftDY, 0, fullAlpha, maskRow, isUsingMask,
                         noRealBlitter ||
                                 (fullAlpha == 0xFF && edges_too_close(leftE->fPrev, leftE, nextY)),
