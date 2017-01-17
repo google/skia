@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "975f6e58_93466173",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "I\u0027m not sure what pointing a hypothetical user to the continuous builds accomplishes. They might be/begin asking:\n\nWhich version of MSVC should I use? Does success mean anything if  \u0027NoBuildBot\u0027 is in the build\u0027s name? Can I download libskia.a? This interface looks too awkward for end users, is Skia not for me?\n\nSomething is being supported: something like the system setups expected of Chromium/Android contributors? My own user story is wanting a good 2D library and not knowing those setups.",
+      "parentUuid": "d760061e_a25a4037",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_c25dbc33",
         "filename": "site/user/build.md",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-28T15:20:25Z",
       "side": 1,
       "message": "How about we update these to be \"ninja -C out/Something skia\" instead of writing as a separate note?",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "975f6e58_73146d65",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Sounds good.",
+      "parentUuid": "d760061e_c25dbc33",
       "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "975f6e58_1307f13d",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Whoops, thanks.",
+      "parentUuid": "d760061e_e26438fc",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_828d8488",
         "filename": "site/user/download.md",
         "patchSetId": 5
@@ -70,6 +124,24 @@
       "writtenOn": "2016-12-28T15:20:25Z",
       "side": 1,
       "message": "Please undo these whitespace and prettify changes.",
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "975f6e58_b3ff25f2",
+        "filename": "site/user/download.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d760061e_828d8488",
       "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -93,6 +165,24 @@
         "endLine": 20,
         "endChar": 10
       },
+      "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "975f6e58_53116972",
+        "filename": "site/user/download.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d760061e_c2865c69",
       "revId": "215f1679d470d5c4ffc05835d379ecd8c34139f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
