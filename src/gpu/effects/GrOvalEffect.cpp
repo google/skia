@@ -68,7 +68,6 @@ CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkSca
     , fRadius(r)
     , fEdgeType(edgeType) {
     this->initClassID<CircleEffect>();
-    this->setWillReadFragmentPosition();
 }
 
 bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -124,7 +123,6 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
                                                       &circleName);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
     // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
@@ -132,11 +130,13 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
     // mediump. It'd be nice to only to this on mediump devices but we currently don't have the
     // caps here.
     if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        fragBuilder->codeAppendf("float d = (length((%s.xy - %s.xy) * %s.w) - 1.0) * %s.z;",
-                                 circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("float d = (length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * "
+                                            "%s.z;",
+                                 circleName, circleName, circleName);
     } else {
-        fragBuilder->codeAppendf("float d = (1.0 - length((%s.xy - %s.xy) *  %s.w)) * %s.z;",
-                                 circleName, fragmentPos, circleName, circleName);
+        fragBuilder->codeAppendf("float d = (1.0 - length((%s.xy - sk_FragCoord.xy) *  %s.w)) * "
+                                                  "%s.z;",
+                                 circleName, circleName, circleName);
     }
     if (GrProcessorEdgeTypeIsAA(ce.getEdgeType())) {
         fragBuilder->codeAppend("d = clamp(d, 0.0, 1.0);");
@@ -235,7 +235,6 @@ EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkS
     , fRadii(SkVector::Make(rx, ry))
     , fEdgeType(edgeType) {
     this->initClassID<EllipseEffect>();
-    this->setWillReadFragmentPosition();
 }
 
 bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -305,10 +304,9 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     }
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    const char* fragmentPos = fragBuilder->fragmentPosition();
 
     // d is the offset to the ellipse center
-    fragBuilder->codeAppendf("vec2 d = %s.xy - %s.xy;", fragmentPos, ellipseName);
+    fragBuilder->codeAppendf("vec2 d = sk_FragCoord.xy - %s.xy;", ellipseName);
     if (scaleName) {
         fragBuilder->codeAppendf("d *= %s.y;", scaleName);
     }
