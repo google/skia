@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_ec819fe7",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-17T14:25:29Z",
+      "side": 1,
+      "message": "uber-ocd-nit: align backslash",
+      "range": {
+        "startLine": 95,
+        "startChar": 29,
+        "endLine": 95,
+        "endChar": 30
+      },
+      "revId": "5985c3999607932188ab7db8deba0652eafba7c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
