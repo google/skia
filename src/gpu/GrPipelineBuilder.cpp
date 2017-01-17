@@ -19,8 +19,6 @@ GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
         : fFlags(0x0)
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fDrawFace(GrDrawFace::kBoth) {
-    SkDEBUGCODE(fBlockEffectRemovalCnt = 0;)
-
     for (int i = 0; i < paint.numColorFragmentProcessors(); ++i) {
         fColorFragmentProcessors.emplace_back(paint.fColorFragmentProcessors[i].release());
     }
@@ -40,39 +38,10 @@ GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
                    paint.usesDistanceVectorField());
 }
 
-//////////////////////////////////////////////////////////////////////////////s
-
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                              const GrPipelineAnalysis& analysis) const {
     if (this->getXPFactory()) {
         return this->getXPFactory()->willNeedDstTexture(caps, analysis);
     }
     return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, analysis);
-}
-
-void GrPipelineBuilder::AutoRestoreFragmentProcessorState::set(
-                                                         const GrPipelineBuilder* pipelineBuilder) {
-    if (fPipelineBuilder) {
-        int m = fPipelineBuilder->numColorFragmentProcessors() - fColorEffectCnt;
-        SkASSERT(m >= 0);
-        fPipelineBuilder->fColorFragmentProcessors.pop_back_n(m);
-
-        int n = fPipelineBuilder->numCoverageFragmentProcessors() - fCoverageEffectCnt;
-        SkASSERT(n >= 0);
-        fPipelineBuilder->fCoverageFragmentProcessors.pop_back_n(n);
-
-        SkDEBUGCODE(--fPipelineBuilder->fBlockEffectRemovalCnt;)
-    }
-    fPipelineBuilder = const_cast<GrPipelineBuilder*>(pipelineBuilder);
-    if (nullptr != pipelineBuilder) {
-        fColorEffectCnt = pipelineBuilder->numColorFragmentProcessors();
-        fCoverageEffectCnt = pipelineBuilder->numCoverageFragmentProcessors();
-        SkDEBUGCODE(++pipelineBuilder->fBlockEffectRemovalCnt;)
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-GrPipelineBuilder::~GrPipelineBuilder() {
-    SkASSERT(0 == fBlockEffectRemovalCnt);
 }
