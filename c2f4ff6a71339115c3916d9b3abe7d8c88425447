@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_17fb649e",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T20:43:37Z",
+      "side": 1,
+      "message": "Can be removed.  ValidInfo() is actually stricter than this - it requires colorSpace() \u0026\u0026 colorSpace()-\u003egammaIsLinear().",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 76
+      },
+      "revId": "c2f4ff6a71339115c3916d9b3abe7d8c88425447",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_770ad8d9",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T20:43:37Z",
+      "side": 1,
+      "message": "Cannot be removed until we start supporting linear-8888 on gpu?",
+      "range": {
+        "startLine": 169,
+        "startChar": 8,
+        "endLine": 171,
+        "endChar": 79
+      },
+      "revId": "c2f4ff6a71339115c3916d9b3abe7d8c88425447",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_5705dcc6",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-17T20:43:37Z",
+      "side": 1,
+      "message": "If this check matters, it probably needs to stay...  We allow other colorTypes to be tagged with colorSpaces.  What other colorTypes do we draw to on Gpu?",
+      "range": {
+        "startLine": 172,
+        "startChar": 8,
+        "endLine": 173,
+        "endChar": 38
+      },
+      "revId": "c2f4ff6a71339115c3916d9b3abe7d8c88425447",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
