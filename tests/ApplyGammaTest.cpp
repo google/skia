@@ -87,7 +87,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         srcPixels.get()[i] = i;
     }
 
-    SkPixmap pm(ii, srcPixels.get(), kRowBytes);
+    SkBitmap bm;
+    bm.installPixels(ii, srcPixels.get(), kRowBytes);
 
     SkAutoTMalloc<uint32_t> read(kW * kH);
 
@@ -96,12 +97,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
     for (auto dOrigin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto gamma : { 1.0f, 1.0f / 1.8f, 1.0f / 2.2f }) {
-            sk_sp<SkImage> src(SkImage::MakeTextureFromPixmap(context, pm, SkBudgeted::kNo));
-
             sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, 
                                                              ii, 0, dOrigin, nullptr));
 
-            if (!src || !dst) {
+            if (!dst) {
                 ERRORF(reporter, "Could not create surfaces for copy surface test.");
                 continue;
             }
@@ -115,7 +114,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
             gammaPaint.setBlendMode(SkBlendMode::kSrc);
             gammaPaint.setColorFilter(SkGammaColorFilter::Make(gamma));
 
-            dstCanvas->drawImage(src, 0, 0, &gammaPaint);
+            dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
             dstCanvas->flush();
 
             sk_memset32(read.get(), 0, kW * kH);
