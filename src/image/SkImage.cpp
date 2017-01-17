@@ -13,6 +13,7 @@
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
 #include "SkImageShader.h"
 #include "SkImage_Base.h"
@@ -81,8 +82,8 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkAlphaType SkImage::alphaType() const {
-    return as_IB(this)->onAlphaType();
+bool SkImage::isOpaque() const {
+    return kOpaque_SkAlphaType == as_IB(this)->onAlphaType();
 }
 
 sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
@@ -203,6 +204,16 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
+}
+
+bool SkImage_Base::ValidInfo(const SkImageInfo& info) {
+    if (!SkImageInfoIsValid(info)) {
+        return false;
+    }
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        return false;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

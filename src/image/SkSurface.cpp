@@ -6,6 +6,7 @@
  */
 
 #include "SkAtomics.h"
+#include "SkImageInfoPriv.h"
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
@@ -54,6 +55,16 @@ SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkSurface_Base::ValidInfo(const SkImageInfo& info) {
+    if (!SkImageInfoIsValid(info)) {
+        return false;
+    }
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        return false;
+    }
+    return true;
+}
 
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
     : INHERITED(width, height, props)

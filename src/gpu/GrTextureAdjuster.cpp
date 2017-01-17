@@ -13,13 +13,13 @@
 #include "GrTexture.h"
 #include "SkGrPriv.h"
 
-GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,
+GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, bool isOpaque,
                                      const SkIRect& contentArea, uint32_t uniqueID,
                                      SkColorSpace* cs)
     : INHERITED(contentArea.width(), contentArea.height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
     , fOriginal(original)
-    , fAlphaType(alphaType)
+    , fAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType)
     , fColorSpace(cs)
     , fUniqueID(uniqueID) {
     SkASSERT(SkIRect::MakeWH(original->width(), original->height()).contains(contentArea));

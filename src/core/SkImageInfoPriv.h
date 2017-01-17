@@ -5,6 +5,11 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkImageInfoPriv_DEFINED
+#define SkImageInfoPriv_DEFINED
+
+#include "SkImageInfo.h"
+
 /**
  *  Returns true if |info| contains a valid combination of width, height, colorType, alphaType,
  *  colorSpace.  Returns false otherwise.
@@ -77,3 +82,5 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
 
     return true;
 }
+
+#endif

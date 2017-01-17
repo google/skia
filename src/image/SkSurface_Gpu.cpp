@@ -21,7 +21,9 @@
 
 SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
-    , fDevice(std::move(device)) {
+    , fDevice(std::move(device))
+{
+    SkASSERT(SkSurface_Gpu::Valid(fDevice->imageInfo()));
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
@@ -157,6 +159,10 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
+    if (!SkSurface_Base::ValidInfo(info)) {
+        return false;
+    }
+    // TODO: can we remove some/all of this, now that we have SkSurface_Base::ValidInfo?
     switch (info.colorType()) {
         case kRGBA_F16_SkColorType:
             return !info.colorSpace() || info.colorSpace()->gammaIsLinear();
@@ -169,9 +175,10 @@ bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
 }
 
 bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace* colorSpace) {
+    // TODO: can we share code with Valid(imageinfo)?
     switch (config) {
         case kRGBA_half_GrPixelConfig:
-            return !colorSpace || colorSpace->gammaIsLinear();
+            return colorSpace && colorSpace->gammaIsLinear();
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
             return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();

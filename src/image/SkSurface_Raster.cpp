@@ -40,7 +40,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
-    if (info.isEmpty()) {
+    if (!SkSurface_Base::ValidInfo(info)) {
         return false;
     }
 

@@ -34,22 +34,13 @@ class SkImage_Raster : public SkImage_Base {
 public:
     static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
                           size_t* minSize) {
+        if (!SkImage_Base::ValidInfo(info)) {
+            return false;
+        }
+
         const int maxDimension = SK_MaxS32 >> 2;
 
-        if (info.width() <= 0 || info.height() <= 0) {
-            return false;
-        }
         if (info.width() > maxDimension || info.height() > maxDimension) {
-            return false;
-        }
-        if ((unsigned)info.colorType() > (unsigned)kLastEnum_SkColorType) {
-            return false;
-        }
-        if ((unsigned)info.alphaType() > (unsigned)kLastEnum_SkAlphaType) {
-            return false;
-        }
-
-        if (kUnknown_SkColorType == info.colorType()) {
             return false;
         }
 
