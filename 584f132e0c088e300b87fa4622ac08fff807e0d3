@@ -45,6 +45,24 @@
       "revId": "584f132e0c088e300b87fa4622ac08fff807e0d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "578ed681_cc409ea9",
+        "filename": "tests/PaintTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-17T15:27:46Z",
+      "side": 1,
+      "message": "yeah, we should take a look at this; but it\u0027s outside the scope of this CL.",
+      "parentUuid": "578ed681_ee179a5d",
+      "revId": "584f132e0c088e300b87fa4622ac08fff807e0d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
