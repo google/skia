@@ -29,7 +29,6 @@ using namespace sk_gpu_test;
 
 DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
-DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
 DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
 
 #if DEBUG_COIN
@@ -141,7 +140,6 @@ int test_main() {
     SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
     SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;
 #endif
-    SkPathOpsDebug::gRunFail = FLAGS_runFail;
     SkPathOpsDebug::gVeryVerbose = FLAGS_veryVerbose;
     SetupCrashHandler();
 
@@ -171,11 +169,6 @@ int test_main() {
         if (FLAGS_dumpOp) {
             header.appendf(" -d");
         }
-#ifdef SK_DEBUG
-        if (FLAGS_runFail) {
-            header.appendf(" -f");
-        }
-#endif
         if (FLAGS_verbose) {
             header.appendf(" -v");
         }
