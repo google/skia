@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_2cbad7b0",
+        "filename": "include/gpu/GrInvariantOutput.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-17T14:53:34Z",
+      "side": 0,
+      "message": "why was this getting alpha here?",
+      "range": {
+        "startLine": 151,
+        "startChar": 41,
+        "endLine": 151,
+        "endChar": 83
+      },
+      "revId": "986480a71f4e860663ced7ad90a1fe346a164afb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
