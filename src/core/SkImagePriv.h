@@ -96,4 +96,11 @@ bool SkImage_pinAsTexture(const SkImage*, GrContext*);
  */
 void SkImage_unpinAsTexture(const SkImage*, GrContext*);
 
+/**
+ *  Returns a new image containing the same pixel values as the source, but with a different color
+ *  space assigned. This performs no color space conversion. Primarily used in tests, to visualize
+ *  the results of rendering in wide or narrow gamuts.
+ */
+sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage*, SkColorSpace*);
+
 #endif

@@ -326,23 +326,27 @@ public:
         if (!IsGpuDeviceType(dType) ||
             kRGBA_F16_SkColorType == win->info().colorType() ||
             fActualColorBits > 24) {
-            // We made/have an off-screen surface. Get the contents as an SkImage:
-            SkImageInfo offscreenInfo = win->info();
-            if (kMonitor_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace ||
-                kNarrow_OutputColorSpace == gConfig[win->getColorConfigIndex()].fColorSpace) {
-                // This is a big hack. We want our final output to be color "correct". If we snap
-                // an image in the gamut of the monitor, and then render to FBO0 (which we've tagged
-                // as sRGB), then we end up doing round-trip gamut conversion, and still seeing the
-                // same colors on-screen as if we weren't color managed at all.
-                // Instead, we readPixels into a buffer that we claim is sRGB (readPixels doesn't
-                // do gamut conversion), so these pixels then get thrown directly at the monitor,
-                // giving us the expected results (the output is adapted to the monitor's gamut).
-                auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-                offscreenInfo = offscreenInfo.makeColorSpace(srgb);
+            // We made/have an off-screen surface. Extract the pixels exactly as we rendered them:
+            SkImageInfo info = win->info();
+            size_t rowBytes = info.minRowBytes();
+            size_t size = info.getSafeSize(rowBytes);
+            auto data = SkData::MakeUninitialized(size);
+            SkASSERT(data);
+
+            if (!renderingCanvas->readPixels(info, data->writable_data(), rowBytes, 0, 0)) {
+                SkDEBUGFAIL("Failed to read canvas pixels");
+                return;
             }
-            SkBitmap bm;
-            bm.allocPixels(offscreenInfo);
-            renderingCanvas->readPixels(&bm, 0, 0);
+
+            // Now, re-interpret those pixels as sRGB, so they won't be color converted when we
+            // draw then to FBO0. This ensures that if we rendered in any strange gamut, we'll see
+            // the "correct" output (because we generated the pixel values we wanted in the
+            // offscreen canvas).
+            auto colorSpace = kRGBA_F16_SkColorType == info.colorType()
+                ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+            auto offscreenImage = SkImage::MakeRasterData(info.makeColorSpace(colorSpace), data,
+                                                          rowBytes);
 
             SkCanvas* gpuCanvas = fGpuSurface->getCanvas();
 
@@ -357,7 +361,7 @@ public:
                 gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
             }
 
-            gpuCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
+            gpuCanvas->drawImage(offscreenImage, 0, 0, &gammaPaint);
         }
 
         fGpuSurface->prepareForExternalIO();

@@ -9,6 +9,7 @@
 
 #include "SkColorSpace_Base.h"
 #include "SkGradientShader.h"
+#include "SkImagePriv.h"
 #include "SkPM4fPriv.h"
 #include "SkSurface.h"
 
@@ -147,13 +148,12 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
     SkASSERT(srgbCS);
     SkASSERT(wideCS);
 
-    // Make our two working surfaces (one sRGB, one Adobe)
+    // Make our two working surfaces (one sRGB, one Wide)
     SkImageInfo srgbGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, origInfo.colorType(),
                                                   kPremul_SkAlphaType, srgbCS);
     SkImageInfo wideGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, origInfo.colorType(),
                                                   kPremul_SkAlphaType, wideCS);
-    // readPixels doesn't do color conversion (yet), so we can use it to see the raw (wide) data
-    SkImageInfo dstInfo = srgbGamutInfo.makeColorSpace(nullptr);
+
     sk_sp<SkSurface> srgbGamutSurface = canvas->makeSurface(srgbGamutInfo);
     sk_sp<SkSurface> wideGamutSurface = canvas->makeSurface(wideGamutInfo);
     if (!srgbGamutSurface || !wideGamutSurface) {
@@ -179,16 +179,18 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
         canvas->drawText(renderer->label(), strlen(renderer->label()), x, y + textHeight,
                          textPaint);
 
-        SkBitmap srgbBitmap;
-        srgbBitmap.setInfo(dstInfo);
-        srgbGamutCanvas->readPixels(&srgbBitmap, 0, 0);
-        canvas->drawBitmap(srgbBitmap, x, y + textHeight + 5);
+        // Re-interpret the off-screen images, so we can see the raw data (eg, Wide gamut squares
+        // will look desaturated, relative to sRGB).
+        auto srgbImage = srgbGamutSurface->makeImageSnapshot();
+        srgbImage = SkImageMakeRasterCopyAndAssignColorSpace(srgbImage.get(),
+                                                             origInfo.colorSpace());
+        canvas->drawImage(srgbImage, x, y + textHeight + 5);
         x += (gScalarSize + 1);
 
-        SkBitmap wideBitmap;
-        wideBitmap.setInfo(dstInfo);
-        wideGamutCanvas->readPixels(&wideBitmap, 0, 0);
-        canvas->drawBitmap(wideBitmap, x, y + textHeight + 5);
+        auto wideImage = wideGamutSurface->makeImageSnapshot();
+        wideImage = SkImageMakeRasterCopyAndAssignColorSpace(wideImage.get(),
+                                                             origInfo.colorSpace());
+        canvas->drawImage(wideImage, x, y + textHeight + 5);
         x += (gScalarSize + 10);
 
         if (x + (2 * gScalarSize + 1) > gTestWidth) {
