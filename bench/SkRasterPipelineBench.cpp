@@ -76,3 +76,38 @@ DEF_BENCH( return (new SkRasterPipelineBench< true,  true>); )
 DEF_BENCH( return (new SkRasterPipelineBench<false,  true>); )
 DEF_BENCH( return (new SkRasterPipelineBench< true, false>); )
 DEF_BENCH( return (new SkRasterPipelineBench<false, false>); )
+
+template <bool kCompiled>
+class SkRasterPipelineLegacyBench : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override {
+        return kCompiled ? "SkRasterPipeline_legacy_compile"
+                         : "SkRasterPipeline_legacy_run";
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        void*  src_ctx = src;
+        void*  dst_ctx = dst;
+
+        SkRasterPipeline p;
+        p.append(SkRasterPipeline::load_8888, &dst_ctx);
+        p.append(SkRasterPipeline::move_src_dst);
+        p.append(SkRasterPipeline::load_8888, &src_ctx);
+        p.append(SkRasterPipeline::srcover);
+        p.append(SkRasterPipeline::store_8888, &dst_ctx);
+
+        if (kCompiled) {
+            auto compiled = p.compile();
+            while (loops --> 0) {
+                compiled(0,0, N);
+            }
+        } else {
+            while (loops --> 0) {
+                p.run(0,0, N);
+            }
+        }
+    }
+};
+DEF_BENCH( return (new SkRasterPipelineLegacyBench< true>); )
+DEF_BENCH( return (new SkRasterPipelineLegacyBench<false>); )
