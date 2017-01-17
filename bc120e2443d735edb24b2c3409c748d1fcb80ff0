@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "975f6e58_7ca0bf44",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d760061e_0235f434",
+      "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_a237e03d",
         "filename": "site/user/build.md",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-28T04:45:47Z",
       "side": 1,
       "message": "Might be a good idea to write this as --help?",
+      "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "975f6e58_bcaa5720",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "d760061e_a237e03d",
       "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "975f6e58_5ca5fb52",
+        "filename": "site/user/build.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d760061e_c23adc25",
+      "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d760061e_22a59054",
         "filename": "site/user/download.md",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-28T04:45:47Z",
       "side": 1,
       "message": "Let\u0027s cut this all down to, \"Skia\u0027s build tools require Python 2.7.\"  No one is going to be able to use Skia that can\u0027t handle that.\n\nDid gclient sync work with python 3?  If not, please don\u0027t change this file; your problems are greater than Skia..",
+      "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "975f6e58_3c03e778",
+        "filename": "site/user/download.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6110
+      },
+      "writtenOn": "2017-01-17T21:03:29Z",
+      "side": 1,
+      "message": "The step before that (gclient config) doesn\u0027t work because the urlparse module was renamed in Python 3.",
+      "parentUuid": "d760061e_22a59054",
       "revId": "bc120e2443d735edb24b2c3409c748d1fcb80ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
