@@ -88,6 +88,7 @@ def GenTests(api):
                      mastername='client.skia.fyi',
                      slavename='skiabot-linux-housekeeper-000',
                      buildnumber=5,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -99,6 +100,7 @@ def GenTests(api):
                      mastername='client.skia.fyi',
                      slavename='skiabot-linux-housekeeper-000',
                      buildnumber=5,
+                     repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
                      patch_storage='gerrit',
