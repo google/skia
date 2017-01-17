@@ -18,8 +18,6 @@
 #include "SkDocument.h"
 #include "SkGammaColorFilter.h"
 #include "SkGraphics.h"
-#include "SkImage_Base.h"
-#include "SkImageEncoder.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -345,10 +343,6 @@ public:
             SkBitmap bm;
             bm.allocPixels(offscreenInfo);
             renderingCanvas->readPixels(&bm, 0, 0);
-            SkPixmap pm;
-            bm.peekPixels(&pm);
-            sk_sp<SkImage> image(SkImage::MakeTextureFromPixmap(fCurContext, pm,
-                                                                SkBudgeted::kNo));
 
             SkCanvas* gpuCanvas = fGpuSurface->getCanvas();
 
@@ -363,7 +357,7 @@ public:
                 gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
             }
 
-            gpuCanvas->drawImage(image, 0, 0, &gammaPaint);
+            gpuCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
         }
 
         fGpuSurface->prepareForExternalIO();
