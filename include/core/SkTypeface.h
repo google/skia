@@ -11,6 +11,7 @@
 #include "../private/SkBitmaskEnum.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
+#include "SkFontParameters.h"
 #include "SkFontStyle.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -77,6 +78,12 @@ public:
      */
     bool isFixedPitch() const { return fIsFixedPitch; }
 
+    /** Copy into axes[] (allocated by the caller) the list axis values
+     *  and return the count. If axes is nullptr, this only returns the count.
+     *  If the font may have axes but it is impossible to report them returns -1.
+     */
+    int getAxes(SkFontParameters::Axis axes[]) const;
+
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
@@ -96,16 +103,16 @@ public:
     /** Returns the default typeface, which is never nullptr. */
     static sk_sp<SkTypeface> MakeDefault(Style style = SkTypeface::kNormal);
 
-  /** Creates a new reference to the typeface that most closely matches the
-      requested familyName and fontStyle. This method allows extended font
-      face specifiers as in the SkFontStyle type. Will never return null.
+    /** Creates a new reference to the typeface that most closely matches the
+        requested familyName and fontStyle. This method allows extended font
+        face specifiers as in the SkFontStyle type. Will never return null.
 
-      @param familyName  May be NULL. The name of the font family.
-      @param fontStyle   The style of the typeface.
-      @return reference to the closest-matching typeface. Call must call
+        @param familyName  May be NULL. The name of the font family.
+        @param fontStyle   The style of the typeface.
+        @return reference to the closest-matching typeface. Call must call
               unref() when they are done.
     */
-  static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
+    static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
 
     /** Return the typeface that most closely matches the requested typeface and style.
         Use this to pick a new style from the same family of the existing typeface.
@@ -340,6 +347,8 @@ protected:
     virtual SkStreamAsset* onOpenStream(int* ttcIndex) const = 0;
     // TODO: make pure virtual.
     virtual std::unique_ptr<SkFontData> onMakeFontData() const;
+
+    virtual int onGetAxes(SkFontParameters::Axis axes[]) const = 0;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 

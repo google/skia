@@ -430,6 +430,7 @@ protected:
     int onGetUPEM() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
     std::unique_ptr<SkFontData> onMakeFontData() const override;
+    int onGetAxes(SkFontParameters::Axis axes[]) const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
@@ -1665,6 +1666,21 @@ std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
+int SkTypeface_Mac::onGetAxes(SkFontParameters::Axis axes[]) const {
+    CFIndex cgAxisCount;
+    SkAutoSTMalloc<4, SkFixed> axisValues;
+    if (!get_variations(fFontRef.get(), &cgAxisCount, &axisValues)) {
+        return 0;
+    }
+    if (axes) {
+        for (CFIndex i = 0; i < cgAxisCount; ++i) {
+            axes[i].fTag = ...; // TODO: not sure how to get this information, do we not crash getting the tags now?
+            axes[i].fStyleValue = axisValues[i];
+        }
+    }
+    return cgAxisCount;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1697,6 +1713,7 @@ SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const
     }
     return nameIter;
 }
+
 
 int SkTypeface_Mac::onGetTableTags(SkFontTableTag tags[]) const {
     UniqueCFRef<CFArrayRef> cfArray(

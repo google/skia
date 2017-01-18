@@ -6,6 +6,8 @@
  */
 
 #include "SkData.h"
+#include "SkFontMgr.h"
+#include "SkMakeUnique.h"
 #include "SkOTTable_OS_2.h"
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
@@ -87,6 +89,38 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
+DEF_TEST(TypefaceAxes, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    SkFontParameters::Axis axis[] = { { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 } };
+    SkFontParameters params;
+    params.setAxes(axis, SK_ARRAY_COUNT(axis));
+    // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
+    sk_sp<SkTypeface> typeface(fm->createFromStream(distortable.release(), params));
+
+    int count = typeface->getAxes(nullptr);
+    if (count == -1) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(axis));
+
+    SkFontParameters::Axis axisRead[SK_ARRAY_COUNT(axis)];
+    count = typeface->getAxes(axisRead);
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(axis));
+
+    REPORTER_ASSERT(reporter, axisRead[0].fTag == axis[0].fTag);
+
+    // Comvert to fixed for "almost equal".
+    SkFixed fixedRead = SkScalarToFixed(axisRead[0].fStyleValue);
+    SkFixed fixedOriginal = SkScalarToFixed(axis[0].fStyleValue);
+    REPORTER_ASSERT(reporter, fixedRead == fixedOriginal);
+}
+
 DEF_TEST(Typeface, reporter) {
 
     sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
@@ -134,6 +168,7 @@ protected:
         SK_ABORT("unimplemented");
         return nullptr;
     }
+    int onGetAxes(SkFontParameters::Axis axes[]) const override { return 0; }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
 };
