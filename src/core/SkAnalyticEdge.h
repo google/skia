@@ -147,11 +147,6 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     SkFixed x1 = SkFDot6ToFixed(SkScalarToFDot6(p1.fX * multiplier)) >> accuracy;
     SkFixed y1 = SnapY(SkFDot6ToFixed(SkScalarToFDot6(p1.fY * multiplier)) >> accuracy);
 
-    // are we a zero-height line?
-    if (y0 == y1) {
-        return false;
-    }
-
     int winding = 1;
 
     if (y0 > y1) {
@@ -160,12 +155,19 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
         winding = -1;
     }
 
+    // are we a zero-height line?
 #ifdef SK_SUPPORT_LEGACY_AAA
+    if (y0 == y1) {
+        return false;
+    }
     SkFixed slope = SkFixedDiv(x1 - x0, y1 - y0);
 #else
     SkFDot6 dy = SkFixedToFDot6(y1 - y0);
+    if (dy == 0) {
+        return false;
+    }
     SkFDot6 dx = SkFixedToFDot6(x1 - x0);
-    SkFixed slope = dy ? QuickSkFDot6Div(dx, dy) : SK_MaxS32;
+    SkFixed slope = QuickSkFDot6Div(dx, dy);
     SkFixed absSlope = SkAbs32(slope);
 #endif
 
