@@ -117,6 +117,7 @@ private:
 
     // Only this class can access addPendingExecution() and completedExecution().
     template <typename T> friend class GrPendingProgramElement;
+    friend class GrProcessorSet;
 
     typedef SkNoncopyable INHERITED;
 };

@@ -264,8 +264,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
 void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     std::unique_ptr<GrDrawOp>
-                                             op) {
+                                     std::unique_ptr<GrDrawOp> op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
@@ -312,12 +311,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
             return;
         }
     }
-    args.fAnalysis.fColorPOI.addProcessors(
-            sk_sp_address_as_pointer_address(pipelineBuilder.fColorFragmentProcessors.begin()),
-            pipelineBuilder.numColorFragmentProcessors());
-    args.fAnalysis.fCoveragePOI.addProcessors(
-            sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
-            pipelineBuilder.numCoverageFragmentProcessors());
+    pipelineBuilder.analyzeFragmentProcessors(&args.fAnalysis);
     if (const GrFragmentProcessor* clipFP = appliedClip.clipCoverageFragmentProcessor()) {
         args.fAnalysis.fCoveragePOI.addProcessors(&clipFP, 1);
     }

@@ -169,7 +169,7 @@ public:
 private:
     GrPaint& operator=(const GrPaint&) = delete;
 
-    friend class GrPipelineBuilder;
+    friend class GrProcessorSet;
 
     bool internalIsConstantBlendedColor(GrColor paintColor, GrColor* constantColor) const;
 
