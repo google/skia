@@ -287,7 +287,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
 
     GrPipeline::CreateArgs args;
-    args.fPipelineBuilder = &pipelineBuilder;
+    pipelineBuilder.initPipelineCreateArgs(&args);
     args.fAppliedClip = &appliedClip;
     args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
