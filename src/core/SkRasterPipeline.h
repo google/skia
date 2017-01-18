@@ -79,20 +79,22 @@
     M(colorburn) M(colordodge) M(darken) M(difference)           \
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
     M(luminance_to_alpha)                                        \
-    M(matrix_2x3) M(matrix_3x4) M(matrix_4x5)                    \
+    M(matrix_2x3) M(matrix_3x4) M(matrix_4x5) M(matrix_2x3_xonly)\
     M(matrix_perspective)                                        \
     M(parametric_r) M(parametric_g) M(parametric_b)              \
     M(parametric_a)                                              \
     M(table_r) M(table_g) M(table_b) M(table_a)                  \
     M(color_lookup_table) M(lab_to_xyz)                          \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
+    M(clamp_1_x) M(mirror_1_x) M(repeat_1_x)                     \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
     M(gather_a8) M(gather_g8) M(gather_i8)                       \
     M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
-    M(save_xy) M(accumulate)
+    M(save_xy) M(accumulate)                                     \
+    M(lineargr_2stops)
 
 class SkRasterPipeline {
 public:
