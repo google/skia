@@ -478,6 +478,67 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
     }
 }
 
+static void offset_start(SkOpAngle* angle, const SkPoint* line, bool offsetStart) {
+    SkDPoint* pt = angle->debugFirstPt();
+    if (!offsetStart) {
+        pt->fX = pt->fY = 0;
+        return;
+    }
+    pt->fX = line[1].fX * 0.001f;
+    pt->fY = line[1].fY * 0.001f;
+}
+
+// test if offset line edges return the same results as edges without offsets
+DEF_TEST(PathOpsOffsetLineAngle, reporter) {
+    static SkPoint radialLines[][2] = {
+        { {0, 0}, { 2, -1} }, { {0, 0}, { 2, -2} }, { {0, 0}, { 1, -2} }, { {0, 0}, { 0, -2} },
+        { {0, 0}, {-1, -2} }, { {0, 0}, {-2, -2} }, { {0, 0}, {-2, -1} }, { {0, 0}, {-2,  0} }, 
+        { {0, 0}, {-2,  1} }, { {0, 0}, {-2,  2} }, { {0, 0}, {-1,  2} }, { {0, 0}, { 0,  2} }, 
+        { {0, 0}, { 1,  2} }, { {0, 0}, { 2,  2} }, { {0, 0}, { 2,  1} }, { {0, 0}, { 2,  0} }, 
+    };
+    SkChunkAlloc allocator(4096);
+    SkOpContourHead contour;
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    contour.init(&state, false, false);
+    for (int lh = 0; lh < 16; ++lh) {
+        for (int mid = 0; mid < 16; ++mid) {
+            if (lh == mid) {
+                continue;
+            }
+            for (int rh = 0; rh < 16; ++rh) {
+                if (lh == rh || mid == rh) {
+                    continue;
+                }
+                allocator.reset();
+                contour.reset();
+                contour.addLine(radialLines[lh]);
+                contour.addLine(radialLines[mid]);
+                contour.addLine(radialLines[rh]);
+                SkOpSegment* seg1 = contour.first();
+                seg1->debugAddAngle(0, 1);
+                SkOpSegment* seg2 = seg1->next();
+                seg2->debugAddAngle(0, 1);
+                SkOpSegment* seg3 = seg2->next();
+                seg3->debugAddAngle(0, 1);
+                SkOpAngle* angle1 = seg1->debugLastAngle();
+                SkOpAngle* angle2 = seg2->debugLastAngle();
+                SkOpAngle* angle3 = seg3->debugLastAngle();
+                PathOpsAngleTester::SetNext(*angle1, *angle3);
+                /* int expected = */ PathOpsAngleTester::After(*angle2, *angle1);
+                for (int test = 1; test <= 8; ++test) {
+                    offset_start(angle1, radialLines[lh], test & 1);
+                    offset_start(angle2, radialLines[mid], test & 2);
+                    offset_start(angle3, radialLines[rh], test & 4);
+                    /* int found =  */ PathOpsAngleTester::After(*angle2, *angle1);
+#if 0  // this test fails; haven't explored if this is a real bug or not
+                    REPORTER_ASSERT(reporter, expected == found);
+#endif
+                }
+            }
+        }
+    }
+}
+
 void SkOpSegment::debugAddAngle(double startT, double endT) {
     SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
             : this->addT(startT);

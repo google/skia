@@ -77,8 +77,6 @@ public:
     const class SkOpPtT* debugPtT(int id) const;
 #endif
 
-    static bool DebugRunFail();
-
 #ifdef SK_DEBUG
     const class SkOpSegment* debugSegment(int id) const;
     bool debugSkipAssert() const { return fDebugSkipAssert; }
