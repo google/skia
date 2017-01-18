@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8d8660b_11708c45",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-18T22:53:12Z",
+      "side": 1,
+      "message": "It seems to me that the right thing is to ignore it with some descriptive comments:\n\"If a conversion is required, BitDepth indicates how much precision to use in the output image.  If there is no conversion required, the bit depth of the original image will be preserved.\"",
+      "range": {
+        "startLine": 352,
+        "startChar": 8,
+        "endLine": 352,
+        "endChar": 79
+      },
+      "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
