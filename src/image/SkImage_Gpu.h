@@ -43,6 +43,7 @@ public:
                             sk_sp<SkColorSpace>*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
+    sk_sp<GrSurfaceProxy> refProxy() const;
     GrTexture* peekTexture() const override { return fTexture.get(); }
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
@@ -50,6 +51,9 @@ public:
     }
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
+
+    GrContext* context() { return fTexture->getContext(); }
+    sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
 private:
     sk_sp<GrTexture>       fTexture;
