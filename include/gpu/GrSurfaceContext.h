@@ -30,6 +30,10 @@ class SK_API GrSurfaceContext : public SkRefCnt {
 public:
     ~GrSurfaceContext() override {}
 
+    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
+
     /*
      * Copy 'src' into the proxy backing this context
      * @param src       src of pixels
@@ -52,6 +56,39 @@ public:
                             SkIPoint::Make(0, 0));
     }
 
+    /**
+     * Reads a rectangle of pixels from the render target context.
+     * @param dstInfo       image info for the destination
+     * @param dstBuffer     destination pixels for the read
+     * @param dstRowBytes   bytes in a row of 'dstBuffer'
+     * @param x             x offset w/in the render target context from which to read
+     * @param y             y offset w/in the render target context from which to read
+     *
+     * @return true if the read succeeded, false if not. The read can fail because of an
+     *              unsupported pixel config.
+     */
+    bool readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size_t dstRowBytes,
+                    int x, int y) {
+        return this->onReadPixels(dstInfo, dstBuffer, dstRowBytes, x, y);
+    }
+
+    /**
+     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the 
+     * renderTargetContext at the specified position.
+     * @param srcInfo       image info for the source pixels
+     * @param srcBuffer     source for the write
+     * @param srcRowBytes   bytes in a row of 'srcBuffer'
+     * @param x             x offset w/in the render target context at which to write
+     * @param y             y offset w/in the render target context at which to write
+     *
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *              unsupported pixel config.
+     */
+    bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
+                     int x, int y) {
+        return this->onWritePixels(srcInfo, srcBuffer, srcRowBytes, x, y);
+    }
+
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asDeferredSurface() = 0;
     virtual GrTextureProxy* asDeferredTexture() = 0;
@@ -66,11 +103,12 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, GrAuditTrail*, GrSingleOwner*);
+    GrSurfaceContext(GrContext*, sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
     GrContext*            fContext;
+    sk_sp<SkColorSpace>   fColorSpace;
     GrAuditTrail*         fAuditTrail;
 
     // In debug builds we guard against improper thread handling
@@ -80,6 +118,10 @@ private:
     virtual bool onCopy(GrSurfaceProxy* src,
                         const SkIRect& srcRect,
                         const SkIPoint& dstPoint) = 0;
+    virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
+                              size_t dstRowBytes, int x, int y) = 0;
+    virtual bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
+                               size_t srcRowBytes, int x, int y) = 0;
 
     typedef SkRefCnt INHERITED;
 };

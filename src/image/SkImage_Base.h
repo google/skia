@@ -19,6 +19,7 @@
 #include <new>
 
 class GrSamplerParams;
+class GrSurfaceProxy;
 class SkImageCacherator;
 
 enum {

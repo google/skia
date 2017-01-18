@@ -287,5 +287,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
-                                                        fContext->getAuditTrail(), fSingleOwner));
+                                                        nullptr, fContext->getAuditTrail(),
+                                                        fSingleOwner));
 }
