@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_05916970",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "Don\u0027t forget 4444! As much as we\u0027d like to :)",
+      "range": {
+        "startLine": 10,
+        "startChar": 25,
+        "endLine": 10,
+        "endChar": 29
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a5f5f59d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "It sounds like the goal of this change is simpler code? I think we considered letting libpng handle some transformations at decode time but found that we could do the transformations faster. Maybe speed of encoding is less critical, but do you have an idea of what effect this has on performance?",
+      "range": {
+        "startLine": 11,
+        "startChar": 25,
+        "endLine": 11,
+        "endChar": 48
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_e5d52d27",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "This comment needs to be updated.\n\nIt looks like some of these methods are named according to their source properties, not considering their dest properties? e.g. this method\u0027s name is 565, and it just transforms to whatever makes sense? Should the method name describe the dest somehow? e.g. transform_scanline_565_to_8888?",
+      "range": {
+        "startLine": 37,
+        "startChar": 37,
+        "endLine": 37,
+        "endChar": 58
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a572558a",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "This comment is now out of date.",
+      "range": {
+        "startLine": 54,
+        "startChar": 39,
+        "endLine": 54,
+        "endChar": 60
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a547b50d",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "/replaced with opaque?\n\nIn its current use, I think you could just leave it uninitialized - libpng is just going to ignore it anyway. Maybe that would be a problem, though, if we later wanted to use this method to transform to opaque in some format that needs the alpha channel.",
+      "range": {
+        "startLine": 55,
+        "startChar": 3,
+        "endLine": 55,
+        "endChar": 43
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a599759e",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T14:29:16Z",
+      "side": 1,
+      "message": "Not introduced by this change, but I was searching for transform_scanline_444 and noticed this one. This converts from kARGB_4444_SkColorType, right?\n\nAnd I just noticed it says Config, hinting that this comment is rather old, and it was not introduced by you at all. Same with my naming concerns above.",
+      "range": {
+        "startLine": 167,
+        "startChar": 18,
+        "endLine": 167,
+        "endChar": 35
+      },
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
