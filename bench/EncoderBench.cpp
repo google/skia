@@ -51,6 +51,7 @@ public:
         bool result =
 #endif
         GetResourceAsBitmap(fFilename, &fBitmap);
+        fBitmap.setAlphaType(kOpaque_SkAlphaType);
         SkASSERT(result);
     }
 
