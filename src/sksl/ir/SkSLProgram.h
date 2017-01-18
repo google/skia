@@ -59,8 +59,8 @@ struct Program {
     , fSettings(settings)
     , fDefaultPrecision(defaultPrecision)
     , fContext(context)
-    , fElements(std::move(elements))
     , fSymbols(symbols)
+    , fElements(std::move(elements))
     , fInputs(inputs) {}
 
     Kind fKind;
@@ -68,8 +68,8 @@ struct Program {
     // FIXME handle different types; currently it assumes this is for floats
     Modifiers::Flag fDefaultPrecision;
     Context* fContext;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
     std::shared_ptr<SymbolTable> fSymbols;
+    std::vector<std::unique_ptr<ProgramElement>> fElements;
     Inputs fInputs;
 };
 
