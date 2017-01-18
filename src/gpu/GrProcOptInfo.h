@@ -43,7 +43,7 @@ public:
      * Runs through a series of processors and updates calculated values. This can be called
      * repeatedly for cases when the sequence of processors is not in a contiguous array.
      */
-    void addProcessors(const GrFragmentProcessor* const* processors, int cnt);
+    void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
     bool isOpaque() const { return fInOut.isOpaque(); }

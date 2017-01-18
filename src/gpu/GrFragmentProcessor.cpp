@@ -341,7 +341,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
 
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcOptInfo info(0x0, kNone_GrColorComponentFlags);
-    info.addProcessors(sk_sp_address_as_pointer_address(series), cnt);
+    info.analyzeProcessors(sk_sp_address_as_pointer_address(series), cnt);
     if (kRGBA_GrColorComponentFlags == info.validFlags()) {
         // TODO: We need to preserve 4f and color spaces during invariant processing. This color
         // has definitely lost precision, and could easily be in the wrong gamut (or have been
