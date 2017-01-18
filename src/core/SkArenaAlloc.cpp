@@ -12,15 +12,21 @@ struct Skipper {
     char* operator()(char* objEnd, ptrdiff_t size) { return objEnd + size; }
 };
 
-struct NextBlock {
-    char* operator()(char* objEnd, ptrdiff_t size) { delete [] objEnd; return objEnd + size; }
+struct SkArenaAlloc::NextBlock {
+    char* operator()(char* objEnd, ptrdiff_t size) {
+        ResetBlock(objEnd + size);
+        delete [] objEnd;
+        return nullptr;
+    }
 };
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
-    : fDtorCursor{block}
-    , fCursor    {block}
-    , fEnd       {block + size}
-    , fExtraSize {extraSize}
+    : fDtorCursor {block}
+    , fCursor     {block}
+    , fEnd        {block + size}
+    , fFirstBlock {block}
+    , fFirstSize  {size}
+    , fExtraSize  {extraSize}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
@@ -32,16 +38,12 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
 }
 
 SkArenaAlloc::~SkArenaAlloc() {
-    this->reset();
+    ResetBlock(fDtorCursor);
 }
 
 void SkArenaAlloc::reset() {
-    Footer f;
-    memmove(&f, fDtorCursor - sizeof(Footer), sizeof(Footer));
-    char* releaser = fDtorCursor;
-    while (releaser != nullptr) {
-        releaser = this->callFooterAction(releaser);
-    }
+    this->~SkArenaAlloc();
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
@@ -54,8 +56,6 @@ void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
 
     Footer footer = (Footer)(footerData);
     memmove(fCursor, &footer, sizeof(Footer));
-    Footer check;
-    memmove(&check, fCursor, sizeof(Footer));
     fCursor += sizeof(Footer);
     fDtorCursor = fCursor;
 }
@@ -104,7 +104,7 @@ char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
 char* SkArenaAlloc::allocObjectWithFooter(size_t sizeIncludingFooter, size_t alignment) {
     size_t mask = alignment - 1;
 
-    restart:
+restart:
     size_t skipOverhead = 0;
     bool needsSkipFooter = fCursor != fDtorCursor;
     if (needsSkipFooter) {
@@ -132,14 +132,20 @@ char* SkArenaAlloc::allocObjectWithFooter(size_t sizeIncludingFooter, size_t ali
     return objStart;
 }
 
-char* SkArenaAlloc::callFooterAction(char* end) {
-    Footer footer;
-    memcpy(&footer, end - sizeof(Footer), sizeof(Footer));
+void SkArenaAlloc::ResetBlock(char* footerEnd) {
+    while (footerEnd != nullptr) {
+        footerEnd = CallFooterAction(footerEnd);
+    }
+}
 
-    FooterAction* releaser = (FooterAction*)((char*)EndChain + (footer >> 5));
+char* SkArenaAlloc::CallFooterAction(char* footerEnd) {
+    Footer footer;
+    memcpy(&footer, footerEnd - sizeof(Footer), sizeof(Footer));
+
+    FooterAction* action = (FooterAction*)((char*)EndChain + (footer >> 5));
     ptrdiff_t padding = footer & 31;
 
-    char* r = releaser(end) - padding;
+    char* r = action(footerEnd) - padding;
 
     return r;
 }
