@@ -284,6 +284,10 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkAre
         p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
     }
 
+    // Boy, I wish I understood why we need to do this adjustment in clamp mode.  Herb?
+    if (fTileModeX == kClamp_TileMode) { ctx->width  -= 0.5f; }
+    if (fTileModey == kClamp_TileMode) { ctx->height -= 0.5f; }
+
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
             case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
