@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_80e467b1",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T15:11:45Z",
+      "side": 1,
+      "message": "I added these to allow range-based for loops",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
