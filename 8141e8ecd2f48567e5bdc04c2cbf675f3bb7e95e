@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_25e2e5e6",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-18T14:34:16Z",
+      "side": 1,
+      "message": "re: Sharing code...I\u0027d like to. It\u0027s not straightforward, because the conversion from pixel config to SkImageInfo is lossy, but we can probably make it work for this case. In any case, I need to fix this code to validate against the same criteria.",
+      "revId": "8141e8ecd2f48567e5bdc04c2cbf675f3bb7e95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
