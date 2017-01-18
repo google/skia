@@ -17,6 +17,7 @@
 #include "SkColorSpace.h"
 #include "SkMallocPixelRef.h"
 #include "SkOnce.h"
+#include "SkPM4f.h"
 #include "SkReadBuffer.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -524,5 +525,10 @@ private:
 };
 
 #endif
+
+struct Linear2Stop_PipelineContext {
+    SkPM4f fC0, fDc;
+    float  fMatrix[9];
+};
 
 #endif

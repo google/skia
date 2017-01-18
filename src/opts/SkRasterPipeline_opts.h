@@ -12,6 +12,7 @@
 #include "SkColorLookUpTable.h"
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
+#include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkImageShaderContext.h"
 #include "SkMSAN.h"
@@ -693,6 +694,11 @@ STAGE(luminance_to_alpha) {
     r = g = b = 0;
 }
 
+STAGE_CTX(matrix_2x3_xonly, const float*) {
+    auto m = ctx;
+
+    r = SkNf_fma(r,m[0], SkNf_fma(g,m[2], m[4]));
+}
 STAGE_CTX(matrix_2x3, const float*) {
     auto m = ctx;
 
@@ -841,6 +847,10 @@ STAGE_CTX(mirror_x, const float*) { r = mirror(r, *ctx); }
 STAGE_CTX( clamp_y, const float*) { g = clamp (g, *ctx); }
 STAGE_CTX(repeat_y, const float*) { g = repeat(g, *ctx); }
 STAGE_CTX(mirror_y, const float*) { g = mirror(g, *ctx); }
+
+STAGE( clamp_1_x) { r = SkNf::Max(0, SkNf::Min(r, 1));                 }
+STAGE(repeat_1_x) { r = r - r.floor();                                 }
+STAGE(mirror_1_x) { r = ((r - 1) - ((r - 1) / 2).floor()*2 - 1).abs(); }
 
 STAGE_CTX(save_xy, SkImageShaderContext*) {
     r.store(ctx->x);
@@ -992,6 +1002,16 @@ STAGE_CTX(gather_f16, const SkImageShaderContext*) {
     from_f16(&px, &r, &g, &b, &a);
 }
 
+STAGE_CTX(linear_gradient_2stops, const Linear2Stop_PipelineContext*) {
+    auto t = r;
+    SkPM4f c0 = ctx->fC0,
+           dc = ctx->fDc;
+
+    r = SkNf_fma(t, dc.r(), c0.r());
+    g = SkNf_fma(t, dc.g(), c0.g());
+    b = SkNf_fma(t, dc.b(), c0.b());
+    a = SkNf_fma(t, dc.a(), c0.a());
+}
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
