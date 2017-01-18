@@ -380,6 +380,70 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static sk_sp<SkSurface> make_surface(const SkImage* image, const SkImageInfo& info) {
+    if (GrTexture* tex = as_IB(image)->peekTexture()) {
+        return SkSurface::MakeRenderTarget(tex->getContext(), SkBudgeted::kNo, info);
+    } else {
+        return SkSurface::MakeRaster(info);
+    }
+}
+
+static bool colortype_to_depth(SkColorType ct, SkImage::BitDepth* depth) {
+    switch (ct) {
+        case kRGBA_F16_SkColorType:
+            *depth = SkImage::BitDepth::kF16;
+            return true;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            *depth = SkImage::BitDepth::kU8;
+            return true;
+        default:
+            return false;
+    }
+}
+
+static SkAlphaType opaque_to_alphatype(bool isOpaque) {
+    return isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+}
+
+static SkColorType depth_to_colortype(SkImage::BitDepth depth) {
+    return depth == SkImage::BitDepth::kU8 ? kN32_SkColorType : kRGBA_F16_SkColorType;
+}
+
+static SkImageInfo make_info(int w, int h, SkImage::BitDepth depth, sk_sp<SkColorSpace> cs,
+                             bool isOpaque) {
+    return SkImageInfo::Make(w, h, depth_to_colortype(depth), opaque_to_alphatype(isOpaque),
+                             std::move(cs));
+}
+
+sk_sp<SkImage> SkImage::makeScaled(int width, int height, SkFilterQuality quality, BitDepth depth,
+                                   sk_sp<SkColorSpace> cs) const {
+    SkImageInfo info = as_IB(this)->onImageInfo();  // what is the "depth" of a picture-image?
+    BitDepth nativeDepth;
+    if (colortype_to_depth(info.colorType(), &nativeDepth)) {
+        if (info.width() == width && info.height() == height && nativeDepth == depth &&
+            SkColorSpace::Equals(info.colorSpace(), cs.get()))
+        {
+            return sk_sp<SkImage>(const_cast<SkImage*>(SkRef(this)));
+        }
+    }
+
+    info = make_info(width, height, depth, cs, this->isOpaque());
+    sk_sp<SkSurface> surf = make_surface(this, info);
+    if (!surf) {
+        return nullptr;
+    }
+
+    SkPaint paint;
+    paint.setFilterQuality(quality);
+    SkCanvas* canvas = surf->getCanvas();
+    canvas->scale(width * 1.0f / this->width(), height * 1.0f / this->height());
+    canvas->drawImage(this, 0, 0, &paint);
+    return surf->makeImageSnapshot();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                      int mipLevelCount, SkBudgeted) {
     return nullptr;
