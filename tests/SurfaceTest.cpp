@@ -20,6 +20,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
@@ -626,7 +627,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
 }
 
 static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> surface,
-                               std::function<GrSurface*(SkSurface*)> grSurfaceGetter,
+                               std::function<sk_sp<GrSurfaceContext>(SkSurface*)> grSurfaceGetter,
                                uint32_t expectedValue) {
     if (!surface) {
         ERRORF(reporter, "Could not create GPU SkSurface.");
@@ -637,13 +638,15 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     sk_memset32(pixels.get(), ~expectedValue, w * h);
 
-    sk_sp<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
-    if (!grSurface) {
+    sk_sp<GrSurfaceContext> grSurfaceContext(grSurfaceGetter(surface.get()));
+    if (!grSurfaceContext) {
         ERRORF(reporter, "Could access render target of GPU SkSurface.");
         return;
     }
     surface.reset();
-    grSurface->readPixels(0, 0, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
+
+    SkImageInfo ii = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    grSurfaceContext->readPixels(ii, pixels.get(), 0, 0, 0);
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t pixel = pixels.get()[y * w + x];
@@ -666,16 +669,21 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
+    std::function<sk_sp<GrSurfaceContext>(SkSurface*)> grSurfaceContextGetters[] = {
         [] (SkSurface* s){
-            GrRenderTargetContext* rtc =
-                s->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
-            return rtc->accessRenderTarget(); },
-        [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
-                           return as_IB(i)->peekTexture(); }
+            return sk_ref_sp(s->getCanvas()->internal_private_accessTopLayerRenderTargetContext());
+        },
+        [] (SkSurface* s){
+            sk_sp<SkImage> i(s->makeImageSnapshot());
+            SkImage_Gpu* gpuImage = (SkImage_Gpu *) as_IB(i);
+            sk_sp<GrSurfaceProxy> proxy = gpuImage->refProxy();
+            GrContext* context = gpuImage->context();
+            return context->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
+                                                                    gpuImage->refColorSpace());
+        }
     };
 
-    for (auto grSurfaceGetter : grSurfaceGetters) {
+    for (auto grSurfaceGetter : grSurfaceContextGetters) {
         // Test that non-wrapped RTs are created clear.
         for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
             auto surface = surface_func(context, kPremul_SkAlphaType, nullptr);

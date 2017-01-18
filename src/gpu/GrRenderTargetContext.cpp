@@ -81,15 +81,13 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              const SkSurfaceProps* surfaceProps,
                                              GrAuditTrail* auditTrail,
                                              GrSingleOwner* singleOwner)
-    : GrSurfaceContext(context, auditTrail, singleOwner)
+    : GrSurfaceContext(context, std::move(colorSpace), auditTrail, singleOwner)
     , fDrawingManager(drawingMgr)
     , fRenderTargetProxy(std::move(rtp))
     , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
-    , fColorSpace(std::move(colorSpace))
     , fColorXformFromSRGB(nullptr)
-    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-{
+    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
@@ -157,6 +155,56 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
 
     return this->getOpList()->copySurface(rt.get(), src.get(), srcRect, dstPoint);
 }
+
+// TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
+bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
+                                         size_t dstRowBytes, int x, int y) {
+    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
+
+    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+                          config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
+}
+
+// TODO: move this (and GrTextureContext::onReadPixels) to GrSurfaceContext?
+bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
+                                          size_t srcRowBytes, int x, int y) {
+    // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(
+                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
+
+    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+                           config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
+}
+
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix, const char text[],
@@ -1265,53 +1313,6 @@ void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
         pipelineBuilder.setUserStencil(ss);
     }
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
-}
-
-bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
-                                       size_t dstRowBytes, int x, int y) {
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-
-    // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
-    if (!rt) {
-        return false;
-    }
-
-    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
-                          config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
-}
-
-bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
-                                        size_t srcRowBytes, int x, int y) {
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-
-    // Deferral of the VRAM resources must end in this instance anyway
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
-    if (!rt) {
-        return false;
-    }
-
-    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
-                           config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
