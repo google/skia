@@ -204,6 +204,14 @@ public:
      */
     T* get() const { return fArray; }
 
+    T* begin() { return fArray; }
+
+    const T* begin() const { return fArray; }
+
+    T* end() { return fArray + fCount; }
+
+    const T* end() const { return fArray + fCount; }
+
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
