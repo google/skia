@@ -42,6 +42,74 @@
     },
     {
       "key": {
+        "uuid": "036b4132_a031632a",
+        "filename": "src/gpu/GrPipelineBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "Do we need this friend ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_20ebb32d",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_40198fa7",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_4000af21",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "stray this-\u003e ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_204c93d7",
         "filename": "src/gpu/GrProcessorSet.h",
         "patchSetId": 4
@@ -59,6 +127,40 @@
         "endLine": 41,
         "endChar": 52
       },
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_00eeb73d",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be more like extractFramentProcessorsForAnalysis ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_0017976f",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-18T15:49:34Z",
+      "side": 1,
+      "message": "Is having this an int8_t actually saving us anything ?",
       "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
