@@ -813,13 +813,13 @@ STAGE(lab_to_xyz) {
 
 SI SkNf assert_in_tile(const SkNf& v, float limit) {
     for (int i = 0; i < N; i++) {
-        SkASSERT(0 <= v[i] && v[i] < limit);
+        SkASSERT(0 <= v[i] && v[i] <= limit);
     }
     return v;
 }
 
 SI SkNf clamp(const SkNf& v, float limit) {
-    SkNf result = SkNf::Max(0, SkNf::Min(v, limit - 0.5f));
+    SkNf result = SkNf::Max(0, SkNf::Min(v, limit));
     return assert_in_tile(result, limit);
 }
 SI SkNf repeat(const SkNf& v, float limit) {
