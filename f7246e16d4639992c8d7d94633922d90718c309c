@@ -22,6 +22,24 @@
       "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c36be999_7f3dc7f8",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T18:18:22Z",
+      "side": 1,
+      "message": "If I\u0027m reading this right, fDC.r() already is one value, here splatted up to SkNf width (i.e. 4x).  There are only 8 floats stored in the context, and only 8 floats loaded from memory.\n\nYou might check the disassembly here and see if it does you any good to load fDC and fC0 first into registers, like\n\nauto t \u003d r;\nSkPM4f dc \u003d ctx-\u003efDC,\n       c0 \u003d ctx-\u003efC0;\n\nr \u003d SkNf_fma(t, dc.r(), c0.r());\ng \u003d ...\n\nThat should make sure we do 2 128-bit loads into registers, then shuffle within registers to get the duplication we need.",
+      "parentUuid": "68269aae_f615e0b9",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
