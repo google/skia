@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68269aae_f615e0b9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-18T17:49:46Z",
+      "side": 1,
+      "message": "fDc.r is 8 values (or 4). But they are all the same, yes?\nWondering if we can somehow speed-up by only loading 4 unique values (r, g, b, a) from ctx and then striping them, rather than loading 4*8 values ...",
+      "range": {
+        "startLine": 1008,
+        "startChar": 28,
+        "endLine": 1008,
+        "endChar": 29
+      },
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
