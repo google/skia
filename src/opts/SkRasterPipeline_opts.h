@@ -591,23 +591,6 @@ STAGE_CTX(load_u16_be, const uint64_t**) {
     a = (1.0f / 65535.0f) * SkNx_cast<float>((ah << 8) | (ah >> 8));
 }
 
-STAGE_CTX(load_rgb_u16_be, const uint16_t**) {
-    auto ptr = *ctx + 3*x;
-    const void* src = ptr;
-    uint16_t buf[N*3] = {0};
-    if (tail) {
-        memcpy(buf, src, tail*3*sizeof(uint16_t));
-        src = buf;
-    }
-
-    SkNh rh, gh, bh;
-    SkNh::Load3(src, &rh, &gh, &bh);
-    r = (1.0f / 65535.0f) * SkNx_cast<float>((rh << 8) | (rh >> 8));
-    g = (1.0f / 65535.0f) * SkNx_cast<float>((gh << 8) | (gh >> 8));
-    b = (1.0f / 65535.0f) * SkNx_cast<float>((bh << 8) | (bh >> 8));
-    a = 1.0f;
-}
-
 STAGE_CTX(load_tables, const LoadTablesContext*) {
     auto ptr = (const uint32_t*)ctx->fSrc + x;
 
@@ -636,25 +619,6 @@ STAGE_CTX(load_tables_u16_be, const LoadTablesContext*) {
     g = gather(tail, ctx->fG, SkNx_cast<int>(gh & 0xff));
     b = gather(tail, ctx->fB, SkNx_cast<int>(bh & 0xff));
     a = (1.0f / 65535.0f) * SkNx_cast<float>((ah << 8) | (ah >> 8));
-}
-
-STAGE_CTX(load_tables_rgb_u16_be, const LoadTablesContext*) {
-    auto ptr = (const uint16_t*)ctx->fSrc + 3*x;
-    const void* src = ptr;
-    uint16_t buf[N*3] = {0};
-    if (tail) {
-        memcpy(buf, src, tail*3*sizeof(uint16_t));
-        src = buf;
-    }
-
-    SkNh rh, gh, bh;
-    SkNh::Load3(src, &rh, &gh, &bh);
-
-    // ctx->fSrc is big-endian, so "& 0xff" grabs the 8 most significant bits of each component.
-    r = gather(tail, ctx->fR, SkNx_cast<int>(rh & 0xff));
-    g = gather(tail, ctx->fG, SkNx_cast<int>(gh & 0xff));
-    b = gather(tail, ctx->fB, SkNx_cast<int>(bh & 0xff));
-    a = 1.0f;
 }
 
 STAGE_CTX(store_tables, const StoreTablesContext*) {
