@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036b4132_2554a5bf",
+        "filename": "infra/bots/assets/linux_vulkan_sdk/create.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-01-18T14:16:35Z",
+      "side": 1,
+      "message": "Nit: \u0027linux\u0027 in sys.platform",
+      "range": {
+        "startLine": 25,
+        "startChar": 5,
+        "endLine": 25,
+        "endChar": 29
+      },
+      "revId": "f170aed95b5d2186146db41973ee7969341bad2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_0528894e",
+        "filename": "infra/bots/assets/linux_vulkan_sdk/create_and_upload.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-01-18T14:16:35Z",
+      "side": 1,
+      "message": "nit: \u0027linux\u0027 in sys.platform",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "f170aed95b5d2186146db41973ee7969341bad2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
