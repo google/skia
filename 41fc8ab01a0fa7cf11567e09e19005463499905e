@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_601ccb88",
+        "filename": "src/gpu/GrPipelineBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "It\u0027s not really needed at all since GrProcessorSet.h includes it. Forward declared GrPipelineAnalysis anyway.",
+      "parentUuid": "036b4132_203d73fa",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_a031632a",
         "filename": "src/gpu/GrPipelineBuilder.h",
         "patchSetId": 4
@@ -53,6 +71,24 @@
       "writtenOn": "2017-01-18T15:49:34Z",
       "side": 1,
       "message": "Do we need this friend ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_207733a3",
+        "filename": "src/gpu/GrPipelineBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "No, removed.",
+      "parentUuid": "036b4132_a031632a",
       "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_e07c3b8a",
+        "filename": "src/gpu/GrProcessorSet.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036b4132_20ebb32d",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_40198fa7",
         "filename": "src/gpu/GrProcessorSet.h",
         "patchSetId": 4
@@ -93,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_409a6fb6",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036b4132_40198fa7",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_4000af21",
         "filename": "src/gpu/GrProcessorSet.h",
         "patchSetId": 4
@@ -104,6 +176,24 @@
       "writtenOn": "2017-01-18T15:49:34Z",
       "side": 1,
       "message": "stray this-\u003e ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_0035d7f9",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036b4132_4000af21",
       "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -133,6 +223,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_c02adf9a",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036b4132_204c93d7",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_00eeb73d",
         "filename": "src/gpu/GrProcessorSet.h",
         "patchSetId": 4
@@ -150,6 +258,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_e027dbcf",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "Not sure I follow. This is just analyzing the output of the processors, not removing them.",
+      "parentUuid": "036b4132_00eeb73d",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_0017976f",
         "filename": "src/gpu/GrProcessorSet.h",
         "patchSetId": 4
@@ -161,6 +287,24 @@
       "writtenOn": "2017-01-18T15:49:34Z",
       "side": 1,
       "message": "Is having this an int8_t actually saving us anything ?",
+      "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_a03de3df",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-18T16:03:23Z",
+      "side": 1,
+      "message": "An earlier version of this had an additional bool that I thought would be added back. However, I\u0027m rethinking how this will work so this is undone and I\u0027m just using an int.",
+      "parentUuid": "036b4132_0017976f",
       "revId": "41fc8ab01a0fa7cf11567e09e19005463499905e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
