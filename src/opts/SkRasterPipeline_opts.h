@@ -12,6 +12,7 @@
 #include "SkColorLookUpTable.h"
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
+#include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkImageShaderContext.h"
 #include "SkMSAN.h"
@@ -992,6 +993,12 @@ STAGE_CTX(gather_f16, const SkImageShaderContext*) {
     from_f16(&px, &r, &g, &b, &a);
 }
 
+STAGE_CTX(lineargr_2stops, const Linear2Stop_PipelineContext*) {
+    g = SkNf_fma(r, SkNf(ctx->fDc.g()), SkNf(ctx->fC0.g()));
+    b = SkNf_fma(r, SkNf(ctx->fDc.b()), SkNf(ctx->fC0.b()));
+    a = SkNf_fma(r, SkNf(ctx->fDc.a()), SkNf(ctx->fC0.a()));
+    r = SkNf_fma(r, SkNf(ctx->fDc.r()), SkNf(ctx->fC0.r()));
+}
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
