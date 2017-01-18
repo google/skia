@@ -271,6 +271,22 @@ public:
         *b = ba;
         *a = _mm_srli_si128(ba, 8);
     }
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        // The idea here is to get 4 vectors that are R G B _ _ _ _ _.
+        // The second load is at a funny location to make sure we don't read past
+        // the bounds of memory.  This is fine, we just need to shift it a little bit.
+        const uint8_t* ptr8 = (const uint8_t*) ptr;
+        __m128i rgb0 = _mm_loadu_si128((const __m128i*) (ptr8 + 0));
+        __m128i rgb1 = _mm_srli_si128(rgb0, 3*2);
+        __m128i rgb2 = _mm_srli_si128(_mm_loadu_si128((const __m128i*) (ptr8 + 4*2)), 2*2);
+        __m128i rgb3 = _mm_srli_si128(rgb2, 3*2);
+
+        __m128i rrggbb01 = _mm_unpacklo_epi16(rgb0, rgb1);
+        __m128i rrggbb23 = _mm_unpacklo_epi16(rgb2, rgb3);
+        *r = _mm_unpacklo_epi32(rrggbb01, rrggbb23);
+        *g = _mm_srli_si128(r->fVec, 4*2);
+        *b = _mm_unpackhi_epi32(rrggbb01, rrggbb23);
+    }
     AI static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
         __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
@@ -333,6 +349,32 @@ public:
         *g = _mm_unpackhi_epi64(rg0123, rg4567);
         *b = _mm_unpacklo_epi64(ba0123, ba4567);
         *a = _mm_unpackhi_epi64(ba0123, ba4567);
+    }
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        // TODO: AVX2 version
+        const uint8_t* ptr8 = (const uint8_t*) ptr;
+        __m128i rgb0 = _mm_loadu_si128((const __m128i*) (ptr8 +  0*2));
+        __m128i rgb1 = _mm_srli_si128(rgb0, 3*2);
+        __m128i rgb2 = _mm_loadu_si128((const __m128i*) (ptr8 +  6*2));
+        __m128i rgb3 = _mm_srli_si128(rgb2, 3*2);
+        __m128i rgb4 = _mm_loadu_si128((const __m128i*) (ptr8 + 12*2));
+        __m128i rgb5 = _mm_srli_si128(rgb4, 3*2);
+        __m128i rgb6 = _mm_srli_si128(_mm_loadu_si128((const __m128i*) (ptr8 + 16*2)), 2*2);
+        __m128i rgb7 = _mm_srli_si128(rgb6, 3*2);
+
+        __m128i rgb01 = _mm_unpacklo_epi16(rgb0, rgb1);
+        __m128i rgb23 = _mm_unpacklo_epi16(rgb2, rgb3);
+        __m128i rgb45 = _mm_unpacklo_epi16(rgb4, rgb5);
+        __m128i rgb67 = _mm_unpacklo_epi16(rgb6, rgb7);
+
+        __m128i rg03 = _mm_unpacklo_epi32(rgb01, rgb23);
+        __m128i bx03 = _mm_unpackhi_epi32(rgb01, rgb23);
+        __m128i rg47 = _mm_unpacklo_epi32(rgb45, rgb67);
+        __m128i bx47 = _mm_unpackhi_epi32(rgb45, rgb67);
+
+        *r = _mm_unpacklo_epi64(rg03, rg47);
+        *g = _mm_unpackhi_epi64(rg03, rg47);
+        *b = _mm_unpacklo_epi64(bx03, bx47);
     }
     AI static void Store4(void* ptr, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         // TODO: AVX2 version
