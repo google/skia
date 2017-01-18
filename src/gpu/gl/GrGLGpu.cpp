@@ -1475,7 +1475,7 @@ bool GrGLGpu::flushGLState(const DrawArgs& args) {
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
-    this->flushStencil(pipeline.getStencil());
+    // this->flushStencil(pipeline.getStencil());
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !pipeline.getStencil().isDisabled());
 
@@ -2393,7 +2393,7 @@ void GrGLGpu::flushColorWrite(bool writeColor) {
         }
     } else {
         if (kYes_TriState != fHWWriteToColor) {
-            GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+ //           GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
         }
     }
