@@ -2,6 +2,86 @@
   "comments": [
     {
       "key": {
+        "uuid": "c36be999_7f3f8782",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T18:42:29Z",
+      "side": 1,
+      "message": "where do we transform to the dst color space?  (where should we transform?  before or after lerping?)",
+      "range": {
+        "startLine": 98,
+        "startChar": 73,
+        "endLine": 98,
+        "endChar": 75
+      },
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c36be999_1f212b6e",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T18:42:29Z",
+      "side": 1,
+      "message": "Let\u0027s delay optimizations like this and the {tiling}_1_x stages for another CL.  It\u0027s probably best to get this landed first simple and drawing correctly, then follow up with speed tweaks.  The first thing you\u0027ll want to do for speed will always be to get the JIT working for the stages you use... you\u0027ll see much more speedup out of that than any little micro-optimizations like this.",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c36be999_9f2c5b6c",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T18:42:29Z",
+      "side": 1,
+      "message": "I\u0027m not sure this is a good idea. If this were a code path we really cared about being fast, sure go nuts, but accelerating this code path here just seems like extra code to maintain that no one will ever actually run.",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c36be999_5f19e331",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T18:42:29Z",
+      "side": 1,
+      "message": "Probably best to spell out linear_gradient_2stops.  This seems like some sort of Ganesh thing.",
+      "range": {
+        "startLine": 152,
+        "startChar": 32,
+        "endLine": 152,
+        "endChar": 40
+      },
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68269aae_f615e0b9",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
