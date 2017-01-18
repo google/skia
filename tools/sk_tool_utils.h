@@ -251,6 +251,9 @@ namespace sk_tool_utils {
         };
         return sk_make_sp<EncodeImagePixelSerializer>();
     }
+
+    void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
+
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

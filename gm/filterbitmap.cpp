@@ -11,6 +11,7 @@
 #include "SkGradientShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "sk_tool_utils.h"
 
 static void setTypeface(SkPaint* paint, const char name[], SkFontStyle style) {
     sk_tool_utils::set_portable_typeface(paint, name, style);
@@ -169,7 +170,7 @@ public:
           }
           if (fConvertToG8) {
               SkBitmap tmp;
-              fBM.copyTo(&tmp, kGray_8_SkColorType);
+              sk_tool_utils::copy_to_g8(&tmp, fBM);
               fBM = tmp;
           }
       }
@@ -203,7 +204,7 @@ protected:
 
         if (fConvertToG8) {
             SkBitmap tmp;
-            fBM.copyTo(&tmp, kGray_8_SkColorType);
+            sk_tool_utils::copy_to_g8(&tmp, fBM);
             fBM = tmp;
         }
       }
