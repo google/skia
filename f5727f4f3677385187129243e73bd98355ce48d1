@@ -48,6 +48,24 @@
     },
     {
       "key": {
+        "uuid": "036b4132_60820ba3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-18T15:28:31Z",
+      "side": 1,
+      "message": "I just benched it - it is slightly slower.  I had expected this to be a no-op for libpng - they would be able to iterate with bpp\u003d4 and ignore the alpha channel.\n\nBut they behave just like they do on decode, adding an extra pass for png_do_strip_channel().  This change would make the addition of F16 a bit cleaner, but I don\u0027t think it\u0027s worth it.\n\nAbandoning this,  thanks for the review.",
+      "parentUuid": "036b4132_a5f5f59d",
+      "revId": "f5727f4f3677385187129243e73bd98355ce48d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "036b4132_e5d52d27",
         "filename": "src/images/transform_scanline.h",
         "patchSetId": 3
