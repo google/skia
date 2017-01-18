@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68269aae_596ba759",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T20:26:50Z",
+      "side": 1,
+      "message": "I think you can just cut these 4 lines?  use_4f_context() is never going to return false if you hardcode ContextRec::fPreferredDstType to kPM4f_DstType.",
+      "revId": "16684d1ffcc569229de13157b42a33aed922d419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_59b967b9",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T20:26:50Z",
+      "side": 1,
+      "message": "Might wanna make two SkMatrix values, first dstToPts and then dstToUnit \u003d concat(fPtsToUnit, dstToPts) ?  Both pos and pts make sense to me (as would src) but we should probably pick one term.",
+      "revId": "16684d1ffcc569229de13157b42a33aed922d419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_d6a1c496",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T20:26:50Z",
+      "side": 1,
+      "message": "I was wondering this myself.  We need to check this with Herb.  It may be that it\u0027s an image shader only thing that\u0027s better done by changing the limit there than by making you change it here.  This looks fine while we puzzle this out.",
+      "range": {
+        "startLine": 139,
+        "startChar": 36,
+        "endLine": 139,
+        "endChar": 72
+      },
+      "revId": "16684d1ffcc569229de13157b42a33aed922d419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
