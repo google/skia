@@ -536,10 +536,22 @@
         "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android"
       ]
     },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+      ]
+    },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
+      ]
+    },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
       ]
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android": {
@@ -1088,10 +1100,22 @@
         "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android"
       ]
     },
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+      ]
+    },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
+      ]
+    },
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
       ]
     },
     "Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android": {
@@ -4614,6 +4638,55 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:N2G10B",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "cipd_packages": [
         {
@@ -4649,6 +4722,55 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:N2G10B",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -9029,6 +9151,55 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Debug-Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:N2G10B",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "cipd_packages": [
         {
@@ -9064,6 +9235,55 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:18"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86-Release-Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:N2G10B",
+        "device_type:fugu",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -12671,6 +12891,35 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android": {
       "dependencies": [
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android"
@@ -14295,6 +14544,35 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android": {
       "dependencies": [
         "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android"
@@ -14311,6 +14589,35 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
