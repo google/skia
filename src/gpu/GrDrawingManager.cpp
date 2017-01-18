@@ -238,15 +238,15 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
-
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rtp->config(), colorSpace.get())) {
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
+
+    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     bool useDIF = false;
     if (surfaceProps) {
@@ -276,8 +276,17 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                                   fSingleOwner));
 }
 
-sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy) {
+sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
+                                                             sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
+        return nullptr;
+    }
+
+    // SkSurface catches bad color space usage at creation. This check handles anything that slips
+    // by, including internal usage. We allow a null color space here, for read/write pixels and
+    // other special code paths. If a color space is provided, though, enforce all other rules.
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+        SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
 
@@ -287,5 +296,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
-                                                        fContext->getAuditTrail(), fSingleOwner));
+                                                        std::move(colorSpace),
+                                                        fContext->getAuditTrail(),
+                                                        fSingleOwner));
 }

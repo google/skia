@@ -19,9 +19,10 @@
 GrTextureContext::GrTextureContext(GrContext* context,
                                    GrDrawingManager* drawingMgr,
                                    sk_sp<GrTextureProxy> textureProxy,
+                                   sk_sp<SkColorSpace> colorSpace,
                                    GrAuditTrail* auditTrail,
                                    GrSingleOwner* singleOwner)
-    : GrSurfaceContext(context, auditTrail, singleOwner)
+    : GrSurfaceContext(context, std::move(colorSpace), auditTrail, singleOwner)
     , fDrawingManager(drawingMgr)
     , fTextureProxy(std::move(textureProxy))
     , fOpList(SkSafeRef(fTextureProxy->getLastTextureOpList())) {
@@ -99,4 +100,51 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
 #endif
 
     return result;
+}
+
+// TODO: move this (and GrRenderTargetContext::onReadPixels) to GrSurfaceContext?
+bool GrTextureContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
+                                    size_t dstRowBytes, int x, int y) {
+    // TODO: teach GrTexture to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));
+    if (!tex) {
+        return false;
+    }
+
+    return tex->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+                           config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
+}
+
+// TODO: move this (and GrRenderTargetContext::onReadPixels) to GrSurfaceContext?
+bool GrTextureContext::onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
+                                     size_t srcRowBytes, int x, int y) {
+    // TODO: teach GrTexture to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == srcInfo.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrTexture> tex(sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider())));
+    if (!tex) {
+        return false;
+    }
+
+    return tex->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+                            config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }

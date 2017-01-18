@@ -593,14 +593,16 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
                                                            surfaceProps);
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy) {
+sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
+                                                                 sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
     if (proxy->asRenderTargetProxy()) {
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), nullptr, nullptr);
+        return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                               std::move(colorSpace), nullptr);
     } else {
         SkASSERT(proxy->asTextureProxy());
-        return this->drawingManager()->makeTextureContext(std::move(proxy));
+        return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
     }
 }
 
@@ -609,7 +611,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 
     sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
 
-    return this->makeWrappedSurfaceContext(std::move(proxy));
+    return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
@@ -619,7 +621,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
     sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*fContext->caps(), dstDesc,
                                                                fit, isDstBudgeted);
 
-    return this->makeWrappedSurfaceContext(std::move(proxy));
+    return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(

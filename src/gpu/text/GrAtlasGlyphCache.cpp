@@ -125,7 +125,8 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                                            sk_ref_sp(sProxy)));
+                                                                            sk_ref_sp(sProxy),
+                                                                            nullptr));
     if (!sContext || !sContext->asDeferredTexture()) {
         return false;
     }
