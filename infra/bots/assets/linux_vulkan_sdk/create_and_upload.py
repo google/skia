@@ -18,15 +18,12 @@ import utils
 
 
 def main():
-  if sys.platform != 'win32':
-    print >> sys.stderr, 'This script only runs on Windows.'
+  if 'linux' not in sys.platform:
+    print >> sys.stderr, 'This script only runs on Linux.'
     sys.exit(1)
   parser = argparse.ArgumentParser()
   parser.add_argument('--gsutil')
   parser.add_argument('--sdk_path', '-s', required=True)
-  parser.add_argument('--runtime_path', '-r',
-      default=os.path.join("C:","System32","vulkan-1.dll"),
-      required=True)
   args = parser.parse_args()
 
   with utils.tmp_dir():
@@ -38,8 +35,7 @@ def main():
       cwd = os.path.join(cwd, 'sdk')
       cmd = ['python', create_script,
              '-t', cwd,
-             '--sdk_path', args.sdk_path,
-             '--runtime_path', args.runtime_path]
+             '--sdk_path', args.sdk_path]
       subprocess.check_call(cmd)
       cmd = ['python', upload_script, '-t', cwd]
       if args.gsutil:

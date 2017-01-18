@@ -66,9 +66,11 @@ var (
 		"Build-Ubuntu-Clang-x86_64-Debug",
 		"Build-Ubuntu-Clang-x86_64-Debug-ASAN",
 		"Build-Ubuntu-Clang-x86_64-Debug-MSAN",
+		"Build-Ubuntu-Clang-x86_64-Debug-Vulkan",
 		"Build-Ubuntu-Clang-x86_64-Release",
 		"Build-Ubuntu-Clang-x86_64-Release-Fast",
 		"Build-Ubuntu-Clang-x86_64-Release-TSAN",
+		"Build-Ubuntu-Clang-x86_64-Release-Vulkan",
 		"Build-Ubuntu-GCC-x86-Debug",
 		"Build-Ubuntu-GCC-x86-Release",
 		"Build-Ubuntu-GCC-x86_64-Debug",
@@ -162,6 +164,8 @@ var (
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
 		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
@@ -260,6 +264,8 @@ var (
 		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
 		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
 		"Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
 		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
@@ -465,8 +471,13 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
-	} else if strings.Contains(name, "Ubuntu") && strings.Contains(name, "Clang") {
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+	} else if strings.Contains(name, "Ubuntu") {
+		if strings.Contains(name, "Clang") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		}
+		if strings.Contains(name, "Vulkan") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
+		}
 	} else if strings.Contains(name, "Win") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_toolchain"))
 		if strings.Contains(name, "Vulkan") {
