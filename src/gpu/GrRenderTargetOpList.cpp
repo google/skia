@@ -313,7 +313,7 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
     pipelineBuilder.analyzeFragmentProcessors(&args.fAnalysis);
     if (const GrFragmentProcessor* clipFP = appliedClip.clipCoverageFragmentProcessor()) {
-        args.fAnalysis.fCoveragePOI.addProcessors(&clipFP, 1);
+        args.fAnalysis.fCoveragePOI.analyzeProcessors(&clipFP, 1);
     }
 
     if (!renderTargetContext->accessRenderTarget()) {

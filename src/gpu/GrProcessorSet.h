@@ -45,9 +45,9 @@ public:
 
     void analyzeFragmentProcessors(GrPipelineAnalysis* analysis) const {
         const GrFragmentProcessor* const* fps = fFragmentProcessors.get();
-        analysis->fColorPOI.addProcessors(fps, fColorFragmentProcessorCnt);
+        analysis->fColorPOI.analyzeProcessors(fps, fColorFragmentProcessorCnt);
         fps += fColorFragmentProcessorCnt;
-        analysis->fCoveragePOI.addProcessors(fps, this->numCoverageFragmentProcessors());
+        analysis->fCoveragePOI.analyzeProcessors(fps, this->numCoverageFragmentProcessors());
     }
 
 private:

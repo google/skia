@@ -9,7 +9,7 @@
 #include "GrGeometryProcessor.h"
 #include "ops/GrDrawOp.h"
 
-void GrProcOptInfo::addProcessors(const GrFragmentProcessor* const* processors, int cnt) {
+void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt) {
     for (int i = 0; i < cnt; ++i) {
         const GrFragmentProcessor* processor = processors[i];
         fInOut.resetWillUseInputColor();
