@@ -69,11 +69,9 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
-    // FIXME (msarett): This is commented out until a fix to Chrome's gfx_unittest lands.
-    // In those tests, they write kPremul pixels to a kOpaque canvas.
-    //if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
-    //    return false;
-    //}
+    if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
+        return false;
+    }
 
     return true;
 }
