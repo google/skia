@@ -202,8 +202,11 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     std::unique_ptr<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
 
     // decompose the total matrix and clip
-    setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(),
-                   canvas->internal_private_getTotalClip());
+    {
+        SkRegion rgn;
+        canvas->temporary_internal_getRgnClip(&rgn);
+        setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), rgn);
+    }
 
     /*
      * decompose the layers
