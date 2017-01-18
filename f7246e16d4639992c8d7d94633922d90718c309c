@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "68269aae_96cc6cb8",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-18T19:14:29Z",
+      "side": 1,
+      "message": "Presumably after lerping.   Do we have other pipelines I can look at for CS handling examples?",
+      "parentUuid": "c36be999_7f3f8782",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36be999_1f212b6e",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 5
@@ -36,6 +54,24 @@
       "writtenOn": "2017-01-18T18:42:29Z",
       "side": 1,
       "message": "Let\u0027s delay optimizations like this and the {tiling}_1_x stages for another CL.  It\u0027s probably best to get this landed first simple and drawing correctly, then follow up with speed tweaks.  The first thing you\u0027ll want to do for speed will always be to get the JIT working for the stages you use... you\u0027ll see much more speedup out of that than any little micro-optimizations like this.",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_f6804050",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-18T19:14:29Z",
+      "side": 1,
+      "message": "At this stage I\u0027m trying to figure whether we should land this at all given the slowdown.  As MikeR hinted, it may be faster to use your generic span-based shader wrapper than to express the gradient as a pipeline.\n\nHow do we enable the JIT?\n\nBut yes, these optimizations didn\u0027t change the numbers significantly, so it won\u0027t make a big difference to leave them out.  Will do.",
+      "parentUuid": "c36be999_1f212b6e",
       "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "68269aae_f6ae00d6",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-18T19:14:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c36be999_9f2c5b6c",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36be999_5f19e331",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 5
@@ -76,6 +130,24 @@
         "endLine": 152,
         "endChar": 40
       },
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_169a9cb1",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-18T19:14:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c36be999_5f19e331",
       "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
       "side": 1,
       "message": "If I\u0027m reading this right, fDC.r() already is one value, here splatted up to SkNf width (i.e. 4x).  There are only 8 floats stored in the context, and only 8 floats loaded from memory.\n\nYou might check the disassembly here and see if it does you any good to load fDC and fC0 first into registers, like\n\nauto t \u003d r;\nSkPM4f dc \u003d ctx-\u003efDC,\n       c0 \u003d ctx-\u003efC0;\n\nr \u003d SkNf_fma(t, dc.r(), c0.r());\ng \u003d ...\n\nThat should make sure we do 2 128-bit loads into registers, then shuffle within registers to get the duplication we need.",
       "parentUuid": "68269aae_f615e0b9",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_f6572008",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-18T19:14:29Z",
+      "side": 1,
+      "message": "\u003e If I\u0027m reading this right, fDC.r() already is one value, here splatted up to SkNf width (i.e. 4x).  There are only 8 floats stored in the context, and only 8 floats loaded from memory.\n\u003e \n\nIndeed, we only load 2x4 floats from ctx.\n\n\u003e You might check the disassembly here and see if it does you any good to load fDC and fC0 first into registers, like\n\u003e \n\u003e auto t \u003d r;\n\u003e SkPM4f dc \u003d ctx-\u003efDC,\n\u003e        c0 \u003d ctx-\u003efC0;\n\u003e \n\u003e r \u003d SkNf_fma(t, dc.r(), c0.r());\n\u003e g \u003d ...\n\u003e \n\u003e That should make sure we do 2 128-bit loads into registers, then shuffle within registers to get the duplication we need.\n\nDone.",
+      "parentUuid": "c36be999_7f3dc7f8",
       "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
