@@ -29,6 +29,7 @@ public:
         kBGRA_8888_ColorFormat,
 
         // Unsigned, big-endian, 16-bit integer
+        kRGB_U16_BE_ColorFormat,   // Src only
         kRGBA_U16_BE_ColorFormat,  // Src only
 
         kRGBA_F16_ColorFormat,     // Dst only
