@@ -549,7 +549,6 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 SkCodecPrintf("Error: RLE requires valid input size.\n");
                 return false;
             }
-            const size_t RLEBytes = totalBytes - offset;
 
             // Bmp-in-Ico must be standard mode
             // When inIco is true, this line cannot be reached, since we
@@ -565,7 +564,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
                         SkEncodedInfo::kBinary_Alpha, 8);
                 *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder, RLEBytes);
+                        bytesPerColor, offset - bytesRead, rowOrder);
             }
             return true;
         }

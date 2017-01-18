@@ -32,13 +32,10 @@ public:
      * @param offset the offset of the image pixel data from the end of the
      *               headers
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
-     * @param RLEBytes indicates the amount of data left in the stream
-     *                 after decoding the headers
      */
     SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
-            size_t RLEBytes);
+            uint32_t offset, SkCodec::SkScanlineOrder rowOrder);
 
     int setSampleX(int);
 
@@ -100,9 +97,11 @@ private:
     const uint32_t             fNumColors;
     const uint32_t             fBytesPerColor;
     const uint32_t             fOffset;
-    std::unique_ptr<uint8_t[]> fStreamBuffer;
-    size_t                     fRLEBytes;
-    const size_t               fOrigRLEBytes;
+
+    static constexpr size_t    kBufferSize = 4096;
+    uint8_t                    fStreamBuffer[kBufferSize];
+    size_t                     fBytesBuffered;
+
     uint32_t                   fCurrRLEByte;
     int                        fSampleX;
     std::unique_ptr<SkSampler> fSampler;

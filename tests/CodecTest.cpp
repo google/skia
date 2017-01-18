@@ -1448,6 +1448,18 @@ DEF_TEST(Codec_InvalidBmp, r) {
     REPORTER_ASSERT(r, !codec);
 }
 
+DEF_TEST(Codec_InvalidRLEBmp, r) {
+    auto* stream = GetResourceAsStream("invalid_images/b33251605.bmp");
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    REPORTER_ASSERT(r, codec);
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kIncompleteInput, nullptr);
+}
+
 DEF_TEST(Codec_InvalidAnimated, r) {
     // ASAN will complain if there is an issue.
     auto path = "invalid_images/skbug6046.gif";
