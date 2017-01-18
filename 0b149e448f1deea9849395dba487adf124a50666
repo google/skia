@@ -45,6 +45,24 @@
       "revId": "0b149e448f1deea9849395dba487adf124a50666",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_c36836fb",
+        "filename": "src/codec/SkBmpRLECodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T17:40:26Z",
+      "side": 1,
+      "message": "I do not see any guidelines in Skia either. Searching around, I found a chromium discussion [1] in which some people preferred an enum, some preferred static const (when it won\u0027t require storage; also, this was before constexpr was approved for Chromium use, and according to the thread constexpr does not address the storage concern).\n\nChromium now recommends constexpr over const \"where possible\" [2], which includes this case.\n\nmtklein@, I recall you suggested sticking with \"const\" at [3]. That was for a static constexpr inside a function. Is there a reason to prefer one or the other here?\n\n[1] https://groups.google.com/a/chromium.org/forum/#!searchin/chromium-dev/Style$20question$3A$20static$20const$20members$20vs$20enums%7Csort:relevance/chromium-dev/hDqJ4KBVqog/vhVY9QIeCQAJ\n\n[2] https://chromium-cpp.appspot.com/\n\n[3] https://codereview.chromium.org/2353363008/diff/40001/src/codec/SkPngCodec.cpp#newcode497",
+      "parentUuid": "43f0d99f_1ca9e121",
+      "revId": "0b149e448f1deea9849395dba487adf124a50666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

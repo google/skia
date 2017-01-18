@@ -22,6 +22,24 @@
       "revId": "2b861d3a391f2a9c93f97163d783c78935b7e72d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b4132_63314228",
+        "filename": "src/codec/SkBmpRLECodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-18T17:40:26Z",
+      "side": 0,
+      "message": "This comment was introduced in https://codereview.chromium.org/1287423002, which was after we were already buffering all fRLEBytes. The one place where we need more than two bytes calls compute_row_bytes, which sure sounds like it depends on the width. But it is based on a \"width\" (i.e. number of pixels) stored in an 8 bit number.",
+      "parentUuid": "43f0d99f_5ca3693f",
+      "revId": "2b861d3a391f2a9c93f97163d783c78935b7e72d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
