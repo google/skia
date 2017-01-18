@@ -86,6 +86,84 @@ SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void
         : CheckedCreateContext<  LinearGradientContext>(storage, *this, rec);
 }
 
+// For now, only a 2-stop raster pipeline specialization.
+//
+// Stages:
+//
+//   * matrix (map dst -> grad space)
+//   * clamp/repeat/mirror (tiling)
+//   * lineargr_2stops (lerp c0/c1)
+//   * optional premul
+//
+bool SkLinearGradient::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
+                                      const SkMatrix& ctm, const SkPaint& paint) const {
+    if (fColorCount > 2) {
+        return false;
+    }
+
+    // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
+    if (!getLocalMatrix().isIdentity()) {
+        return false;
+    }
+
+    ContextRec rec{ paint, ctm, nullptr, ContextRec::kPM4f_DstType, cs };
+    if (!use_4f_context(rec, fGradFlags)) {
+        return false;
+    }
+
+    SkASSERT(fColorCount == 2);
+    SkASSERT(fOrigPos == nullptr || (fOrigPos[0] == 0 && fOrigPos[1] == 1));
+
+    SkMatrix dstToPos;
+    if (!ctm.invert(&dstToPos)) {
+        return false;
+    }
+
+    dstToPos.setConcat(fPtsToUnit, dstToPos);
+
+    auto* ctx = alloc->make<Linear2Stop_PipelineContext>();
+
+    // TODO: mapping y is not needed; split the matrix stages to save some math?
+    if (dstToPos.asAffine(ctx->fMatrix)) {
+        p->append(SkRasterPipeline::matrix_2x3, ctx->fMatrix);
+    } else {
+        dstToPos.get9(ctx->fMatrix);
+        p->append(SkRasterPipeline::matrix_perspective, ctx->fMatrix);
+    }
+
+    // TODO: clamp/repeat/mirror const 1f stages?
+    ctx->fLimit = 1;
+
+    switch (fTileMode) {
+        case kClamp_TileMode:
+            ctx->fLimit += 0.5f; // why is clamp_x offsetting its limit?
+            p->append(SkRasterPipeline::clamp_x,  &ctx->fLimit);
+            break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->fLimit); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, &ctx->fLimit); break;
+    }
+
+    const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
+
+    const auto c0 = premulGrad
+        ? fOrigColors4f[0].premul()
+        : SkPM4f::From4f(Sk4f::Load(&fOrigColors4f[0]));
+    const auto c1 = premulGrad
+        ? fOrigColors4f[1].premul()
+        : SkPM4f::From4f(Sk4f::Load(&fOrigColors4f[1]));
+
+    ctx->fC0 = c0;
+    ctx->fDc = SkPM4f::From4f(c1.to4f() - c0.to4f());
+
+    p->append(SkRasterPipeline::lineargr_2stops, ctx);
+
+    if (!premulGrad && !this->colorsAreOpaque()) {
+        p->append(SkRasterPipeline::premul);
+    }
+
+    return true;
+}
+
 // This swizzles SkColor into the same component order as SkPMColor, but does not actually
 // "pre" multiply the color components.
 //
