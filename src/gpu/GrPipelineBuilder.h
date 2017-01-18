@@ -9,6 +9,7 @@
 #define GrPipelineBuilder_DEFINED
 
 #include "GrGpuResourceRef.h"
+#include "GrPipeline.h"
 #include "GrProcessorSet.h"
 #include "GrRenderTarget.h"
 #include "GrUserStencilSettings.h"
@@ -63,8 +64,6 @@ public:
     /// @name Blending
     ////
 
-    const GrXPFactory* getXPFactory() const { return fProcessors.xpFactory(); }
-
     /**
      * Checks whether the xp will need destination in a texture to correctly blend.
      */
@@ -78,7 +77,6 @@ public:
     ////
 
     bool hasUserStencilSettings() const { return !fUserStencilSettings->isUnused(); }
-    const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     /**
      * Sets the user stencil settings for the next draw.
@@ -88,7 +86,6 @@ public:
      * @param settings  the stencil settings to use.
      */
     void setUserStencil(const GrUserStencilSettings* settings) { fUserStencilSettings = settings; }
-    void disableUserStencil() { fUserStencilSettings = &GrUserStencilSettings::kUnused; }
 
     /// @}
 
@@ -96,77 +93,13 @@ public:
     /// @name State Flags
     ////
 
-    /**
-     *  Flags that affect rendering. Controlled using enable/disableState(). All
-     *  default to disabled.
-     */
-    enum Flags {
-        /**
-         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
-         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
-         * the 3D API.
-         */
-        kHWAntialias_Flag   = 0x01,
+    bool isHWAntialias() const { return SkToBool(fFlags & GrPipeline::kHWAntialias_Flag); }
 
-        /**
-         * Modifies the vertex shader so that vertices will be positioned at pixel centers.
-         */
-        kSnapVerticesToPixelCenters_Flag = 0x02,
-
-        /**
-         * Suppress linear -> sRGB conversion when rendering to sRGB render targets.
-         */
-        kDisableOutputConversionToSRGB_Flag = 0x04,
-
-        /**
-         * Allow sRGB -> linear conversion when reading from sRGB inputs.
-         */
-        kAllowSRGBInputs_Flag = 0x08,
-
-        /**
-         * Signals that one or more FPs need access to the distance vector field to the nearest
-         * edge
-         */
-        kUsesDistanceVectorField_Flag = 0x10,
-
-        kLast_Flag = kUsesDistanceVectorField_Flag,
-    };
-
-    bool isHWAntialias() const { return SkToBool(fFlags & kHWAntialias_Flag); }
-    bool snapVerticesToPixelCenters() const {
-        return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag); }
-    bool getDisableOutputConversionToSRGB() const {
-        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag); }
-    bool getAllowSRGBInputs() const {
-        return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
-    bool getUsesDistanceVectorField() const {
-        return SkToBool(fFlags & kUsesDistanceVectorField_Flag); }
-
-    /**
-     * Enable render state settings.
-     *
-     * @param flags bitfield of Flags specifying the states to enable
-     */
-    void enableState(uint32_t flags) { fFlags |= flags; }
-
-    /**
-     * Disable render state settings.
-     *
-     * @param flags bitfield of Flags specifying the states to disable
-     */
-    void disableState(uint32_t flags) { fFlags &= ~(flags); }
-
-    /**
-     * Enable or disable flags based on a boolean.
-     *
-     * @param flags bitfield of Flags to enable or disable
-     * @param enable    if true enable stateBits, otherwise disable
-     */
-    void setState(uint32_t flags, bool enable) {
+    void setSnapVerticesToPixelCenters(bool enable) {
         if (enable) {
-            this->enableState(flags);
+            fFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
         } else {
-            this->disableState(flags);
+            fFlags &= ~GrPipeline::kSnapVerticesToPixelCenters_Flag;
         }
     }
 
@@ -175,13 +108,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Face Culling
     ////
-
-    /**
-     * Gets whether the target is drawing clockwise, counterclockwise,
-     * or both faces.
-     * @return the current draw face(s).
-     */
-    GrDrawFace getDrawFace() const { return fDrawFace; }
 
     /**
      * Controls whether clockwise, counterclockwise, or both faces are drawn.
@@ -194,14 +120,17 @@ public:
 
     /// @}
 
-    ///////////////////////////////////////////////////////////////////////////
-
-    bool usePLSDstRead(const GrDrawOp*) const;
+    void initPipelineCreateArgs(GrPipeline::CreateArgs* args) const {
+        args->fFlags = fFlags;
+        args->fUserStencil = fUserStencilSettings;
+        args->fDrawFace = fDrawFace;
+        args->fProcessors = &fProcessors;
+    }
 
 private:
     uint32_t fFlags;
-    const GrUserStencilSettings* fUserStencilSettings;
     GrDrawFace fDrawFace;
+    const GrUserStencilSettings* fUserStencilSettings;
     GrProcessorSet fProcessors;
 };
 
