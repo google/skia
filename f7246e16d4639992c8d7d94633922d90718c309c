@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "68269aae_59e287b7",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T20:26:50Z",
+      "side": 1,
+      "message": "My rule of thumb is usually, wherever Brian Osman decided it made most sense.\n\nIf you grep for append_gamut_transform(), you should see a couple shaders and color filters adjusting themselves to the destination color space.  They\u0027re generally all transforming color spaces after doing their internal processing, if any, so you\u0027ll see a lot of \"return append_gamut_transform(...);\", and that\u0027s probably a fine place to start.  But it might be we\u0027re supposed to transform the colors before the lerp.",
+      "parentUuid": "68269aae_96cc6cb8",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36be999_1f212b6e",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 5
@@ -72,6 +90,24 @@
       "side": 1,
       "message": "At this stage I\u0027m trying to figure whether we should land this at all given the slowdown.  As MikeR hinted, it may be faster to use your generic span-based shader wrapper than to express the gradient as a pipeline.\n\nHow do we enable the JIT?\n\nBut yes, these optimizations didn\u0027t change the numbers significantly, so it won\u0027t make a big difference to leave them out.  Will do.",
       "parentUuid": "c36be999_1f212b6e",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68269aae_f9d033da",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-18T20:26:50Z",
+      "side": 1,
+      "message": "Start taking a read through src/splicer.  We\u0027ll probably want to do that as a follow up CL too, again to make sure that we\u0027re changing only speed and not pixels.",
+      "parentUuid": "68269aae_f6804050",
       "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
