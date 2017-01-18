@@ -555,5 +555,35 @@ SkRect compute_tallest_occluder(const SkRRect& rr) {
     return SkRect::MakeLTRB(r.fLeft + maxL, r.fTop, r.fRight - maxR, r.fBottom);
 }
 
+void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
+    SkASSERT(kBGRA_8888_SkColorType == src.colorType() ||
+             kRGBA_8888_SkColorType == src.colorType());
+
+    SkImageInfo grayInfo = src.info().makeColorType(kGray_8_SkColorType);
+    dst->allocPixels(grayInfo);
+    uint8_t* dst8 = (uint8_t*)dst->getPixels();
+    const uint32_t* src32 = (const uint32_t*)src.getPixels();
+
+    const int w = src.width();
+    const int h = src.height();
+    const bool isBGRA = (kBGRA_8888_SkColorType == src.colorType());
+    for (int y = 0; y < h; ++y) {
+        if (isBGRA) {
+            // BGRA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance((s >> 16) & 0xFF, (s >> 8) & 0xFF, s & 0xFF);
+            }
+        } else {
+            // RGBA
+            for (int x = 0; x < w; ++x) {
+                uint32_t s = src32[x];
+                dst8[x] = SkComputeLuminance(s & 0xFF, (s >> 8) & 0xFF, (s >> 16) & 0xFF);
+            }
+        }
+        src32 = (const uint32_t*)((const char*)src32 + src.rowBytes());
+        dst8 += dst->rowBytes();
+    }
+}
 
 }  // namespace sk_tool_utils
