@@ -1282,7 +1282,7 @@
     ],
     "name": "ct-get_images_from_skps-1 on Ubuntu-14.04",
     "~followup_annotations": [
-      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -1344,7 +1344,7 @@
     ],
     "name": "ct-get_images_from_skps-2 on Ubuntu-14.04",
     "~followup_annotations": [
-      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -1406,7 +1406,7 @@
     ],
     "name": "ct-get_images_from_skps-3 on Ubuntu-14.04",
     "~followup_annotations": [
-      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -1468,7 +1468,7 @@
     ],
     "name": "ct-get_images_from_skps-4 on Ubuntu-14.04",
     "~followup_annotations": [
-      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
@@ -1530,7 +1530,7 @@
     ],
     "name": "ct-get_images_from_skps-5 on Ubuntu-14.04",
     "~followup_annotations": [
-      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'<br>swarming pending 71s@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
       "@@@STEP_LOG_LINE@json.output@    {@@@",
