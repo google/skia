@@ -34,14 +34,6 @@
 
 using namespace sk_gpu_test;
 
-SkImageInfo read_pixels_info(SkImage* image) {
-    if (as_IB(image)->onImageInfo().colorSpace()) {
-        return SkImageInfo::MakeS32(image->width(), image->height(), image->alphaType());
-    }
-
-    return SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType());
-}
-
 static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
                          SkImage* b) {
     const int widthA = subsetA ? subsetA->width() : a->width();
@@ -53,9 +45,11 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     // see https://bug.skia.org/3965
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
+    // The codecs may have given us back F16, we can't read from F16 raster to N32, only S32.
+    SkImageInfo info = SkImageInfo::MakeS32(widthA, heightA, a->alphaType());
     SkAutoPixmapStorage pmapA, pmapB;
-    pmapA.alloc(read_pixels_info(a));
-    pmapB.alloc(read_pixels_info(b));
+    pmapA.alloc(info);
+    pmapB.alloc(info);
 
     const int srcX = subsetA ? subsetA->x() : 0;
     const int srcY = subsetA ? subsetA->y() : 0;
@@ -63,7 +57,7 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     REPORTER_ASSERT(reporter, a->readPixels(pmapA, srcX, srcY));
     REPORTER_ASSERT(reporter, b->readPixels(pmapB, 0, 0));
 
-    const size_t widthBytes = widthA * 4;
+    const size_t widthBytes = widthA * info.bytesPerPixel();
     for (int y = 0; y < heightA; ++y) {
         REPORTER_ASSERT(reporter, !memcmp(pmapA.addr32(0, y), pmapB.addr32(0, y), widthBytes));
     }

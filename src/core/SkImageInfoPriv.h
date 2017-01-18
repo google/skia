@@ -51,8 +51,6 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
  *      should we use kPremul or kUnpremul color values with the opaque alphas?  Or should
  *      we just use whatever the |src| alpha is?  In the future, we could choose to clearly
  *      define this, but currently no one is asking for this feature.
- *      We will not convert to a particular color space if |src| is nullptr.  The color space
- *      conversion is not well-defined.
  */
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
     if (!SkImageInfoIsValid(dst) || !SkImageInfoIsValid(src)) {
@@ -72,10 +70,6 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
     }
 
     if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
-        return false;
-    }
-
-    if (dst.colorSpace() && !src.colorSpace()) {
         return false;
     }
 
