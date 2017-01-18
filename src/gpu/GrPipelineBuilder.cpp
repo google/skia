@@ -17,23 +17,20 @@
 
 GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
         : fFlags(0x0)
-        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fDrawFace(GrDrawFace::kBoth)
+        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fProcessors(std::move(paint)) {
-    this->setState(GrPipelineBuilder::kHWAntialias_Flag, GrAATypeIsHW(aaType));
+    this->setState(GrPipeline::kHWAntialias_Flag, GrAATypeIsHW(aaType));
     // The processors have been moved out of paint, but its flags should still be unmodified.
-    this->setState(GrPipelineBuilder::kDisableOutputConversionToSRGB_Flag,
+    this->setState(GrPipeline::kDisableOutputConversionToSRGB_Flag,
                    paint.getDisableOutputConversionToSRGB());
-    this->setState(GrPipelineBuilder::kAllowSRGBInputs_Flag,
-                   paint.getAllowSRGBInputs());
-    this->setState(GrPipelineBuilder::kUsesDistanceVectorField_Flag,
-                   paint.usesDistanceVectorField());
+    this->setState(GrPipeline::kAllowSRGBInputs_Flag, paint.getAllowSRGBInputs());
 }
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,
                                              const GrPipelineAnalysis& analysis) const {
-    if (this->getXPFactory()) {
-        return this->getXPFactory()->willNeedDstTexture(caps, analysis);
+    if (fProcessors.xpFactory()) {
+        return fProcessors.xpFactory()->willNeedDstTexture(caps, analysis);
     }
     return GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(caps, analysis);
 }

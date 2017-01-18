@@ -18,4 +18,5 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) {
     for (auto& fp : paint.fCoverageFragmentProcessors) {
         fFragmentProcessors[i++] = fp.release();
     }
+    fUsesDistanceVectorField = paint.usesDistanceVectorField();
 }
