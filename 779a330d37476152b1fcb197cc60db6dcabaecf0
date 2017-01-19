@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_6225d2cb",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-19T18:26:25Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve given up on ever using const SkColorSpace*, even when it makes sense. They are immutable, and the constant back-and-forth between sk_sp and raw pointers makes const more trouble than it\u0027s worth.",
+      "parentUuid": "284bc29d_22062a3f",
+      "revId": "779a330d37476152b1fcb197cc60db6dcabaecf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_221d8a93",
         "filename": "src/core/SkPM4fPriv.h",
         "patchSetId": 10
