@@ -132,8 +132,7 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
 
 static inline bool append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scratch,
                                           SkColorSpace* src, SkColorSpace* dst) {
-    struct matrix_3x4 { float arr[12]; };
-    return append_gamut_transform(p, scratch->make<matrix_3x4>()->arr, src, dst);
+    return append_gamut_transform(p, scratch->makeArrayDefault<float>(12), src, dst);
 }
 
 static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
