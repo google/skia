@@ -79,6 +79,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_df775fa1",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T15:12:41Z",
+      "side": 1,
+      "message": "Right, that\u0027s what we\u0027re trying to fix here.  The question is, what do we do for GPU gradients?\n\nI\u0027m okay to follow up with this, but it is kind of the whole point.",
+      "parentUuid": "284bc29d_dc764dee",
+      "revId": "f7246e16d4639992c8d7d94633922d90718c309c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36be999_1f212b6e",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 5
