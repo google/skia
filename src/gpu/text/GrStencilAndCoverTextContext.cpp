@@ -621,10 +621,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                 aaType = GrAAType::kMixedSamples;
             }
         }
-        GrPipelineBuilder pipelineBuilder(std::move(grPaint), aaType);
-        pipelineBuilder.setUserStencil(&kCoverPass);
-
-        renderTargetContext->addDrawOp(pipelineBuilder, clip, std::move(op));
+        //GrPipelineBuilder pipelineBuilder(std::move(grPaint), aaType);
+        //pipelineBuilder.setUserStencil(&kCoverPass);
+        renderTargetContext->addDrawOp(clip, std::move(op));
     }
 
     if (fFallbackTextBlob) {

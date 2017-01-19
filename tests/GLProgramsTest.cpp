@@ -325,7 +325,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
+        std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
@@ -361,7 +361,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
+            std::unique_ptr<GrMeshDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);

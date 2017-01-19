@@ -123,7 +123,7 @@ protected:
                     grPaint.addColorFragmentProcessor(std::move(fp));
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
-                    std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                    std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                             GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_addDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
@@ -236,7 +236,7 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                std::unique_ptr<GrMeshDrawOp> op(GrRectOpFactory::MakeNonAAFill(
                         GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(grPaint),
                                                                   GrAAType::kNone, std::move(op));

@@ -219,12 +219,12 @@ private:
 
 namespace GrNonAAFillRectOp {
 
-std::unique_ptr<GrDrawOp> MakeWithPerspective(GrColor color,
+std::unique_ptr<GrMeshDrawOp> MakeWithPerspective(GrColor color,
                                               const SkMatrix& viewMatrix,
                                               const SkRect& rect,
                                               const SkRect* localRect,
                                               const SkMatrix* localMatrix) {
-    return std::unique_ptr<GrDrawOp>(
+    return std::unique_ptr<GrMeshDrawOp>(
             new NonAAFillRectPerspectiveOp(color, viewMatrix, rect, localRect, localMatrix));
 }
 };

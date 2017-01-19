@@ -29,6 +29,11 @@ protected:
         return fStencilPassSettings;
     }
 
+    bool usesHWAAWhenAvailable() const override;
+    bool usesStencil() override;
+    bool willXPNeedDstTexture(const GrCaps&) const override;
+    bool finalize(const GrAppliedClip&, const GrXferProcessor::DstTexture&) const override;
+
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fColor; }
@@ -36,6 +41,7 @@ protected:
     bool blendsWithDst() const { return fBlendsWithDst; }
 
 private:
+#if 0
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
         input->pipelineColorInput()->setKnownFourComponents(fColor);
         input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
@@ -45,6 +51,7 @@ private:
         optimizations.getOverrideColorIfSet(&fColor);
         fBlendsWithDst = optimizations.willColorBlendWithDst();
     }
+#endif
 
     void onPrepare(GrOpFlushState*) override;  // Initializes fStencilPassSettings.
 

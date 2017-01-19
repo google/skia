@@ -32,7 +32,6 @@
 #include "ops/GrCopySurfaceOp.h"
 #include "ops/GrDiscardOp.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrDrawPathOp.h"
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrStencilPathOp.h"
 
@@ -261,10 +260,10 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
-                                     GrRenderTargetContext* renderTargetContext,
-                                     const GrClip& clip,
-                                     std::unique_ptr<GrDrawOp> op) {
+void GrRenderTargetOpList::addMeshDrawOp(const GrPipelineBuilder& pipelineBuilder,
+                                         GrRenderTargetContext* renderTargetContext,
+                                         const GrClip& clip,
+                                         std::unique_ptr<GrMeshDrawOp> op) {
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
@@ -333,6 +332,49 @@ void GrRenderTargetOpList::addDrawOp(const GrPipelineBuilder& pipelineBuilder,
     }
 
 #ifdef ENABLE_MDB
+    SkASSERT(fSurface);
+    op->pipeline()->addDependenciesTo(fSurface);
+#endif
+    this->recordOp(std::move(op), renderTargetContext, appliedClip.clippedDrawBounds());
+}
+
+void GrRenderTargetOpList::addDrawOp(GrRenderTargetContext* renderTargetContext,
+                                     const GrClip& clip,
+                                     std::unique_ptr<GrDrawOp> op) {
+    // Setup clip
+    SkRect bounds;
+    op_bounds(&bounds, op.get());
+    GrAppliedClip appliedClip(bounds);
+    if (!clip.apply(fContext, renderTargetContext, op->usesHWAAWhenAvailable(), op->usesStencil(),
+                    &appliedClip)) {
+        return;
+    }
+
+
+    if (op->usesStencil() || appliedClip.hasStencilClip()) {
+        if (!renderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
+        if (!fResourceProvider->attachStencilAttachment(
+                renderTargetContext->accessRenderTarget())) {
+            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
+            return;
+        }
+    }
+
+
+    GrXferProcessor::DstTexture dstTexture;
+    if (op->willXPNeedDstTexture(*this->caps())) {
+        this->setupDstTexture(renderTargetContext->accessRenderTarget(), clip, op->bounds(),
+                              &dstTexture);
+        if (!dstTexture.texture()) {
+            return;
+        }
+    }
+
+#ifdef ENABLE_MDB
+    // ???
     SkASSERT(fSurface);
     op->pipeline()->addDependenciesTo(fSurface);
 #endif

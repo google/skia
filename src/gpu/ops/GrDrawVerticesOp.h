@@ -22,12 +22,12 @@ class GrDrawVerticesOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
+    static std::unique_ptr<GrMeshDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
                                           const SkMatrix& viewMatrix, const SkPoint* positions,
                                           int vertexCount, const uint16_t* indices, int indexCount,
                                           const GrColor* colors, const SkPoint* localCoords,
                                           const SkRect& bounds) {
-        return std::unique_ptr<GrDrawOp>(
+        return std::unique_ptr<GrMeshDrawOp>(
                 new GrDrawVerticesOp(color, primitiveType, viewMatrix, positions, vertexCount,
                                      indices, indexCount, colors, localCoords, bounds));
     }

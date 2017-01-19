@@ -10,7 +10,34 @@
 #include "GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
-    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
+    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()), fPipelineInstalled(false) {}
+
+GrMeshDrawOp::~GrMeshDrawOp() {
+    if (fPipelineInstalled) {
+        this->pipeline()->~GrPipeline();
+    }
+}
+
+void GrMeshDrawOp::initPipelineAnalysis(GrPipelineAnalysis* analysis) const {
+    GrPipelineInput color;
+    GrPipelineInput coverage;
+    GrPipelineAnalysisDrawOpInput input(&color, &coverage);
+    this->getPipelineAnalysisInput(&input);
+    analysis->fColorPOI.reset(color);
+    analysis->fCoveragePOI.reset(coverage);
+    analysis->fUsesPLSDstRead = input.usesPLSDstRead();
+}
+
+bool GrMeshDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
+    GrPipelineOptimizations optimizations;
+    void* location = fPipelineStorage.get();
+    if (!GrPipeline::CreateAt(location, args, &optimizations)) {
+        return false;
+    }
+    fPipelineInstalled = true;
+    this->applyPipelineOptimizations(optimizations);
+    return true;
+}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);

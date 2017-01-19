@@ -252,9 +252,9 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static std::unique_ptr<GrDrawOp> Make(const LineData& geometry, GrColor color, SkPaint::Cap cap,
+    static std::unique_ptr<GrMeshDrawOp> Make(const LineData& geometry, GrColor color, SkPaint::Cap cap,
                                           AAMode aaMode, bool fullDash) {
-        return std::unique_ptr<GrDrawOp>(new DashOp(geometry, color, cap, aaMode, fullDash));
+        return std::unique_ptr<GrMeshDrawOp>(new DashOp(geometry, color, cap, aaMode, fullDash));
     }
 
     const char* name() const override { return "DashOp"; }
@@ -682,7 +682,7 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
+std::unique_ptr<GrMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
                                                    const SkMatrix& viewMatrix,
                                                    const SkPoint pts[2],
                                                    AAMode aaMode,
