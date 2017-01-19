@@ -22,6 +22,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "ops/GrAAConvexTessellator.h"
+#include "SkShadowTessellator.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -141,16 +143,29 @@ bool SkAmbientShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     return true;
 }
 
+static const float kHeightFactor = 1.0f / 128.0f;
+static const float kGeomFactor = 64.0f;
+
 bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
-                                                        GrRenderTargetContext* drawContext,
+                                                        GrRenderTargetContext* rtContext,
                                                         GrPaint&& paint,
                                                         const GrClip& clip,
                                                         const SkMatrix& viewMatrix,
-                                                        const SkStrokeRec& strokeRec,
+                                                        const SkStrokeRec&,
                                                         const SkPath& path) const {
-    SkASSERT(drawContext);
-    // TODO: this will not handle local coordinates properly
+    SkASSERT(rtContext);
+    // TODO: this will not handle local coordinates properly (do I care?)
 
+    if (fAmbientAlpha <= 0.0f) {
+        return true;
+    }
+
+    // only convex paths for now
+    if (!path.isConvex()) {
+        return false;
+    }
+
+#ifdef SUPPORT_FAST_PATH
     // if circle
     // TODO: switch to SkScalarNearlyEqual when either oval renderer is updated or we
     // have our own GeometryProc.
@@ -163,9 +178,23 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texPr
         return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
+#endif
 
-    // TODO
-    return false;
+    SkScalar radius = fOccluderHeight * kHeightFactor * kGeomFactor;
+    SkScalar umbraAlpha = SkScalarInvert((1.0f+SkTMax(fOccluderHeight * kHeightFactor, 0.0f)));
+    umbraAlpha *= fAmbientAlpha;
+    // black for now
+    GrColor  umbraColor = GrColorPackRGBA(0, 0, 0, umbraAlpha*257.9999f);
+
+    SkAmbientShadowTessellator tess(viewMatrix, path, radius, umbraColor,
+                                SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
+
+    // Use different GrPaint?
+    rtContext->drawVertices(clip, std::move(paint), SkMatrix::I(), kTriangles_GrPrimitiveType,
+                            tess.vertexCount(), tess.positions(), nullptr,
+                            tess.colors(), tess.indices(), tess.indexCount());
+
+    return true;
 }
 
 bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
@@ -176,6 +205,10 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                              const SkStrokeRec& strokeRec,
                                                              const SkRRect& rrect,
                                                              const SkRRect& devRRect) const {
+#ifndef SUPPORT_FAST_PATH
+    return false;
+#endif
+
     // It's likely the caller has already done these checks, but we have to be sure.
     // TODO: support analytic blurring of general rrect
 
@@ -207,9 +240,6 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     // TODO: take flags into account when generating shadow data
 
     if (fAmbientAlpha > 0.0f) {
-        static const float kHeightFactor = 1.0f / 128.0f;
-        static const float kGeomFactor = 64.0f;
-
         SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
         const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
         const SkScalar ambientOffset = srcSpaceAmbientRadius * umbraAlpha;
@@ -252,7 +282,7 @@ sk_sp<GrTextureProxy> SkAmbientShadowMaskFilterImpl::filterMaskGPU(GrContext*,
     return nullptr;
 }
 
-#endif
+#endif // SK_SUPPORT_GPU
 
 #ifndef SK_IGNORE_TO_STRING
 void SkAmbientShadowMaskFilterImpl::toString(SkString* str) const {

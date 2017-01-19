@@ -17,6 +17,8 @@
 #include "SkView.h"
 #include "sk_tool_utils.h"
 
+#include "ops/GrAAConvexTessellator.h"
+
 #define USE_SHADOW_UTILS
 
 ////////////////////////////////////////////////////////////////////////////
@@ -361,9 +363,20 @@ protected:
                                       iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
+
+
+
+
         // apply transformation to shadow
         canvas->translate(offset.fX, offset.fY);
-        canvas->drawRRect(shadowRRect, paint);
+
+        GrAAConvexTessellator tess(SkStrokeRec::kStroke_Style, paint.getStrokeWidth(),
+                                   SkPaint::Join::kMiter_Join,
+                                   0);
+        tess.tessellate(SkMatrix::I(), path);
+
+        tess.draw(canvas);
+ //       canvas->drawRRect(shadowRRect, paint);
     }
 
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
@@ -406,14 +419,14 @@ protected:
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
-        } else {
+        }/* else {
             SkPaint strokePaint;
 
             strokePaint.setColor(paint.getColor());
             strokePaint.setStyle(SkPaint::kStroke_Style);
 
             canvas->drawPath(path, strokePaint);
-        }
+        }*/
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -431,21 +444,21 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
-                               lightPos, kLightWidth, kSpotAlpha);
+        //this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
+        //                       lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
-                               lightPos, kLightWidth, kSpotAlpha);
+        //this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
+        //                       lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
-                               lightPos, kLightWidth, 0.5f);
+        //this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
+        //                       lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
