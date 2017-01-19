@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_ff297b54",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T17:56:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_bf80934f",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_825a9e90",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 8
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_427c16d4",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T17:56:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "284bc29d_223e2a2c",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_e223a20a",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 8
@@ -82,6 +118,24 @@
       "writtenOn": "2017-01-19T17:47:54Z",
       "side": 1,
       "message": "If I\u0027m following what Brian\u0027s saying, seems like it\u0027s best for us to transform c0 and c1 from fColorSpace into the dst color space here ahead of time.  That\u0027ll make fC0 and fDc work in the dst space, and our gradient will appear linear even if there\u0027s clamping.\n\nThe simplest way to do this is probably make a little SkRasterPipeline that you run here right now, similar to how SkColor4f_from_SkColor() works, except running over 2 pixels (c0 and c1) and using fColorSpace instead of hardcoded to sRGB gamut.  You can probably also have it do the premul for you if premulGrad is true.",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_a26cfa1d",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T17:56:06Z",
+      "side": 1,
+      "message": "\u003e If I\u0027m following what Brian\u0027s saying, seems like it\u0027s best for us to transform c0 and c1 from fColorSpace into the dst color space here ahead of time.  That\u0027ll make fC0 and fDc work in the dst space, and our gradient will appear linear even if there\u0027s clamping.\n\u003e \n\nYup, I was just working on that.  Done.\n\n\u003e The simplest way to do this is probably make a little SkRasterPipeline that you run here right now, similar to how SkColor4f_from_SkColor() works, except running over 2 pixels (c0 and c1) and using fColorSpace instead of hardcoded to sRGB gamut.  You can probably also have it do the premul for you if premulGrad is true.\n\nI split off a to_colorspace() helper in SkPM4fPriv.h to maximize code sharing.  Unless setting up and running a pipeline is so expensive that we should try really hard to consolidate.",
+      "parentUuid": "284bc29d_e223a20a",
       "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
