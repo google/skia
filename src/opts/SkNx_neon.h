@@ -241,7 +241,12 @@ public:
         *b = rgba.val[2];
         *a = rgba.val[3];
     }
-
+    AI static void Load3(const void* ptr, SkNx* r, SkNx* g, SkNx* b) {
+        uint16x4x3_t rgba = vld3_u16((const uint16_t*)ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+    }
     AI static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
         uint16x4x4_t rgba = {{
             r.fVec,
