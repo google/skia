@@ -36,7 +36,7 @@ struct FunctionCall : public Expression {
     }
 
     const FunctionDeclaration& fFunction;
-    const std::vector<std::unique_ptr<Expression>> fArguments;
+    std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;
 };

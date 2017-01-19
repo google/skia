@@ -25,7 +25,7 @@ struct ExpressionStatement : public Statement {
         return fExpression->description() + ";";
     }
 
-    const std::unique_ptr<Expression> fExpression;
+    std::unique_ptr<Expression> fExpression;
 
     typedef Statement INHERITED;
 };

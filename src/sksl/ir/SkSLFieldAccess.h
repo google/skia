@@ -35,7 +35,7 @@ struct FieldAccess : public Expression {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
 
-    const std::unique_ptr<Expression> fBase;
+    std::unique_ptr<Expression> fBase;
     const int fFieldIndex;
     const OwnerKind fOwnerKind;
 

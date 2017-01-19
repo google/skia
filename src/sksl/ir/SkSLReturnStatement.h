@@ -32,7 +32,7 @@ struct ReturnStatement : public Statement {
         }
     }
 
-    const std::unique_ptr<Expression> fExpression;
+    std::unique_ptr<Expression> fExpression;
 
     typedef Statement INHERITED;
 };
