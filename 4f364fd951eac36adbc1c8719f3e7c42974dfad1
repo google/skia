@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_25dc74c6",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-19T20:37:32Z",
+      "side": 1,
+      "message": "remove this ?",
+      "revId": "4f364fd951eac36adbc1c8719f3e7c42974dfad1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
