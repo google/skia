@@ -120,9 +120,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleLocationsSupport = version >= GR_GL_VER(3,1);
     }
 
-    // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support GL_RED
+    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
     // and GL_RG on FBO textures.
-    if (kMesa_GrGLDriver != ctxInfo.driver()) {
+    if (kOSMesa_GrGLRenderer != ctxInfo.renderer()) {
         if (kGL_GrGLStandard == standard) {
             fTextureRedSupport = version >= GR_GL_VER(3,0) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_rg");
