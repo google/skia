@@ -47,11 +47,6 @@ public:
      */
     virtual SkString ensureCoords2D(const GrShaderVar&) = 0;
 
-
-    /** Returns a variable name that represents the position of the fragment in the FS. The position
-        is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
-    virtual const char* fragmentPosition() = 0;
-
     // TODO: remove this method.
     void declAppendf(const char* fmt, ...);
 
@@ -167,7 +162,6 @@ public:
     // Shared GrGLSLFragmentBuilder interface.
     bool enableFeature(GLSLFeature) override;
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
-    const char* fragmentPosition() override;
     const char* distanceVectorName() const override;
 
     // GrGLSLFPFragmentBuilder interface.

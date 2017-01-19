@@ -33,8 +33,10 @@ following differences between SkSL and GLSL:
   'do_something_else();', depending on whether that cap is enabled or not.
 * no #version statement is required, and will be ignored if present
 * the output color is sk_FragColor (do not declare it)
+* the fragment coordinate is sk_FragCoord, and is always relative to the upper
+  left.
 * lowp, mediump, and highp are always permitted (but will only be respected if 
-  you run on a GLES device)
+  you run on a device which supports them)
 * you do not need to include ".0" to make a number a float (meaning that
   "vec2(x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would often
   have to be expressed "vec2(x, y) * 4.0". There is no performance penalty for 
