@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_3f33e336",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-19T14:44:13Z",
+      "side": 1,
+      "message": "nit: trailing whitepsace",
+      "revId": "31d34a54631233a41cabd23f0b98a4aef4f1ebda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_ff405b66",
+        "filename": "tests/ReadWriteAlphaTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-19T14:44:13Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "revId": "31d34a54631233a41cabd23f0b98a4aef4f1ebda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
