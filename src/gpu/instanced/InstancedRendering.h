@@ -121,7 +121,7 @@ protected:
                           fIsTracked,
                           fNumDraws,
                           fNumChangesInGeometry);
-            string.append(DumpPipelineInfo(*this->pipeline()));
+            //string.append(DumpPipelineInfo(*this->pipeline()));
             string.append(INHERITED::dumpInfo());
             return string;
         }
@@ -140,6 +140,11 @@ protected:
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z, SkScalar w);
         void appendParamsTexel(SkScalar x, SkScalar y, SkScalar z);
 
+        bool usesHWAAWhenAvailable() const override;
+        bool usesStencil() override;
+        bool willXPNeedDstTexture(const GrCaps&) const override;
+        bool finalize(const GrAppliedClip&, const GrXferProcessor::DstTexture&) const override;
+
     protected:
         Op(uint32_t classID, InstancedRendering* ir);
 
@@ -154,8 +159,8 @@ protected:
         Draw* fTailDraw;
 
     private:
-        void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
-        void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
+        //void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
+        //void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
         void onPrepare(GrOpFlushState*) override {}
         void onExecute(GrOpFlushState*, const SkRect& bounds) override;

@@ -90,7 +90,7 @@ public:
         GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrAppliedClip* fAppliedClip = nullptr;
+        const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTargetContext* fRenderTargetContext = nullptr;
         const GrCaps* fCaps = nullptr;
         GrPipelineAnalysis fAnalysis;

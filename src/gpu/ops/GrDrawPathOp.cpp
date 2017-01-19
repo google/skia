@@ -6,34 +6,56 @@
  */
 
 #include "GrDrawPathOp.h"
-
 #include "GrRenderTargetPriv.h"
+#include "SkTemplates.h"
+#include "GrRenderTargetContext.h"
+#include "GrAppliedClip.h"
 
 static void pre_translate_transform_values(const float* xforms,
                                            GrPathRendering::PathTransformType type, int count,
                                            SkScalar x, SkScalar y, float* dst);
 
 void GrDrawPathOpBase::onPrepare(GrOpFlushState*) {
+#if 0
     const GrRenderTargetPriv& rtPriv = this->pipeline()->getRenderTarget()->renderTargetPriv();
     fStencilPassSettings.reset(GrPathRendering::GetStencilPassSettings(fFillType),
                                this->pipeline()->hasStencilClip(), rtPriv.numStencilBits());
+#endif
 }
 
 SkString GrDrawPathOp::dumpInfo() const {
     SkString string;
     string.printf("PATH: 0x%p", fPath.get());
-    string.append(DumpPipelineInfo(*this->pipeline()));
+    //string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }
 
-void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
+void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& bounds, const GrAppliedClip* clip) {
     GrProgramDesc desc;
 
-    sk_sp<GrPathProcessor> pathProc(
-            GrPathProcessor::Create(this->color(), this->viewMatrix()));
-    state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
-                                            this->stencilPassSettings(), fPath.get());
+    SkAlignedSTStorage<1, GrPipeline> pipelineStorage;
+    GrPipeline::CreateArgs args;
+    args.fProcessors = &this->processors();
+    args.fFlags = GrPipeline::kHWAntialias_Flag;
+    args.fUserStencil = &GrPathRendering::GetStencilPassSettings(this->fillType());
+    args.fAppliedClip = clip;
+    args.fRenderTargetContext = this->renderTargetContext();
+    args.fCaps = &state->caps();
+    args.fDstTexture = this->dstTexture();
+
+    GrPipelineOptimizations optimizations;
+    const GrPipeline* pipeline = GrPipeline::CreateAt(pipelineStorage.get(), args, &optimizations);
+
+    GrColor color = this->color();
+    optimizations.getOverrideColorIfSet(&color);
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(color, this->viewMatrix()));
+
+    // TODO: Make GrPathRendering work with pipeline's stencil settings?
+    GrStencilSettings stencil;
+    stencil.reset(*args.fUserStencil, clip->hasStencilClip(), this->renderTargetContext()->accessRenderTarget()->numStencilSamples());
+    state->gpu()->pathRendering()->drawPath(*pipeline, *pathProc,
+                                            stencil, fPath.get());
 }
 
 SkString GrDrawPathRangeOp::dumpInfo() const {
@@ -44,7 +66,7 @@ SkString GrDrawPathRangeOp::dumpInfo() const {
     }
     string.remove(string.size() - 2, 2);
     string.append("]");
-    string.append(DumpPipelineInfo(*this->pipeline()));
+    //string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }
@@ -68,9 +90,9 @@ bool GrDrawPathRangeOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         this->color() != that->color() || !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
         return false;
     }
-    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
-        return false;
-    }
+//    if (!GrPipeline::AreEqual(*this->pipeline(), *that->pipeline())) {
+//        return false;
+//    }
     switch (fDraws.head()->fInstanceData->transformType()) {
         case GrPathRendering::kNone_PathTransformType:
             if (this->fDraws.head()->fX != that->fDraws.head()->fX ||
@@ -131,7 +153,8 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
 
     if (fDraws.count() == 1) {
-        const InstanceData& instances = *head.fInstanceData;
+//        const InstanceData& instances = *head.fInstanceData;
+#if 0
         state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
                                                  *pathProc,
                                                  this->stencilPassSettings(),
@@ -141,6 +164,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
                                                  instances.transformValues(),
                                                  instances.transformType(),
                                                  instances.count());
+#endif
     } else {
         int floatsPerTransform = GrPathRendering::PathTransformSize(this->transformType());
         SkAutoSTMalloc<4096, float> transformStorage(floatsPerTransform * fTotalPathCount);
@@ -160,6 +184,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
         }
         SkASSERT(idx == fTotalPathCount);
 
+#if 0
         state->gpu()->pathRendering()->drawPaths(*this->pipeline(),
                                                  *pathProc,
                                                  this->stencilPassSettings(),
@@ -169,6 +194,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state, const SkRect& bounds) {
                                                  transformStorage,
                                                  this->transformType(),
                                                  fTotalPathCount);
+#endif
     }
 }
 

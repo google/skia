@@ -21,6 +21,7 @@ class GrClip;
 class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
+class GrMeshDrawOp;
 class GrPipelineBuilder;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
@@ -386,26 +387,26 @@ private:
         return GrAAType::kCoverage;
     }
 
-    friend class GrAtlasTextBlob; // for access to addDrawOp
-    friend class GrStencilAndCoverTextContext; // for access to addDrawOp
+    friend class GrAtlasTextBlob; // for access to addMeshDrawOp
+    friend class GrStencilAndCoverTextContext; // for access to addMeshDrawOp
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
     friend class GrTestTarget;  // for access to getOpList
-    friend class GrSWMaskHelper;                 // for access to addDrawOp
+    friend class GrSWMaskHelper;                 // for access to addMeshDrawOp
 
     // All the path renderers currently make their own ops
-    friend class GrSoftwarePathRenderer;         // for access to addDrawOp
-    friend class GrAAConvexPathRenderer;         // for access to addDrawOp
-    friend class GrDashLinePathRenderer;         // for access to addDrawOp
-    friend class GrAAHairLinePathRenderer;       // for access to addDrawOp
-    friend class GrAALinearizingConvexPathRenderer;  // for access to addDrawOp
-    friend class GrAADistanceFieldPathRenderer;  // for access to addDrawOp
-    friend class GrDefaultPathRenderer;          // for access to addDrawOp
-    friend class GrPLSPathRenderer;              // for access to addDrawOp
-    friend class GrMSAAPathRenderer;             // for access to addDrawOp
-    friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
-    friend class GrTessellatingPathRenderer;     // for access to addDrawOp
+    friend class GrSoftwarePathRenderer;         // for access to addMeshDrawOp
+    friend class GrAAConvexPathRenderer;         // for access to addMeshDrawOp
+    friend class GrDashLinePathRenderer;         // for access to addMeshDrawOp
+    friend class GrAAHairLinePathRenderer;       // for access to addMeshDrawOp
+    friend class GrAALinearizingConvexPathRenderer;  // for access to addMeshDrawOp
+    friend class GrAADistanceFieldPathRenderer;  // for access to addMeshDrawOp
+    friend class GrDefaultPathRenderer;          // for access to addMeshDrawOp
+    friend class GrPLSPathRenderer;              // for access to addMeshDrawOp
+    friend class GrMSAAPathRenderer;             // for access to addMeshDrawOp
+    friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp/addMeshDrawOp
+    friend class GrTessellatingPathRenderer;     // for access to addMeshDrawOp
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
@@ -443,8 +444,10 @@ private:
     bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                        size_t srcRowBytes, int x, int y) override;
 
-    // This entry point allows the GrTextContext-derived classes to add their ops to the GrOpList.
-    void addDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrDrawOp>);
+    // This entry point allows the GrTextContext- and GrPathRenderer-derived classes to add their
+    // ops to the GrOpList.
+    void addMeshDrawOp(const GrPipelineBuilder&, const GrClip&, std::unique_ptr<GrMeshDrawOp>);
+    void addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     GrRenderTargetOpList* getOpList();
 
