@@ -2540,7 +2540,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
             kind != Program::kFragment_Kind) {
             continue;
         }
-        if (!var->fReadCount && !var->fWriteCount &&
+        if (!var->fIsReadFrom && !var->fIsWrittenTo &&
                 !(var->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                             Modifiers::kOut_Flag |
                                             Modifiers::kUniform_Flag))) {

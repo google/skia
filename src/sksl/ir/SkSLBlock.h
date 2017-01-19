@@ -20,8 +20,8 @@ struct Block : public Statement {
     Block(Position position, std::vector<std::unique_ptr<Statement>> statements,
           const std::shared_ptr<SymbolTable> symbols)
     : INHERITED(position, kBlock_Kind)
-    , fSymbols(std::move(symbols))
-    , fStatements(std::move(statements)) {}
+    , fStatements(std::move(statements))
+    , fSymbols(std::move(symbols)) {}
 
     SkString description() const override {
         SkString result("{");
@@ -33,10 +33,8 @@ struct Block : public Statement {
         return result;
     }
 
-    // it's important to keep fStatements defined after (and thus destroyed before) fSymbols,
-    // because destroying statements can modify reference counts in symbols
-    const std::shared_ptr<SymbolTable> fSymbols;
     const std::vector<std::unique_ptr<Statement>> fStatements;
+    const std::shared_ptr<SymbolTable> fSymbols;
 
     typedef Statement INHERITED;
 };

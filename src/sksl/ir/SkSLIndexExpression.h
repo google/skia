@@ -55,8 +55,8 @@ struct IndexExpression : public Expression {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
 
-    std::unique_ptr<Expression> fBase;
-    std::unique_ptr<Expression> fIndex;
+    const std::unique_ptr<Expression> fBase;
+    const std::unique_ptr<Expression> fIndex;
 
     typedef Expression INHERITED;
 };

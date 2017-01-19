@@ -72,7 +72,7 @@ struct VarDeclarations : public ProgramElement {
     }
 
     const Type& fBaseType;
-    std::vector<VarDeclaration> fVars;
+    const std::vector<VarDeclaration> fVars;
 
     typedef ProgramElement INHERITED;
 };

@@ -25,7 +25,7 @@ struct PrefixExpression : public Expression {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 
-    std::unique_ptr<Expression> fOperand;
+    const std::unique_ptr<Expression> fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;
