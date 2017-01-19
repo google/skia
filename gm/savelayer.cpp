@@ -22,7 +22,7 @@ static void do_draw(SkCanvas* canvas) {
     SkRandom rand;
 
     for (int i = 0; i < 20; ++i) {
-        paint.setColor(rand.nextU() | (0xFF << 24));
+        paint.setColor(sk_tool_utils::color_to_565(rand.nextU() | (0xFF << 24)));
         canvas->drawRect({ 15, 15, 290, 40 }, paint);
         canvas->translate(0, 30);
     }
