@@ -83,16 +83,6 @@ public:
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
         kSnapVerticesToPixelCenters_Flag = 0x2,
-
-        /**
-         * Suppress linear -> sRGB conversion when rendering to sRGB render targets.
-         */
-        kDisableOutputConversionToSRGB_Flag = 0x4,
-
-        /**
-         * Allow sRGB -> linear conversion when reading from sRGB inputs.
-         */
-        kAllowSRGBInputs_Flag = 0x8,
     };
 
     struct CreateArgs {
@@ -231,7 +221,10 @@ public:
 private:
     GrPipeline() { /** Initialized in factory function*/ }
 
+    /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
+        kDisableOutputConversionToSRGB_Flag = 0x4,
+        kAllowSRGBInputs_Flag = 0x8,
         kUsesDistanceVectorField_Flag = 0x10,
         kHasStencilClip_Flag = 0x20,
         kStencilEnabled_Flag = 0x40,
