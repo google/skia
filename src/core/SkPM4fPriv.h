@@ -136,11 +136,9 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scr
     return append_gamut_transform(p, scratch->make<matrix_3x4>()->arr, src, dst);
 }
 
-static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
-    SkColor4f color4f;
+static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* dst) {
+    SkColor4f color4f = c;
     if (dst) {
-        // sRGB gamma, sRGB gamut.
-        color4f = SkColor4f::FromColor(color);
         void* color4f_ptr = &color4f;
 
         float scratch_matrix_3x4[12];
@@ -152,6 +150,15 @@ static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst)
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
         p.run(0,0,1);
+    }
+    return color4f;
+}
+
+static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
+    SkColor4f color4f;
+    if (dst) {
+        // sRGB gamma, sRGB gamut.
+        color4f = to_colorspace(SkColor4f::FromColor(color), dst);
     } else {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
