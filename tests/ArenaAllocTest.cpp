@@ -26,26 +26,6 @@ namespace {
         uint32_t array[128];
     };
 
-    struct Node {
-        Node(Node* n) : next(n) { created++; }
-        ~Node() {
-            destroyed++;
-            if (next) {
-                next->~Node();
-            }
-        }
-        Node *next;
-    };
-
-    struct Start {
-        ~Start() {
-            if (start) {
-                start->~Node();
-            }
-        }
-        Node* start;
-    };
-
 }
 
 struct WithDtor {
@@ -83,7 +63,7 @@ DEF_TEST(ArenaAlloc, r) {
     {
         created = 0;
         destroyed = 0;
-        char block[64];
+        char block[1024];
         SkArenaAlloc arena{block};
 
         REPORTER_ASSERT(r, *arena.make<int>(3) == 3);
@@ -133,30 +113,4 @@ DEF_TEST(ArenaAlloc, r) {
     }
     REPORTER_ASSERT(r, created == 11);
     REPORTER_ASSERT(r, destroyed == 11);
-
-    {
-        char storage[64];
-        SkArenaAlloc arena{storage};
-        arena.makeArrayDefault<char>(256);
-        arena.reset();
-        arena.reset();
-    }
-
-    {
-        created = 0;
-        destroyed = 0;
-        char storage[64];
-        SkArenaAlloc arena{storage};
-
-        Start start;
-        Node* current = nullptr;
-        for (int i = 0; i < 128; i++) {
-            uint64_t* temp = arena.makeArrayDefault<uint64_t>(sizeof(Node) / sizeof(Node*));
-            current = new (temp)Node(current);
-        }
-        start.start = current;
-    }
-
-    REPORTER_ASSERT(r, created == 128);
-    REPORTER_ASSERT(r, destroyed == 128);
 }

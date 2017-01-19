@@ -56,7 +56,7 @@ public:
     SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
 
     template <size_t kSize>
-    SkArenaAlloc(char (&block)[kSize], size_t extraSize = kSize)
+    SkArenaAlloc(char (&block)[kSize], size_t extraSize = 0)
         : SkArenaAlloc(block, kSize, extraSize)
     {}
 
@@ -115,8 +115,6 @@ public:
 private:
     using Footer = int32_t;
     using FooterAction = char* (char*);
-
-    struct NextBlock;
 
     void installFooter(FooterAction* releaser, ptrdiff_t padding);
 
@@ -181,9 +179,7 @@ private:
         return objStart;
     }
 
-    static char* CallFooterAction(char* end);
-
-    static void ResetBlock(char* footerEnd);
+    char* callFooterAction(char* end);
 
     static char* EndChain(char*);
 
@@ -199,12 +195,10 @@ private:
         }
     };
 
-    char*        fDtorCursor;
-    char*        fCursor;
-    char*        fEnd;
-    char* const  fFirstBlock;
-    const size_t fFirstSize;
-    const size_t fExtraSize;
+    char*  fDtorCursor;
+    char*  fCursor;
+    char*  fEnd;
+    size_t fExtraSize;
 };
 
 #endif//SkFixedAlloc_DEFINED
