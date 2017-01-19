@@ -16,6 +16,24 @@
       "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_df911f73",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T15:56:57Z",
+      "side": 1,
+      "message": "Oh, right, 9 floats in case there\u0027s perspective.  Ignore that question about 6.",
+      "parentUuid": "284bc29d_bf80934f",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
