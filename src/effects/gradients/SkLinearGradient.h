@@ -69,6 +69,9 @@ protected:
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&) const override;
+
 private:
     class LinearGradient4fContext;
 
