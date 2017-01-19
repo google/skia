@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_b0a4408f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T22:54:59Z",
+      "side": 1,
+      "message": "I believe the correct tile interval is [0, limit) -- which is the reason we bother with nextafter() for the other modes.  Why do we need to relax the check after this change?  Should clamp use nextafter() also?",
+      "range": {
+        "startLine": 852,
+        "startChar": 36,
+        "endLine": 852,
+        "endChar": 37
+      },
+      "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
