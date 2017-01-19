@@ -40,6 +40,41 @@
       "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_5fa4ef47",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-19T14:31:46Z",
+      "side": 1,
+      "message": "Agreed. And given the color space \u003c-\u003e bit depth constraints that we enforce, it\u0027s pretty unlikely that someone is going to do that. The only way it\u0027s possible is if they\u0027re using or asking for linear 8-bit. They\u0027re already doing something wrong, so wasting more time/memory to make another copy seems fine. (Given that it keeps the logic and explanation of what the function does more succinct).",
+      "parentUuid": "284bc29d_bf4373aa",
+      "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_ff797bde",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-19T14:31:46Z",
+      "side": 1,
+      "message": "std::move(cs) ?",
+      "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
