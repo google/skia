@@ -260,27 +260,37 @@ static void make_color_test_bitmap_variant(
             *pm.writable_addr32(x, y) = make_pixel(x, y, alphaType);
         }
     }
+    bm->setImmutable();
 }
 
-DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
+DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 4 * SCALE + 30) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     sk_sp<SkColorSpace> colorSpaces[] {
         SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
         nullptr,
     };
+
+    SkPaint rectPaint;
+    rectPaint.setColor(0x8000FF00);
+    SkRect r = { 0, 0, SCALE, SCALE };
+
     for (auto colorSpace : colorSpaces) {
         canvas->save();
+        // unpremul is expected to *not* draw anything
         for (auto alphaType : {kPremul_SkAlphaType, kUnpremul_SkAlphaType}) {
             canvas->save();
             for (auto colorType : {kRGBA_8888_SkColorType, kBGRA_8888_SkColorType}) {
                 SkBitmap bm;
                 make_color_test_bitmap_variant(colorType, alphaType, colorSpace, &bm);
+                canvas->drawRect(r, rectPaint);
                 canvas->drawBitmap(bm, 0.0f, 0.0f);
+                canvas->drawRect(r.makeOffset(0, SCALE + 10), rectPaint);
+                canvas->drawImage(SkImage::MakeFromBitmap(bm), 0, SCALE + 10, nullptr);
                 canvas->translate(SCALE + 10, 0.0f);
             }
             canvas->restore();
-            canvas->translate(0.0f, SCALE + 10);
+            canvas->translate(0.0f, (SCALE + 10) * 2);
         }
         canvas->restore();
         canvas->translate(2 * (SCALE + 10), 0.0f);
