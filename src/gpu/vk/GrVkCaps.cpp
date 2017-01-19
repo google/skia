@@ -19,6 +19,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMustDoCopiesFromOrigin = false;
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
+    fMustSleepOnTearDown  = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -77,6 +78,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     if (kNvidia_VkVendor == properties.vendorID) {
         fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
+    }
+
+    bool onWindows = false;
+#if defined(SK_BUILD_FOR_WIN)
+    onWindows = true;
+#endif
+    if ((kNvidia_VkVendor == properties.vendorID && onWindows) ||
+        kImagination_VkVendor == properties.vendorID) {
+        fMustSleepOnTearDown = true;
     }
 
     this->applyOptionsOverrides(contextOptions);
