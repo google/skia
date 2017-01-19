@@ -1048,13 +1048,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
 
-    SkScalar iw = 1.f / texture->width();
-    SkScalar ih = 1.f / texture->height();
-
-    SkMatrix texMatrix;
     // Compute a matrix that maps the rect we will draw to the src rect.
-    texMatrix.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
-    texMatrix.postScale(iw, ih);
+    SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
@@ -1200,10 +1195,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
             SkMatrix::I(),
             SkRect::Make(SkIRect::MakeXYWH(
                     left + offset.fX, top + offset.fY, subset.width(), subset.height())),
-            SkRect::MakeXYWH(SkIntToScalar(subset.fLeft) / texture->width(),
-                             SkIntToScalar(subset.fTop) / texture->height(),
-                             SkIntToScalar(subset.width()) / texture->width(),
-                             SkIntToScalar(subset.height()) / texture->height()));
+            SkRect::Make(subset));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
