@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_bf80934f",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T15:11:53Z",
+      "side": 1,
+      "message": "A fine alternative here is to break up and remove this type.  There\u0027s not really any stage that needs to see more than one part off this struct at a time, which makes me think it may not want to be a struct.  You should be able to allocate each of these independently at the same cost to allocate them all together:\n\nfloat* matrix \u003d alloc-\u003emakeArrayDefault\u003cfloat\u003e(9);   // probably, really wants to be (6)?\n...\nfloat* limit \u003d alloc-\u003emake\u003cfloat\u003e(1.0f);\n...\nSkPM4f* c0_and_dc \u003d alloc-\u003emakeArrayDefault\u003cSkPM4f\u003e(2);\n\nThen of course, pass those pointers as context pointers to the various stages, updating the linear_gradient_2stop context pointer type to just const SkPM4f*.",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
