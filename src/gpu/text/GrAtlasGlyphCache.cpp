@@ -119,8 +119,11 @@ void GrAtlasGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
   * @param filename      Full path to desired file
   */
 static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* filename) {
+
+    SkImageInfo ii = SkImageInfo::Make(sProxy->width(), sProxy->height(),
+                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(sProxy->width(), sProxy->height()))) {
+    if (!bm.tryAllocPixels(ii)) {
         return false;
     }
 
@@ -131,14 +134,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
         return false;
     }
 
-    // TODO: remove this instantiation when readPixels is on SurfaceContext
-    GrTexture* tex = sContext->asDeferredTexture()->instantiate(context->textureProvider());
-    if (!tex) {
-        return false;
-    }
-
-    bool result = tex->readPixels(0, 0, sProxy->width(), sProxy->height(), kSkia8888_GrPixelConfig,
-                                  bm.getPixels(), bm.rowBytes());
+    bool result = sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), 0, 0);
     if (!result) {
         SkDebugf("------ failed to read pixels for %s\n", filename);
         return false;
