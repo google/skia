@@ -40,8 +40,8 @@ public:
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrPipeline& pipeline() const { return fPipeline; }
-    const GrProgramDesc& desc() const { return fDesc; }
-    const GrProgramDesc::KeyHeader& header() const { return fDesc.header(); }
+    GrProgramDesc* desc() { return fDesc; }
+    const GrProgramDesc::KeyHeader& header() const { return fDesc->header(); }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
@@ -99,7 +99,7 @@ public:
 
     const GrPipeline&           fPipeline;
     const GrPrimitiveProcessor& fPrimProc;
-    const GrProgramDesc&        fDesc;
+    GrProgramDesc*              fDesc;
 
     BuiltinUniformHandles fUniformHandles;
 
@@ -110,7 +110,7 @@ public:
 protected:
     explicit GrGLSLProgramBuilder(const GrPipeline&,
                                   const GrPrimitiveProcessor&,
-                                  const GrProgramDesc&);
+                                  GrProgramDesc*);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 

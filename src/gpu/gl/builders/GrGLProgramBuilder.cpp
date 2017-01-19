@@ -30,7 +30,7 @@
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
-                                               const GrProgramDesc& desc,
+                                               GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
     GrAutoLocaleSetter als("C");
 
@@ -56,7 +56,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
-                                       const GrProgramDesc& desc)
+                                       GrProgramDesc* desc)
     : INHERITED(pipeline, primProc, desc)
     , fGpu(gpu)
     , fVaryingHandler(this)
@@ -89,6 +89,13 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
     }
 
     *shaderIds->append() = shaderId;
+    if (!outInputs->fFlipY) {
+        GrProgramDesc* d = this->desc();
+        // the program doesn't care about the surface origin, set the key to zero to indicate that
+        // it doesn't matter
+        d->setSurfaceOriginKey(0);
+        d->finalize();
+    }
 
     return true;
 }
@@ -244,7 +251,7 @@ void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
 
 GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
     return new GrGLProgram(fGpu,
-                           this->desc(),
+                           *this->desc(),
                            fUniformHandles,
                            programID,
                            fUniformHandler.fUniforms,

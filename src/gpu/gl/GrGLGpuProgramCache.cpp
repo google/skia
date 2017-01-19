@@ -81,11 +81,18 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
     desc.finalize();
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
+        // Didn't find an origin-independent version, check with the specific origin
+        GrSurfaceOrigin origin = pipeline.getRenderTarget()->origin();
+        desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+        desc.finalize();
+        entry = fMap.find(desc);
+    }
+    if (!entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, desc, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu);
         if (nullptr == program) {
             return nullptr;
         }

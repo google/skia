@@ -20,7 +20,7 @@ const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPipeline& pipeline,
                                            const GrPrimitiveProcessor& primProc,
-                                           const GrProgramDesc& desc)
+                                           GrProgramDesc* desc)
     : fVS(this)
     , fGS(this)
     , fFS(this)
@@ -348,7 +348,7 @@ void GrGLSLProgramBuilder::emitImageStorage(const GrProcessor::ImageStorageAcces
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
     // Swizzle the fragment shader outputs if necessary.
     GrSwizzle swizzle;
-    swizzle.setFromKey(this->desc().header().fOutputSwizzle);
+    swizzle.setFromKey(this->desc()->header().fOutputSwizzle);
     if (swizzle != GrSwizzle::RGBA()) {
         fFS.codeAppendf("%s = %s.%s;", fFS.getPrimaryColorOutputName(),
                         fFS.getPrimaryColorOutputName(),
