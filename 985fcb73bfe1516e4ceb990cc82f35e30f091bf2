@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_1feee701",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-19T15:42:02Z",
+      "side": 1,
+      "message": "I wonder if we should have a comment that these flags are meant to start after the public flags above?",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 23
+      },
+      "revId": "985fcb73bfe1516e4ceb990cc82f35e30f091bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
