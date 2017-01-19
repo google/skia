@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c77a2d_518ff612",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T18:00:30Z",
+      "side": 1,
+      "message": "This refactoring looks fine, but in your case, this highlighted bit is the interesting part.  You want fColorSpace here, not this hardcoded sRGB.",
+      "range": {
+        "startLine": 149,
+        "startChar": 31,
+        "endLine": 149,
+        "endChar": 87
+      },
+      "revId": "ad1cb9e0cfd8906609e721b3ad7a538f59bd1ef7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
