@@ -20,7 +20,6 @@ class SkDrawFilter;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
-class SkMetaData;
 class SkRasterHandleAllocator;
 class SkRegion;
 class SkSpecialImage;
@@ -33,8 +32,6 @@ public:
     */
     explicit SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
     virtual ~SkBaseDevice();
-
-    SkMetaData& getMetaData();
 
     /**
      *  Return ImageInfo for this device. If the canvas is not backed by pixels
@@ -368,8 +365,7 @@ private:
                                    const SkRect& dst, const SkPaint& paint,
                                    SkCanvas::SrcRectConstraint constraint);
 
-    SkIPoint    fOrigin;
-    SkMetaData* fMetaData;
+    SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
 

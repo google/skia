@@ -15,7 +15,6 @@
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
 #include "SkLatticeIter.h"
-#include "SkMetaData.h"
 #include "SkPatchUtils.h"
 #include "SkPathPriv.h"
 #include "SkPathMeasure.h"
@@ -32,19 +31,9 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     , fSurfaceProps(surfaceProps)
 {
     fOrigin.setZero();
-    fMetaData = nullptr;
 }
 
-SkBaseDevice::~SkBaseDevice() { delete fMetaData; }
-
-SkMetaData& SkBaseDevice::getMetaData() {
-    // metadata users are rare, so we lazily allocate it. If that changes we
-    // can decide to just make it a field in the device (rather than a ptr)
-    if (nullptr == fMetaData) {
-        fMetaData = new SkMetaData;
-    }
-    return *fMetaData;
-}
+SkBaseDevice::~SkBaseDevice() {}
 
 #ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
 const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
