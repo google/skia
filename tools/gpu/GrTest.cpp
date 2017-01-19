@@ -257,9 +257,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }
-    if (snapToCenters) {
-        pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
-    }
+    pipelineBuilder.setSnapVerticesToPixelCenters(snapToCenters);
 
     fRenderTargetContext->getOpList()->addDrawOp(pipelineBuilder, fRenderTargetContext, GrNoClip(),
                                                  std::move(op));

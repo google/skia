@@ -50,10 +50,13 @@ public:
         analysis->fCoveragePOI.analyzeProcessors(fps, this->numCoverageFragmentProcessors());
     }
 
+    bool usesDistanceVectorField() const { return fUsesDistanceVectorField; }
+
 private:
     const GrXPFactory* fXPFactory = nullptr;
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
     int fColorFragmentProcessorCnt;
+    bool fUsesDistanceVectorField;
 };
 
 #endif

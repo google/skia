@@ -99,7 +99,7 @@ static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* sto
 
     GrAppliedClip dummyAppliedClip(SkRect::MakeLargest());
     GrPipeline::CreateArgs args;
-    args.fPipelineBuilder = &dummyBuilder;
+    dummyBuilder.initPipelineCreateArgs(&args);
     args.fRenderTargetContext = dc;
     args.fCaps = dc->caps();
     args.fAppliedClip = &dummyAppliedClip;

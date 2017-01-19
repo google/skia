@@ -660,12 +660,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
         if (op) {
             GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-
-            if (snapToPixelCenters) {
-                pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag,
-                                         snapToPixelCenters);
-            }
-
+            pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
             this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
             return;
         }
