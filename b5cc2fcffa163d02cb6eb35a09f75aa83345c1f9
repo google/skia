@@ -34,6 +34,57 @@
       "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_825a9e90",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T17:47:54Z",
+      "side": 1,
+      "message": "Been thinking about this TODO a bit more.  It\u0027s unlikely to make much of a difference... either way we\u0027ll end up loading 1.0f from memory.  (0.0f is easy to construct with an xor, and a couple other floats like 0.5f are fairly easy on ARM but not Intel, but 1.0f pretty much always will be loaded from memory.)",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_223e2a2c",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T17:47:54Z",
+      "side": 1,
+      "message": "I think we should probably land https://skia-review.googlesource.com/c/7212/ first so that this code never has to suffer this weirdness?",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_e223a20a",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T17:47:54Z",
+      "side": 1,
+      "message": "If I\u0027m following what Brian\u0027s saying, seems like it\u0027s best for us to transform c0 and c1 from fColorSpace into the dst color space here ahead of time.  That\u0027ll make fC0 and fDc work in the dst space, and our gradient will appear linear even if there\u0027s clamping.\n\nThe simplest way to do this is probably make a little SkRasterPipeline that you run here right now, similar to how SkColor4f_from_SkColor() works, except running over 2 pixels (c0 and c1) and using fColorSpace instead of hardcoded to sRGB gamut.  You can probably also have it do the premul for you if premulGrad is true.",
+      "revId": "b5cc2fcffa163d02cb6eb35a09f75aa83345c1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
