@@ -51,6 +51,17 @@ static void sample4(void* dst, const uint8_t* src, int width, int bpp, int delta
     }
 }
 
+static void sample6(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
+        const SkPMColor ctable[]) {
+    src += offset;
+    uint8_t* dst8 = (uint8_t*) dst;
+    for (int x = 0; x < width; x++) {
+        memcpy(dst8, src, 6);
+        dst8 += 6;
+        src += deltaSrc;
+    }
+}
+
 static void sample8(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
         const SkPMColor ctable[]) {
     src += offset;
@@ -809,26 +820,54 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
     int srcBPP;
     const int dstBPP = SkColorTypeBytesPerPixel(dstInfo.colorType());
     if (skipFormatConversion) {
-        srcBPP = dstBPP;
-        switch (dstInfo.colorType()) {
-            case kGray_8_SkColorType:
-                proc = &sample1;
+        switch (encodedInfo.color()) {
+            case SkEncodedInfo::kGray_Color:
+            case SkEncodedInfo::kYUV_Color:
+                // We have a jpeg that has already been converted to the dstColorType.
+                srcBPP = dstBPP;
+                switch (dstInfo.colorType()) {
+                    case kGray_8_SkColorType:
+                        proc = &sample1;
+                        fastProc = &copy;
+                        break;
+                    case kRGB_565_SkColorType:
+                        proc = &sample2;
+                        fastProc = &copy;
+                        break;
+                    case kRGBA_8888_SkColorType:
+                    case kBGRA_8888_SkColorType:
+                        proc = &sample4;
+                        fastProc = &copy;
+                        break;
+                    default:
+                        return nullptr;
+                }
+                break;
+            case SkEncodedInfo::kInvertedCMYK_Color:
+            case SkEncodedInfo::kYCCK_Color:
+                // We have a jpeg that remains in its original format.
+                srcBPP = 4;
+                proc = &sample4;
                 fastProc = &copy;
                 break;
-            case kRGB_565_SkColorType:
-                proc = &sample2;
-                fastProc = &copy;
-                break;
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:
+            case SkEncodedInfo::kRGBA_Color:
+                // We have a png that should remain in its original format.
                 SkASSERT(16 == encodedInfo.bitsPerComponent() ||
                           8 == encodedInfo.bitsPerComponent());
                 if (8 == encodedInfo.bitsPerComponent()) {
+                    srcBPP = 4;
                     proc = &sample4;
                 } else {
                     srcBPP = 8;
                     proc = &sample8;
                 }
+                fastProc = &copy;
+                break;
+            case SkEncodedInfo::kRGB_Color:
+                // We have a png that remains in its original format.
+                SkASSERT(16 == encodedInfo.bitsPerComponent());
+                srcBPP = 6;
+                proc = &sample6;
                 fastProc = &copy;
                 break;
             default:
