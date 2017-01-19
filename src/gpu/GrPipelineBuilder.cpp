@@ -23,12 +23,6 @@ GrPipelineBuilder::GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
     if (GrAATypeIsHW(aaType)) {
         fFlags |= GrPipeline::kHWAntialias_Flag;
     }
-    if (paint.getDisableOutputConversionToSRGB()) {
-        fFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
-    }
-    if (paint.getAllowSRGBInputs()) {
-        fFlags |= GrPipeline::kAllowSRGBInputs_Flag;
-    }
 }
 
 bool GrPipelineBuilder::willXPNeedDstTexture(const GrCaps& caps,

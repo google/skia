@@ -50,13 +50,22 @@ public:
         analysis->fCoveragePOI.analyzeProcessors(fps, this->numCoverageFragmentProcessors());
     }
 
-    bool usesDistanceVectorField() const { return fUsesDistanceVectorField; }
+    bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
+    bool disableOutputConversionToSRGB() const {
+        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
+    }
+    bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
 private:
     const GrXPFactory* fXPFactory = nullptr;
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
     int fColorFragmentProcessorCnt;
-    bool fUsesDistanceVectorField;
+    enum Flags : uint32_t {
+        kUseDistanceVectorField_Flag = 0x1,
+        kDisableOutputConversionToSRGB_Flag = 0x2,
+        kAllowSRGBInputs_Flag = 0x4
+    };
+    uint32_t fFlags;
 };
 
 #endif

@@ -44,6 +44,12 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (!args.fUserStencil->isDisabled(args.fAppliedClip->hasStencilClip())) {
         pipeline->fFlags |= kStencilEnabled_Flag;
     }
+    if (args.fProcessors->disableOutputConversionToSRGB()) {
+        pipeline->fFlags |= kDisableOutputConversionToSRGB_Flag;
+    }
+    if (args.fProcessors->allowSRGBInputs()) {
+        pipeline->fFlags |= kAllowSRGBInputs_Flag;
+    }
 
     bool isHWAA = kHWAntialias_Flag & args.fFlags;
 
