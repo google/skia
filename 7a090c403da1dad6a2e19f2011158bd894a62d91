@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_9f4f9775",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-19T15:01:57Z",
+      "side": 0,
+      "message": "So bpp was never used?",
+      "range": {
+        "startLine": 135,
+        "startChar": 36,
+        "endLine": 135,
+        "endChar": 43
+      },
+      "revId": "7a090c403da1dad6a2e19f2011158bd894a62d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

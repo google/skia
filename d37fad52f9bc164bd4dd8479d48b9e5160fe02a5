@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_dfebdf29",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-19T15:01:57Z",
+      "side": 1,
+      "message": "I\u0027m guessing this is so we can use the same transform function, rather than writing two?\n\nI suppose it will have a similar effect on performance as in https://skia-review.googlesource.com/c/7115/ ? (libpng will do an extra pass to strip the alpha?)",
+      "range": {
+        "startLine": 341,
+        "startChar": 11,
+        "endLine": 342,
+        "endChar": 36
+      },
+      "revId": "d37fad52f9bc164bd4dd8479d48b9e5160fe02a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
