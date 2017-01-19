@@ -22,6 +22,24 @@
       "revId": "7a090c403da1dad6a2e19f2011158bd894a62d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_9f54b705",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-19T15:12:15Z",
+      "side": 0,
+      "message": "Was never used.  memcpy is only transform fn that needs it.",
+      "parentUuid": "284bc29d_9f4f9775",
+      "revId": "7a090c403da1dad6a2e19f2011158bd894a62d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

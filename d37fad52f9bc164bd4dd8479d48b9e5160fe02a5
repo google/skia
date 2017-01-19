@@ -22,6 +22,24 @@
       "revId": "d37fad52f9bc164bd4dd8479d48b9e5160fe02a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_5f8cef8a",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-19T15:12:15Z",
+      "side": 1,
+      "message": "Yes, libpng will make an extra pass to convert RGBA-\u003eRGB.\n\nIt\u0027s actually hard to write an efficient RasterPipeline stage to store to RGB (vs RGBA which is much more natural).  I could write the stage (and the transform fn) - it would probably improve performance on ARM at least.\n\nMy preference is hold-off on that until we understand if/how this is used and if performance is important.  For now I\u0027m going for simple and working.",
+      "parentUuid": "284bc29d_dfebdf29",
+      "revId": "d37fad52f9bc164bd4dd8479d48b9e5160fe02a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
