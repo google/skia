@@ -306,9 +306,11 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
     REPORTER_ASSERT(reporter, !state);
 }
 
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-#include "SkClipStack.h"
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
+    const uint32_t dontSaveFlag = 1 << 31;    // secret flag for don't save
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag == dontSaveFlag, "");
+#endif
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
@@ -321,31 +323,21 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(LAYER_WIDTH), SkIntToScalar(LAYER_HEIGHT));
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(WIDTH), SkIntToScalar(HEIGHT)));
 
-    // Check that saveLayer without the kClipToLayer_SaveFlag leaves the
-    // clip stack unchanged.
-    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds,
-                                            nullptr,
-                                            SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag));
-    SkRect clipStackBounds;
-    SkClipStack::BoundsType boundsType;
-    canvas.getClipStack()->getBounds(&clipStackBounds, &boundsType);
-    // The clip stack will return its bounds, or it may be "full" : i.e. empty + inside_out.
-    // Either result is consistent with this test, since the canvas' size is WIDTH/HEIGHT
-    if (SkClipStack::kInsideOut_BoundsType == boundsType) {
-        REPORTER_ASSERT(reporter, clipStackBounds.isEmpty());
-    } else {
-        REPORTER_ASSERT(reporter, clipStackBounds.width() == WIDTH);
-        REPORTER_ASSERT(reporter, clipStackBounds.height() == HEIGHT);
-    }
+    SkIRect devClip;
+    // Check that saveLayer without the kClipToLayer_SaveFlag leaves the clip unchanged.
+    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr, dontSaveFlag));
+    canvas.getClipDeviceBounds(&devClip);
+    REPORTER_ASSERT(reporter, canvas.isClipRect());
+    REPORTER_ASSERT(reporter, devClip.width() == WIDTH);
+    REPORTER_ASSERT(reporter, devClip.height() == HEIGHT);
     canvas.restore();
 
     // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip
     // stack to the layer bounds.
     canvas.saveLayer(&bounds, nullptr);
-    canvas.getClipStack()->getBounds(&clipStackBounds, &boundsType);
-    REPORTER_ASSERT(reporter, clipStackBounds.width() == LAYER_WIDTH);
-    REPORTER_ASSERT(reporter, clipStackBounds.height() == LAYER_HEIGHT);
-
+    canvas.getClipDeviceBounds(&devClip);
+    REPORTER_ASSERT(reporter, canvas.isClipRect());
+    REPORTER_ASSERT(reporter, devClip.width() == LAYER_WIDTH);
+    REPORTER_ASSERT(reporter, devClip.height() == LAYER_HEIGHT);
     canvas.restore();
 }
-#endif
