@@ -103,6 +103,10 @@ static bool bitmap_is_too_big(int w, int h) {
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     SkTBlitterAllocator* allocator) {
+    if (image && as_IB(image)->onAlphaType() == kUnpremul_SkAlphaType) {
+        return nullptr;
+    }
+
     SkShader* shader;
     if (!image || bitmap_is_too_big(image->width(), image->height())) {
         if (nullptr == allocator) {
