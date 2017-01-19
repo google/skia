@@ -31,6 +31,8 @@ PUBLIC_API_OWNERS = (
     'bsalomon@google.com',
     'djsollen@chromium.org',
     'djsollen@google.com',
+    'hcm@chromium.org',
+    'hcm@google.com',
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
