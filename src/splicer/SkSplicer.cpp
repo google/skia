@@ -302,6 +302,7 @@ namespace {
             fBackup     = SkOpts::compile_pipeline(stages, nstages);
             fSplicedLen = 0;
             fSpliced    = nullptr;
+            fLowp       = false;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
         #if defined(__aarch64__)
