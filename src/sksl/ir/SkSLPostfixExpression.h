@@ -25,7 +25,7 @@ struct PostfixExpression : public Expression {
         return fOperand->description() + Token::OperatorName(fOperator);
     }
 
-    const std::unique_ptr<Expression> fOperand;
+    std::unique_ptr<Expression> fOperand;
     const Token::Kind fOperator;
 
     typedef Expression INHERITED;

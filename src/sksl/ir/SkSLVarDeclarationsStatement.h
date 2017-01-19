@@ -18,14 +18,14 @@ namespace SkSL {
  */
 struct VarDeclarationsStatement : public Statement {
     VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
-    : INHERITED(decl->fPosition, kVarDeclarations_Kind) 
+    : INHERITED(decl->fPosition, kVarDeclarations_Kind)
     , fDeclaration(std::move(decl)) {}
 
     SkString description() const override {
         return fDeclaration->description();
     }
 
-    const std::shared_ptr<VarDeclarations> fDeclaration;
+    std::shared_ptr<VarDeclarations> fDeclaration;
 
     typedef Statement INHERITED;
 };

@@ -31,9 +31,9 @@ struct TernaryExpression : public Expression {
                fIfFalse->description() + ")";
     }
 
-    const std::unique_ptr<Expression> fTest;
-    const std::unique_ptr<Expression> fIfTrue;
-    const std::unique_ptr<Expression> fIfFalse;
+    std::unique_ptr<Expression> fTest;
+    std::unique_ptr<Expression> fIfTrue;
+    std::unique_ptr<Expression> fIfFalse;
 
     typedef Expression INHERITED;
 };

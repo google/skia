@@ -61,7 +61,7 @@ DEF_TEST(SkSLControl, r) {
          "while (i < 10) sk_FragColor *= 0.5;"
          "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.75);"
          "for (int i = 0; i < 10; i++) {"
-         "if (i % 0 == 1) break; else continue;"
+         "if (i % 2 == 1) break; else continue;"
          "}"
          "return;"
          "}",
@@ -75,12 +75,12 @@ DEF_TEST(SkSLControl, r) {
          "        discard;\n"
          "    }\n"
          "    int i = 0;\n"
-         "    while (i < 10) sk_FragColor *= 0.5;\n"
+         "    while (true) sk_FragColor *= 0.5;\n"
          "    do {\n"
          "        sk_FragColor += 0.01;\n"
          "    } while (sk_FragColor.x < 0.75);\n"
          "    for (int i = 0;i < 10; i++) {\n"
-         "        if (i % 0 == 1) break; else continue;\n"
+         "        if (i % 2 == 1) break; else continue;\n"
          "    }\n"
          "    return;\n"
          "}\n");
@@ -106,8 +106,8 @@ DEF_TEST(SkSLFunctions, r) {
          "}\n"
          "void main() {\n"
          "    float x = 10.0;\n"
-         "    bar(x);\n"
-         "    sk_FragColor = vec4(x);\n"
+         "    bar(10.0);\n"
+         "    sk_FragColor = vec4(10.0);\n"
          "}\n");
 }
 
@@ -116,7 +116,7 @@ DEF_TEST(SkSLOperators, r) {
          "void main() {"
          "float x = 1, y = 2;"
          "int z = 3;"
-         "x = x + y * z * x * (y - z);"
+         "x = x - x + y * z * x * (y - z);"
          "y = x / y / z;"
          "z = (z / 2 % 3 << 4) >> 2 << 1;"
          "bool b = (x > 4) == x < 2 || 2 >= sqrt(2) && y <= z;"
@@ -139,10 +139,10 @@ DEF_TEST(SkSLOperators, r) {
          "void main() {\n"
          "    float x = 1.0, y = 2.0;\n"
          "    int z = 3;\n"
-         "    x = x + ((y * float(z)) * x) * (y - float(z));\n"
-         "    y = (x / y) / float(z);\n"
-         "    z = (((z / 2) % 3 << 4) >> 2) << 1;\n"
-         "    bool b = x > 4.0 == x < 2.0 || 2.0 >= sqrt(2.0) && y <= float(z);\n"
+         "    x = -6.0;\n"
+         "    y = -1.0;\n"
+         "    z = 8;\n"
+         "    bool b = false == true || 2.0 >= sqrt(2.0) && true;\n"
          "    x += 12.0;\n"
          "    x -= 12.0;\n"
          "    x *= (y /= float(z = 10));\n"
@@ -287,7 +287,7 @@ DEF_TEST(SkSLMinAbs, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    float x = -5.0;\n"
-         "    x = min(abs(x), 6.0);\n"
+         "    x = min(abs(-5.0), 6.0);\n"
          "}\n");
 
     test(r,
@@ -302,7 +302,7 @@ DEF_TEST(SkSLMinAbs, r) {
          "    float minAbsHackVar0;\n"
          "    float minAbsHackVar1;\n"
          "    float x = -5.0;\n"
-         "    x = ((minAbsHackVar0 = abs(x)) < (minAbsHackVar1 = 6.0) ? minAbsHackVar0 : "
+         "    x = ((minAbsHackVar0 = abs(-5.0)) < (minAbsHackVar1 = 6.0) ? minAbsHackVar0 : "
                                                                                 "minAbsHackVar1);\n"
          "}\n");
 }
