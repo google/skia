@@ -6,46 +6,71 @@
  */
 
 #include <algorithm>
+#include <cstddef>
 #include "SkArenaAlloc.h"
 
-struct Skipper {
-    char* operator()(char* objEnd, ptrdiff_t size) { return objEnd + size; }
-};
+static char* end_chain(char*) { return nullptr; }
 
-struct NextBlock {
-    char* operator()(char* objEnd, ptrdiff_t size) { delete [] objEnd; return objEnd + size; }
+char* SkArenaAlloc::SkipPod(char* footerEnd) {
+    char* objEnd = footerEnd - (sizeof(Footer) + sizeof(int32_t));
+    int32_t skip;
+    memmove(&skip, objEnd, sizeof(int32_t));
+    return objEnd - skip;
+}
+
+void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd) {
+    while (footerEnd != nullptr) {
+        Footer footer;
+        memcpy(&footer, footerEnd - sizeof(Footer), sizeof(Footer));
+
+        FooterAction* action = (FooterAction*)((char*)end_chain + (footer >> 5));
+        ptrdiff_t padding = footer & 31;
+
+        footerEnd = action(footerEnd) - padding;
+    }
+}
+
+char* SkArenaAlloc::NextBlock(char* footerEnd) {
+    char* objEnd = footerEnd - (sizeof(Footer) + sizeof(char*));
+    char* next;
+    memmove(&next, objEnd, sizeof(char*));
+    RunDtorsOnBlock(next);
+    delete [] objEnd;
+    return nullptr;
+}
+
+struct Skipper {
+    char* operator()(char* objEnd, uint32_t size) { return objEnd - size; }
 };
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
-    : fDtorCursor{block}
-    , fCursor    {block}
-    , fEnd       {block + size}
-    , fExtraSize {extraSize}
+    : fDtorCursor {block}
+    , fCursor     {block}
+    , fEnd        {block + size}
+    , fFirstBlock {block}
+    , fFirstSize  {size}
+    , fExtraSize  {extraSize}
 {
     if (size < sizeof(Footer)) {
         fEnd = fCursor = fDtorCursor = nullptr;
     }
 
     if (fCursor != nullptr) {
-        this->installFooter(EndChain, 0);
+        this->installFooter(end_chain, 0);
     }
 }
 
 SkArenaAlloc::~SkArenaAlloc() {
-    this->reset();
+    RunDtorsOnBlock(fDtorCursor);
 }
 
 void SkArenaAlloc::reset() {
-    Footer f;
-    memmove(&f, fDtorCursor - sizeof(Footer), sizeof(Footer));
-    char* releaser = fDtorCursor;
-    while (releaser != nullptr) {
-        releaser = this->callFooterAction(releaser);
-    }
+    this->~SkArenaAlloc();
+    new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
 }
 
 void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
-    ptrdiff_t releaserDiff = (char *)releaser - (char *)EndChain;
+    ptrdiff_t releaserDiff = (char *)releaser - (char *)end_chain;
     ptrdiff_t footerData = SkLeftShift((int64_t)releaserDiff, 5) | padding;
     if (padding >= 32 || !SkTFitsIn<int32_t>(footerData)) {
         // Footer data will not fit.
@@ -54,10 +79,20 @@ void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
 
     Footer footer = (Footer)(footerData);
     memmove(fCursor, &footer, sizeof(Footer));
-    Footer check;
-    memmove(&check, fCursor, sizeof(Footer));
     fCursor += sizeof(Footer);
     fDtorCursor = fCursor;
+}
+
+void SkArenaAlloc::installPtrFooter(FooterAction* action, char* ptr, ptrdiff_t padding) {
+    memmove(fCursor, &ptr, sizeof(char*));
+    fCursor += sizeof(char*);
+    this->installFooter(action, padding);
+}
+
+void SkArenaAlloc::installUint32Footer(FooterAction* action, uint32_t value, ptrdiff_t padding) {
+    memmove(fCursor, &value, sizeof(uint32_t));
+    fCursor += sizeof(uint32_t);
+    this->installFooter(action, padding);
 }
 
 void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
@@ -76,7 +111,7 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
     // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
     // heuristic is from the JEMalloc behavior.
     {
-        size_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 32 - 1;
+        size_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
@@ -86,7 +121,7 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
     fCursor = newBlock;
     fDtorCursor = newBlock;
     fEnd = fCursor + allocationSize;
-    this->installIntFooter<NextBlock>(previousDtor - fCursor, 0);
+    this->installPtrFooter(NextBlock, previousDtor, 0);
 }
 
 char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
@@ -99,19 +134,14 @@ char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
     return objStart;
 }
 
-// * sizeAndFooter - the memory for the footer in addition to the size for the object.
-// * alignment - alignment needed by the object.
 char* SkArenaAlloc::allocObjectWithFooter(size_t sizeIncludingFooter, size_t alignment) {
     size_t mask = alignment - 1;
 
-    restart:
+restart:
     size_t skipOverhead = 0;
     bool needsSkipFooter = fCursor != fDtorCursor;
     if (needsSkipFooter) {
-        size_t skipSize = SkTFitsIn<int32_t>(fDtorCursor - fCursor)
-                          ? sizeof(int32_t)
-                          : sizeof(ptrdiff_t);
-        skipOverhead = sizeof(Footer) + skipSize;
+        skipOverhead = sizeof(Footer) + sizeof(uint32_t);
     }
     char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
     size_t totalSize = sizeIncludingFooter + skipOverhead;
@@ -126,23 +156,9 @@ char* SkArenaAlloc::allocObjectWithFooter(size_t sizeIncludingFooter, size_t ali
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
     if (needsSkipFooter) {
-        this->installIntFooter<Skipper>(fDtorCursor - fCursor, 0);
+        this->installUint32Footer(SkipPod, SkTo<uint32_t>(fCursor - fDtorCursor), 0);
     }
 
     return objStart;
 }
-
-char* SkArenaAlloc::callFooterAction(char* end) {
-    Footer footer;
-    memcpy(&footer, end - sizeof(Footer), sizeof(Footer));
-
-    FooterAction* releaser = (FooterAction*)((char*)EndChain + (footer >> 5));
-    ptrdiff_t padding = footer & 31;
-
-    char* r = releaser(end) - padding;
-
-    return r;
-}
-
-char* SkArenaAlloc::EndChain(char*) { return nullptr; }
 
