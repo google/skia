@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_c598300a",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T20:52:38Z",
+      "side": 1,
+      "message": "out of date?",
+      "range": {
+        "startLine": 95,
+        "startChar": 7,
+        "endLine": 95,
+        "endChar": 22
+      },
+      "revId": "8b7a478d29845bdf87615012550da43fcba3d436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
