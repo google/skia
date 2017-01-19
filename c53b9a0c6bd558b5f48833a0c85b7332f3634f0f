@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68269aae_76faf099",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-19T15:34:57Z",
+      "side": 1,
+      "message": "Assuming this was flipped for a reason, should this have a comment like the fSymbol and fStatement issue that you added in SkSLBlock?",
+      "range": {
+        "startLine": 72,
+        "startChar": 3,
+        "endLine": 72,
+        "endChar": 59
+      },
+      "revId": "c53b9a0c6bd558b5f48833a0c85b7332f3634f0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
