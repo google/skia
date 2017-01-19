@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_22062a3f",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T18:18:43Z",
+      "side": 1,
+      "message": "I don\u0027t personally care too much, but I think the idea is that SkColorSpace is one of those immutable-so-never-say-const types.  If you need to add const to make these functions work, odds are we should just remove the const from the src color space.",
+      "range": {
+        "startLine": 104,
+        "startChar": 42,
+        "endLine": 104,
+        "endChar": 47
+      },
+      "revId": "779a330d37476152b1fcb197cc60db6dcabaecf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_221d8a93",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-19T18:18:43Z",
+      "side": 1,
+      "message": "Why don\u0027t we just write this as void gamut_transform(SkColor4f* colors, int n, SkColorSpace* src, SkColorSpace* dst)?  That way we can do the two colors in one go.",
+      "revId": "779a330d37476152b1fcb197cc60db6dcabaecf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
