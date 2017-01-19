@@ -309,7 +309,7 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 }
             }
         }
-        if (strcmp("Mesa Offscreen", rendererString)) {
+        if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }
     }
