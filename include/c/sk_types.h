@@ -580,11 +580,11 @@ typedef enum {
 } gr_pixelconfig_t;
 
 typedef enum {
-    BW_Format,             //!< 1bit per pixel mask (e.g. monochrome)
-    A8_Format,             //!< 8bits per pixel mask (e.g. antialiasing)
-    THREE_D_Format,             //!< 3 8bit per pixl planes: alpha, mul, add
-    ARGB32_Format,         //!< SkPMColor
-    LCD16_Format,          //!< 565 alpha for r/g/b
+    BW_SK_MASK_FORMAT,             //!< 1bit per pixel mask (e.g. monochrome)
+    A8_SK_MASK_FORMAT,             //!< 8bits per pixel mask (e.g. antialiasing)
+    THREE_D_SK_MASK_FORMAT,        //!< 3 8bit per pixl planes: alpha, mul, add
+    ARGB32_SK_MASK_FORMAT,         //!< SkPMColor
+    LCD16_SK_MASK_FORMAT,          //!< 565 alpha for r/g/b
 } sk_mask_format_t;
 
 typedef struct {
