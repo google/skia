@@ -107,14 +107,12 @@ static void test_basic_draw(skiatest::Reporter* reporter, GrContext* context,
             context->makeRenderTargetContext(SkBackingFit::kExact, rectangleTexture->width(),
                                              rectangleTexture->height(), rectangleTexture->config(),
                                              nullptr));
-    SkMatrix m;
-    m.setIDiv(rectangleTexture->width(), rectangleTexture->height());
     for (auto filter : {GrSamplerParams::kNone_FilterMode,
                         GrSamplerParams::kBilerp_FilterMode,
                         GrSamplerParams::kMipMap_FilterMode}) {
         rtContext->clear(nullptr, 0xDDCCBBAA, true);
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(rectangleTexture,
-                                                                  nullptr, m, filter));
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(rectangleTexture, nullptr,
+                                                                  SkMatrix::I(), filter));
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
