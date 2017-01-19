@@ -608,6 +608,23 @@ STAGE_CTX(load_rgb_u16_be, const uint16_t**) {
     a = 1.0f;
 }
 
+STAGE_CTX(store_u16_be, uint64_t**) {
+    auto to_u16_be = [](const SkNf& x) {
+        SkNh x16 = SkNx_cast<uint16_t>(65535.0f * x);
+        return (x16 << 8) | (x16 >> 8);
+    };
+
+    auto ptr = *ctx + x;
+    SkNx<N, uint64_t> px;
+    SkNh::Store4(tail ? (void*)&px : (void*)ptr, to_u16_be(r),
+                                                 to_u16_be(g),
+                                                 to_u16_be(b),
+                                                 to_u16_be(a));
+    if (tail) {
+        store(tail, px, ptr);
+    }
+}
+
 STAGE_CTX(load_tables, const LoadTablesContext*) {
     auto ptr = (const uint32_t*)ctx->fSrc + x;
 

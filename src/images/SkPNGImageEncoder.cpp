@@ -83,6 +83,17 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
             return transform_scanline_memcpy;
+        case kRGBA_F16_SkColorType:
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_F16;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_F16_premul;
+                default:
+                    SkASSERT(false);
+                    return nullptr;
+            }
         default:
             SkASSERT(false);
             return nullptr;
@@ -168,19 +179,8 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
     if (!pixmap.addr() || pixmap.info().isEmpty()) {
         return false;
     }
-    const SkColorType colorType = pixmap.colorType();
-    switch (colorType) {
-        case kIndex_8_SkColorType:
-        case kGray_8_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGB_565_SkColorType:
-            break;
-        default:
-            return false;
-    }
 
+    const SkColorType colorType = pixmap.colorType();
     const SkAlphaType alphaType = pixmap.alphaType();
     switch (alphaType) {
         case kUnpremul_SkAlphaType:
@@ -197,12 +197,23 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
     }
 
     const bool isOpaque = (kOpaque_SkAlphaType == alphaType);
-    const int bitDepth = 8;
+    int bitDepth = 8;
     png_color_8 sig_bit;
     sk_bzero(&sig_bit, sizeof(png_color_8));
-
     int pngColorType;
     switch (colorType) {
+        case kRGBA_F16_SkColorType:
+            if (!pixmap.colorSpace() || !pixmap.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
+
+            sig_bit.red = 16;
+            sig_bit.green = 16;
+            sig_bit.blue = 16;
+            sig_bit.alpha = 16;
+            bitDepth = 16;
+            pngColorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
+            break;
         case kIndex_8_SkColorType:
             sig_bit.red = 8;
             sig_bit.green = 8;
@@ -240,6 +251,7 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
         default:
             return false;
     }
+
     if (kIndex_8_SkColorType == colorType) {
         SkColorTable* ctable = pixmap.ctable();
         if (!ctable || ctable->count() == 0) {
@@ -250,7 +262,23 @@ bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& src, const SkEncodeOp
         // When ctable->count() <= 16, we could potentially use 1, 2,
         // or 4 bit indices.
     }
+
     return do_encode(stream, pixmap, pngColorType, bitDepth, sig_bit);
+}
+
+static int num_components(int pngColorType) {
+    switch (pngColorType) {
+        case PNG_COLOR_TYPE_PALETTE:
+        case PNG_COLOR_TYPE_GRAY:
+            return 1;
+        case PNG_COLOR_TYPE_RGB:
+            return 3;
+        case PNG_COLOR_TYPE_RGBA:
+            return 4;
+        default:
+            SkASSERT(false);
+            return 0;
+    }
 }
 
 static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
@@ -308,12 +336,18 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
 
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
     png_write_info(png_ptr, info_ptr);
+    int pngBytesPerPixel = num_components(pngColorType) * (bitDepth / 8);
+    if (kRGBA_F16_SkColorType == pixmap.colorType() && kOpaque_SkAlphaType == pixmap.alphaType()) {
+        // For kOpaque, kRGBA_F16, we will keep the row as RGBA and tell libpng
+        // to skip the alpha channel.
+        png_set_filler(png_ptr, 0, PNG_FILLER_AFTER);
+        pngBytesPerPixel = 8;
+    }
 
-    const char* srcImage = (const char*)pixmap.addr();
-    SkAutoSTMalloc<1024, char> rowStorage(pixmap.width() << 2);
+    SkAutoSTMalloc<1024, char> rowStorage(pixmap.width() * pngBytesPerPixel);
     char* storage = rowStorage.get();
+    const char* srcImage = (const char*)pixmap.addr();
     transform_scanline_proc proc = choose_proc(pixmap.info());
-
     for (int y = 0; y < pixmap.height(); y++) {
         png_bytep row_ptr = (png_bytep)storage;
         proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(pixmap.colorType()));
