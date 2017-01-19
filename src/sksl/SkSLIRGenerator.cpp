@@ -551,11 +551,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         }
     }
     Type* type = new Type(intf.fPosition, intf.fInterfaceName, fields);
-    old->takeOwnership(type);
+    fSymbolTable->takeOwnership(type);
     SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
     Variable* var = new Variable(intf.fPosition, intf.fModifiers, name, *type,
                                  Variable::kGlobal_Storage);
-    old->takeOwnership(var);
+    fSymbolTable->takeOwnership(var);
     if (intf.fValueName.size()) {
         old->addWithoutOwnership(intf.fValueName, var);
     } else {
@@ -624,22 +624,19 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
                                                                             f->fFunctions));
         }
         case Symbol::kVariable_Kind: {
-            Variable* var = (Variable*) result;
+            const Variable* var = (const Variable*) result;
+            this->markReadFrom(*var);
             if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
                 fSettings->fFlipY &&
                 (!fSettings->fCaps || !fSettings->fCaps->fragCoordConventionsExtensionString())) {
                 fInputs.fRTHeight = true;
             }
-            // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return std::unique_ptr<VariableReference>(new VariableReference(
-                                                                 identifier.fPosition,
-                                                                 *var,
-                                                                 VariableReference::kRead_RefKind));
+            return std::unique_ptr<VariableReference>(new VariableReference(identifier.fPosition,
+                                                                            *var));
         }
         case Symbol::kField_Kind: {
             const Field* field = (const Field*) result;
-            VariableReference* base = new VariableReference(identifier.fPosition, field->fOwner,
-                                                            VariableReference::kRead_RefKind);
+            VariableReference* base = new VariableReference(identifier.fPosition, field->fOwner);
             return std::unique_ptr<Expression>(new FieldAccess(
                                                   std::unique_ptr<Expression>(base),
                                                   field->fFieldIndex,
@@ -691,6 +688,28 @@ static bool is_matrix_multiply(const Type& left, const Type& right) {
         return right.kind() == Type::kMatrix_Kind || right.kind() == Type::kVector_Kind;
     }
     return left.kind() == Type::kVector_Kind && right.kind() == Type::kMatrix_Kind;
+}
+
+static bool is_assignment(Token::Kind op) {
+    switch (op) {
+        case Token::EQ:           // fall through
+        case Token::PLUSEQ:       // fall through
+        case Token::MINUSEQ:      // fall through
+        case Token::STAREQ:       // fall through
+        case Token::SLASHEQ:      // fall through
+        case Token::PERCENTEQ:    // fall through
+        case Token::SHLEQ:        // fall through
+        case Token::SHREQ:        // fall through
+        case Token::BITWISEOREQ:  // fall through
+        case Token::BITWISEXOREQ: // fall through
+        case Token::BITWISEANDEQ: // fall through
+        case Token::LOGICALOREQ:  // fall through
+        case Token::LOGICALXOREQ: // fall through
+        case Token::LOGICALANDEQ:
+            return true;
+        default:
+            return false;
+    }
 }
 
 /**
@@ -823,9 +842,14 @@ static bool determine_binary_type(const Context& context,
     return false;
 }
 
+/**
+ * If both operands are compile-time constants and can be folded, returns an expression representing
+ * the folded value. Otherwise, returns null. Note that unlike most other functions here, null does
+ * not represent a compilation error.
+ */
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
-                                                      const Expression& right) const {
+                                                      const Expression& right) {
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense. The plan is to move the
     // Skia caps into SkSL, so we have access to all of them including the precisions of the various
@@ -919,16 +943,15 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     const Type* rightType;
     const Type* resultType;
     if (!determine_binary_type(fContext, expression.fOperator, left->fType, right->fType, &leftType,
-                               &rightType, &resultType,
-                               !Token::IsAssignment(expression.fOperator))) {
+                               &rightType, &resultType, !is_assignment(expression.fOperator))) {
         fErrors.error(expression.fPosition, "type mismatch: '" +
                                             Token::OperatorName(expression.fOperator) +
                                             "' cannot operate on '" + left->fType.fName +
                                             "', '" + right->fType.fName + "'");
         return nullptr;
     }
-    if (Token::IsAssignment(expression.fOperator)) {
-        this->markWrittenTo(*left, expression.fOperator != Token::EQ);
+    if (is_assignment(expression.fOperator)) {
+        this->markWrittenTo(*left);
     }
     left = this->coerce(std::move(left), *leftType);
     right = this->coerce(std::move(right), *rightType);
@@ -1028,7 +1051,7 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], true);
+            this->markWrittenTo(*arguments[i]);
         }
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(position, *returnType, function,
@@ -1238,7 +1261,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->markWrittenTo(*base);
             break;
         case Token::MINUSMINUS:
             if (!base->fType.isNumber()) {
@@ -1247,7 +1270,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->markWrittenTo(*base);
             break;
         case Token::LOGICALNOT:
             if (base->fType != *fContext.fBool_Type) {
@@ -1441,7 +1464,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'++' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->markWrittenTo(*base);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::PLUSPLUS));
         case ASTSuffix::kPostDecrement_Kind:
@@ -1450,7 +1473,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                               "'--' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
             }
-            this->markWrittenTo(*base, true);
+            this->markWrittenTo(*base);
             return std::unique_ptr<Expression>(new PostfixExpression(std::move(base),
                                                                      Token::MINUSMINUS));
         default:
@@ -1473,6 +1496,10 @@ void IRGenerator::checkValid(const Expression& expr) {
     }
 }
 
+void IRGenerator::markReadFrom(const Variable& var) {
+    var.fIsReadFrom = true;
+}
+
 static bool has_duplicates(const Swizzle& swizzle) {
     int bits = 0;
     for (int idx : swizzle.fComponents) {
@@ -1486,7 +1513,7 @@ static bool has_duplicates(const Swizzle& swizzle) {
     return false;
 }
 
-void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
+void IRGenerator::markWrittenTo(const Expression& expr) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             const Variable& var = ((VariableReference&) expr).fVariable;
@@ -1494,22 +1521,21 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
                 fErrors.error(expr.fPosition,
                               "cannot modify immutable variable '" + var.fName + "'");
             }
-            ((VariableReference&) expr).setRefKind(readWrite ? VariableReference::kReadWrite_RefKind
-                                                             : VariableReference::kWrite_RefKind);
+            var.fIsWrittenTo = true;
             break;
         }
         case Expression::kFieldAccess_Kind:
-            this->markWrittenTo(*((FieldAccess&) expr).fBase, readWrite);
+            this->markWrittenTo(*((FieldAccess&) expr).fBase);
             break;
         case Expression::kSwizzle_Kind:
             if (has_duplicates((Swizzle&) expr)) {
                 fErrors.error(expr.fPosition,
                               "cannot write to the same swizzle field more than once");
             }
-            this->markWrittenTo(*((Swizzle&) expr).fBase, readWrite);
+            this->markWrittenTo(*((Swizzle&) expr).fBase);
             break;
         case Expression::kIndex_Kind:
-            this->markWrittenTo(*((IndexExpression&) expr).fBase, readWrite);
+            this->markWrittenTo(*((IndexExpression&) expr).fBase);
             break;
         default:
             fErrors.error(expr.fPosition, "cannot assign to '" + expr.description() + "'");

@@ -76,7 +76,7 @@ struct Swizzle : public Expression {
         return result;
     }
 
-    std::unique_ptr<Expression> fBase;
+    const std::unique_ptr<Expression> fBase;
     const std::vector<int> fComponents;
 
     typedef Expression INHERITED;

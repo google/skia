@@ -32,7 +32,7 @@ struct IfStatement : public Statement {
         return result;
     }
 
-    std::unique_ptr<Expression> fTest;
+    const std::unique_ptr<Expression> fTest;
     const std::unique_ptr<Statement> fIfTrue;
     const std::unique_ptr<Statement> fIfFalse;
 

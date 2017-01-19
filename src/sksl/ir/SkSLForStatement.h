@@ -46,8 +46,8 @@ struct ForStatement : public Statement {
     }
 
     const std::unique_ptr<Statement> fInitializer;
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Expression> fNext;
+    const std::unique_ptr<Expression> fTest;
+    const std::unique_ptr<Expression> fNext;
     const std::unique_ptr<Statement> fStatement;
     const std::shared_ptr<SymbolTable> fSymbols;
 

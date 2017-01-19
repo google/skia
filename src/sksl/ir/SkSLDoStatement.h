@@ -28,7 +28,7 @@ struct DoStatement : public Statement {
     }
 
     const std::unique_ptr<Statement> fStatement;
-    std::unique_ptr<Expression> fTest;
+    const std::unique_ptr<Expression> fTest;
 
     typedef Statement INHERITED;
 };
