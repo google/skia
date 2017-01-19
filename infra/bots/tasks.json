@@ -180,6 +180,12 @@
         "Build-Ubuntu-Clang-x86_64-Release"
       ]
     },
+    "Build-Ubuntu-Clang-x86_64-Release-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-ASAN"
+      ]
+    },
     "Build-Ubuntu-Clang-x86_64-Release-Fast": {
       "priority": 0.8,
       "tasks": [
@@ -668,6 +674,12 @@
         "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
+    "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN"
+      ]
+    },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "priority": 0.8,
       "tasks": [
@@ -678,6 +690,12 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN"
+      ]
+    },
+    "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN"
       ]
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
@@ -1232,6 +1250,12 @@
         "Upload-Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN"
+      ]
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "priority": 0.8,
       "tasks": [
@@ -1248,6 +1272,12 @@
       "priority": 0.8,
       "tasks": [
         "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN"
+      ]
+    },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN"
       ]
     },
     "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN": {
@@ -2468,6 +2498,38 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-ASAN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -5713,6 +5775,60 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:19"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-ASAN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "cipd_packages": [
         {
@@ -5801,6 +5917,59 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:19"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-ASAN"
+      ],
+      "dimensions": [
+        "gpu:10de:104a",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10242,6 +10411,60 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:19"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-ASAN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
       "cipd_packages": [
         {
@@ -10384,6 +10607,59 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:19"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-ASAN"
+      ],
+      "dimensions": [
+        "gpu:10de:104a",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
