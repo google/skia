@@ -4,17 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_BINARYEXPRESSION
 #define SKSL_BINARYEXPRESSION
 
 #include "SkSLExpression.h"
+#include "SkSLExpression.h"
+#include "../SkSLIRGenerator.h"
 #include "../SkSLToken.h"
 
 namespace SkSL {
 
 /**
- * A binary operation. 
+ * A binary operation.
  */
 struct BinaryExpression : public Expression {
     BinaryExpression(Position position, std::unique_ptr<Expression> left, Token::Kind op,
@@ -24,14 +26,22 @@ struct BinaryExpression : public Expression {
     , fOperator(op)
     , fRight(std::move(right)) {}
 
+    virtual std::unique_ptr<Expression> constantPropagate(
+                                                        const IRGenerator& irGenerator,
+                                                        const DefinitionMap& definitions) override {
+        return irGenerator.constantFold(*fLeft,
+                                        fOperator,
+                                        *fRight);
+    }
+
     virtual SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
 
-    const std::unique_ptr<Expression> fLeft;
+    std::unique_ptr<Expression> fLeft;
     const Token::Kind fOperator;
-    const std::unique_ptr<Expression> fRight;
+    std::unique_ptr<Expression> fRight;
 
     typedef Expression INHERITED;
 };
