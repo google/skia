@@ -31,7 +31,7 @@ public:
     Gr1DKernelEffect(GrTexture* texture,
                      Direction direction,
                      int radius)
-        : INHERITED(texture, nullptr, GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(texture, nullptr, SkMatrix::I())
         , fDirection(direction)
         , fRadius(radius) {}
 

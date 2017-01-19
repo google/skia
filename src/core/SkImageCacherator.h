@@ -62,6 +62,7 @@ public:
      */
     GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&, SkColorSpace* dstColorSpace,
                              sk_sp<SkColorSpace>* texColorSpace, const SkImage* client,
+                             SkScalar sizeAdjust[2],
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**

@@ -22,7 +22,7 @@ public:
      *  the texture. Places the color space of the texture in (*texColorSpace).
      */
     GrTexture* refTextureForParams(const GrSamplerParams&, SkColorSpace* dstColorSpace,
-                                   sk_sp<SkColorSpace>* texColorSpace);
+                                   sk_sp<SkColorSpace>* texColorSpace, SkScalar sizeAdjust[2]);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,

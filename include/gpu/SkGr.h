@@ -79,9 +79,11 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 /** Returns a texture representing the bitmap that is compatible with the GrSamplerParams. The
     texture is inserted into the cache (unless the bitmap is marked volatile) and can be
     retrieved again via this function. */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&);
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                    const GrSamplerParams&, SkScalar sizeAdjust[2]);
 
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&);
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&,
+                                           const GrSamplerParams&, SkScalar sizeAdjust[2]);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps);
