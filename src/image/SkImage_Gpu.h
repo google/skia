@@ -29,6 +29,7 @@ public:
 
     SkImageInfo onImageInfo() const override;
     SkAlphaType onAlphaType() const override { return fAlphaType; }
+    bool onIsAlreadABuffer() const override { return true; }
 
     void applyBudgetDecision() const {
         if (SkBudgeted::kYes == fBudgeted) {

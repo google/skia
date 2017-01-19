@@ -36,6 +36,10 @@ public:
     virtual SkImageInfo onImageInfo() const = 0;
     virtual SkAlphaType onAlphaType() const = 0;
 
+    // Returns true iff the image is backed by a real pixel buffer (e.g. raster or texture)
+    // and not something "lazy" like picture or generator.
+    virtual bool onIsAlreadABuffer() const { return false; }
+
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }

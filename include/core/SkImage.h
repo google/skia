@@ -345,6 +345,16 @@ public:
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const;
 
+    /**
+     *  Scale this image to match the specified dimensions, depth and colorspace, using the
+     *  specified filter quality. If everything requested matches the original image, it
+     *  may optimize this and return a ref of the original, but this is not guaranteed.
+     *
+     *  If the reqested conversion/scaling is unsupported, returns nullptr.
+     */
+    sk_sp<SkImage> makeScaled(int width, int height, BitDepth, sk_sp<SkColorSpace>,
+                              SkFilterQuality) const;
+
     /** Drawing params for which a deferred texture image data should be optimized. */
     struct DeferredTextureImageUsageParams {
         DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality,
