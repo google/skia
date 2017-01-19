@@ -171,6 +171,8 @@ public:
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
 
+    bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     // Returns the string of an extension that must be enabled in the shader to support
@@ -299,6 +301,7 @@ private:
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
+    bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
