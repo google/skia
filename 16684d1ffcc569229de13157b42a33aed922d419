@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_5cc35d1c",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T02:19:11Z",
+      "side": 1,
+      "message": "doh, done.",
+      "parentUuid": "68269aae_596ba759",
+      "revId": "16684d1ffcc569229de13157b42a33aed922d419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68269aae_59b967b9",
         "filename": "src/effects/gradients/SkLinearGradient.cpp",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-18T20:26:50Z",
       "side": 1,
       "message": "Might wanna make two SkMatrix values, first dstToPts and then dstToUnit \u003d concat(fPtsToUnit, dstToPts) ?  Both pos and pts make sense to me (as would src) but we should probably pick one term.",
+      "revId": "16684d1ffcc569229de13157b42a33aed922d419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_fcb189cf",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-19T02:19:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68269aae_59b967b9",
       "revId": "16684d1ffcc569229de13157b42a33aed922d419",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
