@@ -808,7 +808,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
                                   const SkMatrix& srcToDstRect) const {
     ASSERT_SINGLE_OWNER
     // if image is explictly texture backed then just use the texture
-    if (as_IB(image)->peekTexture()) {
+    if (as_IB(image)->peekTexture1()) {
         return false;
     }
 
@@ -1307,11 +1307,13 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        GrTexture* texture = as_IB(image)->peekTexture();
+        GrSurfaceProxy* proxy = as_IB(image)->peekProxy();
 
-        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(image->width(), image->height()),
+        return SkSpecialImage::MakeDeferredFromGpu(
+                                           fContext.get(),
+                                           SkIRect::MakeWH(image->width(), image->height()),
                                            image->uniqueID(),
-                                           sk_ref_sp(texture),
+                                           sk_ref_sp(proxy),
                                            as_IB(image)->onImageInfo().refColorSpace(),
                                            &this->surfaceProps());
     } else if (image->peekPixels(&pm)) {

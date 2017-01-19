@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
+#include "GrTextureProxy.h"
 
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
@@ -138,13 +139,13 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
     GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
-    GrTexture* tex = cache->getTexture(format);
-    sk_sp<SkImage> image(new SkImage_Gpu(tex->width(), tex->height(),
+    GrSurfaceProxy* proxy = cache->getProxy(format);
+    sk_sp<SkImage> image(new SkImage_Gpu(this, proxy->width(), proxy->height(),
                                          kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         sk_ref_sp(tex), nullptr, SkBudgeted::kNo));
+                                         sk_ref_sp(proxy), nullptr, SkBudgeted::kNo));
     return image;
 }
 
