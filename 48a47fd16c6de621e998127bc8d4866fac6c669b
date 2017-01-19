@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_9f6cb71e",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-19T14:33:02Z",
+      "side": 1,
+      "message": "why the extra \u00270\u0027 on these instead of just 0x1/2/4/8?",
+      "range": {
+        "startLine": 80,
+        "startChar": 28,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "48a47fd16c6de621e998127bc8d4866fac6c669b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
