@@ -33,6 +33,7 @@
 #include "SkTypeface.h"
 #include "SkEncodedInfo.h"
 #include "SkTime.h"
+#include "SkCamera.h"
 #include "gl/GrGLInterface.h"
 
 #include "sk_path.h"
@@ -644,6 +645,22 @@ static inline sk_xmlwriter_t* ToXMLWriter(SkXMLWriter* p) {
 
 static inline const sk_xmlwriter_t* ToXMLWriter(const SkXMLWriter* p) {
     return reinterpret_cast<const sk_xmlwriter_t*>(p);
+}
+
+static inline const Sk3DView* As3DView(const sk_3dview_t* p) {
+    return reinterpret_cast<const Sk3DView*>(p);
+}
+
+static inline Sk3DView* As3DView(sk_3dview_t* p) {
+    return reinterpret_cast<Sk3DView*>(p);
+}
+
+static inline sk_3dview_t* To3DView(Sk3DView* p) {
+    return reinterpret_cast<sk_3dview_t*>(p);
+}
+
+static inline const sk_3dview_t* To3DView(const Sk3DView* p) {
+    return reinterpret_cast<const sk_3dview_t*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

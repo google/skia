@@ -747,6 +747,8 @@ typedef struct sk_xmlwriter_t sk_xmlwriter_t;
 
 typedef struct sk_svgcanvas_t sk_svgcanvas_t;
 
+typedef struct sk_3dview_t sk_3dview_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

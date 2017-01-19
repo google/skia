@@ -113,6 +113,21 @@ SK_API void sk_matrix_map_vector (sk_matrix_t *matrix, float x, float y, sk_poin
 */
 SK_API float sk_matrix_map_radius (sk_matrix_t *matrix, float radius);
 
+SK_API sk_3dview_t* sk_3dview_new ();
+SK_API void sk_3dview_destroy (sk_3dview_t* cview);
+SK_API void sk_3dview_save (sk_3dview_t* cview);
+SK_API void sk_3dview_restore (sk_3dview_t* cview);
+SK_API void sk_3dview_translate (sk_3dview_t* cview, float x, float y, float z);
+SK_API void sk_3dview_rotate_x_degrees (sk_3dview_t* cview, float degrees);
+SK_API void sk_3dview_rotate_y_degrees (sk_3dview_t* cview, float degrees);
+SK_API void sk_3dview_rotate_z_degrees (sk_3dview_t* cview, float degrees);
+SK_API void sk_3dview_rotate_x_radians (sk_3dview_t* cview, float radians);
+SK_API void sk_3dview_rotate_y_radians (sk_3dview_t* cview, float radians);
+SK_API void sk_3dview_rotate_z_radians (sk_3dview_t* cview, float radians);
+SK_API void sk_3dview_get_matrix (sk_3dview_t* cview, sk_matrix_t* cmatrix);
+SK_API void sk_3dview_apply_to_canvas (sk_3dview_t* cview, sk_canvas_t* ccanvas);
+SK_API float sk_3dview_dot_with_normal (sk_3dview_t* cview, float dx, float dy, float dz);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

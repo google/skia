@@ -155,3 +155,75 @@ float sk_matrix_map_radius (sk_matrix_t *matrix, float radius)
     return skmatrix.mapRadius (radius);
 }
 
+sk_3dview_t* sk_3dview_new ()
+{
+    return To3DView (new Sk3DView ());
+}
+
+void sk_3dview_destroy (sk_3dview_t* cview)
+{
+    delete As3DView (cview);
+}
+
+void sk_3dview_save (sk_3dview_t* cview)
+{
+    As3DView (cview)->save ();
+}
+
+void sk_3dview_restore (sk_3dview_t* cview)
+{
+    As3DView (cview)->restore ();
+}
+
+void sk_3dview_translate (sk_3dview_t* cview, float x, float y, float z)
+{
+    As3DView (cview)->translate (x, y, z);
+}
+
+void sk_3dview_rotate_x_degrees (sk_3dview_t* cview, float degrees)
+{
+    As3DView (cview)->rotateX (degrees);
+}
+
+void sk_3dview_rotate_y_degrees (sk_3dview_t* cview, float degrees)
+{
+    As3DView (cview)->rotateY (degrees);
+}
+
+void sk_3dview_rotate_z_degrees (sk_3dview_t* cview, float degrees)
+{
+    As3DView (cview)->rotateZ (degrees);
+}
+
+void sk_3dview_rotate_x_radians (sk_3dview_t* cview, float radians)
+{
+    As3DView (cview)->rotateX (SkRadiansToDegrees (radians));
+}
+
+void sk_3dview_rotate_y_radians (sk_3dview_t* cview, float radians)
+{
+    As3DView (cview)->rotateY (SkRadiansToDegrees (radians));
+}
+
+void sk_3dview_rotate_z_radians (sk_3dview_t* cview, float radians)
+{
+    As3DView (cview)->rotateZ (SkRadiansToDegrees (radians));
+}
+
+void sk_3dview_get_matrix (sk_3dview_t* cview, sk_matrix_t* cmatrix)
+{
+    SkMatrix matrix;
+    As3DView (cview)->getMatrix (&matrix);
+    from_sk (&matrix, cmatrix);
+}
+
+void sk_3dview_apply_to_canvas (sk_3dview_t* cview, sk_canvas_t* ccanvas)
+{
+    As3DView (cview)->applyToCanvas (AsCanvas (ccanvas));
+}
+
+float sk_3dview_dot_with_normal (sk_3dview_t* cview, float dx, float dy, float dz)
+{
+    return As3DView (cview)->dotWithNormal (dx, dy, dz);
+}
+
