@@ -8,7 +8,7 @@
 #include "SkLua.h"
 
 #if SK_SUPPORT_GPU
-#include "GrReducedClip.h"
+//#include "GrReducedClip.h"
 #endif
 
 #include "SkBlurImageFilter.h"
@@ -349,73 +349,6 @@ void SkLua::pushTextBlob(const SkTextBlob* blob, const char key[]) {
     CHECK_SETFIELD(key);
 }
 
-static const char* element_type(SkClipStack::Element::Type type) {
-    switch (type) {
-        case SkClipStack::Element::kEmpty_Type:
-            return "empty";
-        case SkClipStack::Element::kRect_Type:
-            return "rect";
-        case SkClipStack::Element::kRRect_Type:
-            return "rrect";
-        case SkClipStack::Element::kPath_Type:
-            return "path";
-    }
-    return "unknown";
-}
-
-static const char* region_op(SkRegion::Op op) {
-    switch (op) {
-        case SkRegion::kDifference_Op:
-            return "difference";
-        case SkRegion::kIntersect_Op:
-            return "intersect";
-        case SkRegion::kUnion_Op:
-            return "union";
-        case SkRegion::kXOR_Op:
-            return "xor";
-        case SkRegion::kReverseDifference_Op:
-            return "reverse-difference";
-        case SkRegion::kReplace_Op:
-            return "replace";
-    }
-    return "unknown";
-}
-
-void SkLua::pushClipStack(const SkClipStack& stack, const char* key) {
-    lua_newtable(fL);
-    SkClipStack::B2TIter iter(stack);
-    const SkClipStack::Element* element;
-    int i = 0;
-    while ((element = iter.next())) {
-        this->pushClipStackElement(*element);
-        lua_rawseti(fL, -2, ++i);
-    }
-    CHECK_SETFIELD(key);
-}
-
-void SkLua::pushClipStackElement(const SkClipStack::Element& element, const char* key) {
-    lua_newtable(fL);
-    SkClipStack::Element::Type type = element.getType();
-    this->pushString(element_type(type), "type");
-    switch (type) {
-        case SkClipStack::Element::kEmpty_Type:
-            break;
-        case SkClipStack::Element::kRect_Type:
-            this->pushRect(element.getRect(), "rect");
-            break;
-        case SkClipStack::Element::kRRect_Type:
-            this->pushRRect(element.getRRect(), "rrect");
-            break;
-        case SkClipStack::Element::kPath_Type:
-            this->pushPath(element.getPath(), "path");
-            break;
-    }
-    this->pushString(region_op((SkRegion::Op)element.getOp()), "op");
-    this->pushBool(element.isAA(), "aa");
-    CHECK_SETFIELD(key);
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -640,33 +573,6 @@ static int lcanvas_getTotalMatrix(lua_State* L) {
     return 1;
 }
 
-static int lcanvas_getClipStack(lua_State* L) {
-    SkLua(L).pushClipStack(*get_ref<SkCanvas>(L, 1)->getClipStack());
-    return 1;
-}
-
-int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
-#if SK_SUPPORT_GPU
-    const SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
-    SkRect queryBounds = SkRect::Make(canvas->getTopLayerBounds());
-    const GrReducedClip reducedClip(*canvas->getClipStack(), queryBounds);
-
-    GrReducedClip::ElementList::Iter iter(reducedClip.elements());
-    int i = 0;
-    lua_newtable(L);
-    while(iter.get()) {
-        SkLua(L).pushClipStackElement(*iter.get());
-        iter.next();
-        lua_rawseti(L, -2, ++i);
-    }
-    // Currently this only returns the element list to lua, not the initial state or result bounds.
-    // It could return these as additional items on the lua stack.
-    return 1;
-#else
-    return 0;
-#endif
-}
-
 static int lcanvas_save(lua_State* L) {
     lua_pushinteger(L, get_ref<SkCanvas>(L, 1)->save());
     return 1;
@@ -742,10 +648,6 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawTextBlob", lcanvas_drawTextBlob },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
-    { "getClipStack", lcanvas_getClipStack },
-#if SK_SUPPORT_GPU
-    { "getReducedClipStack", SkLua::lcanvas_getReducedClipStack },
-#endif
     { "save", lcanvas_save },
     { "saveLayer", lcanvas_saveLayer },
     { "restore", lcanvas_restore },
