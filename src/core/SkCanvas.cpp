@@ -1819,8 +1819,16 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
-const SkRegion& SkCanvas::internal_private_getTotalClip() const {
-    return fMCRec->fRasterClip.forceGetBW();
+void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
+    // we know that ganesh doesn't track the rgn, so ask for its clipstack
+    if (this->getGrContext()) {
+        SkPath path;
+        this->getClipStack()->asPath(&path);
+        SkISize size = this->getBaseLayerSize();
+        rgn->setPath(path, SkRegion(SkIRect::MakeWH(size.width(), size.height())));
+    } else {
+        *rgn = fMCRec->fRasterClip.forceGetBW();
+    }
 }
 
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
