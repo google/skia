@@ -22,6 +22,24 @@
       "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_bf4373aa",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-19T13:49:18Z",
+      "side": 1,
+      "message": "The only reason I could see to change the bit depth in this case is if the client is trying to reduce memory usage (f16-\u003eu8).",
+      "parentUuid": "c8d8660b_11708c45",
+      "revId": "383483d13e36358723a25876bcda0a50fa21bf79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
