@@ -20,35 +20,28 @@ struct GrPipelineInput {
             , fColor(0)
             , fIsLCDCoverage(false) {}
 
-    void setKnownFourComponents(GrColor color) {
+    void setColor(GrColor color) {
         fColor = color;
         fValidFlags = kRGBA_GrColorComponentFlags;
     }
 
-    void setUnknownFourComponents() {
-        fValidFlags = kNone_GrColorComponentFlags;
-    }
+    void setUnknown() { fValidFlags = kNone_GrColorComponentFlags; }
 
-    void setUnknownOpaqueFourComponents() {
+    void setOpaque() {
         fColor = 0xffU << GrColor_SHIFT_A;
         fValidFlags = kA_GrColorComponentFlag;
     }
 
-    void setKnownSingleComponent(uint8_t alpha) {
-        fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
+    void setSingleChannel(uint8_t channel) {
+        fColor = GrColorPackRGBA(channel, channel, channel, channel);
         fValidFlags = kRGBA_GrColorComponentFlags;
-    }
-
-    void setUnknownSingleComponent() {
-        fValidFlags = kNone_GrColorComponentFlags;
     }
 
     void setUsingLCDCoverage() { fIsLCDCoverage = true; }
 
-    GrColorComponentFlags   fValidFlags;
-    GrColor                 fColor;
-    bool                    fIsLCDCoverage; // Temorary data member until texture pixel configs are
-                                            // updated
+    GrColorComponentFlags fValidFlags;
+    GrColor fColor;
+    bool fIsLCDCoverage;
 };
 
 /** This describes the output of a GrFragmentProcessor in a GrPipeline. */
@@ -73,19 +66,19 @@ public:
         kWillNot_ReadInput,
     };
 
-    void mulByUnknownOpaqueFourComponents() {
+    void mulByOpaque() {
         SkDEBUGCODE(this->validate());
         if (this->isOpaque()) {
             fValidFlags = kA_GrColorComponentFlag;
         } else {
             // Since the current state is not opaque we no longer care if the color being
             // multiplied is opaque.
-            this->mulByUnknownFourComponents();
+            this->mulByUnknown();
         }
         SkDEBUGCODE(this->validate());
     }
 
-    void mulByUnknownFourComponents() {
+    void mulByUnknown() {
         SkDEBUGCODE(this->validate());
         if (this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
@@ -95,18 +88,7 @@ public:
         SkDEBUGCODE(this->validate());
     }
 
-    void mulByUnknownSingleComponent() {
-        SkDEBUGCODE(this->validate());
-        if (this->hasZeroAlpha()) {
-            this->internalSetToTransparentBlack();
-        } else {
-            // We don't need to change fIsSingleComponent in this case
-            fValidFlags = kNone_GrColorComponentFlags;
-        }
-        SkDEBUGCODE(this->validate());
-    }
-
-    void mulByKnownSingleComponent(uint8_t alpha) {
+    void mulByAlpha(uint8_t alpha) {
         SkDEBUGCODE(this->validate());
         if (this->hasZeroAlpha() || 0 == alpha) {
             this->internalSetToTransparentBlack();
@@ -123,11 +105,11 @@ public:
         SkDEBUGCODE(this->validate());
     }
 
-    void mulByKnownFourComponents(GrColor color) {
+    void mulByColor(GrColor color) {
         SkDEBUGCODE(this->validate());
         uint32_t a;
         if (GetAlphaAndCheckSingleChannel(color, &a)) {
-            this->mulByKnownSingleComponent(a);
+            this->mulByAlpha(a);
         } else {
             if (color != 0xffffffff) {
                 fColor = GrColorPackRGBA(
@@ -141,11 +123,11 @@ public:
     }
 
     // Ignores the incoming color's RGB and muls its alpha by color.
-    void mulAlphaByKnownFourComponents(GrColor color) {
+    void mulAlphaByColor(GrColor color) {
         SkDEBUGCODE(this->validate());
         uint32_t a;
         if (GetAlphaAndCheckSingleChannel(color, &a)) {
-            this->mulAlphaByKnownSingleComponent(a);
+            this->mulAlphaByAlpha(a);
         } else if (fValidFlags & kA_GrColorComponentFlag) {
             GrColor preAlpha = GrColorUnpackA(fColor);
             if (0 == preAlpha) {
@@ -167,7 +149,7 @@ public:
 
     // Ignores the incoming color's RGB and muls its alpha by the alpha param and sets all channels
     // equal to that value.
-    void mulAlphaByKnownSingleComponent(uint8_t alpha) {
+    void mulAlphaByAlpha(uint8_t alpha) {
         SkDEBUGCODE(this->validate());
         if (0 == alpha || this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
@@ -184,7 +166,7 @@ public:
         SkDEBUGCODE(this->validate());
     }
 
-    void premulFourChannelColor() {
+    void premul() {
         SkDEBUGCODE(this->validate());
         fNonMulStageFound = true;
         if (!(fValidFlags & kA_GrColorComponentFlag)) {

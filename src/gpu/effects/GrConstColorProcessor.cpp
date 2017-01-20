@@ -72,15 +72,15 @@ void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) c
                                     r == fColor.fRGBA[3];
         if (kModulateRGBA_InputMode == fMode) {
             if (colorIsSingleChannel) {
-                inout->mulByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
+                inout->mulByAlpha(SkToU8(sk_float_round2int(255.0f * r)));
             } else {
-                inout->mulByKnownFourComponents(fColor.toGrColor());
+                inout->mulByColor(fColor.toGrColor());
             }
         } else {
             if (colorIsSingleChannel) {
-                inout->mulAlphaByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
+                inout->mulAlphaByAlpha(SkToU8(sk_float_round2int(255.0f * r)));
             } else {
-                inout->mulAlphaByKnownFourComponents(fColor.toGrColor());
+                inout->mulAlphaByColor(fColor.toGrColor());
             }
         }
     }

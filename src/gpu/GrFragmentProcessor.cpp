@@ -136,9 +136,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->premulFourChannelColor();
-        }
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override { inout->premul(); }
     };
     if (!fp) {
         return nullptr;
@@ -189,7 +187,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             this->childProcessor(0).computeInvariantOutput(&childOutput);
 
             if (0 == GrColorUnpackA(inout->color()) || 0 == GrColorUnpackA(childOutput.color())) {
-                inout->mulByKnownFourComponents(0x0);
+                inout->mulByAlpha(0x0);
                 return;
             }
             GrColorComponentFlags commonFlags = childOutput.validFlags() & inout->validFlags();

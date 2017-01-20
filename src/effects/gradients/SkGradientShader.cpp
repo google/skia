@@ -1724,9 +1724,9 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
 
 void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (fIsOpaque) {
-        inout->mulByUnknownOpaqueFourComponents();
+        inout->mulByOpaque();
     } else {
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 }
 

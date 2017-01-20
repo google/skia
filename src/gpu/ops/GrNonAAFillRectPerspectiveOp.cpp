@@ -130,8 +130,8 @@ private:
     NonAAFillRectPerspectiveOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fRects[0].fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+        input->pipelineColorInput()->setColor(fRects[0].fColor);
+        input->pipelineCoverageInput()->setSingleChannel(0xff);
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

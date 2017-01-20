@@ -107,7 +107,7 @@ void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& ca
 }
 
 void GrCircleBlurFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
+    inout->mulByUnknown();
 }
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half kernel

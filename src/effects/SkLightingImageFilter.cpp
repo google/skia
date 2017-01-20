@@ -560,7 +560,7 @@ protected:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // lighting shaders are complicated. We just throw up our hands.
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 
 private:
