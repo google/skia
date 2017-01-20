@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "284bc29d_8b2d99ce",
+        "filename": "src/image/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-20T15:50:40Z",
+      "side": 1,
+      "message": "In clamping mode the color of any pixel beyond width (or height) is just the color of the pixel at (width - 1) (remember there is no pixel at width because that is outside sampling space. Since we sample it pixel centers, the coordinate of the pixel is not (width - 1), but (width - 1 + .5). The .5 also makes it so that bilerp samples that pixel perfectly for points off the sample space, but I don\u0027 think that matters here.",
+      "range": {
+        "startLine": 291,
+        "startChar": 7,
+        "endLine": 291,
+        "endChar": 87
+      },
+      "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_b0a4408f",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -19,6 +42,24 @@
         "endLine": 852,
         "endChar": 37
       },
+      "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_0befc939",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-20T15:50:40Z",
+      "side": 1,
+      "message": "I believe the big difference is that sampling a gradient at 1.0 does not result in an asan failure (reading outside the bitmap) while sampling a bitmap would. While the gradient would have higher fidelity to the drawing command, it does not result in dangerous behavior. Therefore, it is a judgment call as to whether the extra speed is worth the fidelity, where with image sampling it is not. The need to clamp on [0, limit) was very rare, and I had to work with images for months to run into the situation.",
+      "parentUuid": "284bc29d_b0a4408f",
       "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
