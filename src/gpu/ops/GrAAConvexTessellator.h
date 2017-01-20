@@ -19,7 +19,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPath;
 
-//#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
+#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
 
 // device space distance which we inset / outset points in order to create the soft antialiased edge
 static const SkScalar kAntialiasingRadius = 0.5f;

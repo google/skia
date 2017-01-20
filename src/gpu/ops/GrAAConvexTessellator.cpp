@@ -1080,24 +1080,24 @@ void GrAAConvexTessellator::draw(SkCanvas* canvas) const {
         fRings[i]->draw(canvas, *this);
     }
 
-    for (int i = 0; i < this->numPts(); ++i) {
-        draw_point(canvas,
-                   this->point(i), 0.5f + (this->depth(i)/(2 * kAntialiasingRadius)),
-                   !this->movable(i));
+    //for (int i = 0; i < this->numPts(); ++i) {
+    //    draw_point(canvas,
+    //               this->point(i), 0.5f + (this->depth(i)/(2 * kAntialiasingRadius)),
+    //               !this->movable(i));
 
-        SkPaint paint;
-        paint.setTextSize(kPointTextSize);
-        paint.setTextAlign(SkPaint::kCenter_Align);
-        if (this->depth(i) <= -kAntialiasingRadius) {
-            paint.setColor(SK_ColorWHITE);
-        }
+    //    SkPaint paint;
+    //    paint.setTextSize(kPointTextSize);
+    //    paint.setTextAlign(SkPaint::kCenter_Align);
+    //    if (this->depth(i) <= -kAntialiasingRadius) {
+    //        paint.setColor(SK_ColorWHITE);
+    //    }
 
-        SkString num;
-        num.printf("%d", i);
-        canvas->drawText(num.c_str(), num.size(),
-                         this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f),
-                         paint);
-    }
+    //    SkString num;
+    //    num.printf("%d", i);
+    //    canvas->drawText(num.c_str(), num.size(),
+    //                     this->point(i).fX, this->point(i).fY+(kPointRadius/2.0f),
+    //                     paint);
+    //}
 }
 
 #endif
