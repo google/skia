@@ -15,8 +15,13 @@
     #error This file is not like the rest of Skia.  It must be compiled with clang.
 #endif
 
+// We use a set of constants suitable for SkFixed15 math.
+using K = const SkSplicer_constants_lowp;
+
 #if defined(__aarch64__)
     #include <arm_neon.h>
+
+    using U8 = uint8_t __attribute__((ext_vector_type(8)));
 
     // In this file, F is a vector of SkFixed15.
     // See SkFixed15.h for notes on its various operations.
@@ -43,11 +48,23 @@
     static F min(F a, F b) { return vminq_u16(a,b); }
     static F max(F a, F b) { return vmaxq_u16(a,b); }
 
+    static F from_u8(U8 u8, K*) {
+        // u8 * (32768/255) == u8 * 128.50196... == u8*128 + u8/2 + (u8+1)>>8
+        //
+        // Here we do (u8*128 <rounding +> u8/2), which is correct for 0 and 255,
+        // and never off by more than 1 anywhere.  It's just 2 instructions in NEON:
+        auto u16 = vshll_n_u8(u8, 7);     // u16 =   u8*128
+        u16 = vrsraq_n_u16(u16, u16, 8);  // u16 += u16/256, with rounding
+        return u16;
+    };
+
 #elif defined(__ARM_NEON__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
         #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
     #endif
     #include <arm_neon.h>
+
+    using U8 = uint8_t __attribute__((ext_vector_type(8)));  // But, only low 4 lanes active.
 
     struct F {
         using V = uint16_t __attribute__((ext_vector_type(4)));
@@ -72,11 +89,19 @@
     static F min(F a, F b) { return vmin_u16(a,b); }
     static F max(F a, F b) { return vmax_u16(a,b); }
 
+    static F from_u8(U8 u8, K*) {
+        auto u16 = vshll_n_u8(u8, 7);     // Identical to aarch64...
+        u16 = vrsraq_n_u16(u16, u16, 8);  //
+        return vget_low_u16(u16);         // ...but only the low 4 lanes are active.
+    }
+
 #else
     #if !defined(__AVX2__) || !defined(__FMA__) || !defined(__F16C__)
         #error On x86, compile with -mavx2 -mfma -mf16c.
     #endif
     #include <immintrin.h>
+
+    using U8 = uint8_t __attribute__((ext_vector_type(16)));
 
     struct F {
         using V = uint16_t __attribute__((ext_vector_type(16)));
@@ -97,11 +122,24 @@
     };
     static F min(F a, F b) { return _mm256_min_epu16(a,b); }
     static F max(F a, F b) { return _mm256_max_epu16(a,b); }
+
+    static F from_u8(U8 u8, K* k) {
+        // Nothing too interesting here.  We follow the stock SkFixed15 formula.
+        F u16 = _mm256_cvtepu8_epi16(u8);
+        return (u16 << 7) + (u16 >> 1) + ((u16+k->_0x0001)>>8);
+    }
 #endif
 
 // No platform actually supports FMA for SkFixed15.
 // This fma() method just makes it easier to port stages to lowp.
 static F fma(F f, F m, F a) { return f*m+a; }
+
+template <typename T, typename P>
+static T unaligned_load(const P* p) {
+    T v;
+    memcpy(&v, p, sizeof(v));
+    return v;
+}
 
 #if defined(__ARM_NEON__)
     #define C extern "C" __attribute__((pcs("aapcs-vfp")))
@@ -109,8 +147,6 @@ static F fma(F f, F m, F a) { return f*m+a; }
     #define C extern "C"
 #endif
 
-// We use a set of constants suitable for SkFixed15 math.
-using K = const SkSplicer_constants_lowp;
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
 // The armv7 aapcs-vfp calling convention makes us pass F::V instead of F if we want them in
@@ -198,32 +234,34 @@ STAGE(premul) {
     b = b * a;
 }
 
+STAGE(scale_u8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+#if defined(__ARM_NEON__)
+    // On armv7, U8 can fit 8 bytes, but we only want to load 4.
+    U8 scales = vdup_n_u32(unaligned_load<uint32_t>(ptr));
+#else
+    U8 scales = unaligned_load<U8>(ptr);
+#endif
+
+    auto c = from_u8(scales, k);
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
+}
+
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
 
 #if defined(__aarch64__)
-    auto to_fixed15 = [](uint8x8_t u8) {
-        // u8 * (32768/255) == u8 * 128.50196... == u8*128 + u8/2 + (u8+1)>>8  ( see SkFixed15.h)
-        //
-        // Here we do (u8*128 <rounding +> u8/2), which is the same as our canonical math for 0
-        // and 255, and never off by more than 1 in between.  Thanks to NEON, it's 2 instructions!
-        auto u16 = vshll_n_u8(u8, 7);      // u16 =  u8*128
-        return vrsraq_n_u16(u16, u16, 8);  // u16 + u16/256, with rounding
-    };
-
     uint8x8x4_t rgba = vld4_u8((const uint8_t*)ptr);
-    r = to_fixed15(rgba.val[0]);
-    g = to_fixed15(rgba.val[1]);
-    b = to_fixed15(rgba.val[2]);
-    a = to_fixed15(rgba.val[3]);
+    r = from_u8(rgba.val[0], k);
+    g = from_u8(rgba.val[1], k);
+    b = from_u8(rgba.val[2], k);
+    a = from_u8(rgba.val[3], k);
 
 #elif defined(__ARM_NEON__)
-    auto to_fixed15 = [](uint8x8_t u8) {
-        // Same as aarch64, but only keeping the bottom 4 lanes.
-        auto u16 = vshll_n_u8(u8, 7);
-        return vget_low_u16(vrsraq_n_u16(u16, u16, 8));
-    };
-
     // I can't get quite the code generation I want using vld4_lane_u8(),
     // so we're going to drop into assembly to do the loads.  :/
 
@@ -233,17 +271,12 @@ STAGE(load_8888) {
         "vld4.8 {%1[2],%2[2],%3[2],%4[2]}, [%0]!\n"
         "vld4.8 {%1[3],%2[3],%3[3],%4[3]}, [%0]!\n"
         : "+r"(ptr), "=w"(R), "=w"(G), "=w"(B), "=w"(A));
-    r = to_fixed15(R);
-    g = to_fixed15(G);
-    b = to_fixed15(B);
-    a = to_fixed15(A);
+    r = from_u8(R, k);
+    g = from_u8(G, k);
+    b = from_u8(B, k);
+    a = from_u8(A, k);
 
 #else
-    auto to_fixed15 = [k](__m128i u8) {
-        F u16 = _mm256_cvtepu8_epi16(u8);
-        return (u16 << 7) + (u16 >> 1) + ((u16+k->_0x0001)>>8);
-    };
-
     // TODO: shorter, more confusing, faster with 256-bit loads and shuffles
 
     // Load 16 interplaced pixels.
@@ -268,10 +301,10 @@ STAGE(load_8888) {
          rg_89ABCDEF = _mm_unpacklo_epi8(_8ACE, _9BDF),  // r89ABCDEF g89ABCDEF
          ba_89ABCDEF = _mm_unpackhi_epi8(_8ACE, _9BDF);  // b89ABCDEF a89ABCDEF
 
-    r = to_fixed15(_mm_unpacklo_epi64(rg_01234567, rg_89ABCDEF));
-    g = to_fixed15(_mm_unpackhi_epi64(rg_01234567, rg_89ABCDEF));
-    b = to_fixed15(_mm_unpacklo_epi64(ba_01234567, ba_89ABCDEF));
-    a = to_fixed15(_mm_unpackhi_epi64(ba_01234567, ba_89ABCDEF));
+    r = from_u8(_mm_unpacklo_epi64(rg_01234567, rg_89ABCDEF), k);
+    g = from_u8(_mm_unpackhi_epi64(rg_01234567, rg_89ABCDEF), k);
+    b = from_u8(_mm_unpacklo_epi64(ba_01234567, ba_89ABCDEF), k);
+    a = from_u8(_mm_unpackhi_epi64(ba_01234567, ba_89ABCDEF), k);
 #endif
 }
 
@@ -279,7 +312,7 @@ STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
 
 #if defined(__aarch64__)
-    auto from_fixed15 = [](F v) {
+    auto to_u8 = [](F v) {
         // The canonical math for this from SkFixed15.h is (v - (v>>8)) >> 7.
         // But what's really most important is that all bytes round trip.
 
@@ -288,14 +321,14 @@ STAGE(store_8888) {
     };
 
     uint8x8x4_t rgba = {{
-        from_fixed15(r),
-        from_fixed15(g),
-        from_fixed15(b),
-        from_fixed15(a),
+        to_u8(r),
+        to_u8(g),
+        to_u8(b),
+        to_u8(a),
     }};
     vst4_u8((uint8_t*)ptr, rgba);
 #elif defined(__ARM_NEON__)
-    auto from_fixed15 = [](F v) {
+    auto to_u8 = [](F v) {
         // Same as aarch64, but first we need to pad our vectors from 8 to 16 bytes.
         F whatever;
         return vqshrn_n_u16(vcombine_u8(v, whatever), 7);
@@ -307,22 +340,22 @@ STAGE(store_8888) {
         "vst4.8 {%1[2],%2[2],%3[2],%4[2]}, [%0]!\n"
         "vst4.8 {%1[3],%2[3],%3[3],%4[3]}, [%0]!\n"
         : "+r"(ptr)
-        : "w"(from_fixed15(r)), "w"(from_fixed15(g)), "w"(from_fixed15(b)), "w"(from_fixed15(a))
+        : "w"(to_u8(r)), "w"(to_u8(g)), "w"(to_u8(b)), "w"(to_u8(a))
         : "memory");
 
 #else
-    auto from_fixed15 = [](F v) {
-        // See the note in aarch64's from_fixed15().  The same roundtrip goal applies here.
+    auto to_u8 = [](F v) {
+        // See the note in aarch64's to_u8().  The same roundtrip goal applies here.
         // Here we take a different approach: (v saturated+ v) >> 8.
         v = (v+v) >> 8;
         return _mm_packus_epi16(_mm256_extracti128_si256(v, 0),
                                 _mm256_extracti128_si256(v, 1));
     };
 
-    auto R = from_fixed15(r),
-         G = from_fixed15(g),
-         B = from_fixed15(b),
-         A = from_fixed15(a);
+    auto R = to_u8(r),
+         G = to_u8(g),
+         B = to_u8(b),
+         A = to_u8(a);
 
     auto rg_01234567 = _mm_unpacklo_epi8(R,G),  // rg0 rg1 rg2 ... rg7
          rg_89ABCDEF = _mm_unpackhi_epi8(R,G),  // rg8 rg9 rgA ... rgF

@@ -12,6 +12,9 @@
     #error This file is not like the rest of Skia.  It must be compiled with clang.
 #endif
 
+// It's tricky to relocate code referencing ordinary constants, so we read them from this struct.
+using K = const SkSplicer_constants;
+
 #if defined(__aarch64__)
     #include <arm_neon.h>
 
@@ -95,7 +98,6 @@ static T unaligned_load(const P* p) {
 #endif
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
-using K = const SkSplicer_constants;
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 
 // Stage's arguments act as the working set of registers within the final spliced function.

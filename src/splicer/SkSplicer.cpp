@@ -256,6 +256,7 @@ namespace {
             CASE(move_src_dst);
             CASE(move_dst_src);
             CASE(premul);
+            CASE(scale_u8);
             CASE(load_8888);
             CASE(store_8888);
         #undef CASE
