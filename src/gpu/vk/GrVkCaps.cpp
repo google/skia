@@ -19,6 +19,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMustDoCopiesFromOrigin = false;
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
+    fMustSleepOnTearDown  = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -78,6 +79,16 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
     }
+
+#if defined(SK_BUILD_FOR_WIN)
+    if (kNvidia_VkVendor == properties.vendorID) {
+        fMustSleepOnTearDown = true;
+    }
+#elif defined(SK_BUILD_FOR_ANDROID)
+    if (kImagination_VkVendor == properties.vendorID) {
+        fMustSleepOnTearDown = true;
+    }
+#endif
 
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
@@ -161,6 +172,10 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
                 shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
             }
         }
+    }
+
+    if (kImagination_VkVendor == properties.vendorID) {
+        shaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
 
     // Vulkan is based off ES 3.0 so the following should all be supported

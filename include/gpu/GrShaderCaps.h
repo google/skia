@@ -164,12 +164,15 @@ public:
 
     bool usesPrecisionModifiers() const { return fUsesPrecisionModifiers; }
 
-    // Returns whether we can use the glsl funciton any() in our shader code.
+    // Returns whether we can use the glsl function any() in our shader code.
     bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
 
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
+
+    // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
+    bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
@@ -299,6 +302,7 @@ private:
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
+    bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
