@@ -391,7 +391,6 @@ private:
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
-    friend class GrTestTarget;  // for access to getOpList
     friend class GrSWMaskHelper;                 // for access to addDrawOp
 
     // All the path renderers currently make their own ops

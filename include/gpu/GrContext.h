@@ -36,7 +36,6 @@ class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
-class GrTestTarget;
 class GrTextBlobCache;
 class GrTextContext;
 class GrSamplerParams;
@@ -340,9 +339,6 @@ public:
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
-
-    // Called by tests that draw directly to the context via GrRenderTargetContext
-    void getTestTarget(GrTestTarget*, sk_sp<GrRenderTargetContext>);
 
     /** Reset GPU stats */
     void resetGpuStats() const ;

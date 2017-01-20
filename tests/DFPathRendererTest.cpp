@@ -7,18 +7,19 @@
 
 #include "Test.h"
 
+#include "SkPath.h"
+
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTest.h"
-#include "SkPath.h"
 #include "ops/GrAADistanceFieldPathRenderer.h"
 
 // This test case including path coords and matrix taken from crbug.com/627443.
 // Because of inaccuracies in large floating point values this causes the
 // the path renderer to attempt to add a path DF to its atlas that is larger
 // than the plot size which used to crash rather than fail gracefully.
-static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrPathRenderer* pr,
-                                 GrResourceProvider* rp) {
+static void test_far_from_origin(GrResourceProvider* rp,
+                                 GrRenderTargetContext* renderTargetContext,
+                                 GrPathRenderer* pr) {
     SkPath path;
     path.lineTo(49.0255089839f, 0.473541f);
     // This extra line wasn't in the original bug but was added to fake out GrShape's special
@@ -58,27 +59,25 @@ static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrP
 }
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(AADistanceFieldPathRenderer, reporter, ctxInfo) {
+    GrContext* ctx = ctxInfo.grContext();
     // The DF PR only works with contexts that support derivatives
-    if (!ctxInfo.grContext()->caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (!ctx->caps()->shaderCaps()->shaderDerivativeSupport()) {
         return;
     }
-    sk_sp<GrRenderTargetContext> rtc(ctxInfo.grContext()->makeRenderTargetContext(
-                                                                         SkBackingFit::kApprox,
-                                                                         800, 800,
-                                                                         kRGBA_8888_GrPixelConfig,
-                                                                         nullptr,
-                                                                         0,
-                                                                         kTopLeft_GrSurfaceOrigin));
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeRenderTargetContext(SkBackingFit::kApprox,
+                                                                  800, 800,
+                                                                  kRGBA_8888_GrPixelConfig,
+                                                                  nullptr,
+                                                                  0,
+                                                                  kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
 
     GrAADistanceFieldPathRenderer dfpr;
-    GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, rtc);
-    GrResourceProvider* rp = tt.resourceProvider();
 
-    test_far_from_origin(rtc.get(), &dfpr, rp);
-    ctxInfo.grContext()->flush();
+    ctx->flush();
+    test_far_from_origin(ctx->resourceProvider(), rtc.get(), &dfpr);
+    ctx->flush();
 }
 #endif
