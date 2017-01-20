@@ -347,7 +347,8 @@ protected:
         sk_sp<SkColorSpace> texColorSpace;
         sk_sp<GrTexture> texture(
             cache->lockAsTexture(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                 canvas->imageInfo().colorSpace(), &texColorSpace, nullptr));
+                                 canvas->imageInfo().colorSpace(), &texColorSpace,
+                                 nullptr, nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;

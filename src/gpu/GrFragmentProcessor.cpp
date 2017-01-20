@@ -92,7 +92,7 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     }
     int count = this->numCoordTransforms();
     for (int i = 0; i < count; ++i) {
-        if (this->coordTransform(i) != that.coordTransform(i)) {
+        if (!this->coordTransform(i).hasSameEffectAs(that.coordTransform(i))) {
             return false;
         }
     }
