@@ -12,7 +12,6 @@
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
-#include "SkColorCubeFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
@@ -543,7 +542,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         return filter;
     }
 
-    enum { ALPHA_THRESHOLD, MERGE, COLOR, LUT3D, BLUR, MAGNIFIER,
+    enum { ALPHA_THRESHOLD, MERGE, COLOR, BLUR, MAGNIFIER,
            XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
@@ -562,14 +561,6 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
-        filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
-                    : nullptr;
-        break;
-    }
-    case LUT3D: {
-        int cubeDimension;
-        sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, (R(2) == 1), (R(2) == 1), (R(2) == 1)));
-        sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(std::move(lut3D), cubeDimension));
         filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
                     : nullptr;
         break;
@@ -653,7 +644,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                                              make_image_filter())
                  : SkLightingImageFilter::MakeSpotLitSpecular(SkPoint3::Make(0, 0, 0),
                                                               make_point(), make_scalar(),
-                                                              make_scalar(), make_color(), 
+                                                              make_scalar(), make_color(),
                                                               make_scalar(), make_scalar(),
                                                               SkIntToScalar(R(10)),
                                                               make_image_filter());
