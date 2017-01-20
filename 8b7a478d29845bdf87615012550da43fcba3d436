@@ -22,6 +22,24 @@
       "revId": "8b7a478d29845bdf87615012550da43fcba3d436",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_904f8428",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-20T13:41:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_c598300a",
+      "revId": "8b7a478d29845bdf87615012550da43fcba3d436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
