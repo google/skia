@@ -124,9 +124,11 @@ using K = const SkSplicer_constants_lowp;
     static F max(F a, F b) { return _mm256_max_epu16(a,b); }
 
     static F from_u8(U8 u8, K* k) {
-        // Nothing too interesting here.  We follow the stock SkFixed15 formula.
+        // Ideally we'd multiply by 32768/255 = 128.50196...
+        // We can approximate that very cheaply as 256*32897/65536 = 128.50391...
+        // 0 and 255 map to 0 and 32768 correctly, and the max error is 1 (on about 1/4 of values).
         F u16 = _mm256_cvtepu8_epi16(u8);
-        return (u16 << 7) + (u16 >> 1) + ((u16+k->_0x0001)>>8);
+        return _mm256_mulhi_epu16(u16 << 8, F(k->_0x8081));
     }
 #endif
 

@@ -44,7 +44,7 @@ namespace {
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
     };
     static const SkSplicer_constants_lowp kConstants_lowp = {
-        0x0001, 0x8000,
+        0x8000, 0x8081,
     };
 
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
