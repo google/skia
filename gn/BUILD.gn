@@ -386,6 +386,12 @@ config("no_rtti") {
   }
 }
 
+config("debug") {
+  if (is_win) {
+    cflags = [ "/MTd" ]
+  }
+}
+
 config("release") {
   if (is_win) {
     cflags = [
