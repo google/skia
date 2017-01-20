@@ -22,6 +22,24 @@
       "revId": "1e20cce31f5d121d1b4589da55bc963549eb7c69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_8bfbd901",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-20T15:50:56Z",
+      "side": 1,
+      "message": "What do you think about these\n\nkNone, kSingleChannel, kLCD?\n\nkOne, kGray, kLCD?\n\nkNone, kGrayscale, kLCD?",
+      "parentUuid": "284bc29d_abcdf53e",
+      "revId": "1e20cce31f5d121d1b4589da55bc963549eb7c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
