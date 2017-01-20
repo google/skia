@@ -7,6 +7,7 @@
 #ifndef SkGlyphCache_DEFINED
 #define SkGlyphCache_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkChunkAlloc.h"
 #include "SkDescriptor.h"
@@ -235,7 +236,14 @@ private:
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
     SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
 
-    SkChunkAlloc           fGlyphAlloc;
+    // so we don't grow our arrays a lot
+    static constexpr size_t       kMinGlyphCount = 16;
+    static constexpr size_t       kMinGlyphImageSize = (16*2);
+    static constexpr size_t       kMinAllocAmount
+        = ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount);
+
+    char                   storage[kMinAllocAmount];
+    SkArenaAlloc           fAlloc {storage};
 
     std::unique_ptr<CharGlyphRec[]> fPackedUnicharIDToPackedGlyphID;
 

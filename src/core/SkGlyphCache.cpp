@@ -33,15 +33,9 @@ static SkGlyphCache_Globals& get_globals() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// so we don't grow our arrays a lot
-#define kMinGlyphCount      16
-#define kMinGlyphImageSize  (16*2)
-#define kMinAllocAmount     ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount)
-
 SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerContext> ctx)
     : fDesc(desc->copy())
-    , fScalerContext(std::move(ctx))
-    , fGlyphAlloc(kMinAllocAmount) {
+    , fScalerContext(std::move(ctx)) {
     SkASSERT(desc);
     SkASSERT(fScalerContext);
 
@@ -189,9 +183,7 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
 const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (nullptr == glyph.fImage) {
-            size_t  size = glyph.computeImageSize();
-            const_cast<SkGlyph&>(glyph).fImage = fGlyphAlloc.alloc(size,
-                                        SkChunkAlloc::kReturnNil_AllocFailType);
+            size_t  size = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
             // check that alloc() actually succeeded
             if (glyph.fImage) {
                 fScalerContext->getImage(glyph);
@@ -209,8 +201,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (glyph.fWidth) {
         if (glyph.fPathData == nullptr) {
-            SkGlyph::PathData* pathData =
-                    (SkGlyph::PathData* ) fGlyphAlloc.allocThrow(sizeof(SkGlyph::PathData));
+            SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
             const_cast<SkGlyph&>(glyph).fPathData = pathData;
             pathData->fIntercept = nullptr;
             SkPath* path = pathData->fPath = new SkPath;
@@ -330,8 +321,7 @@ void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkSc
         return;
     }
 
-    SkGlyph::Intercept* intercept =
-            (SkGlyph::Intercept* ) fGlyphAlloc.allocThrow(sizeof(SkGlyph::Intercept));
+    SkGlyph::Intercept* intercept = fAlloc.make<SkGlyph::Intercept>();
     intercept->fNext = glyph->fPathData->fIntercept;
     intercept->fBounds[0] = bounds[0];
     intercept->fBounds[1] = bounds[1];
