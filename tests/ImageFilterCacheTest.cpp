@@ -41,7 +41,7 @@ static void test_find_existing(skiatest::Reporter* reporter,
 
     SkIPoint foundOffset;
 
-    SkSpecialImage* foundImage = cache->get(key1, &foundOffset);
+    sk_sp<SkSpecialImage> foundImage = cache->get(key1, &foundOffset);
     REPORTER_ASSERT(reporter, foundImage);
     REPORTER_ASSERT(reporter, offset == foundOffset);
 
