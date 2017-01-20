@@ -132,7 +132,9 @@ default_configs = [
   "//gn:warnings",
   "//gn:warnings_except_public_headers",
 ]
-if (!is_debug) {
+if (is_debug) {
+  default_configs += [ "//gn:debug" ]
+} else {
   default_configs += [ "//gn:release" ]
 }
 if (!is_official_build) {
