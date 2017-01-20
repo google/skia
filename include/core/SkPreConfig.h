@@ -269,4 +269,15 @@
 #   define SK_ATTRIBUTE_OPTIMIZE_O1 /* nothing */
 #endif
 
+/**
+ * UBSan triggers integer overflow in internal functions that are
+ * correct to do so. Suppress this if the compiler supports it.
+ */
+#if defined(__clang__) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_IOS)
+#   define SK_ATTRIBUTE_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW \
+        __attribute__((no_sanitize("signed-integer-overflow")))
+#else
+#   define SK_ATTRIBUTE_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
+#endif
+
 #endif
