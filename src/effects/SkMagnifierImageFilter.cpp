@@ -71,8 +71,7 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : INHERITED(texture, std::move(colorSpaceXform),
-                    GrCoordTransform::MakeDivByTextureWHMatrix(texture))
+        : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I())
         , fBounds(bounds)
         , fXOffset(xOffset)
         , fYOffset(yOffset)

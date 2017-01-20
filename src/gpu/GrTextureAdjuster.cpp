@@ -64,7 +64,8 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
 }
 
 GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& params,
-                                                      SkIPoint* outOffset) {
+                                                      SkIPoint* outOffset,
+                                                      SkScalar scaleAdjust[2]) {
     GrTexture* texture = this->originalTexture();
     GrContext* context = texture->getContext();
     CopyParams copyParams;
@@ -81,7 +82,8 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& par
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
         copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
-    } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams)) {
+    } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams,
+                                                            scaleAdjust)) {
         if (outOffset) {
             if (contentArea) {
                 outOffset->set(contentArea->fLeft, contentArea->fRight);
@@ -124,7 +126,8 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
-    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, nullptr));
+    SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
+    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, nullptr, scaleAdjust));
     if (!texture) {
         return nullptr;
     }
@@ -132,6 +135,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     // content.
     if (texture.get() != this->originalTexture()) {
         contentArea = nullptr;
+        textureMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
     }
 
     DomainMode domainMode =
@@ -156,7 +160,6 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
-    textureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
                                                                        dstColorSpace);
     return CreateFragmentProcessorForDomainAndFilter(texture.get(), std::move(colorSpaceXform),

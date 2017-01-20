@@ -1323,10 +1323,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
                                       GrSamplerParams::FilterMode::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
-                                     textureParams));
+                                     textureParams, nullptr));
         sk_sp<GrTexture> gradientTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
-                                     textureParams));
+                                     textureParams, nullptr));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
                                                  permutationsTexture.get(),
                                                  gradientTexture.get(), m);
@@ -1350,10 +1350,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
 
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrSamplerParams::ClampNoFilter()));
+                                 GrSamplerParams::ClampNoFilter(), nullptr));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrSamplerParams::ClampNoFilter()));
+                                 GrSamplerParams::ClampNoFilter(), nullptr));
 
     if ((permutationsTexture) && (noiseTexture)) {
         sk_sp<GrFragmentProcessor> inner(

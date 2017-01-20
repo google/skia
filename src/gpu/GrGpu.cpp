@@ -58,12 +58,16 @@ void GrGpu::disconnect(DisconnectType) {}
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrGpu::makeCopyForTextureParams(int width, int height, const GrSamplerParams& textureParams,
-                                     GrTextureProducer::CopyParams* copyParams) const {
+                                     GrTextureProducer::CopyParams* copyParams,
+                                     SkScalar scaleAdjust[2]) const {
     const GrCaps& caps = *this->caps();
     if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
+        SkASSERT(scaleAdjust);
         copyParams->fWidth = GrNextPow2(width);
         copyParams->fHeight = GrNextPow2(height);
+        scaleAdjust[0] = ((SkScalar) copyParams->fWidth) / width;
+        scaleAdjust[1] = ((SkScalar) copyParams->fHeight) / height;
         switch (textureParams.filterMode()) {
             case GrSamplerParams::kNone_FilterMode:
                 copyParams->fFilter = GrSamplerParams::kNone_FilterMode;

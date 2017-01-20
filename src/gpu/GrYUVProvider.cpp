@@ -146,7 +146,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
-            yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
+                                     yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
 
