@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_8b22b9d3",
+        "filename": "include/gpu/GrShaderCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-20T15:46:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_6bc3ed1c",
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_cba7a192",
         "filename": "include/gpu/GrShaderCaps.h",
         "patchSetId": 11
@@ -42,6 +60,24 @@
         "endLine": 174,
         "endChar": 37
       },
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_6b276de5",
+        "filename": "include/gpu/GrShaderCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-20T15:46:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_cba7a192",
       "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_cb0b2149",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-20T15:46:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_cbd041db",
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_4bdd51f3",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 11
@@ -82,6 +136,24 @@
       "writtenOn": "2017-01-20T14:44:41Z",
       "side": 1,
       "message": "I think it would be clearer to have a #if defined (SK_BUILD_FOR WIN) block and then check for NVIDIA, and then have a #elif defined (SK_BUILD_FOR_ANDROID) block and check for Imagination. It would also be easier to add new devices per OS if we have to.",
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_ab08554d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-20T15:46:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_4bdd51f3",
       "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
