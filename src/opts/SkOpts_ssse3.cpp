@@ -8,7 +8,6 @@
 #include "SkOpts.h"
 #define SK_OPTS_NS ssse3
 #include "SkBlitMask_opts.h"
-#include "SkColorCubeFilter_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkXfermode_opts.h"
 
@@ -16,7 +15,6 @@ namespace SkOpts {
     void Init_ssse3() {
         create_xfermode = ssse3::create_xfermode;
         blit_mask_d32_a8 = ssse3::blit_mask_d32_a8;
-        color_cube_filter_span = ssse3::color_cube_filter_span;
 
         RGBA_to_BGRA          = ssse3::RGBA_to_BGRA;
         RGBA_to_rgbA          = ssse3::RGBA_to_rgbA;

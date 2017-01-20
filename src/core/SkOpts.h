@@ -43,15 +43,6 @@ namespace SkOpts {
     extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
     extern void (*blit_row_s32a_opaque)(SkPMColor*, const SkPMColor*, int, U8CPU);
 
-    // This function is an optimized version of SkColorCubeFilter::filterSpan
-    extern void (*color_cube_filter_span)(const SkPMColor[],
-                                          int,
-                                          SkPMColor[],
-                                          const int * [2],
-                                          const SkScalar * [2],
-                                          int,
-                                          const SkColor*);
-
     // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
     typedef void (*Swizzle_8888)(uint32_t*, const void*, int);
     extern Swizzle_8888 RGBA_to_BGRA,          // i.e. just swap RB

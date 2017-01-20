@@ -30,7 +30,6 @@ bench_sources = [
   "$_bench/CmapBench.cpp",
   "$_bench/CodecBench.cpp",
   "$_bench/ColorCodecBench.cpp",
-  "$_bench/ColorCubeBench.cpp",
   "$_bench/ColorFilterBench.cpp",
   "$_bench/ColorPrivBench.cpp",
   "$_bench/ControlBench.cpp",

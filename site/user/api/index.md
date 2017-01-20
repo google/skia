@@ -53,7 +53,6 @@ Here's a partial list of the more important Skia classes:
     -   [SkGradientShader](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkGradientShader.html)
     -   [SkTransparentShader](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkTransparentShader.html)
 *   [SkColorFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkColorFilter.html)
-    -   [SkColorCubeFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkColorCubeFilter.html)
     -   [SkColorMatrixFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkColorMatrixFilter.html)
     -   [SkLumaColorFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkLumaColorFilter.html)
     -   [SkModeColorFilter](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkModeColorFilter.html)
