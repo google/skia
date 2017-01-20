@@ -63,6 +63,24 @@
       "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_6be2cde5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-20T17:09:45Z",
+      "side": 1,
+      "message": "Agreed.  I sent out an alternative CL.   Will close this.",
+      "parentUuid": "284bc29d_b0a4408f",
+      "revId": "f5f162bd8d474d53319cc398cec0ad20a9dc2f04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
