@@ -34,6 +34,10 @@
 // To disassemble an armv7 dump,
 //   $ adb pull /data/local/tmp/dump.bin; gobjdump -b binary -D dump.bin -m arm | less
 
+//#define M(st) #st,
+//static const char* kStageNames[] = { SK_RASTER_PIPELINE_STAGES(M) };
+//#undef M
+
 namespace {
 
     // Stages expect these constants to be set to these values.
@@ -288,7 +292,11 @@ namespace {
             CASE(store_8888);
             CASE(load_f16);
             CASE(store_f16);
+            CASE(matrix_2x3);
             CASE(matrix_3x4);
+            CASE(clamp_x);
+            CASE(clamp_y);
+            CASE(linear_gradient_2stops);
         #undef CASE
         }
         return true;
@@ -352,7 +360,8 @@ namespace {
                     continue;
                 }
                 if (!splice_highp(&buf, stages[i].stage)) {
-                    //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
+                    //SkDebugf("SkSplicer can't yet handle stage %d %s.\n",
+                    //         stages[i].stage, kStageNames[stages[i].stage]);
                     return;
                 }
             }
