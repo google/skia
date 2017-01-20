@@ -138,7 +138,7 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage(GrMaskFormat format) {
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
     GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
 
     GrTexture* tex = cache->getTexture(format);
