@@ -40,8 +40,8 @@ enum SkAlphaType {
      *  All pixels have their color components stored without any regard to the
      *  alpha. e.g. this is the default configuration for PNG images.
      *
-     *  This alpha-type is ONLY supported for readPixels/writePixels operations,
-     *  and is not supported for drawing.
+     *  This alpha-type is ONLY supported for input images. Rendering cannot
+     *  generate this on output.
      */
     kUnpremul_SkAlphaType,
 
