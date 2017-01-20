@@ -19,7 +19,7 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
     newPaint.setColor(color);
     newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderHeight, ambientAlpha, flags));
     canvas->drawPath(path, newPaint);
-    newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
-                                                        spotAlpha, flags));
-    canvas->drawPath(path, newPaint);
+//    newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, lightPos, lightRadius,
+//                                                        spotAlpha, flags));
+//    canvas->drawPath(path, newPaint);
 }

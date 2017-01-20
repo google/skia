@@ -406,14 +406,14 @@ protected:
 
         if (fShowObject) {
             canvas->drawPath(path, paint);
-        } else {
+        }/* else {
             SkPaint strokePaint;
 
             strokePaint.setColor(paint.getColor());
             strokePaint.setStyle(SkPaint::kStroke_Style);
 
             canvas->drawPath(path, strokePaint);
-        }
+        }*/
     }
 
     void onDrawContent(SkCanvas* canvas) override {
