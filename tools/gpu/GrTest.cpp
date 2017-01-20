@@ -55,29 +55,12 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, sk_sp<GrRenderTargetContext> renderTargetContext) {
-    SkASSERT(!fContext);
-
-    fContext.reset(SkRef(ctx));
-    fRenderTargetContext = renderTargetContext;
-}
-
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);
 }
 
 bool GrRenderTargetContext::isWrapped_ForTesting() const {
     return fRenderTargetProxy->isWrapped_ForTesting();
-}
-
-void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrRenderTargetContext> renderTargetContext) {
-    this->flush();
-    SkASSERT(renderTargetContext);
-    // We could create a proxy GrOpList that passes through to fGpu until ~GrTextTarget() and
-    // then disconnects. This would help prevent test writers from mixing using the returned
-    // GrOpList and regular drawing. We could also assert or fail in GrContext drawing methods
-    // until ~GrTestTarget().
-    tar->init(this, std::move(renderTargetContext));
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
