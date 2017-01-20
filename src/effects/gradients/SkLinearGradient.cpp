@@ -118,8 +118,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkA
 
     auto* m = alloc->makeArrayDefault<float>(9);
     if (dstToUnit.asAffine(m)) {
-        // TODO: mapping y is not needed; split the matrix stages to save some math?
-        p->append(SkRasterPipeline::matrix_2x3, m);
+        p->append(SkRasterPipeline::matrix_2x3_xonly, m);
     } else {
         dstToUnit.get9(m);
         p->append(SkRasterPipeline::matrix_perspective, m);

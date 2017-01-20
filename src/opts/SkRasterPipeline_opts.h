@@ -746,6 +746,11 @@ STAGE(luminance_to_alpha) {
     r = g = b = 0;
 }
 
+STAGE_CTX(matrix_2x3_xonly, const float*) {
+    auto m = ctx;
+
+    r = SkNf_fma(r,m[0], SkNf_fma(g,m[2], m[4]));
+}
 STAGE_CTX(matrix_2x3, const float*) {
     auto m = ctx;
 
