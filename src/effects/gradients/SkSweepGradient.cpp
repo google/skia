@@ -210,8 +210,13 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     SkString coords2D = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-    t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
-             coords2D.c_str(), coords2D.c_str());
+    if (args.fShaderCaps->atan2ImplementedAsAtanYOverX()) {
+        t.printf("(2.0 * atan(- %s.y, length(%s) - %s.x) * 0.1591549430918 + 0.5)",
+                 coords2D.c_str(), coords2D.c_str(), coords2D.c_str());
+    } else {
+        t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
+                 coords2D.c_str(), coords2D.c_str());
+    }
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
                     args.fShaderCaps,
