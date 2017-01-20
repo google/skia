@@ -147,7 +147,7 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
         append_gamut_transform(&p, scratch_matrix_3x4, src, dst);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
-        p.run(0,0,1);
+        p.run(0,1);
     }
     return color4f;
 }

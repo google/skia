@@ -383,12 +383,11 @@ namespace {
         }
 
         // Here's where we call fSpliced if we created it, fBackup if not.
-        void operator()(size_t x, size_t y, size_t n) const {
+        void operator()(size_t x, size_t n) const {
             size_t stride = fLowp ? kStride*2
                                   : kStride;
             size_t body = n/stride*stride;     // Largest multiple of stride (2, 4, 8, or 16) <= n.
             if (fSpliced && body) {            // Can we run fSpliced for at least one stride?
-                // TODO: At some point we will want to pass in y...
                 using Fn = void(size_t x, size_t limit, void* ctx, const void* k);
                 auto k = fLowp ? (const void*)&kConstants_lowp
                                : (const void*)&kConstants;
@@ -398,17 +397,17 @@ namespace {
                 x += body;
                 n -= body;
             }
-            fBackup(x,y,n);
+            fBackup(x,n);
         }
 
-        std::function<void(size_t, size_t, size_t)> fBackup;
-        size_t                                      fSplicedLen;
-        void*                                       fSpliced;
-        bool                                        fLowp;
+        std::function<void(size_t, size_t)> fBackup;
+        size_t                              fSplicedLen;
+        void*                               fSpliced;
+        bool                                fLowp;
     };
 
 }
 
-std::function<void(size_t, size_t, size_t)> SkRasterPipeline::jit() const {
+std::function<void(size_t, size_t)> SkRasterPipeline::jit() const {
     return Spliced(fStages.data(), SkToInt(fStages.size()));
 }
