@@ -320,17 +320,21 @@ static const BlendFormula gLCDBlendTable[(int)SkBlendMode::kLastCoeffMode + 1] =
     /* screen */     COEFF_FORMULA(   kOne_GrBlendCoeff,    kISC_GrBlendCoeff),
 };
 
-static BlendFormula get_blend_formula(bool isOpaque,
-                                      bool hasCoverage,
+static BlendFormula get_blend_formula(const GrProcOptInfo& colorPOI,
+                                      const GrProcOptInfo& coveragePOI,
                                       bool hasMixedSamples,
                                       SkBlendMode xfermode) {
     SkASSERT((unsigned)xfermode <= (unsigned)SkBlendMode::kLastCoeffMode);
-    bool conflatesCoverage = hasCoverage || hasMixedSamples;
-    return gBlendTable[isOpaque][conflatesCoverage][(int)xfermode];
+    SkASSERT(!coveragePOI.isLCDCoverage());
+
+    bool conflatesCoverage = !coveragePOI.isSolidWhite() || hasMixedSamples;
+    return gBlendTable[colorPOI.isOpaque()][conflatesCoverage][(int)xfermode];
 }
 
-static BlendFormula get_lcd_blend_formula(SkBlendMode xfermode) {
+static BlendFormula get_lcd_blend_formula(const GrProcOptInfo& coveragePOI,
+                                          SkBlendMode xfermode) {
     SkASSERT((unsigned)xfermode <= (unsigned)SkBlendMode::kLastCoeffMode);
+    SkASSERT(coveragePOI.isLCDCoverage());
 
     return gLCDBlendTable[(int)xfermode];
 }
@@ -755,10 +759,9 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
             SkASSERT(!dstTexture || !dstTexture->texture());
             return PDLCDXferProcessor::Create(fBlendMode, analysis.fColorPOI);
         }
-        blendFormula = get_lcd_blend_formula(fBlendMode);
+        blendFormula = get_lcd_blend_formula(analysis.fCoveragePOI, fBlendMode);
     } else {
-        blendFormula = get_blend_formula(analysis.fColorPOI.isOpaque(),
-                                         !analysis.fCoveragePOI.isSolidWhite(), hasMixedSamples,
+        blendFormula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, hasMixedSamples,
                                          fBlendMode);
     }
 
@@ -801,8 +804,8 @@ void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorP
     }
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
-                                             CoverageType coverageType) const {
+bool GrPorterDuffXPFactory::onWillReadDstColor(const GrCaps& caps,
+                                               const GrPipelineAnalysis& analysis) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -810,20 +813,20 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps, ColorType color
     // When we have four channel coverage we always need to read the dst in order to correctly
     // blend. The one exception is when we are using srcover mode and we know the input color into
     // the XP.
-    if (CoverageType::kLCD == coverageType) {
-        if (SkBlendMode::kSrcOver == fBlendMode && ColorTypeIsConstant(colorType) &&
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
+        if (SkBlendMode::kSrcOver == fBlendMode &&
+            kRGBA_GrColorComponentFlags == analysis.fColorPOI.validFlags() &&
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        return get_lcd_blend_formula(fBlendMode).hasSecondaryOutput();
+        return get_lcd_blend_formula(analysis.fCoveragePOI, fBlendMode).hasSecondaryOutput();
     }
 
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
     static const bool kHasMixedSamples = false;
     SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
-    auto formula = get_blend_formula(ColorTypeIsOpaque(colorType),
-                                     CoverageType::kSingleChannel == coverageType, kHasMixedSamples,
+    auto formula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, kHasMixedSamples,
                                      fBlendMode);
     return formula.hasSecondaryOutput();
 }
@@ -890,7 +893,7 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
     }
 
     BlendFormula blendFormula;
-    blendFormula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
+    blendFormula = get_lcd_blend_formula(analysis.fCoveragePOI, SkBlendMode::kSrcOver);
     if (blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) {
         return new ShaderPDXferProcessor(dstTexture, hasMixedSamples, SkBlendMode::kSrcOver);
     }
@@ -914,17 +917,15 @@ bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
             !caps.shaderCaps()->dstReadInShaderSupport()) {
             return false;
         }
-        auto formula = get_lcd_blend_formula(SkBlendMode::kSrcOver);
+        auto formula = get_lcd_blend_formula(analysis.fCoveragePOI, SkBlendMode::kSrcOver);
         return formula.hasSecondaryOutput();
     }
 
     // We fallback on the shader XP when the blend formula would use dual source blending but we
     // don't have support for it.
     static const bool kHasMixedSamples = false;
-    bool isOpaque = analysis.fColorPOI.isOpaque();
-    bool hasCoverage = !analysis.fCoveragePOI.isSolidWhite();
     SkASSERT(!caps.usesMixedSamples()); // We never use mixed samples without dual source blending.
-    auto formula =
-            get_blend_formula(isOpaque, hasCoverage, kHasMixedSamples, SkBlendMode::kSrcOver);
+    auto formula = get_blend_formula(analysis.fColorPOI, analysis.fCoveragePOI, kHasMixedSamples,
+                                     SkBlendMode::kSrcOver);
     return formula.hasSecondaryOutput();
 }
