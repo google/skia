@@ -800,31 +800,6 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
-    for (auto create : {&create_image,
-                        &create_image_565,
-                        &create_image_ct}) {
-        sk_sp<SkImage> image((*create)());
-        if (!image) {
-            ERRORF(reporter, "Could not create image");
-            return;
-        }
-
-        SkPixmap pixmap;
-        if (!image->peekPixels(&pixmap)) {
-            ERRORF(reporter, "peek failed");
-        } else {
-            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.grContext(), pixmap,
-                                                                   SkBudgeted::kNo));
-            if (!texImage) {
-                ERRORF(reporter, "NewTextureFromPixmap failed.");
-            } else {
-                check_images_same(reporter, image.get(), texImage.get());
-            }
-        }
-    }
-}
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
