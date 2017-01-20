@@ -187,20 +187,6 @@ private:
     SkCanvas* fTarget;
 };
 
-static void test_clipstack(skiatest::Reporter* reporter) {
-#ifdef SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK
-    // The clipstack is refcounted, and needs to be able to out-live the canvas if a client has
-    // ref'd it.
-    const SkClipStack* cs = nullptr;
-    {
-        SkCanvas canvas(10, 10);
-        cs = SkRef(canvas.getClipStack());
-    }
-    REPORTER_ASSERT(reporter, cs->unique());
-    cs->unref();
-#endif
-}
-
 // Format strings that describe the test context.  The %s token is where
 // the name of the test step is inserted.  The context is required for
 // disambiguating the error in the case of failures that are reported in
@@ -532,8 +518,6 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
     SkCanvas referenceCanvas(referenceStore);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, d, reporter);
-
-    test_clipstack(reporter);
 }
 
 static void test_newraster(skiatest::Reporter* reporter) {
