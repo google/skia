@@ -205,6 +205,10 @@ SkTypeface::LocalizedStrings* SkGTypeface::onCreateFamilyNameIterator() const {
     return fProxy->createFamilyNameIterator();
 }
 
+int SkGTypeface::onGetAxes(SkFontParameters::Axis axes[]) const {
+    return fProxy->onGetAxes(axes);
+}
+
 int SkGTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     return fProxy->getTableTags(tags);
 }
