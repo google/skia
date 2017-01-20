@@ -22,6 +22,24 @@
       "revId": "b710ef0695a7ec927695d75f6b35a4bc14cd1c55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_16188c2c",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1521,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-20T19:45:58Z",
+      "side": 1,
+      "message": "This currE-\u003efX is the lower right x of the trapezoid. I want to make sure that it falls within the clip.",
+      "parentUuid": "284bc29d_16952c5f",
+      "revId": "b710ef0695a7ec927695d75f6b35a4bc14cd1c55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

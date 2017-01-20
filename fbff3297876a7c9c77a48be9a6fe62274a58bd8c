@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_96049cce",
+        "filename": "src/core/SkAnalyticEdge.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-20T19:45:58Z",
+      "side": 0,
+      "message": "Added to the CL comments.",
+      "parentUuid": "284bc29d_96813c27",
+      "revId": "fbff3297876a7c9c77a48be9a6fe62274a58bd8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_16688cf6",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 1
