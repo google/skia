@@ -52,6 +52,14 @@ struct SK_API SkColorSpaceTransferFn {
 
 class SK_API SkColorSpace : public SkRefCnt {
 public:
+    enum Gamut {
+        kSRGB_Gamut,
+        kAdobeRGB_Gamut,
+        kDCIP3_Gamut,       // DCI-P3 D65 (non-theater)
+        kRec2020_Gamut,
+    };
+    static SkColorSpacePrimaries GamutToPrimaries(Gamut);
+    static SkMatrix44 GamutToXYZD50(Gamut);
 
     /**
      *  Common, named profiles that we can recognize.
