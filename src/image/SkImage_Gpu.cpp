@@ -97,13 +97,14 @@ sk_sp<GrSurfaceProxy> SkImage_Gpu::refProxy() const {
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                      SkColorSpace* dstColorSpace,
-                                     sk_sp<SkColorSpace>* texColorSpace) const {
+                                     sk_sp<SkColorSpace>* texColorSpace,
+                                     SkScalar scaleAdjust[2]) const {
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
     GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
-    return adjuster.refTextureSafeForParams(params, nullptr);
+    return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {

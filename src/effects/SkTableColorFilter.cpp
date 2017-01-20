@@ -474,7 +474,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
     if (-1 == row) {
         atlas = nullptr;
         texture.reset(
-            GrRefCachedBitmapTexture(context, bitmap, GrSamplerParams::ClampNoFilter()));
+            GrRefCachedBitmapTexture(context, bitmap, GrSamplerParams::ClampNoFilter(), nullptr));
     } else {
         texture.reset(SkRef(atlas->getTexture()));
     }

@@ -32,7 +32,7 @@ public:
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*) const override;
+                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -79,8 +79,9 @@ bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpac
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                            SkColorSpace* dstColorSpace,
-                                           sk_sp<SkColorSpace>* texColorSpace) const {
-    return fCache.lockAsTexture(ctx, params, dstColorSpace, texColorSpace, this);
+                                           sk_sp<SkColorSpace>* texColorSpace,
+                                           SkScalar scaleAdjust[2]) const {
+    return fCache.lockAsTexture(ctx, params, dstColorSpace, texColorSpace, this, scaleAdjust);
 }
 
 sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
