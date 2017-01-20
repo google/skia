@@ -8,7 +8,7 @@
 #ifndef SkTDict_DEFINED
 #define SkTDict_DEFINED
 
-#include "SkChunkAlloc.h"
+#include "SkArenaAlloc.h"
 #include "SkTSearch.h"
 #include "SkTDArray.h"
 
@@ -37,7 +37,7 @@ public:
             return false;
         } else {
             Pair*   pair = fArray.insert(~index);
-            char*   copy = (char*)fStrings.alloc(len + 1, SkChunkAlloc::kThrow_AllocFailType);
+            char*   copy = fStrings.makeArrayDefault<char>(len + 1);
             memcpy(copy, name, len);
             copy[len] = '\0';
             pair->fName = copy;
@@ -123,7 +123,7 @@ public:
 
 private:
     SkTDArray<Pair> fArray;
-    SkChunkAlloc    fStrings;
+    SkArenaAlloc    fStrings;
 
     int find_index(const char name[]) const {
         return find_index(name, strlen(name));
