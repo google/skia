@@ -73,7 +73,7 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // TODO: Try to do better?
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 
     SkIRect         fBounds;

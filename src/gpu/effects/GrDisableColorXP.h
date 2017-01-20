@@ -25,7 +25,7 @@ public:
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor* blendedColor) const override {
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+        blendedColor->fKnownColorComponents.reset();
         blendedColor->fWillBlendWithDst = false;
     }
 

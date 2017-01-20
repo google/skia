@@ -65,11 +65,11 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& sBa
 void GrAlphaThresholdFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     GrPixelConfig config = this->textureSampler(0).texture()->config();
     if (GrPixelConfigIsAlphaOnly(config)) {
-        inout->mulByUnknownSingleComponent();
+        inout->mulByUnknown();
     } else if (GrPixelConfigIsOpaque(config) && fOuterThreshold >= 1.f) {
-        inout->mulByUnknownOpaqueFourComponents();
+        inout->mulByOpaque();
     } else {
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 }
 

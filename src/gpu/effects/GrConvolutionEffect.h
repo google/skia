@@ -91,7 +91,7 @@ private:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // If the texture was opaque we could know that the output color if we knew the sum of the
         // kernel values.
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

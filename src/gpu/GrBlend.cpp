@@ -6,6 +6,7 @@
 */
 
 #include "GrBlend.h"
+#include "GrInvariantOutput.h"
 
 /**
  * MaskedColor is used to evaluate the color and valid color component flags through the
@@ -108,17 +109,15 @@ static MaskedColor get_term(GrBlendCoeff coeff, const MaskedColor& src, const Ma
 }
 
 void GrGetCoeffBlendKnownComponents(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff,
-                                    GrColor srcColor, GrColorComponentFlags srcColorFlags,
-                                    GrColor dstColor, GrColorComponentFlags dstColorFlags,
-                                    GrColor* outColor,
-                                    GrColorComponentFlags* outFlags) {
-    MaskedColor src(srcColor, srcColorFlags);
-    MaskedColor dst(dstColor, dstColorFlags);
+                                    const GrKnownColorComponents& srcComponents,
+                                    const GrKnownColorComponents& dstComponents,
+                                    GrKnownColorComponents* outputComponents) {
+    MaskedColor src(srcComponents.color(), srcComponents.knownFlags());
+    MaskedColor dst(dstComponents.color(), dstComponents.knownFlags());
 
     MaskedColor srcTerm = get_term(srcCoeff, src, dst, src);
     MaskedColor dstTerm = get_term(dstCoeff, src, dst, dst);
 
     MaskedColor output = MaskedColor::SatAdd(srcTerm, dstTerm);
-    *outColor = output.color();
-    *outFlags = output.validFlags();
+    outputComponents->reset(output.color(), output.validFlags());
 }

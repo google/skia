@@ -392,11 +392,11 @@ private:
             // If any relevant component of the color to be passed through the matrix is non-const
             // then we can't know the final result.
             if (0 != fMatrix[kAlphaRowStartIdx + i]) {
-                if (!(inout->validFlags() & kRGBAFlags[i])) {
+                if (!(inout->knownComponents().knownFlags() & kRGBAFlags[i])) {
                     inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
                     return;
                 } else {
-                    uint32_t component = (inout->color() >> kShifts[i]) & 0xFF;
+                    uint32_t component = (inout->knownComponents().color() >> kShifts[i]) & 0xFF;
                     outputA += fMatrix[kAlphaRowStartIdx + i] * component;
                 }
             }
@@ -406,8 +406,9 @@ private:
         // shader but currently the effect does not pin its own output. So in the case of over/
         // underflow this may deviate from the actual result. Maybe the effect should pin its
         // result if the matrix could over/underflow for any component?
-        inout->setToOther(kA_GrColorComponentFlag,
-                          static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A,
+        inout->setToOther(GrKnownColorComponents(static_cast<uint8_t>(SkScalarPin(outputA, 0, 255))
+                                                         << GrColor_SHIFT_A,
+                                                 kA_GrColorComponentFlag),
                           GrInvariantOutput::kWill_ReadInput);
     }
 

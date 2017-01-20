@@ -184,18 +184,13 @@ protected:
             GrBlendCoeff dstCoeff = SkXfermodeCoeffToGrBlendCoeff(skDstCoeff);
             GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags);
             this->childProcessor(0).computeInvariantOutput(&childOutput);
-            GrColor blendColor;
-            GrColorComponentFlags blendFlags;
+            GrKnownColorComponents blendedComponents;
             if (kDst_Child == fChild) {
-                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff,
-                                               inout->color(), inout->validFlags(),
-                                               childOutput.color(), childOutput.validFlags(),
-                                               &blendColor, &blendFlags);
+                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff, inout->knownComponents(),
+                                               childOutput.knownComponents(), &blendedComponents);
             } else {
-                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff,
-                                               childOutput.color(), childOutput.validFlags(),
-                                               inout->color(), inout->validFlags(),
-                                               &blendColor, &blendFlags);
+                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff, childOutput.knownComponents(),
+                                               inout->knownComponents(), &blendedComponents);
             }
             // will the shader code reference the input color?
             GrInvariantOutput::ReadInput readsInput = GrInvariantOutput::kWillNot_ReadInput;
@@ -208,7 +203,7 @@ protected:
                     readsInput = GrInvariantOutput::kWill_ReadInput;
                 }
             }
-            inout->setToOther(blendFlags, blendColor, readsInput);
+            inout->setToOther(blendedComponents, readsInput);
         } else {
             inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
         }
