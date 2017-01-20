@@ -54,15 +54,16 @@ static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 }
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
-                                      const GrPipelineAnalysis& analysis,
+                                      bool usePLSRead,
+                                      bool isLCDCoverage,
                                       const GrCaps& caps) {
     if (!caps.advancedBlendEquationSupport()) {
         return false;
     }
-    if (analysis.fUsesPLSDstRead) {
+    if (usePLSRead) {
         return false;
     }
-    if (analysis.fCoveragePOI.isLCDCoverage()) {
+    if (isLCDCoverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
     if (caps.canUseAdvancedBlendEquation(equation)) {
@@ -340,8 +341,7 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override;
-
+    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 
@@ -359,16 +359,20 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
                                                         bool hasMixedSamples,
                                                         const DstTexture* dstTexture) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    if (can_use_hw_blend_equation(fHWBlendEquation, analysis, caps)) {
+    if (can_use_hw_blend_equation(fHWBlendEquation, analysis.fUsesPLSDstRead,
+                                  analysis.fCoveragePOI.isLCDCoverage(), caps)) {
         SkASSERT(!dstTexture || !dstTexture->texture());
         return new CustomXP(fMode, fHWBlendEquation);
     }
     return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
-bool CustomXPFactory::onWillReadDstColor(const GrCaps& caps,
-                                         const GrPipelineAnalysis& analysis) const {
-    return !can_use_hw_blend_equation(fHWBlendEquation, analysis, caps);
+bool CustomXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
+                                       CoverageType coverageType) const {
+    // This should not be called if we're using PLS dst read.
+    static constexpr bool kUsesPLSRead = false;
+    return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead,
+                                      CoverageType::kLCD == coverageType, caps);
 }
 
 void CustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
