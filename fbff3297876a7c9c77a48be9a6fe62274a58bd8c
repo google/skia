@@ -22,6 +22,24 @@
       "revId": "fbff3297876a7c9c77a48be9a6fe62274a58bd8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_3605c8fa",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1520,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-20T19:08:22Z",
+      "side": 0,
+      "message": "left is now updated in line 1533. Previously, we updated left in two places (this and line 1609), and now we combine them into one place--line 1533.",
+      "parentUuid": "284bc29d_16688cf6",
+      "revId": "fbff3297876a7c9c77a48be9a6fe62274a58bd8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
