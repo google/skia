@@ -168,12 +168,13 @@ GrVkGpu::~GrVkGpu() {
     // destroying the command buffers. Currently this ony seems to happen on windows, so we add a
     // sleep to make sure the fence signals.
 #ifdef SK_DEBUG
+    if (this->vkCaps().mustSleepOnTearDown()) {
 #if defined(SK_BUILD_FOR_WIN)
-    Sleep(10); // In milliseconds
+        Sleep(10); // In milliseconds
 #else
-    // Uncomment if above bug happens on non windows build.
-    // sleep(1);        // In seconds
+        sleep(1);  // In seconds
 #endif
+    }
 #endif
 
 #ifdef SK_DEBUG

@@ -76,6 +76,10 @@ public:
         return fMustSubmitCommandsBeforeCopyOp;
     }
 
+    bool mustSleepOnTearDown() const {
+        return fMustSleepOnTearDown;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -87,6 +91,7 @@ private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
         kNvidia_VkVendor = 4318,
+        kImagination_VkVendor = 4112,
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
@@ -135,6 +140,11 @@ private:
     // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
     // as draws.
     bool fMustSubmitCommandsBeforeCopyOp;
+
+    // Sometimes calls to QueueWaitIdle return before actually signalling the fences
+    // on the command buffers even though they have completed. This causes an assert to fire when
+    // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
+    bool fMustSleepOnTearDown;
 
     typedef GrCaps INHERITED;
 };

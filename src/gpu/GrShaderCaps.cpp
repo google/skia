@@ -56,6 +56,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fCanUseAnyFunctionInShader = true;
     fCanUseMinAndAbsTogether = true;
     fMustForceNegatedAtanParamToFloat = false;
+    fAtan2ImplementedAsAtanYOverX = false;
     fRequiresLocalOutputColorForFBFetch = false;
     fFlatInterpolationSupport = false;
     fNoPerspectiveInterpolationSupport = false;
