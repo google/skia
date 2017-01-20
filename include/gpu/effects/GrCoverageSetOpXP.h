@@ -40,7 +40,9 @@ private:
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override { return false; }
+    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override {
+        return false;
+    }
 
     GR_DECLARE_XP_FACTORY_TEST;
 
