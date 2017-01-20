@@ -60,6 +60,10 @@ public:
         : SkArenaAlloc(block, kSize, extraSize)
     {}
 
+    SkArenaAlloc(size_t extraSize)
+        : SkArenaAlloc(nullptr, 0, extraSize)
+    {}
+
     ~SkArenaAlloc();
 
     template <typename T, typename... Args>
