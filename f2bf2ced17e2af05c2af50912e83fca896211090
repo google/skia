@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_3181529e",
+        "filename": "src/fonts/SkFontMgr_indirect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-20T21:09:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_d143cea9",
+      "revId": "f2bf2ced17e2af05c2af50912e83fca896211090",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_7138fa3c",
         "filename": "src/ports/SkFontMgr_FontConfigInterface.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 179,
         "endChar": 26
       },
+      "revId": "f2bf2ced17e2af05c2af50912e83fca896211090",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_918666b4",
+        "filename": "src/ports/SkFontMgr_FontConfigInterface.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-20T21:09:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "284bc29d_7138fa3c",
       "revId": "f2bf2ced17e2af05c2af50912e83fca896211090",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
