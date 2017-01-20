@@ -169,6 +169,20 @@ STAGE(inc_x) {
     x += sizeof(F) / sizeof(float);
 }
 
+STAGE(seed_shader) {
+    auto y = *(const int*)ctx;
+
+    // It's important for speed to explicitly cast(x) and cast(y),
+    // which has the effect of splatting them to vectors before converting to floats.
+    // On Intel this breaks a data dependency on previous loop iterations' registers.
+
+    r = cast(x) + k->_0_5 + unaligned_load<F>(k->iota);
+    g = cast(y) + k->_0_5;
+    b = k->_1;
+    a = 0;
+    dr = dg = db = da = 0;
+}
+
 STAGE(clear) {
     r = g = b = a = 0;
 }
@@ -424,6 +438,21 @@ STAGE(store_f16) {
 #endif
 }
 
+static F clamp(const F& v, float limit) {
+    F l = (F)((U32)F(limit) + U32(0xffffffff));  // limit - 1 ulp
+    return max(0, min(v, l));
+}
+STAGE(clamp_x) { r = clamp(r, *(const float*)ctx); }
+STAGE(clamp_y) { g = clamp(g, *(const float*)ctx); }
+
+STAGE(matrix_2x3) {
+    auto m = (const float*)ctx;
+
+    auto R = fma(r,m[0], fma(g,m[2], m[4])),
+         G = fma(r,m[1], fma(g,m[3], m[5]));
+    r = R;
+    g = G;
+}
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 
@@ -433,4 +462,17 @@ STAGE(matrix_3x4) {
     r = R;
     g = G;
     b = B;
+}
+
+STAGE(linear_gradient_2stops) {
+    using F4 = float __attribute__((ext_vector_type(4)));
+
+    struct Ctx { F4 c0, dc; };
+    auto c = unaligned_load<Ctx>(ctx);
+
+    auto t = r;
+    r = fma(t, c.dc[0], c.c0[0]);
+    g = fma(t, c.dc[1], c.c0[1]);
+    b = fma(t, c.dc[2], c.c0[2]);
+    a = fma(t, c.dc[3], c.c0[3]);
 }

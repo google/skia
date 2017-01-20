@@ -33,12 +33,17 @@
 // To disassemble an armv7 dump,
 //   $ adb pull /data/local/tmp/dump.bin; gobjdump -b binary -D dump.bin -m arm | less
 
+//#define M(st) #st,
+//static const char* kStageNames[] = { SK_RASTER_PIPELINE_STAGES(M) };
+//#undef M
+
 namespace {
 
     // Stages expect these constants to be set to these values.
     // It's fine to rearrange and add new ones if you update SkSplicer_constants.
     static const SkSplicer_constants kConstants = {
-        1.0f, 255.0f, 1/255.0f, 0x000000ff,
+        1.0f, 0.5f, 255.0f, 1/255.0f, 0x000000ff,
+        {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f},
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
         0x77800000, 0x07800000,                            // fp16 <-> fp32
@@ -243,6 +248,7 @@ namespace {
     static bool prefix##_##splice_stage(SkWStream* buf, SkRasterPipeline::StockStage st) { \
         switch (st) {                                                                      \
             default: return false;                                                         \
+            CASE(prefix, seed_shader);                                                     \
             CASE(prefix, clear);                                                           \
             CASE(prefix, plus_);                                                           \
             CASE(prefix, srcover);                                                         \
@@ -263,7 +269,11 @@ namespace {
             CASE(prefix, store_8888);                                                      \
             CASE(prefix, load_f16);                                                        \
             CASE(prefix, store_f16);                                                       \
+            CASE(prefix, matrix_2x3);                                                      \
             CASE(prefix, matrix_3x4);                                                      \
+            CASE(prefix, clamp_x);                                                         \
+            CASE(prefix, clamp_y);                                                         \
+            CASE(prefix, linear_gradient_2stops);                                          \
         }                                                                                  \
         return true;                                                                       \
     }
@@ -339,7 +349,8 @@ namespace {
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
                 if (!splice_stage(&buf, stages[i].stage)) {
-                    //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
+                    //SkDebugf("SkSplicer can't yet handle stage %d %s.\n",
+                    //         stages[i].stage, kStageNames[stages[i].stage]);
                     return;
                 }
             }
