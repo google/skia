@@ -561,7 +561,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 wn.segment()->debugValidate();
                 coinIndex = -1;
             }
-            SkASSERT(coinIndex < 0);  // expect coincidence to be paired
+            SkOPOBJASSERT(coincidence, coinIndex < 0);  // expect coincidence to be paired
         } while (wn.advance());
     } while (wt.advance());
     return true;
