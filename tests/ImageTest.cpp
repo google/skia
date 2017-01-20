@@ -92,13 +92,6 @@ static sk_sp<SkImage> create_data_image() {
     return SkImage::MakeRasterData(info, std::move(data), info.minRowBytes());
 }
 #if SK_SUPPORT_GPU // not gpu-specific but currently only used in GPU tests
-static sk_sp<SkImage> create_image_565() {
-    const SkImageInfo info = SkImageInfo::Make(20, 20, kRGB_565_SkColorType, kOpaque_SkAlphaType);
-    auto surface(SkSurface::MakeRaster(info));
-    draw_image_test_pattern(surface->getCanvas());
-    return surface->makeImageSnapshot();
-}
-
 static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRaster(info));
@@ -107,23 +100,6 @@ static sk_sp<SkImage> create_image_large(int maxTextureSize) {
     paint.setColor(SK_ColorBLACK);
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
     return surface->makeImageSnapshot();
-}
-static sk_sp<SkImage> create_image_ct() {
-    SkPMColor colors[] = {
-        SkPreMultiplyARGB(0xFF, 0xFF, 0xFF, 0x00),
-        SkPreMultiplyARGB(0x80, 0x00, 0xA0, 0xFF),
-        SkPreMultiplyARGB(0xFF, 0xBB, 0x00, 0xBB)
-    };
-    sk_sp<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
-    uint8_t data[] = {
-        0, 0, 0, 0, 0,
-        0, 1, 1, 1, 0,
-        0, 1, 2, 1, 0,
-        0, 1, 1, 1, 0,
-        0, 0, 0, 0, 0
-    };
-    SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable.get()));
 }
 static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
@@ -795,31 +771,6 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
                 ERRORF(reporter, "Expected image pixels to be the same. At %d,%d 0x%08x != 0x%08x",
                        x, y, pixelA, pixelB);
                 return;
-            }
-        }
-    }
-}
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
-    for (auto create : {&create_image,
-                        &create_image_565,
-                        &create_image_ct}) {
-        sk_sp<SkImage> image((*create)());
-        if (!image) {
-            ERRORF(reporter, "Could not create image");
-            return;
-        }
-
-        SkPixmap pixmap;
-        if (!image->peekPixels(&pixmap)) {
-            ERRORF(reporter, "peek failed");
-        } else {
-            sk_sp<SkImage> texImage(SkImage::MakeTextureFromPixmap(ctxInfo.grContext(), pixmap,
-                                                                   SkBudgeted::kNo));
-            if (!texImage) {
-                ERRORF(reporter, "NewTextureFromPixmap failed.");
-            } else {
-                check_images_same(reporter, image.get(), texImage.get());
             }
         }
     }
