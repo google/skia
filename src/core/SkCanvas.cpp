@@ -30,7 +30,6 @@
 #include "SkRadialShadowMapShader.h"
 #include "SkRasterClip.h"
 #include "SkRasterHandleAllocator.h"
-#include "SkReadPixelsRec.h"
 #include "SkRRect.h"
 #include "SkShadowPaintFilterCanvas.h"
 #include "SkShadowShader.h"
@@ -858,10 +857,6 @@ SkBaseDevice* SkCanvas::getTopDevice() const {
 }
 
 bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
-    if (kUnknown_SkColorType == bitmap->colorType()) {
-        return false;
-    }
-
     bool weAllocated = false;
     if (nullptr == bitmap->pixelRef()) {
         if (!bitmap->tryAllocPixels()) {
@@ -908,15 +903,8 @@ bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowByte
     if (!device) {
         return false;
     }
-    const SkISize size = this->getBaseLayerSize();
 
-    SkReadPixelsRec rec(dstInfo, dstP, rowBytes, x, y);
-    if (!rec.trim(size.width(), size.height())) {
-        return false;
-    }
-
-    // The device can assert that the requested area is always contained in its bounds
-    return device->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
+    return device->readPixels(dstInfo, dstP, rowBytes, x, y);
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
@@ -928,49 +916,30 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     return false;
 }
 
-bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size_t rowBytes,
+bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
-    switch (origInfo.colorType()) {
-        case kUnknown_SkColorType:
-        case kIndex_8_SkColorType:
-            return false;
-        default:
-            break;
-    }
-    if (nullptr == pixels || rowBytes < origInfo.minRowBytes()) {
-        return false;
-    }
-
-    const SkISize size = this->getBaseLayerSize();
-    SkIRect target = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
-    if (!target.intersect(0, 0, size.width(), size.height())) {
-        return false;
-    }
-
     SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
 
-    // the intersect may have shrunk info's logical size
-    const SkImageInfo info = origInfo.makeWH(target.width(), target.height());
-
-    // if x or y are negative, then we have to adjust pixels
-    if (x > 0) {
-        x = 0;
+    // This check gives us an early out and prevents generation ID churn on the surface.
+    // This is purely optional: it is a subset of the checks performed by SkWritePixelsRec.
+    SkIRect srcRect = SkIRect::MakeXYWH(x, y, srcInfo.width(), srcInfo.height());
+    if (!srcRect.intersect(0, 0, device->width(), device->height())) {
+        return false;
     }
-    if (y > 0) {
-        y = 0;
-    }
-    // here x,y are either 0 or negative
-    pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
 
-    // Tell our owning surface to bump its generation ID
-    const bool completeOverwrite = info.dimensions() == size;
+    // Tell our owning surface to bump its generation ID.
+    const bool completeOverwrite =
+            srcRect.size() == SkISize::Make(device->width(), device->height());
     this->predrawNotify(completeOverwrite);
 
-    // The device can assert that the requested area is always contained in its bounds
-    return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
+    // This can still fail, most notably in the case of a invalid color type or alpha type
+    // conversion.  We could pull those checks into this function and avoid the unnecessary
+    // generation ID bump.  But then we would be performing those checks twice, since they
+    // are also necessary at the bitmap/pixmap entry points.
+    return device->writePixels(srcInfo, pixels, rowBytes, x, y);
 }
 
 //////////////////////////////////////////////////////////////////////////////

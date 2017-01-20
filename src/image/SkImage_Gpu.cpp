@@ -27,6 +27,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
+#include "SkReadPixelsRec.h"
 
 SkImage_Gpu::SkImage_Gpu(int w, int h, uint32_t uniqueID, SkAlphaType at, sk_sp<GrTexture> tex,
                          sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
@@ -128,20 +129,26 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
     }
 }
 
-bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                int srcX, int srcY, CachingHint) const {
-    if (!SkImageInfoValidConversion(info, this->onImageInfo())) {
+    if (!SkImageInfoValidConversion(dstInfo, this->onImageInfo())) {
         return false;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fTexture->getContext()->caps());
+    SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, srcX, srcY);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(rec.fInfo, *fTexture->getContext()->caps());
     uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == info.alphaType() && kPremul_SkAlphaType == fAlphaType) {
+    if (kUnpremul_SkAlphaType == rec.fInfo.alphaType() && kPremul_SkAlphaType == fAlphaType) {
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(fColorSpace.get(), srcX, srcY, info.width(), info.height(), config,
-                              info.colorSpace(), pixels, rowBytes, flags)) {
+    if (!fTexture->readPixels(fColorSpace.get(), rec.fX, rec.fY, rec.fInfo.width(),
+                              rec.fInfo.height(), config, rec.fInfo.colorSpace(), rec.fPixels,
+                              rec.fRowBytes, flags)) {
         return false;
     }
     // do we have to manually fix-up the alpha channel?
@@ -152,8 +159,8 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& info, void* pixels, size_t row
     //
     // Should this be handled by Ganesh? todo:?
     //
-    if (kPremul_SkAlphaType == info.alphaType() && kUnpremul_SkAlphaType == fAlphaType) {
-        apply_premul(info, pixels, rowBytes);
+    if (kPremul_SkAlphaType == rec.fInfo.alphaType() && kUnpremul_SkAlphaType == fAlphaType) {
+        apply_premul(rec.fInfo, rec.fPixels, rec.fRowBytes);
     }
     return true;
 }
