@@ -52,6 +52,12 @@ struct SK_API SkColorSpaceTransferFn {
 
 class SK_API SkColorSpace : public SkRefCnt {
 public:
+    enum Gamut {
+        kSRGB_Gamut,
+        kAdobeRGB_Gamut,
+        kDCIP3_Gamut,       // DCI-P3 D65 (non-theater)
+        kRec2020_Gamut,
+    };
 
     /**
      *  Common, named profiles that we can recognize.
@@ -96,6 +102,7 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                       const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut);
 
     /**
      *  Create a common, named SkColorSpace.

@@ -95,6 +95,7 @@ config("skia_private") {
     "include/private",
     "src/c",
     "src/codec",
+    "src/colorspace",
     "src/core",
     "src/effects",
     "src/effects/gradients",

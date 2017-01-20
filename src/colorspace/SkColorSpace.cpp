@@ -83,6 +83,35 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static float* gGamut3x3Table* const {
+    gSRGB_toXYZD50,
+    gAdobeRGB_toXYZD50,
+    gDCIP3_toXYZD50,
+    gRec2020_toXYZD50,
+};
+
+SkMatrix44 SkColorSpace::GamutToXYZD50(Gamut g) {
+    SkMatrix m;
+    if ((unsigned)g >= sizeof(gGamut3x3Table)) {
+        m.reset();
+    } else {
+        m.set3x3RowMajorf(gGamut3x3Table[g]);
+    }
+    return m;
+}
+
+SkColorSpacePrimaries SkColorSpace::GamutToPrimaries(Gamut g) {
+    SkMatrix m;
+    if ((unsigned)g >= sizeof(gGamut3x3Table)) {
+        m.reset();
+    } else {
+        m.set3x3RowMajorf(gGamut3x3Table[g]);
+    }
+    return m;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkData> profileData)
     : fProfileData(std::move(profileData))
 {}
