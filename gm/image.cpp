@@ -427,3 +427,87 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ScaleGeneratorGM; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkColorSpace> make_wide(SkImage::BitDepth depth) {
+    const float gWideGamutRGB_toXYZD50[]{
+        0.7161046f, 0.1009296f, 0.1471858f,  // -> X
+        0.2581874f, 0.7249378f, 0.0168748f,  // -> Y
+        0.0000000f, 0.0517813f, 0.7734287f,  // -> Z
+    };
+
+    SkMatrix44 m;
+    m.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
+
+    return SkColorSpace::MakeRGB(SkImage::BitDepth::kF16 == depth ?
+                                 SkColorSpace::kLinear_RenderTargetGamma :
+                                 SkColorSpace::kSRGB_RenderTargetGamma,
+                                 m);
+}
+
+static sk_sp<SkColorSpace> make_srgb(SkImage::BitDepth depth) {
+    static constexpr float gSRGB_toXYZD50[] {
+        0.4360747f, 0.3850649f, 0.1430804f, // Rx, Gx, Bx
+        0.2225045f, 0.7168786f, 0.0606169f, // Ry, Gy, Gz
+        0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
+    };
+
+    SkMatrix44 m;
+    m.set3x3RowMajorf(gSRGB_toXYZD50);
+
+    return SkColorSpace::MakeRGB(SkImage::BitDepth::kF16 == depth ?
+                                 SkColorSpace::kLinear_RenderTargetGamma :
+                                 SkColorSpace::kSRGB_RenderTargetGamma,
+                                 m);
+}
+
+typedef sk_sp<SkColorSpace> (*ColorSpaceMaker)(SkImage::BitDepth);
+
+static SkColorType depth_to_colortype(SkImage::BitDepth depth) {
+    return depth == SkImage::BitDepth::kU8 ? kN32_SkColorType : kRGBA_F16_SkColorType;
+}
+
+static sk_sp<SkImage> make_image(SkCanvas* canvas, int w, int h, SkImage::BitDepth depth,
+                                 sk_sp<SkColorSpace> cs) {
+    SkImageInfo info = SkImageInfo::Make(w, h, depth_to_colortype(depth), kPremul_SkAlphaType, cs);
+    sk_sp<SkSurface> surf = canvas->makeSurface(info);
+    if (!surf || true) {
+        surf = SkSurface::MakeRaster(info);
+    }
+
+    canvas = surf->getCanvas();
+
+    canvas->drawColor(SK_ColorRED);
+
+    return surf->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(image_make_scaled, canvas, 960, 1200) {
+    const SkImage::BitDepth depths[] = {
+        SkImage::BitDepth::kU8, SkImage::BitDepth::kF16,
+    };
+    ColorSpaceMaker csmakers[] = {
+        [](SkImage::BitDepth){ return sk_sp<SkColorSpace>(nullptr); }, make_srgb, make_wide
+    };
+
+    canvas->translate(10, 10);
+    for (auto& csmaker : csmakers) {
+        for (auto depth : depths) {
+            sk_sp<SkImage> image = make_image(canvas, 100, 100, depth, csmaker(depth));
+            if (image) {
+                if (true) {
+                    SkPixmap pm;
+                    image->peekPixels(&pm);
+                    if (4 == pm.info().bytesPerPixel()) {
+                        SkDebugf("cs %p, depth %d, %08X\n", pm.colorSpace(), (int)depth, *pm.addr32(0, 0));
+                    }
+                }
+                canvas->drawImage(image, 0, 0, nullptr);
+            } else {
+                SkDebugf("no image: depth=%d csmaker=%p\n", (int)depth, csmaker);
+            }
+            canvas->translate(120, 0);
+        }
+    }
+}

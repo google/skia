@@ -1624,9 +1624,6 @@ private:
      */
     bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint&);
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_GETCLIPSTACK
-public:
-#endif
     /** Return the clip stack. The clip stack stores all the individual
      *  clips organized by the save/restore frame in which they were
      *  added.
@@ -1635,7 +1632,6 @@ public:
     const SkClipStack* getClipStack() const {
         return fClipStack.get();
     }
-private:
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
