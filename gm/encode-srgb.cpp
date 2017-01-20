@@ -43,8 +43,8 @@ static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSp
     };
 
     auto toPMColor = [alphaType, colorSpace](SkColor color) {
-        // In the unpremul case, just convert to SkPMColor ordering.
-        if (kUnpremul_SkAlphaType == alphaType) {
+        // In the opaque/unpremul case, just convert to SkPMColor ordering.
+        if (kPremul_SkAlphaType != alphaType) {
             return SkSwizzle_BGRA_to_PMColor(color);
         }
 
@@ -97,13 +97,19 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     codec->getPixels(dstInfo, bitmap->getPixels(), bitmap->rowBytes());
 }
 
-static sk_sp<SkData> encode_data(const SkBitmap& bitmap) {
+static sk_sp<SkData> encode_data(const SkBitmap& bitmap, bool encodeAsWebp) {
     SkAutoLockPixels autoLockPixels(bitmap);
     SkPixmap src;
     if (!bitmap.peekPixels(&src)) {
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
+
+    if (encodeAsWebp) {
+        SkAssertResult(SkEncodeImageAsWEBP(&buf, src, 100));
+        return buf.detachAsData();
+    }
+
     SkEncodeOptions options;
     if (bitmap.colorSpace()) {
         options.fPremulBehavior = SkEncodeOptions::PremulBehavior::kGammaCorrect;
@@ -142,7 +148,7 @@ protected:
                 canvas->save();
                 for (sk_sp<SkColorSpace> colorSpace : colorSpaces) {
                     make(&bitmap, colorType, alphaType, colorSpace);
-                    auto image = SkImage::MakeFromEncoded(encode_data(bitmap));
+                    auto image = SkImage::MakeFromEncoded(encode_data(bitmap, false));
                     canvas->drawImage(image.get(), 0.0f, 0.0f);
                     canvas->translate((float) imageWidth, 0.0f);
                 }
@@ -157,4 +163,50 @@ private:
 };
 
 DEF_GM( return new EncodeSRGBGM; )
+
+class EncodeWEBPGM : public GM {
+public:
+    EncodeWEBPGM() {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("encode-webp");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(imageWidth * 2, imageHeight * 6);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        const SkColorType colorTypes[] = {
+                kN32_SkColorType, kIndex_8_SkColorType,
+        };
+        const SkAlphaType alphaTypes[] = {
+                kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
+        };
+        const sk_sp<SkColorSpace> colorSpaces[] = {
+                nullptr, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+        };
+
+        SkBitmap bitmap;
+        for (SkColorType colorType : colorTypes) {
+            for (SkAlphaType alphaType : alphaTypes) {
+                canvas->save();
+                for (sk_sp<SkColorSpace> colorSpace : colorSpaces) {
+                    make(&bitmap, colorType, alphaType, colorSpace);
+                    auto image = SkImage::MakeFromEncoded(encode_data(bitmap, true));
+                    canvas->drawImage(image.get(), 0.0f, 0.0f);
+                    canvas->translate((float) imageWidth, 0.0f);
+                }
+                canvas->restore();
+                canvas->translate(0.0f, (float) imageHeight);
+            }
+        }
+    }
+
+private:
+    typedef GM INHERITED;
+};
+
+DEF_GM( return new EncodeWEBPGM; )
 }
