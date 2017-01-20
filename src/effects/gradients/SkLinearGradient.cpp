@@ -129,10 +129,7 @@ bool SkLinearGradient::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkA
     auto* limit = alloc->make<float>(1.0f);
 
     switch (fTileMode) {
-        case kClamp_TileMode:
-            *limit += 0.5f; // why is clamp_x offsetting its limit?
-            p->append(SkRasterPipeline::clamp_x, limit);
-            break;
+        case kClamp_TileMode:  p->append(SkRasterPipeline:: clamp_x, limit); break;
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit); break;
         case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit); break;
     }
