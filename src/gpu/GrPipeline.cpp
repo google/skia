@@ -158,10 +158,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (xpFactory) {
         xpFactory->getInvariantBlendedColor(args.fAnalysis.fColorPOI, &blendedColor);
     } else {
-        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fAnalysis.fColorPOI.color(),
-                                                            args.fAnalysis.fColorPOI.validFlags(),
-                                                            args.fAnalysis.fColorPOI.isOpaque(),
-                                                            &blendedColor);
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(
+                args.fAnalysis.fColorPOI.knownColorComponents(), &blendedColor);
     }
     if (blendedColor.fWillBlendWithDst) {
         optimizations->fFlags |= GrPipelineOptimizations::kWillColorBlendWithDst_Flag;

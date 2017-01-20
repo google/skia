@@ -184,19 +184,17 @@ using ColorType = GrXPFactory::ColorType;
 using CoverageType = GrXPFactory::CoverageType;
 
 ColorType analysis_color_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fColorPOI.validFlags() == kRGBA_GrColorComponentFlags) {
-        return GrColorIsOpaque(analysis.fColorPOI.color()) ? ColorType::kOpaqueConstant
-                                                           : ColorType::kConstant;
+    if (analysis.fColorPOI.knownColorComponents().isKnownColor()) {
+        return analysis.fColorPOI.knownColorComponents().isOpaque() ? ColorType::kOpaqueConstant : ColorType::kConstant;
     }
-    if ((analysis.fColorPOI.validFlags() & kA_GrColorComponentFlag) &&
-        GrColorIsOpaque(analysis.fColorPOI.color())) {
+    if (analysis.fColorPOI.knownColorComponents().isOpaque()) {
         return ColorType::kOpaque;
     }
     return ColorType::kUnknown;
 }
 
 CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
-    if (analysis.fCoveragePOI.isSolidWhite()) {
+    if (analysis.fCoveragePOI.knownColorComponents().isSolidWhite()) {
         return CoverageType::kNone;
     }
     if (analysis.fCoveragePOI.isLCDCoverage()) {

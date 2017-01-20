@@ -12,6 +12,8 @@
 #include "GrColor.h"
 #include "../private/SkTLogic.h"
 
+class GrKnownColorComponents;
+
 /**
  * Equations for alpha-blending.
  */
@@ -80,12 +82,9 @@ static const int kGrBlendCoeffCnt = kLast_GrBlendCoeff + 1;
  * secondary src color.
  */
 void GrGetCoeffBlendKnownComponents(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff,
-                                    GrColor srcColor,
-                                    GrColorComponentFlags srcColorFlags,
-                                    GrColor dstColor,
-                                    GrColorComponentFlags dstColorFlags,
-                                    GrColor* outColor,
-                                    GrColorComponentFlags* outFlags);
+                                    const GrKnownColorComponents& srcComponents,
+                                    const GrKnownColorComponents& dstComponents,
+                                    GrKnownColorComponents* outputComponents);
 
 template<GrBlendCoeff Coeff>
 struct GrTBlendCoeffRefsSrc : skstd::bool_constant<kSC_GrBlendCoeff == Coeff ||

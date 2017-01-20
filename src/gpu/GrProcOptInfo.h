@@ -28,15 +28,15 @@ public:
             : fInOut(color, colorFlags), fInputColor(color) {}
 
     void resetToLCDCoverage(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, true);
+        this->internalReset(GrKnownColorComponents(color, colorFlags), true);
     }
 
     void reset(GrColor color, GrColorComponentFlags colorFlags) {
-        this->internalReset(color, colorFlags, false);
+        this->internalReset(GrKnownColorComponents(color, colorFlags), false);
     }
 
     void reset(const GrPipelineInput& input) {
-        this->internalReset(input.fColor, input.fValidFlags, input.fIsLCDCoverage);
+        this->internalReset(input, input.isLCDCoverage());
     }
 
     /**
@@ -45,12 +45,9 @@ public:
      */
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
-    bool isSolidWhite() const { return fInOut.isSolidWhite(); }
-    bool isOpaque() const { return fInOut.isOpaque(); }
-    bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
+    GrKnownColorComponents knownColorComponents() const { return fInOut.knownColorComponents(); }
     bool isLCDCoverage() const { return fIsLCDCoverage; }
-    GrColor color() const { return fInOut.color(); }
-    GrColorComponentFlags validFlags() const { return fInOut.validFlags(); }
+    bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
 
     /**
      * Returns the index of the first effective color processor. If an intermediate processor
@@ -76,11 +73,11 @@ public:
     GrColor inputColorToFirstEffectiveProccesor() const { return fInputColor; }
 
 private:
-    void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
-        fInOut.reset(color, colorFlags);
+    void internalReset(const GrKnownColorComponents& knownColorComponents, bool isLCDCoverage) {
+        fInOut.reset(knownColorComponents);
         fFirstEffectiveProcessorIndex = 0;
         fInputColorIsUsed = true;
-        fInputColor = color;
+        fInputColor = knownColorComponents.color();
         fIsLCDCoverage = isLCDCoverage;
     }
 
