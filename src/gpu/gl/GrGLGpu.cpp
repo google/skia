@@ -4706,7 +4706,8 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 }
 
 bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrSamplerParams& textureParams,
-                                         GrTextureProducer::CopyParams* copyParams) const {
+                                         GrTextureProducer::CopyParams* copyParams,
+                                         SkScalar scaleAdjust[2]) const {
     if (textureParams.isTiled() ||
         GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
         GrGLTexture* glTexture = static_cast<GrGLTexture*>(texture);

@@ -89,7 +89,7 @@ public:
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                            sk_sp<SkColorSpace>*) const override;
+                            sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
@@ -173,7 +173,8 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, Cac
 
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                         SkColorSpace* dstColorSpace,
-                                        sk_sp<SkColorSpace>* texColorSpace) const {
+                                        sk_sp<SkColorSpace>* texColorSpace,
+                                        SkScalar scaleAdjust[2]) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
@@ -188,10 +189,10 @@ GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& p
     if (tex) {
         GrTextureAdjuster adjuster(fPinnedTexture.get(), fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
-        return adjuster.refTextureSafeForParams(params, nullptr);
+        return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
     }
 
-    return GrRefCachedBitmapTexture(ctx, fBitmap, params);
+    return GrRefCachedBitmapTexture(ctx, fBitmap, params, scaleAdjust);
 #endif
 
     return nullptr;
@@ -218,7 +219,7 @@ bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
         fPinnedTexture.reset(
-            GrRefCachedBitmapTexture(ctx, fBitmap, GrSamplerParams::ClampNoFilter()));
+            GrRefCachedBitmapTexture(ctx, fBitmap, GrSamplerParams::ClampNoFilter(), nullptr));
         if (!fPinnedTexture) {
             return false;
         }

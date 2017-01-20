@@ -83,17 +83,16 @@ protected:
         }
 
         sk_sp<GrTexture> texture(
-            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter()));
+            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter(), nullptr));
         if (!texture) {
             return;
         }
 
         SkTArray<SkMatrix> textureMatrices;
-        textureMatrices.push_back().setIDiv(texture->width(), texture->height());
-        textureMatrices.push_back() = textureMatrices[0];
-        textureMatrices.back().postScale(1.5f, 0.85f);
-        textureMatrices.push_back() = textureMatrices[0];
-        textureMatrices.back().preRotate(45.f, texture->width() / 2.f, texture->height() / 2.f);
+        textureMatrices.push_back() = SkMatrix::I();
+        textureMatrices.push_back() = SkMatrix::MakeScale(1.5f, 0.85f);
+        textureMatrices.push_back();
+        textureMatrices.back().setRotate(45.f, texture->width() / 2.f, texture->height() / 2.f);
 
         const SkIRect texelDomains[] = {
             fBmp.bounds(),

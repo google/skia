@@ -59,9 +59,15 @@ public:
      *  added to the cache on its behalf.
      *
      *  The caller is responsible for calling texture->unref() when they are done.
+     *
+     *  The scaleAdjust in/out parameter will return any scale adjustment that needs
+     *  to be applied to the absolute texture coordinates in the case where the image
+     *  was resized to meet the sampling requirements (e.g., resized out to the next power of 2).
+     *  It can be null if the caller knows resizing will not be required.
      */
     GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&, SkColorSpace* dstColorSpace,
                              sk_sp<SkColorSpace>* texColorSpace, const SkImage* client,
+                             SkScalar scaleAdjust[2],
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 
     /**

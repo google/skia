@@ -1041,20 +1041,18 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
              bitmap.height() <= fContext->caps()->maxTileSize());
 
-    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap, params);
+    SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
+    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
+                                                         params, scaleAdjust);
     if (nullptr == texture) {
         return;
     }
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
 
-    SkScalar iw = 1.f / texture->width();
-    SkScalar ih = 1.f / texture->height();
-
-    SkMatrix texMatrix;
     // Compute a matrix that maps the rect we will draw to the src rect.
-    texMatrix.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
-    texMatrix.postScale(iw, ih);
+    SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
+    texMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
@@ -1122,8 +1120,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         }
 
         // draw sprite neither filters nor tiles.
-        texture.reset(
-            GrRefCachedBitmapTexture(fContext.get(), bitmap, GrSamplerParams::ClampNoFilter()));
+        texture.reset(GrRefCachedBitmapTexture(fContext.get(), bitmap,
+                                               GrSamplerParams::ClampNoFilter(), nullptr));
         if (!texture) {
             return;
         }
@@ -1200,10 +1198,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
             SkMatrix::I(),
             SkRect::Make(SkIRect::MakeXYWH(
                     left + offset.fX, top + offset.fY, subset.width(), subset.height())),
-            SkRect::MakeXYWH(SkIntToScalar(subset.fLeft) / texture->width(),
-                             SkIntToScalar(subset.fTop) / texture->height(),
-                             SkIntToScalar(subset.width()) / texture->width(),
-                             SkIntToScalar(subset.height()) / texture->height()));
+            SkRect::Make(subset));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1291,8 +1286,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture =
-        GrMakeCachedBitmapTexture(fContext.get(), bitmap, GrSamplerParams::ClampNoFilter());
+    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
+                                                         GrSamplerParams::ClampNoFilter(), nullptr);
     if (!texture) {
         return nullptr;
     }

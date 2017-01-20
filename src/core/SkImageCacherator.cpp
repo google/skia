@@ -606,13 +606,16 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& ori
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams& params,
                                             SkColorSpace* dstColorSpace,
                                             sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client, SkImage::CachingHint chint) {
+                                            const SkImage* client,
+                                            SkScalar scaleAdjust[2],
+                                            SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
     return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params, dstColorSpace,
-                                                                             texColorSpace);
+                                                                             texColorSpace,
+                                                                             scaleAdjust);
 }
 
 #else
@@ -620,7 +623,8 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParam
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
                                             SkColorSpace* dstColorSpace,
                                             sk_sp<SkColorSpace>* texColorSpace,
-                                            const SkImage* client, SkImage::CachingHint) {
+                                            const SkImage* client,
+                                            SkScalar scaleAdjust[2], SkImage::CachingHint) {
     return nullptr;
 }
 

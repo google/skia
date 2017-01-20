@@ -56,7 +56,7 @@ public:
 
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
-                                    sk_sp<SkColorSpace>*) const = 0;
+                                    sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
