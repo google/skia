@@ -22,6 +22,8 @@
 class GrContext;
 class GrCoordTransform;
 class GrInvariantOutput;
+class GrSurfaceProxy;
+class GrTextureProvider;
 
 /**
  * Used by processors to build their keys. It incorporates each per-processor key into a larger
@@ -205,6 +207,11 @@ public:
     TextureSampler(GrTexture*, const GrSamplerParams&);
 
     explicit TextureSampler(GrTexture*,
+                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
+                            SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
+                            GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    explicit TextureSampler(GrTextureProvider*, GrSurfaceProxy*,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
