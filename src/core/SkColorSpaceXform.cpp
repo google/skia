@@ -1317,7 +1317,7 @@ bool SkColorSpaceXform_XYZ<kCSM>
             return false;
     }
 
-    pipeline.run(0, 0, len);
+    pipeline.run(0, len);
     return true;
 }
 

@@ -64,7 +64,7 @@
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(to_srgb)                                      \
     M(from_2dot2) M(to_2dot2)                                    \
-    M(constant_color) M(store_f32)                               \
+    M(constant_color) M(seed_shader) M(store_f32)                \
     M(load_a8)   M(store_a8)                                     \
     M(load_565)  M(store_565)                                    \
     M(load_f16)  M(store_f16)                                    \
@@ -112,11 +112,11 @@ public:
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
-    // Runs the pipeline walking x through [x,x+n), holding y constant.
-    void run(size_t x, size_t y, size_t n) const;
+    // Runs the pipeline walking x through [x,x+n).
+    void run(size_t x, size_t n) const;
 
     // If you're going to run() the pipeline more than once, it's best to compile it.
-    std::function<void(size_t x, size_t y, size_t n)> compile() const;
+    std::function<void(size_t x, size_t n)> compile() const;
 
     void dump() const;
 
@@ -130,7 +130,7 @@ public:
     void append_from_srgb(SkAlphaType);
 
 private:
-    std::function<void(size_t, size_t, size_t)> jit() const;
+    std::function<void(size_t, size_t)> jit() const;
 
     std::vector<Stage> fStages;
 };

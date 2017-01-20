@@ -103,7 +103,7 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
     auto p = pipeline.compile();
 
     for (int y = 0; y < srcInfo.height(); ++y) {
-        p(0,0, srcInfo.width());
+        p(0,srcInfo.width());
         // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
         // loop to move between rows of src/dst.
         srcRow = (const char*)srcRow + srcRB;

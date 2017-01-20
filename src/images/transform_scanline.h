@@ -190,7 +190,7 @@ static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* 
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst);
-    p.run(0, 0, width);
+    p.run(0, width);
 }
 
 /**
@@ -262,7 +262,7 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
     p.append(SkRasterPipeline::load_f16, (const void**) &src);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
-    p.run(0, 0, width);
+    p.run(0, width);
 }
 
 /**
@@ -275,5 +275,5 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
-    p.run(0, 0, width);
+    p.run(0, width);
 }

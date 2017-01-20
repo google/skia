@@ -66,8 +66,8 @@ namespace SkOpts {
         return hash_fn(data, bytes, seed);
     }
 
-    extern void (*run_pipeline)(size_t, size_t, size_t, const SkRasterPipeline::Stage*, int);
-    extern std::function<void(size_t, size_t, size_t)>
+    extern void (*run_pipeline)(size_t, size_t, const SkRasterPipeline::Stage*, int);
+    extern std::function<void(size_t, size_t)>
     (*compile_pipeline)(const SkRasterPipeline::Stage*, int);
 
     extern void (*convolve_vertically)(const SkConvolutionFilter1D::ConvolutionFixed* filter_values,

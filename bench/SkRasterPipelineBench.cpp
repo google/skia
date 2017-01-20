@@ -63,11 +63,11 @@ public:
         if (kCompiled) {
             auto compiled = p.compile();
             while (loops --> 0) {
-                compiled(0,0, N);
+                compiled(0,N);
             }
         } else {
             while (loops --> 0) {
-                p.run(0,0, N);
+                p.run(0,N);
             }
         }
     }
@@ -100,11 +100,11 @@ public:
         if (kCompiled) {
             auto compiled = p.compile();
             while (loops --> 0) {
-                compiled(0,0, N);
+                compiled(0,N);
             }
         } else {
             while (loops --> 0) {
-                p.run(0,0, N);
+                p.run(0,N);
             }
         }
     }

@@ -68,7 +68,7 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
         default:
             return false;
     }
-    pipeline.run(0,0, count);
+    pipeline.run(0,count);
 
     return true;
 }

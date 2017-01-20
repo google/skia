@@ -440,6 +440,18 @@ STAGE_CTX(constant_color, const SkPM4f*) {
     a = ctx->a();
 }
 
+// Set up registers with values relevant to shaders.
+STAGE_CTX(seed_shader, const int*) {
+    int y = *ctx;
+
+    static const float dx[] = { 0,1,2,3,4,5,6,7 };
+    r = x + 0.5f + SkNf::Load(dx);  // dst pixel center x coordinates
+    g = y + 0.5f;                   // dst pixel center y coordinate(s)
+    b = 1.0f;
+    a = 0.0f;
+    dr = dg = db = da = 0.0f;
+}
+
 // s' = sc for a scalar c.
 STAGE_CTX(scale_1_float, const float*) {
     SkNf c = *ctx;
@@ -1095,22 +1107,17 @@ namespace {
         *program++ = (void*)just_return;
     }
 
-    static void run_program(void** program, size_t x, size_t y, size_t n) {
-        float dx[] = { 0,1,2,3,4,5,6,7 };
-        SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
-             Y = SkNf(y) + 0.5f,
-             _0 = SkNf(0),
-             _1 = SkNf(1);
+    static void run_program(void** program, size_t x, size_t n) {
+        SkNf u;  // fastest to start uninitialized.
 
         auto start = (Fn)load_and_increment(&program);
         while (n >= N) {
-            start(x*N, program, X,Y,_1,_0, _0,_0,_0,_0);
-            X += (float)N;
+            start(x*N, program, u,u,u,u, u,u,u,u);
             x += N;
             n -= N;
         }
         if (n) {
-            start(x*N+n, program, X,Y,_1,_0, _0,_0,_0,_0);
+            start(x*N+n, program, u,u,u,u, u,u,u,u);
         }
     }
 
@@ -1137,8 +1144,8 @@ namespace {
             memcpy(fProgram, o.fProgram, slots * sizeof(void*));
         }
 
-        void operator()(size_t x, size_t y, size_t n) {
-            run_program(fProgram, x, y, n);
+        void operator()(size_t x, size_t n) {
+            run_program(fProgram, x, n);
         }
 
         void** fProgram;
@@ -1147,21 +1154,21 @@ namespace {
 
 namespace SK_OPTS_NS {
 
-    SI std::function<void(size_t, size_t, size_t)>
+    SI std::function<void(size_t, size_t)>
     compile_pipeline(const SkRasterPipeline::Stage* stages, int nstages) {
         return Compiled{stages,nstages};
     }
 
-    SI void run_pipeline(size_t x, size_t y, size_t n,
+    SI void run_pipeline(size_t x, size_t n,
                          const SkRasterPipeline::Stage* stages, int nstages) {
         static const int kStackMax = 256;
         // Worst case is nstages stages with nstages context pointers, and just_return.
         if (2*nstages+1 <= kStackMax) {
             void* program[kStackMax];
             build_program(program, stages, nstages);
-            run_program(program, x,y,n);
+            run_program(program, x,n);
         } else {
-            Compiled{stages,nstages}(x,y,n);
+            Compiled{stages,nstages}(x,n);
         }
     }
 
