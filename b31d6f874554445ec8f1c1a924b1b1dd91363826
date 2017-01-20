@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_6bc3ed1c",
+        "filename": "include/gpu/GrShaderCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-20T14:44:41Z",
+      "side": 1,
+      "message": "function",
+      "range": {
+        "startLine": 167,
+        "startChar": 43,
+        "endLine": 167,
+        "endChar": 52
+      },
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_cba7a192",
+        "filename": "include/gpu/GrShaderCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-20T14:44:41Z",
+      "side": 1,
+      "message": "This could use some explanation -- are you saying there\u0027s no atan2 on these devices so we simulate it?",
+      "range": {
+        "startLine": 174,
+        "startChar": 9,
+        "endLine": 174,
+        "endChar": 37
+      },
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_cbd041db",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-20T14:44:41Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m not understanding what\u0027s going on here.",
+      "range": {
+        "startLine": 214,
+        "startChar": 19,
+        "endLine": 214,
+        "endChar": 56
+      },
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_4bdd51f3",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-20T14:44:41Z",
+      "side": 1,
+      "message": "I think it would be clearer to have a #if defined (SK_BUILD_FOR WIN) block and then check for NVIDIA, and then have a #elif defined (SK_BUILD_FOR_ANDROID) block and check for Imagination. It would also be easier to add new devices per OS if we have to.",
+      "revId": "b31d6f874554445ec8f1c1a924b1b1dd91363826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
