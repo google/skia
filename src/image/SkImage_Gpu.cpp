@@ -387,8 +387,6 @@ struct DeferredTextureImage {
     SkAlphaType                   fAlphaType;
     void*                         fColorSpace;
     size_t                        fColorSpaceSize;
-    int                           fColorTableCnt;
-    uint32_t*                     fColorTableData;
     int                           fMipMapLevelCount;
     // The fMipMapLevelData array may contain more than 1 element.
     // It contains fMipMapLevelCount elements.
@@ -475,15 +473,9 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkAutoPixmapStorage pixmap;
     SkImageInfo info;
     size_t pixelSize = 0;
-    size_t ctSize = 0;
-    int ctCount = 0;
-    if (!isScaled && this->peekPixels(&pixmap)) {
+    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable()) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
-        if (pixmap.ctable()) {
-            ctCount = pixmap.ctable()->count();
-            ctSize = SkAlign8(pixmap.ctable()->count() * 4);
-        }
     } else {
         // Here we're just using presence of data to know whether there is a codec behind the image.
         // In the future we will access the cacherator and get the exact data that we want to (e.g.
@@ -498,9 +490,12 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                 dstColorSpace, proxy.fCaps.get());
             info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
                                                               scaledSize.height());
-
         } else {
             info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+        }
+        if (kIndex_8_SkColorType == info.colorType()) {
+            // Force Index8 to be N32 instead. Index8 is unsupported in Ganesh.
+            info = info.makeColorType(kN32_SkColorType);
         }
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
@@ -548,8 +543,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     // level in its size
     size_t pixelOffset = size;
     size += pixelSize;
-    size_t ctOffset = size;
-    size += ctSize;
     size_t colorSpaceOffset = 0;
     size_t colorSpaceSize = 0;
     if (info.colorSpace()) {
@@ -563,16 +556,9 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     char* bufferAsCharPtr = reinterpret_cast<char*>(buffer);
     char* pixelsAsCharPtr = bufferAsCharPtr + pixelOffset;
     void* pixels = pixelsAsCharPtr;
-    void* ct = nullptr;
-    if (ctSize) {
-        ct = bufferAsCharPtr + ctOffset;
-    }
 
     memcpy(reinterpret_cast<void*>(SkAlign8(reinterpret_cast<uintptr_t>(pixelsAsCharPtr))),
                                    pixmap.addr(), pixmap.getSafeSize());
-    if (ctSize) {
-        memcpy(ct, pixmap.ctable()->readColors(), ctSize);
-    }
 
     // If the context has sRGB support, and we're intending to render to a surface with an attached
     // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
@@ -598,8 +584,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     FILL_MEMBER(dtiBufferFiller, fColorType, &colorType);
     SkAlphaType alphaType = info.alphaType();
     FILL_MEMBER(dtiBufferFiller, fAlphaType, &alphaType);
-    FILL_MEMBER(dtiBufferFiller, fColorTableCnt, &ctCount);
-    FILL_MEMBER(dtiBufferFiller, fColorTableData, &ct);
     FILL_MEMBER(dtiBufferFiller, fMipMapLevelCount, &mipMapLevelCount);
     memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData[0].fPixelData),
            &pixels, sizeof(pixels));
@@ -671,11 +655,6 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     if (!context || context->uniqueID() != dti->fContextUniqueID) {
         return nullptr;
     }
-    sk_sp<SkColorTable> colorTable;
-    if (dti->fColorTableCnt) {
-        SkASSERT(dti->fColorTableData);
-        colorTable.reset(new SkColorTable(dti->fColorTableData, dti->fColorTableCnt));
-    }
     int mipLevelCount = dti->fMipMapLevelCount;
     SkASSERT(mipLevelCount >= 1);
     sk_sp<SkColorSpace> colorSpace;
@@ -686,8 +665,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
                                          dti->fColorType, dti->fAlphaType, colorSpace);
     if (mipLevelCount == 1) {
         SkPixmap pixmap;
-        pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData,
-                     dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
+        pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData, dti->fMipMapLevelData[0].fRowBytes);
         return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
     } else {
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);

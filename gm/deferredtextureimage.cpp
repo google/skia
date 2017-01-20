@@ -85,7 +85,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
     SkPaint paint;
     paint.setFilterQuality(params->fQuality);
 
-    int mipLevelCount = SkMipMap::ComputeLevelCount(512, 512);
+    int mipLevelCount = SkMipMap::ComputeLevelCount(image->width(), image->height());
     size_t requiredMemoryInBytes = image->getDeferredTextureImageData(
         *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
     if (requiredMemoryInBytes == 0) {
@@ -107,13 +107,14 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
     canvas->translate(10.f, offsetHeight);
     canvas->drawImage(uploadedImage, 0, 0, &paint);
     canvas->restore();
-    offsetHeight += 512 + 10;
+    offsetHeight += image->height() + 10;
     // handle generated mipmap levels
     for (int i = 0; i < mipLevelCount; i++) {
-        SkISize mipSize = SkMipMap::ComputeLevelSize(512, 512, i);
+        SkISize mipSize = SkMipMap::ComputeLevelSize(image->width(), image->height(), i);
         canvas->save();
         canvas->translate(10.f, offsetHeight);
-        canvas->scale(mipSize.width() / 512.f, mipSize.height() / 512.f);
+        canvas->scale(mipSize.width() / static_cast<float>(image->width()),
+                      mipSize.height() / static_cast<float>(image->height()));
         canvas->drawImage(uploadedImage, 0, 0, &paint);
         canvas->restore();
         offsetHeight += mipSize.height() + 10;
@@ -123,16 +124,17 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
     offsetHeight = 10;
     // handle base mipmap level
     canvas->save();
-    canvas->translate(512.f + 20.f, offsetHeight);
+    canvas->translate(image->width() + 20.f, offsetHeight);
     canvas->drawImage(image, 0, 0, &paint);
     canvas->restore();
-    offsetHeight += 512 + 10;
+    offsetHeight += image->height() + 10;
     // handle generated mipmap levels
     for (int i = 0; i < mipLevelCount; i++) {
-        SkISize mipSize = SkMipMap::ComputeLevelSize(512, 512, i);
+        SkISize mipSize = SkMipMap::ComputeLevelSize(image->width(), image->height(), i);
         canvas->save();
-        canvas->translate(512.f + 20.f, offsetHeight);
-        canvas->scale(mipSize.width() / 512.f, mipSize.height() / 512.f);
+        canvas->translate(image->width() + 20.f, offsetHeight);
+        canvas->scale(mipSize.width() / static_cast<float>(image->width()),
+                      mipSize.height() / static_cast<float>(image->height()));
         canvas->drawImage(image, 0, 0, &paint);
         canvas->restore();
         offsetHeight += mipSize.height() + 10;
@@ -180,6 +182,31 @@ DEF_SIMPLE_GM(deferred_texture_image_high, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kHigh_SkFilterQuality, 0);
     DrawDeferredTextureImageData(canvas, &params);
+}
+
+DEF_SIMPLE_GM(deferred_texture_image_medium_encoded_indexed, canvas, 128 + 128 + 30, 340) {
+    sk_sp<SkImage> encodedImage = GetResourceAsImage("color_wheel.gif");
+    if (!encodedImage) {
+        SkDebugf("\nCould not load resource.\n");
+        return;
+    }
+
+    auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
+                                                           kMedium_SkFilterQuality, 0);
+    DrawDeferredTextureImageMipMapTree(canvas, encodedImage.get(), &params);
+}
+
+DEF_SIMPLE_GM(deferred_texture_image_medium_decoded_indexed, canvas, 128 + 128 + 30, 340) {
+    SkBitmap bitmap;
+    if (!GetResourceAsBitmap("color_wheel.gif", &bitmap)) {
+        SkDebugf("\nCould not decode resource.\n");
+        return;
+    }
+    sk_sp<SkImage> decodedImage = SkImage::MakeFromBitmap(bitmap);
+
+    auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
+                                                           kMedium_SkFilterQuality, 0);
+    DrawDeferredTextureImageMipMapTree(canvas, decodedImage.get(), &params);
 }
 
 #endif
