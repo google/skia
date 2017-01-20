@@ -338,6 +338,7 @@ static inline int SkFDot6UpShift(SkFDot6 x, int upShift) {
 
     use 16/512 to approximate 1/27
 */
+SK_ATTRIBUTE_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
 static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
 {
     // since our parameters may be negative, we don't use << to avoid ASAN warnings
@@ -453,6 +454,7 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
     return this->updateCubic();
 }
 
+SK_ATTRIBUTE_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
 int SkCubicEdge::updateCubic()
 {
     int     success;
