@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_16688cf6",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1520,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-20T18:30:31Z",
+      "side": 0,
+      "message": "having trouble understand this block change. Are we no longer updating \"left\" at all?",
+      "range": {
+        "startLine": 1520,
+        "startChar": 31,
+        "endLine": 1520,
+        "endChar": 37
+      },
+      "revId": "fbff3297876a7c9c77a48be9a6fe62274a58bd8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
