@@ -53,12 +53,6 @@
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
-#define RETURN_ON_UNPREMUL_IMAGE(image) \
-    do { if (as_IB(image)->onAlphaType() == kUnpremul_SkAlphaType) return; } while (0)
-
-#define RETURN_ON_UNPREMUL_BITMAP(bitmap) \
-    do { if (bitmap.alphaType() == kUnpremul_SkAlphaType) return; } while (0)
-
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -1915,14 +1909,12 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     this->onDrawImage(image, x, y, paint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     if (dst.isEmpty() || src.isEmpty()) {
         return;
     }
@@ -1932,14 +1924,12 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     this->drawImageRect(image, SkRect::Make(isrc), dst, paint, constraint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                              SrcRectConstraint constraint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         constraint);
 }
@@ -1947,7 +1937,6 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPa
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     if (dst.isEmpty()) {
         return;
     }
@@ -1961,7 +1950,6 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 const SkPaint* paint) {
     RETURN_ON_NULL(image);
-    RETURN_ON_UNPREMUL_IMAGE(image);
     if (dst.isEmpty()) {
         return;
     }
@@ -1984,7 +1972,6 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, cons
     if (bitmap.drawsNothing()) {
         return;
     }
-    RETURN_ON_UNPREMUL_BITMAP(bitmap);
     this->onDrawBitmap(bitmap, dx, dy, paint);
 }
 
@@ -1993,7 +1980,6 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const S
     if (bitmap.drawsNothing() || dst.isEmpty() || src.isEmpty()) {
         return;
     }
-    RETURN_ON_UNPREMUL_BITMAP(bitmap);
     this->onDrawBitmapRect(bitmap, &src, dst, paint, constraint);
 }
 
@@ -2013,7 +1999,6 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, con
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    RETURN_ON_UNPREMUL_BITMAP(bitmap);
     if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), center)) {
         this->onDrawBitmapNine(bitmap, center, dst, paint);
     } else {
@@ -2026,7 +2011,6 @@ void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    RETURN_ON_UNPREMUL_BITMAP(bitmap);
 
     SkIRect bounds;
     Lattice latticePlusBounds = lattice;
@@ -2046,10 +2030,10 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
                          const SkColor colors[], int count, SkBlendMode mode,
                          const SkRect* cull, const SkPaint* paint) {
     RETURN_ON_NULL(atlas);
-    RETURN_ON_UNPREMUL_IMAGE(atlas);
     if (count <= 0) {
         return;
     }
+    SkASSERT(atlas);
     SkASSERT(tex);
     this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
 }
