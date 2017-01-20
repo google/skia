@@ -21,9 +21,12 @@
 
 struct SkSplicer_constants {
     float    _1;           //  1.0f
+    float    _0_5;         //  0.5f
     float    _255;         //  255.0f
     float    _1_255;       //  1/255.0f
     uint32_t _0x000000ff;  //  0x000000ff
+
+    float    iota[8];      //  0,1,2,3,4,5,6,7
 
     // from_srgb
     float    _00025;       //  0.0025f
