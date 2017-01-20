@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_cbc5e190",
+        "filename": "src/effects/gradients/SkSweepGradient.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-20T16:18:29Z",
+      "side": 1,
+      "message": "Help us, Ethan, you\u0027re our only hope!",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 5
+      },
+      "revId": "617cec98e8e13c36a0ab1783097472b5d0c85366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
