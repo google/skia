@@ -184,7 +184,7 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
 static const Pair gPairs[] = {
     { kUnknown_SkColorType,     "000000"  },
     { kAlpha_8_SkColorType,     "010000"  },
-    { kIndex_8_SkColorType,     "011111"  },
+    { kIndex_8_SkColorType,     "010111"  },
     { kRGB_565_SkColorType,     "010101"  },
     { kARGB_4444_SkColorType,   "010111"  },
     { kN32_SkColorType,         "010111"  },
@@ -235,7 +235,8 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
                 if (!success) {
                     // Skip checking that success matches fValid, which is redundant
                     // with the code below.
-                    REPORTER_ASSERT(reporter, gPairs[i].fColorType != gPairs[j].fColorType);
+                    REPORTER_ASSERT(reporter, kIndex_8_SkColorType == gPairs[i].fColorType ||
+                                              gPairs[i].fColorType != gPairs[j].fColorType);
                     continue;
                 }
 
