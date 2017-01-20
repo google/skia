@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_abfb354e",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-20T14:58:58Z",
+      "side": 1,
+      "message": "Per NoGPU bot, just need to guard the first part of this",
+      "revId": "eca9cf91add5061017f1e7c11599c8c15c5e7746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_6b112dcd",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-20T14:58:58Z",
+      "side": 1,
+      "message": "onIsAlreadyABuffer, perhaps? (missing \u0027y\u0027)\n\n... or maybe something less wordy? onIsLazy or onIsDeferred (which invert the meaning)",
+      "revId": "eca9cf91add5061017f1e7c11599c8c15c5e7746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
