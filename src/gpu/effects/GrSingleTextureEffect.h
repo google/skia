@@ -50,12 +50,10 @@ protected:
      */
     void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
         GrPixelConfig config = this->textureSampler(0).texture()->config();
-        if (GrPixelConfigIsAlphaOnly(config)) {
-            inout->mulByUnknownSingleComponent();
-        } else if (GrPixelConfigIsOpaque(config)) {
-            inout->mulByUnknownOpaqueFourComponents();
+        if (GrPixelConfigIsOpaque(config)) {
+            inout->mulByOpaque();
         } else {
-            inout->mulByUnknownFourComponents();
+            inout->mulByUnknown();
         }
     }
 

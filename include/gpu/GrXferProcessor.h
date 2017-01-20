@@ -10,6 +10,7 @@
 
 #include "GrBlend.h"
 #include "GrColor.h"
+#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
@@ -325,9 +326,8 @@ public:
      * Known color information after blending, but before accounting for any coverage.
      */
     struct InvariantBlendedColor {
-        bool                     fWillBlendWithDst;
-        GrColor                  fKnownColor;
-        GrColorComponentFlags    fKnownColorFlags;
+        bool fWillBlendWithDst;
+        GrKnownColorComponents fKnownColorComponents;
     };
 
     /** 

@@ -136,9 +136,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->premulFourChannelColor();
-        }
+        void onComputeInvariantOutput(GrInvariantOutput* inout) const override { inout->premul(); }
     };
     if (!fp) {
         return nullptr;
@@ -180,7 +178,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
 
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
-            if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
+            if (!inout->knownColorComponents().hasKnownAlpha()) {
                 inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
                 return;
             }
@@ -188,13 +186,16 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             GrInvariantOutput childOutput(GrColor_WHITE, kRGBA_GrColorComponentFlags);
             this->childProcessor(0).computeInvariantOutput(&childOutput);
 
-            if (0 == GrColorUnpackA(inout->color()) || 0 == GrColorUnpackA(childOutput.color())) {
-                inout->mulByKnownFourComponents(0x0);
+            if (inout->knownColorComponents().hasZeroAlpha() ||
+                childOutput.knownColorComponents().hasZeroAlpha()) {
+                inout->mulByAlpha(0x0);
                 return;
             }
-            GrColorComponentFlags commonFlags = childOutput.validFlags() & inout->validFlags();
-            GrColor c0 = GrPremulColor(inout->color());
-            GrColor c1 = childOutput.color();
+            GrColorComponentFlags commonFlags =
+                    childOutput.knownColorComponents().knownComponentFlags() &
+                    inout->knownColorComponents().knownComponentFlags();
+            GrColor c0 = GrPremulColor(inout->knownColorComponents().color());
+            GrColor c1 = childOutput.knownColorComponents().color();
             GrColor color = 0x0;
             if (commonFlags & kR_GrColorComponentFlag) {
                 color |= SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1)) <<
@@ -208,7 +209,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1)) <<
                     GrColor_SHIFT_B;
             }
-            inout->setToOther(commonFlags, color, GrInvariantOutput::kWill_ReadInput);
+            inout->setToOther(GrKnownColorComponents(color, commonFlags),
+                              GrInvariantOutput::kWill_ReadInput);
         }
     };
     if (!fp) {
@@ -272,8 +274,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor(),
-                              GrInvariantOutput::kWillNot_ReadInput);
+            inout->setToColor(fColor.toGrColor(), GrInvariantOutput::kWillNot_ReadInput);
             this->childProcessor(0).computeInvariantOutput(inout);
         }
 
@@ -342,12 +343,13 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcOptInfo info(0x0, kNone_GrColorComponentFlags);
     info.analyzeProcessors(sk_sp_address_as_pointer_address(series), cnt);
-    if (kRGBA_GrColorComponentFlags == info.validFlags()) {
+    if (info.knownColorComponents().isKnownColor()) {
         // TODO: We need to preserve 4f and color spaces during invariant processing. This color
         // has definitely lost precision, and could easily be in the wrong gamut (or have been
         // built from colors in multiple spaces).
-        return GrConstColorProcessor::Make(GrColor4f::FromGrColor(info.color()),
-                                           GrConstColorProcessor::kIgnore_InputMode);
+        return GrConstColorProcessor::Make(
+                GrColor4f::FromGrColor(info.knownColorComponents().color()),
+                GrConstColorProcessor::kIgnore_InputMode);
     }
 
     SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;

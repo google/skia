@@ -37,8 +37,8 @@ protected:
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
+        input->pipelineColorInput()->setColor(fColor);
+        input->pipelineCoverageInput()->setSingleChannel(0xFF);
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

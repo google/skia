@@ -19,9 +19,9 @@ void GrProcOptInfo::analyzeProcessors(const GrFragmentProcessor* const* processo
             fFirstEffectiveProcessorIndex = i;
             fInputColorIsUsed = false;
         }
-        if (kRGBA_GrColorComponentFlags == fInOut.validFlags()) {
+        if (kRGBA_GrColorComponentFlags == fInOut.knownColorComponents().knownComponentFlags()) {
             fFirstEffectiveProcessorIndex = i + 1;
-            fInputColor = fInOut.color();
+            fInputColor = fInOut.knownColorComponents().color();
             fInputColorIsUsed = true;
             // Since we are clearing all previous color stages we are in a state where we have found
             // zero stages that don't multiply the inputColor.

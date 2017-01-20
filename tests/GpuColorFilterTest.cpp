@@ -105,9 +105,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
         GrInvariantOutput inout(test.inputColor,
                                 static_cast<GrColorComponentFlags>(test.inputComponents));
         fp->computeInvariantOutput(&inout);
-        REPORTER_ASSERT(reporter, filterColor(inout.color(), inout.validFlags()) ==
-                                  test.outputColor);
-        REPORTER_ASSERT(reporter, test.outputComponents == inout.validFlags());
+        REPORTER_ASSERT(reporter, filterColor(inout.knownColorComponents().color(),
+                                              inout.knownColorComponents().knownComponentFlags()) ==
+                                          test.outputColor);
+        REPORTER_ASSERT(reporter, test.outputComponents ==
+                                          inout.knownColorComponents().knownComponentFlags());
     }
 }
 
