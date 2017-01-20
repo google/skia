@@ -39,10 +39,6 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
     return nullptr;
 }
 
-struct Skipper {
-    char* operator()(char* objEnd, uint32_t size) { return objEnd - size; }
-};
-
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
     : fDtorCursor {block}
     , fCursor     {block}
