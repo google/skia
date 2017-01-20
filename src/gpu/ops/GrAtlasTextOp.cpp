@@ -47,22 +47,22 @@ SkString GrAtlasTextOp::dumpInfo() const {
 
 void GrAtlasTextOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
     if (kColorBitmapMask_MaskType == fMaskType) {
-        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineColorInput()->setUnknown();
     } else {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
+        input->pipelineColorInput()->setColor(fColor);
     }
     switch (fMaskType) {
         case kGrayscaleDistanceField_MaskType:
         case kGrayscaleCoverageMask_MaskType:
-            input->pipelineCoverageInput()->setUnknownSingleComponent();
+            input->pipelineCoverageInput()->setUnknown();
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
-            input->pipelineCoverageInput()->setUnknownOpaqueFourComponents();
+            input->pipelineCoverageInput()->setOpaque();
             input->pipelineCoverageInput()->setUsingLCDCoverage();
             break;
         case kColorBitmapMask_MaskType:
-            input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+            input->pipelineCoverageInput()->setSingleChannel(0xff);
     }
 }
 

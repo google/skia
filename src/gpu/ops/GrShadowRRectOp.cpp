@@ -150,8 +150,8 @@ private:
     ShadowCircleOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fCircles[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fCircles[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -584,8 +584,8 @@ public:
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

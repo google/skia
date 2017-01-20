@@ -46,6 +46,7 @@ public:
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
     bool isSolidWhite() const { return fInOut.isSolidWhite(); }
+    bool isConstant() const { return kRGBA_GrColorComponentFlags == fInOut.validFlags(); }
     bool isOpaque() const { return fInOut.isOpaque(); }
     bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
     bool isLCDCoverage() const { return fIsLCDCoverage; }

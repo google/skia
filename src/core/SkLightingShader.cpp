@@ -246,7 +246,7 @@ public:
     const char* name() const override { return "LightingFP"; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 
     const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }

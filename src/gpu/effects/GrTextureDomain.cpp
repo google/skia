@@ -277,9 +277,9 @@ bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) {
         if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).texture()->config())) {
-            inout->mulByUnknownSingleComponent();
+            inout->mulByUnknown();
         } else {
-            inout->mulByUnknownFourComponents();
+            inout->mulByUnknown();
         }
     } else {
         this->updateInvariantOutputForModulation(inout);
@@ -394,9 +394,9 @@ bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProce
 void GrDeviceSpaceTextureDecalFragmentProcessor::onComputeInvariantOutput(
         GrInvariantOutput* inout) const {
     if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).texture()->config())) {
-        inout->mulByUnknownSingleComponent();
+        inout->mulByUnknown();
     } else {
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 }
 

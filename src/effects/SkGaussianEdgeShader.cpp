@@ -113,7 +113,7 @@ public:
     const char* name() const override { return "GaussianEdgeFP"; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
+        inout->mulByUnknown();
     }
 
 private:

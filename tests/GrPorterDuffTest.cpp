@@ -1071,8 +1071,8 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 
     private:
         void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-            input->pipelineColorInput()->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
-            input->pipelineCoverageInput()->setUnknownFourComponents();
+            input->pipelineColorInput()->setColor(GrColorPackRGBA(123, 45, 67, 221));
+            input->pipelineCoverageInput()->setUnknown();
             input->pipelineCoverageInput()->setUsingLCDCoverage();
         }
 
