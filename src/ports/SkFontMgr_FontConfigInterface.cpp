@@ -154,7 +154,6 @@ static bool find_by_FontIdentity(SkTypeface* cachedTypeface, void* ctx) {
 
 class SkFontMgr_FCI : public SkFontMgr {
     sk_sp<SkFontConfigInterface> fFCI;
-    sk_sp<SkDataTable> fFamilyNames;
     SkTypeface_FreeType::Scanner fScanner;
 
     mutable SkMutex fMutex;
@@ -168,21 +167,21 @@ class SkFontMgr_FCI : public SkFontMgr {
 public:
     SkFontMgr_FCI(sk_sp<SkFontConfigInterface> fci)
         : fFCI(std::move(fci))
-        , fFamilyNames(fFCI->getFamilyNames())
         , fCache(kMaxSize)
     {}
 
 protected:
     int onCountFamilies() const override {
-        return fFamilyNames->count();
+        return 0;
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        familyName->set(fFamilyNames->atStr(index));
+        SkFAIL("Not implemented.");
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        return this->onMatchFamily(fFamilyNames->atStr(index));
+        SkFAIL("Not implemented.");
+        return nullptr;
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {

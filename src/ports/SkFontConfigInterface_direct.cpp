@@ -9,7 +9,6 @@
 
 #include "SkAutoMalloc.h"
 #include "SkBuffer.h"
-#include "SkDataTable.h"
 #include "SkFixed.h"
 #include "SkFontConfigInterface_direct.h"
 #include "SkFontStyle.h"
@@ -684,52 +683,4 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
 SkStreamAsset* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
     return SkStream::MakeFromFile(identity.fString.c_str()).release();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static bool find_name(const SkTDArray<const char*>& list, const char* str) {
-    int count = list.count();
-    for (int i = 0; i < count; ++i) {
-        if (!strcmp(list[i], str)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-sk_sp<SkDataTable> SkFontConfigInterfaceDirect::getFamilyNames() {
-    FCLocker lock;
-
-    FcPattern* pat = FcPatternCreate();
-    SkAutoTCallVProc<FcPattern, FcPatternDestroy> autoDestroyPat(pat);
-    if (nullptr == pat) {
-        return nullptr;
-    }
-
-    FcObjectSet* os = FcObjectSetBuild(FC_FAMILY, (char *)0);
-    SkAutoTCallVProc<FcObjectSet, FcObjectSetDestroy> autoDestroyOs(os);
-    if (nullptr == os) {
-        return nullptr;
-    }
-
-    FcFontSet* fs = FcFontList(nullptr, pat, os);
-    SkAutoTCallVProc<FcFontSet, FcFontSetDestroy> autoDestroyFs(fs);
-    if (nullptr == fs) {
-        return nullptr;
-    }
-
-    SkTDArray<const char*> names;
-    SkTDArray<size_t> sizes;
-    for (int i = 0; i < fs->nfont; ++i) {
-        FcPattern* match = fs->fonts[i];
-        const char* famName = get_string(match, FC_FAMILY);
-        if (famName && !find_name(names, famName)) {
-            *names.append() = famName;
-            *sizes.append() = strlen(famName) + 1;
-        }
-    }
-
-    return SkDataTable::MakeCopyArrays((const void*const*)names.begin(),
-                                       sizes.begin(), names.count());
 }
