@@ -158,7 +158,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(Flush);
     GET_PROC(FrontFace);
     GET_PROC(GenBuffers);
-    GET_PROC(GenerateMipmap);
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
     GET_PROC(GetIntegerv);
@@ -288,6 +287,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
     // GL_ARB_framebuffer_object doesn't use ARB suffix.)
     if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
+        GET_PROC(GenerateMipmap);
         GET_PROC(GenFramebuffers);
         GET_PROC(GetFramebufferAttachmentParameteriv);
         GET_PROC(GetRenderbufferParameteriv);
@@ -303,6 +303,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(RenderbufferStorageMultisample);
         GET_PROC(BlitFramebuffer);
     } else if (extensions.has("GL_EXT_framebuffer_object")) {
+        GET_PROC_SUFFIX(GenerateMipmap, EXT);
         GET_PROC_SUFFIX(GenFramebuffers, EXT);
         GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
         GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
