@@ -871,21 +871,28 @@ SI SkNf assert_in_tile(const SkNf& v, float limit) {
     return v;
 }
 
+SI SkNf ulp_before(float v) {
+    SkASSERT(v > 0);
+    SkNf vs(v);
+    SkNu uvs = SkNu::Load(&vs) - 1;
+    return SkNf::Load(&uvs);
+}
+
 SI SkNf clamp(const SkNf& v, float limit) {
-    SkNf result = SkNf::Max(0, SkNf::Min(v, nextafterf(limit, 0)));
+    SkNf result = SkNf::Max(0, SkNf::Min(v, ulp_before(limit)));
     return assert_in_tile(result, limit);
 }
 SI SkNf repeat(const SkNf& v, float limit) {
     SkNf result = v - (v/limit).floor()*limit;
     // For small negative v, (v/limit).floor()*limit can dominate v in the subtraction,
     // which leaves result == limit.  We want result < limit, so clamp it one ULP.
-    result = SkNf::Min(result, nextafterf(limit, 0));
+    result = SkNf::Min(result, ulp_before(limit));
     return assert_in_tile(result, limit);
 }
 SI SkNf mirror(const SkNf& v, float l/*imit*/) {
     SkNf result = ((v - l) - ((v - l) / (2*l)).floor()*(2*l) - l).abs();
     // Same deal as repeat.
-    result = SkNf::Min(result, nextafterf(l, 0));
+    result = SkNf::Min(result, ulp_before(l));
     return assert_in_tile(result, l);
 }
 STAGE_CTX( clamp_x, const float*) { r = clamp (r, *ctx); }
