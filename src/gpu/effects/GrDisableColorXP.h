@@ -32,14 +32,12 @@ public:
 private:
     constexpr GrDisableColorXPFactory() {}
 
+    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override { return false; }
+
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture* dstTexture) const override;
-
-    bool onWillReadDstColor(const GrCaps&, const GrPipelineAnalysis&) const override {
-        return false;
-    }
 
     GR_DECLARE_XP_FACTORY_TEST;
 

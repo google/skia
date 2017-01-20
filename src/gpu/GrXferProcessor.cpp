@@ -180,6 +180,40 @@ SkString GrXferProcessor::BlendInfo::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using ColorType = GrXPFactory::ColorType;
+using CoverageType = GrXPFactory::CoverageType;
+
+ColorType analysis_color_type(const GrPipelineAnalysis& analysis) {
+    if (analysis.fColorPOI.validFlags() == kRGBA_GrColorComponentFlags) {
+        return GrColorIsOpaque(analysis.fColorPOI.color()) ? ColorType::kOpaqueConstant
+                                                           : ColorType::kConstant;
+    }
+    if ((analysis.fColorPOI.validFlags() & kA_GrColorComponentFlag) &&
+        GrColorIsOpaque(analysis.fColorPOI.color())) {
+        return ColorType::kOpaque;
+    }
+    return ColorType::kUnknown;
+}
+
+CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
+    if (analysis.fCoveragePOI.isSolidWhite()) {
+        return CoverageType::kNone;
+    }
+    if (analysis.fCoveragePOI.isLCDCoverage()) {
+        return CoverageType::kLCD;
+    }
+    return CoverageType::kSingleChannel;
+}
+
+bool GrXPFactory::willReadDstColor(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
+    if (analysis.fUsesPLSDstRead) {
+        return true;
+    }
+    ColorType colorType = analysis_color_type(analysis);
+    CoverageType coverageType = analysis_coverage_type(analysis);
+    return this->willReadDstColor(caps, colorType, coverageType);
+}
+
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& analysis,
                                                   bool hasMixedSamples,
                                                   const DstTexture* dstTexture,
@@ -200,9 +234,6 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
 }
 
 bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return (this->willReadDstColor(caps, analysis) && !caps.shaderCaps()->dstReadInShaderSupport());
-}
-
-bool GrXPFactory::willReadDstColor(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
-    return analysis.fUsesPLSDstRead || this->onWillReadDstColor(caps, analysis);
+    return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
+           this->willReadDstColor(caps, analysis);
 }
