@@ -148,10 +148,6 @@ SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPa
     return SkBitmapDevice::Create(cinfo.fInfo, surfaceProps, cinfo.fAllocator);
 }
 
-const SkBitmap& SkBitmapDevice::onAccessBitmap() {
-    return fBitmap;
-}
-
 bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
     if (this->onPeekPixels(pmap)) {
         fBitmap.notifyPixelsChanged();
