@@ -11,6 +11,7 @@
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerParams.h"
+#include "GrSurfaceProxy.h"
 #include "GrTexturePriv.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
@@ -205,6 +206,18 @@ GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
                                             SkShader::TileMode tileXAndY,
                                             GrShaderFlags visibility) {
     this->reset(texture, filterMode, tileXAndY, visibility);
+}
+
+GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider, GrSurfaceProxy* proxy,
+                                            GrSamplerParams::FilterMode filterMode,
+                                            SkShader::TileMode tileXAndY,
+                                            GrShaderFlags visibility) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    GrSurface* surf = proxy->instantiate(texProvider);
+    if (surf && surf->asTexture()) {
+        this->reset(surf->asTexture(), filterMode, tileXAndY, visibility);
+    }
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,

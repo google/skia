@@ -14,6 +14,8 @@
 #include "GrTypes.h"
 #include "GrShaderVar.h"
 
+class GrSurfaceProxy;
+
 /**
  * A class representing a linear transformation of local coordinates. GrFragnentProcessors
  * these transformations, and the GrGeometryProcessor implements the transformation.
@@ -37,15 +39,28 @@ public:
         this->reset(SkMatrix::I(), texture, filter);
     }
 
+    GrCoordTransform(const GrSurfaceProxy* proxy, GrSamplerParams::FilterMode filter) {
+        SkASSERT(proxy);
+        SkDEBUGCODE(fInProcessor = false);
+        this->reset(SkMatrix::I(), proxy, filter);
+    }
+
     /**
      * Create a transformation from a matrix. The precision is inferred from the texture size and
      * filter. The texture origin also implies whether a y-reversal should be performed.
      */
     GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
                      GrSamplerParams::FilterMode filter) {
-        SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
+        SkDEBUGCODE(fInProcessor = false);
         this->reset(m, texture, filter);
+    }
+
+    GrCoordTransform(const SkMatrix& m, const GrSurfaceProxy* proxy,
+                     GrSamplerParams::FilterMode filter) {
+        SkASSERT(proxy);
+        SkDEBUGCODE(fInProcessor = false);
+        this->reset(m, proxy, filter);
     }
 
     /**
@@ -56,7 +71,11 @@ public:
         this->reset(m, precision);
     }
 
+    // MDB TODO: rm the GrTexture* flavor of reset
     void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
+               bool normalize = true);
+
+    void reset(const SkMatrix&, const GrSurfaceProxy*, GrSamplerParams::FilterMode filter,
                bool normalize = true);
 
     void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
