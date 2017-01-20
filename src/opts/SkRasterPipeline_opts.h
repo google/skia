@@ -872,7 +872,7 @@ SI SkNf assert_in_tile(const SkNf& v, float limit) {
 }
 
 SI SkNf clamp(const SkNf& v, float limit) {
-    SkNf result = SkNf::Max(0, SkNf::Min(v, limit - 0.5f));
+    SkNf result = SkNf::Max(0, SkNf::Min(v, nextafterf(limit, 0)));
     return assert_in_tile(result, limit);
 }
 SI SkNf repeat(const SkNf& v, float limit) {
