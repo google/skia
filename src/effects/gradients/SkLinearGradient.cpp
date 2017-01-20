@@ -12,6 +12,9 @@
 // define to test the 4f gradient path
 // #define FORCE_4F_CONTEXT
 
+// define to test the raster-pipeline gradient impl
+// #define PREFER_RASTER_PIPELINE
+
 static const float kInv255Float = 1.0f / 255;
 
 static inline int repeat_8bits(int x) {
@@ -97,6 +100,12 @@ SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void
 //
 bool SkLinearGradient::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
                                       const SkMatrix& ctm, const SkPaint& paint) const {
+#ifndef PREFER_RASTER_PIPELINE
+    if (!(fGradFlags & kPreferRasterPipeline_PrivateFlag)) {
+        return false;
+    }
+#endif
+
     if (fColorCount > 2) {
         return false;
     }
