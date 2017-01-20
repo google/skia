@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_5664d4fa",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-20T18:54:02Z",
+      "side": 1,
+      "message": "I really hate that this is here.  Part of the point of this CL is to only do this check once...\n\nWritePixelsTest enforces that we only increment the genID when the rects actually overlap.  I can do one of the following...\n(1) Leave this here to pass WritePixelsTest\n(2) Change WritePixelsTest to not worry about extra genId churn.\n(3) Call SkWritePixelsRec::trim() here.  The drawback being that it will be called again when we hit SkBitmap::writePixels().",
+      "range": {
+        "startLine": 933,
+        "startChar": 0,
+        "endLine": 936,
+        "endChar": 5
+      },
+      "revId": "460be5f0900f4cad61330f030bd7bb0062f30004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_7673d0c2",
+        "filename": "src/core/SkImageInfo.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-20T18:54:02Z",
+      "side": 1,
+      "message": "This is identical to SkReadPixelsRec (above) except for the constness of fPixels.  I could probably do some const hackery to make there be only one copy of this code.  Here I\u0027ve decided to just put them next to each other.",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 58
+      },
+      "revId": "460be5f0900f4cad61330f030bd7bb0062f30004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
