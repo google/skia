@@ -56,15 +56,6 @@ private:
 class SK_API SkRemotableFontMgr : public SkRefCnt {
 public:
     /**
-     *  Returns the names of the known fonts on the system.
-     *  Will not return NULL, will return an empty table if no families exist.
-     *
-     *  The indexes may be used with getIndex(int) and
-     *  matchIndexStyle(int, SkFontStyle).
-     */
-    virtual sk_sp<SkDataTable> getFamilyNames() const = 0;
-
-    /**
      *  Returns all of the fonts with the given familyIndex.
      *  Returns NULL if the index is out of bounds.
      *  Returns empty if there are no fonts at the given index.

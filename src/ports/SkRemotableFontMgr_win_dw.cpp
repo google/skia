@@ -9,7 +9,6 @@
 
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
-#include "SkDataTable.h"
 #include "SkHRESULT.h"
 #include "SkMutex.h"
 #include "SkRemotableFontMgr.h"
@@ -88,26 +87,6 @@ public:
         , fLocaleName(localeNameLength)
     {
         memcpy(fLocaleName.get(), localeName, localeNameLength * sizeof(WCHAR));
-    }
-
-    sk_sp<SkDataTable> getFamilyNames() const override {
-        int count = fFontCollection->GetFontFamilyCount();
-
-        SkDataTableBuilder names(1024);
-        for (int index = 0; index < count; ++index) {
-            SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-            HRNM(fFontCollection->GetFontFamily(index, &fontFamily),
-                 "Could not get requested family.");
-
-            SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-            HRNM(fontFamily->GetFamilyNames(&familyNames), "Could not get family names.");
-
-            SkString familyName;
-            sk_get_locale_string(familyNames.get(), fLocaleName.get(), &familyName);
-
-            names.appendString(familyName);
-        }
-        return names.detachDataTable();
     }
 
     HRESULT FontToIdentity(IDWriteFont* font, SkFontIdentity* fontId) const {

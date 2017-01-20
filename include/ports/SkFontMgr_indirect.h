@@ -11,7 +11,6 @@
 #include "../private/SkMutex.h"
 #include "../private/SkOnce.h"
 #include "../private/SkTArray.h"
-#include "SkDataTable.h"
 #include "SkFontMgr.h"
 #include "SkRefCnt.h"
 #include "SkRemotableFontMgr.h"
@@ -94,10 +93,6 @@ private:
      */
     mutable SkTArray<DataEntry> fDataCache;
     mutable SkMutex fDataCacheMutex;
-
-    mutable sk_sp<SkDataTable> fFamilyNames;
-    mutable SkOnce fFamilyNamesInitOnce;
-    static void set_up_family_names(const SkFontMgr_Indirect* self);
 
     friend class SkStyleSet_Indirect;
 };
