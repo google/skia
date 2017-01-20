@@ -17,6 +17,7 @@
 #include "GrSWMaskHelper.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxy.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
@@ -195,6 +196,16 @@ private:
             return;
         }
 
+        GrTextureProxy* proxy = fAtlas->getProxy();
+        if (!proxy) {
+            return;
+        }
+
+        GrTexture* texture = proxy->instantiate(nullptr);
+        if (!texture) {
+            return;
+        }
+
         const SkMatrix& ctm = this->viewMatrix();
         uint32_t flags = 0;
         flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
@@ -209,7 +220,7 @@ private:
         GrDrawOpAtlas* atlas = fAtlas;
         flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
                                                                         this->viewMatrix(),
-                                                                        atlas->getTexture(),
+                                                                        texture,
                                                                         params,
                                                                         flags,
                                                                         this->usesLocalCoords());
@@ -460,12 +471,9 @@ private:
         // vertex texture coords
         // TODO make these int16_t
         SkPoint* textureCoords = (SkPoint*)(offset + sizeof(SkPoint) + sizeof(GrColor));
-        GrTexture* texture = atlas->getTexture();
-        textureCoords->setRectFan(texLeft / texture->width(),
-                                  texTop / texture->height(),
-                                  texRight / texture->width(),
-                                  texBottom / texture->height(),
-                                  vertexStride);
+
+//        GrTexture* texture = atlas->getTexture();
+        textureCoords->setRectFan(texLeft, texTop, texRight, texBottom, vertexStride);
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
@@ -528,7 +536,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
+        fAtlas = args.fResourceProvider->makeAtlas1(kAlpha_8_GrPixelConfig,
                                                    ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                    NUM_PLOTS_X, NUM_PLOTS_Y,
                                                    &GrAADistanceFieldPathRenderer::HandleEviction,
@@ -602,7 +610,7 @@ DRAW_OP_TEST_DEFINE(AADistanceFieldPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->makeAtlas(kAlpha_8_GrPixelConfig,
+                context->resourceProvider()->makeAtlas1(kAlpha_8_GrPixelConfig,
                                                        ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                        NUM_PLOTS_X, NUM_PLOTS_Y,
                                                        &PathTestStruct::HandleEviction,

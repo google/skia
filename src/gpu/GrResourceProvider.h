@@ -146,7 +146,7 @@ public:
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    std::unique_ptr<GrDrawOpAtlas> makeAtlas(GrPixelConfig, int width, int height, int numPlotsX,
+    std::unique_ptr<GrDrawOpAtlas> makeAtlas1(GrPixelConfig, int width, int height, int numPlotsX,
                                              int numPlotsY, GrDrawOpAtlas::EvictionFunc func,
                                              void* data);
 

@@ -17,6 +17,7 @@
 #include "SkSurface.h"
 #include "Test.h"
 
+#if 0
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
     auto isMipped = [] (SkSurface* surf) {
@@ -55,5 +56,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
     REPORTER_ASSERT(reporter, isMipped(surf1.get()));
     REPORTER_ASSERT(reporter, mipsAreDirty(surf1.get()));
 }
+#endif
 
 #endif

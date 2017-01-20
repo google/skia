@@ -9,6 +9,7 @@
 
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
+#include "GrTextureProxy.h"
 
 #include "SkGlyphCache.h"
 #include "SkMathPriv.h"
@@ -82,9 +83,14 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
         return;
     }
 
-    GrTexture* texture = fFontCache->getTexture(this->maskFormat());
-    if (!texture) {
+    GrTextureProxy* proxy = fFontCache->getProxy(this->maskFormat());
+    if (!proxy) {
         SkDebugf("Could not allocate backing texture for atlas\n");
+        return;
+    }
+
+    GrTexture* texture = proxy->instantiate(nullptr);
+    if (!texture) {
         return;
     }
 
