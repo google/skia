@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_4b4a7193",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-20T15:37:23Z",
+      "side": 1,
+      "message": "enum class, then remove _Gamut from the values?",
+      "revId": "c0180cec050521ab88a565af074c117fda24072c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
