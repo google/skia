@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_abcdf53e",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-20T15:47:20Z",
+      "side": 1,
+      "message": "These names could be confusing here. What type do you pick for a solid single channel color? Maybe it should be kSolid, kUnknown_SingleChannel, kUnknown_LCD?",
+      "range": {
+        "startLine": 318,
+        "startChar": 30,
+        "endLine": 318,
+        "endChar": 52
+      },
+      "revId": "1e20cce31f5d121d1b4589da55bc963549eb7c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
