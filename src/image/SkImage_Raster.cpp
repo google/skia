@@ -82,6 +82,7 @@ public:
     SkAlphaType onAlphaType() const override {
         return fBitmap.alphaType();
     }
+    bool onIsAlreadABuffer() const override { return true; }
 
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
