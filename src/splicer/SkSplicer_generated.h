@@ -29,8 +29,7 @@ static const unsigned int kSplice_plus_[] = {
     0x4e27d463,                                 //  fadd          v3.4s, v3.4s, v7.4s
 };
 static const unsigned int kSplice_srcover[] = {
-    0x91001068,                                 //  add           x8, x3, #0x4
-    0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
+    0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea3d610,                                 //  fsub          v16.4s, v16.4s, v3.4s
     0x4e24ce00,                                 //  fmla          v0.4s, v16.4s, v4.4s
     0x4e25ce01,                                 //  fmla          v1.4s, v16.4s, v5.4s
@@ -38,8 +37,7 @@ static const unsigned int kSplice_srcover[] = {
     0x4e27ce03,                                 //  fmla          v3.4s, v16.4s, v7.4s
 };
 static const unsigned int kSplice_dstover[] = {
-    0x91001068,                                 //  add           x8, x3, #0x4
-    0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
+    0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea7d610,                                 //  fsub          v16.4s, v16.4s, v7.4s
     0x4e20ce04,                                 //  fmla          v4.4s, v16.4s, v0.4s
     0x4e21ce05,                                 //  fmla          v5.4s, v16.4s, v1.4s
@@ -54,16 +52,14 @@ static const unsigned int kSplice_clamp_0[] = {
     0x4e30f463,                                 //  fmax          v3.4s, v3.4s, v16.4s
 };
 static const unsigned int kSplice_clamp_1[] = {
-    0x91001068,                                 //  add           x8, x3, #0x4
-    0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
+    0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4eb0f400,                                 //  fmin          v0.4s, v0.4s, v16.4s
     0x4eb0f421,                                 //  fmin          v1.4s, v1.4s, v16.4s
     0x4eb0f442,                                 //  fmin          v2.4s, v2.4s, v16.4s
     0x4eb0f463,                                 //  fmin          v3.4s, v3.4s, v16.4s
 };
 static const unsigned int kSplice_clamp_a[] = {
-    0x91001068,                                 //  add           x8, x3, #0x4
-    0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
+    0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4eb0f463,                                 //  fmin          v3.4s, v3.4s, v16.4s
     0x4ea3f400,                                 //  fmin          v0.4s, v0.4s, v3.4s
     0x4ea3f421,                                 //  fmin          v1.4s, v1.4s, v3.4s
@@ -101,8 +97,7 @@ static const unsigned int kSplice_premul[] = {
     0x6e23dc42,                                 //  fmul          v2.4s, v2.4s, v3.4s
 };
 static const unsigned int kSplice_unpremul[] = {
-    0x91001068,                                 //  add           x8, x3, #0x4
-    0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
+    0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea0d871,                                 //  fcmeq         v17.4s, v3.4s, #0.0
     0x6e23fe10,                                 //  fdiv          v16.4s, v16.4s, v3.4s
     0x4e711e10,                                 //  bic           v16.16b, v16.16b, v17.16b
@@ -188,9 +183,8 @@ static const unsigned int kSplice_to_srgb[] = {
     0x6e3bdf78,                                 //  fmul          v24.4s, v27.4s, v27.4s
     0x4eb8feb5,                                 //  frsqrts       v21.4s, v21.4s, v24.4s
     0x6e3cdf98,                                 //  fmul          v24.4s, v28.4s, v28.4s
-    0x91001068,                                 //  add           x8, x3, #0x4
     0x4eb8fed6,                                 //  frsqrts       v22.4s, v22.4s, v24.4s
-    0x4d40c918,                                 //  ld1r          {v24.4s}, [x8]
+    0x4d40c878,                                 //  ld1r          {v24.4s}, [x3]
     0x6e30df30,                                 //  fmul          v16.4s, v25.4s, v16.4s
     0x6e35df75,                                 //  fmul          v21.4s, v27.4s, v21.4s
     0x6e36df96,                                 //  fmul          v22.4s, v28.4s, v22.4s
@@ -206,7 +200,7 @@ static const unsigned int kSplice_to_srgb[] = {
 };
 static const unsigned int kSplice_scale_u8[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
-    0xbd400c71,                                 //  ldr           s17, [x3,#12]
+    0xbd400871,                                 //  ldr           s17, [x3,#8]
     0x8b000108,                                 //  add           x8, x8, x0
     0x39400109,                                 //  ldrb          w9, [x8]
     0x3940050a,                                 //  ldrb          w10, [x8,#1]
@@ -226,10 +220,11 @@ static const unsigned int kSplice_scale_u8[] = {
     0x6e23de03,                                 //  fmul          v3.4s, v16.4s, v3.4s
 };
 static const unsigned int kSplice_load_tables[] = {
-    0xa9402848,                                 //  ldp           x8, x10, [x2]
-    0xd37ef409,                                 //  lsl           x9, x0, #2
-    0x4d40c860,                                 //  ld1r          {v0.4s}, [x3]
-    0x3ce96903,                                 //  ldr           q3, [x8,x9]
+    0xa9402849,                                 //  ldp           x9, x10, [x2]
+    0xd37ef408,                                 //  lsl           x8, x0, #2
+    0x9100306b,                                 //  add           x11, x3, #0xc
+    0x4d40c960,                                 //  ld1r          {v0.4s}, [x11]
+    0x3ce86923,                                 //  ldr           q3, [x9,x8]
     0xa9412448,                                 //  ldp           x8, x9, [x2,#16]
     0x4e231c01,                                 //  and           v1.16b, v0.16b, v3.16b
     0x1e26002e,                                 //  fmov          w14, s1
@@ -270,7 +265,7 @@ static const unsigned int kSplice_load_tables[] = {
     0x6e1c0620,                                 //  mov           v0.s[3], v17.s[0]
     0xbc6b5931,                                 //  ldr           s17, [x9,w11,uxtw #2]
     0x6e1c0601,                                 //  mov           v1.s[3], v16.s[0]
-    0xbd400c70,                                 //  ldr           s16, [x3,#12]
+    0xbd400870,                                 //  ldr           s16, [x3,#8]
     0x6f280463,                                 //  ushr          v3.4s, v3.4s, #24
     0x6e140662,                                 //  mov           v2.s[2], v19.s[0]
     0x4e21d863,                                 //  scvtf         v3.4s, v3.4s
@@ -279,10 +274,11 @@ static const unsigned int kSplice_load_tables[] = {
 };
 static const unsigned int kSplice_load_8888[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
+    0x91003069,                                 //  add           x9, x3, #0xc
+    0x4d40c920,                                 //  ld1r          {v0.4s}, [x9]
     0xd37ef409,                                 //  lsl           x9, x0, #2
-    0x4d40c860,                                 //  ld1r          {v0.4s}, [x3]
-    0xbd400c63,                                 //  ldr           s3, [x3,#12]
     0x3ce96901,                                 //  ldr           q1, [x8,x9]
+    0xbd400863,                                 //  ldr           s3, [x3,#8]
     0x4e211c02,                                 //  and           v2.16b, v0.16b, v1.16b
     0x6f380430,                                 //  ushr          v16.4s, v1.4s, #8
     0x6f300431,                                 //  ushr          v17.4s, v1.4s, #16
@@ -299,7 +295,7 @@ static const unsigned int kSplice_load_8888[] = {
     0x4f839243,                                 //  fmul          v3.4s, v18.4s, v3.s[0]
 };
 static const unsigned int kSplice_store_8888[] = {
-    0xbd400870,                                 //  ldr           s16, [x3,#8]
+    0xbd400470,                                 //  ldr           s16, [x3,#4]
     0xf9400048,                                 //  ldr           x8, [x2]
     0xd37ef409,                                 //  lsl           x9, x0, #2
     0x4f909032,                                 //  fmul          v18.4s, v1.4s, v16.s[0]
@@ -382,8 +378,7 @@ static const unsigned int kSplice_plus_[] = {
     0xf2033d07,                                 //  vadd.f32      d3, d3, d7
 };
 static const unsigned int kSplice_srcover[] = {
-    0xe283c004,                                 //  add           ip, r3, #4
-    0xf4ec0c9f,                                 //  vld1.32       {d16[]}, [ip :32]
+    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2600d83,                                 //  vsub.f32      d16, d16, d3
     0xf2040c30,                                 //  vfma.f32      d0, d4, d16
     0xf2051c30,                                 //  vfma.f32      d1, d5, d16
@@ -391,8 +386,7 @@ static const unsigned int kSplice_srcover[] = {
     0xf2073c30,                                 //  vfma.f32      d3, d7, d16
 };
 static const unsigned int kSplice_dstover[] = {
-    0xe283c004,                                 //  add           ip, r3, #4
-    0xf4ec0c9f,                                 //  vld1.32       {d16[]}, [ip :32]
+    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2600d87,                                 //  vsub.f32      d16, d16, d7
     0xf2004c30,                                 //  vfma.f32      d4, d0, d16
     0xf2015c30,                                 //  vfma.f32      d5, d1, d16
@@ -407,16 +401,14 @@ static const unsigned int kSplice_clamp_0[] = {
     0xf2033f20,                                 //  vmax.f32      d3, d3, d16
 };
 static const unsigned int kSplice_clamp_1[] = {
-    0xe283c004,                                 //  add           ip, r3, #4
-    0xf4ec0c9f,                                 //  vld1.32       {d16[]}, [ip :32]
+    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2200f20,                                 //  vmin.f32      d0, d0, d16
     0xf2211f20,                                 //  vmin.f32      d1, d1, d16
     0xf2222f20,                                 //  vmin.f32      d2, d2, d16
     0xf2233f20,                                 //  vmin.f32      d3, d3, d16
 };
 static const unsigned int kSplice_clamp_a[] = {
-    0xe283c004,                                 //  add           ip, r3, #4
-    0xf4ec0c9f,                                 //  vld1.32       {d16[]}, [ip :32]
+    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2233f20,                                 //  vmin.f32      d3, d3, d16
     0xf2200f03,                                 //  vmin.f32      d0, d0, d3
     0xf2211f03,                                 //  vmin.f32      d1, d1, d3
@@ -455,7 +447,7 @@ static const unsigned int kSplice_premul[] = {
 };
 static const unsigned int kSplice_unpremul[] = {
     0xed2d8b04,                                 //  vpush         {d8-d9}
-    0xed938a01,                                 //  vldr          s16, [r3, #4]
+    0xed938a00,                                 //  vldr          s16, [r3]
     0xf2c00010,                                 //  vmov.i32      d16, #0
     0xf3f91503,                                 //  vceq.f32      d17, d3, #0
     0xeec89a23,                                 //  vdiv.f32      s19, s16, s7
@@ -505,33 +497,33 @@ static const unsigned int kSplice_to_srgb[] = {
     0xed2d8b02,                                 //  vpush         {d8}
     0xf3fb0580,                                 //  vrsqrte.f32   d16, d0
     0xe283c02c,                                 //  add           ip, r3, #44
-    0xf3fb1582,                                 //  vrsqrte.f32   d17, d2
+    0xf3fb1581,                                 //  vrsqrte.f32   d17, d1
     0xed938a09,                                 //  vldr          s16, [r3, #36]
-    0xf3fb2581,                                 //  vrsqrte.f32   d18, d1
+    0xf3fb2582,                                 //  vrsqrte.f32   d18, d2
     0xf3403db0,                                 //  vmul.f32      d19, d16, d16
     0xf3414db1,                                 //  vmul.f32      d20, d17, d17
     0xf3425db2,                                 //  vmul.f32      d21, d18, d18
     0xf2603f33,                                 //  vrsqrts.f32   d19, d0, d19
-    0xf2624f34,                                 //  vrsqrts.f32   d20, d2, d20
-    0xf2615f35,                                 //  vrsqrts.f32   d21, d1, d21
+    0xf2614f34,                                 //  vrsqrts.f32   d20, d1, d20
+    0xf2625f35,                                 //  vrsqrts.f32   d21, d2, d21
     0xf3400db3,                                 //  vmul.f32      d16, d16, d19
     0xf3411db4,                                 //  vmul.f32      d17, d17, d20
     0xf3422db5,                                 //  vmul.f32      d18, d18, d21
     0xf3fb3520,                                 //  vrecpe.f32    d19, d16
     0xf3fb4521,                                 //  vrecpe.f32    d20, d17
     0xf3fb6522,                                 //  vrecpe.f32    d22, d18
-    0xf3fb55a1,                                 //  vrsqrte.f32   d21, d17
+    0xf3fb55a2,                                 //  vrsqrte.f32   d21, d18
     0xf3fb75a0,                                 //  vrsqrte.f32   d23, d16
-    0xf3fb85a2,                                 //  vrsqrte.f32   d24, d18
+    0xf3fb85a1,                                 //  vrsqrte.f32   d24, d17
     0xf2409fb3,                                 //  vrecps.f32    d25, d16, d19
     0xf241afb4,                                 //  vrecps.f32    d26, d17, d20
     0xf242bfb6,                                 //  vrecps.f32    d27, d18, d22
     0xf345cdb5,                                 //  vmul.f32      d28, d21, d21
     0xf347ddb7,                                 //  vmul.f32      d29, d23, d23
     0xf348edb8,                                 //  vmul.f32      d30, d24, d24
-    0xf2611fbc,                                 //  vrsqrts.f32   d17, d17, d28
+    0xf2622fbc,                                 //  vrsqrts.f32   d18, d18, d28
     0xf2600fbd,                                 //  vrsqrts.f32   d16, d16, d29
-    0xf2622fbe,                                 //  vrsqrts.f32   d18, d18, d30
+    0xf2611fbe,                                 //  vrsqrts.f32   d17, d17, d30
     0xf3433db9,                                 //  vmul.f32      d19, d19, d25
     0xf4ec9c9f,                                 //  vld1.32       {d25[]}, [ip :32]
     0xe283c030,                                 //  add           ip, r3, #48
@@ -546,27 +538,26 @@ static const unsigned int kSplice_to_srgb[] = {
     0xf4ec4c9f,                                 //  vld1.32       {d20[]}, [ip :32]
     0xf249acb6,                                 //  vfma.f32      d26, d25, d22
     0xe283c034,                                 //  add           ip, r3, #52
+    0xf3452db2,                                 //  vmul.f32      d18, d21, d18
     0xf3470db0,                                 //  vmul.f32      d16, d23, d16
-    0xf3482db2,                                 //  vmul.f32      d18, d24, d18
-    0xf3451db1,                                 //  vmul.f32      d17, d21, d17
+    0xf3481db1,                                 //  vmul.f32      d17, d24, d17
+    0xf2e05948,                                 //  vmul.f32      d21, d0, d8[0]
     0xf244bcb0,                                 //  vfma.f32      d27, d20, d16
-    0xf2e20948,                                 //  vmul.f32      d16, d2, d8[0]
-    0xf244acb2,                                 //  vfma.f32      d26, d20, d18
+    0xf4ec0c9f,                                 //  vld1.32       {d16[]}, [ip :32]
     0xf2443cb1,                                 //  vfma.f32      d19, d20, d17
-    0xf4ec4c9f,                                 //  vld1.32       {d20[]}, [ip :32]
+    0xf244acb2,                                 //  vfma.f32      d26, d20, d18
+    0xf4e34c9f,                                 //  vld1.32       {d20[]}, [r3 :32]
     0xf2e11948,                                 //  vmul.f32      d17, d1, d8[0]
-    0xe283c004,                                 //  add           ip, r3, #4
-    0xf2e02948,                                 //  vmul.f32      d18, d0, d8[0]
-    0xf3241e81,                                 //  vcgt.f32      d1, d20, d1
-    0xf4ec5c9f,                                 //  vld1.32       {d21[]}, [ip :32]
-    0xf3240e80,                                 //  vcgt.f32      d0, d20, d0
-    0xf3242e82,                                 //  vcgt.f32      d2, d20, d2
-    0xf2654fab,                                 //  vmin.f32      d20, d21, d27
-    0xf2656faa,                                 //  vmin.f32      d22, d21, d26
-    0xf2653fa3,                                 //  vmin.f32      d19, d21, d19
-    0xf31201b4,                                 //  vbsl          d0, d18, d20
-    0xf31111b6,                                 //  vbsl          d1, d17, d22
-    0xf31021b3,                                 //  vbsl          d2, d16, d19
+    0xf2e22948,                                 //  vmul.f32      d18, d2, d8[0]
+    0xf3201e81,                                 //  vcgt.f32      d1, d16, d1
+    0xf3200e80,                                 //  vcgt.f32      d0, d16, d0
+    0xf3202e82,                                 //  vcgt.f32      d2, d16, d2
+    0xf2640fab,                                 //  vmin.f32      d16, d20, d27
+    0xf2643fa3,                                 //  vmin.f32      d19, d20, d19
+    0xf2644faa,                                 //  vmin.f32      d20, d20, d26
+    0xf31501b0,                                 //  vbsl          d0, d21, d16
+    0xf31111b3,                                 //  vbsl          d1, d17, d19
+    0xf31221b4,                                 //  vbsl          d2, d18, d20
     0xecbd8b02,                                 //  vpop          {d8}
 };
 static const unsigned int kSplice_scale_u8[] = {
@@ -577,7 +568,7 @@ static const unsigned int kSplice_scale_u8[] = {
     0xe1dcc0b0,                                 //  ldrh          ip, [ip]
     0xe1cdc0b4,                                 //  strh          ip, [sp, #4]
     0xe28dc004,                                 //  add           ip, sp, #4
-    0xed938a03,                                 //  vldr          s16, [r3, #12]
+    0xed938a02,                                 //  vldr          s16, [r3, #8]
     0xf4ec041f,                                 //  vld1.16       {d16[0]}, [ip :16]
     0xf3c80a30,                                 //  vmovl.u8      q8, d16
     0xf3d00a30,                                 //  vmovl.u16     q8, d16
@@ -592,47 +583,50 @@ static const unsigned int kSplice_scale_u8[] = {
 };
 static const unsigned int kSplice_load_tables[] = {
     0xe92d41f0,                                 //  push          {r4, r5, r6, r7, r8, lr}
+    0xe283600c,                                 //  add           r6, r3, #12
     0xe592c000,                                 //  ldr           ip, [r2]
-    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
-    0xe08c5100,                                 //  add           r5, ip, r0, lsl #2
     0xe592e004,                                 //  ldr           lr, [r2, #4]
-    0xedd51b00,                                 //  vldr          d17, [r5]
+    0xf4e60c9f,                                 //  vld1.32       {d16[]}, [r6 :32]
+    0xe08c6100,                                 //  add           r6, ip, r0, lsl #2
+    0xedd61b00,                                 //  vldr          d17, [r6]
     0xf24021b1,                                 //  vand          d18, d16, d17
     0xe592800c,                                 //  ldr           r8, [r2, #12]
     0xf3f83031,                                 //  vshr.u32      d19, d17, #8
     0xe5924008,                                 //  ldr           r4, [r2, #8]
-    0xed931a03,                                 //  vldr          s2, [r3, #12]
-    0xee325b90,                                 //  vmov.32       r5, d18[1]
-    0xee126b90,                                 //  vmov.32       r6, d18[0]
+    0xed931a02,                                 //  vldr          s2, [r3, #8]
+    0xee326b90,                                 //  vmov.32       r6, d18[1]
+    0xee125b90,                                 //  vmov.32       r5, d18[0]
     0xf3f02031,                                 //  vshr.u32      d18, d17, #16
     0xf24021b2,                                 //  vand          d18, d16, d18
     0xf24001b3,                                 //  vand          d16, d16, d19
-    0xee127b90,                                 //  vmov.32       r7, d18[0]
-    0xe08e5105,                                 //  add           r5, lr, r5, lsl #2
+    0xee107b90,                                 //  vmov.32       r7, d16[0]
     0xe08e6106,                                 //  add           r6, lr, r6, lsl #2
-    0xedd50a00,                                 //  vldr          s1, [r5]
+    0xedd60a00,                                 //  vldr          s1, [r6]
+    0xe08e6105,                                 //  add           r6, lr, r5, lsl #2
     0xee325b90,                                 //  vmov.32       r5, d18[1]
     0xed960a00,                                 //  vldr          s0, [r6]
     0xee306b90,                                 //  vmov.32       r6, d16[1]
-    0xe0887107,                                 //  add           r7, r8, r7, lsl #2
-    0xe088c105,                                 //  add           ip, r8, r5, lsl #2
-    0xee105b90,                                 //  vmov.32       r5, d16[0]
     0xf3e80031,                                 //  vshr.u32      d16, d17, #24
+    0xf3fb0620,                                 //  vcvt.f32.s32  d16, d16
+    0xe0847107,                                 //  add           r7, r4, r7, lsl #2
+    0xf2a039c1,                                 //  vmul.f32      d3, d16, d1[0]
+    0xe088c105,                                 //  add           ip, r8, r5, lsl #2
+    0xee125b90,                                 //  vmov.32       r5, d18[0]
     0xe0846106,                                 //  add           r6, r4, r6, lsl #2
     0xeddc2a00,                                 //  vldr          s5, [ip]
-    0xf3fb0620,                                 //  vcvt.f32.s32  d16, d16
-    0xed972a00,                                 //  vldr          s4, [r7]
-    0xf2a039c1,                                 //  vmul.f32      d3, d16, d1[0]
     0xedd61a00,                                 //  vldr          s3, [r6]
-    0xe0846105,                                 //  add           r6, r4, r5, lsl #2
-    0xed961a00,                                 //  vldr          s2, [r6]
+    0xed971a00,                                 //  vldr          s2, [r7]
+    0xe0887105,                                 //  add           r7, r8, r5, lsl #2
+    0xed972a00,                                 //  vldr          s4, [r7]
     0xe8bd41f0,                                 //  pop           {r4, r5, r6, r7, r8, lr}
 };
 static const unsigned int kSplice_load_8888[] = {
+    0xe92d4800,                                 //  push          {fp, lr}
     0xe592c000,                                 //  ldr           ip, [r2]
-    0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
+    0xe283e00c,                                 //  add           lr, r3, #12
+    0xed932a02,                                 //  vldr          s4, [r3, #8]
     0xe08cc100,                                 //  add           ip, ip, r0, lsl #2
-    0xed932a03,                                 //  vldr          s4, [r3, #12]
+    0xf4ee0c9f,                                 //  vld1.32       {d16[]}, [lr :32]
     0xeddc1b00,                                 //  vldr          d17, [ip]
     0xf24021b1,                                 //  vand          d18, d16, d17
     0xf3f83031,                                 //  vshr.u32      d19, d17, #8
@@ -648,9 +642,10 @@ static const unsigned int kSplice_load_8888[] = {
     0xf2a439c2,                                 //  vmul.f32      d3, d20, d2[0]
     0xf2a119c2,                                 //  vmul.f32      d1, d17, d2[0]
     0xf2a029c2,                                 //  vmul.f32      d2, d16, d2[0]
+    0xe8bd4800,                                 //  pop           {fp, lr}
 };
 static const unsigned int kSplice_store_8888[] = {
-    0xe283c008,                                 //  add           ip, r3, #8
+    0xe283c004,                                 //  add           ip, r3, #4
     0xf2c3261f,                                 //  vmov.i32      d18, #1056964608
     0xf2c3361f,                                 //  vmov.i32      d19, #1056964608
     0xf4ec1c9f,                                 //  vld1.32       {d17[]}, [ip :32]
@@ -760,7 +755,7 @@ static const unsigned char kSplice_plus_[] = {
     0xc5,0xe4,0x58,0xdf,                        //  vaddps        %ymm7,%ymm3,%ymm3
 };
 static const unsigned char kSplice_srcover[] = {
-    0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc5,0x3c,0x5c,0xc3,                        //  vsubps        %ymm3,%ymm8,%ymm8
     0xc4,0xc2,0x5d,0xb8,0xc0,                   //  vfmadd231ps   %ymm8,%ymm4,%ymm0
     0xc4,0xc2,0x55,0xb8,0xc8,                   //  vfmadd231ps   %ymm8,%ymm5,%ymm1
@@ -768,7 +763,7 @@ static const unsigned char kSplice_srcover[] = {
     0xc4,0xc2,0x45,0xb8,0xd8,                   //  vfmadd231ps   %ymm8,%ymm7,%ymm3
 };
 static const unsigned char kSplice_dstover[] = {
-    0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc5,0x3c,0x5c,0xc7,                        //  vsubps        %ymm7,%ymm8,%ymm8
     0xc4,0xc2,0x7d,0xb8,0xe0,                   //  vfmadd231ps   %ymm8,%ymm0,%ymm4
     0xc4,0xc2,0x75,0xb8,0xe8,                   //  vfmadd231ps   %ymm8,%ymm1,%ymm5
@@ -783,14 +778,14 @@ static const unsigned char kSplice_clamp_0[] = {
     0xc4,0xc1,0x64,0x5f,0xd8,                   //  vmaxps        %ymm8,%ymm3,%ymm3
 };
 static const unsigned char kSplice_clamp_1[] = {
-    0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc4,0xc1,0x7c,0x5d,0xc0,                   //  vminps        %ymm8,%ymm0,%ymm0
     0xc4,0xc1,0x74,0x5d,0xc8,                   //  vminps        %ymm8,%ymm1,%ymm1
     0xc4,0xc1,0x6c,0x5d,0xd0,                   //  vminps        %ymm8,%ymm2,%ymm2
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
 };
 static const unsigned char kSplice_clamp_a[] = {
-    0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
     0xc5,0xfc,0x5d,0xc3,                        //  vminps        %ymm3,%ymm0,%ymm0
     0xc5,0xf4,0x5d,0xcb,                        //  vminps        %ymm3,%ymm1,%ymm1
@@ -830,7 +825,7 @@ static const unsigned char kSplice_premul[] = {
 static const unsigned char kSplice_unpremul[] = {
     0xc4,0x41,0x3c,0x57,0xc0,                   //  vxorps        %ymm8,%ymm8,%ymm8
     0xc4,0x41,0x64,0xc2,0xc8,0x00,              //  vcmpeqps      %ymm8,%ymm3,%ymm9
-    0xc4,0x62,0x7d,0x18,0x51,0x04,              //  vbroadcastss  0x4(%rcx),%ymm10
+    0xc4,0x62,0x7d,0x18,0x11,                   //  vbroadcastss  (%rcx),%ymm10
     0xc5,0x2c,0x5e,0xd3,                        //  vdivps        %ymm3,%ymm10,%ymm10
     0xc4,0x43,0x2d,0x4a,0xc0,0x90,              //  vblendvps     %ymm9,%ymm8,%ymm10,%ymm8
     0xc5,0xbc,0x59,0xc0,                        //  vmulps        %ymm0,%ymm8,%ymm0
@@ -870,7 +865,7 @@ static const unsigned char kSplice_to_srgb[] = {
     0xc4,0x41,0x7c,0x52,0xd0,                   //  vrsqrtps      %ymm8,%ymm10
     0xc4,0x62,0x7d,0x18,0x41,0x24,              //  vbroadcastss  0x24(%rcx),%ymm8
     0xc5,0x3c,0x59,0xd8,                        //  vmulps        %ymm0,%ymm8,%ymm11
-    0xc4,0x62,0x7d,0x18,0x61,0x04,              //  vbroadcastss  0x4(%rcx),%ymm12
+    0xc4,0x62,0x7d,0x18,0x21,                   //  vbroadcastss  (%rcx),%ymm12
     0xc4,0x62,0x7d,0x18,0x69,0x28,              //  vbroadcastss  0x28(%rcx),%ymm13
     0xc4,0x62,0x7d,0x18,0x71,0x2c,              //  vbroadcastss  0x2c(%rcx),%ymm14
     0xc4,0x62,0x7d,0x18,0x79,0x30,              //  vbroadcastss  0x30(%rcx),%ymm15
@@ -903,7 +898,7 @@ static const unsigned char kSplice_scale_u8[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc4,0x62,0x7d,0x31,0x04,0x38,              //  vpmovzxbd     (%rax,%rdi,1),%ymm8
     0xc4,0x41,0x7c,0x5b,0xc0,                   //  vcvtdq2ps     %ymm8,%ymm8
-    0xc4,0x62,0x7d,0x18,0x49,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm9
+    0xc4,0x62,0x7d,0x18,0x49,0x08,              //  vbroadcastss  0x8(%rcx),%ymm9
     0xc4,0x41,0x3c,0x59,0xc1,                   //  vmulps        %ymm9,%ymm8,%ymm8
     0xc5,0xbc,0x59,0xc0,                        //  vmulps        %ymm0,%ymm8,%ymm0
     0xc5,0xbc,0x59,0xc9,                        //  vmulps        %ymm1,%ymm8,%ymm1
@@ -914,7 +909,7 @@ static const unsigned char kSplice_load_tables[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0x4c,0x8b,0x42,0x08,                        //  mov           0x8(%rdx),%r8
     0xc5,0xfc,0x10,0x1c,0xb8,                   //  vmovups       (%rax,%rdi,4),%ymm3
-    0xc4,0xe2,0x7d,0x18,0x11,                   //  vbroadcastss  (%rcx),%ymm2
+    0xc4,0xe2,0x7d,0x18,0x51,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm2
     0xc5,0xec,0x54,0xcb,                        //  vandps        %ymm3,%ymm2,%ymm1
     0xc5,0xfc,0x57,0xc0,                        //  vxorps        %ymm0,%ymm0,%ymm0
     0xc5,0x7c,0xc2,0xc0,0x00,                   //  vcmpeqps      %ymm0,%ymm0,%ymm8
@@ -931,16 +926,16 @@ static const unsigned char kSplice_load_tables[] = {
     0xc4,0xa2,0x3d,0x92,0x14,0x88,              //  vgatherdps    %ymm8,(%rax,%ymm9,4),%ymm2
     0xc5,0xe5,0x72,0xd3,0x18,                   //  vpsrld        $0x18,%ymm3,%ymm3
     0xc5,0xfc,0x5b,0xdb,                        //  vcvtdq2ps     %ymm3,%ymm3
-    0xc4,0x62,0x7d,0x18,0x41,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x41,0x08,              //  vbroadcastss  0x8(%rcx),%ymm8
     0xc4,0xc1,0x64,0x59,0xd8,                   //  vmulps        %ymm8,%ymm3,%ymm3
 };
 static const unsigned char kSplice_load_8888[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc5,0xfc,0x10,0x1c,0xb8,                   //  vmovups       (%rax,%rdi,4),%ymm3
-    0xc4,0xe2,0x7d,0x18,0x11,                   //  vbroadcastss  (%rcx),%ymm2
+    0xc4,0xe2,0x7d,0x18,0x51,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm2
     0xc5,0xec,0x54,0xc3,                        //  vandps        %ymm3,%ymm2,%ymm0
     0xc5,0xfc,0x5b,0xc0,                        //  vcvtdq2ps     %ymm0,%ymm0
-    0xc4,0x62,0x7d,0x18,0x41,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x41,0x08,              //  vbroadcastss  0x8(%rcx),%ymm8
     0xc5,0xbc,0x59,0xc0,                        //  vmulps        %ymm0,%ymm8,%ymm0
     0xc5,0xf5,0x72,0xd3,0x08,                   //  vpsrld        $0x8,%ymm3,%ymm1
     0xc5,0xec,0x54,0xc9,                        //  vandps        %ymm1,%ymm2,%ymm1
@@ -956,7 +951,7 @@ static const unsigned char kSplice_load_8888[] = {
 };
 static const unsigned char kSplice_store_8888[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
-    0xc4,0x62,0x7d,0x18,0x41,0x08,              //  vbroadcastss  0x8(%rcx),%ymm8
+    0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
     0xc5,0x3c,0x59,0xc8,                        //  vmulps        %ymm0,%ymm8,%ymm9
     0xc4,0x41,0x7d,0x5b,0xc9,                   //  vcvtps2dq     %ymm9,%ymm9
     0xc5,0x3c,0x59,0xd1,                        //  vmulps        %ymm1,%ymm8,%ymm10

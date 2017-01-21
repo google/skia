@@ -20,10 +20,10 @@
 // This constraint makes it much easier to move and reorder the code for each Stage.
 
 struct SkSplicer_constants {
-    uint32_t _0x000000ff;  //  0x000000ff
     float    _1;           //  1.0f
     float    _255;         //  255.0f
     float    _1_255;       //  1/255.0f
+    uint32_t _0x000000ff;  //  0x000000ff
 
     // from_srgb
     float    _00025;       //  0.0025f

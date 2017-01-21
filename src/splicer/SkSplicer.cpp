@@ -39,7 +39,7 @@ namespace {
     // Stages expect these constants to be set to these values.
     // It's fine to rearrange and add new ones if you update SkSplicer_constants.
     static const SkSplicer_constants kConstants = {
-        0x000000ff, 1.0f, 255.0f, 1/255.0f,
+        1.0f, 255.0f, 1/255.0f, 0x000000ff,
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
     };
