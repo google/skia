@@ -9,6 +9,7 @@
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkICC.h"
@@ -39,6 +40,75 @@ bool SkICC::toXYZD50(SkMatrix44* toXYZD50) const {
 
 bool SkICC::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
     return as_CSB(fColorSpace)->onIsNumericalTransferFn(coeffs);
+}
+
+sk_sp<SkData> fn_to_table(const SkColorSpaceTransferFn& fn) {
+    static const int kTableSize = 512; // Arbitrary
+    sk_sp<SkData> table = SkData::MakeUninitialized(kTableSize * sizeof(float));
+    float* tablePtr = (float*) table->writable_data();
+
+    // Y = (aX + b)^g + e  for X >= d
+    // Y = cX + f          otherwise
+    for (int i = 0; i < kTableSize; i++) {
+        float x = ((float) i) / ((float) (kTableSize - 1));
+        if (x >= fn.fD) {
+            tablePtr[i] = clamp_0_1(powf(fn.fA * x + fn.fB, fn.fG) + fn.fE);
+        } else {
+            tablePtr[i] = clamp_0_1(fn.fC * x + fn.fF);
+        }
+    }
+
+    return table;
+}
+
+sk_sp<SkData> copy_to_table(const SkGammas* gammas, int index) {
+    SkASSERT(gammas->isTable(index));
+    const float* ptr = gammas->table(index);
+    const size_t bytes = gammas->tableSize(index) * sizeof(float);
+    return SkData::MakeWithCopy(ptr, bytes);
+}
+
+bool SkICC::rawTransferFnData(RawTables* tables) const {
+    if (SkColorSpace_Base::Type::kA2B == as_CSB(fColorSpace)->type()) {
+        return false;
+    }
+    SkColorSpace_XYZ* colorSpace = (SkColorSpace_XYZ*) fColorSpace.get();
+
+    SkColorSpaceTransferFn fn;
+    if (this->isNumericalTransferFn(&fn)) {
+        sk_sp<SkData> table = fn_to_table(fn);
+        tables->fR = tables->fG = tables->fB = table;
+        return true;
+    }
+
+    const SkGammas* gammas = colorSpace->gammas();
+    SkASSERT(gammas);
+    if (gammas->data(0) == gammas->data(1) && gammas->data(0) == gammas->data(2)) {
+        SkASSERT(gammas->isTable(0));
+        tables->fR = tables->fG = tables->fB = copy_to_table(gammas, 0);
+        return true;
+    }
+
+    sk_sp<SkData>* tablesPtr = &tables->fR;
+    for (int i = 0; i < 3; i++) {
+        if (gammas->isTable(i)) {
+            tablesPtr[i] = copy_to_table(gammas, i);
+            continue;
+        }
+
+        if (gammas->isNamed(i)) {
+            SkAssertResult(named_to_parametric(&fn, gammas->data(i).fNamed));
+        } else if (gammas->isValue(i)) {
+            value_to_parametric(&fn, gammas->data(i).fValue);
+        } else {
+            SkASSERT(gammas->isParametric(i));
+            fn = gammas->params(i);
+        }
+
+        tablesPtr[i] = fn_to_table(fn);
+    }
+
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
