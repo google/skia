@@ -9,6 +9,12 @@ import re
 import subprocess
 import sys
 
+ndk = '/Users/mtklein/brew/opt/android-ndk/'
+objdump = 'gobjdump'
+
+#ndk = '/home/mtklein/ndk/'
+#objdump = '/home/mtklein/binutils-2.27/binutils/objdump'
+
 cflags = '-std=c++11 -Os -fomit-frame-pointer'.split()
 
 hsw = '-mavx2 -mfma -mf16c'.split()
@@ -21,8 +27,7 @@ subprocess.check_call(['clang++'] + cflags + hsw +
 
 aarch64 = [
     '--target=aarch64-linux-android',
-    '--sysroot=' +
-    '/Users/mtklein/brew/opt/android-ndk/platforms/android-21/arch-arm64',
+    '--sysroot=' + ndk + 'platforms/android-21/arch-arm64',
 ]
 subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
@@ -33,8 +38,7 @@ subprocess.check_call(['clang++'] + cflags + aarch64 +
 
 armv7 = [
     '--target=arm-linux-androideabi',
-    '--sysroot=' +
-    '/Users/mtklein/brew/opt/android-ndk/platforms/android-18/arch-arm',
+    '--sysroot=' + ndk + 'platforms/android-18/arch-arm',
     '-march=armv7-a',
     '-mfpu=neon-vfpv4',
 ]
@@ -46,7 +50,7 @@ subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-o', 'armv7_lowp.o'])
 
 def parse_object_file(dst, dot_o, array_type, done, target=None):
-  cmd = ['gobjdump', '-d', dot_o]
+  cmd = [ objdump, '-d', dot_o]
   if target:
     cmd += ['--target', target]
   for line in subprocess.check_output(cmd).split('\n'):
