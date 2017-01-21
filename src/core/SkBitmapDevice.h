@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -19,7 +18,6 @@
 #include "SkScalar.h"
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
-#include "SkTypes.h"
 
 class SkDraw;
 class SkImageFilterCache;

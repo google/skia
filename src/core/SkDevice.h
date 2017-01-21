@@ -14,7 +14,6 @@
 #include "SkSurfaceProps.h"
 
 class SkBitmap;
-class SkClipStack;
 class SkDraw;
 class SkDrawFilter;
 class SkImageFilterCache;
@@ -347,10 +346,6 @@ private:
     SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
-
-#ifdef SK_SUPPORT_LEGACY_ACCESSBITMAP
-    SkBitmap    fLegacyBitmap;
-#endif
 
     typedef SkRefCnt INHERITED;
 };
