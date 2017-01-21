@@ -143,11 +143,7 @@ static T unaligned_load(const P* p) {
     return v;
 }
 
-#if defined(__ARM_NEON__)
-    #define C extern "C" __attribute__((pcs("aapcs-vfp")))
-#else
-    #define C extern "C"
-#endif
+#define C extern "C"
 
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
 

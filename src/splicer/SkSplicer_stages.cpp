@@ -90,12 +90,7 @@ static T unaligned_load(const P* p) {
 
 // We'll be compiling this file to an object file, then extracting parts of it into
 // SkSplicer_generated.h.  It's easier to do if the function names are not C++ mangled.
-// On ARMv7, use aapcs-vfp calling convention to pass as much data in registers as possible.
-#if defined(__ARM_NEON__)
-    #define C extern "C" __attribute__((pcs("aapcs-vfp")))
-#else
-    #define C extern "C"
-#endif
+#define C extern "C"
 
 // Stages all fit a common interface that allows SkSplicer to splice them together.
 using Stage = void(size_t x, size_t limit, void* ctx, K* k, F,F,F,F, F,F,F,F);
