@@ -574,6 +574,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fDescent = fTextSizeRender * SkIntToScalar(dwfm.descent) / upem;
     metrics->fLeading = fTextSizeRender * SkIntToScalar(dwfm.lineGap) / upem;
     metrics->fXHeight = fTextSizeRender * SkIntToScalar(dwfm.xHeight) / upem;
+    metrics->fCapHeight = fTextSizeRender * SkIntToScalar(dwfm.capHeight) / upem;
     metrics->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
     metrics->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
 
