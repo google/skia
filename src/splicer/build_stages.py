@@ -37,10 +37,10 @@ subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-o', 'aarch64_lowp.o'])
 
 armv7 = [
-    '--target=arm-linux-androideabi',
+    '--target=armv7a-linux-android',
     '--sysroot=' + ndk + 'platforms/android-18/arch-arm',
-    '-march=armv7-a',
     '-mfpu=neon-vfpv4',
+    '-mfloat-abi=hard',
 ]
 subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
