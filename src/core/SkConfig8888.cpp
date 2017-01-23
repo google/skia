@@ -371,7 +371,7 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     const int height = srcInfo.height();
 
     // Do the easiest one first : both configs are equal
-    if (srcInfo == dstInfo && kIndex_8_SkColorType != srcInfo.colorType()) {
+    if (srcInfo == dstInfo) {
         size_t bytes = width * srcInfo.bytesPerPixel();
         for (int y = 0; y < height; ++y) {
             memcpy(dstPixels, srcPixels, bytes);
