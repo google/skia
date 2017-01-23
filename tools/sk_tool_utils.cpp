@@ -17,6 +17,7 @@
 #include "SkPixelRef.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
+#include "SkTableColorFilter.h"
 #include "SkTestScalerContext.h"
 #include "SkTextBlob.h"
 
@@ -584,6 +585,23 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
         src32 = (const uint32_t*)((const char*)src32 + src.rowBytes());
         dst8 += dst->rowBytes();
     }
+}
+
+static float linear_to_srgb(float linear) {
+    if (linear <= 0.0031308) {
+        return linear * 12.92f;
+    } else {
+        return 1.055f * powf(linear, 1.f / 2.4f) - 0.055f;
+    }
+}
+
+sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter() {
+    uint8_t table[256];
+    for (int i = 0; i < 256; ++i) {
+        table[i] = sk_float_round2int(linear_to_srgb(i / 255.0f) * 255.0f);
+    }
+
+    return SkTableColorFilter::MakeARGB(nullptr, table, table, table);
 }
 
 }  // namespace sk_tool_utils
