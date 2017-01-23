@@ -265,11 +265,16 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     sk_sp<GrTexture> yTex(
         ctx->textureProvider()->wrapBackendTexture(yDesc, kBorrow_GrWrapOwnership));
+    sk_sp<GrSurfaceProxy> yProxy = GrSurfaceProxy::MakeWrapped(std::move(yTex));
+
     sk_sp<GrTexture> uTex(
         ctx->textureProvider()->wrapBackendTexture(uDesc, kBorrow_GrWrapOwnership));
-    sk_sp<GrTexture> vTex;
+    sk_sp<GrSurfaceProxy> uProxy = GrSurfaceProxy::MakeWrapped(std::move(uTex));
+
+    sk_sp<GrSurfaceProxy> vProxy;
+
     if (nv12) {
-        vTex = uTex;
+        vProxy = uProxy;
     } else {
         GrBackendTextureDesc vDesc;
         vDesc.fConfig = kConfig;
@@ -279,10 +284,11 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
         vDesc.fWidth = yuvSizes[2].fWidth;
         vDesc.fHeight = yuvSizes[2].fHeight;
 
-        vTex = sk_sp<GrTexture>(
+        sk_sp<GrTexture> vTex = sk_sp<GrTexture>(
             ctx->textureProvider()->wrapBackendTexture(vDesc, kBorrow_GrWrapOwnership));
+        vProxy = GrSurfaceProxy::MakeWrapped(std::move(vTex));
     }
-    if (!yTex || !uTex || !vTex) {
+    if (!yProxy || !uProxy || !vProxy) {
         return nullptr;
     }
 
@@ -304,7 +310,8 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     paint.addColorFragmentProcessor(
-        GrYUVEffect::MakeYUVToRGB(yTex.get(), uTex.get(), vTex.get(), yuvSizes, colorSpace, nv12));
+        GrYUVEffect::MakeYUVToRGB(ctx, std::move(yProxy), std::move(uProxy),
+                                  std::move(vProxy), yuvSizes, colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
