@@ -33,9 +33,7 @@ SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
     : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height()) {
 
     // Transfer matrix & clip state before adding the target canvas.
-    SkIRect devClip;
-    canvas->getClipDeviceBounds(&devClip);
-    this->clipRect(SkRect::Make(devClip));
+    this->clipRect(SkRect::Make(canvas->getDeviceClipBounds()));
     this->setMatrix(canvas->getTotalMatrix());
 
     this->addCanvas(canvas);
