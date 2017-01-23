@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_c65af35e",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "Yes, this is better.  I\u0027ll go ahead and combine them now.",
+      "parentUuid": "284bc29d_c6cdd33e",
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_e6a28f8a",
         "filename": "src/images/SkPNGImageEncoder.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 114,
         "endChar": 31
       },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_464f03a2",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "Oops no I messed this up.  Returning the original behavior and adding a comment.  I do already have a test for this (which was broken by this change).",
+      "parentUuid": "284bc29d_e6a28f8a",
       "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_2693d7ec",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "Yes, I think so.  I wanted to avoid adding the gamma features on this CL (so it\u0027s purely a refactor).  I will try to share this function when I add the gamma-correct option to webp.",
+      "parentUuid": "284bc29d_a6bec7a0",
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_46b9c3b9",
         "filename": "src/images/SkWEBPImageEncoder.cpp",
         "patchSetId": 2
@@ -88,6 +142,24 @@
         "endLine": 135,
         "endChar": 35
       },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_06905bdc",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "That\u0027s a TODO.  For now I\u0027m only going for legacy premul.",
+      "parentUuid": "284bc29d_46b9c3b9",
       "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_e6fe0f40",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "Yeah this function swizzles RGBA order to PMColor order.\nWe actually want a swizzle from PMColor order to RGBA order.\nThese are the same thing.  Removing the comment though, seems to make everything more confusing.",
+      "parentUuid": "284bc29d_868e2b12",
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_06817be7",
         "filename": "src/images/transform_scanline.h",
         "patchSetId": 2
@@ -134,6 +224,24 @@
         "endLine": 61,
         "endChar": 40
       },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_26f91756",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:00:28Z",
+      "side": 1,
+      "message": "True.  Adding a test.",
+      "parentUuid": "284bc29d_06817be7",
       "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
