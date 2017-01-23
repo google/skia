@@ -557,11 +557,11 @@ sk_sp<SkSurface> SkDeferredCanvas::onNewSurface(const SkImageInfo& info,
     return fCanvas->makeSurface(info, &props);
 }
 SkISize SkDeferredCanvas::getBaseLayerSize() const { return fCanvas->getBaseLayerSize(); }
-bool SkDeferredCanvas::getClipBounds(SkRect* bounds) const {
-    return fCanvas->getClipBounds(bounds);
+SkRect SkDeferredCanvas::onGetLocalClipBounds() const {
+    return fCanvas->getLocalClipBounds();
 }
-bool SkDeferredCanvas::getClipDeviceBounds(SkIRect* bounds) const {
-    return fCanvas->getClipDeviceBounds(bounds);
+SkIRect SkDeferredCanvas::onGetDeviceClipBounds() const {
+    return fCanvas->getDeviceClipBounds();
 }
 bool SkDeferredCanvas::isClipEmpty() const { return fCanvas->isClipEmpty(); }
 bool SkDeferredCanvas::isClipRect() const { return fCanvas->isClipRect(); }

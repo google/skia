@@ -1742,49 +1742,35 @@ bool SkCanvas::quickReject(const SkPath& path) const {
     return path.isEmpty() || this->quickReject(path.getBounds());
 }
 
-bool SkCanvas::getClipBounds(SkRect* bounds) const {
-    SkIRect ibounds = this->getDeviceClipBounds();
+SkRect SkCanvas::onGetLocalClipBounds() const {
+    SkIRect ibounds = this->onGetDeviceClipBounds();
     if (ibounds.isEmpty()) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return false;
+        return SkRect::MakeEmpty();
     }
 
     SkMatrix inverse;
     // if we can't invert the CTM, we can't return local clip bounds
     if (!fMCRec->fMatrix.invert(&inverse)) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return false;
+        return SkRect::MakeEmpty();
     }
 
-    if (bounds) {
-        SkRect r;
-        // adjust it outwards in case we are antialiasing
-        const int inset = 1;
+    SkRect bounds;
+    SkRect r;
+    // adjust it outwards in case we are antialiasing
+    const int inset = 1;
 
-        r.iset(ibounds.fLeft - inset, ibounds.fTop - inset,
-               ibounds.fRight + inset, ibounds.fBottom + inset);
-        inverse.mapRect(bounds, r);
-    }
-    return true;
+    r.iset(ibounds.fLeft - inset, ibounds.fTop - inset,
+           ibounds.fRight + inset, ibounds.fBottom + inset);
+    inverse.mapRect(&bounds, r);
+    return bounds;
 }
 
-bool SkCanvas::getClipDeviceBounds(SkIRect* bounds) const {
+SkIRect SkCanvas::onGetDeviceClipBounds() const {
     const SkRasterClip& clip = fMCRec->fRasterClip;
     if (clip.isEmpty()) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return false;
+        return SkIRect::MakeEmpty();
     }
-
-    if (bounds) {
-        *bounds = clip.getBounds();
-    }
-    return true;
+    return clip.getBounds();
 }
 
 const SkMatrix& SkCanvas::getTotalMatrix() const {
