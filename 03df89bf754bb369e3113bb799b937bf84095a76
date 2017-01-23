@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_99fb2c02",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1760,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-23T20:13:32Z",
+      "side": 1,
+      "message": "kAAOutset ?",
+      "revId": "03df89bf754bb369e3113bb799b937bf84095a76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
