@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_86e8ebf3",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-23T17:42:24Z",
+      "side": 1,
+      "message": "for the shaders that actually use/check this guy, do we every expect those to be used when this is null? I ask cause all the code now how this \"if (out)\" check, and I wonder if we\u0027d rather just ASSERT its there or change the signature here to not have the default null value. Though the latter requires updating all the signatures and makes it less obvious that many shaders are suppose to ignore the param.",
+      "range": {
+        "startLine": 382,
+        "startChar": 59,
+        "endLine": 382,
+        "endChar": 81
+      },
+      "revId": "e3d0e221dc144dd928f3d24681084d1d0d874228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
