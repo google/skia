@@ -225,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_46b70339",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T17:21:17Z",
+      "side": 1,
+      "message": "Added a new comment that is less confusing.",
+      "parentUuid": "284bc29d_064a1b63",
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_06817be7",
         "filename": "src/images/transform_scanline.h",
         "patchSetId": 2
