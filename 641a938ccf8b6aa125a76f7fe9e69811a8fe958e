@@ -22,6 +22,24 @@
       "revId": "641a938ccf8b6aa125a76f7fe9e69811a8fe958e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_5cb4f2c4",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-23T22:36:36Z",
+      "side": 1,
+      "message": "I think the offset approach is cool, adding convenience helpers as well.",
+      "parentUuid": "284bc29d_394f78a3",
+      "revId": "641a938ccf8b6aa125a76f7fe9e69811a8fe958e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
