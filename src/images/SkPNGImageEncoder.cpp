@@ -113,7 +113,7 @@ static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT pale
         // Unpremultiply the colors.
         const SkImageInfo rgbaInfo = info.makeColorType(kRGBA_8888_SkColorType);
         transform_scanline_proc proc = choose_proc(rgbaInfo);
-        proc((char*) storage, (const char*) colors, ctable->count(), 4);
+        proc((char*) storage, (const char*) colors, ctable->count(), 4, nullptr);
         colors = storage;
     }
 
@@ -350,7 +350,8 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
     transform_scanline_proc proc = choose_proc(pixmap.info());
     for (int y = 0; y < pixmap.height(); y++) {
         png_bytep row_ptr = (png_bytep)storage;
-        proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(pixmap.colorType()));
+        proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(pixmap.colorType()),
+             nullptr);
         png_write_rows(png_ptr, &row_ptr, 1);
         srcImage += pixmap.rowBytes();
     }

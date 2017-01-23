@@ -43,8 +43,8 @@ static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSp
     };
 
     auto toPMColor = [alphaType, colorSpace](SkColor color) {
-        // In the unpremul case, just convert to SkPMColor ordering.
-        if (kUnpremul_SkAlphaType == alphaType) {
+        // In the opaque/unpremul case, just convert to SkPMColor ordering.
+        if (kPremul_SkAlphaType != alphaType) {
             return SkSwizzle_BGRA_to_PMColor(color);
         }
 
@@ -88,6 +88,11 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 
     const char* resource = (kOpaque_SkAlphaType == alphaType) ? "color_wheel.jpg"
                                                               : "color_wheel.png";
+    if (kGray_8_SkColorType == colorType) {
+        resource = "grayscale.jpg";
+        alphaType = kOpaque_SkAlphaType;
+    }
+
     sk_sp<SkData> data = GetResourceAsData(resource);
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
@@ -97,37 +102,61 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     codec->getPixels(dstInfo, bitmap->getPixels(), bitmap->rowBytes());
 }
 
-static sk_sp<SkData> encode_data(const SkBitmap& bitmap) {
+static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat format) {
     SkAutoLockPixels autoLockPixels(bitmap);
     SkPixmap src;
     if (!bitmap.peekPixels(&src)) {
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
+
     SkEncodeOptions options;
     if (bitmap.colorSpace()) {
         options.fPremulBehavior = SkEncodeOptions::PremulBehavior::kGammaCorrect;
     }
-    SkAssertResult(SkEncodeImageAsPNG(&buf, src, options));
+
+    switch (format) {
+        case SkEncodedImageFormat::kPNG:
+            SkEncodeImageAsPNG(&buf, src, options);
+            break;
+        case SkEncodedImageFormat::kWEBP:
+            SkEncodeImage(&buf, src, SkEncodedImageFormat::kWEBP, 100);
+            break;
+        default:
+            break;
+    }
     return buf.detachAsData();
 }
 
 class EncodeSRGBGM : public GM {
 public:
-    EncodeSRGBGM() {}
+    EncodeSRGBGM(SkEncodedImageFormat format)
+        : fEncodedFormat(format)
+    {}
 
 protected:
     SkString onShortName() override {
-        return SkString("encode-srgb");
+        const char* format = nullptr;
+        switch (fEncodedFormat) {
+            case SkEncodedImageFormat::kPNG:
+                format = "-png";
+                break;
+            case SkEncodedImageFormat::kWEBP:
+                format = "-webp";
+                break;
+            default:
+                break;
+        }
+        return SkStringPrintf("encode-srgb%s", format);
     }
 
     SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 9);
+        return SkISize::Make(imageWidth * 2, imageHeight * 12);
     }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
-                kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType,
+                kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType, kGray_8_SkColorType,
         };
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
@@ -142,7 +171,7 @@ protected:
                 canvas->save();
                 for (sk_sp<SkColorSpace> colorSpace : colorSpaces) {
                     make(&bitmap, colorType, alphaType, colorSpace);
-                    auto image = SkImage::MakeFromEncoded(encode_data(bitmap));
+                    auto image = SkImage::MakeFromEncoded(encode_data(bitmap, fEncodedFormat));
                     canvas->drawImage(image.get(), 0.0f, 0.0f);
                     canvas->translate((float) imageWidth, 0.0f);
                 }
@@ -153,8 +182,11 @@ protected:
     }
 
 private:
+    SkEncodedImageFormat fEncodedFormat;
+
     typedef GM INHERITED;
 };
 
-DEF_GM( return new EncodeSRGBGM; )
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG); )
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP); )
 }
