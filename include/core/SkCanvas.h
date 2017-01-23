@@ -530,25 +530,30 @@ public:
      *  Return the bounds of the current clip in local coordinates. If the clip is empty,
      *  return { 0, 0, 0, 0 }.
      */
-    SkRect getLocalClipBounds() const {
-        SkRect bounds;
-        this->getClipBounds(&bounds);
-        return bounds;
-    }
-    // TODO: move this to protected and rename to onGetLocalClipBounds
-    virtual bool getClipBounds(SkRect* bounds) const;
+    SkRect getLocalClipBounds() const { return this->onGetLocalClipBounds(); }
 
     /**
      *  Return the bounds of the current clip in device coordinates. If the clip is empty,
      *  return { 0, 0, 0, 0 }.
      */
-    SkIRect getDeviceClipBounds() const {
-        SkIRect bounds;
-        this->getClipDeviceBounds(&bounds);
-        return bounds;
+    SkIRect getDeviceClipBounds() const { return this->onGetDeviceClipBounds(); }
+
+#ifdef SK_SUPPORT_LEGACY_GETCLIPBOUNDS
+    bool getClipBounds(SkRect* bounds) const {
+        SkRect r = this->getLocalClipBounds();
+        if (bounds) {
+            *bounds = r;
+        }
+        return !r.isEmpty();
     }
-    // TODO: move this to protected and rename to onGetDeviceClipBounds
-    virtual bool getClipDeviceBounds(SkIRect* bounds) const;
+    bool getClipDeviceBounds(SkIRect* bounds) const {
+        SkIRect r = this->getDeviceClipBounds();
+        if (bounds) {
+            *bounds = r;
+        }
+        return !r.isEmpty();
+    }
+#endif
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
@@ -1377,6 +1382,10 @@ protected:
 #ifdef SK_EXPERIMENTAL_SHADOWING
     virtual void didTranslateZ(SkScalar) {}
 #endif
+
+    virtual SkRect onGetLocalClipBounds() const;
+    virtual SkIRect onGetDeviceClipBounds() const;
+
 
     virtual void onDrawAnnotation(const SkRect&, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);

@@ -175,20 +175,12 @@ public:
 
     bool isClipRect() const override { return true; }
 
-    bool getClipBounds(SkRect *bounds) const override {
-        if (bounds) {
-            bounds->setXYWH(0, 0,
-                            SkIntToScalar(this->imageInfo().width()),
-                            SkIntToScalar(this->imageInfo().height()));
-        }
-        return true;
+    SkRect onGetLocalClipBounds() const override {
+        return SkRect::MakeIWH(this->imageInfo().width(), this->imageInfo().height());
     }
 
-    bool getClipDeviceBounds(SkIRect *bounds) const override {
-        if (bounds) {
-            bounds->setLargest();
-        }
-        return true;
+    SkIRect onGetDeviceClipBounds() const override {
+        return SkIRect::MakeWH(this->imageInfo().width(), this->imageInfo().height());
     }
 
 protected:

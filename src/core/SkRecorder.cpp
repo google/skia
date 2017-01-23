@@ -383,7 +383,7 @@ SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec&
 }
 
 void SkRecorder::didRestore() {
-    APPEND(Restore, this->devBounds(), this->getTotalMatrix());
+    APPEND(Restore, this->getDeviceClipBounds(), this->getTotalMatrix());
 }
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {
@@ -407,24 +407,24 @@ void SkRecorder::didTranslateZ(SkScalar z) {
 void SkRecorder::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRect, rect, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
-    APPEND(ClipRect, this->devBounds(), rect, opAA);
+    APPEND(ClipRect, this->getDeviceClipBounds(), rect, opAA);
 }
 
 void SkRecorder::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRRect, rrect, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
-    APPEND(ClipRRect, this->devBounds(), rrect, opAA);
+    APPEND(ClipRRect, this->getDeviceClipBounds(), rrect, opAA);
 }
 
 void SkRecorder::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipPath, path, op, edgeStyle);
     SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
-    APPEND(ClipPath, this->devBounds(), path, opAA);
+    APPEND(ClipPath, this->getDeviceClipBounds(), path, opAA);
 }
 
 void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     INHERITED(onClipRegion, deviceRgn, op);
-    APPEND(ClipRegion, this->devBounds(), deviceRgn, op);
+    APPEND(ClipRegion, this->getDeviceClipBounds(), deviceRgn, op);
 }
 
 sk_sp<SkSurface> SkRecorder::onNewSurface(const SkImageInfo&, const SkSurfaceProps&) {

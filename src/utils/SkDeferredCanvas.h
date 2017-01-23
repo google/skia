@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2016 Google Inc.
  *
@@ -26,8 +25,8 @@ public:
 protected:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     SkISize getBaseLayerSize() const override;
-    bool getClipBounds(SkRect* bounds) const override;
-    bool getClipDeviceBounds(SkIRect* bounds) const override;
+    SkRect onGetLocalClipBounds() const override;
+    SkIRect onGetDeviceClipBounds() const override;
     bool isClipEmpty() const override;
     bool isClipRect() const override;
     bool onPeekPixels(SkPixmap*) override;
