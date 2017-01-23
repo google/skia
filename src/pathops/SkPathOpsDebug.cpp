@@ -18,6 +18,7 @@ bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
 #endif
 
+bool SkPathOpsDebug::gRunFail;  // set to true to check for success on tests known to fail
 bool SkPathOpsDebug::gVeryVerbose;  // set to true to run extensive checking tests
 
 #undef FAIL_IF
@@ -666,6 +667,10 @@ void SkOpGlobalState::debugResetLoopCounts() {
 }
 #endif
 
+bool SkOpGlobalState::DebugRunFail() {
+    return SkPathOpsDebug::gRunFail;
+}
+
 // this is const so it can be called by const methods that overwise don't alter state
 #if DEBUG_VALIDATE || DEBUG_COIN
 void SkOpGlobalState::debugSetPhase(const char* funcName  DEBUG_COIN_DECLARE_PARAMS()) const {
@@ -1244,17 +1249,6 @@ void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan* span, int
    This checks the distance between start points; the distance between
 */
 #if DEBUG_ANGLE
-void SkOpAngle::debugAfter(const SkOpAngle* lh, const SkOpAngle* rh, SkString* bugOut) const {
-        bugOut->printf("%s [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g"
-                  " < [%d/%d] %d/%d tStart=%1.9g tEnd=%1.9g ", __FUNCTION__,
-            lh->segment()->debugID(), lh->debugID(), lh->fSectorStart, lh->fSectorEnd,
-            lh->fStart->t(), lh->fEnd->t(),
-            segment()->debugID(), debugID(), fSectorStart, fSectorEnd, fStart->t(), fEnd->t(),
-            rh->segment()->debugID(), rh->debugID(), rh->fSectorStart, rh->fSectorEnd,
-            rh->fStart->t(), rh->fEnd->t());
-}
-
 void SkOpAngle::debugCheckNearCoincidence() const {
     const SkOpAngle* test = this;
     do {
@@ -1382,8 +1376,8 @@ void SkOpAngle::debugValidate() const {
         }
         next = next->fNext;
     } while (next && next != first);
-    SkASSERT(wind == 0);
-    SkASSERT(opp == 0);
+    SkASSERT(wind == 0 || !SkPathOpsDebug::gRunFail);
+    SkASSERT(opp == 0 || !SkPathOpsDebug::gRunFail);
 #endif
 }
 
@@ -1410,8 +1404,8 @@ void SkOpAngle::debugValidateNext() const {
 #ifdef SK_DEBUG
 void SkCoincidentSpans::debugStartCheck(const SkOpSpanBase* outer, const SkOpSpanBase* over,
         const SkOpGlobalState* debugState) const {
-    SkASSERT(coinPtTEnd()->span() == over);
-    SkASSERT(oppPtTEnd()->span() == outer);
+    SkASSERT(coinPtTEnd()->span() == over || !SkOpGlobalState::DebugRunFail());
+    SkASSERT(oppPtTEnd()->span() == outer || !SkOpGlobalState::DebugRunFail());
 }
 #endif
 

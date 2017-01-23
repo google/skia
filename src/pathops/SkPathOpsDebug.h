@@ -374,6 +374,7 @@ public:
     static void DumpGlitchType(GlitchType );
 #endif
 
+    static bool gRunFail;
     static bool gVeryVerbose;
 
 #if DEBUG_DUMP_VERIFY
