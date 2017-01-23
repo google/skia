@@ -94,7 +94,8 @@
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \
     M(save_xy) M(accumulate)                                     \
-    M(linear_gradient_2stops)
+    M(linear_gradient_2stops)                                    \
+    M(byte_tables)
 
 class SkRasterPipeline {
 public:
