@@ -38,19 +38,14 @@ public:
     static const GrXferProcessor& SimpleSrcOverXP();
 
     static inline void SrcOverInvariantBlendedColor(
-                                                GrColor inputColor,
-                                                GrColorComponentFlags validColorFlags,
-                                                bool isOpaque,
-                                                GrXPFactory::InvariantBlendedColor* blendedColor) {
-        if (!isOpaque) {
-            blendedColor->fWillBlendWithDst = true;
-            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+            const GrKnownColorComponents& input, GrXPFactory::InvariantBlendedColor* blendedColor) {
+        if (!input.isOpaque()) {
+            blendedColor->fWillBlendWithDst = false;
+            blendedColor->fKnownColorComponents = input;
             return;
         }
-        blendedColor->fWillBlendWithDst = false;
-
-        blendedColor->fKnownColor = inputColor;
-        blendedColor->fKnownColorFlags = validColorFlags;
+        blendedColor->fWillBlendWithDst = true;
+        blendedColor->fKnownColorComponents.setUnknown();
     }
 
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);

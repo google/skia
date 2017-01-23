@@ -41,11 +41,11 @@ private:
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
         if (this->hasColors()) {
-            input->pipelineColorInput()->setUnknownFourComponents();
+            input->pipelineColorInput()->setUnknown();
         } else {
-            input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
+            input->pipelineColorInput()->setColor(fGeoData[0].fColor);
         }
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+        input->pipelineCoverageInput()->setSingleChannel(0xff);
     }
 
     void onPrepareDraws(Target*) const override;

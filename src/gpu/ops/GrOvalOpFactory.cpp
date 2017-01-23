@@ -801,8 +801,8 @@ private:
     CircleOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -1246,8 +1246,8 @@ private:
     EllipseOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -1460,8 +1460,8 @@ private:
     DIEllipseOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -1775,8 +1775,8 @@ public:
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {
@@ -2131,8 +2131,8 @@ private:
     EllipticalRRectOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fGeoData[0].fColor);
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setColor(fGeoData[0].fColor);
+        input->pipelineCoverageInput()->setUnknown();
     }
 
     void applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) override {

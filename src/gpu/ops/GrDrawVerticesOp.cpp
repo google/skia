@@ -71,11 +71,11 @@ GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
 
 void GrDrawVerticesOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
     if (fVariableColor) {
-        input->pipelineColorInput()->setUnknownFourComponents();
+        input->pipelineColorInput()->setUnknown();
     } else {
-        input->pipelineColorInput()->setKnownFourComponents(fMeshes[0].fColor);
+        input->pipelineColorInput()->setColor(fMeshes[0].fColor);
     }
-    input->pipelineCoverageInput()->setKnownSingleComponent(0xff);
+    input->pipelineCoverageInput()->setSingleChannel(0xff);
 }
 
 void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations& optimizations) {

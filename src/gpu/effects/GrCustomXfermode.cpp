@@ -378,7 +378,7 @@ bool CustomXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
 void CustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                                InvariantBlendedColor* blendedColor) const {
     blendedColor->fWillBlendWithDst = true;
-    blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+    blendedColor->fKnownColorComponents.setUnknown();
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);

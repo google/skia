@@ -131,7 +131,7 @@ sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
         static SkRandom gRand;
         GrInvariantOutput io(GrPremulColor(gRand.nextU()), kRGBA_GrColorComponentFlags);
         fp->computeInvariantOutput(&io);
-        SkASSERT(io.validFlags() == kRGBA_GrColorComponentFlags);
+        SkASSERT(io.knownComponents().isConstant());
     }
 #endif
     return fp;
