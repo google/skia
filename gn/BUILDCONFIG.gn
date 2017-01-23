@@ -48,6 +48,9 @@ if (target_cpu == "") {
     target_cpu = "arm64"
   }
 }
+if (target_cpu == "x86_64") {
+  target_cpu = "x64"
+}
 if (current_cpu == "") {
   current_cpu = target_cpu
 }
