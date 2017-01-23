@@ -52,7 +52,7 @@ public:
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const override;
 #endif
 
     class LightingShaderContext : public SkShader::Context {
@@ -267,7 +267,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPArgs& args,
+                                                                     AsFPOutArgs*) const {
     sk_sp<GrFragmentProcessor> normalFP(fNormalSource->asFragmentProcessor(args));
     if (!normalFP) {
         return nullptr;

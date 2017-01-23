@@ -23,7 +23,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const override;
 #endif
 
     SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);

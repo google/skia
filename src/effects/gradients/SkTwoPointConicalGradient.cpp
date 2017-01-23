@@ -357,8 +357,8 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #include "SkGr.h"
 #include "SkTwoPointConicalGradient_gpu.h"
 
-sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
-        const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(const AsFPArgs& args,
+                                                                          AsFPOutArgs*) const {
     SkASSERT(args.fContext);
     SkASSERT(fPtsToUnit.isIdentity());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),

@@ -92,8 +92,14 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs& args,
+                                                              AsFPOutArgs* out) const {
     GrColor4f color = SkColorToPremulGrColor4f(fColor, args.fDstColorSpace);
+    if (out) {
+        out->fIsConstant = true;
+        out->fConstantColor = color;
+        return nullptr;
+    }
     return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
@@ -211,12 +217,18 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs& args,
+                                                               AsFPOutArgs* out) const {
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
     GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
     if (colorSpaceXform) {
         color = colorSpaceXform->apply(color);
+    }
+    if (out) {
+        out->fIsConstant = true;
+        out->fConstantColor = color.premul();
+        return nullptr;
     }
     return GrConstColorProcessor::Make(color.premul(), GrConstColorProcessor::kModulateA_InputMode);
 }

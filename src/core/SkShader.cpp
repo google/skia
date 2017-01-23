@@ -225,7 +225,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&) const {
+sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const {
     return nullptr;
 }
 #endif

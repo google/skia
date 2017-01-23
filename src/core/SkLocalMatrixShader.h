@@ -26,7 +26,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const override;
 #endif
 
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {

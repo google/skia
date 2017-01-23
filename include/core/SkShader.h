@@ -355,6 +355,10 @@ public:
         SkFilterQuality               fFilterQuality;
         SkColorSpace*                 fDstColorSpace;
     };
+    struct AsFPOutArgs {
+        bool fIsConstant = false;
+        GrColor4f fConstantColor;
+    };
 
     /**
      *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is
@@ -368,8 +372,14 @@ public:
      *
      *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
      *  produce a premultiplied output.
+     *
+     *  If the caller provides ASFPOutArgs and the shader knows it will produce a constant color
+     *  then the shader may set the out args to indicate the constant premul color. The paint's
+     *  alpha will be applied to the returned color by the caller. The return value of
+     *  asFragmentProcessor is ignored in this case.
      */
-    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const;
+    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&,
+                                                           AsFPOutArgs* = nullptr) const;
 #endif
 
     /**
