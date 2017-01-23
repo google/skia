@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_394f78a3",
+        "filename": "include/core/SkICC.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-23T19:53:21Z",
+      "side": 1,
+      "message": "// fTable must point into fStorage\n\nI wonder if its any cleaner to say fTable is just an offset?",
+      "range": {
+        "startLine": 71,
+        "startChar": 21,
+        "endLine": 71,
+        "endChar": 27
+      },
+      "revId": "641a938ccf8b6aa125a76f7fe9e69811a8fe958e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
