@@ -450,10 +450,17 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
         } else if (const SkShader* shader = skPaint.getShader()) {
-            shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
-                                                                      skPaint.getFilterQuality(),
-                                                                      rtc->getColorSpace()));
-            if (!shaderFP) {
+            SkShader::AsFPOutArgs outArgs;
+            shaderFP = shader->asFragmentProcessor(
+                    SkShader::AsFPArgs(context, &viewM, nullptr, skPaint.getFilterQuality(),
+                                       rtc->getColorSpace()),
+                    &outArgs);
+            if (outArgs.fIsConstant) {
+                shaderFP.reset(nullptr);
+                float alpha = origColor.fRGBA[3];
+                SkASSERT(outArgs.fConstantColor.isLegalPremul());
+                origColor = outArgs.fConstantColor.mulBy(alpha);
+            } else if (!shaderFP) {
                 return false;
             }
         }

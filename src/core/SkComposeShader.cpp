@@ -203,9 +203,15 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args,
+                                                                AsFPOutArgs* out) const {
     switch (fMode) {
         case SkBlendMode::kClear:
+            if (out) {
+                out->fIsConstant = true;
+                out->fConstantColor = GrColor4f::TransparentBlack();
+                return nullptr;
+            }
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::kIgnore_InputMode);
             break;

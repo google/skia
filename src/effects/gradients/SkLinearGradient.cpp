@@ -509,7 +509,8 @@ void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs& args,
+                                                                 AsFPOutArgs*) const {
     SkASSERT(args.fContext);
 
     SkMatrix matrix;

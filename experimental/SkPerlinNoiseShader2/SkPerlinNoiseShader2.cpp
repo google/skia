@@ -1297,7 +1297,8 @@ void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 }
 
 /////////////////////////////////////////////////////////////////////
-sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPArgs& args,
+                                                                     AsFPOutArgs* out) const {
     SkASSERT(args.fContext);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -1338,12 +1339,22 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
             // TODO: Either treat the output of this shader as sRGB or allow client to specify a
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
-            sk_sp<GrFragmentProcessor> inner(
-                GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
-                                            GrConstColorProcessor::kModulateRGBA_InputMode));
+            GrColor4f color = GrColor4f::FromGrColor(0x80404040);
+            if (out) {
+                out->fConstantColor = color;
+                out->fIsConstant = true;
+                return nullptr;
+            }
+            sk_sp<GrFragmentProcessor> inner(GrConstColorProcessor::Make(
+                    color, GrConstColorProcessor::kModulateRGBA_InputMode));
             return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
         }
         // Emit zero.
+        if (out) {
+            out->fIsConstant = true;
+            out->fConstantColor = GrColor4f::TransparentBlack();
+            return nullptr;
+        }
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
