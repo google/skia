@@ -40,8 +40,11 @@ var (
 	JOBS = []string{
 		"Build-Mac-Clang-Arm7-Debug-iOS",
 		"Build-Mac-Clang-Arm7-Release-iOS",
+		"Build-Mac-Clang-arm-Debug-GN_iOS",
+		"Build-Mac-Clang-arm-Release-GN_iOS",
 		"Build-Mac-Clang-arm64-Debug-Android",
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
+		"Build-Mac-Clang-arm64-Release-GN_iOS",
 		"Build-Mac-Clang-x86_64-Debug",
 		"Build-Mac-Clang-x86_64-Debug-CommandBuffer",
 		"Build-Mac-Clang-x86_64-Release",
