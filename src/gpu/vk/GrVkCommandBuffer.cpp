@@ -345,7 +345,6 @@ void GrVkPrimaryCommandBuffer::end(const GrVkGpu* gpu) {
 
 void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
-                                               uint32_t clearCount,
                                                const VkClearValue* clearValues,
                                                const GrVkRenderTarget& target,
                                                const SkIRect& bounds,
@@ -365,7 +364,7 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     beginInfo.renderPass = renderPass->vkRenderPass();
     beginInfo.framebuffer = target.framebuffer()->framebuffer();
     beginInfo.renderArea = renderArea;
-    beginInfo.clearValueCount = clearCount;
+    beginInfo.clearValueCount = renderPass->clearValueCount();
     beginInfo.pClearValues = clearValues;
 
     VkSubpassContents contents = forSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS

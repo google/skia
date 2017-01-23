@@ -320,7 +320,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     SkASSERT(renderPass->isCompatible(*rt->simpleRenderPass()));
 
 
-    cmdBuffer->beginRenderPass(gpu, renderPass, 0, nullptr, *rt, bounds, false);
+    cmdBuffer->beginRenderPass(gpu, renderPass, nullptr, *rt, bounds, false);
     cmdBuffer->bindPipeline(gpu, pipeline);
 
     // Uniform DescriptorSet, Sampler DescriptorSet, and vertex shader uniformBuffer

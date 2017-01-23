@@ -1838,10 +1838,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
         pBounds = &adjustedBounds;
     }
 
-    // Currently it is fine for us to always pass in 1 for the clear count even if no attachment
-    // uses it. In the current state, we also only use the LOAD_OP_CLEAR for the color attachment
-    // which is always at the first attachment.
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, 1, colorClear, *target, *pBounds, true);
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, colorClear, *target, *pBounds, true);
     fCurrentCmdBuffer->executeCommands(this, buffer);
     fCurrentCmdBuffer->endRenderPass(this);
 

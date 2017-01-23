@@ -20,7 +20,7 @@ class GrVkRenderTarget;
 
 class GrVkRenderPass : public GrVkResource {
 public:
-    GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE) {}
+    GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE), fClearValueCount(0) {}
 
     struct LoadStoreOps {
         VkAttachmentLoadOp  fLoadOp;
@@ -89,16 +89,6 @@ public:
     bool colorAttachmentIndex(uint32_t* index) const;
     bool stencilAttachmentIndex(uint32_t* index) const;
 
-    // Sets the VkRenderPassBeginInfo and VkRenderPassContents need to begin a render pass.
-    // TODO: In the future I expect this function will also take an optional render area instead of
-    // defaulting to the entire render target.
-    // TODO: Figure out if load clear values should be passed into this function or should be stored
-    // on the GrVkRenderPass at create time since we'll know at that point if we want to do a load
-    // clear.
-    void getBeginInfo(const GrVkRenderTarget& target,
-                      VkRenderPassBeginInfo* beginInfo,
-                      VkSubpassContents* contents) const;
-
     // Returns whether or not the structure of a RenderTarget matches that of the VkRenderPass in
     // this object. Specifically this compares that the number of attachments, format of
     // attachments, and sample counts are all the same. This function is used in the creation of
@@ -113,6 +103,11 @@ public:
     VkRenderPass vkRenderPass() const { return fRenderPass; }
 
     const VkExtent2D& granularity() const { return fGranularity; }
+
+    // Returns the number of clear colors needed to begin this render pass. Currently this will
+    // either only be 0 or 1 since we only ever clear the color attachment.
+    uint32_t clearValueCount() const { return fClearValueCount; }
+
 
     void genKey(GrProcessorKeyBuilder* b) const;
 
@@ -137,6 +132,7 @@ private:
     AttachmentFlags       fAttachmentFlags;
     AttachmentsDescriptor fAttachmentsDescriptor;
     VkExtent2D            fGranularity;
+    uint32_t              fClearValueCount;
 
     typedef GrVkResource INHERITED;
 };
