@@ -10,16 +10,21 @@
 
 #include "SkImageInfo.h"
 
+class GrContext;
 class GrFragmentProcessor;
-class GrTexture;
+class GrTextureProxy;
+class GrTextureProvider;
+class GrTextureProxy;
 
 namespace GrYUVEffect {
     /**
      * Creates an effect that performs color conversion from YUV to RGB. The input textures are
      * assumed to be kA8_GrPixelConfig.
      */
-    sk_sp<GrFragmentProcessor> MakeYUVToRGB(GrTexture* yTexture, GrTexture* uTexture,
-                                            GrTexture* vTexture, const SkISize sizes[3],
+    sk_sp<GrFragmentProcessor> MakeYUVToRGB(GrContext* context,
+                                            sk_sp<GrTextureProxy> yProxy,
+                                            sk_sp<GrTextureProxy> uProxy,
+                                            sk_sp<GrTextureProxy> vProxy, const SkISize sizes[3],
                                             SkYUVColorSpace colorSpace, bool nv12);
 
     /**
@@ -27,16 +32,14 @@ namespace GrYUVEffect {
      * channels to Y, U ,and V channels. The output color is (y, u, v, a) where a is the passed in
      * processor's alpha output.
      */
-    sk_sp<GrFragmentProcessor> MakeRGBToYUV(sk_sp<GrFragmentProcessor>,
-                                            SkYUVColorSpace colorSpace);
+    sk_sp<GrFragmentProcessor> MakeRGBToYUV(sk_sp<GrFragmentProcessor>, SkYUVColorSpace);
 
     /**
      * Creates a processor that performs color conversion from the passed in processor's RGB
      * channels to U and V channels. The output color is (u, v, 0, a) where a is the passed in
      * processor's alpha output.
      */
-    sk_sp<GrFragmentProcessor> MakeRGBToUV(sk_sp<GrFragmentProcessor>,
-                                           SkYUVColorSpace colorSpace);
+    sk_sp<GrFragmentProcessor> MakeRGBToUV(sk_sp<GrFragmentProcessor>, SkYUVColorSpace);
     /**
      * Creates a processor that performs color conversion from the passed in fragment processors's
      * RGB channels to Y, U, or V (replicated across all four output color channels). The alpha
