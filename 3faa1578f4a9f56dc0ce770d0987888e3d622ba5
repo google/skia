@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_c6cdd33e",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "I see three differences between these two classes (name, colorTypes used, and boolean passed to encoded_data). Rather than having two classes, what do you think about having one class whose constructor takes a boolean which changes behavior? Or even better, an enum? You already have a good one to use - SkEncodedImageFormat.\n\nThis will also make it easier if/when you add one for JPEG (or any others we might add).",
+      "range": {
+        "startLine": 167,
+        "startChar": 6,
+        "endLine": 167,
+        "endChar": 18
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_e6a28f8a",
+        "filename": "src/images/SkPNGImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "It looks like previously, we would either use transform_scanline_rgbA or transform_scanline_srgbA, depending on the return value of  info.gammaCloseToSRGB().\n\nIs this a deliberate behavior change? Or is it impossible that gammaCloseToSRGB() returns true here, so there is no behavior change?",
+      "range": {
+        "startLine": 114,
+        "startChar": 8,
+        "endLine": 114,
+        "endChar": 31
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_a6bec7a0",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "Would it make sense to share this with SkPNGImageEncoder.cpp?\n\nI do see a couple of differences: PNG does not use bpp (so it could just ignore it), and this one does not consider gamma (but maybe it should?).",
+      "range": {
+        "startLine": 42,
+        "startChar": 31,
+        "endLine": 42,
+        "endChar": 42
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_46b9c3b9",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "This method assumes legacy premul. What happens if it is gamma corrected?",
+      "range": {
+        "startLine": 135,
+        "startChar": 12,
+        "endLine": 135,
+        "endChar": 35
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_868e2b12",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "I found this comment and call confusing. It looks like the function does not consider premultiplication in either direction, so I think it\u0027s doing the right thing, but the comment sounds like we want to unpremultiply, and the call looks like we\u0027re going to premultiply.\n\nI guess I should read the function name as \"swizzle from RGBA order to PMColor order\" (or \"possibly swizzle R and B, depending on SK_PMCOLOR_IS_RGBA\").",
+      "range": {
+        "startLine": 53,
+        "startChar": 28,
+        "endLine": 53,
+        "endChar": 43
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_06817be7",
+        "filename": "src/images/transform_scanline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-23T14:45:03Z",
+      "side": 1,
+      "message": "Don\u0027t we need to increment src somewhere?",
+      "range": {
+        "startLine": 61,
+        "startChar": 37,
+        "endLine": 61,
+        "endChar": 40
+      },
+      "revId": "3faa1578f4a9f56dc0ce770d0987888e3d622ba5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
