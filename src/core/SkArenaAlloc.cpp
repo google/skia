@@ -113,6 +113,8 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
 
     char* newBlock = new char[allocationSize];
 
+    SkDebugf("newBlock: %p, allocationSize: %u\n", newBlock, allocationSize);
+
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
     fDtorCursor = newBlock;
@@ -123,7 +125,7 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
 char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
     size_t mask = alignment - 1;
     char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-    if (objStart + size > fEnd) {
+    if (size > (size_t)(fEnd - objStart)) {
         this->ensureSpace(size, alignment);
         objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
     }
@@ -142,9 +144,13 @@ restart:
     char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
     size_t totalSize = sizeIncludingFooter + skipOverhead;
 
-    if (objStart + totalSize > fEnd) {
+    if (totalSize > (size_t)(fEnd - objStart)) {
         this->ensureSpace(totalSize, alignment);
         goto restart;
+    }
+
+    if (objStart + totalSize > fEnd) {
+        SkDebugf("objStart: %p, totalSize: %u, fEnd: %p\n", objStart, totalSize, fEnd);
     }
 
     SkASSERT(objStart + totalSize <= fEnd);
