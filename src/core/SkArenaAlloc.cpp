@@ -123,7 +123,7 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
 char* SkArenaAlloc::allocObject(size_t size, size_t alignment) {
     size_t mask = alignment - 1;
     char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-    if (objStart + size > fEnd) {
+    if ((ptrdiff_t)size > fEnd - objStart) {
         this->ensureSpace(size, alignment);
         objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
     }
@@ -142,12 +142,12 @@ restart:
     char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
     size_t totalSize = sizeIncludingFooter + skipOverhead;
 
-    if (objStart + totalSize > fEnd) {
+    if ((ptrdiff_t)totalSize > fEnd - objStart) {
         this->ensureSpace(totalSize, alignment);
         goto restart;
     }
 
-    SkASSERT(objStart + totalSize <= fEnd);
+    SkASSERT((ptrdiff_t)totalSize <= fEnd - objStart);
 
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
