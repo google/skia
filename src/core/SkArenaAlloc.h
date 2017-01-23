@@ -68,6 +68,7 @@ public:
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
+        SkASSERT(SkTFitsIn<uint32_t>(sizeof(T)));
         char* objStart;
         if (skstd::is_trivially_destructible<T>::value) {
             objStart = this->allocObject(sizeof(T), alignof(T));
