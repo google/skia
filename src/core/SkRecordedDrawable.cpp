@@ -51,8 +51,7 @@ void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
     SkPictureRecord pictureRecord(SkISize::Make(fBounds.width(), fBounds.height()), 0);
 
     // If the query contains the whole picture, don't bother with the bounding box hierarchy.
-    SkRect clipBounds;
-    pictureRecord.getClipBounds(&clipBounds);
+    SkRect clipBounds = pictureRecord.getLocalClipBounds();
     SkBBoxHierarchy* bbh;
     if (clipBounds.contains(fBounds)) {
         bbh = nullptr;
