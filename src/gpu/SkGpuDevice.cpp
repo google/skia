@@ -35,6 +35,7 @@
 #include "SkPictureData.h"
 #include "SkRRect.h"
 #include "SkRasterClip.h"
+#include "SkReadPixelsRec.h"
 #include "SkRecord.h"
 #include "SkSpecialImage.h"
 #include "SkStroke.h"
@@ -43,6 +44,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
+#include "SkWritePixelsRec.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -199,7 +201,12 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
         return false;
     }
 
-    return fRenderTargetContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
+    SkReadPixelsRec rec(dstInfo, dstPixels, dstRowBytes, x, y);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    return fRenderTargetContext->readPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
@@ -210,7 +217,12 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixel
         return false;
     }
 
-    return fRenderTargetContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);
+    SkWritePixelsRec rec(srcInfo, srcPixels, srcRowBytes, x, y);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+
+    return fRenderTargetContext->writePixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY);
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {

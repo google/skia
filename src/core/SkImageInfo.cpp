@@ -98,9 +98,6 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
 #include "SkReadPixelsRec.h"
 
 bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
-    if (kIndex_8_SkColorType == fInfo.colorType()) {
-        return false;
-    }
     if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
         return false;
     }
@@ -128,6 +125,42 @@ bool SkReadPixelsRec::trim(int srcWidth, int srcHeight) {
     fInfo = fInfo.makeWH(srcR.width(), srcR.height());
     fX = srcR.x();
     fY = srcR.y();
+
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkWritePixelsRec.h"
+
+bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
+    if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
+        return false;
+    }
+    if (0 >= fInfo.width() || 0 >= fInfo.height()) {
+        return false;
+    }
+
+    int x = fX;
+    int y = fY;
+    SkIRect dstR = SkIRect::MakeXYWH(x, y, fInfo.width(), fInfo.height());
+    if (!dstR.intersect(0, 0, dstWidth, dstHeight)) {
+        return false;
+    }
+
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
+    }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    fPixels = ((const char*)fPixels - y * fRowBytes - x * fInfo.bytesPerPixel());
+    // the intersect may have shrunk info's logical size
+    fInfo = fInfo.makeWH(dstR.width(), dstR.height());
+    fX = dstR.x();
+    fY = dstR.y();
 
     return true;
 }
