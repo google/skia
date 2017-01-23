@@ -14,6 +14,8 @@
 #include "GrTypes.h"
 #include "GrShaderVar.h"
 
+class GrTextureProxy;
+
 /**
  * A class representing a linear transformation of local coordinates. GrFragnentProcessors
  * these transformations, and the GrGeometryProcessor implements the transformation.
@@ -22,7 +24,9 @@ class GrCoordTransform : SkNoncopyable {
 public:
     GrCoordTransform()
         : fTexture(nullptr)
-        , fNormalize(false) {
+        , fNormalize(false)
+        , fReverseY(false)
+        , fPrecision(kDefault_GrSLPrecision) {
         SkDEBUGCODE(fInProcessor = false);
     }
 
@@ -37,15 +41,29 @@ public:
         this->reset(SkMatrix::I(), texture, filter);
     }
 
+    GrCoordTransform(GrContext* context, GrTextureProxy* proxy,
+                     GrSamplerParams::FilterMode filter) {
+        SkASSERT(proxy);
+        SkDEBUGCODE(fInProcessor = false);
+        this->reset(context, SkMatrix::I(), proxy, filter);
+    }
+
     /**
      * Create a transformation from a matrix. The precision is inferred from the texture size and
      * filter. The texture origin also implies whether a y-reversal should be performed.
      */
     GrCoordTransform(const SkMatrix& m, const GrTexture* texture,
                      GrSamplerParams::FilterMode filter) {
-        SkDEBUGCODE(fInProcessor = false);
         SkASSERT(texture);
+        SkDEBUGCODE(fInProcessor = false);
         this->reset(m, texture, filter);
+    }
+
+    GrCoordTransform(GrContext* context, const SkMatrix& m, GrTextureProxy* proxy,
+                     GrSamplerParams::FilterMode filter) {
+        SkASSERT(proxy);
+        SkDEBUGCODE(fInProcessor = false);
+        this->reset(context, m, proxy, filter);
     }
 
     /**
@@ -56,8 +74,12 @@ public:
         this->reset(m, precision);
     }
 
+    // MDB TODO: rm the GrTexture* flavor of reset
     void reset(const SkMatrix&, const GrTexture*, GrSamplerParams::FilterMode filter,
                bool normalize = true);
+
+    void reset(GrContext* context, const SkMatrix&, GrTextureProxy*,
+               GrSamplerParams::FilterMode filter, bool normalize = true);
 
     void reset(const SkMatrix& m, GrSLPrecision precision = kDefault_GrSLPrecision) {
         SkASSERT(!fInProcessor);
