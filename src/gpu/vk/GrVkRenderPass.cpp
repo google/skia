@@ -84,6 +84,10 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         colorRef.attachment = currentAttachment++;
         colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         subpassDesc.colorAttachmentCount = 1;
+
+        if (VK_ATTACHMENT_LOAD_OP_CLEAR == colorOp.fLoadOp) {
+            fClearValueCount++;
+        }
     } else {
         // I don't think there should ever be a time where we don't have a color attachment
         SkASSERT(false);
@@ -102,6 +106,9 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         // setup subpass use of attachment
         stencilRef.attachment = currentAttachment++;
         stencilRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if (VK_ATTACHMENT_LOAD_OP_CLEAR == stencilOp.fLoadOp) {
+            fClearValueCount++;
+        }
     } else {
         stencilRef.attachment = VK_ATTACHMENT_UNUSED;
         stencilRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -147,7 +154,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
 }
 
 void GrVkRenderPass::init(const GrVkGpu* gpu,
-                          const GrVkRenderTarget& target, 
+                          const GrVkRenderTarget& target,
                           const LoadStoreOps& colorOp,
                           const LoadStoreOps& stencilOp) {
     // Get attachment information from render target. This includes which attachments the render
@@ -181,29 +188,6 @@ bool GrVkRenderPass::stencilAttachmentIndex(uint32_t* index) const {
         return true;
     }
     return false;
-}
-
-void GrVkRenderPass::getBeginInfo(const GrVkRenderTarget& target,
-                                  VkRenderPassBeginInfo* beginInfo,
-                                  VkSubpassContents* contents) const {
-    SkASSERT(this->isCompatible(target));
-
-    VkRect2D renderArea;
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = { (uint32_t)target.width(), (uint32_t)target.height() };
-
-    memset(beginInfo, 0, sizeof(VkRenderPassBeginInfo));
-    beginInfo->sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    beginInfo->pNext = nullptr;
-    beginInfo->renderPass = fRenderPass;
-    beginInfo->framebuffer = target.framebuffer()->framebuffer();
-    beginInfo->renderArea = renderArea;
-    beginInfo->clearValueCount = 0;
-    beginInfo->pClearValues = nullptr;
-
-    // Currently just assuming no secondary cmd buffers. This value will need to be update if we
-    // have them.
-    *contents = VK_SUBPASS_CONTENTS_INLINE;
 }
 
 bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,

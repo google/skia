@@ -210,7 +210,6 @@ public:
     // in the render pass.
     void beginRenderPass(const GrVkGpu* gpu,
                          const GrVkRenderPass* renderPass,
-                         uint32_t clearCount,
                          const VkClearValue* clearValues,
                          const GrVkRenderTarget& target,
                          const SkIRect& bounds,
