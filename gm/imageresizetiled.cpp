@@ -22,8 +22,6 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                                                              kNone_SkFilterQuality,
                                                              nullptr));
         const SkScalar tile_size = SkIntToScalar(100);
-        SkRect bounds;
-        canvas->getClipBounds(&bounds);
         for (SkScalar y = 0; y < HEIGHT; y += tile_size) {
             for (SkScalar x = 0; x < WIDTH; x += tile_size) {
                 canvas->save();

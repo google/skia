@@ -526,17 +526,28 @@ public:
     */
     bool quickReject(const SkPath& path) const;
 
-    /** Return the bounds of the current clip (in local coordinates) in the
-        bounds parameter, and return true if it is non-empty. This can be useful
-        in a way similar to quickReject, in that it tells you that drawing
-        outside of these bounds will be clipped out.
-    */
+    /**
+     *  Return the bounds of the current clip in local coordinates. If the clip is empty,
+     *  return { 0, 0, 0, 0 }.
+     */
+    SkRect getLocalClipBounds() const {
+        SkRect bounds;
+        this->getClipBounds(&bounds);
+        return bounds;
+    }
+    // TODO: move this to protected and rename to onGetLocalClipBounds
     virtual bool getClipBounds(SkRect* bounds) const;
 
-    /** Return the bounds of the current clip, in device coordinates; returns
-        true if non-empty. Maybe faster than getting the clip explicitly and
-        then taking its bounds.
-    */
+    /**
+     *  Return the bounds of the current clip in device coordinates. If the clip is empty,
+     *  return { 0, 0, 0, 0 }.
+     */
+    SkIRect getDeviceClipBounds() const {
+        SkIRect bounds;
+        this->getClipDeviceBounds(&bounds);
+        return bounds;
+    }
+    // TODO: move this to protected and rename to onGetDeviceClipBounds
     virtual bool getClipDeviceBounds(SkIRect* bounds) const;
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
