@@ -32,7 +32,7 @@ public:
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -126,7 +126,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&) const {
+sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&, AsFPOutArgs*) const {
     return sk_make_sp<GaussianEdgeFP>();
 }
 

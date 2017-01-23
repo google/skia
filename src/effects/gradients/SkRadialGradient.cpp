@@ -339,7 +339,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs& args, AsFPOutArgs*) const {
     SkASSERT(args.fContext);
 
     SkMatrix matrix;

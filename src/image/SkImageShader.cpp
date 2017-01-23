@@ -143,7 +143,7 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args, AsFPOutArgs* out) const {
 
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {

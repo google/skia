@@ -244,6 +244,15 @@ struct GrColor4f {
         float a = fRGBA[3];
         return GrColor4f(fRGBA[0] * a, fRGBA[1] * a, fRGBA[2] * a, a);
     }
+
+    GrColor4f mulBy(float a) {
+        return GrColor4f(fRGBA[0] * a, fRGBA[1] * a, fRGBA[2] * a, fRGBA[3] * a);
+    }
+
+    // Allows calling code that expects a GrColor4f to be premul to assert that the value is legal.
+    bool isLegalPremul() const {
+        return fRGBA[0] <= fRGBA[3] && fRGBA[1] <= fRGBA[3] && fRGBA[2] <= fRGBA[3];
+    }
 };
 
 /**
