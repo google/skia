@@ -66,6 +66,25 @@
 #include "SkTDArray.h"
 #include "Test.h"
 
+DEF_TEST(canvas_clipbounds, reporter) {
+    SkCanvas canvas(10, 10);
+    SkIRect irect;
+    SkRect rect;
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeWH(10, 10));
+    // local bounds are always too big today -- can we trim them?
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect.contains(SkRect::MakeWH(10, 10)));
+
+    canvas.clipRect(SkRect::MakeEmpty());
+
+    irect = canvas.getDeviceClipBounds();
+    REPORTER_ASSERT(reporter, irect == SkIRect::MakeEmpty());
+    rect = canvas.getLocalClipBounds();
+    REPORTER_ASSERT(reporter, rect == SkRect::MakeEmpty());
+}
+
 static const int kWidth = 2, kHeight = 2;
 
 static void createBitmap(SkBitmap* bm, SkColor color) {
@@ -669,18 +688,14 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     canvas.clipRect(SkRect::MakeXYWH(12.7f, 12.7f, 75, 75));
     canvas.scale(0.5f, 0.75f);
 
-    SkRect clip1, clip2;
-
     MockFilterCanvas filterCanvas(&canvas);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip1 == clip2);
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds() == filterCanvas.getLocalClipBounds());
 
     filterCanvas.clipRect(SkRect::MakeXYWH(30.5f, 30.7f, 100, 100));
     filterCanvas.scale(0.75f, 0.5f);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
-    REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip2.contains(clip1));
+    REPORTER_ASSERT(reporter, filterCanvas.getLocalClipBounds().contains(canvas.getLocalClipBounds()));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     SkShadowTestCanvas* tCanvas = new SkShadowTestCanvas(100,100, reporter);

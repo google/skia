@@ -504,8 +504,7 @@ SkPathEffect
             paint.setPathEffect(SkPath2DPathEffect::Make(matrix, path));
             paint.setAntiAlias(true);
             canvas->clear(SK_ColorWHITE);
-            SkRect bounds;
-            (void)canvas->getClipBounds(&bounds);
+            SkRect bounds = canvas->getLocalClipBounds();
             bounds.outset(2 * scale, 2 * scale);
             canvas->drawRect(bounds, paint);
         }
@@ -525,8 +524,7 @@ SkPathEffect
             lattice.preRotate(30.0f);
             paint.setPathEffect(SkLine2DPathEffect::Make(0.0f, lattice));
             paint.setAntiAlias(true);
-            SkRect bounds;
-            (void)canvas->getClipBounds(&bounds);
+            SkRect bounds = canvas->getLocalClipBounds();
             bounds.outset(8.0f, 8.0f);
             canvas->clear(SK_ColorWHITE);
             canvas->drawRect(bounds, paint);

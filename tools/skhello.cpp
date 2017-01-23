@@ -19,8 +19,7 @@ DEFINE_string2(outFile, o, "skhello", "The filename to write the image.");
 DEFINE_string2(text, t, "Hello", "The string to write.");
 
 static void doDraw(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
-    SkRect bounds;
-    canvas->getClipBounds(&bounds);
+    SkRect bounds = canvas->getLocalClipBounds();
 
     canvas->drawColor(SK_ColorWHITE);
     canvas->drawText(text, strlen(text),

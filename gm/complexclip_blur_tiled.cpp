@@ -34,10 +34,7 @@ protected:
         SkPaint blurPaint;
         blurPaint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));
         const SkScalar tileSize = SkIntToScalar(128);
-        SkRect bounds;
-        if (!canvas->getClipBounds(&bounds)) {
-            bounds.setEmpty();
-        }
+        SkRect bounds = canvas->getLocalClipBounds();
         int ts = SkScalarCeilToInt(tileSize);
         SkImageInfo info = SkImageInfo::MakeN32Premul(ts, ts);
         auto tileSurface(canvas->makeSurface(info));

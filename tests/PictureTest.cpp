@@ -417,18 +417,14 @@ static void check_balance(skiatest::Reporter* reporter, SkPicture* picture) {
 
     SkMatrix beforeMatrix = canvas.getTotalMatrix();
 
-    SkRect beforeClip;
-
-    canvas.getClipBounds(&beforeClip);
+    SkRect beforeClip = canvas.getLocalClipBounds();
 
     canvas.drawPicture(picture);
 
     REPORTER_ASSERT(reporter, beforeSaveCount == canvas.getSaveCount());
     REPORTER_ASSERT(reporter, beforeMatrix == canvas.getTotalMatrix());
 
-    SkRect afterClip;
-
-    canvas.getClipBounds(&afterClip);
+    SkRect afterClip = canvas.getLocalClipBounds();
 
     REPORTER_ASSERT(reporter, afterClip == beforeClip);
 }
@@ -643,8 +639,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(invPath);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
-        REPORTER_ASSERT(reporter, true == nonEmpty);
+        clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
@@ -654,8 +649,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path);
         canvas->clipPath(invPath);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
-        REPORTER_ASSERT(reporter, true == nonEmpty);
+        clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 7 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 7 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
@@ -665,8 +659,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path);
         canvas->clipPath(invPath, kUnion_SkClipOp);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
-        REPORTER_ASSERT(reporter, true == nonEmpty);
+        clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
@@ -675,8 +668,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path, kDifference_SkClipOp);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
-        REPORTER_ASSERT(reporter, true == nonEmpty);
+        clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
@@ -685,11 +677,10 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path, kReverseDifference_SkClipOp);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
+        clipBounds = canvas->getDeviceClipBounds();
         // True clip is actually empty in this case, but the best
         // determination we can make using only bounds as input is that the
         // clip is included in the bounds of 'path'.
-        REPORTER_ASSERT(reporter, true == nonEmpty);
         REPORTER_ASSERT(reporter, 7 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 7 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
@@ -699,8 +690,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
         canvas->clipPath(path, kIntersect_SkClipOp);
         canvas->clipPath(path2, kXOR_SkClipOp);
-        bool nonEmpty = canvas->getClipDeviceBounds(&clipBounds);
-        REPORTER_ASSERT(reporter, true == nonEmpty);
+        clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 6 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 6 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);

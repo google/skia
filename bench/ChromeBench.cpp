@@ -480,10 +480,11 @@ protected:
                     SkIntToScalar(gmailScrollingRectSpec[i*3+1]), SkIntToScalar(gmailScrollingRectSpec[i*3+2]));
     }
     void validateBounds(SkCanvas* canvas) {
-        SkIRect bounds;
-        canvas->getClipDeviceBounds(&bounds);
+#ifdef SK_DEBUG
+        SkIRect bounds = canvas->getDeviceClipBounds();
         SkASSERT(bounds.right()-bounds.left() >= W);
         SkASSERT(bounds.bottom()-bounds.top() >= H);
+#endif
     }
 
 

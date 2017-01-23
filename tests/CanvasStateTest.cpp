@@ -326,7 +326,7 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     SkIRect devClip;
     // Check that saveLayer without the kClipToLayer_SaveFlag leaves the clip unchanged.
     canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr, dontSaveFlag));
-    canvas.getClipDeviceBounds(&devClip);
+    devClip = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, canvas.isClipRect());
     REPORTER_ASSERT(reporter, devClip.width() == WIDTH);
     REPORTER_ASSERT(reporter, devClip.height() == HEIGHT);
@@ -335,7 +335,7 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip
     // stack to the layer bounds.
     canvas.saveLayer(&bounds, nullptr);
-    canvas.getClipDeviceBounds(&devClip);
+    devClip = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, canvas.isClipRect());
     REPORTER_ASSERT(reporter, devClip.width() == LAYER_WIDTH);
     REPORTER_ASSERT(reporter, devClip.height() == LAYER_HEIGHT);

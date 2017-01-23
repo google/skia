@@ -33,10 +33,7 @@ protected:
         SkPaint paint;
         paint.setImageFilter(SkBlurImageFilter::Make(fSigmaX, fSigmaY, nullptr));
         const SkScalar tileSize = SkIntToScalar(128);
-        SkRect bounds;
-        if (!canvas->getClipBounds(&bounds)) {
-            bounds.setEmpty();
-        }
+        SkRect bounds = canvas->getLocalClipBounds();
         for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {
             for (SkScalar x = bounds.left(); x < bounds.right(); x += tileSize) {
                 canvas->save();
