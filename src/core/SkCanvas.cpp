@@ -1074,8 +1074,8 @@ bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
                               SkIRect* intersection, const SkImageFilter* imageFilter) {
-    SkIRect clipBounds;
-    if (!this->getClipDeviceBounds(&clipBounds)) {
+    SkIRect clipBounds = this->getDeviceClipBounds();
+    if (clipBounds.isEmpty()) {
         return false;
     }
 
@@ -1774,8 +1774,11 @@ bool SkCanvas::quickReject(const SkPath& path) const {
 }
 
 bool SkCanvas::getClipBounds(SkRect* bounds) const {
-    SkIRect ibounds;
-    if (!this->getClipDeviceBounds(&ibounds)) {
+    SkIRect ibounds = this->getDeviceClipBounds();
+    if (ibounds.isEmpty()) {
+        if (bounds) {
+            bounds->setEmpty();
+        }
         return false;
     }
 
@@ -2070,7 +2073,7 @@ void SkCanvas::temporary_internal_describeTopLayer(SkMatrix* matrix, SkIRect* cl
         matrix->preTranslate(-layer_bounds.left(), -layer_bounds.top());
     }
     if (clip_bounds) {
-        this->getClipDeviceBounds(clip_bounds);
+        *clip_bounds = this->getDeviceClipBounds();
         clip_bounds->offset(-layer_bounds.left(), -layer_bounds.top());
     }
 }
