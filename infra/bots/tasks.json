@@ -12,6 +12,18 @@
         "Build-Mac-Clang-Arm7-Release-iOS"
       ]
     },
+    "Build-Mac-Clang-arm-Debug-GN_iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm-Debug-GN_iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm-Release-GN_iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm-Release-GN_iOS"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -22,6 +34,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-GN_iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm64-Release-GN_iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm64-Release-GN_iOS"
       ]
     },
     "Build-Mac-Clang-x86_64-Debug": {
@@ -1657,6 +1675,56 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Mac-Clang-arm-Debug-GN_iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.11",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-arm-Release-GN_iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.11",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm-Release-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Mac-Clang-arm64-Debug-Android": {
       "cipd_packages": [
         {
@@ -1701,6 +1769,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-arm64-Release-GN_iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.11",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm64-Release-GN_iOS",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
