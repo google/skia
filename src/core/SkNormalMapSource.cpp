@@ -103,7 +103,7 @@ public:
     const char* name() const override { return "NormalMapFP"; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
+        inout->setToUnknown();
     }
 
     const SkMatrix& invCTM() const { return fInvCTM; }

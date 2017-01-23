@@ -64,7 +64,7 @@ public:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // We don't care about optimizing these processors.
-        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+        inout->setToUnknown();
     }
 
 private:

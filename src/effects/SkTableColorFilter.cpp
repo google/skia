@@ -561,7 +561,7 @@ void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
     if (fFlags & SkTable_ColorFilter::kA_Flag) {
         invalidateFlags |= kA_GrColorComponentFlag;
     }
-    inout->invalidateComponents(invalidateFlags, GrInvariantOutput::kWill_ReadInput);
+    inout->invalidateComponents(invalidateFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

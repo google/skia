@@ -536,7 +536,7 @@ private:
     }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
+        inout->setToUnknown();
     }
 
     GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,

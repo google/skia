@@ -64,8 +64,7 @@ private:
 
 void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (kIgnore_InputMode == fMode) {
-        inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor(),
-                          GrInvariantOutput::kWillNot_ReadInput);
+        inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor());
     } else {
         float r = fColor.fRGBA[0];
         bool colorIsSingleChannel = r == fColor.fRGBA[1] && r == fColor.fRGBA[2] &&

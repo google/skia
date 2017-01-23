@@ -55,26 +55,14 @@ struct GrPipelineInput {
 class GrInvariantOutput {
 public:
     GrInvariantOutput(GrColor color, GrColorComponentFlags flags)
-            : fColor(color)
-            , fValidFlags(flags)
-            , fNonMulStageFound(false)
-            , fWillUseInputColor(true) {}
+            : fColor(color), fValidFlags(flags), fNonMulStageFound(false) {}
 
     GrInvariantOutput(const GrPipelineInput& input)
-            : fColor(input.fColor)
-            , fValidFlags(input.fValidFlags)
-            , fNonMulStageFound(false)
-            , fWillUseInputColor(false) {}
+            : fColor(input.fColor), fValidFlags(input.fValidFlags), fNonMulStageFound(false) {}
 
     virtual ~GrInvariantOutput() {}
 
-    enum ReadInput {
-        kWill_ReadInput,
-        kWillNot_ReadInput,
-    };
-
     void mulByUnknownOpaqueFourComponents() {
-        SkDEBUGCODE(this->validate());
         if (this->isOpaque()) {
             fValidFlags = kA_GrColorComponentFlag;
         } else {
@@ -82,32 +70,26 @@ public:
             // multiplied is opaque.
             this->mulByUnknownFourComponents();
         }
-        SkDEBUGCODE(this->validate());
     }
 
     void mulByUnknownFourComponents() {
-        SkDEBUGCODE(this->validate());
         if (this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
         } else {
             this->internalSetToUnknown();
         }
-        SkDEBUGCODE(this->validate());
     }
 
     void mulByUnknownSingleComponent() {
-        SkDEBUGCODE(this->validate());
         if (this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
         } else {
             // We don't need to change fIsSingleComponent in this case
             fValidFlags = kNone_GrColorComponentFlags;
         }
-        SkDEBUGCODE(this->validate());
     }
 
     void mulByKnownSingleComponent(uint8_t alpha) {
-        SkDEBUGCODE(this->validate());
         if (this->hasZeroAlpha() || 0 == alpha) {
             this->internalSetToTransparentBlack();
         } else {
@@ -120,11 +102,9 @@ public:
                 // We don't need to change fIsSingleComponent in this case
             }
         }
-        SkDEBUGCODE(this->validate());
     }
 
     void mulByKnownFourComponents(GrColor color) {
-        SkDEBUGCODE(this->validate());
         uint32_t a;
         if (GetAlphaAndCheckSingleChannel(color, &a)) {
             this->mulByKnownSingleComponent(a);
@@ -137,12 +117,10 @@ public:
                     SkMulDiv255Round(GrColorUnpackA(fColor), a));
             }
         }
-        SkDEBUGCODE(this->validate());
     }
 
     // Ignores the incoming color's RGB and muls its alpha by color.
     void mulAlphaByKnownFourComponents(GrColor color) {
-        SkDEBUGCODE(this->validate());
         uint32_t a;
         if (GetAlphaAndCheckSingleChannel(color, &a)) {
             this->mulAlphaByKnownSingleComponent(a);
@@ -162,13 +140,11 @@ public:
         } else {
             fValidFlags = kNone_GrColorComponentFlags;
         }
-        SkDEBUGCODE(this->validate());
     }
 
     // Ignores the incoming color's RGB and muls its alpha by the alpha param and sets all channels
     // equal to that value.
     void mulAlphaByKnownSingleComponent(uint8_t alpha) {
-        SkDEBUGCODE(this->validate());
         if (0 == alpha || this->hasZeroAlpha()) {
             this->internalSetToTransparentBlack();
         } else {
@@ -181,63 +157,35 @@ public:
                 fValidFlags = kNone_GrColorComponentFlags;
             }
         }
-        SkDEBUGCODE(this->validate());
     }
 
     void premulFourChannelColor() {
-        SkDEBUGCODE(this->validate());
         fNonMulStageFound = true;
         if (!(fValidFlags & kA_GrColorComponentFlag)) {
             fValidFlags = kNone_GrColorComponentFlags;
         } else {
             fColor = GrPremulColor(fColor);
         }
-        SkDEBUGCODE(this->validate());
     }
 
-    void invalidateComponents(GrColorComponentFlags invalidateFlags, ReadInput readsInput) {
-        SkDEBUGCODE(this->validate());
+    void invalidateComponents(GrColorComponentFlags invalidateFlags) {
         fValidFlags = (fValidFlags & ~invalidateFlags);
         fNonMulStageFound = true;
-        if (kWillNot_ReadInput == readsInput) {
-            fWillUseInputColor = false;
-        }
-        SkDEBUGCODE(this->validate());
     }
 
-    void setToOther(GrColorComponentFlags validFlags, GrColor color, ReadInput readsInput) {
-        SkDEBUGCODE(this->validate());
+    void setToOther(GrColorComponentFlags validFlags, GrColor color) {
         fValidFlags = validFlags;
         fColor = color;
         fNonMulStageFound = true;
-        if (kWillNot_ReadInput == readsInput) {
-            fWillUseInputColor = false;
-        }
-        if (kRGBA_GrColorComponentFlags == fValidFlags) {
-        }
-        SkDEBUGCODE(this->validate());
     }
 
-    void setToUnknown(ReadInput readsInput) {
-        SkDEBUGCODE(this->validate());
+    void setToUnknown() {
         this->internalSetToUnknown();
-        fNonMulStageFound= true;
-        if (kWillNot_ReadInput == readsInput) {
-            fWillUseInputColor = false;
-        }
-        SkDEBUGCODE(this->validate());
+        fNonMulStageFound = true;
     }
 
     GrColor color() const { return fColor; }
     GrColorComponentFlags validFlags() const { return fValidFlags; }
-    bool willUseInputColor() const { return fWillUseInputColor; }
-
-#ifdef SK_DEBUG
-    void validate() const {
-        // If we claim that we are not using the input color we must not be modulating the input.
-        SkASSERT(fNonMulStageFound || fWillUseInputColor);
-    }
-#endif
 
 private:
     friend class GrProcOptInfo;
@@ -253,14 +201,12 @@ private:
         fColor = color;
         fValidFlags = flags;
         fNonMulStageFound = false;
-        fWillUseInputColor = true;
     }
 
     void reset(const GrPipelineInput& input) {
         fColor = input.fColor;
         fValidFlags = input.fValidFlags;
         fNonMulStageFound = false;
-        fWillUseInputColor = true;
     }
 
     void internalSetToTransparentBlack() {
@@ -284,8 +230,6 @@ private:
         return (fValidFlags == kRGBA_GrColorComponentFlags && 0xFFFFFFFF == fColor);
     }
 
-    void resetWillUseInputColor() { fWillUseInputColor = true; }
-
     bool allStagesMulInput() const { return !fNonMulStageFound; }
     void resetNonMulStageFound() { fNonMulStageFound = false; }
 
@@ -297,7 +241,6 @@ private:
     GrColor fColor;
     GrColorComponentFlags fValidFlags;
     bool fNonMulStageFound;
-    bool fWillUseInputColor;
 };
 
 #endif

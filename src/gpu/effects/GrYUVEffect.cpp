@@ -187,8 +187,7 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // YUV is opaque
-        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A,
-                          GrInvariantOutput::kWillNot_ReadInput);
+        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A);
     }
 
     GrCoordTransform fYTransform;
@@ -348,7 +347,7 @@ private:
     }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
+        inout->setToUnknown();
     }
 
     GrCoordTransform    fTransform;

@@ -528,7 +528,7 @@ void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout)
     // and no displacement offset push any texture coordinates out of bounds OR if the constant
     // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
     // not of constant color when a displacement effect is applied.
-    inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);
+    inout->setToUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

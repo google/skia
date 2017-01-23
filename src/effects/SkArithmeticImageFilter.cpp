@@ -287,7 +287,7 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         // TODO: optimize this
-        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+        inout->setToUnknown();
     }
 
     ArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,

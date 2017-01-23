@@ -456,7 +456,7 @@ public:
     const char* name() const override { return "RRectsGaussianEdgeFP"; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+        inout->setToUnknown();
     }
 
     const SkRRect& first() const { return fFirst; }

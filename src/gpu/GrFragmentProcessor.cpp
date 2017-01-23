@@ -181,7 +181,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
             if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
-                inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+                inout->setToUnknown();
                 return;
             }
 
@@ -208,7 +208,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
                 color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1)) <<
                     GrColor_SHIFT_B;
             }
-            inout->setToOther(commonFlags, color, GrInvariantOutput::kWill_ReadInput);
+            inout->setToOther(commonFlags, color);
         }
     };
     if (!fp) {
@@ -272,8 +272,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor(),
-                              GrInvariantOutput::kWillNot_ReadInput);
+            inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor());
             this->childProcessor(0).computeInvariantOutput(inout);
         }
 
@@ -282,11 +281,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
 
     GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags);
     fp->computeInvariantOutput(&childOut);
-    if (childOut.willUseInputColor()) {
-        return sk_sp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(fp), color));
-    } else {
-        return fp;
-    }
+    return sk_sp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(fp), color));
 }
 
 sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProcessor>* series,
@@ -354,7 +349,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
 
     int firstIdx = info.firstEffectiveProcessorIndex();
     cnt -= firstIdx;
-    if (firstIdx > 0 && info.inputColorIsUsed()) {
+    if (firstIdx > 0) {
         // See comment above - need to preserve 4f and color spaces during invariant processing.
         sk_sp<GrFragmentProcessor> colorFP(GrConstColorProcessor::Make(
             GrColor4f::FromGrColor(info.inputColorToFirstEffectiveProccesor()),
@@ -366,9 +361,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             replacementSeries.emplace_back(std::move(series[firstIdx + i]));
         }
         series = replacementSeries.begin();
-    } else {
-        series += firstIdx;
-        cnt -= firstIdx;
     }
 
     if (1 == cnt) {

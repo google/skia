@@ -223,7 +223,7 @@ public:
     const char* name() const override { return "NormalBevelFP"; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::ReadInput::kWillNot_ReadInput);
+        inout->setToUnknown();
     }
 
 private:
