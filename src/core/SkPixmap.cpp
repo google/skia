@@ -16,7 +16,6 @@
 #include "SkNx.h"
 #include "SkPM4f.h"
 #include "SkPixmap.h"
-#include "SkReadPixelsRec.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
 
@@ -84,20 +83,37 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     return true;
 }
 
-bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB, int x, int y)
-const {
-    if (!SkImageInfoValidConversion(dstInfo, fInfo)) {
+bool SkPixmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
+                          int x, int y) const {
+    if (!SkImageInfoValidConversion(requestedDstInfo, fInfo)) {
         return false;
     }
 
-    SkReadPixelsRec rec(dstInfo, dstPixels, dstRB, x, y);
-    if (!rec.trim(fInfo.width(), fInfo.height())) {
+    if (nullptr == dstPixels || dstRB < requestedDstInfo.minRowBytes()) {
         return false;
     }
 
-    const void* srcPixels = this->addr(rec.fX, rec.fY);
-    const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
-    return SkPixelInfo::CopyPixels(rec.fInfo, rec.fPixels, rec.fRowBytes,
+    SkIRect srcR = SkIRect::MakeXYWH(x, y, requestedDstInfo.width(), requestedDstInfo.height());
+    if (!srcR.intersect(0, 0, this->width(), this->height())) {
+        return false;
+    }
+
+    // the intersect may have shrunk info's logical size
+    const SkImageInfo dstInfo = requestedDstInfo.makeWH(srcR.width(), srcR.height());
+
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
+    }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    dstPixels = ((char*)dstPixels - y * dstRB - x * dstInfo.bytesPerPixel());
+
+    const SkImageInfo srcInfo = this->info().makeWH(dstInfo.width(), dstInfo.height());
+    const void* srcPixels = this->addr(srcR.x(), srcR.y());
+    return SkPixelInfo::CopyPixels(dstInfo, dstPixels, dstRB,
                                    srcInfo, srcPixels, this->rowBytes(), this->ctable());
 }
 

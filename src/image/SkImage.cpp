@@ -51,7 +51,11 @@ bool SkImage::peekPixels(SkPixmap* pm) const {
 
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY, CachingHint chint) const {
-    return as_IB(this)->onReadPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY, chint);
+    SkReadPixelsRec rec(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    if (!rec.trim(this->width(), this->height())) {
+        return false;
+    }
+    return as_IB(this)->onReadPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, rec.fX, rec.fY, chint);
 }
 
 bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {

@@ -39,7 +39,8 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
 /**
  *  Returns true if Skia has defined a pixel conversion from the |src| to the |dst|.
  *  Returns false otherwise.  Some discussion of false cases:
- *      We will not convert to kIndex8.  Do we overwrite the input color table?
+ *      We will not convert to kIndex8 unless |src| is kIndex8.  This is possible only
+ *      in some cases and likley inefficient.
  *      We do not convert to kGray8 when the |src| is not kGray8.  We may add this
  *      feature - it just requires some work to convert to luminance while handling color
  *      spaces correctly.  Currently no one is asking for this.
@@ -56,7 +57,7 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
-    if (kIndex_8_SkColorType == dst.colorType()) {
+    if (kIndex_8_SkColorType == dst.colorType() && kIndex_8_SkColorType != src.colorType()) {
         return false;
     }
 
