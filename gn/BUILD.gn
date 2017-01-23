@@ -186,18 +186,22 @@ config("default") {
   }
 
   if (is_ios) {
+    _target = target_cpu
+    if (target_cpu == "arm") {
+      _target = "armv7"
+    }
     cflags += [
       "-isysroot",
       ios_sysroot,
       "-arch",
-      target_cpu,
+      _target,
     ]
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
       "-isysroot",
       ios_sysroot,
       "-arch",
-      target_cpu,
+      _target,
       "-stdlib=libc++",
     ]
     libs += [ "objc" ]
@@ -288,8 +292,9 @@ config("warnings") {
         "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
       ]
 
-      if (is_android && target_cpu == "x86") {
-        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
+      if ((target_cpu == "x86" && is_android) ||
+          (target_cpu == "arm" && is_ios)) {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android and 32-bit iOS.
         # We're pretty sure it's actually 8-byte alignment.
         cflags += [ "-Wno-over-aligned" ]
       }
