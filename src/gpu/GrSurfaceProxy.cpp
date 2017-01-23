@@ -113,6 +113,10 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
+    if (!surf) {
+        return nullptr;
+    }
+
     if (surf->asTexture()) {
         if (surf->asRenderTarget()) {
             return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(std::move(surf)));

@@ -13,6 +13,7 @@
 
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
+#include "GrTextureProxy.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
@@ -72,7 +73,7 @@ protected:
             canvas->internal_private_accessTopLayerRenderTargetContext();
         if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;        
+            return;
         }
 
         GrContext* context = canvas->getGrContext();
@@ -80,16 +81,25 @@ protected:
             return;
         }
 
-        sk_sp<GrTexture> texture[3];
-        texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(), nullptr));
-        texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(), nullptr));
-        texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[2], GrSamplerParams::ClampBilerp(), nullptr));
+        sk_sp<GrSurfaceProxy> proxy[3];
 
-        if (!texture[0] || !texture[1] || !texture[2]) {
-            return;
+        {
+            GrSurfaceDesc desc;
+            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+            desc.fConfig = kAlpha_8_GrPixelConfig;
+
+            for (int i = 0; i < 3; ++i) {
+                desc.fWidth = fBmp[i].width();
+                desc.fHeight = fBmp[i].height();
+
+                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                        context->textureProvider(),
+                                                        desc, SkBudgeted::kYes,
+                                                        fBmp[i].getPixels(), fBmp[i].rowBytes());
+                if (!proxy[i]) {
+                    return;
+                }
+            }
         }
 
         constexpr SkScalar kDrawPad = 10.f;
@@ -97,8 +107,7 @@ protected:
         constexpr SkScalar kColorSpaceOffset = 36.f;
         SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
-        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace;
-             ++space) {
+        for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBmp[0].width()),
                                                SkIntToScalar(fBmp[0].height()));
             renderRect.outset(kDrawPad, kDrawPad);
@@ -111,9 +120,10 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 sk_sp<GrFragmentProcessor> fp(
-                        GrYUVEffect::MakeYUVToRGB(texture[indices[i][0]].get(),
-                                                  texture[indices[i][1]].get(),
-                                                  texture[indices[i][2]].get(),
+                        GrYUVEffect::MakeYUVToRGB(context,
+                                                  sk_ref_sp(proxy[indices[i][0]]->asTextureProxy()),
+                                                  sk_ref_sp(proxy[indices[i][1]]->asTextureProxy()),
+                                                  sk_ref_sp(proxy[indices[i][2]]->asTextureProxy()),
                                                   sizes,
                                                   static_cast<SkYUVColorSpace>(space),
                                                   false));
@@ -202,16 +212,30 @@ protected:
             return;
         }
 
-        sk_sp<GrTexture> texture[3];
-        texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(), nullptr));
-        texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(), nullptr));
-        texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(), nullptr));
+        sk_sp<GrSurfaceProxy> proxy[3];
 
-        if (!texture[0] || !texture[1] || !texture[2]) {
-            return;
+        {
+            GrSurfaceDesc desc;
+            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+
+            for (int i = 0; i < 3; ++i) {
+                int index = (0 == i) ? 0 : 1;
+
+                desc.fConfig = kAlpha_8_SkColorType == fBmp[index].colorType()
+                                    ? kAlpha_8_GrPixelConfig
+                                    : kBGRA_8888_GrPixelConfig;
+                desc.fWidth = fBmp[index].width();
+                desc.fHeight = fBmp[index].height();
+
+                proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                        context->textureProvider(),
+                                                        desc, SkBudgeted::kYes,
+                                                        fBmp[index].getPixels(),
+                                                        fBmp[index].rowBytes());
+                if (!proxy[i]) {
+                    return;
+                }
+            }
         }
 
         constexpr SkScalar kDrawPad = 10.f;
@@ -230,7 +254,10 @@ protected:
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             sk_sp<GrFragmentProcessor> fp(
-                GrYUVEffect::MakeYUVToRGB(texture[0].get(), texture[1].get(), texture[2].get(),
+                GrYUVEffect::MakeYUVToRGB(context,
+                                          sk_ref_sp(proxy[0]->asTextureProxy()),
+                                          sk_ref_sp(proxy[1]->asTextureProxy()),
+                                          sk_ref_sp(proxy[2]->asTextureProxy()),
                                           sizes, static_cast<SkYUVColorSpace>(space), true));
             if (fp) {
                 SkMatrix viewMatrix;
