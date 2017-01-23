@@ -30,12 +30,12 @@ The Android autoroller runs on the [client.skia.internal](https://chromegw.corp.
 
 If you need to stop the autoroller then do the following steps:
 
-* echo "stop" > /tmp/action
+* echo stop > /tmp/action
 * gsutil cp /tmp/action gs://skia-android-autoroller/action
 
 To turn the autoroller back on:
 
-* echo "start" > /tmp/action
+* echo start > /tmp/action
 * gsutil cp /tmp/action gs://skia-android-autoroller/action
 
 If you need any more information about the autoroller please look at [skia:6065](https://bugs.chromium.org/p/skia/issues/detail?id=6065) or ask rmistry@ / skiabot@.
