@@ -29,29 +29,13 @@ struct SkDVector {
         fY += v.fY;
     }
 
-    SkDVector operator+(const SkDVector& v) const {
-        SkDVector result = *this;
-        result += v;
-        return result;
-    }
-
     // only called by nearestT, which is currently only used by testing
     void operator-=(const SkDVector& v) {
         fX -= v.fX;
         fY -= v.fY;
     }
 
-    SkDVector operator-(const SkDVector& v) const {
-        SkDVector result = *this;
-        result -= v;
-        return result;
-    }
-
-    SkDVector operator-() const {
-        SkDVector result = { -fX, -fY };
-        return result;
-    }
-
+    // only used by testing
     void operator/=(const double s) {
         fX /= s;
         fY /= s;
@@ -105,13 +89,6 @@ struct SkDVector {
         fX *= inverseLength;
         fY *= inverseLength;
     }
-
-    void setLengthSquared(double lenSquared) {
-        double inverseLength = lenSquared / this->lengthSquared();
-        fX *= inverseLength;
-        fY *= inverseLength;
-    }
-
 };
 
 struct SkDPoint {
@@ -150,14 +127,15 @@ struct SkDPoint {
         fY -= v.fY;
     }
 
-    SkDPoint operator+(const SkDVector& v) const {
+    // only used by testing
+    SkDPoint operator+(const SkDVector& v) {
         SkDPoint result = *this;
         result += v;
         return result;
     }
 
     // only used by testing
-    SkDPoint operator-(const SkDVector& v) const {
+    SkDPoint operator-(const SkDVector& v) {
         SkDPoint result = *this;
         result -= v;
         return result;
