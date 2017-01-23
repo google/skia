@@ -109,7 +109,7 @@ bool GrGammaEffect::onIsEqual(const GrFragmentProcessor& s) const {
 }
 
 void GrGammaEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+    inout->setToUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

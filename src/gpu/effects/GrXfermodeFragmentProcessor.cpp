@@ -42,7 +42,7 @@ protected:
     }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+        inout->setToUnknown();
     }
 
 private:
@@ -197,20 +197,9 @@ protected:
                                                inout->color(), inout->validFlags(),
                                                &blendColor, &blendFlags);
             }
-            // will the shader code reference the input color?
-            GrInvariantOutput::ReadInput readsInput = GrInvariantOutput::kWillNot_ReadInput;
-            if (kDst_Child == fChild) {
-                if (kZero_GrBlendCoeff != srcCoeff || GrBlendCoeffRefsSrc(dstCoeff)) {
-                    readsInput = GrInvariantOutput::kWill_ReadInput;
-                }
-            } else {
-                if (kZero_GrBlendCoeff != dstCoeff || GrBlendCoeffRefsDst(srcCoeff)) {
-                    readsInput = GrInvariantOutput::kWill_ReadInput;
-                }
-            }
-            inout->setToOther(blendFlags, blendColor, readsInput);
+            inout->setToOther(blendFlags, blendColor);
         } else {
-            inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+            inout->setToUnknown();
         }
     }
 

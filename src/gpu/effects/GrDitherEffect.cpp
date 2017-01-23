@@ -45,7 +45,7 @@ private:
 };
 
 void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown(GrInvariantOutput::kWill_ReadInput);
+    inout->setToUnknown();
 }
 
 //////////////////////////////////////////////////////////////////////////////

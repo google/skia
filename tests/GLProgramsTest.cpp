@@ -132,8 +132,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToOther(kRGBA_GrColorComponentFlags, GrColor_WHITE,
-                          GrInvariantOutput::kWillNot_ReadInput);
+        inout->setToOther(kRGBA_GrColorComponentFlags, GrColor_WHITE);
         this->childProcessor(0).computeInvariantOutput(inout);
     }
 

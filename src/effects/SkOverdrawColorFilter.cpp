@@ -121,7 +121,7 @@ bool OverdrawFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) cons
 }
 
 void OverdrawFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->invalidateComponents(kRGBA_GrColorComponentFlags, GrInvariantOutput::kWill_ReadInput);
+    inout->invalidateComponents(kRGBA_GrColorComponentFlags);
 }
 
 GLOverdrawFragmentProcessor::GLOverdrawFragmentProcessor(const GrColor4f* colors) {

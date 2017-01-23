@@ -65,11 +65,6 @@ public:
     int firstEffectiveProcessorIndex() const { return fFirstEffectiveProcessorIndex; }
 
     /**
-     * True if the first effective processor reads its input, false otherwise.
-     */
-    bool inputColorIsUsed() const { return fInputColorIsUsed; }
-
-    /**
      * If input color is used and per-vertex colors are not used, this is the input color to the
      * first effective processor.
      */
@@ -79,7 +74,6 @@ private:
     void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
         fInOut.reset(color, colorFlags);
         fFirstEffectiveProcessorIndex = 0;
-        fInputColorIsUsed = true;
         fInputColor = color;
         fIsLCDCoverage = isLCDCoverage;
     }
@@ -88,7 +82,6 @@ private:
 
     GrInvariantOutput fInOut;
     int fFirstEffectiveProcessorIndex = 0;
-    bool fInputColorIsUsed = true;
     bool fIsLCDCoverage = false;
     GrColor fInputColor = 0;
 };
