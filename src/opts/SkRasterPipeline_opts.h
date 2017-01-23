@@ -1063,6 +1063,16 @@ STAGE_CTX(linear_gradient_2stops, const SkPM4f*) {
     a = SkNf_fma(t, dc.a(), c0.a());
 }
 
+STAGE_CTX(byte_tables, const void*) {
+    struct Tables { const uint8_t *r, *g, *b, *a; };
+    auto tables = (const Tables*)ctx;
+
+    r = SkNf_from_byte(gather(tail, tables->r, SkNf_round(255.0f, r)));
+    g = SkNf_from_byte(gather(tail, tables->g, SkNf_round(255.0f, g)));
+    b = SkNf_from_byte(gather(tail, tables->b, SkNf_round(255.0f, b)));
+    a = SkNf_from_byte(gather(tail, tables->a, SkNf_round(255.0f, a)));
+}
+
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     switch (st) {
     #define M(stage) case SkRasterPipeline::stage: return stage;
