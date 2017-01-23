@@ -726,6 +726,9 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
     , fProps(SkSurfacePropsCopyOrDefault(props))
     , fConservativeRasterClip(false)
 {
+    if (props) {
+		SkDebugf("");
+	}
     inc_canvas();
 
     this->init(new SkNoPixelsBitmapDevice(SkIRect::MakeWH(width, height), fProps),
