@@ -10,9 +10,10 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "effects/GrGammaEffect.h"
 
 #include "SkCanvas.h"
-#include "SkGammaColorFilter.h"
+#include "SkColorFilter.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
 
@@ -67,6 +68,31 @@ bool check_gamma(uint32_t src, uint32_t dst, float gamma, float error, uint32_t*
         return result;
     }
 }
+
+// Color filter that just wraps GrGammaEffect, which is the code we're really testing
+class SkGammaColorFilter : public SkColorFilter {
+public:
+    static sk_sp<SkColorFilter> Make(SkScalar gamma) {
+        return sk_sp<SkColorFilter>(new SkGammaColorFilter(gamma));
+    }
+
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override {
+        return GrGammaEffect::Make(fGamma);
+    }
+
+    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {}
+    Factory getFactory() const override { return nullptr; }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const override {}
+#endif
+
+private:
+    SkGammaColorFilter(SkScalar gamma) : fGamma(gamma) {}
+
+    SkScalar fGamma;
+    typedef SkColorFilter INHERITED;
+};
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
