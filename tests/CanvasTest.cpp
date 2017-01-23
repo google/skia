@@ -788,3 +788,44 @@ DEF_TEST(CanvasStack, r) {
     REPORTER_ASSERT(r, !life[0]);
     REPORTER_ASSERT(r, !life[1]);
 }
+
+DEF_TEST(MakeRasterDirectN32, r) {
+	const int width = 3;
+	const int height = 3;
+	SkPMColor pixels[height][width];
+	std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(width, height, pixels[0], sizeof(pixels[0]));
+	canvas->clear(SK_ColorWHITE);
+	canvas->flush();
+	SkPMColor pmWhite = pixels[0][0];
+	SkPaint paint;
+	canvas->drawPoint(1, 1, paint);
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			printf("%c", pixels[y][x] == pmWhite ? '-' : 'x');
+		}
+		printf("\n");
+	}
+}
+
+DEF_TEST(MakeRasterDirect, r) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, premultipled 
+    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
+    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows
+    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
+    SkPMColor* pixels = storage.get();
+	// create a SkCanvas backed by a raster device, and delete it when the 
+	// function goes out of scope.
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
+	canvas->clear(SK_ColorWHITE);  // white is unpremultiplied, in ARGB order
+	canvas->flush();  // ensure that pixels are cleared
+	SkPMColor pmWhite = pixels[0];  // the premultiplied format may vary
+	SkPaint paint;  // by default, draws black
+	canvas->drawPoint(1, 1, paint);  // draw in the center
+	canvas->flush();  // ensure that point was drawn
+	for (int y = 0; y < info.height(); ++y) {
+		for (int x = 0; x < info.width(); ++x) {
+			printf("%c", *pixels++ == pmWhite ? '-' : 'x');
+		}
+		printf("\n");
+	}
+}
