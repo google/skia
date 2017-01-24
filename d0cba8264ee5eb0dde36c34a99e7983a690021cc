@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "284bc29d_17a6c3fc",
+        "filename": "src/images/SkImageEncoderPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-24T14:41:15Z",
+      "side": 1,
+      "message": "Maybe... probably.  Or maybe quality should be one of the SkEncodeOptions.  I\u0027m trying to leave this undecided for now.\n\nI find the quality parameter awkward because I don\u0027t think it\u0027s really clear what it means...  And of course it means nothing for png.  But it\u0027s exposed all the way up to Java so we\u0027ll have to keep it somehow.  At some point I\u0027m going to need to write a public API and will need to answer this question...",
+      "parentUuid": "284bc29d_57a04be5",
+      "revId": "d0cba8264ee5eb0dde36c34a99e7983a690021cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_7c328e2f",
         "filename": "src/images/SkWEBPImageEncoder.cpp",
         "patchSetId": 1
