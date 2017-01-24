@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64c53d7f_57700851",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "You don\u0027t need to add anything to the key in this case.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "985a1afa_5dba0d10",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "It could if you had a SkShader. We could augment drawVertices to take a local matrix which here we\u0027d set to the inverse vm.",
+      "range": {
+        "startLine": 209,
+        "startChar": 62,
+        "endLine": 209,
+        "endChar": 79
+      },
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "787d34ef_c6ffe20d",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "I think you want this paint",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da015160_01edeb3a",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "minor, don\u0027t really need this as an else given return above",
+      "range": {
+        "startLine": 147,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 13
+      },
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "900758d8_83d98dde",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "Guessing this is subtly different related to tracking firsts that would make it ugly to share with addEdge.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "391a7475_3aaa8a32",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "816049cc_ea6df5a3",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T18:04:45Z",
+      "side": 1,
+      "message": "minor, but quadTo, cubicTo, and conicTo aren\u0027t really what I would think of as \"To\" since the take the starting point rather than inferring that it is the previous call\u0027s last point.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
