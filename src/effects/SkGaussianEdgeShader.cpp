@@ -79,9 +79,10 @@ public:
 
             if (!args.fGpImplementsDistanceVector) {
                 fragBuilder->codeAppendf("// GP does not implement fsDistanceVector - "
-                                         " returning grey in GLSLGaussianEdgeFP\n");
-                fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
+                                         " using alpha as input to GLSLGaussianEdgeFP\n");
+                fragBuilder->codeAppendf("float factor = 1.0 - %s.a;", args.fInputColor);
+                fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
+                fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, factor);", args.fOutputColor);
             } else {
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
                 fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
