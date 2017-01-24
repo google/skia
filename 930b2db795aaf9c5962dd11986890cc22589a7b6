@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "e6f926fc_9909f7bf",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T17:19:22Z",
+      "side": 1,
+      "message": "rm whitespace cruft ?",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d816f014_ee9b6f39",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T17:19:22Z",
+      "side": 1,
+      "message": "update these ?",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40ece7ff_6dcab343",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
         "patchSetId": 2
@@ -59,6 +93,40 @@
         "endLine": 22,
         "endChar": 42
       },
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47d5ba02_138310e8",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T17:19:22Z",
+      "side": 1,
+      "message": "update name ?",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "411342bc_5c323440",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T17:19:22Z",
+      "side": 1,
+      "message": "Make these not enum values ?",
       "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
