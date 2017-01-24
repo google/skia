@@ -18,6 +18,24 @@
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
 
+// Fast Path 1: The memcpy() case.
+static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+    if (dstInfo.colorType() != srcInfo.colorType()) {
+        return false;
+    }
+
+    if (dstInfo.alphaType() != srcInfo.alphaType() &&
+        kOpaque_SkAlphaType != dstInfo.alphaType() &&
+        kOpaque_SkAlphaType != srcInfo.alphaType())
+    {
+        // We need to premultiply or unpremultiply.
+        return false;
+    }
+
+    return !dstInfo.colorSpace() || !srcInfo.colorSpace() ||
+           SkColorSpace::Equals(dstInfo.colorSpace(), srcInfo.colorSpace());
+}
+
 // For now disable 565 in the pipeline. Its (higher) quality is so different its too much to
 // rebase (for now)
 //
@@ -169,10 +187,6 @@ static AlphaVerb compute_AlphaVerb(SkAlphaType src, SkAlphaType dst) {
     }
 }
 
-static void memcpy32_row(uint32_t* dst, const uint32_t* src, int count) {
-    memcpy(dst, src, count * 4);
-}
-
 bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height) const {
     SkASSERT(width > 0 && height > 0);
 
@@ -186,14 +200,8 @@ bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height)
 
     switch (doAlpha) {
         case kNothing_AlphaVerb:
-            if (doSwapRB) {
-                proc = convert32_row<true, kNothing_AlphaVerb>;
-            } else {
-                if (fPixels == dst->fPixels) {
-                    return true;
-                }
-                proc = memcpy32_row;
-            }
+            SkASSERT(doSwapRB);
+            proc = convert32_row<true, kNothing_AlphaVerb>;
             break;
         case kPremul_AlphaVerb:
             if (doSwapRB) {
@@ -370,14 +378,9 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     const int width = srcInfo.width();
     const int height = srcInfo.height();
 
-    // Do the easiest one first : both configs are equal
-    if (srcInfo == dstInfo) {
-        size_t bytes = width * srcInfo.bytesPerPixel();
-        for (int y = 0; y < height; ++y) {
-            memcpy(dstPixels, srcPixels, bytes);
-            srcPixels = (const char*)srcPixels + srcRB;
-            dstPixels = (char*)dstPixels + dstRB;
-        }
+    // Fast Path 1: The memcpy() case.
+    if (can_memcpy(dstInfo, srcInfo)) {
+        SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
         return true;
     }
 
@@ -403,30 +406,6 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
         apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return true;
-    }
-
-    // If they agree on colorType and the alphaTypes are compatible, then we just memcpy.
-    // Note: we've already taken care of 32bit colortypes above.
-    if (srcInfo.colorType() == dstInfo.colorType()) {
-        switch (srcInfo.colorType()) {
-            case kRGBA_F16_SkColorType:
-                if (!SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace())) {
-                    break;
-                }
-            case kIndex_8_SkColorType:
-            case kARGB_4444_SkColorType:
-                if (srcInfo.alphaType() != dstInfo.alphaType()) {
-                    break;
-                }
-            case kRGB_565_SkColorType:
-            case kAlpha_8_SkColorType:
-            case kGray_8_SkColorType:
-                SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB,
-                             width * srcInfo.bytesPerPixel(), height);
-                return true;
-            default:
-                break;
-        }
     }
 
     /*

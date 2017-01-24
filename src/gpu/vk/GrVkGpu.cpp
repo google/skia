@@ -477,13 +477,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
             dstRow -= layout.rowPitch;
         }
     } else {
-        // If there is no padding on the src (rowBytes) or dst (layout.rowPitch) we can memcpy
-        if (trimRowBytes == rowBytes && trimRowBytes == layout.rowPitch) {
-            memcpy(mapPtr, data, trimRowBytes * height);
-        } else {
-            SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                         height);
-        }
+        SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                     height);
     }
 
     GrVkMemory::FlushMappedAlloc(this, alloc);
@@ -580,8 +575,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                 src -= rowBytes;
                 dst += trimRowBytes;
             }
-        } else if (trimRowBytes == rowBytes) {
-            memcpy(dst, src, trimRowBytes * currentHeight);
         } else {
             SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
         }
@@ -966,12 +959,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc,
 
     // If there is no padding on dst we can do a single memcopy.
     // This assumes the srcData comes in with no padding.
-    if (srcRowBytes == dstRowBytes) {
-        memcpy(mapPtr, srcData, srcRowBytes * h);
-    } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes,
-                     srcRowBytes, h);
-    }
+    SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes, srcRowBytes, h);
     GrVkMemory::FlushMappedAlloc(gpu, alloc);
     GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
     return true;
@@ -1756,12 +1744,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
             dstRow -= rowBytes;
         }
     } else {
-        if (transBufferRowBytes == rowBytes) {
-            memcpy(buffer, mappedMemory, rowBytes*height);
-        } else {
-            SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes,
-                         height);
-        }
+        SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
     }
 
     transferBuffer->unmap();
