@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "284bc29d_57a04be5",
+        "filename": "src/images/SkImageEncoderPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-24T14:35:24Z",
+      "side": 1,
+      "message": "Should this version also take a quality parameter?",
+      "range": {
+        "startLine": 38,
+        "startChar": 64,
+        "endLine": 38,
+        "endChar": 79
+      },
+      "revId": "d0cba8264ee5eb0dde36c34a99e7983a690021cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "284bc29d_7c328e2f",
         "filename": "src/images/SkWEBPImageEncoder.cpp",
         "patchSetId": 1
