@@ -4674,3 +4674,17 @@ DEF_TEST(Paths, reporter) {
     test_bounds_crbug_513799(reporter);
     test_fuzz_crbug_638223();
 }
+
+DEF_TEST(conservatively_contains_rect, reporter) {
+    SkPath path;
+
+    path.moveTo(SkBits2Float(0x44000000), SkBits2Float(0x373938b8));  // 512, 1.10401e-05f
+    // 1.4013e-45f, -9.22346e+18f, 3.58732e-43f, 0, 3.58732e-43f, 0
+    path.cubicTo(SkBits2Float(0x00000001), SkBits2Float(0xdf000052),
+                 SkBits2Float(0x00000100), SkBits2Float(0x00000000),
+                 SkBits2Float(0x00000100), SkBits2Float(0x00000000));
+    path.moveTo(0, 0);
+
+    // this guy should not assert
+    path.conservativelyContainsRect({ -211747, 12.1115f, -197893, 25.0321f });
+}
