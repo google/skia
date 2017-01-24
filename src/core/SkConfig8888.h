@@ -36,12 +36,16 @@ struct SkSrcPixelInfo : SkPixelInfo {
 
 static inline void SkRectMemcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
                                 size_t bytesPerRow, int rowCount) {
-    SkASSERT(bytesPerRow <= srcRB);
     SkASSERT(bytesPerRow <= dstRB);
+    SkASSERT(bytesPerRow <= srcRB);
+    if (bytesPerRow == dstRB && bytePerRow == srcRB) {
+        memcpy(dst, src, bytesPerRow * rowCount)
+    }
+
     for (int i = 0; i < rowCount; ++i) {
         memcpy(dst, src, bytesPerRow);
-        dst = (char*)dst + dstRB;
-        src = (const char*)src + srcRB;
+        dst = SkTAddOffset<void>(dst, dstRB);
+        src = SkTAddOffset<const void>(src, srcRB);
     }
 }
 
