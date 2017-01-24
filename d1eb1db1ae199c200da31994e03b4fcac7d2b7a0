@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a29028c4_fe6c3a7f",
+        "filename": "gm/texdata.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:04:49Z",
+      "side": 1,
+      "message": "I\u0027d be ok with deleting this GM. It predates having unit tests that cover this more comprehensively.",
+      "revId": "d1eb1db1ae199c200da31994e03b4fcac7d2b7a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
