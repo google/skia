@@ -39,46 +39,44 @@ extern "C" {
 #include "webp/encode.h"
 }
 
-static transform_scanline_proc choose_proc(const SkImageInfo& info, int* bpp) {
+static transform_scanline_proc choose_proc(const SkImageInfo& info) {
+    const bool isGammaEncoded = info.gammaCloseToSRGB();
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
-                    *bpp = 3;
                     return transform_scanline_RGBX;
                 case kUnpremul_SkAlphaType:
-                    *bpp = 4;
                     return transform_scanline_memcpy;
                 case kPremul_SkAlphaType:
-                    *bpp = 4;
-                    return transform_scanline_rgbA;
+                    return isGammaEncoded ? transform_scanline_srgbA :
+                                            transform_scanline_rgbA;
                 default:
                     return nullptr;
             }
         case kBGRA_8888_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
-                    *bpp = 3;
                     return transform_scanline_BGRX;
                 case kUnpremul_SkAlphaType:
-                    *bpp = 4;
                     return transform_scanline_BGRA;
                 case kPremul_SkAlphaType:
-                    *bpp = 4;
-                    return transform_scanline_bgrA;
+                    return isGammaEncoded ? transform_scanline_sbgrA :
+                                            transform_scanline_bgrA;
                 default:
                     return nullptr;
             }
         case kRGB_565_SkColorType:
-            *bpp = 3;
+            if (!info.isOpaque()) {
+                return nullptr;
+            }
+
             return transform_scanline_565;
         case kARGB_4444_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
-                    *bpp = 3;
                     return transform_scanline_444;
                 case kPremul_SkAlphaType:
-                    *bpp = 4;
                     return transform_scanline_4444;
                 default:
                     return nullptr;
@@ -86,20 +84,31 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info, int* bpp) {
         case kIndex_8_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
-                    *bpp = 3;
                     return transform_scanline_index8_opaque;
                 case kUnpremul_SkAlphaType:
                 case kPremul_SkAlphaType:
                     // If the color table is premultiplied, we'll fix it before calling the
                     // scanline proc.
-                    *bpp = 4;
                     return transform_scanline_index8_unpremul;
                 default:
                     return nullptr;
             }
         case kGray_8_SkColorType:
-            *bpp = 3;
             return transform_scanline_gray;
+        case kRGBA_F16_SkColorType:
+            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
+                return nullptr;
+            }
+
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_F16_to_8888;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_F16_premul_to_8888;
+                default:
+                    return nullptr;
+            }
         default:
             return nullptr;
     }
@@ -111,13 +120,31 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality) {
-    int bpp = -1;
-    const transform_scanline_proc proc = choose_proc(pixmap.info(), &bpp);
+static bool do_encode(SkWStream* stream, const SkPixmap& srcPixmap, const SkEncodeOptions& opts,
+                      int quality) {
+    SkASSERT(!srcPixmap.colorSpace() || srcPixmap.colorSpace()->gammaCloseToSRGB() ||
+            srcPixmap.colorSpace()->gammaIsLinear());
+
+    SkPixmap pixmap = srcPixmap;
+    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+        pixmap.setColorSpace(nullptr);
+    } else {
+        if (!pixmap.colorSpace()) {
+            return false;
+        }
+    }
+
+    const transform_scanline_proc proc = choose_proc(pixmap.info());
     if (!proc) {
         return false;
     }
-    SkASSERT(-1 != bpp);
+
+    int bpp;
+    if (kRGBA_F16_SkColorType == pixmap.colorType()) {
+        bpp = 4;
+    } else {
+        bpp = pixmap.isOpaque() ? 3 : 4;
+    }
 
     if (nullptr == pixmap.addr()) {
         return false;
@@ -132,8 +159,10 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
         colors = pixmap.ctable()->readColors();
         if (kPremul_SkAlphaType == pixmap.alphaType()) {
-            transform_scanline_rgbA((char*) storage, (const char*) colors, pixmap.ctable()->count(),
-                                    4, nullptr);
+            // Unpremultiply the colors.
+            const SkImageInfo rgbaInfo = pixmap.info().makeColorType(kRGBA_8888_SkColorType);
+            transform_scanline_proc proc = choose_proc(rgbaInfo);
+            proc((char*) storage, (const char*) colors, pixmap.ctable()->count(), 4, nullptr);
             colors = storage;
         }
     }
@@ -165,7 +194,11 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
     if (bpp == 3) {
         ok = SkToBool(WebPPictureImportRGB(&pic, &rgb[0], rgbStride));
     } else {
-        ok = SkToBool(WebPPictureImportRGBA(&pic, &rgb[0], rgbStride));
+        if (pixmap.isOpaque()) {
+            ok = SkToBool(WebPPictureImportRGBX(&pic, &rgb[0], rgbStride));
+        } else {
+            ok = SkToBool(WebPPictureImportRGBA(&pic, &rgb[0], rgbStride));
+        }
     }
 
     ok = ok && WebPEncode(&webp_config, &pic);
@@ -173,4 +206,13 @@ bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
     return ok;
 }
+
+bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, int quality) {
+    return do_encode(stream, src, SkEncodeOptions(), quality);
+}
+
+bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& src, const SkEncodeOptions& opts) {
+    return do_encode(stream, src, opts, 100);
+}
+
 #endif

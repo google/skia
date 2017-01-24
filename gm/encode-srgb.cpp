@@ -120,7 +120,7 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
             SkEncodeImageAsPNG(&buf, src, options);
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkEncodeImage(&buf, src, SkEncodedImageFormat::kWEBP, 100);
+            SkEncodeImageAsWEBP(&buf, src, options);
             break;
         default:
             break;

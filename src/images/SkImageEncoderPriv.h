@@ -35,6 +35,7 @@ struct SkEncodeOptions {
 #endif
 
 #ifdef SK_HAS_WEBP_LIBRARY
+    bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
     bool SkEncodeImageAsWEBP(SkWStream*, const SkPixmap&, int quality);
 #else
     #define SkEncodeImageAsWEBP(...) false

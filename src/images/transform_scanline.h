@@ -254,7 +254,7 @@ static inline void transform_scanline_4444(char* SK_RESTRICT dst, const char* SK
 }
 
 /**
- * Transform from kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ * Transform from kRGBA_F16 to 8-bytes-per-pixel RGBA.
  */
 static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                           int width, int, const SkPMColor*) {
@@ -266,7 +266,7 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
 }
 
 /**
- * Transform from kPremul, kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ * Transform from kPremul, kRGBA_F16 to 8-bytes-per-pixel RGBA.
  */
 static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                                  int width, int, const SkPMColor*) {
@@ -275,5 +275,32 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, (void**) &dst);
+    p.run(0, width);
+}
+
+/**
+ * Transform from kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ */
+static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
+                                                  const char* SK_RESTRICT src, int width, int,
+                                                  const SkPMColor*) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_f16, (const void**) &src);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, (void**) &dst);
+    p.run(0, width);
+}
+
+/**
+ * Transform from kPremul, kRGBA_F16 to 4-bytes-per-pixel RGBA.
+ */
+static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
+                                                         const char* SK_RESTRICT src, int width,
+                                                         int, const SkPMColor*) {
+    SkRasterPipeline p;
+    p.append(SkRasterPipeline::load_f16, (const void**) &src);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::to_srgb);
+    p.append(SkRasterPipeline::store_8888, (void**) &dst);
     p.run(0, width);
 }
