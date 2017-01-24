@@ -12,7 +12,6 @@
 #include "SkImageInfo.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkShader.h"
 
 class SkData;

@@ -10,7 +10,6 @@
 
 #include "SkColor.h"
 #include "SkPathEffect.h"
-#include "SkScalar.h"
 #include "SkString.h"
 
 struct lua_State;
