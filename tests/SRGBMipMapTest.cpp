@@ -49,7 +49,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrTexture* texture, U8C
     int h = texture->height();
     SkAutoTMalloc<uint32_t> readData(w * h);
     memset(readData.get(), 0, sizeof(uint32_t) * w * h);
-    if (!texture->readPixels(0, 0, w, h, texture->config(), readData.get())) {
+    if (!texture->readPixels1(0, 0, w, h, texture->config(), readData.get())) {
         ERRORF(reporter, "Could not read pixels for %s.", subtestName);
         return;
     }

@@ -156,7 +156,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
 
         // Pass in the kDontFlush flag, since we know we're writing to a part of this texture
         // that is not currently in use
-        fTexture->writePixels(0,  rowNumber * fDesc.fRowHeight,
+        fTexture->writePixels1(0,  rowNumber * fDesc.fRowHeight,
                               fDesc.fWidth, fDesc.fRowHeight,
                               SkImageInfo2GrPixelConfig(data.info(), *this->getContext()->caps()),
                               data.getPixels(),

@@ -92,7 +92,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          kWidth,
                                                                          kHeight));
 
-        tex0->writePixels(2, 10, 10, 2, config, srcBuffer);
+        tex0->writePixels1(2, 10, 10, 2, config, srcBuffer);
         memset(dstBuffer, 0, kWidth*kHeight*sizeof(GrColor));
         gpu->readPixels(tex0, 2, 10, 10, 2, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,
@@ -117,7 +117,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                          kWidth,
                                                                          kHeight));
 
-        tex1->writePixels(5, 4, 4, 5, config, srcBuffer);
+        tex1->writePixels1(5, 4, 4, 5, config, srcBuffer);
         memset(dstBuffer, 0, kWidth*kHeight*sizeof(GrColor));
         gpu->readPixels(tex1, 5, 4, 4, 5, config, dstBuffer, 0);
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_color(srcBuffer,

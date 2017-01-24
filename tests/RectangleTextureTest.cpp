@@ -19,7 +19,7 @@ static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
     int pixelCnt = texture->width() * texture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
-    bool read = texture->readPixels(0, 0, texture->width(), texture->height(),
+    bool read = texture->readPixels1(0, 0, texture->width(), texture->height(),
                                     kRGBA_8888_GrPixelConfig, pixels.get());
     if (!read) {
         ERRORF(reporter, "Error reading rectangle texture.");
@@ -42,7 +42,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
             pixels.get()[y * rectangleTexture->width() + x] = GrColorPackRGBA(x, y, x + y, x * y);
         }
     }
-    bool write = rectangleTexture->writePixels(0, 0, rectangleTexture->width(),
+    bool write = rectangleTexture->writePixels1(0, 0, rectangleTexture->width(),
                                                rectangleTexture->height(), kRGBA_8888_GrPixelConfig,
                                                pixels.get());
     if (!write) {

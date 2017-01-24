@@ -24,6 +24,15 @@ void GrPaint::addColorTextureProcessor(GrTexture* texture,
                                                                 matrix));
 }
 
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                       const SkMatrix& matrix) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
+                                                                std::move(colorSpaceXform),
+                                                                matrix));
+}
+
+
 void GrPaint::addCoverageTextureProcessor(GrTexture* texture, const SkMatrix& matrix) {
     this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix));
 }

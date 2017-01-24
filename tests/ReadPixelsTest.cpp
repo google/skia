@@ -122,7 +122,7 @@ static void fill_src_canvas(SkCanvas* canvas) {
 static void fill_src_texture(GrTexture* texture) {
     SkBitmap bmp = make_src_bitmap();
     bmp.lockPixels();
-    texture->writePixels(0, 0, DEV_W, DEV_H, kSkia8888_GrPixelConfig, bmp.getPixels(),
+    texture->writePixels1(0, 0, DEV_W, DEV_H, kSkia8888_GrPixelConfig, bmp.getPixels(),
                          bmp.rowBytes());
     bmp.unlockPixels();
 }
@@ -455,7 +455,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
                         flags = GrContext::kUnpremul_PixelOpsFlag;
                     }
                     bmp.lockPixels();
-                    bool success = texture->readPixels(srcRect.fLeft, srcRect.fTop, bmp.width(),
+                    bool success = texture->readPixels1(srcRect.fLeft, srcRect.fTop, bmp.width(),
                                                        bmp.height(), dstConfig, bmp.getPixels(),
                                                        bmp.rowBytes(), flags);
                     bmp.unlockPixels();

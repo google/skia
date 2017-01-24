@@ -274,7 +274,7 @@ public:
      * @return true if the read succeeded, false if not. The read can fail because of an unsupported
      *         pixel configs
      */
-    bool readSurfacePixels(GrSurface* surface, SkColorSpace* srcColorSpace,
+    bool readSurfacePixels1(GrSurface* surface, SkColorSpace* srcColorSpace,
                            int left, int top, int width, int height,
                            GrPixelConfig config, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0,
@@ -297,7 +297,7 @@ public:
      * @return true if the write succeeded, false if not. The write can fail because of an
      *         unsupported combination of surface and src configs.
      */
-    bool writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
+    bool writeSurfacePixels1(GrSurface* surface, SkColorSpace* dstColorSpace,
                             int left, int top, int width, int height,
                             GrPixelConfig config, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,

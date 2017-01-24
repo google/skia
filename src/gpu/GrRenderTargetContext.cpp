@@ -177,7 +177,7 @@ bool GrRenderTargetContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBu
         return false;
     }
 
-    return rt->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+    return rt->readPixels1(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
                           config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
 }
 
@@ -201,7 +201,7 @@ bool GrRenderTargetContext::onWritePixels(const SkImageInfo& srcInfo, const void
         return false;
     }
 
-    return rt->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+    return rt->writePixels1(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
                            config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }
 

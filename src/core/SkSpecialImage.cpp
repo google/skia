@@ -456,7 +456,7 @@ public:
             return false;
         }
 
-        if (!surface->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
+        if (!surface->readPixels1(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
                                  dst->getPixels(), dst->rowBytes())) {
             return false;
         }
