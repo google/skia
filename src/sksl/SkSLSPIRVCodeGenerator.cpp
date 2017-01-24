@@ -993,7 +993,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         size_t alignment = memoryLayout.alignment(*type.fields()[i].fType);
         const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
-            if (fieldLayout.fOffset <= (int) offset) {
+            if (fieldLayout.fOffset < (int) offset) {
                 fErrors.error(type.fPosition,
                               "offset of field '" + type.fields()[i].fName + "' must be at "
                               "least " + to_string((int) offset));
