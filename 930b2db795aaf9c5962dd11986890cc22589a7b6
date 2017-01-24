@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "81ae8d32_2c1450eb",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d816f014_ee9b6f39",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
         "patchSetId": 2
@@ -30,6 +47,23 @@
       "writtenOn": "2017-01-24T17:19:22Z",
       "side": 1,
       "message": "update these ?",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76d16e7e_8091899d",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:29:45Z",
+      "side": 1,
+      "message": "Done",
       "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -116,6 +150,23 @@
     },
     {
       "key": {
+        "uuid": "9943e713_b202227f",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "411342bc_5c323440",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
         "patchSetId": 2
@@ -127,6 +178,23 @@
       "writtenOn": "2017-01-24T17:19:22Z",
       "side": 1,
       "message": "Make these not enum values ?",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a65324fc_3812a0af",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:29:45Z",
+      "side": 1,
+      "message": "Done",
       "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
