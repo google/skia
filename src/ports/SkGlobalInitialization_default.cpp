@@ -14,6 +14,7 @@
 #include "SkBlurDrawLooper.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
+#include "SkColorCubeFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilterRowMajor255.h"
 #include "SkComposeImageFilter.h"
@@ -80,6 +81,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
 
     // ColorFilter
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorCubeFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SkAlphaThresholdFilter::InitializeFlattenables();
