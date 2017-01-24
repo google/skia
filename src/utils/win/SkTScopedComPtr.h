@@ -32,7 +32,7 @@ template<typename T> T* SkSafeRefComPtr(T* ptr) {
 }
 
 template<typename T>
-class SkTScopedComPtr : SkNoncopyable {
+class SkTScopedComPtr {
 private:
     T *fPtr;
 
@@ -40,6 +40,21 @@ public:
     explicit SkTScopedComPtr(T *ptr = nullptr) : fPtr(ptr) { }
 
     ~SkTScopedComPtr() { this->reset();}
+
+    SkTScopedComPtr(SkTScopedComPtr&& that) : fPtr(that.release()) {}
+    SkTScopedComPtr(const SkTScopedComPtr& that) : fPtr(SkSafeRefComPtr(that.get())) {}
+    SkTScopedComPtr& operator=(SkTScopedComPtr&& that) {
+        if (fPtr != that.fPtr) {
+            this->reset(that.release());
+        }
+        return *this;
+    }
+    SkTScopedComPtr& operator=(const SkTScopedComPtr& that) {
+        if (fPtr != that.fPtr) {
+            this->reset(SkSafeRefComPtr(that.get()));
+        }
+        return *this;
+    }
 
     T &operator*() const { SkASSERT(fPtr != nullptr); return *fPtr; }
 
@@ -53,7 +68,10 @@ public:
      * Must only be used on instances currently pointing to NULL,
      * and only to initialize the instance.
      */
-    T **operator&() { SkASSERT(fPtr == nullptr); return &fPtr; }
+    T **operator&() {
+        this->reset(nullptr);
+        return &fPtr;
+    }
 
     T *get() const { return fPtr; }
 
