@@ -9,7 +9,6 @@
 #define SkMatrix44_DEFINED
 
 #include "SkMatrix.h"
-#include "SkScalar.h"
 
 #ifdef SK_MSCALAR_IS_DOUBLE
 #ifdef SK_MSCALAR_IS_FLOAT

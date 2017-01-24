@@ -10,7 +10,6 @@
 
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 class SkData;
