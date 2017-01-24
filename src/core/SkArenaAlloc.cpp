@@ -68,7 +68,7 @@ void SkArenaAlloc::reset() {
 void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
     ptrdiff_t releaserDiff = (char *)releaser - (char *)end_chain;
     ptrdiff_t footerData = SkLeftShift((int64_t)releaserDiff, 5) | padding;
-    if (padding >= 32 || !SkTFitsIn<int32_t>(footerData)) {
+    if (padding >= 32 || !SkTFitsIn<Footer>(footerData)) {
         // Footer data will not fit.
         SkFAIL("Constraints are busted.");
     }

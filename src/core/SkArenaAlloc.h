@@ -118,7 +118,7 @@ public:
     void reset();
 
 private:
-    using Footer = int32_t;
+    using Footer = int64_t;
     using FooterAction = char* (char*);
 
     static char* SkipPod(char* footerEnd);
