@@ -10,13 +10,13 @@
 #include "SkRect.h"
 
 #if SK_SUPPORT_GPU
-#include "effects/GrConvolutionEffect.h"
-#include "effects/GrMatrixConvolutionEffect.h"
-#include "GrContext.h"
 #include "GrCaps.h"
+#include "GrContext.h"
+#include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrFixedClip.h"
+#include "effects/GrGaussianConvolutionFragmentProcessor.h"
+#include "effects/GrMatrixConvolutionEffect.h"
 
 #define MAX_BLUR_SIGMA 4.0f
 
@@ -62,7 +62,7 @@ static float adjust_sigma(float sigma, int maxTextureSize, int *scaleFactor, int
         }
     }
     *radius = static_cast<int>(ceilf(sigma * 3.0f));
-    SkASSERT(*radius <= GrConvolutionEffect::kMaxKernelRadius);
+    SkASSERT(*radius <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
     return sigma;
 }
 
@@ -78,8 +78,8 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  float bounds[2]) {
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
-    sk_sp<GrFragmentProcessor> conv(GrConvolutionEffect::MakeGaussian(
-        texture, direction, radius, sigma, useBounds, bounds));
+    sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
+            texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
