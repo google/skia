@@ -191,6 +191,15 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                 return ContextInfo();
             }
 
+            // There is some bug (either in Skia or the NV Vulkan driver) where VkDevice
+            // destruction will hang occaisonally. For some reason having an existing GL
+            // context fixes this.
+            if (!fSentinelGLContext) {
+                fSentinelGLContext.reset(CreatePlatformGLTestContext(kGL_GrGLStandard));
+                if (!fSentinelGLContext) {
+                    fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
+                }
+            }
             backendContext = testCtx->backendContext();
             break;
 #endif
