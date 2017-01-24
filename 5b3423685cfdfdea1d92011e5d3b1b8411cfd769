@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "49869420_88e9eebe",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "This comes in as the alpha value of fInputColor, right?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64c53d7f_57700851",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -13,6 +30,23 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "You don\u0027t need to add anything to the key in this case.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94f960b4_6650703e",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "I\u0027m guessing this is for future use ?",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -42,6 +76,40 @@
     },
     {
       "key": {
+        "uuid": "8cf784f9_0e222811",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "It seems like we should have something like SkUnitScalarClampToByte that does this\n\nAdd a comment here about these colors ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24fb49d7_70b61d93",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "This can never fail ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "787d34ef_c6ffe20d",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -53,6 +121,40 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "I think you want this paint",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "607a1f5a_420e33a1",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "802d0430_bed23213",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "this-\u003e ?",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -110,6 +212,142 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "this-\u003e",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86f050c5_feb69ec6",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "this-\u003e\u0027s",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f414c91_2813f51f",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "Why not just loop up to count ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51fa39b2_f9bd3c17",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "stray \\n ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a007bc1_8796bb72",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afcc34bc_268fc21a",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "Should this be SkAmbientShadowTessellator ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c2a37af_90898a70",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "Do we need SkPaint.h ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce751d3f_ef13d981",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "Can we just do \"class SkPath;\" here ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3286a1b_0f087fb2",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-24T18:18:37Z",
+      "side": 1,
+      "message": "Should this be SkShadowTessellator ?\n\nAdd a comment about how this all works (e.g., this tesselator walks a path converting all the curves to line segments ...)",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
