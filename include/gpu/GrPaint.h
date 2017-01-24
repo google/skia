@@ -20,6 +20,8 @@
 #include "SkTLazy.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
+class GrTextureProxy;
+
 /**
  * The paint describes how color and coverage are computed at each pixel by GrContext draw
  * functions and the how color is blended with the destination pixel.
@@ -115,6 +117,16 @@ public:
     void addColorTextureProcessor(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
                                   const GrSamplerParams&);
     void addCoverageTextureProcessor(GrTexture*, const SkMatrix&, const GrSamplerParams&);
+
+
+    void addColorTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
+                                  const SkMatrix&);
+    void addColorTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
+                                  const SkMatrix&, const GrSamplerParams&);
+
+    void addCoverageTextureProcessor(GrContext*, sk_sp<GrTextureProxy>, const SkMatrix&);
+    void addCoverageTextureProcessor(GrContext*, sk_sp<GrTextureProxy>,
+                                     const SkMatrix&, const GrSamplerParams&);
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
     int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }

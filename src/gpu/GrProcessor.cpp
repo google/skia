@@ -210,12 +210,20 @@ GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
 
 GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             sk_sp<GrTextureProxy> proxy,
+                                            const GrSamplerParams& params) {
+    // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
+    // to taking a GrSurfaceProxy just use the IORefs on the proxy
+    this->reset(proxy->instantiate(texProvider), params);
+}
+
+GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
+                                            sk_sp<GrTextureProxy> proxy,
                                             GrSamplerParams::FilterMode filterMode,
                                             SkShader::TileMode tileXAndY,
                                             GrShaderFlags visibility) {
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    this->reset( proxy->instantiate(texProvider), filterMode, tileXAndY, visibility);
+    this->reset(proxy->instantiate(texProvider), filterMode, tileXAndY, visibility);
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,

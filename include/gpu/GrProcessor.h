@@ -211,6 +211,8 @@ public:
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
 
+    TextureSampler(GrTextureProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
+
     // MDB TODO: ultimately we shouldn't need the texProvider parameter
     explicit TextureSampler(GrTextureProvider*, sk_sp<GrTextureProxy>,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
