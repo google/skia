@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "6cf3a566_e0fa895a",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-24T17:37:45Z",
+      "side": 1,
+      "message": "Ack",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9d3a1b5_300289e3",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
@@ -36,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "9c3e0bd0_00f6c302",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-24T17:37:45Z",
+      "side": 1,
+      "message": "I\u0027ll buy that this is worth reviving SkRectMemcpy",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11875cf9_c3f5f03c",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
@@ -47,6 +81,23 @@
       "writtenOn": "2017-01-24T17:26:39Z",
       "side": 1,
       "message": "Same deal here as in the other file... probably easier to follow inlined.",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d60cd4a_ff14a2d8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-24T17:37:45Z",
+      "side": 1,
+      "message": "Ack",
       "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
