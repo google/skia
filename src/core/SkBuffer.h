@@ -9,7 +9,6 @@
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
 
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 /** \class SkRBuffer

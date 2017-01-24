@@ -14,7 +14,6 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkRRect.h"
-#include "SkScalar.h"
 
 class SkString;
 

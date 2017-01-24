@@ -11,7 +11,7 @@
 #define SkString_DEFINED
 
 #include "../private/SkTArray.h"
-#include "SkScalar.h"
+#include "SkTypes.h"
 
 #include <stdarg.h>
 

@@ -10,7 +10,6 @@
 
 #include "SkCachedData.h"
 #include "SkPixmap.h"
-#include "SkScalar.h"
 #include "SkSize.h"
 #include "SkShader.h"
 

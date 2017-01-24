@@ -10,7 +10,6 @@
 
 #include "SkRasterizer.h"
 #include "SkDeque.h"
-#include "SkScalar.h"
 
 class SkPaint;
 

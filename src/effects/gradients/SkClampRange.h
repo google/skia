@@ -9,7 +9,6 @@
 #define SkClampRange_DEFINED
 
 #include "SkFixed.h"
-#include "SkScalar.h"
 
 #define SkGradFixed             SkFixed3232
 #define SkScalarToGradFixed(x)  SkScalarToFixed3232(x)

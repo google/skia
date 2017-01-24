@@ -11,7 +11,6 @@
 #include "SkColor.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
-#include "SkScalar.h"
 #include "SkStrokeRec.h"
 #include "SkTDArray.h"
 

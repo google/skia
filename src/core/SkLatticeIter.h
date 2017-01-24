@@ -9,7 +9,6 @@
 #define SkLatticeIter_DEFINED
 
 #include "SkCanvas.h"
-#include "SkScalar.h"
 #include "SkTArray.h"
 
 struct SkIRect;

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkFloatBits.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
 

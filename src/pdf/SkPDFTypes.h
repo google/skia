@@ -10,7 +10,6 @@
 #define SkPDFTypes_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 #include "SkTHash.h"
 #include "SkTypes.h"
 
