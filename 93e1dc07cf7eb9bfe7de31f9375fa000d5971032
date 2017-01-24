@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5b3beb7_2e6277b7",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T21:01:46Z",
+      "side": 1,
+      "message": "/**\n * We usually make class comments look like this.\n * Another line\n */",
+      "revId": "93e1dc07cf7eb9bfe7de31f9375fa000d5971032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
