@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbf691dc_4bdd8018",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-24T17:26:39Z",
+      "side": 1,
+      "message": "If we\u0027re killing off SkRectMemcpy, I think it\u0027s probably easier to follow this code if we inline do_memcpy()\u0027s body here.  While can_memcpy() is subtle, do_memcpy() isn\u0027t really hiding anything unexpected... it\u0027s just the obvious gruntwork.",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b9d3a1b5_300289e3",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-24T17:26:39Z",
+      "side": 1,
+      "message": "Reading this here kind of makes me think we really might want to keep some sort of centralized rect memcpy function, incorporating this fast path.",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11875cf9_c3f5f03c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-24T17:26:39Z",
+      "side": 1,
+      "message": "Same deal here as in the other file... probably easier to follow inlined.",
+      "revId": "9fadf3a96510f24236a55a15f52b30da1c7d24c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
