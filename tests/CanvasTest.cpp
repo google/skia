@@ -68,21 +68,31 @@
 
 DEF_TEST(canvas_clipbounds, reporter) {
     SkCanvas canvas(10, 10);
-    SkIRect irect;
-    SkRect rect;
+    SkIRect irect, irect2;
+    SkRect rect, rect2;
 
     irect = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, irect == SkIRect::MakeWH(10, 10));
+    REPORTER_ASSERT(reporter, canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
     // local bounds are always too big today -- can we trim them?
     rect = canvas.getLocalClipBounds();
     REPORTER_ASSERT(reporter, rect.contains(SkRect::MakeWH(10, 10)));
+    REPORTER_ASSERT(reporter, canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
 
     canvas.clipRect(SkRect::MakeEmpty());
 
     irect = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, irect == SkIRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getDeviceClipBounds(&irect2));
+    REPORTER_ASSERT(reporter, irect == irect2);
+
     rect = canvas.getLocalClipBounds();
     REPORTER_ASSERT(reporter, rect == SkRect::MakeEmpty());
+    REPORTER_ASSERT(reporter, !canvas.getLocalClipBounds(&rect2));
+    REPORTER_ASSERT(reporter, rect == rect2);
 }
 
 static const int kWidth = 2, kHeight = 2;
