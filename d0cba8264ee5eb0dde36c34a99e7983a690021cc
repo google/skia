@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_7c328e2f",
+        "filename": "src/images/SkWEBPImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-24T00:45:13Z",
+      "side": 1,
+      "message": "Ultimately decided not to share this with png.\n\nGray, index8 and F16 implementations all need to be different...",
+      "range": {
+        "startLine": 42,
+        "startChar": 31,
+        "endLine": 42,
+        "endChar": 42
+      },
+      "revId": "d0cba8264ee5eb0dde36c34a99e7983a690021cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
