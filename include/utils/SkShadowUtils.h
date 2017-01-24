@@ -9,7 +9,6 @@
 #define SkShadowUtils_DEFINED
 
 #include "SkColor.h"
-#include "SkScalar.h"
 #include "../private/SkShadowFlags.h"
 
 class SkCanvas;

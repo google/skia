@@ -9,7 +9,6 @@
 #define SkMatrixConvolutionImageFilter_DEFINED
 
 #include "SkImageFilter.h"
-#include "SkScalar.h"
 #include "SkSize.h"
 #include "SkPoint.h"
 

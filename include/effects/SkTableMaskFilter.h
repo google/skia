@@ -9,7 +9,6 @@
 #define SkTableMaskFilter_DEFINED
 
 #include "SkMaskFilter.h"
-#include "SkScalar.h"
 
 /** \class SkTableMaskFilter
 

@@ -7,6 +7,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include "SkScalar.h"
 #include "SkString.h"
 #include "Test.h"
 

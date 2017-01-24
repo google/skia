@@ -267,6 +267,12 @@ typedef unsigned U16CPU;
  */
 typedef uint8_t SkBool8;
 
+#if SK_SCALAR_IS_FLOAT
+    typedef float SkScalar;
+#else  // SK_SCALAR_IS_DOUBLE
+    typedef double SkScalar;
+#endif
+
 #include "../private/SkTFitsIn.h"
 template <typename D, typename S> D SkTo(S s) {
     SkASSERT(SkTFitsIn<D>(s));

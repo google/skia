@@ -12,7 +12,6 @@
 #include "SkColorFilter.h"
 #include "SkGr.h"
 #include "SkPaint.h"
-#include "SkScalar.h"
 #include "SkTLazy.h"
 
 class GrAtlasGlyphCache;
