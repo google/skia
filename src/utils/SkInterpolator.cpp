@@ -9,6 +9,7 @@
 #include "SkFixed.h"
 #include "SkInterpolator.h"
 #include "SkMath.h"
+#include "SkScalar.h"
 #include "SkTSearch.h"
 
 SkInterpolatorBase::SkInterpolatorBase() {
