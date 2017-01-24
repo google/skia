@@ -287,11 +287,11 @@ void SkAndroidSDKCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* ma
 SkISize SkAndroidSDKCanvas::getBaseLayerSize() const {
     return fProxyTarget->getBaseLayerSize();
 }
-bool SkAndroidSDKCanvas::getClipBounds(SkRect* rect) const {
-    return fProxyTarget->getClipBounds(rect);
+SkRect SkAndroidSDKCanvas::onGetLocalClipBounds() const {
+    return fProxyTarget->getLocalClipBounds();
 }
-bool SkAndroidSDKCanvas::getClipDeviceBounds(SkIRect* rect) const {
-    return fProxyTarget->getClipDeviceBounds(rect);
+SkIRect SkAndroidSDKCanvas::onGetDeviceClipBounds() const {
+    return fProxyTarget->getDeviceClipBounds();
 }
 
 bool SkAndroidSDKCanvas::isClipEmpty() const { return fProxyTarget->isClipEmpty(); }
