@@ -437,6 +437,8 @@
           'Release': {
             'cflags': [
               '-O<(skia_release_optimization_level)',
+              '-ffunction-sections',
+              '-fdata-sections',
             ],
             'defines': [ 'NDEBUG' ],
           },
@@ -625,7 +627,11 @@
         ],
         'configurations': {
           'Release': {
-            'cflags': ['-O2'],
+            'cflags': [
+              '-O<(skia_release_optimization_level)',
+              '-ffunction-sections',
+              '-fdata-sections',
+            ],
             'conditions': [
               [ 'skia_clang_build', {
                 'cflags!': ['-g'],
