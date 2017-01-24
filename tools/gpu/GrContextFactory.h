@@ -163,6 +163,7 @@ private:
         bool            fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
+    std::unique_ptr<GLTestContext>  fSentinelGLContext;
     const GrContextOptions          fGlobalOptions;
 };
 }  // namespace sk_gpu_test
