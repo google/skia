@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "284bc29d_973e53d8",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-24T14:49:05Z",
+      "side": 1,
+      "message": "nit: Double \u0027;\u0027 at EOL",
+      "revId": "3d0f514b68c7601f679732cffab2e56c879414dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "284bc29d_37fe5fb7",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-24T14:49:05Z",
+      "side": 1,
+      "message": "... \u003d offset; ?\n\nMight be worth adding a test of this case (mixed table \u0026 parametric), even though it\u0027s extremely unlikely to happen in the real world?",
+      "revId": "3d0f514b68c7601f679732cffab2e56c879414dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
