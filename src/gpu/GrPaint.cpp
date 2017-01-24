@@ -44,6 +44,37 @@ void GrPaint::addCoverageTextureProcessor(GrTexture* texture,
                                                                    params));
 }
 
+void GrPaint::addColorTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                       const SkMatrix& matrix) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(ctx, std::move(proxy),
+                                                                std::move(colorSpaceXform),
+                                                                matrix));
+}
+
+void GrPaint::addColorTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                       const SkMatrix& matrix,
+                                       const GrSamplerParams& params) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(ctx,
+                                                                std::move(proxy),
+                                                                std::move(colorSpaceXform),
+                                                                matrix, params));
+}
+
+void GrPaint::addCoverageTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                          const SkMatrix& matrix) {
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(ctx, std::move(proxy),
+                                                                   nullptr, matrix));
+}
+
+void GrPaint::addCoverageTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                          const SkMatrix& matrix,
+                                          const GrSamplerParams& params) {
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(ctx, std::move(proxy),
+                                                                   nullptr, matrix, params));
+}
+
 bool GrPaint::internalIsConstantBlendedColor(GrColor paintColor, GrColor* color) const {
     GrProcOptInfo colorProcInfo(paintColor, kRGBA_GrColorComponentFlags);
     colorProcInfo.analyzeProcessors(
