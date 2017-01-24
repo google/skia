@@ -10,7 +10,6 @@
 
 #include "../private/SkChunkAlloc.h"
 #include "../private/SkTemplates.h"
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 struct SkDOMNode;

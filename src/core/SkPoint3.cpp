@@ -6,6 +6,7 @@
  */
 
 #include "SkPoint3.h"
+#include "SkScalar.h"
 
 // Returns the square of the Euclidian distance to (x,y,z).
 static inline float get_length_squared(float x, float y, float z) {

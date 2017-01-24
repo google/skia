@@ -10,7 +10,7 @@
 #ifndef SkInterpolator_DEFINED
 #define SkInterpolator_DEFINED
 
-#include "SkScalar.h"
+#include "SkTypes.h"
 
 class SkInterpolatorBase : SkNoncopyable {
 public:

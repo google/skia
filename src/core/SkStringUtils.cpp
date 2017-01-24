@@ -7,6 +7,7 @@
 
 #include "SkString.h"
 #include "SkStringUtils.h"
+#include "SkScalar.h"
 
 void SkAddFlagToString(SkString* string, bool flag, const char* flagStr, bool* needSeparator) {
     if (flag) {
