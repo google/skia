@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40ece7ff_6dcab343",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "this comment was modified.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 3
+      },
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c275cc0_2e9992d6",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "The other Make that took a kernel array was removed.",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c418424c_9b1aa443",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "This was renamed from MakeGaussian",
+      "range": {
+        "startLine": 22,
+        "startChar": 38,
+        "endLine": 22,
+        "endChar": 42
+      },
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5fbb8706_828bb69e",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "The other constructor was removed.",
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d29a5ce2_b6c048a5",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "This TODO was added.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 98
+      },
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecedde40_e637679f",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 1,
+      "message": "These were moved from protected.",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "930b2db795aaf9c5962dd11986890cc22589a7b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
