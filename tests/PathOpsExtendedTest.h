@@ -36,17 +36,18 @@ extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPa
                        const SkPathOp , const char* testName);
 extern bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                             const SkPathOp , const char* testName, bool checkFail);
-extern bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                           const SkPathOp, const char* testName);
 extern bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a,
                            const SkPath& b, const SkPathOp , const char* testName);
+extern bool testPathOpTry(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                          const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
 extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
 extern bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path,
                               const char* filename, bool checkFail);
 extern bool testSimplifyFuzz(skiatest::Reporter* reporter, const SkPath& path,
-                                       const char* filename);
+                             const char* filename);
+extern bool testSimplifyTry(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
 
 void initializeTests(skiatest::Reporter* reporter, const char* testName);
 
