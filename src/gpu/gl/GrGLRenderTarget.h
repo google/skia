@@ -11,7 +11,6 @@
 
 #include "GrGLIRect.h"
 #include "GrRenderTarget.h"
-#include "SkScalar.h"
 
 class GrGLCaps;
 class GrGLGpu;

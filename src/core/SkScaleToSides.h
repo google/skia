@@ -9,7 +9,6 @@
 #define SkScaleToSides_DEFINED
 
 #include <cmath>
-#include "SkScalar.h"
 #include "SkTypes.h"
 
 class SkScaleToSides {

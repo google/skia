@@ -12,7 +12,9 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-#ifdef SK_BUILD_FOR_UNIX
+#if defined(SK_BUILD_FOR_UNIX) || \
+    (!defined(_WIN32) && !defined(SK_BUILD_FOR_ANDROID) && !defined(__UCLIBC__) \
+        && !defined(_NEWLIB_VERSION))
 #include <unistd.h>
 #endif
 

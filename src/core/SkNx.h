@@ -9,7 +9,6 @@
 #define SkNx_DEFINED
 
 #include "SkSafe_math.h"
-#include "SkScalar.h"
 #include "SkTypes.h"
 #include <limits>
 #include <type_traits>

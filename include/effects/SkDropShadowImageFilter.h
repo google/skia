@@ -10,7 +10,6 @@
 
 #include "SkColor.h"
 #include "SkImageFilter.h"
-#include "SkScalar.h"
 
 class SK_API SkDropShadowImageFilter : public SkImageFilter {
 public:

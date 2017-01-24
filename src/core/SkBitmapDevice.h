@@ -15,7 +15,6 @@
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRect.h"
-#include "SkScalar.h"
 #include "SkSize.h"
 #include "SkSurfaceProps.h"
 
