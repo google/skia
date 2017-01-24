@@ -80,7 +80,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
                                        this->fColorSpace))) {
         return false;
     }
-    if (!fTexture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
+    if (!fTexture->readPixels1(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
                               dst->getPixels(), dst->rowBytes())) {
         return false;
     }
@@ -147,7 +147,7 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
         // let the GPU perform this transformation for us
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
-    if (!fTexture->readPixels(fColorSpace.get(), rec.fX, rec.fY, rec.fInfo.width(),
+    if (!fTexture->readPixels1(fColorSpace.get(), rec.fX, rec.fY, rec.fInfo.width(),
                               rec.fInfo.height(), config, rec.fInfo.colorSpace(), rec.fPixels,
                               rec.fRowBytes, flags)) {
         return false;

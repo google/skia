@@ -22,7 +22,7 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
     int h = rect.height();
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     memset(pixels.get(), ~expectedValue, sizeof(uint32_t) * w * h);
-    rt->readPixels(rect.fLeft, rect.fTop, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
+    rt->readPixels1(rect.fLeft, rect.fTop, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t pixel = pixels.get()[y * w + x];

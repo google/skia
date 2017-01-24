@@ -74,24 +74,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
 
     // Test that reading to a non-integer config fails.
     std::unique_ptr<int32_t[]> readData(new int32_t[kS * kS]);
-    bool success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_GrPixelConfig, readData.get());
+    bool success = texture->readPixels1(0, 0, kS, kS, kRGBA_8888_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, !success);
     std::unique_ptr<uint16_t[]> halfData(new uint16_t[4 * kS * kS]);
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_half_GrPixelConfig, halfData.get());
+    success = texture->readPixels1(0, 0, kS, kS, kRGBA_half_GrPixelConfig, halfData.get());
     REPORTER_ASSERT(reporter, !success);
 
     // Can read back as ints. (ES only requires being able to read back into 32bit ints which
     // we don't support. Right now this test is counting on GR_RGBA_INTEGER/GL_BYTE being the
     // implementation-dependent second format).
     sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
+    success = texture->readPixels1(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, success);
     if (success) {
         check_pixels(reporter, kS, kS, testData.get(), readData.get(), "readPixels");
     }
 
     // readPixels should fail if we attempt to use the unpremul flag with an integer texture.
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get(), 0,
+    success = texture->readPixels1(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get(), 0,
                                   GrContext::kUnpremul_PixelOpsFlag);
     REPORTER_ASSERT(reporter, !success);
 
@@ -111,7 +111,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         }
 
         sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-        success = copySurface->readPixels(0, 0, kS, kS,
+        success = copySurface->readPixels1(0, 0, kS, kS,
                                           kRGBA_8888_sint_GrPixelConfig, readData.get());
         REPORTER_ASSERT(reporter, success);
         if (success) {
@@ -146,24 +146,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     size_t rowBytes = kS * sizeof(int32_t);
 
     // Can't write pixels from a non-int config.
-    success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_GrPixelConfig, bottomRightQuarter,
+    success = texture->writePixels1(0, 0, kS/2, kS/2, kRGBA_8888_GrPixelConfig, bottomRightQuarter,
                                    rowBytes);
     REPORTER_ASSERT(reporter, !success);
 
     // Can't use unpremul flag.
-    success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
+    success = texture->writePixels1(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
                                    bottomRightQuarter, rowBytes,
                                    GrContext::kUnpremul_PixelOpsFlag);
     REPORTER_ASSERT(reporter, !success);
 
-    success = texture->writePixels(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
+    success = texture->writePixels1(0, 0, kS/2, kS/2, kRGBA_8888_sint_GrPixelConfig,
                                    bottomRightQuarter, rowBytes);
     REPORTER_ASSERT(reporter, success);
     if (!success) {
         return;
     }
     sk_bzero(readData.get(), sizeof(int32_t) * kS * kS);
-    success = texture->readPixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
+    success = texture->readPixels1(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, readData.get());
     REPORTER_ASSERT(reporter, success);
     if (!success) {
         return;
@@ -193,7 +193,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         expectedData.get()[i] = ((0xFF * a) << 24) | ((0xFF * b) << 16) |
                                 ((0xFF * g) << 8) | (0xFF * r);
     }
-    texture->writePixels(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, testData.get());
+    texture->writePixels1(0, 0, kS, kS, kRGBA_8888_sint_GrPixelConfig, testData.get());
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 

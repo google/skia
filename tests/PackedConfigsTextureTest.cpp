@@ -119,7 +119,7 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
         sk_sp<GrTexture> fpTexture(context->textureProvider()->createTexture(
             desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         SkASSERT(fpTexture);
-        fpTexture->readPixels(0, 0, DEV_W, DEV_H, kRGBA_8888_GrPixelConfig, readBuffer.begin(), 0);
+        fpTexture->readPixels1(0, 0, DEV_W, DEV_H, kRGBA_8888_GrPixelConfig, readBuffer.begin(), 0);
         if (kRGBA_4444_GrPixelConfig == config) {
             check_4444(reporter, controlPixelData, readBuffer);
         } else {

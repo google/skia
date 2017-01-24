@@ -122,7 +122,7 @@ bool GrTextureContext::onReadPixels(const SkImageInfo& dstInfo, void* dstBuffer,
         return false;
     }
 
-    return tex->readPixels(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
+    return tex->readPixels1(this->getColorSpace(), x, y, dstInfo.width(), dstInfo.height(),
                            config, dstInfo.colorSpace(), dstBuffer, dstRowBytes, flags);
 }
 
@@ -145,6 +145,6 @@ bool GrTextureContext::onWritePixels(const SkImageInfo& srcInfo, const void* src
         return false;
     }
 
-    return tex->writePixels(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
+    return tex->writePixels1(this->getColorSpace(), x, y, srcInfo.width(), srcInfo.height(),
                             config, srcInfo.colorSpace(), srcBuffer, srcRowBytes, flags);
 }

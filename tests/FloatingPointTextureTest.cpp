@@ -51,7 +51,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         if (nullptr == fpTexture) {
             continue;
         }
-        fpTexture->readPixels(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer.begin(), 0);
+        fpTexture->readPixels1(0, 0, DEV_W, DEV_H, desc.fConfig, readBuffer.begin(), 0);
         REPORTER_ASSERT(reporter,
                         0 == memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
     }

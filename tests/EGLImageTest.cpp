@@ -45,7 +45,7 @@ static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
     int pixelCnt = externalTexture->width() * externalTexture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
-    bool read = externalTexture->readPixels(0, 0, externalTexture->width(),
+    bool read = externalTexture->readPixels1(0, 0, externalTexture->width(),
                                             externalTexture->height(), kRGBA_8888_GrPixelConfig,
                                             pixels.get());
     if (!read) {
@@ -65,7 +65,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
     int pixelCnt = externalTexture->width() * externalTexture->height();
     SkAutoTMalloc<uint32_t> pixels(pixelCnt);
     memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
-    bool write = externalTexture->writePixels(0, 0, 0, 0, kRGBA_8888_GrPixelConfig, pixels.get());
+    bool write = externalTexture->writePixels1(0, 0, 0, 0, kRGBA_8888_GrPixelConfig, pixels.get());
     REPORTER_ASSERT_MESSAGE(reporter, !write, "Should not be able to write to a EXTERNAL"
                                               " texture.");
 }

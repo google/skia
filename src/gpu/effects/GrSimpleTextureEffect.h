@@ -11,6 +11,9 @@
 #include "GrSingleTextureEffect.h"
 
 class GrInvariantOutput;
+//class GrTextureProxy;
+
+#include "GrTextureProxy.h"
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
@@ -25,6 +28,14 @@ public:
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(tex, std::move(colorSpaceXform), matrix,
+                                      GrSamplerParams::kNone_FilterMode));
+    }
+
+    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                           const SkMatrix& matrix) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrSimpleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform), matrix,
                                       GrSamplerParams::kNone_FilterMode));
     }
 
@@ -58,11 +69,28 @@ private:
         this->initClassID<GrSimpleTextureEffect>();
     }
 
+    GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                          sk_sp<GrColorSpaceXform> colorSpaceXform,
+                          const SkMatrix& matrix,
+                          GrSamplerParams::FilterMode filterMode)
+        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform),
+                                matrix, filterMode) {
+        this->initClassID<GrSimpleTextureEffect>();
+    }
+
     GrSimpleTextureEffect(GrTexture* texture,
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           const GrSamplerParams& params)
         : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params) {
+        this->initClassID<GrSimpleTextureEffect>();
+    }
+
+    GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
+                          sk_sp<GrColorSpaceXform> colorSpaceXform,
+                          const SkMatrix& matrix,
+                          const GrSamplerParams& params)
+        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform), matrix, params) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 

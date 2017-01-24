@@ -177,7 +177,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
 
                 // read the texture back
-                bool result = texture->readPixels(0, 0, desc.fWidth, desc.fHeight,
+                bool result = texture->readPixels1(0, 0, desc.fWidth, desc.fHeight,
                                                   kAlpha_8_GrPixelConfig,
                                                   readback.get(), rowBytes);
                 REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");

@@ -245,7 +245,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         return false;
     }
 
-    if (!tex->readPixels(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
+    if (!tex->readPixels1(fInfo.colorSpace(), 0, 0, bitmap->width(), bitmap->height(),
                          SkImageInfo2GrPixelConfig(cacheInfo, *tex->getContext()->caps()),
                          cacheInfo.colorSpace(), bitmap->getPixels(), bitmap->rowBytes())) {
         bitmap->reset();

@@ -90,7 +90,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         // TODO: move readPixels to GrSurfaceProxy?
         GrSurface* surf = targetProxy->instantiate(context->textureProvider());
 
-        bool success = surf->readPixels(0, 0, desc.fWidth, desc.fHeight,
+        bool success = surf->readPixels1(0, 0, desc.fWidth, desc.fHeight,
                                         kRGBA_8888_GrPixelConfig, actualPixels.get());
         REPORTER_ASSERT(reporter, success);
 

@@ -58,7 +58,7 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
                                            kNoCreate_ScratchTextureFlag;
             if (GrTexture* texture = this->refScratchTexture(desc, kFlags)) {
                 if (!mipLevelCount ||
-                    texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+                    texture->writePixels1(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                          texels[0].fPixels, texels[0].fRowBytes)) {
                     if (SkBudgeted::kNo == budgeted) {
                         texture->resourcePriv().makeUnbudgeted();

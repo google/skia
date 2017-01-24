@@ -133,7 +133,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             GrSurface* dstSurf = dst->instantiate(context->textureProvider());
 
                             sk_memset32(read.get(), 0, kW * kH);
-                            if (!dstSurf->readPixels(0, 0, kW, kH, baseDesc.fConfig, read.get(),
+                            if (!dstSurf->readPixels1(0, 0, kW, kH, baseDesc.fConfig, read.get(),
                                                      kRowBytes)) {
                                 ERRORF(reporter, "Error calling readPixels");
                                 continue;
