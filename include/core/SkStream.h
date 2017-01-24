@@ -10,7 +10,6 @@
 
 #include "SkData.h"
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 
 class SkStream;
 class SkStreamRewindable;

@@ -18,7 +18,6 @@
 #include "SkRRect.h"
 #include "SkRect.h"
 #include "SkRegion.h"
-#include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
