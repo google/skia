@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c83e3aa_24eef75e",
+        "filename": "src/gpu/effects/GrConvolutionEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-24T17:10:24Z",
+      "side": 0,
+      "message": "This file was renamed. differences are commented in the renamed file.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 3
+      },
+      "revId": "6f4a9b294868a94e5b1e06a8e855833614355bcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
