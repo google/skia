@@ -485,7 +485,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     return true;
 }
 
-int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count) {
+int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
+                          const Options& opts) {
     // Set the jump location for libjpeg-turbo errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         return 0;
@@ -502,7 +503,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     uint32_t* swizzleDst = (uint32_t*) dst;
     size_t decodeDstRowBytes = rowBytes;
     size_t swizzleDstRowBytes = rowBytes;
-    int dstWidth = this->options().fSubset ? this->options().fSubset->width() : dstInfo.width();
+    int dstWidth = opts.fSubset ? opts.fSubset->width() : dstInfo.width();
     if (fSwizzleSrcRow && fColorXformSrcRow) {
         decodeDst = (JSAMPLE*) fSwizzleSrcRow;
         swizzleDst = fColorXformSrcRow;
@@ -590,7 +591,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
 
     this->allocateStorage(dstInfo);
 
-    int rows = this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height());
+    int rows = this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height(), options);
     if (rows < dstInfo.height()) {
         *rowsDecoded = rows;
         return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
@@ -733,7 +734,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
 }
 
 int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
-    int rows = this->readRows(this->dstInfo(), dst, dstRowBytes, count);
+    int rows = this->readRows(this->dstInfo(), dst, dstRowBytes, count, this->options());
     if (rows < count) {
         // This allows us to skip calling jpeg_finish_decompress().
         fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();

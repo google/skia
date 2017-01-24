@@ -105,7 +105,7 @@ private:
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
-    int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count);
+    int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
 
     /*
      * Scanline decoding.
