@@ -6,6 +6,7 @@
  */
 
 #include "SkInterpolator.h"
+#include "SkScalar.h"
 
 #include "Test.h"
 

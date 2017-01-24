@@ -359,4 +359,18 @@
 #  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+#ifndef SK_SCALAR_IS_FLOAT
+#  define SK_SCALAR_IS_FLOAT 1
+#  define SK_SCALAR_IS_DOUBLE 0
+#else
+#  if SK_SCALAR_IS_FLOAT
+#    define SK_SCALAR_IS_DOUBLE 0
+#  else
+#    define SK_SCALAR_IS_DOUBLE 1
+#  endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
 #endif // SkPostConfig_DEFINED

@@ -9,7 +9,6 @@
 #define SkFont_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkScalar.h"
 
 class SkPaint;
 class SkTypeface;
