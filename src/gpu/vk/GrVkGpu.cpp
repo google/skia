@@ -419,6 +419,17 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
     }
 }
 
+static inline void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
+                               size_t bytesPerRow, int rowCount) {
+    SkASSERT(bytesPerRow <= srcRB);
+    SkASSERT(bytesPerRow <= dstRB);
+    for (int i = 0; i < rowCount; ++i) {
+        memcpy(dst, src, bytesPerRow);
+        dst = (char*)dst + dstRB;
+        src = (const char*)src + srcRB;
+    }
+}
+
 bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
                                   int left, int top, int width, int height,
                                   GrPixelConfig dataConfig,
@@ -481,8 +492,8 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
         if (trimRowBytes == rowBytes && trimRowBytes == layout.rowPitch) {
             memcpy(mapPtr, data, trimRowBytes * height);
         } else {
-            SkRectMemcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
-                         height);
+            rect_memcpy(mapPtr, static_cast<size_t>(layout.rowPitch), data, rowBytes, trimRowBytes,
+                        height);
         }
     }
 
@@ -583,7 +594,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         } else if (trimRowBytes == rowBytes) {
             memcpy(dst, src, trimRowBytes * currentHeight);
         } else {
-            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+            rect_memcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
         }
 
         VkBufferImageCopy& region = regions.push_back();
@@ -969,8 +980,7 @@ bool copy_testing_data(GrVkGpu* gpu, void* srcData, const GrVkAlloc& alloc,
     if (srcRowBytes == dstRowBytes) {
         memcpy(mapPtr, srcData, srcRowBytes * h);
     } else {
-        SkRectMemcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes,
-                     srcRowBytes, h);
+        rect_memcpy(mapPtr, static_cast<size_t>(dstRowBytes), srcData, srcRowBytes, srcRowBytes, h);
     }
     GrVkMemory::FlushMappedAlloc(gpu, alloc);
     GR_VK_CALL(gpu->vkInterface(), UnmapMemory(gpu->device(), alloc.fMemory));
@@ -1759,8 +1769,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
         if (transBufferRowBytes == rowBytes) {
             memcpy(buffer, mappedMemory, rowBytes*height);
         } else {
-            SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes,
-                         height);
+            rect_memcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, tightRowBytes, height);
         }
     }
 
