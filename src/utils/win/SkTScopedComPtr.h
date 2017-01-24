@@ -32,7 +32,7 @@ template<typename T> T* SkSafeRefComPtr(T* ptr) {
 }
 
 template<typename T>
-class SkTScopedComPtr : SkNoncopyable {
+class SkTScopedComPtr {
 private:
     T *fPtr;
 
@@ -40,6 +40,14 @@ public:
     explicit SkTScopedComPtr(T *ptr = nullptr) : fPtr(ptr) { }
 
     ~SkTScopedComPtr() { this->reset();}
+
+    SkTScopedComPtr(SkTScopedComPtr&& that) : fPtr(that.release()) {}
+    SkTScopedComPtr(const SkTScopedComPtr&) = delete;
+    SkTScopedComPtr& operator=(SkTScopedComPtr&& that) {
+        this->reset(that.release());
+        return *this;
+    }
+    SkTScopedComPtr& operator=(const SkTScopedComPtr&) = delete;
 
     T &operator*() const { SkASSERT(fPtr != nullptr); return *fPtr; }
 
