@@ -10,15 +10,7 @@
 
 #include "../private/SkFloatingPoint.h"
 
-// TODO: move this sort of check into SkPostConfig.h
-#define SK_SCALAR_IS_DOUBLE 0
-#undef SK_SCALAR_IS_FLOAT
-#define SK_SCALAR_IS_FLOAT  1
-
-
 #if SK_SCALAR_IS_FLOAT
-
-typedef float SkScalar;
 
 #define SK_Scalar1                  1.0f
 #define SK_ScalarHalf               0.5f
@@ -57,8 +49,6 @@ typedef float SkScalar;
 #define SkScalarLog2(x)             (float)sk_float_log2(x)
 
 #else   // SK_SCALAR_IS_DOUBLE
-
-typedef double SkScalar;
 
 #define SK_Scalar1                  1.0
 #define SK_ScalarHalf               0.5

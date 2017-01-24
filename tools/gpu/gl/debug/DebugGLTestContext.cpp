@@ -19,6 +19,7 @@
 #include "gl/GrGLTestInterface.h"
 
 #include "SkMutex.h"
+#include "SkScalar.h"
 
 namespace {
 
