@@ -237,18 +237,16 @@ private:
     SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
 
     // so we don't grow our arrays a lot
-    static constexpr size_t       kMinGlyphCount = 16;
-    static constexpr size_t       kMinGlyphImageSize = (16*2);
-    static constexpr size_t       kMinAllocAmount
-        = ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount);
+    static constexpr size_t kMinGlyphCount = 8;
+    static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
+    static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
 
-    char                   storage[kMinAllocAmount];
-    SkArenaAlloc           fAlloc {storage};
+    SkArenaAlloc            fAlloc {kMinAllocAmount};
 
     std::unique_ptr<CharGlyphRec[]> fPackedUnicharIDToPackedGlyphID;
 
     // used to track (approx) how much ram is tied-up in this cache
-    size_t                 fMemoryUsed;
+    size_t                  fMemoryUsed;
 };
 
 class SkAutoGlyphCache : public std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor> {
