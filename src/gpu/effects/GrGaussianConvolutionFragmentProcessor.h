@@ -12,37 +12,24 @@
 #include "GrInvariantOutput.h"
 
 /**
- * A convolution effect. The kernel is specified as an array of 2 * half-width
- * + 1 weights. Each texel is multiplied by it's weight and summed to determine
- * the output color. The output color is modulated by the input color.
+ * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width
+ * 1 weights. Each texel is multiplied by it's weight and summed to determine the filtered color.
+ * The output color is set to a modulation of the filtered and input colors.
  */
-class GrConvolutionEffect : public Gr1DKernelEffect {
-
+class GrGaussianConvolutionFragmentProcessor : public Gr1DKernelEffect {
 public:
-
-    /// Convolve with an arbitrary user-specified kernel
+    /// Convolve with a Gaussian kernel
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            Direction dir,
                                            int halfWidth,
-                                           const float* kernel,
+                                           float gaussianSigma,
                                            bool useBounds,
-                                           float bounds[2]) {
-        return sk_sp<GrFragmentProcessor>(
-            new GrConvolutionEffect(tex, dir, halfWidth, kernel, useBounds, bounds));
+                                           float* bounds) {
+        return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
+                tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
 
-    /// Convolve with a Gaussian kernel
-    static sk_sp<GrFragmentProcessor> MakeGaussian(GrTexture* tex,
-                                                   Direction dir,
-                                                   int halfWidth,
-                                                   float gaussianSigma,
-                                                   bool useBounds,
-                                                   float bounds[2]) {
-        return sk_sp<GrFragmentProcessor>(
-            new GrConvolutionEffect(tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
-    }
-
-    virtual ~GrConvolutionEffect();
+    virtual ~GrGaussianConvolutionFragmentProcessor();
 
     const float* kernel() const { return fKernel; }
 
@@ -62,25 +49,10 @@ public:
         kMaxKernelWidth = 2 * kMaxKernelRadius + 1,
     };
 
-protected:
-
-    float fKernel[kMaxKernelWidth];
-    bool fUseBounds;
-    float fBounds[2];
-
 private:
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth,
-                        const float* kernel,
-                        bool useBounds,
-                        float bounds[2]);
-
     /// Convolve with a Gaussian kernel
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth,
-                        float gaussianSigma,
-                        bool useBounds,
-                        float bounds[2]);
+    GrGaussianConvolutionFragmentProcessor(GrTexture*, Direction, int halfWidth,
+                                           float gaussianSigma, bool useBounds, float bounds[2]);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -95,6 +67,12 @@ private:
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+
+    // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
+    // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
+    float fKernel[kMaxKernelWidth];
+    bool fUseBounds;
+    float fBounds[2];
 
     typedef Gr1DKernelEffect INHERITED;
 };
