@@ -146,7 +146,7 @@ bool GrSurface::writePixels(SkColorSpace* dstColorSpace, int left, int top, int 
     if (nullptr == context) {
         return false;
     }
-    return context->writeSurfacePixels(this, dstColorSpace, left, top, width, height, config,
+    return context->writeSurfacePixels1(this, dstColorSpace, left, top, width, height, config,
                                        srcColorSpace, buffer, rowBytes, pixelOpsFlags);
 }
 

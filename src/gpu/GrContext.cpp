@@ -244,7 +244,7 @@ bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t
     return srcPI.convertPixelsTo(&dstPI, width, height);
 }
 
-bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
+bool GrContext::writeSurfacePixels1(GrSurface* surface, SkColorSpace* dstColorSpace,
                                    int left, int top, int width, int height,
                                    GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
                                    const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags) {

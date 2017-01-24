@@ -15,6 +15,7 @@
 #include "SkMatrix.h"
 
 class GrTexture;
+class GrTextureProxy;
 
 /**
  * A base class for effects that draw a single texture with a texture matrix. This effect has no
@@ -41,6 +42,17 @@ protected:
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
+                          const GrSamplerParams&);
+
+    /** unfiltered, clamp mode */
+    GrSingleTextureEffect(GrContext*,
+                          sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&);
+    /** clamp mode */
+    GrSingleTextureEffect(GrContext*,
+                          sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                          GrSamplerParams::FilterMode filterMode);
+    GrSingleTextureEffect(GrContext*,
+                          sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           const GrSamplerParams&);
 
     /**
