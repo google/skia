@@ -87,8 +87,8 @@ protected:
 
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     SkISize getBaseLayerSize() const override;
-    bool getClipBounds(SkRect*) const override;
-    bool getClipDeviceBounds(SkIRect*) const override;
+    SkRect onGetLocalClipBounds() const override;
+    SkIRect onGetDeviceClipBounds() const override;
     bool isClipEmpty() const override;
     bool isClipRect() const override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
