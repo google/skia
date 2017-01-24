@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "7e0962ef_08a321dd",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64c53d7f_57700851",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -36,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "1b81c9a9_195301d7",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94f960b4_6650703e",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -47,6 +81,23 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "I\u0027m guessing this is for future use ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b9dbe67_1380e165",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +127,23 @@
     },
     {
       "key": {
+        "uuid": "bab3d555_a9ac3e6b",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Ack",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cf784f9_0e222811",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -87,6 +155,23 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "It seems like we should have something like SkUnitScalarClampToByte that does this\n\nAdd a comment here about these colors ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0345baeb_40ecf389",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "I agree, but would rather save it for another change. And comment added.",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -110,6 +195,23 @@
     },
     {
       "key": {
+        "uuid": "5e279d71_2002b2df",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "I\u0027m not sure what the failure cases would be. Right now it checks for coincident points and recovers the best it can.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "787d34ef_c6ffe20d",
         "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
         "patchSetId": 11
@@ -121,6 +223,23 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "I think you want this paint",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "193028f6_02e1e084",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -144,6 +263,23 @@
     },
     {
       "key": {
+        "uuid": "f19c316d_98c69cf9",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "802d0430_bed23213",
         "filename": "src/effects/shadows/SkShadowTessellator.cpp",
         "patchSetId": 11
@@ -155,6 +291,23 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "this-\u003e ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "310615e5_fd03b5d4",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -184,6 +337,23 @@
     },
     {
       "key": {
+        "uuid": "70289b07_34b00840",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "900758d8_83d98dde",
         "filename": "src/effects/shadows/SkShadowTessellator.cpp",
         "patchSetId": 11
@@ -195,6 +365,57 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "Guessing this is subtly different related to tracking firsts that would make it ugly to share with addEdge.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16a5b709_f439f6e5",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c82f8134_0a9dad01",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c762f09_19d8b307",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -235,6 +456,23 @@
     },
     {
       "key": {
+        "uuid": "47aaa51f_35e15ab8",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f414c91_2813f51f",
         "filename": "src/effects/shadows/SkShadowTessellator.cpp",
         "patchSetId": 11
@@ -246,6 +484,23 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "Why not just loop up to count ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95dc996d_c19fa4a6",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "I copied it from GrAAConvexTessellator, which has a different curve state at the end. Done.",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -269,6 +524,23 @@
     },
     {
       "key": {
+        "uuid": "64dcdfb2_b404a724",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a007bc1_8796bb72",
         "filename": "src/effects/shadows/SkShadowTessellator.cpp",
         "patchSetId": 11
@@ -280,6 +552,57 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "same here ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43e43665_805a44b7",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "464bab5d_19065a8e",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd2d2ffc_08542d29",
+        "filename": "src/effects/shadows/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -303,6 +626,23 @@
     },
     {
       "key": {
+        "uuid": "27706d37_e6a585b8",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "My intent is that SkSpotShadowTessellator would live here too, and they\u0027d share code.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c2a37af_90898a70",
         "filename": "src/effects/shadows/SkShadowTessellator.h",
         "patchSetId": 11
@@ -314,6 +654,23 @@
       "writtenOn": "2017-01-24T18:18:37Z",
       "side": 1,
       "message": "Do we need SkPaint.h ?",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e2154a0_718f15d9",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -337,6 +694,23 @@
     },
     {
       "key": {
+        "uuid": "a16d7862_84b8e0f6",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3286a1b_0f087fb2",
         "filename": "src/effects/shadows/SkShadowTessellator.h",
         "patchSetId": 11
@@ -354,6 +728,40 @@
     },
     {
       "key": {
+        "uuid": "f57db184_29175760",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d30d11f4_5cc78312",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "No, see comment above. And done.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "816049cc_ea6df5a3",
         "filename": "src/effects/shadows/SkShadowTessellator.h",
         "patchSetId": 11
@@ -365,6 +773,23 @@
       "writtenOn": "2017-01-24T18:04:45Z",
       "side": 1,
       "message": "minor, but quadTo, cubicTo, and conicTo aren\u0027t really what I would think of as \"To\" since the take the starting point rather than inferring that it is the previous call\u0027s last point.",
+      "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b811437_f53d24a8",
+        "filename": "src/effects/shadows/SkShadowTessellator.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-24T20:37:07Z",
+      "side": 1,
+      "message": "Done",
       "revId": "5b3423685cfdfdea1d92011e5d3b1b8411cfd769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
