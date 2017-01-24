@@ -165,6 +165,10 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
                                                                  : &fCurrentFragmentUBOOffset;
     get_ubo_aligned_offset(&uni.fUBOffset, currentOffset, type, arrayCount);
 
+    SkString layoutQualifier;
+    layoutQualifier.appendf("offset=%d", uni.fUBOffset);
+    uni.fVariable.addLayoutQualifier(layoutQualifier.c_str());
+
     if (outName) {
         *outName = uni.fVariable.c_str();
     }
@@ -213,11 +217,20 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
+    SkDEBUGCODE(bool firstOffsetCheck = false);
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         const UniformInfo& localUniform = fUniforms[i];
         if (visibility == localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
+#ifdef SK_DEBUG
+                if (!firstOffsetCheck) {
+                    // Check to make sure we are starting our offset at 0 so the offset qualifier we
+                    // set on each variable in the uniform block is valid.
+                    SkASSERT(0 == localUniform.fUBOffset);
+                    firstOffsetCheck = true;
+                }
+#endif
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
