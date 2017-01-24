@@ -533,10 +533,26 @@ public:
     SkRect getLocalClipBounds() const { return this->onGetLocalClipBounds(); }
 
     /**
+     *  Returns true if the clip bounds are non-empty.
+     */
+    bool getLocalClipBounds(SkRect* bounds) const {
+        *bounds = this->onGetLocalClipBounds();
+        return !bounds->isEmpty();
+    }
+
+    /**
      *  Return the bounds of the current clip in device coordinates. If the clip is empty,
      *  return { 0, 0, 0, 0 }.
      */
     SkIRect getDeviceClipBounds() const { return this->onGetDeviceClipBounds(); }
+
+    /**
+     *  Returns true if the clip bounds are non-empty.
+     */
+    bool getDeviceClipBounds(SkIRect* bounds) const {
+        *bounds = this->onGetDeviceClipBounds();
+        return !bounds->isEmpty();
+    }
 
 #ifdef SK_SUPPORT_LEGACY_GETCLIPBOUNDS
     bool getClipBounds(SkRect* bounds) const {
