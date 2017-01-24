@@ -663,19 +663,6 @@ void SkView::inflate(const SkDOM& dom, const SkDOM::Node* node) {
     this->onInflate(dom, node);
 }
 
-void SkView::onPostInflate(const SkTDict<SkView*>&) {
-    // override in subclass as needed
-}
-
-void SkView::postInflate(const SkTDict<SkView*>& dict) {
-    this->onPostInflate(dict);
-
-    B2FIter    iter(this);
-    SkView*    child;
-    while ((child = iter.next()) != nullptr)
-        child->postInflate(dict);
-}
-
 //////////////////////////////////////////////////////////////////
 
 SkView* SkView::sendEventToParents(const SkEvent& evt) {
