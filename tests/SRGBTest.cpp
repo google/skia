@@ -8,6 +8,7 @@
 #include "SkSRGB.h"
 #include "SkTypes.h"
 #include "Test.h"
+#include <float.h>
 #include <math.h>
 
 static uint8_t linear_to_srgb(float l) {

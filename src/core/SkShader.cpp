@@ -14,7 +14,6 @@
 #include "SkPicture.h"
 #include "SkPictureShader.h"
 #include "SkReadBuffer.h"
-#include "SkScalar.h"
 #include "SkShader.h"
 #include "SkWriteBuffer.h"
 

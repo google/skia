@@ -8,7 +8,6 @@
 #ifndef SkColor_DEFINED
 #define SkColor_DEFINED
 
-#include "SkScalar.h"
 #include "SkPoint3.h"
 #include "SkTypes.h"
 

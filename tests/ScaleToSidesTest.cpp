@@ -8,6 +8,7 @@
 #include "SkScaleToSides.h"
 
 #include <algorithm>
+#include <float.h>
 #include "Test.h"
 
 DEF_TEST(ScaleToSides, reporter) {

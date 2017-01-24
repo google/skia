@@ -8,7 +8,6 @@
 #ifndef SkScalarContext_win_dw_DEFINED
 #define SkScalarContext_win_dw_DEFINED
 
-#include "SkScalar.h"
 #include "SkScalerContext.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"

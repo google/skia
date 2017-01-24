@@ -8,7 +8,6 @@
 #ifndef SkArithmeticModePriv_DEFINED
 #define SkArithmeticModePriv_DEFINED
 
-#include "SkScalar.h"
 #include "SkXfermodePriv.h"
 
 class SkXfermode;

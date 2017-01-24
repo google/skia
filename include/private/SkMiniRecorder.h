@@ -9,7 +9,6 @@
 #define SkMiniRecorder_DEFINED
 
 #include "SkRecords.h"
-#include "SkScalar.h"
 #include "SkTypes.h"
 class SkCanvas;
 
