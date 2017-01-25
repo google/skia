@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "806c82c1_dbf0635a",
+        "filename": "gm/gammacolorfilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-25T19:00:58Z",
+      "side": 0,
+      "message": "Annoyingly, deleting this file will break the Android roll.  For now, please leave this file existing, with a note like the ones in gm/colorcube.cpp or tests/FixedAllocTest.cpp.\n\nThe rest should be fine (this sort of caveat only applies to files under gm/, tests/, samplecode, and bench/ right now.)",
+      "revId": "58abc9e2c56464336472493745e91133819deb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
