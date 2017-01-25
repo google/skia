@@ -81,7 +81,7 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           GrSamplerParams::FilterMode filterMode)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode) {
+        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode, ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
@@ -89,8 +89,8 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           GrSamplerParams::FilterMode filterMode)
-        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform),
-                                matrix, filterMode) {
+        : GrSingleTextureEffect{ctx, ModulationFlags(proxy->config()), std::move(proxy), std::move(colorSpaceXform),
+                                matrix, filterMode} {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
@@ -98,7 +98,7 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           const GrSamplerParams& params)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params) {
+        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params, ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
@@ -106,7 +106,7 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           const GrSamplerParams& params)
-        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform), matrix, params) {
+        : GrSingleTextureEffect{ctx, ModulationFlags(proxy->config()), std::move(proxy), std::move(colorSpaceXform), matrix, params} {
         this->initClassID<GrSimpleTextureEffect>();
     }
 

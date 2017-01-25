@@ -28,6 +28,9 @@ public:
     Mode mode() const { return fMode; }
     SkScalar gamma() const { return fGamma; }
 
+protected:
+    GrColor4f constantOutputForConstantInput(GrColor4f input) const override;
+
 private:
     GrGammaEffect(Mode mode, SkScalar gamma);
 

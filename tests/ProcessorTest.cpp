@@ -66,11 +66,11 @@ public:
         // We don't care about optimizing these processors.
         inout->setToUnknown();
     }
-
+HASCO
 private:
     TestFP(const SkTArray<sk_sp<GrTexture>>& textures, const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)
-            : fSamplers(4), fBuffers(4), fImages(4) {
+            : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         for (const auto& texture : textures) {
             this->addTextureSampler(&fSamplers.emplace_back(texture.get()));
         }
@@ -83,7 +83,7 @@ private:
         }
     }
 
-    TestFP(sk_sp<GrFragmentProcessor> child) : fSamplers(4), fBuffers(4), fImages(4) {
+    TestFP(sk_sp<GrFragmentProcessor> child) : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         this->registerChildProcessor(std::move(child));
     }
 
@@ -106,6 +106,7 @@ private:
     GrTAllocator<TextureSampler> fSamplers;
     GrTAllocator<BufferAccess> fBuffers;
     GrTAllocator<ImageStorageAccess> fImages;
+    typedef GrFragmentProcessor INHERITED;
 };
 }
 

@@ -42,8 +42,18 @@ public:
 
     InputMode inputMode() const { return fMode; }
 
+protected:
+    GrColor4f constantOutputForConstantInput(GrColor4f input) const override;
+
 private:
-    GrConstColorProcessor(GrColor4f color, InputMode mode) : fColor(color), fMode(mode) {
+    static OptimizationFlags OptFlags(InputMode mode) {
+        if (mode == kIgnore_InputMode) {
+            return kConstantOutputForConstantInput;
+        }
+        return kConstantOutputForConstantInput | kModulatesInput_OptimizationFlag;
+    }
+
+    GrConstColorProcessor(GrColor4f color, InputMode mode) : INHERITED(OptFlags(mode)), fColor(color), fMode(mode) {
         this->initClassID<GrConstColorProcessor>();
     }
 

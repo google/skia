@@ -30,12 +30,13 @@
 class NormalBevelFP : public GrFragmentProcessor {
 public:
     NormalBevelFP(SkNormalSource::BevelType bevelType, SkScalar bevelWidth, SkScalar bevelHeight)
-        : fBevelType(bevelType)
+        : INHERITED(kNone_OptimizationFlags)
+            , fBevelType(bevelType)
         , fBevelWidth(bevelWidth)
         , fBevelHeight(bevelHeight) {
         this->initClassID<NormalBevelFP>();
 
-        fUsesDistanceVectorField = true;
+        this->setWillUseDistanceVectorField();
     }
 
     class GLSLNormalBevelFP : public GLSLNormalFP {
@@ -225,7 +226,7 @@ public:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->setToUnknown();
     }
-
+HASCO
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalBevelFP; }
 
@@ -239,6 +240,8 @@ private:
     SkNormalSource::BevelType fBevelType;
     SkScalar fBevelWidth;
     SkScalar fBevelHeight;
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalBevelSourceImpl::asFragmentProcessor(

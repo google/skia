@@ -161,7 +161,8 @@ private:
                    sk_sp<GrTextureProxy> vProxy,
                    const SkMatrix yuvMatrix[3], GrSamplerParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
+        : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+        , fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
         , fYSampler(ctx->textureProvider(), std::move(yProxy))
         , fUTransform(ctx, yuvMatrix[1], uProxy.get(), uvFilterMode)
         , fUSampler(ctx->textureProvider(), std::move(uProxy), uvFilterMode)
@@ -228,7 +229,8 @@ public:
 
     RGBToYUVEffect(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace,
                    OutputChannels output)
-        : fColorSpace(colorSpace)
+        // This could advertise kConstantOutputForConstantInput, but doesn't seem useful.
+        : INHERITED(kPreservesOpaqueInput_OptimizationFlag), fColorSpace(colorSpace)
         , fOutputChannels(output) {
         this->initClassID<RGBToYUVEffect>();
         this->registerChildProcessor(std::move(rgbFP));
@@ -288,7 +290,6 @@ public:
                     break;
             }
         }
-
     private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrProcessor& processor) override {

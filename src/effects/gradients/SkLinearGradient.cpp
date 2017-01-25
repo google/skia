@@ -427,7 +427,7 @@ public:
 
 private:
     GrLinearGradient(const CreateArgs& args)
-        : INHERITED(args) {
+        : INHERITED(args, args.fShader->colorsAreOpaque()) {
         this->initClassID<GrLinearGradient>();
     }
 

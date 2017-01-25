@@ -242,7 +242,7 @@ public:
     const char* name() const override { return "DisplacementMap"; }
     const GrTextureDomain& domain() const { return fDomain; }
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
-
+HASCO
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -495,7 +495,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                              GrTexture* color,
                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                              const SkISize& colorDimensions)
-    : fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
+    : INHERITED(kNone_OptimizationFlags)
+    , fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
     , fDisplacementSampler(displacement)
     , fColorTransform(color, GrSamplerParams::kNone_FilterMode)
     , fDomain(color, GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),

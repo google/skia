@@ -554,7 +554,7 @@ public:
     const SkMatrix& filterMatrix() const { return fFilterMatrix; }
     BoundaryMode boundaryMode() const { return fBoundaryMode; }
     const GrTextureDomain& domain() const { return fDomain; }
-
+HASCO
 protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -1625,7 +1625,7 @@ SkString emitNormalFunc(BoundaryMode mode,
 
 }
 
-class GrGLLightingEffect  : public GrGLSLFragmentProcessor {
+class GrGLLightingEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLLightingEffect() : fLight(nullptr) { }
     virtual ~GrGLLightingEffect() { delete fLight; }
@@ -1702,7 +1702,7 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
-    : INHERITED(texture, nullptr, SkMatrix::I())
+    : INHERITED(texture, nullptr, SkMatrix::I(), kNone_OptimizationFlags)
     , fLight(light)
     , fSurfaceScale(surfaceScale)
     , fFilterMatrix(matrix)

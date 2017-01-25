@@ -19,56 +19,59 @@
  * bitfield.
  */
 #define GR_MAKE_BITFIELD_OPS(X) \
-    inline X operator | (X a, X b) { \
+    inline X operator |(X a, X b) { \
         return (X) (+a | +b); \
     } \
-    inline X& operator |= (X& a, X b) { \
+    inline X& operator |=(X& a, X b) { \
         return (a = a | b); \
     } \
-    \
-    inline X operator & (X a, X b) { \
+    inline X operator &(X a, X b) { \
+        return (X) (+a & +b); \
+    } \
+    inline X& operator &=(X& a, X b) { \
+        return (a = a & b); \
+    } \
+    template <typename T> \
+    inline X operator &(T a, X b) { \
         return (X) (+a & +b); \
     } \
     template <typename T> \
-    inline X operator & (T a, X b) { \
-        return (X) (+a & +b); \
-    } \
-    template <typename T> \
-    inline X operator & (X a, T b) { \
+    inline X operator &(X a, T b) { \
         return (X) (+a & +b); \
     } \
 
 #define GR_DECL_BITFIELD_OPS_FRIENDS(X) \
-    friend X operator | (X a, X b); \
-    friend X& operator |= (X& a, X b); \
+    friend X operator |(X a, X b); \
+    friend X& operator |=(X& a, X b); \
     \
-    friend X operator & (X a, X b); \
-    \
-    template <typename T> \
-    friend X operator & (T a, X b); \
+    friend X operator &(X a, X b); \
+    friend X& operator &=(X& a, X b); \
     \
     template <typename T> \
-    friend X operator & (X a, T b); \
+    friend X operator &(T a, X b); \
+    \
+    template <typename T> \
+    friend X operator &(X a, T b); \
 
 /**
  * Defines bitwise operators that make it possible to use an enum class as a
  * very basic bitfield.
  */
 #define GR_MAKE_BITFIELD_CLASS_OPS(X) \
-    inline X operator | (X a, X b) { \
+    inline X operator |(X a, X b) { \
         return (X) ((int)a | (int)b); \
     } \
-    inline X& operator |= (X& a, X b) { \
+    inline X& operator |=(X& a, X b) { \
         return (a = a | b); \
     } \
-    inline bool operator & (X a, X b) { \
+    inline bool operator &(X a, X b) { \
         return SkToBool((int)a & (int)b); \
     }
 
 #define GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(X) \
-    friend X operator | (X a, X b); \
-    friend X& operator |= (X& a, X b); \
-    friend bool operator & (X a, X b);
+    friend X operator |(X a, X b); \
+    friend X& operator |=(X& a, X b); \
+    friend bool operator &(X a, X b);
 
 ////////////////////////////////////////////////////////////////////////////////
 

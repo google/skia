@@ -345,9 +345,10 @@ public:
 
         typedef GrGLSLFragmentProcessor INHERITED;
     };
-
+HASCO // Implement me!
 private:
-    ColorMatrixEffect(const SkScalar matrix[20]) {
+    // Optimizations would be matrix-dependent.
+    ColorMatrixEffect(const SkScalar matrix[20]) : INHERITED(kNone_OptimizationFlags) {
         memcpy(fMatrix, matrix, sizeof(SkScalar) * 20);
         this->initClassID<ColorMatrixEffect>();
     }

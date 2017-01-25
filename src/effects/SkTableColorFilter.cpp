@@ -380,6 +380,7 @@ public:
     const GrTextureStripAtlas* atlas() const { return fAtlas; }
     int atlasRow() const { return fRow; }
 
+HASCO // Implement me?
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -512,7 +513,8 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
                                    unsigned flags)
-    : fTextureSampler(texture)
+    : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
+    , fTextureSampler(texture)
     , fFlags(flags)
     , fAtlas(atlas)
     , fRow(row) {

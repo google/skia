@@ -96,9 +96,9 @@ public:
     private:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
-
+HASCO // implement me?
 private:
-    LumaColorFilterEffect() {
+    LumaColorFilterEffect() : INHERITED(kNone_OptimizationFlags) {
         this->initClassID<LumaColorFilterEffect>();
     }
 
@@ -117,6 +117,8 @@ private:
         // The output is always black. The alpha value for the color passed in is arbitrary.
         inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0));
     }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
