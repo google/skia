@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e989a2b_e73ed29f",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-25T15:26:55Z",
+      "side": 1,
+      "message": "The moves seem fine, but do we really need these pain inducing copy constructor and copy assignment operators? Unless there is a pressing need for them, I\u0027d really like to avoid adding the copies.",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 87
+      },
+      "revId": "c9d4ec2e4cb2d91c17cc30fac9a1b1aa5bba3b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6c63cc7_f382ff20",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-25T15:26:55Z",
+      "side": 1,
+      "message": "This is going to create really non-obvious behavior at the call sites. All COM smart pointers just assert that that you can only take the address of the underlying pointer if it\u0027s nullptr. It would be best to stay that way for consistency if nothing else. You would need to have a really compelling use case to make this change.",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "c9d4ec2e4cb2d91c17cc30fac9a1b1aa5bba3b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
