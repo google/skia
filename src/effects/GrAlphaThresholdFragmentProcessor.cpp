@@ -39,7 +39,8 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            float innerThreshold,
                                                            float outerThreshold,
                                                            const SkIRect& bounds)
-    : fInnerThreshold(innerThreshold)
+    : INHERITED(kNone_OptimizationFlags)
+    , fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold)
     , fImageCoordTransform(SkMatrix::I(), texture, GrSamplerParams::kNone_FilterMode)
     , fImageTextureSampler(texture)
@@ -85,7 +86,6 @@ public:
             effect.cast<GrAlphaThresholdFragmentProcessor>();
         b->add32(GrColorSpaceXform::XformKey(atfp.colorSpaceXform()));
     }
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
 

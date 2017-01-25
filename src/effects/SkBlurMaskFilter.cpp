@@ -976,7 +976,8 @@ GrTexture* GrRectBlurEffect::CreateBlurProfileTexture(GrTextureProvider* texture
 
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *blurProfile,
                                    GrSLPrecision precision)
-    : fRect(rect)
+    : INHERITED(kModulatesInput_OptimizationFlag)
+    , fRect(rect)
     , fSigma(sigma)
     , fBlurProfileSampler(blurProfile)
     , fPrecision(precision) {
@@ -1207,9 +1208,10 @@ void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 }
 
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture *ninePatchTexture)
-    : fRRect(rrect),
-      fSigma(sigma),
-      fNinePatchSampler(ninePatchTexture) {
+        : INHERITED(kModulatesInput_OptimizationFlag)
+        , fRRect(rrect),
+          fSigma(sigma),
+          fNinePatchSampler(ninePatchTexture) {
     this->initClassID<GrRRectBlurEffect>();
     this->addTextureSampler(&fNinePatchSampler);
 }

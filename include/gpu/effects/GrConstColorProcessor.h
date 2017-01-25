@@ -43,7 +43,14 @@ public:
     InputMode inputMode() const { return fMode; }
 
 private:
-    GrConstColorProcessor(GrColor4f color, InputMode mode) : fColor(color), fMode(mode) {
+    static OptimizationFlags OptFlags(InputMode mode) {
+        if (mode == kIgnore_InputMode) {
+            return kConstantOutputForConstantInput;
+        }
+        return kConstantOutputForConstantInput | kModulatesInput_OptimizationFlag;
+    }
+
+    GrConstColorProcessor(GrColor4f color, InputMode mode) : INHERITED(OptFlags(mode)), fColor(color), fMode(mode) {
         this->initClassID<GrConstColorProcessor>();
     }
 
@@ -54,6 +61,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
+    GrColor4f onConstantOutputForConstantInput(GrColor4f input) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

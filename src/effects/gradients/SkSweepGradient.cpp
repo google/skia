@@ -139,7 +139,7 @@ public:
 
 private:
     GrSweepGradient(const CreateArgs& args)
-    : INHERITED(args) {
+    : INHERITED(args, args.fShader->colorsAreOpaque()) {
         this->initClassID<GrSweepGradient>();
     }
 

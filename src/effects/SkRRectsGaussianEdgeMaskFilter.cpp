@@ -207,7 +207,8 @@ public:
     };
 
     RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
-        : fFirst(first)
+        : INHERITED(kNone_OptimizationFlags)
+            , fFirst(first)
         , fSecond(second)
         , fRadius(radius) {
         this->initClassID<RRectsGaussianEdgeFP>();

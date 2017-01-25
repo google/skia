@@ -19,7 +19,8 @@ class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:
     ComposeTwoFragmentProcessor(sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst,
                                 SkBlendMode mode)
-        : fMode(mode) {
+            : INHERITED(OptFlags(src.get(), dst.get()))
+            , fMode(mode) {
         this->initClassID<ComposeTwoFragmentProcessor>();
         SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
         SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
@@ -35,7 +36,15 @@ public:
 
     SkBlendMode getMode() const { return fMode; }
 
-protected:
+private:
+    static OptimizationFlags OptFlags(const GrFragmentProcessor* src, const GrFragmentProcessor* dst) {
+        // We only attempt the constant output optimization.
+        if (src->hasConstantOutputForConstantInput() && dst->hasConstantOutputForConstantInput()) {
+            return kConstantOutputForConstantInput;
+        }
+        return kNone_OptimizationFlags;
+    }
+
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const ComposeTwoFragmentProcessor& cs = other.cast<ComposeTwoFragmentProcessor>();
         return fMode == cs.fMode;
@@ -45,7 +54,15 @@ protected:
         inout->setToUnknown();
     }
 
-private:
+    GrColor4f onConstantOutputForConstantInput(GrColor4f inputColor) const override {
+        GrColor4f srcColor = ConstantOutputForConstantInput(this->childProcessor(0), GrColor4f::OpaqueWhite());
+        GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), GrColor4f::OpaqueWhite());
+        SkPM4f src = GrColor4fToSkPM4f(srcColor);
+        SkPM4f dst = GrColor4fToSkPM4f(dstColor);
+        auto proc = SkXfermode::GetProc4f(fMode);
+        return SkPM4fToGrColor4f(proc(src, dst)).modulate(inputColor);
+    }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     SkBlendMode fMode;
@@ -145,7 +162,8 @@ public:
     };
 
     ComposeOneFragmentProcessor(sk_sp<GrFragmentProcessor> dst, SkBlendMode mode, Child child)
-        : fMode(mode)
+        : INHERITED(kNone_OptimizationFlags)  // The flags could be specialized for each mode.
+        , fMode(mode)
         , fChild(child) {
         this->initClassID<ComposeOneFragmentProcessor>();
         SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(std::move(dst));
@@ -172,7 +190,7 @@ public:
 
     Child child() const { return fChild; }
 
-protected:
+private:
     bool onIsEqual(const GrFragmentProcessor& that) const override {
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
     }
@@ -201,6 +219,21 @@ protected:
         } else {
             inout->setToUnknown();
         }
+    }
+
+    GrColor4f onConstantOutputForConstantInput(GrColor4f inputColor) const override {
+        GrColor4f childColor;
+        ConstantOutputForConstantInput(this->childProcessor(0), GrColor4f::OpaqueWhite());
+        SkPM4f src, dst;
+        if (kSrc_Child == fChild) {
+            src = GrColor4fToSkPM4f(childColor);
+            dst = GrColor4fToSkPM4f(inputColor);
+        } else {
+            dst = GrColor4fToSkPM4f(childColor);
+            src = GrColor4fToSkPM4f(inputColor);
+        }
+        auto proc = SkXfermode::GetProc4f(fMode);
+        return SkPM4fToGrColor4f(proc(src, dst));
     }
 
 private:

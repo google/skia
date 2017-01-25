@@ -495,7 +495,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                              GrTexture* color,
                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                              const SkISize& colorDimensions)
-    : fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
+    : INHERITED(kNone_OptimizationFlags)
+    , fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
     , fDisplacementSampler(displacement)
     , fColorTransform(color, GrSamplerParams::kNone_FilterMode)
     , fDomain(color, GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),

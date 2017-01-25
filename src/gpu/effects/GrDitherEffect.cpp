@@ -26,7 +26,7 @@ public:
     const char* name() const override { return "Dither"; }
 
 private:
-    DitherEffect() {
+    DitherEffect() : INHERITED(kNone_OptimizationFlags) {
         this->initClassID<DitherEffect>();
     }
 

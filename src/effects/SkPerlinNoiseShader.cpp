@@ -544,7 +544,8 @@ private:
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
                         const SkMatrix& matrix)
-      : fType(type)
+      : INHERITED(kNone_OptimizationFlags)
+      , fType(type)
       , fCoordTransform(matrix)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
