@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "791af5ea_dbf464ad",
+        "filename": "src/gpu/GrSurfaceProxyPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-25T18:59:20Z",
+      "side": 1,
+      "message": "I ended up not needing this class or method in this CL but left it b.c. I believe I will need it (or, at least, a GrSurfaceProxyPriv object) in the future.",
+      "revId": "16f25c7b8992751071c95433874f4b88d9eba4d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
