@@ -175,6 +175,8 @@ public:
                                           const SkMatrix*, const SkPaint*, BitDepth,
                                           sk_sp<SkColorSpace>);
 
+    static sk_sp<SkImage> MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     int width() const { return fWidth; }

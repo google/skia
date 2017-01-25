@@ -371,6 +371,20 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     return MakeRasterData(info, data, rowBytes);
 }
 
+sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext* ctx, const SkPixmap& pixmap,
+                                              SkBudgeted budgeted) {
+    if (!ctx) {
+        return nullptr;
+    }
+    sk_sp<GrTexture> texture(GrUploadPixmapToTexture(ctx, pixmap, budgeted));
+    if (!texture) {
+        return nullptr;
+    }
+    return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
+                                   pixmap.alphaType(), std::move(texture),
+                                   sk_ref_sp(pixmap.info().colorSpace()), budgeted);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -666,14 +680,21 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     }
     SkImageInfo info = SkImageInfo::Make(dti->fWidth, dti->fHeight,
                                          dti->fColorType, dti->fAlphaType, colorSpace);
-    SkAutoSTArray<16, GrMipLevel> texels(mipLevelCount);
-    for (int i = 0; i < mipLevelCount; i++) {
-        texels[i].fPixels = dti->fMipMapLevelData[i].fPixelData;
-        texels[i].fRowBytes = dti->fMipMapLevelData[i].fRowBytes;
-    }
+    if (mipLevelCount == 1) {
+        SkPixmap pixmap;
+        pixmap.reset(info, dti->fMipMapLevelData[0].fPixelData, dti->fMipMapLevelData[0].fRowBytes);
+        return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
+    } else {
+        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+        for (int i = 0; i < mipLevelCount; i++) {
+            texels[i].fPixels = dti->fMipMapLevelData[i].fPixelData;
+            texels[i].fRowBytes = dti->fMipMapLevelData[i].fRowBytes;
+        }
 
-    return SkImage::MakeTextureFromMipMap(context, info, texels.get(), mipLevelCount,
-                                          SkBudgeted::kYes, dti->fColorMode);
+        return SkImage::MakeTextureFromMipMap(context, info, texels.get(),
+                                              mipLevelCount, SkBudgeted::kYes,
+                                              dti->fColorMode);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
