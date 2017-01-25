@@ -1,0 +1,60 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkCanvas.h"
+#include "SkHighContrastFilter.h"
+#include "Test.h"
+
+DEF_TEST(HighContrastFilter_FilterImage, reporter) {
+    SkHighContrastConfig config;
+
+    int w = 10, h = 10;
+    SkBitmap filterResult, paintResult;
+
+    filterResult.allocN32Pixels(w, h);
+    SkCanvas canvasFilter(filterResult);
+    canvasFilter.clear(0x00000000);
+
+    paintResult.allocN32Pixels(w, h);
+    SkCanvas canvasPaint(paintResult);
+    canvasPaint.clear(0x00000000);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    SkRect r = SkRect::MakeLTRB(SkIntToScalar(2), SkIntToScalar(2),
+                                SkIntToScalar(8), SkIntToScalar(8));
+    canvasPaint.drawRect(r, paint);
+
+    paint.setColorFilter(SkHighContrastFilter::Make(config));
+    canvasFilter.drawRect(r, paint);
+
+    paintResult.lockPixels();
+    filterResult.lockPixels();
+    for (int y = r.top(); y < r.bottom(); ++y) {
+        for (int x = r.left(); x < r.right(); ++x) {
+            SkColor paintColor = paintResult.getColor(x, y);
+            SkColor filterColor = filterResult.getColor(x, y);
+            REPORTER_ASSERT(
+                reporter, filterColor == SkHighContrastFilter::Apply(
+                    config, paintColor));
+        }
+    }
+    paintResult.unlockPixels();
+    filterResult.unlockPixels();
+}
+
+DEF_TEST(HighContrastFilter, reporter) {
+    SkHighContrastConfig config;
+
+    SkColor white_inverted = SkHighContrastFilter::Apply(
+        config, SK_ColorWHITE);
+    REPORTER_ASSERT(reporter, white_inverted == SK_ColorBLACK);
+
+    SkColor black_inverted = SkHighContrastFilter::Apply(
+        config, SK_ColorBLACK);
+    REPORTER_ASSERT(reporter, black_inverted == SK_ColorWHITE);
+}
