@@ -371,8 +371,6 @@ protected:
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
                           GrSingleOwner*);
 
-    GrDrawingManager* drawingManager() { return fDrawingManager; }
-
     SkDEBUGCODE(void validate() const;)
 
 private:
@@ -450,7 +448,6 @@ private:
 
     GrRenderTargetOpList* getOpList();
 
-    GrDrawingManager*                 fDrawingManager;
     sk_sp<GrRenderTargetProxy>        fRenderTargetProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked

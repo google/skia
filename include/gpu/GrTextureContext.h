@@ -36,8 +36,6 @@ protected:
     GrTextureContext(GrContext*, GrDrawingManager*, sk_sp<GrTextureProxy>,
                      sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
 
-    GrDrawingManager* drawingManager() { return fDrawingManager; }
-
     SkDEBUGCODE(void validate() const;)
 
 private:
@@ -51,7 +49,6 @@ private:
 
     GrTextureOpList* getOpList();
 
-    GrDrawingManager*            fDrawingManager;
     sk_sp<GrTextureProxy>        fTextureProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
