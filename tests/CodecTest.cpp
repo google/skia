@@ -1018,11 +1018,28 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     // Perform a sampled decode.
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 12;
-    codec->getAndroidPixels(codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(),
-                            rowBytes, &opts);
+    SkCodec::Result result = codec->getAndroidPixels(
+            codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     // Rewind the codec and perform a full image decode.
-    SkCodec::Result result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+
+    // Now perform a subset decode.
+    {
+        opts.fSampleSize = 1;
+        SkIRect subset = SkIRect::MakeWH(100, 100);
+        opts.fSubset = &subset;
+        result = codec->getAndroidPixels(codec->getInfo().makeWH(100, 100), pixelStorage.get(),
+                                         rowBytes, &opts);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    }
+
+    // Perform another full image decode.  ASAN will detect if we look at the subset when it is
+    // out of scope.  This would happen if we depend on the old state in the codec.
+    opts.fSubset = nullptr;
+    result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes, &opts);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 }
 
