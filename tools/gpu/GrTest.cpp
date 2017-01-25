@@ -222,7 +222,7 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
+#define RETURN_IF_ABANDONED if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return; }
 
 void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrPaint&& paint,
                                                       GrAAType aaType,

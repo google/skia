@@ -14,6 +14,7 @@
 
 class GrAuditTrail;
 class GrContext;
+class GrDrawingManager;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
@@ -111,7 +112,11 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+    GrSurfaceContext(GrContext*, GrDrawingManager*,
+                     sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+
+    GrDrawingManager* drawingManager() { return fDrawingManager; }
+    const GrDrawingManager* drawingManager() const { return fDrawingManager; }
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
@@ -130,6 +135,8 @@ private:
                               size_t dstRowBytes, int x, int y) = 0;
     virtual bool onWritePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                                size_t srcRowBytes, int x, int y) = 0;
+
+    GrDrawingManager*     fDrawingManager;
 
     typedef SkRefCnt INHERITED;
 };
