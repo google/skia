@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "1da9fde0_0155ec8c",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-25T16:43:48Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "c9d4ec2e4cb2d91c17cc30fac9a1b1aa5bba3b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6c63cc7_f382ff20",
         "filename": "src/utils/win/SkTScopedComPtr.h",
         "patchSetId": 2
@@ -45,6 +62,23 @@
       "revId": "c9d4ec2e4cb2d91c17cc30fac9a1b1aa5bba3b7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "624a0a1a_a0c05c2f",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-25T16:43:48Z",
+      "side": 1,
+      "message": "Done\nBack to previous behavior.",
+      "revId": "c9d4ec2e4cb2d91c17cc30fac9a1b1aa5bba3b7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
