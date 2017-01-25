@@ -295,18 +295,23 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
         this->flush();
     }
 
-    sk_sp<GrTexture> tempTexture;
+    sk_sp<GrTextureProxy> tempTextureProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempTexture.reset(
-            this->textureProvider()->createApproxTexture(tempDrawInfo.fTempSurfaceDesc));
-        if (!tempTexture && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
+        sk_sp<GrSurfaceProxy> temp = GrSurfaceProxy::MakeDeferred(*this->caps(),
+                                                                  tempDrawInfo.fTempSurfaceDesc,
+                                                                  SkBackingFit::kApprox,
+                                                                  SkBudgeted::kYes);
+        if (temp) {
+            tempTextureProxy.reset(temp->asTextureProxy());
+        }
+        if (!tempTextureProxy && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
             return false;
         }
     }
 
     // temp buffer for doing sw premul conversion, if needed.
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
-    if (tempTexture) {
+    if (tempTextureProxy) {
         sk_sp<GrFragmentProcessor> fp;
         if (applyPremulToSrc) {
             fp = this->createUPMToPMEffect(tempTexture.get(), tempDrawInfo.fSwizzle, SkMatrix::I());
@@ -319,9 +324,9 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
                 applyPremulToSrc = false;
             }
         }
-        if (tempTexture) {
+        if (tempTextureProxy) {
             if (!fp) {
-                fp = GrConfigConversionEffect::Make(tempTexture.get(), tempDrawInfo.fSwizzle,
+                fp = GrConfigConversionEffect::Make(this, tempTextureProxy, tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
                                                     SkMatrix::I());
                 if (!fp) {
@@ -373,7 +378,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpa
             }
         }
     }
-    if (!tempTexture) {
+    if (!tempTextureProxy) {
         if (applyPremulToSrc) {
             size_t tmpRowBytes = 4 * width;
             tmpPixels.reset(width * height);
@@ -815,7 +820,7 @@ void GrContext::testPMConversionsIfNecessary(uint32_t flags) {
     }
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
+sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrTextureProxy> proxy,
                                                           const GrSwizzle& swizzle,
                                                           const SkMatrix& matrix) const {
     ASSERT_SINGLE_OWNER
@@ -824,13 +829,13 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
+        return GrConfigConversionEffect::Make(this, proxy, swizzle, pmToUPM, matrix);
     } else {
         return nullptr;
     }
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(GrTexture* texture,
+sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<TextureProxy> proxy,
                                                           const GrSwizzle& swizzle,
                                                           const SkMatrix& matrix) const {
     ASSERT_SINGLE_OWNER
@@ -839,7 +844,7 @@ sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, upmToPM, matrix);
+        return GrConfigConversionEffect::Make(this, std::move(proxy), swizzle, upmToPM, matrix);
     } else {
         return nullptr;
     }

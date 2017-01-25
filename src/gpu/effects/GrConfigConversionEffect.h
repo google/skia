@@ -33,8 +33,13 @@ public:
         kPMConversionCnt
     };
 
+#if 0
     static sk_sp<GrFragmentProcessor> Make(GrTexture*, const GrSwizzle&, PMConversion,
                                            const SkMatrix&);
+#endif
+
+    static sk_sp<GrFragmentProcessor> Make(GrContext*, sk_sp<GrTextureProxy>,
+                                           const GrSwizzle&, PMConversion, const SkMatrix&);
 
     const char* name() const override { return "Config Conversion"; }
 
@@ -51,10 +56,15 @@ public:
                                                PMConversion* UPMToPMRule);
 
 private:
+#if 0
     GrConfigConversionEffect(GrTexture*,
                              const GrSwizzle&,
                              PMConversion pmConversion,
                              const SkMatrix& matrix);
+#endif
+
+    GrConfigConversionEffect(GrContext*, sk_sp<GrTextureProxy>,
+                             const GrSwizzle&, PMConversion pmConversion, const SkMatrix& matrix);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
