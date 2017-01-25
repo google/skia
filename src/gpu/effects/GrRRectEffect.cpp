@@ -95,9 +95,10 @@ void CircularRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) con
 
 CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t circularCornerFlags,
                                          const SkRRect& rrect)
-    : fRRect(rrect)
-    , fEdgeType(edgeType)
-    , fCircularCornerFlags(circularCornerFlags) {
+        : INHERITED(kModulatesInput_OptimizationFlag)
+        , fRRect(rrect)
+        , fEdgeType(edgeType)
+        , fCircularCornerFlags(circularCornerFlags) {
     this->initClassID<CircularRRectEffect>();
 }
 
@@ -410,8 +411,8 @@ private:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
-    SkRRect             fRRect;
-    GrPrimitiveEdgeType    fEdgeType;
+    SkRRect fRRect;
+    GrPrimitiveEdgeType fEdgeType;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -431,8 +432,7 @@ void EllipticalRRectEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const SkRRect& rrect)
-    : fRRect(rrect)
-    , fEdgeType(edgeType) {
+        : INHERITED(kModulatesInput_OptimizationFlag), fRRect(rrect), fEdgeType(edgeType) {
     this->initClassID<EllipticalRRectEffect>();
 }
 
