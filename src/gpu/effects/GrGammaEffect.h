@@ -15,21 +15,19 @@ public:
     enum class Mode {
         kLinearToSRGB,
         kSRGBToLinear,
-        kExponential,
     };
 
     /**
-    * Creates an effect that applies a gamma curve.
-    */
-    static sk_sp<GrFragmentProcessor> Make(SkScalar gamma);
+     * Creates an effect that applies the sRGB transfer function (or its inverse)
+     */
+    static sk_sp<GrFragmentProcessor> Make(Mode mode);
 
     const char* name() const override { return "Gamma"; }
 
     Mode mode() const { return fMode; }
-    SkScalar gamma() const { return fGamma; }
 
 private:
-    GrGammaEffect(Mode mode, SkScalar gamma);
+    GrGammaEffect(Mode mode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -37,7 +35,6 @@ private:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     Mode fMode;
-    SkScalar fGamma;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

@@ -149,7 +149,8 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
-            paint.addColorFragmentProcessor(GrGammaEffect::Make(2.2f));
+            paint.addColorFragmentProcessor(
+                GrGammaEffect::Make(GrGammaEffect::Mode::kSRGBToLinear));
         }
     }
 
