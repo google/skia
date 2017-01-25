@@ -196,25 +196,20 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrContext* context,
     return sk_ref_sp(dstContext->asDeferredSurface());
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                               GrTexture* srcTexture, SkBudgeted budgeted) {
+sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                                 GrSurfaceProxy* srcProxy) {
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,
                                                                             SkBackingFit::kExact,
-                                                                            budgeted));
+                                                                            SkBudgeted::kYes));
     if (!dstContext) {
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> srcProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(srcTexture)));
-    if (!srcProxy) {
+    if (!dstContext->copy(srcProxy)) {
         return nullptr;
     }
 
-    if (!dstContext->copy(srcProxy.get())) {
-        return nullptr;
-    }
-
-    return sk_ref_sp(dstContext->asDeferredSurface());
+    return dstContext;
 }

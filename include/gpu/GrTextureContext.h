@@ -28,6 +28,7 @@ public:
     ~GrTextureContext() override;
 
     GrSurfaceProxy* asDeferredSurface() override { return fTextureProxy.get(); }
+    const GrSurfaceProxy* asDeferredSurface() const override { return fTextureProxy.get(); }
     GrTextureProxy* asDeferredTexture() override { return fTextureProxy.get(); }
     GrRenderTargetProxy* asDeferredRenderTarget() override;
 

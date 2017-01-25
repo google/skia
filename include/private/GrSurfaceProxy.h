@@ -16,6 +16,7 @@
 class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrSurfaceContext;
 class GrTextureOpList;
 class GrTextureProvider;
 class GrTextureProxy;
@@ -277,8 +278,8 @@ public:
     }
 
     // Test-only entry point - should decrease in use as proxies propagate
-    static sk_sp<GrSurfaceProxy> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
-                                          GrTexture* srcTexture, SkBudgeted budgeted);
+    static sk_sp<GrSurfaceContext> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+                                            GrSurfaceProxy* srcProxy);
 
     bool isWrapped_ForTesting() const;
 
