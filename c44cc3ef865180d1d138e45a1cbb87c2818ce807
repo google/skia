@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a574d3d8_e839fd4e",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-25T18:10:45Z",
+      "side": 1,
+      "message": "If this test is removed everything will still work fine, and in addition that.fPtr will always be nullptr after this call instead of sometimes not (more in line with what unique_ptr and sk_sp do).",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 32
+      },
+      "revId": "c44cc3ef865180d1d138e45a1cbb87c2818ce807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
