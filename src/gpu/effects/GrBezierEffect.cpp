@@ -6,7 +6,7 @@
  */
 
 #include "GrBezierEffect.h"
-
+#include "GrContext.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -265,8 +265,8 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
         gp = GrConicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
-                                 edgeType, *d->fCaps,
-                                 GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool());
+                                 edgeType, *d->fContext->caps(), GrTest::TestMatrix(d->fRandom),
+                                 d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
 }
@@ -464,10 +464,8 @@ sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom),
-                                GrTest::TestMatrix(d->fRandom),
-                                edgeType, *d->fCaps,
-                                GrTest::TestMatrix(d->fRandom),
+        gp = GrQuadEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom), edgeType,
+                                *d->fContext->caps(), GrTest::TestMatrix(d->fRandom),
                                 d->fRandom->nextBool());
     } while (nullptr == gp);
     return gp;
@@ -687,8 +685,8 @@ sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
         GrPrimitiveEdgeType edgeType =
                 static_cast<GrPrimitiveEdgeType>(
                         d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
-        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom),
-                                 GrTest::TestMatrix(d->fRandom), edgeType, *d->fCaps);
+        gp = GrCubicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
+                                 edgeType, *d->fContext->caps());
     } while (nullptr == gp);
     return gp;
 }

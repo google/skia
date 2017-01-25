@@ -327,8 +327,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
         SkASSERT(op);
 
-        GrProcessorTestData ptd(&random, context, context->caps(),
-                                renderTargetContext.get(), dummyTextures);
+        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
         set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
@@ -362,8 +361,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         for (int j = 0; j < 10; ++j) {
             std::unique_ptr<GrDrawOp> op(GrRandomDrawOp(&random, context));
             SkASSERT(op);
-            GrProcessorTestData ptd(&random, context, context->caps(),
-                                    renderTargetContext.get(), dummyTextures);
+            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
