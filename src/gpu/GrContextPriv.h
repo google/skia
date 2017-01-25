@@ -35,6 +35,12 @@ public:
                                                        SkBackingFit dstFit,
                                                        SkBudgeted isDstBudgeted);
 
+    // TODO: add:
+    // sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTextureDesc& desc,
+    //                                                   sk_sp<SkColorSpace> colorSpace,
+    //                                                   GrWrapOwnership = kBorrow_GrWrapOwnership);
+    // Maybe add a 'surfaceProps' param that is ignored for non-RTs?
+
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
                                                          const GrBackendTextureDesc& desc,
                                                          sk_sp<SkColorSpace> colorSpace,

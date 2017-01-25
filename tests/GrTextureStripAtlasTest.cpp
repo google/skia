@@ -34,7 +34,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     }
 
     // Add a pending read to the src texture, and then make it available for reuse.
-    sk_sp<GrSurfaceProxy> targetProxy;
+    sk_sp<GrSurfaceContext> dstContext;
     GrSurface* srcSurface;
 
     {
@@ -42,17 +42,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         targetDesc.fFlags = kRenderTarget_GrSurfaceFlag;
 
         // We can't use GrSurfaceProxy::Copy bc we may be changing the dst proxy type
-        sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-                                                                            targetDesc,
-                                                                            SkBackingFit::kExact,
-                                                                            SkBudgeted::kYes));
+        dstContext = context->contextPriv().makeDeferredSurfaceContext(targetDesc,
+                                                                       SkBackingFit::kExact,
+                                                                       SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, dstContext);
 
         if (!dstContext->copy(srcProxy.get())) {
             return;
         }
-
-        targetProxy = sk_ref_sp(dstContext->asDeferredSurface());
 
         srcSurface = srcProxy->instantiate(context->textureProvider());
         srcProxy.reset();
@@ -87,11 +84,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
     {
         SkAutoTMalloc<uint8_t> actualPixels(sizeof(uint32_t) * desc.fWidth * desc.fHeight);
 
-        // TODO: move readPixels to GrSurfaceProxy?
-        GrSurface* surf = targetProxy->instantiate(context->textureProvider());
-
-        bool success = surf->readPixels(0, 0, desc.fWidth, desc.fHeight,
-                                        kRGBA_8888_GrPixelConfig, actualPixels.get());
+        SkImageInfo ii = SkImageInfo::Make(desc.fWidth, desc.fHeight,
+                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        bool success = dstContext->readPixels(ii, actualPixels.get(), 0, 0, 0);
         REPORTER_ASSERT(reporter, success);
 
         bool good = true;
