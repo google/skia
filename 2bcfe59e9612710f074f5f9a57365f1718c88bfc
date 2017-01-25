@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7b9a067_3979e706",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-25T16:35:04Z",
+      "side": 1,
+      "message": "nit: indent for this scope?",
+      "range": {
+        "startLine": 1031,
+        "startChar": 4,
+        "endLine": 1031,
+        "endChar": 8
+      },
+      "revId": "2bcfe59e9612710f074f5f9a57365f1718c88bfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
