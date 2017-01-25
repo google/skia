@@ -47,6 +47,7 @@ public:
     // and not have to duplicate this calculation.
     static const int kMaxKernelWidth = 2 * kMaxKernelRadius + 1;
 
+    HASCO
 private:
     /// Convolve with a Gaussian kernel
     GrGaussianConvolutionFragmentProcessor(GrTexture*, Direction, int halfWidth,

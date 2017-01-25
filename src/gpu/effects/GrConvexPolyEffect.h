@@ -69,6 +69,8 @@ public:
 
     const SkScalar* getEdges() const { return fEdges; }
 
+    HASCO
+
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
 

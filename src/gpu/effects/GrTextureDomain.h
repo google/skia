@@ -167,7 +167,7 @@ public:
         str.append(INHERITED::dumpInfo());
         return str;
     }
-
+HASCO
 private:
     GrTextureDomain fTextureDomain;
 
@@ -177,6 +177,8 @@ private:
                           const SkRect& domain,
                           GrTextureDomain::Mode,
                           GrSamplerParams::FilterMode);
+
+    static OptimizationFlags OptFlags(GrTexture* texture, GrTextureDomain::Mode mode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -207,7 +209,7 @@ public:
         str.append(INHERITED::dumpInfo());
         return str;
     }
-
+HASCO
 private:
     TextureSampler fTextureSampler;
     GrTextureDomain fTextureDomain;

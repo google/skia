@@ -60,7 +60,7 @@ public:
     // 1/radius over which to transition from unzoomed to zoomed pixels (bounds size / inset).
     float xInvInset() const { return fXInvInset; }
     float yInvInset() const { return fYInvInset; }
-
+HASCO
 private:
     GrMagnifierEffect(GrTexture* texture,
                       sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -71,7 +71,7 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I())
+        : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I(), ModulationFlags(texture->config()))
         , fBounds(bounds)
         , fXOffset(xOffset)
         , fYOffset(yOffset)

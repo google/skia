@@ -49,7 +49,7 @@ public:
     static void TestForPreservingPMConversions(GrContext* context,
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
-
+HASCO
 private:
     GrConfigConversionEffect(GrTexture*,
                              const GrSwizzle&,

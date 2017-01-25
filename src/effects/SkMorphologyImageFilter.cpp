@@ -140,9 +140,7 @@ void SkDilateImageFilter::toString(SkString* str) const {
  * color.
  */
 class GrMorphologyEffect : public Gr1DKernelEffect {
-
 public:
-
     enum MorphologyType {
         kErode_MorphologyType,
         kDilate_MorphologyType,
@@ -327,7 +325,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type)
-    : INHERITED(texture, direction, radius)
+    : INHERITED(texture, direction, radius, ModulationFlags(texture->config()))
     , fType(type)
     , fUseRange(false) {
     this->initClassID<GrMorphologyEffect>();
@@ -338,7 +336,7 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
                                        int radius,
                                        MorphologyType type,
                                        const float range[2])
-    : INHERITED(texture, direction, radius)
+    : INHERITED(texture, direction, radius, ModulationFlags(texture->config()))
     , fType(type)
     , fUseRange(true) {
     this->initClassID<GrMorphologyEffect>();

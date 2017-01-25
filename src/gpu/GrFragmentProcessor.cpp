@@ -58,7 +58,7 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
-    fUsesLocalCoords = true;
+    fFlags |= kUsesLocalCoords_Flag;
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
@@ -66,10 +66,10 @@ int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
-        fUsesLocalCoords = true;
+        fFlags |= kUsesLocalCoords_Flag;
     }
     if (child->usesDistanceVectorField()) {
-        fUsesDistanceVectorField = true;
+        fFlags |= kUsesDistanceVectorField_Flag;
     }
 
     int index = fChildProcessors.count();
@@ -111,12 +111,12 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
 
     class PremulInputFragmentProcessor : public GrFragmentProcessor {
     public:
-        PremulInputFragmentProcessor() {
+        PremulInputFragmentProcessor() : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
             this->initClassID<PremulInputFragmentProcessor>();
         }
 
         const char* name() const override { return "PremultiplyInput"; }
-
+HASCO
     private:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
@@ -139,6 +139,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             inout->premulFourChannelColor();
         }
+        typedef GrFragmentProcessor INHERITED;
     };
     if (!fp) {
         return nullptr;
@@ -152,13 +153,13 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
 
     class PremulFragmentProcessor : public GrFragmentProcessor {
     public:
-        PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
+        PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor) :INHERITED(OptFlags(processor.get())) {
             this->initClassID<PremulFragmentProcessor>();
             this->registerChildProcessor(processor);
         }
 
         const char* name() const override { return "Premultiply"; }
-
+        HASCO // DEPENDS ON SUBCLASS
     private:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
@@ -178,6 +179,12 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
+        static OptimizationFlags OptFlags(const GrFragmentProcessor* inner) {
+            if (inner->preservesOpaqueInput()) {
+                return kPreservesOpaqueInput_OptimizationFlag;
+            }
+            return kNone_OptimizationFlags;
+        }
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
             if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
@@ -210,6 +217,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             }
             inout->setToOther(commonFlags, color);
         }
+        typedef GrFragmentProcessor INHERITED;
     };
     if (!fp) {
         return nullptr;
@@ -224,7 +232,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
     class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
     public:
         ReplaceInputFragmentProcessor(sk_sp<GrFragmentProcessor> child, GrColor4f color)
-            : fColor(color) {
+                : INHERITED(kNone_OptimizationFlags), fColor(color) {
             this->initClassID<ReplaceInputFragmentProcessor>();
             this->registerChildProcessor(std::move(child));
         }
@@ -262,7 +270,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
 
             return new GLFP;
         }
-
+        HASCO // DEPENDS ON SUBCLASS
     private:
         void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
         {}
@@ -277,6 +285,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
         GrColor4f fColor;
+        typedef GrFragmentProcessor INHERITED;
     };
 
     GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags);
@@ -288,7 +297,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
                                                             int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
     public:
-        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt){
+        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt) : INHERITED(OptFlags(children, cnt)){
             SkASSERT(cnt > 1);
             this->initClassID<SeriesFragmentProcessor>();
             for (int i = 0; i < cnt; ++i) {
@@ -317,8 +326,15 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             };
             return new GLFP;
         }
-
+HASCO // DEPENDS ON SUBCLASS
     private:
+        static OptimizationFlags OptFlags(sk_sp<GrFragmentProcessor>* children, int cnt) {
+            OptimizationFlags flags = kAllOptimizationFlags;
+            for (int i = 0; i < cnt && flags != kNone_OptimizationFlags; ++i) {
+                flags &= children[i]->optimizationFlags();
+            }
+            return flags;
+        }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -328,6 +344,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
                 this->childProcessor(i).computeInvariantOutput(inout);
             }
         }
+
+        typedef GrFragmentProcessor INHERITED;
     };
 
     if (!cnt) {

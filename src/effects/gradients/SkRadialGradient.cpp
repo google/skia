@@ -257,7 +257,7 @@ public:
 
 private:
     GrRadialGradient(const CreateArgs& args)
-        : INHERITED(args) {
+        : INHERITED(args, args.fShader->colorsAreOpaque()) {
         this->initClassID<GrRadialGradient>();
     }
 

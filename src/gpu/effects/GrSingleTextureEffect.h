@@ -23,8 +23,6 @@ class GrTextureProxy;
  */
 class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
-    ~GrSingleTextureEffect() override;
-
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("Texture: %d", fTextureSampler.texture()->uniqueID().asUInt());
@@ -35,25 +33,29 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&m, OptimizationFlags optFlags);
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrSamplerParams::FilterMode filterMode);
+                          GrSamplerParams::FilterMode filterMode, OptimizationFlags optFlags);
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
-                          const GrSamplerParams&);
+                          const GrSamplerParams&,
+                          OptimizationFlags optFlags);
 
     /** unfiltered, clamp mode */
     GrSingleTextureEffect(GrContext*,
-                          sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&);
+                          sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
+                          uint32_t optFlags);
     /** clamp mode */
     GrSingleTextureEffect(GrContext*,
                           sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrSamplerParams::FilterMode filterMode);
+                          GrSamplerParams::FilterMode filterMode,
+                          uint32_t optFlags);
     GrSingleTextureEffect(GrContext*,
                           sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          const GrSamplerParams&);
+                          const GrSamplerParams&,
+                          uint32_t optFlags);
 
     /**
      * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that
@@ -68,6 +70,19 @@ protected:
             inout->mulByUnknownOpaqueFourComponents();
         } else {
             inout->mulByUnknownFourComponents();
+        }
+    }
+
+    /**
+     * Can be used as a helper to implement subclass onOptimizationFlags(). It assumes that
+     * the subclass output color will be a modulation of the input color with a value read from the
+     * texture.
+     */
+    static OptimizationFlags ModulationFlags(GrPixelConfig config) {
+        if (GrPixelConfigIsOpaque(config)) {
+            return kModulatesInput_OptimizationFlag | kPreservesOpaqueInput_OptimizationFlag;
+        } else {
+            return kModulatesInput_OptimizationFlag;
         }
     }
 

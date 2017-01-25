@@ -135,7 +135,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkMatrix &matrix,
                                  const SkShader::TileMode tileModes[2])
   : INHERITED(texture, std::move(colorSpaceXform), matrix,
-              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
+              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode), ModulationFlags(texture->config()))
   , fDomain(GrTextureDomain::IgnoredDomain()) {
     this->initClassID<GrBicubicEffect>();
 }
@@ -145,7 +145,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkMatrix &matrix,
                                  const SkRect& domain)
   : INHERITED(texture, std::move(colorSpaceXform), matrix,
-              GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
+              GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode), ModulationFlags(texture->config()))
   , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
 }

@@ -33,7 +33,7 @@ public:
     float outerThreshold() const { return fOuterThreshold; }
 
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
-
+HASCO
 private:
     GrAlphaThresholdFragmentProcessor(GrTexture* texture,
                                       sk_sp<GrColorSpaceXform> colorSpaceXform,

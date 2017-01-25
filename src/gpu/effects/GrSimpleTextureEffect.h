@@ -76,12 +76,14 @@ public:
 
     const char* name() const override { return "SimpleTexture"; }
 
+    HASCO
+
 private:
     GrSimpleTextureEffect(GrTexture* texture,
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           GrSamplerParams::FilterMode filterMode)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode) {
+        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode, ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
@@ -98,7 +100,7 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           const GrSamplerParams& params)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params) {
+        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params, ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 

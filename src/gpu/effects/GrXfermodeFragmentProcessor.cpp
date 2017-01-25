@@ -19,7 +19,8 @@ class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:
     ComposeTwoFragmentProcessor(sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst,
                                 SkBlendMode mode)
-        : fMode(mode) {
+            : INHERITED(kNone_OptimizationFlags)  // Pessimistic
+            , fMode(mode) {
         this->initClassID<ComposeTwoFragmentProcessor>();
         SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
         SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
@@ -43,6 +44,19 @@ protected:
 
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->setToUnknown();
+    }
+
+    bool hasConstantOutputWithConstantInput(const GrColor4f& inputColor, GrColor4f* outputColor) const override {
+        GrColor4f srcColor, dstColor;
+        if (!this->childProcessor(0).hasConstantOutputWithConstantInput(GrColor4f::OpaqueWhite(), &srcColor) ||
+            !this->childProcessor(1).hasConstantOutputWithConstantInput(GrColor4f::OpaqueWhite(), &dstColor)) {
+            return false;
+        }
+        SkPM4f src = GrColor4fToSkPM4f(srcColor);
+        SkPM4f dst = GrColor4fToSkPM4f(dstColor);
+        auto proc = SkXfermode::GetProc4f(fMode);
+        *outputColor = SkPM4fToGrColor4f(proc(src, dst)).modulate(inputColor);
+        return true;
     }
 
 private:
@@ -145,7 +159,8 @@ public:
     };
 
     ComposeOneFragmentProcessor(sk_sp<GrFragmentProcessor> dst, SkBlendMode mode, Child child)
-        : fMode(mode)
+        : INHERITED(kNone_OptimizationFlags)  // The flags could be specialized for each mode.
+        , fMode(mode)
         , fChild(child) {
         this->initClassID<ComposeOneFragmentProcessor>();
         SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(std::move(dst));
@@ -201,6 +216,24 @@ protected:
         } else {
             inout->setToUnknown();
         }
+    }
+
+    bool hasConstantOutputWithConstantInput(const GrColor4f& inputColor, GrColor4f* outputColor) const override {
+        GrColor4f childColor;
+        if (!this->childProcessor(0).hasConstantOutputWithConstantInput(GrColor4f::OpaqueWhite(), &childColor)) {
+            return false;
+        }
+        SkPM4f src, dst;
+        if (kSrc_Child == fChild) {
+            src = GrColor4fToSkPM4f(childColor);
+            dst = GrColor4fToSkPM4f(inputColor);
+        } else {
+            dst = GrColor4fToSkPM4f(childColor);
+            src = GrColor4fToSkPM4f(inputColor);
+        }
+        auto proc = SkXfermode::GetProc4f(fMode);
+        *outputColor = SkPM4fToGrColor4f(proc(src, dst));
+        return true;
     }
 
 private:

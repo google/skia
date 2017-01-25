@@ -20,7 +20,7 @@
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:
-    NormalFlatFP() {
+    NormalFlatFP() : INHERITED(kNone_OptimizationFlags)  {
         this->initClassID<NormalFlatFP>();
     }
 
@@ -52,11 +52,13 @@ public:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->setToUnknown();
     }
-
+HASCO // Implement me?
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(

@@ -52,6 +52,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
 void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     this->updateInvariantOutputForModulation(inout);
 }

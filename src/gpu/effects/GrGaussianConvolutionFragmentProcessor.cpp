@@ -150,11 +150,12 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(G
                                                                                float gaussianSigma,
                                                                                bool useBounds,
                                                                                float bounds[2])
-        : INHERITED(texture, direction, radius), fUseBounds(useBounds) {
+        : INHERITED(texture, direction, radius, ModulationFlags(texture->config())), fUseBounds(useBounds) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
     int width = this->width();
 
+    // TODO::
     float sum = 0.0f;
     float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
     for (int i = 0; i < width; ++i) {

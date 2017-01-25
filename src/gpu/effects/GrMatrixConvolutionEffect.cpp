@@ -156,7 +156,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      const SkIPoint& kernelOffset,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
-  : INHERITED(texture, nullptr, SkMatrix::I()),
+  : INHERITED(texture, nullptr, SkMatrix::I(), ModulationFlags(texture->config())),
     fKernelSize(kernelSize),
     fGain(SkScalarToFloat(gain)),
     fBias(SkScalarToFloat(bias) / 255.0f),

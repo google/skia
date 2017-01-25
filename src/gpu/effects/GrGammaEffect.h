@@ -27,7 +27,7 @@ public:
 
     Mode mode() const { return fMode; }
     SkScalar gamma() const { return fGamma; }
-
+HASCO // implement me?
 private:
     GrGammaEffect(Mode mode, SkScalar gamma);
 

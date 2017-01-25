@@ -86,7 +86,6 @@ public:
         uint32_t key = static_cast<uint32_t>(ge.mode());
         b->add32(key);
     }
-
 private:
     GrGLSLProgramDataManager::UniformHandle fGammaUni;
 
@@ -96,7 +95,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGammaEffect::GrGammaEffect(Mode mode, SkScalar gamma)
-    : fMode(mode)
+    : INHERITED(kPreservesOpaqueInput_OptimizationFlag), fMode(mode)
     , fGamma(gamma) {
     this->initClassID<GrGammaEffect>();
 }

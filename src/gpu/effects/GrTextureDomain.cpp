@@ -208,13 +208,22 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
     }
 }
 
+inline GrFragmentProcessor::OptimizationFlags GrTextureDomainEffect::OptFlags(GrTexture* texture, GrTextureDomain::Mode mode) {
+    if (mode == GrTextureDomain::kDecal_Mode || !GrPixelConfigIsOpaque(texture->config())) {
+        return GrFragmentProcessor::kModulatesInput_OptimizationFlag;
+    } else {
+        return GrFragmentProcessor::kModulatesInput_OptimizationFlag |
+               GrFragmentProcessor::kPreservesOpaqueInput_OptimizationFlag;
+    }
+}
+
 GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrSamplerParams::FilterMode filterMode)
-    : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode)
+    : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode, OptFlags(texture, mode))
     , fTextureDomain(texture, domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
             filterMode == GrSamplerParams::kNone_FilterMode);
@@ -323,7 +332,8 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(GrTe
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         GrTexture* texture, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
-        : fTextureSampler(texture, GrSamplerParams::ClampNoFilter())
+        : INHERITED(kModulatesInput_OptimizationFlag)
+        , fTextureSampler(texture, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(texture, GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);

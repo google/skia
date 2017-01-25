@@ -24,9 +24,9 @@ public:
     virtual ~DitherEffect() {}
 
     const char* name() const override { return "Dither"; }
-
+HASCO
 private:
-    DitherEffect() {
+    DitherEffect() : INHERITED(kNone_OptimizationFlags) {
         this->initClassID<DitherEffect>();
     }
 

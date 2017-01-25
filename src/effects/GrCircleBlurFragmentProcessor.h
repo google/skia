@@ -36,7 +36,7 @@ public:
 
     static sk_sp<GrFragmentProcessor> Make(GrTextureProvider*textureProvider,
                                            const SkRect& circle, float sigma);
-
+HASCO
 private:
     // This nested GLSL processor implementation is defined in the cpp file.
     class GLSLProcessor;

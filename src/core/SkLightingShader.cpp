@@ -117,7 +117,7 @@ private:
 // premul'd.
 class LightingFP : public GrFragmentProcessor {
 public:
-    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights) {
+    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights): INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
 
         // fuse all ambient lights into a single one
         fAmbientColor = lights->ambientLightColor();
@@ -251,7 +251,7 @@ public:
 
     const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
     const SkColor3f& ambientColor() const { return fAmbientColor; }
-
+HASCO
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLLightingFP; }
 
@@ -263,6 +263,8 @@ private:
 
     SkTArray<SkLights::Light> fDirectionalLights;
     SkColor3f                 fAmbientColor;
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////

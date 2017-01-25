@@ -207,7 +207,8 @@ public:
     };
 
     RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
-        : fFirst(first)
+        : INHERITED(kNone_OptimizationFlags)
+            , fFirst(first)
         , fSecond(second)
         , fRadius(radius) {
         this->initClassID<RRectsGaussianEdgeFP>();
@@ -464,7 +465,7 @@ public:
     const SkRRect& second() const { return fSecond; }
     Mode secondMode() const { return fSecondMode; }
     SkScalar radius() const { return fRadius; }
-
+HASCO
 private:
     static Mode ComputeMode(const SkRRect& rr) {
         if (rr.isCircle()) {

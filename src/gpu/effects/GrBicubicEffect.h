@@ -48,6 +48,8 @@ public:
                                                               matrix, domain));
     }
 
+    HASCO
+
     /**
      * Determines whether the bicubic effect should be used based on the transformation from the
      * local coords to the device. Returns true if the bicubic effect should be used. filterMode

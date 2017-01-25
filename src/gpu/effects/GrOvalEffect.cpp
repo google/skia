@@ -33,6 +33,7 @@ public:
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
+    HASCO
 private:
     CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
 
@@ -64,7 +65,7 @@ void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 }
 
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
-    : fCenter(c)
+    : INHERITED(kModulatesInput_OptimizationFlag),  fCenter(c)
     , fRadius(r)
     , fEdgeType(edgeType) {
     this->initClassID<CircleEffect>();
@@ -197,7 +198,7 @@ public:
     SkVector getRadii() const { return fRadii; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
+HASCO
 private:
     EllipseEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
 
@@ -231,7 +232,7 @@ void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 }
 
 EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx, SkScalar ry)
-    : fCenter(c)
+    :INHERITED(kModulatesInput_OptimizationFlag),  fCenter(c)
     , fRadii(SkVector::Make(rx, ry))
     , fEdgeType(edgeType) {
     this->initClassID<EllipseEffect>();

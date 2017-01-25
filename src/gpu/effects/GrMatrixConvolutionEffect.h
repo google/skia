@@ -54,6 +54,8 @@ public:
 
     const char* name() const override { return "MatrixConvolution"; }
 
+    HASCO
+
 private:
     GrMatrixConvolutionEffect(GrTexture*,
                               const SkIRect& bounds,

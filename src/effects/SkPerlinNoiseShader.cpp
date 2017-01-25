@@ -515,7 +515,7 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     int numOctaves() const { return fNumOctaves; }
-
+HASCO
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GrGLPerlinNoise;
@@ -544,7 +544,8 @@ private:
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
                         const SkMatrix& matrix)
-      : fType(type)
+      : INHERITED(kNone_OptimizationFlags)
+      , fType(type)
       , fCoordTransform(matrix)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)

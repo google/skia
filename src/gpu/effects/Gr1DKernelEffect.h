@@ -30,8 +30,8 @@ public:
 
     Gr1DKernelEffect(GrTexture* texture,
                      Direction direction,
-                     int radius)
-        : INHERITED(texture, nullptr, SkMatrix::I())
+                     int radius, OptimizationFlags optFlags)
+        : INHERITED(texture, nullptr, SkMatrix::I(), optFlags)
         , fDirection(direction)
         , fRadius(radius) {}
 
@@ -51,7 +51,6 @@ public:
     }
 
 private:
-
     Direction       fDirection;
     int             fRadius;
 
