@@ -8,6 +8,7 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
+#include "../private/GrTextureProxy.h"
 #include "../private/SkTArray.h"
 #include "GrTestUtils.h"
 #include "SkTypes.h"
@@ -53,12 +54,24 @@ struct GrProcessorTestData {
         , fRenderTargetContext(renderTargetContext) {
         fTextures[0] = textures[0];
         fTextures[1] = textures[1];
+
+        fProxies[0] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[0]));
+        fProxies[1] = GrSurfaceProxy::MakeWrapped(sk_ref_sp(textures[1]));
     }
     SkRandom* fRandom;
     GrContext* fContext;
     const GrCaps* fCaps;
     const GrRenderTargetContext* fRenderTargetContext;
     GrTexture* fTextures[2];
+
+    GrContext* context() { return fContext; }
+    GrTexture* texture(int index) { return fTextures[index]; }
+    sk_sp<GrTextureProxy> textureProxy(int index) {
+        return sk_ref_sp(fProxies[index]->asTextureProxy());
+    }
+
+private:
+    sk_sp<GrSurfaceProxy> fProxies[2];
 };
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

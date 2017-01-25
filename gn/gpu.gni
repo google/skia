@@ -187,6 +187,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrStyle.cpp",
   "$_src/gpu/GrStyle.h",
   "$_src/gpu/GrSurfaceContextPriv.h",
+  "$_src/gpu/GrSurfaceProxyPriv.h",
   "$_src/gpu/GrTessellator.cpp",
   "$_src/gpu/GrTessellator.h",
   "$_src/gpu/GrTextureOpList.cpp",
