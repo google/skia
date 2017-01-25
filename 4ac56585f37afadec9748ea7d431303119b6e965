@@ -1,0 +1,320 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be4f779d_28461aa9",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "We\u0027re trying to use enum class for new code.",
+      "range": {
+        "startLine": 14,
+        "startChar": 5,
+        "endLine": 14,
+        "endChar": 28
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "912bc15a_a8d853ef",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "Looks like the caller to this constructor will pay for the default value initialization which is then rewritten by the supplied values. Does the compiler optimize away this double initialization? I haven\u0027t seen any other part of Skia use the approach. More conventionally, the empty constructor would initialize the default values.",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 24
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4deda1c_36b8a8a7",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "type invertStyle as HighContrastInvertStyle ?",
+      "range": {
+        "startLine": 22,
+        "startChar": 34,
+        "endLine": 22,
+        "endChar": 35
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57c37127_f38faeb6",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "Any reason this isn\u0027t of type HighContrastInvertStyle ?",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 12
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0f49072_9ac4d253",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "Will need to be 0.5f; \n\nI kicked off a dry run -- that will help find nits like this",
+      "range": {
+        "startLine": 38,
+        "startChar": 14,
+        "endLine": 38,
+        "endChar": 23
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0508ca43_73dc21bc",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "either 0.0f or just plain 0",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e17f8bf_5e4422a5",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "All classes and methods in a public interface need Doxygen comments.",
+      "range": {
+        "startLine": 45,
+        "startChar": 13,
+        "endLine": 45,
+        "endChar": 33
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6691a4cd_efb9e14c",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "Is this code not somewhere else in Skia already? Maybe so, but that surprises me.",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12c4b9cf_c51434fc",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "Skia likes braces around the body of alll conditional statements.",
+      "range": {
+        "startLine": 17,
+        "startChar": 11,
+        "endLine": 17,
+        "endChar": 12
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6533fe1_0d7cb72a",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "else if ?",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 6
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "432e1135_3e36ab64",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "6.f etc",
+      "range": {
+        "startLine": 21,
+        "startChar": 16,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74032438_65f138c1",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "this already exists for sure",
+      "range": {
+        "startLine": 30,
+        "startChar": 14,
+        "endLine": 30,
+        "endChar": 33
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29a75e2e_3932cc3f",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "This makes three styles in three functions : all lower case, SkXXX, and camel case. Please look at existing conventions.",
+      "range": {
+        "startLine": 39,
+        "startChar": 9,
+        "endLine": 39,
+        "endChar": 25
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39b0e7f2_6317f9d9",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-01-25T15:09:37Z",
+      "side": 1,
+      "message": "This looks very expensive. What is the performance like? \nHave you considered caching, if consecutive calls are likely to contain the same color?\nOr special casing common colors, if, for instance, the page is mostly white?\nHave you looked at Skia\u0027s Nx SIMD support?\npow() and exp() are very expensive -- can you do better?\n\nYou may wish to consult with experts, Brian Osman comes to mind, who\u0027ve spent a lot of time thinking about color correction and performance.",
+      "range": {
+        "startLine": 49,
+        "startChar": 5,
+        "endLine": 49,
+        "endChar": 25
+      },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
