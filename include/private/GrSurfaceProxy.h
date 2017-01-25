@@ -16,6 +16,7 @@
 class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
+class GrSurfaceProxyPriv;
 class GrTextureOpList;
 class GrTextureProvider;
 class GrTextureProxy;
@@ -95,6 +96,14 @@ protected:
 
         fPendingReads = 0;
         fPendingWrites = 0;
+    }
+
+    bool internalHasPendingIO() const {
+        if (fTarget) {
+            return fTarget->internalHasPendingIO();
+        }
+
+        return SkToBool(fPendingWrites | fPendingReads);
     }
 
     // For deferred proxies this will be null. For wrapped proxies it will point to the
@@ -284,6 +293,10 @@ public:
 
     SkDEBUGCODE(void validate(GrContext*) const;)
 
+    // Provides access to functions that aren't part of the public API.
+    GrSurfaceProxyPriv priv();
+    const GrSurfaceProxyPriv priv() const;
+
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
@@ -299,6 +312,13 @@ protected:
     GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit);
 
     virtual ~GrSurfaceProxy();
+
+    friend class GrSurfaceProxyPriv;
+
+    // Methods made available via GrSurfaceProxyPriv
+    bool hasPendingIO() const {
+        return this->internalHasPendingIO();
+    }
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc  fDesc;
