@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkShadowTessellator_DEFINED
-#define SkShadowTessellator_DEFINED
+#ifndef GrShadowTessellator_DEFINED
+#define GrShadowTessellator_DEFINED
 
 #include "SkTDArray.h"
 #include "SkPoint.h"
 
-#if SK_SUPPORT_GPU
 #include "GrColor.h"
 
 class SkMatrix;
@@ -22,9 +21,9 @@ class SkPath;
  * radius, and setting inner and outer colors to umbraColor and penumbraColor, respectively.
  * If transparent is true, then the center of the ambient shadow will be filled in.
  */
-class SkAmbientShadowTessellator {
+class GrAmbientShadowTessellator {
 public:
-    SkAmbientShadowTessellator(const SkMatrix& viewMatrix, const SkPath& path, SkScalar radius,
+    GrAmbientShadowTessellator(const SkMatrix& viewMatrix, const SkPath& path, SkScalar radius,
                                GrColor umbraColor, GrColor penumbraColor, bool transparent);
 
     int      vertexCount() { return fPositions.count(); }
@@ -69,7 +68,5 @@ private:
     // temporary buffer
     SkTDArray<SkPoint>  fPointBuffer;
 };
-
-#endif
 
 #endif

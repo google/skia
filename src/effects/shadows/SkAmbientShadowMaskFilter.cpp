@@ -18,11 +18,11 @@
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "effects/GrShadowTessellator.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "SkShadowTessellator.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -238,7 +238,7 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texPr
     GrColor  umbraColor = GrColorPackRGBA(0, 0, fAmbientAlpha*255.9999f, umbraAlpha*255.9999f);
     GrColor  penumbraColor = GrColorPackRGBA(0, 0, fAmbientAlpha*255.9999f, 0);
 
-    SkAmbientShadowTessellator tess(SkMatrix::I(), path, radius, umbraColor, penumbraColor,
+    GrAmbientShadowTessellator tess(SkMatrix::I(), path, radius, umbraColor, penumbraColor,
                                 SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
 
     sk_sp<ShadowEdgeFP> edgeFP(new ShadowEdgeFP);
