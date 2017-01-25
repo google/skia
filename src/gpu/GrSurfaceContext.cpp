@@ -15,10 +15,12 @@
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
 GrSurfaceContext::GrSurfaceContext(GrContext* context,
+                                   GrDrawingManager* drawingMgr,
                                    sk_sp<SkColorSpace> colorSpace,
                                    GrAuditTrail* auditTrail,
                                    GrSingleOwner* singleOwner)
     : fContext(context)
+    , fDrawingManager(drawingMgr)
     , fColorSpace(std::move(colorSpace))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG
