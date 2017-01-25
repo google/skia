@@ -14,14 +14,11 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
+#include "effects/GrBlurredEdgeFragmentProcessor.h"
+#include "effects/GrShadowTessellator.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -162,15 +159,25 @@ bool SkSpotShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
 }
 
 bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
-                                                     GrRenderTargetContext* drawContext,
+                                                     GrRenderTargetContext* rtContext,
                                                      GrPaint&& paint,
                                                      const GrClip& clip,
                                                      const SkMatrix& viewMatrix,
                                                      const SkStrokeRec& strokeRec,
                                                      const SkPath& path) const {
-    SkASSERT(drawContext);
+    SkASSERT(rtContext);
     // TODO: this will not handle local coordinates properly
 
+    if (fSpotAlpha <= 0.0f) {
+        return true;
+    }
+
+    // only convex paths for now
+    if (!path.isConvex()) {
+        return false;
+    }
+
+#ifdef SUPPORT_FAST_PATH
     // if circle
     // TODO: switch to SkScalarNearlyEqual when either oval renderer is updated or we
     // have our own GeometryProc.
@@ -183,9 +190,41 @@ bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvi
         return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
+#endif
 
-    // TODO
-    return false;
+    float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
+
+    SkScalar radius = 2.0f * fLightRadius * zRatio;
+
+    // Compute the scale and translation for the spot shadow.
+    const SkScalar scale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
+
+    SkPoint center = SkPoint::Make(path.getBounds().centerX(),
+                                   path.getBounds().centerY());
+    SkMatrix ctmInverse;
+    if (!viewMatrix.invert(&ctmInverse)) {
+        SkDebugf("Matrix is degenerate. Will not render spot shadow!\n");
+        //**** TODO: this is not good
+        return false;
+    }
+    SkPoint lightPos2D = SkPoint::Make(fLightPos.fX, fLightPos.fY);
+    ctmInverse.mapPoints(&lightPos2D, 1);
+    const SkVector spotOffset = SkVector::Make(zRatio*(center.fX - lightPos2D.fX),
+                                             zRatio*(center.fY - lightPos2D.fY));
+
+    // TODO: handle fSpotAlpha
+    // TODO: don't transform
+    GrSpotShadowTessellator tess(SkMatrix::I(), path, scale, spotOffset, radius, 
+                                SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
+
+    sk_sp<GrFragmentProcessor> edgeFP = GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
+    paint.addColorFragmentProcessor(edgeFP);
+
+    rtContext->drawVertices(clip, std::move(paint), SkMatrix::I(), kTriangles_GrPrimitiveType,
+                            tess.vertexCount(), tess.positions(), nullptr,
+                            tess.colors(), tess.indices(), tess.indexCount());
+
+    return true;
 }
 
 bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
@@ -196,6 +235,10 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                           const SkStrokeRec& strokeRec,
                                                           const SkRRect& rrect,
                                                           const SkRRect& devRRect) const {
+#ifndef SUPPORT_FAST_PATH
+    return false;
+#endif
+
     // It's likely the caller has already done these checks, but we have to be sure.
     // TODO: support analytic blurring of general rrect
 
