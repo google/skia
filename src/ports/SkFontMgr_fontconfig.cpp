@@ -406,13 +406,15 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 class SkTypeface_stream : public SkTypeface_FreeType {
 public:
     /** @param data takes ownership of the font data.*/
-    SkTypeface_stream(std::unique_ptr<SkFontData> data, const SkFontStyle& style, bool fixedWidth)
+    SkTypeface_stream(std::unique_ptr<SkFontData> data,
+                      SkString familyName, const SkFontStyle& style, bool fixedWidth)
         : INHERITED(style, fixedWidth)
+        , fFamilyName(std::move(familyName))
         , fData(std::move(data))
     { }
 
     void onGetFamilyName(SkString* familyName) const override {
-        familyName->reset();
+        *familyName = fFamilyName;
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
@@ -429,6 +431,7 @@ public:
     }
 
 private:
+    SkString fFamilyName;
     const std::unique_ptr<const SkFontData> fData;
 
     typedef SkTypeface_FreeType INHERITED;
@@ -885,14 +888,15 @@ protected:
             return nullptr;
         }
 
+        SkString name;
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream.get(), ttcIndex, nullptr, &style, &isFixedWidth, nullptr)) {
+        if (!fScanner.scanFont(stream.get(), ttcIndex, &name, &style, &isFixedWidth, nullptr)) {
             return nullptr;
         }
 
         auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
-        return new SkTypeface_stream(std::move(data), style, isFixedWidth);
+        return new SkTypeface_stream(std::move(data), std::move(name), style, isFixedWidth);
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
@@ -915,7 +919,7 @@ protected:
 
         auto data = skstd::make_unique<SkFontData>(std::move(stream), params.getCollectionIndex(),
                                                    axisValues.get(), axisDefinitions.count());
-        return new SkTypeface_stream(std::move(data), style, isFixedPitch);
+        return new SkTypeface_stream(std::move(data), std::move(name), style, isFixedPitch);
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
@@ -934,13 +938,14 @@ protected:
         }
 
         const int ttcIndex = fontData->getIndex();
+        SkString name;
         SkFontStyle style;
         bool isFixedWidth = false;
-        if (!fScanner.scanFont(stream, ttcIndex, nullptr, &style, &isFixedWidth, nullptr)) {
+        if (!fScanner.scanFont(stream, ttcIndex, &name, &style, &isFixedWidth, nullptr)) {
             return nullptr;
         }
 
-        return new SkTypeface_stream(std::move(fontData), style, isFixedWidth);
+        return new SkTypeface_stream(std::move(fontData), std::move(name), style, isFixedWidth);
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
