@@ -23,6 +23,13 @@ struct FunctionCall : public Expression {
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 
+    virtual bool hasSideEffects() const override {
+
+        // HACK, DON'T CHECK IN LIKE THIS!!
+
+        return false;
+    }
+
     SkString description() const override {
         SkString result = fFunction.fName + "(";
         SkString separator;

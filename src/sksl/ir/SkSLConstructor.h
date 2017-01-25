@@ -38,6 +38,15 @@ struct Constructor : public Expression {
         return nullptr;
     }
 
+    virtual bool hasSideEffects() const override {
+        for (const auto& arg : fArguments) {
+            if (arg->hasSideEffects()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     SkString description() const override {
         SkString result = fType.description() + "(";
         SkString separator;
