@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "9228a1ef_e6d5bd82",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "912bc15a_a8d853ef",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 1
@@ -42,6 +59,23 @@
         "endLine": 21,
         "endChar": 24
       },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df0cecc0_5dfb8b12",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Fixed.",
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -71,6 +105,23 @@
     },
     {
       "key": {
+        "uuid": "e4571dcb_5770f091",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57c37127_f38faeb6",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 1
@@ -91,6 +142,23 @@
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a280af45_2798a880",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +185,23 @@
     },
     {
       "key": {
+        "uuid": "480b3fe7_c6a01ff1",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "OK - any way to run that type of check locally, like I can run\n\"git cl presubmit\" for Chromium?",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0508ca43_73dc21bc",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 1
@@ -131,6 +216,23 @@
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7dd8c9_cf6763a4",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +259,23 @@
     },
     {
       "key": {
+        "uuid": "97a8dcd6_b7739f5b",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6691a4cd_efb9e14c",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 1
@@ -174,6 +293,23 @@
         "endLine": 16,
         "endChar": 25
       },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91f4bd32_d66c0e60",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "I see some GPU-only code.\n\nI was hoping someone else more familiar with Skia might see opportunities to\nreuse existing code or just structure this better.",
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -203,6 +339,23 @@
     },
     {
       "key": {
+        "uuid": "16816420_dfc90712",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6533fe1_0d7cb72a",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 1
@@ -226,6 +379,23 @@
     },
     {
       "key": {
+        "uuid": "14ded308_35e7be10",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "432e1135_3e36ab64",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 1
@@ -243,6 +413,23 @@
         "endLine": 21,
         "endChar": 17
       },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ec36a40_bbf1749f",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Done - would be nice to set up my env so that this will be caught\nlocally. I\u0027m not getting any compile errors or warnings.",
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -272,6 +459,23 @@
     },
     {
       "key": {
+        "uuid": "7db042cc_17fe9192",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "I can\u0027t find something with the same types.\n\nI found, for example, clamp_normalized_float_to_byte, but it takes a float\ninstead of an SkScalar, and returns a uint8_t instead of an unsigned char.\n\nDo you see anything?\n\nI also found a few things that are closer but defined inline in cpp files.\nWhere should such a utility function go if I were to refactor it?",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "29a75e2e_3932cc3f",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 1
@@ -295,6 +499,23 @@
     },
     {
       "key": {
+        "uuid": "f419f291_8e475e08",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "Fixed the all lowercase.\n\nThe Sk was just supposed to be because it was converting from SkScalar.",
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39b0e7f2_6317f9d9",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 1
@@ -312,6 +533,23 @@
         "endLine": 49,
         "endChar": 25
       },
+      "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee534a8e_d89ca7ee",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-01-25T17:09:09Z",
+      "side": 1,
+      "message": "I\u0027ve been trying this out in Chromium and it\u0027s actually pretty fast in practice, but of\ncourse I would like to optimize it. I was hoping to land the code first and get good\ntests and benchmarks in place, then optimize with confidence that it\u0027s not affecting\naccuracy.\n\nAny existing benchmarking code in Skia I could leverage?\n\nFor pow/exp I could use a lookup table.\n\nThe majority of the code is converting to/from HSL. There may be a\nmathematical simplification possible since I\u0027m only modifying L before\ntransforming back.\n\nVectorizing sounds good. I\u0027ve already started working on the gpu version too,\nthat seems critical.\n\nWould appreciate suggestions for reviewers / experts who could help guide me.",
       "revId": "4ac56585f37afadec9748ea7d431303119b6e965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
