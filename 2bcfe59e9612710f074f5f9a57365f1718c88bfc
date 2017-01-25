@@ -22,6 +22,23 @@
       "revId": "2bcfe59e9612710f074f5f9a57365f1718c88bfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f19a3d39_e8090f53",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-25T16:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "2bcfe59e9612710f074f5f9a57365f1718c88bfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
