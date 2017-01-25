@@ -232,6 +232,8 @@ tests_sources = [
   "$_tests/TemplatesTest.cpp",
   "$_tests/TessellatingPathRendererTests.cpp",
   "$_tests/Test.cpp",
+  "$_tests/TestUtils.h",
+  "$_tests/TestUtils.cpp",
   "$_tests/TestConfigParsing.cpp",
   "$_tests/TestTest.cpp",
   "$_tests/TextBlobCacheTest.cpp",
