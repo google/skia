@@ -25,6 +25,8 @@ class ShadowsView : public SampleView {
     SkPath    fRectPath;
     SkPath    fRRPath;
     SkPath    fCirclePath;
+    SkPath    fFunkyRRPath;
+    SkPath    fCubicPath;
     SkPoint3  fLightPos;
 
     bool      fShowAmbient;
@@ -46,6 +48,13 @@ protected:
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
+        fFunkyRRPath.addRoundRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
+                                  40 * SK_Scalar1, 20 * SK_Scalar1,
+                                  SkPath::kCW_Direction);
+        fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
+                           20 * SK_Scalar1, 100 * SK_Scalar1,
+                           0 * SK_Scalar1, 0 * SK_Scalar1);
+
         fLightPos = SkPoint3::Make(-700, -700, 2800);
     }
 
@@ -431,26 +440,39 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRRPath, 2, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRectPath, 4, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
+        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0,
                                lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
         lightPos.fX += 250;
         this->drawShadowedPath(canvas, fRRPath, 64, paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorYELLOW);
+        canvas->translate(-250, 110);
+        lightPos.fX -= 250;
+        lightPos.fY += 110;
+        this->drawShadowedPath(canvas, fFunkyRRPath, 8, paint, kAmbientAlpha,
+                               lightPos, kLightWidth, kSpotAlpha);
+
+        paint.setColor(SK_ColorCYAN);
+        canvas->translate(250, 0);
+        lightPos.fX += 250;
+        this->drawShadowedPath(canvas, fCubicPath, 16, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
     }
 
