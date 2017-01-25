@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkShadowTessellator.h"
-#include "SkGeometry.h"
-
-#if SK_SUPPORT_GPU
+#include "GrShadowTessellator.h"
 #include "GrPathUtils.h"
+
+#include "SkGeometry.h"
 
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar radius, SkScalar dir,
                            SkVector* newNormal) {
@@ -40,7 +39,7 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
     *n = SkScalarFloorToInt(steps);
 }
 
-SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkMatrix& viewMatrix,
+GrAmbientShadowTessellator::GrAmbientShadowTessellator(const SkMatrix& viewMatrix,
                                                        const SkPath& path,
                                                        SkScalar radius,
                                                        GrColor umbraColor,
@@ -144,7 +143,7 @@ static const SkScalar kQuadTolerance = 0.2f;
 static const SkScalar kCubicTolerance = 0.2f;
 static const SkScalar kConicTolerance = 0.5f;
 
-void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
+void GrAmbientShadowTessellator::handleLine(const SkPoint& p)  {
     if (fInitPoints.count() < 2) {
         *fInitPoints.push() = p;
         return;
@@ -197,12 +196,12 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
     }
 }
 
-void SkAmbientShadowTessellator::handleLine(const SkMatrix& m, SkPoint p)  {
+void GrAmbientShadowTessellator::handleLine(const SkMatrix& m, SkPoint p)  {
     m.mapPoints(&p, 1);
     this->handleLine(p);
 }
 
-void SkAmbientShadowTessellator::handleQuad(const SkPoint pts[3]) {
+void GrAmbientShadowTessellator::handleQuad(const SkPoint pts[3]) {
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
     fPointBuffer.setReserve(maxCount);
     SkPoint* target = fPointBuffer.begin();
@@ -214,12 +213,12 @@ void SkAmbientShadowTessellator::handleQuad(const SkPoint pts[3]) {
     }
 }
 
-void SkAmbientShadowTessellator::handleQuad(const SkMatrix& m, SkPoint pts[3]) {
+void GrAmbientShadowTessellator::handleQuad(const SkMatrix& m, SkPoint pts[3]) {
     m.mapPoints(pts, 3);
     this->handleQuad(pts);
 }
 
-void SkAmbientShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
+void GrAmbientShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
     m.mapPoints(pts, 4);
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
     fPointBuffer.setReserve(maxCount);
@@ -232,7 +231,7 @@ void SkAmbientShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) 
     }
 }
 
-void SkAmbientShadowTessellator::handleConic(const SkMatrix& m, SkPoint pts[3], SkScalar w) {
+void GrAmbientShadowTessellator::handleConic(const SkMatrix& m, SkPoint pts[3], SkScalar w) {
     m.mapPoints(pts, 3);
     SkAutoConicToQuads quadder;
     const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
@@ -249,7 +248,7 @@ void SkAmbientShadowTessellator::handleConic(const SkMatrix& m, SkPoint pts[3], 
     }
 }
 
-void SkAmbientShadowTessellator::addArc(const SkVector& nextNormal) {
+void GrAmbientShadowTessellator::addArc(const SkVector& nextNormal) {
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
@@ -270,7 +269,7 @@ void SkAmbientShadowTessellator::addArc(const SkVector& nextNormal) {
 }
 
 
-void SkAmbientShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
+void GrAmbientShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
                                                      const SkVector& nextNormal) {
     // close out previous arc
     *fPositions.push() = fPositions[fPrevInnerIndex] + nextNormal;
@@ -282,7 +281,7 @@ void SkAmbientShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
     this->addEdge(nextPoint, nextNormal);
 }
 
-void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
+void GrAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
     // add next quad
     *fPositions.push() = nextPoint;
     *fColors.push() = fUmbraColor;
@@ -310,5 +309,3 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
     fPrevInnerIndex = fPositions.count() - 2;
     fPrevNormal = nextNormal;
 }
-
-#endif
