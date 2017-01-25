@@ -45,12 +45,10 @@ sk_sp<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
-                        const GrCaps* caps,
                         const GrRenderTargetContext* renderTargetContext,
                         GrTexture* textures[2])
         : fRandom(random)
         , fContext(context)
-        , fCaps(caps)
         , fRenderTargetContext(renderTargetContext) {
         fTextures[0] = textures[0];
         fTextures[1] = textures[1];
@@ -60,7 +58,6 @@ struct GrProcessorTestData {
     }
     SkRandom* fRandom;
     GrContext* fContext;
-    const GrCaps* fCaps;
     const GrRenderTargetContext* fRenderTargetContext;
     GrTexture* fTextures[2];
 
