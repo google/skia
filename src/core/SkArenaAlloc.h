@@ -68,6 +68,7 @@ public:
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
+
         SkASSERT(SkTFitsIn<uint32_t>(sizeof(T)));
         char* objStart;
         if (skstd::is_trivially_destructible<T>::value) {
@@ -75,7 +76,8 @@ public:
             fCursor = objStart + sizeof(T);
         } else {
             objStart = this->allocObjectWithFooter(sizeof(T) + sizeof(Footer), alignof(T));
-            size_t padding = objStart - fCursor;
+            // Can never be UB because max value is alignof(T).
+            uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
 
             // Advance to end of object to install footer.
             fCursor = objStart + sizeof(T);
@@ -125,9 +127,9 @@ private:
     static void RunDtorsOnBlock(char* footerEnd);
     static char* NextBlock(char* footerEnd);
 
-    void installFooter(FooterAction* releaser, ptrdiff_t padding);
-    void installUint32Footer(FooterAction* action, uint32_t value, ptrdiff_t padding);
-    void installPtrFooter(FooterAction* action, char* ptr, ptrdiff_t padding);
+    void installFooter(FooterAction* releaser, uint32_t padding);
+    void installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding);
+    void installPtrFooter(FooterAction* action, char* ptr, uint32_t padding);
 
     void ensureSpace(size_t size, size_t alignment);
 
@@ -148,7 +150,9 @@ private:
         } else {
             size_t totalSize = arraySize + sizeof(Footer) + sizeof(uint32_t);
             objStart = this->allocObjectWithFooter(totalSize, alignof(T));
-            size_t padding = objStart - fCursor;
+
+            // Can never be UB because max value is alignof(T).
+            uint32_t padding = SkTo<uint32_t>(objStart - fCursor);
 
             // Advance to end of array to install footer.?
             fCursor = objStart + arraySize;

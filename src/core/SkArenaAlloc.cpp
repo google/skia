@@ -23,8 +23,8 @@ void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd) {
         Footer footer;
         memcpy(&footer, footerEnd - sizeof(Footer), sizeof(Footer));
 
-        FooterAction* action = (FooterAction*)((char*)end_chain + (footer >> 5));
-        ptrdiff_t padding = footer & 31;
+        FooterAction* action = (FooterAction*)(footer >> 6);
+        ptrdiff_t padding = footer & 63;
 
         footerEnd = action(footerEnd) - padding;
     }
@@ -65,27 +65,22 @@ void SkArenaAlloc::reset() {
     new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fExtraSize};
 }
 
-void SkArenaAlloc::installFooter(FooterAction* releaser, ptrdiff_t padding) {
-    ptrdiff_t releaserDiff = (char *)releaser - (char *)end_chain;
-    ptrdiff_t footerData = SkLeftShift((int64_t)releaserDiff, 5) | padding;
-    if (padding >= 32 || !SkTFitsIn<Footer>(footerData)) {
-        // Footer data will not fit.
-        SkFAIL("Constraints are busted.");
-    }
-
-    Footer footer = (Footer)(footerData);
-    memmove(fCursor, &footer, sizeof(Footer));
+void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
+    SkASSERT(padding < 64);
+    int64_t actionInt = (int64_t)(intptr_t)action;
+    Footer encodedFooter = (actionInt << 6) | padding;
+    memmove(fCursor, &encodedFooter, sizeof(Footer));
     fCursor += sizeof(Footer);
     fDtorCursor = fCursor;
 }
 
-void SkArenaAlloc::installPtrFooter(FooterAction* action, char* ptr, ptrdiff_t padding) {
+void SkArenaAlloc::installPtrFooter(FooterAction* action, char* ptr, uint32_t padding) {
     memmove(fCursor, &ptr, sizeof(char*));
     fCursor += sizeof(char*);
     this->installFooter(action, padding);
 }
 
-void SkArenaAlloc::installUint32Footer(FooterAction* action, uint32_t value, ptrdiff_t padding) {
+void SkArenaAlloc::installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding) {
     memmove(fCursor, &value, sizeof(uint32_t));
     fCursor += sizeof(uint32_t);
     this->installFooter(action, padding);
