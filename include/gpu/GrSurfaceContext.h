@@ -14,6 +14,7 @@
 
 class GrAuditTrail;
 class GrContext;
+class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
@@ -33,6 +34,10 @@ public:
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
     bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
+
+    // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
+    int width() const { return this->asDeferredSurface()->width(); }
+    int height() const { return this->asDeferredSurface()->height(); }
 
     /*
      * Copy 'src' into the proxy backing this context
@@ -91,8 +96,11 @@ public:
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
     virtual GrSurfaceProxy* asDeferredSurface() = 0;
+    virtual const GrSurfaceProxy* asDeferredSurface() const = 0;
     virtual GrTextureProxy* asDeferredTexture() = 0;
     virtual GrRenderTargetProxy* asDeferredRenderTarget() = 0;
+
+    virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
