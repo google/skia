@@ -22,6 +22,38 @@
 
 DEFINE_bool(portableFonts, false, "Use portable fonts");
 
+#if SK_SUPPORT_GPU
+#include "effects/GrSRGBEffect.h"
+#include "SkColorFilter.h"
+
+// Color filter that just wraps GrSRGBEffect
+class SkSRGBColorFilter : public SkColorFilter {
+public:
+    static sk_sp<SkColorFilter> Make(GrSRGBEffect::Mode mode) {
+        return sk_sp<SkColorFilter>(new SkSRGBColorFilter(mode));
+    }
+
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override {
+        return GrSRGBEffect::Make(fMode);
+    }
+
+    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
+        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
+    }
+    Factory getFactory() const override { return nullptr; }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const override {}
+#endif
+
+private:
+    SkSRGBColorFilter(GrSRGBEffect::Mode mode) : fMode(mode) {}
+
+    GrSRGBEffect::Mode fMode;
+    typedef SkColorFilter INHERITED;
+};
+#endif
+
 namespace sk_tool_utils {
 
 /* these are the default fonts chosen by Chrome for serif, sans-serif, and monospace */
@@ -585,5 +617,15 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
         dst8 += dst->rowBytes();
     }
 }
+
+#if SK_SUPPORT_GPU
+sk_sp<SkColorFilter> MakeLinearToSRGBColorFilter() {
+    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kLinearToSRGB);
+}
+
+sk_sp<SkColorFilter> MakeSRGBToLinearColorFilter() {
+    return SkSRGBColorFilter::Make(GrSRGBEffect::Mode::kSRGBToLinear);
+}
+#endif
 
 }  // namespace sk_tool_utils

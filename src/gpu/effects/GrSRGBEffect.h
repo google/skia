@@ -5,31 +5,29 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGammaEffect_DEFINED
-#define GrGammaEffect_DEFINED
+#ifndef GrSRGBEffect_DEFINED
+#define GrSRGBEffect_DEFINED
 
 #include "GrFragmentProcessor.h"
 
-class GrGammaEffect : public GrFragmentProcessor {
+class GrSRGBEffect : public GrFragmentProcessor {
 public:
     enum class Mode {
         kLinearToSRGB,
         kSRGBToLinear,
-        kExponential,
     };
 
     /**
-    * Creates an effect that applies a gamma curve.
-    */
-    static sk_sp<GrFragmentProcessor> Make(SkScalar gamma);
+     * Creates an effect that applies the sRGB transfer function (or its inverse)
+     */
+    static sk_sp<GrFragmentProcessor> Make(Mode mode);
 
-    const char* name() const override { return "Gamma"; }
+    const char* name() const override { return "sRGB"; }
 
     Mode mode() const { return fMode; }
-    SkScalar gamma() const { return fGamma; }
 
 private:
-    GrGammaEffect(Mode mode, SkScalar gamma);
+    GrSRGBEffect(Mode mode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -37,7 +35,6 @@ private:
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     Mode fMode;
-    SkScalar fGamma;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

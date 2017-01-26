@@ -16,7 +16,6 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
-#include "SkGammaColorFilter.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -358,7 +357,7 @@ public:
             SkPaint gammaPaint;
             gammaPaint.setBlendMode(SkBlendMode::kSrc);
             if (doGamma) {
-                gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
+                gammaPaint.setColorFilter(sk_tool_utils::MakeLinearToSRGBColorFilter());
             }
 
             gpuCanvas->drawImage(offscreenImage, 0, 0, &gammaPaint);

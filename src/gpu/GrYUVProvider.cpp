@@ -10,7 +10,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "GrYUVProvider.h"
-#include "effects/GrGammaEffect.h"
+#include "effects/GrSRGBEffect.h"
 #include "effects/GrYUVEffect.h"
 
 #include "SkAutoMalloc.h"
@@ -149,7 +149,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
-            paint.addColorFragmentProcessor(GrGammaEffect::Make(2.2f));
+            paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear));
         }
     }
 

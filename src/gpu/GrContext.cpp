@@ -23,8 +23,6 @@
 #include "SkGrPriv.h"
 
 #include "effects/GrConfigConversionEffect.h"
-#include "effects/GrGammaEffect.h"
-#include "ops/GrCopySurfaceOp.h"
 #include "text/GrTextBlobCache.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)

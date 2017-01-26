@@ -8,7 +8,8 @@
 
 #include "../GLWindowContext.h"
 #include "SkCanvas.h"
-#include "SkGammaColorFilter.h"
+#include "SkColorFilter.h"
+#include "sk_tool_utils.h"
 #include "WindowContextFactory_mac.h"
 
 #include "SDL.h"
@@ -123,7 +124,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
         if (doGamma) {
-            gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
+            gammaPaint.setColorFilter(sk_tool_utils::MakeLinearToSRGBColorFilter());
         }
 
         sk_sp<SkSurface> gpuSurface = INHERITED::getBackbufferSurface();
