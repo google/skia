@@ -14,15 +14,11 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
+#include "effects/GrBlurredEdgeFragmentProcessor.h"
 #include "effects/GrShadowTessellator.h"
-#include "glsl/GrGLSLFragmentProcessor.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -133,56 +129,6 @@ void SkAmbientShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-//
-// Shader for managing the shadow's edge. a in the input color represents the initial
-// edge color, which is transformed by a Gaussian function. b represents the blend factor,
-// which is multiplied by this transformed value.
-//
-class ShadowEdgeFP : public GrFragmentProcessor {
-public:
-    ShadowEdgeFP() {
-        this->initClassID<ShadowEdgeFP>();
-    }
-
-    class GLSLShadowEdgeFP : public GrGLSLFragmentProcessor {
-    public:
-        GLSLShadowEdgeFP() {}
-
-        void emitCode(EmitArgs& args) override {
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-
-            fragBuilder->codeAppendf("float factor = 1.0 - %s.a;", args.fInputColor);
-            fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-            fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, %s.b*factor);", args.fOutputColor,
-                                     args.fInputColor);
-        }
-
-        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
-
-    protected:
-        void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {}
-    };
-
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLShadowEdgeFP::GenKey(*this, caps, b);
-    }
-
-    const char* name() const override { return "ShadowEdgeFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
-    }
-
-private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLShadowEdgeFP();
-    }
-
-    bool onIsEqual(const GrFragmentProcessor& proc) const override { return true; }
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 bool SkAmbientShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
                                                      const SkIRect& clipBounds,
                                                      const SkMatrix& ctm,
@@ -233,15 +179,15 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texPr
     SkScalar umbraAlpha = SkScalarInvert((1.0f+SkTMax(fOccluderHeight * kHeightFactor, 0.0f)));
     // umbraColor is the interior value, penumbraColor the exterior value.
     // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
-    // then "blurred" by the ShadowEdgeFP. It is then multiplied by fAmbientAlpha to get
+    // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
     // the final alpha.
-    GrColor  umbraColor = GrColorPackRGBA(0, 0, fAmbientAlpha*255.9999f, umbraAlpha*255.9999f);
-    GrColor  penumbraColor = GrColorPackRGBA(0, 0, fAmbientAlpha*255.9999f, 0);
+    GrColor  umbraColor = GrColorPackRGBA(0, 0, umbraAlpha*255.9999f, fAmbientAlpha*255.9999f);
+    GrColor  penumbraColor = GrColorPackRGBA(0, 0, 0, fAmbientAlpha*255.9999f);
 
     GrAmbientShadowTessellator tess(SkMatrix::I(), path, radius, umbraColor, penumbraColor,
                                 SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
 
-    sk_sp<ShadowEdgeFP> edgeFP(new ShadowEdgeFP);
+    sk_sp<GrFragmentProcessor> edgeFP = GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
     paint.addColorFragmentProcessor(edgeFP);
 
     rtContext->drawVertices(clip, std::move(paint), SkMatrix::I(), kTriangles_GrPrimitiveType,
