@@ -185,7 +185,7 @@ protected:
         orig.peekPixels(&basePM);
         for (auto method : methods) {
             canvas->translate(orig.width()/2 + 8.0f, 0);
-            drawLevels(canvas, orig, [basePM, method](const SkPixmap& prev, const SkPixmap& curr) {
+            drawLevels(canvas, orig, [method](const SkPixmap& prev, const SkPixmap& curr) {
                 SkBitmap bm;
                 SkBitmapScaler::Resize(&bm, prev, method, curr.width(), curr.height());
                 return bm;
