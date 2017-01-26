@@ -101,10 +101,6 @@ static WriteScanline ChooseWriter(SkColorType ct) {
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
-#ifdef TIME_ENCODE
-    SkAutoTime atm("JPEG Encode");
-#endif
-
     if (!pixmap.addr()) {
         return false;
     }
