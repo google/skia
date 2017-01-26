@@ -18,111 +18,6 @@
 
 namespace SK_OPTS_NS {
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-
-    static SK_ALWAYS_INLINE
-    void compute_coefficient_row(SkConvolutionFilter1D::ConvolutionFixed filterValue, const unsigned char* sourceDataRows,
-                               __m256i* accum01, __m256i* accum23, __m256i* accum45, __m256i* accum67) {
-        __m256i coefs = _mm256_set1_epi16(filterValue);
-        __m256i pixels = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(sourceDataRows));
-        __m256i zero = _mm256_setzero_si256();
-
-        // [16] a3 b3 g3 r3 a2 b2 g2 r2 a1 b1 g1 r1 a0 b0 g0 r0
-        __m256i pixels_0123_16bit = _mm256_unpacklo_epi8(pixels, zero);
-
-        __m256i scaled_0123_hi = _mm256_mulhi_epi16(pixels_0123_16bit, coefs),
-                scaled_0123_lo = _mm256_mullo_epi16(pixels_0123_16bit, coefs);
-
-        // [32] c*a1 c*b1 c*g1 c*r1 c*a0 c*b0 c*g0 c*r0
-        *accum01 = _mm256_add_epi32(*accum01, _mm256_unpacklo_epi16(scaled_0123_lo, scaled_0123_hi));
-        // [32] c*a3 c*b3 c*g3 c*r3 c*a2 c*b2 c*g2 c*r2
-        *accum23 = _mm256_add_epi32(*accum23, _mm256_unpackhi_epi16(scaled_0123_lo, scaled_0123_hi));
-
-        // [16] a7 b7 g7 r7 a6 b6 g6 r6 a5 b5 g5 r5 a4 b4 g4 r4
-        __m256i pixels_4567_16bit = _mm256_unpackhi_epi8(pixels, zero);
-
-        __m256i scaled_4567_hi = _mm256_mulhi_epi16(pixels_4567_16bit, coefs),
-                scaled_4567_lo = _mm256_mullo_epi16(pixels_4567_16bit, coefs);
-
-        // [32] c*a5 c*b5 c*g5 c*r5 c*a4 c*b4 c*g4 c*r4
-        *accum45 = _mm256_add_epi32(*accum45, _mm256_unpacklo_epi16(scaled_4567_lo, scaled_4567_hi));
-        // [32] c*a7 c*b7 c*g7 c*r7 c*a6 c*b6 c*g6 c*r6
-        *accum67 = _mm256_add_epi32(*accum67, _mm256_unpackhi_epi16(scaled_4567_lo, scaled_4567_hi));
-    }
-
-    template<bool hasAlpha>
-    void ConvolveVertically(const SkConvolutionFilter1D::ConvolutionFixed* filterValues,
-                            int filterLength,
-                            unsigned char* const * sourceDataRows,
-                            int pixelWidth,
-                            unsigned char* outRow) {
-        // Output eight pixels per iteration (32 bytes).
-        for (int outX = 0; outX < pixelWidth; outX += 8) {
-            // Accumulated result for each pixel. 32 bits per RGBA channel.
-            __m256i accum01 = _mm256_setzero_si256();
-            __m256i accum23 = _mm256_setzero_si256();
-            __m256i accum45 = _mm256_setzero_si256();
-            __m256i accum67 = _mm256_setzero_si256();
-
-            // Convolve with 4 filter coefficient per iteration.
-            int length = filterLength & ~3;
-            for (int filterY = 0; filterY < length; filterY += 4) {
-                compute_coefficient_row(filterValues[filterY + 0], sourceDataRows[filterY + 0] + outX * 4, &accum01, &accum23, &accum45, &accum67);
-                compute_coefficient_row(filterValues[filterY + 1], sourceDataRows[filterY + 1] + outX * 4, &accum01, &accum23, &accum45, &accum67);
-                compute_coefficient_row(filterValues[filterY + 2], sourceDataRows[filterY + 2] + outX * 4, &accum01, &accum23, &accum45, &accum67);
-                compute_coefficient_row(filterValues[filterY + 3], sourceDataRows[filterY + 3] + outX * 4, &accum01, &accum23, &accum45, &accum67);
-            }
-            for (int filterY = length; filterY < filterLength; filterY++) {
-                compute_coefficient_row(filterValues[filterY], sourceDataRows[filterY] + outX * 4, &accum01, &accum23, &accum45, &accum67);
-            }
-
-            // Shift right for fixed point implementation.
-            accum01 = _mm256_srai_epi32(accum01, SkConvolutionFilter1D::kShiftBits);
-            accum23 = _mm256_srai_epi32(accum23, SkConvolutionFilter1D::kShiftBits);
-            accum45 = _mm256_srai_epi32(accum45, SkConvolutionFilter1D::kShiftBits);
-            accum67 = _mm256_srai_epi32(accum67, SkConvolutionFilter1D::kShiftBits);
-
-            // Packing 32 bits |accum| to 16 bits per channel (signed saturation).
-            // [16] a3 b3 g3 r3 a2 b2 g2 r2 a1 b1 g1 r1 a0 b0 g0 r0
-            __m256i accum_0123 = _mm256_packs_epi32(accum01, accum23);
-
-            // Packing 32 bits |accum| to 16 bits per channel (signed saturation).
-            // [16] a7 b7 g7 r7 a6 b6 g6 r6 a5 b5 g5 r5 a4 b4 g4 r4
-            __m256i accum_4567 = _mm256_packs_epi32(accum45, accum67);
-
-            // Packing 16 bits |accum| to 8 bits per channel (unsigned saturation).
-            //  [8] a7 b7 g7 r7 a6 b6 g6 r6 a5 b5 g5 r5 a4 b4 g4 r4 a3 b3 g3 r3 a2 b2 g2 r2 a1 b1 g1 r1 a0 b0 g0 r0
-            __m256i accum = _mm256_packus_epi16(accum_0123, accum_4567);
-
-            if (hasAlpha) {
-                // Make sure the value of alpha channel is always larger than maximum
-                // value of color channels.
-                // If alpha is less than r, g, or b, set it to their max.
-                __m256i max_rg  = _mm256_max_epu8( accum, _mm256_srli_epi32(accum,  8));
-                __m256i max_rgb = _mm256_max_epu8(max_rg, _mm256_srli_epi32(accum, 16));
-                accum = _mm256_max_epu8(accum, _mm256_slli_epi32(max_rgb, 24));
-            } else {
-                // Force opaque.
-                accum = _mm256_or_si256(accum, _mm256_set1_epi32(0xff000000));
-            }
-
-            // Store the convolution result (32 bytes) and advance the pixel pointers.
-            // During the last iteration, when pixels left are less than 8, store them one at a time.
-            if (outX + 8 <= pixelWidth) {
-                _mm256_storeu_si256(reinterpret_cast<__m256i *>(outRow), accum);
-                outRow += 32;
-            } else {
-                for (int i = outX; i < pixelWidth; i++) {
-                    *(reinterpret_cast<int*>(outRow)) = _mm_cvtsi128_si32(_mm256_castsi256_si128(accum));
-                    __m256i rotate = _mm256_setr_epi32(1, 2, 3, 4, 5, 6, 7, 0);
-                    accum = _mm256_permutevar8x32_epi32(accum, rotate);
-                    outRow += 4;
-                }
-            }
-        }
-    }
-#endif
-
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
     static SK_ALWAYS_INLINE void AccumRemainder(const unsigned char* pixelsLeft,
@@ -336,8 +231,6 @@ namespace SK_OPTS_NS {
         }
     }
 
-// If we've got AVX2, we've already defined a faster ConvolveVertically above.
-#if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
     // Does vertical convolution to produce one output row. The filter values and
     // length are given in the first two parameters. These are applied to each
     // of the rows pointed to in the |sourceDataRows| array, with each row
@@ -508,7 +401,6 @@ namespace SK_OPTS_NS {
             }
         }
     }
-#endif//SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
 
 #elif defined(SK_ARM_HAS_NEON)
 
