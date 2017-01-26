@@ -32,25 +32,39 @@ namespace hsw {
                  accum37 = _mm256_setzero_si256();
 
             // Convolve with the filter.  (This inner loop is where we spend ~all our time.)
-            for (int i = 0; i < filterLen; i++) {
-                auto coeffs = _mm256_set1_epi16(filter[i]);
-                auto pixels = _mm256_loadu_si256((const __m256i*)(srcRows[i] + x*4));
+            // While we can, we consume 2 filter coefficients and 2 rows of 8 pixels each at a time.
+            auto convolve_16_pixels = [&](__m256i interlaced_coeffs,
+                                          __m256i pixels_01234567, __m256i pixels_89ABCDEF) {
+                // Interlaced R0R8 G0G8 B0B8 A0A8 R1R9 G1G9... 32 8-bit values each.
+                auto _08194C5D = _mm256_unpacklo_epi8(pixels_01234567, pixels_89ABCDEF),
+                     _2A3B6E7F = _mm256_unpackhi_epi8(pixels_01234567, pixels_89ABCDEF);
 
-                auto pixels_0145 = _mm256_unpacklo_epi8(pixels, _mm256_setzero_si256()),
-                     pixels_2367 = _mm256_unpackhi_epi8(pixels, _mm256_setzero_si256());
+                // Still interlaced R0R8 G0G8... as above, each channel expanded to 16-bit lanes.
+                auto _084C = _mm256_unpacklo_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _195D = _mm256_unpackhi_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _2A6E = _mm256_unpacklo_epi8(_2A3B6E7F, _mm256_setzero_si256()),
+                     _3B7F = _mm256_unpackhi_epi8(_2A3B6E7F, _mm256_setzero_si256());
 
-                auto lo_0145 = _mm256_mullo_epi16(pixels_0145, coeffs),
-                     hi_0145 = _mm256_mulhi_epi16(pixels_0145, coeffs),
-                     lo_2367 = _mm256_mullo_epi16(pixels_2367, coeffs),
-                     hi_2367 = _mm256_mulhi_epi16(pixels_2367, coeffs);
+                // accum0_R += R0*coeff0 + R8*coeff1, etc.
+                accum04 = _mm256_add_epi32(accum04, _mm256_madd_epi16(_084C, interlaced_coeffs));
+                accum15 = _mm256_add_epi32(accum15, _mm256_madd_epi16(_195D, interlaced_coeffs));
+                accum26 = _mm256_add_epi32(accum26, _mm256_madd_epi16(_2A6E, interlaced_coeffs));
+                accum37 = _mm256_add_epi32(accum37, _mm256_madd_epi16(_3B7F, interlaced_coeffs));
+            };
 
-                accum04 = _mm256_add_epi32(accum04, _mm256_unpacklo_epi16(lo_0145, hi_0145));
-                accum15 = _mm256_add_epi32(accum15, _mm256_unpackhi_epi16(lo_0145, hi_0145));
-                accum26 = _mm256_add_epi32(accum26, _mm256_unpacklo_epi16(lo_2367, hi_2367));
-                accum37 = _mm256_add_epi32(accum37, _mm256_unpackhi_epi16(lo_2367, hi_2367));
+            int i = 0;
+            for (; i < filterLen/2*2; i += 2) {
+                convolve_16_pixels(_mm256_set1_epi32(*(const int32_t*)(filter+i)),
+                                   _mm256_loadu_si256((const __m256i*)(srcRows[i+0] + x*4)),
+                                   _mm256_loadu_si256((const __m256i*)(srcRows[i+1] + x*4)));
+            }
+            if (i < filterLen) {
+                convolve_16_pixels(_mm256_set1_epi32(*(const int16_t*)(filter+i)),
+                                   _mm256_loadu_si256((const __m256i*)(srcRows[i] + x*4)),
+                                   _mm256_setzero_si256());
             }
 
-            // Trim the fractional parts.
+            // Trim the fractional parts off the accumulators.
             accum04 = _mm256_srai_epi32(accum04, 14);
             accum15 = _mm256_srai_epi32(accum15, 14);
             accum26 = _mm256_srai_epi32(accum26, 14);
