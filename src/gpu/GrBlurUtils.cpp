@@ -30,18 +30,13 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
 // Draw a mask using the supplied paint. Since the coverage/geometry
 // is already burnt into the mask this boils down to a rect draw.
 // Return true if the mask was successfully drawn.
-static bool draw_mask(GrRenderTargetContext* renderTargetContext,
-                      GrTextureProvider* textureProvider,
+static bool draw_mask(GrContext* context,
+                      GrRenderTargetContext* renderTargetContext,
                       const GrClip& clip,
                       const SkMatrix& viewMatrix,
                       const SkIRect& maskRect,
                       GrPaint&& paint,
                       sk_sp<GrTextureProxy> mask) {
-    // TODO: defer this instantiation
-    GrTexture* maskTex = mask->instantiate(textureProvider);
-    if (!maskTex) {
-        return false;
-    }
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
@@ -50,7 +45,8 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     SkMatrix matrix = SkMatrix::MakeTrans(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(maskTex, nullptr, matrix));
+    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(context, std::move(mask),
+                                                                   nullptr, matrix));
 
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
@@ -103,7 +99,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
         return false;
     }
 
-    return draw_mask(renderTargetContext, context->textureProvider(), clipData, viewMatrix,
+    return draw_mask(context, renderTargetContext, clipData, viewMatrix,
                      dstM.fBounds, std::move(paint), sk_ref_sp(sContext->asDeferredTexture()));
 }
 
@@ -234,7 +230,7 @@ static void draw_path_with_mask_filter(GrContext* context,
                                                                        viewMatrix,
                                                                        finalIRect);
             if (filtered) {
-                if (draw_mask(renderTargetContext, context->textureProvider(), clip, viewMatrix,
+                if (draw_mask(context, renderTargetContext, clip, viewMatrix,
                               finalIRect, std::move(paint), std::move(filtered))) {
                     // This path is completely drawn
                     return;

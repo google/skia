@@ -834,7 +834,7 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(GrTexture* texture,
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
+        return nullptr; //GrConfigConversionEffect::Make(texture, swizzle, pmToUPM, matrix);
     } else {
         return nullptr;
     }

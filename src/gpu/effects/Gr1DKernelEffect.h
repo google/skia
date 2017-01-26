@@ -33,9 +33,16 @@ public:
                      int radius)
         : INHERITED(texture, nullptr, SkMatrix::I())
         , fDirection(direction)
-        , fRadius(radius) {}
+        , fRadius(radius) {
+    }
 
-    virtual ~Gr1DKernelEffect() {}
+    Gr1DKernelEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy, Direction direction, int radius)
+        : INHERITED(ctx, std::move(proxy), nullptr, SkMatrix::I())
+        , fDirection(direction)
+        , fRadius(radius) {
+    }
+
+    ~Gr1DKernelEffect() override {}
 
     static int WidthFromRadius(int radius) { return 2 * radius + 1; }
 
@@ -51,7 +58,6 @@ public:
     }
 
 private:
-
     Direction       fDirection;
     int             fRadius;
 
