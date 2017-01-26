@@ -68,6 +68,9 @@ void SkArenaAlloc::reset() {
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
     SkASSERT(padding < 64);
     int64_t actionInt = (int64_t)(intptr_t)action;
+
+    // The top 14 bits should be either all 0s or all 1s. Check this.
+    SkASSERT((actionInt << 6) >> 6 == actionInt);
     Footer encodedFooter = (actionInt << 6) | padding;
     memmove(fCursor, &encodedFooter, sizeof(Footer));
     fCursor += sizeof(Footer);
