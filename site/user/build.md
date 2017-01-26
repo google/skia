@@ -97,6 +97,12 @@ If you pass that downloaded path to GN via `windk`, you can build using that
 toolchain instead of your own from Visual Studio.  This toolchain is the only
 way we support 32-bit builds, by also setting `target_cpu="x86"`.
 
+Many Windows developers use the Git Bash shell (MinGW). If you plan to do so,
+consider setting the PYTHONUNBUFFERED environment variable. The `depot_tools` 
+package makes use of many python scripts, and by default python will use buffered
+output within MinGW. For interactive scripts, this can look like the script is
+hung, when it's actually waiting for input without having flushed the prompt output.
+
 ### Visual Studio Solutions
 
 If you use Visual Studio, you may want to pass `--ide=vs` to `bin/gn gen` to
