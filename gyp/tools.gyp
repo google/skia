@@ -59,22 +59,6 @@
       ],
     },
     {
-      'target_name': 'android_utils',
-      'type': 'static_library',
-      'dependencies': [
-        'core.gyp:core',
-      ],
-      'sources': [
-        '../tools/android/SkAndroidSDKCanvas.h',
-        '../tools/android/SkAndroidSDKCanvas.cpp',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../tools/android',
-        ],
-      },
-    },
-    {
         'target_name': 'dump_record',
         'type': 'executable',
         'sources': [

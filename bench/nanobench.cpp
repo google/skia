@@ -53,10 +53,6 @@
     #include <unistd.h>
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    #include "nanobenchAndroid.h"
-#endif
-
 #if SK_SUPPORT_GPU
     #include "gl/GrGLDefines.h"
     #include "GrCaps.h"
@@ -468,15 +464,6 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     }
 
     #undef CPU_CONFIG
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    if (config->getTag().equals("hwui")) {
-        Config config = { SkString("hwui"), Benchmark::kHWUI_Backend,
-                          kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
-                          0, kBogusContextType, kBogusContextOptions, false };
-        configs->push_back(config);
-    }
-#endif
 }
 
 // Append all configs that are enabled and supported.
@@ -509,11 +496,6 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 #if SK_SUPPORT_GPU
     case Benchmark::kGPU_Backend:
         target = new GPUTarget(config);
-        break;
-#endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    case Benchmark::kHWUI_Backend:
-        target = new HWUITarget(config, bench);
         break;
 #endif
     default:
