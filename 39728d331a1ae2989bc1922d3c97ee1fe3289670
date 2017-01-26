@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bb95dcf_bd530b36",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T00:07:53Z",
+      "side": 1,
+      "message": "Think it\u0027s worth adding something like,\n\n// The top 7 or more bits are either all zeros or all ones.  Either way is fine.\nSkASSERT((actionInt \u003c\u003c 6) \u003e\u003e 6 \u003d\u003d actionInt);",
+      "revId": "39728d331a1ae2989bc1922d3c97ee1fe3289670",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
