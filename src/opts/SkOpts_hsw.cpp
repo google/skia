@@ -30,7 +30,35 @@ namespace hsw {
                  accum37 = _mm256_setzero_si256();
 
             // Convolve with the filter.  (This inner loop is where we spend ~all our time.)
-            for (int i = 0; i < filterLen; i++) {
+            int i = 0;
+
+            // While we can, we'll consume 2 filter coefficients and 2 source rows at a time.
+            for (; i < filterLen/2*2; i += 2) {
+                auto interlaced_coeffs = _mm256_set1_epi32(((uint32_t)filter[i+0] & 0xffff) |
+                                                           ((uint32_t)filter[i+1] << 16));
+                // Load 16 pixels, 8 each from two adjacent rows.
+                // Output 0 accumulates input pixels 0 and 8, output 1 inputs 1 and 9, etc.
+                auto pixels_01234567 = _mm256_loadu_si256((const __m256i*)(srcRows[i+0] + x*4)),
+                     pixels_89ABCDEF = _mm256_loadu_si256((const __m256i*)(srcRows[i+1] + x*4));
+
+                // Interlaced R0R8 G0G8 B0B8 A0A8 R1R9 G1G9... 32 8-bit values each.
+                auto _08194C5D = _mm256_unpacklo_epi8(pixels_01234567, pixels_89ABCDEF),
+                     _2A3B6E7F = _mm256_unpackhi_epi8(pixels_01234567, pixels_89ABCDEF);
+
+                // Still interlaced R0R8 G0G8... as above, each channel expanded to 16-bit lanes.
+                auto _084C = _mm256_unpacklo_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _195D = _mm256_unpackhi_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _2A6E = _mm256_unpacklo_epi8(_2A3B6E7F, _mm256_setzero_si256()),
+                     _3B7F = _mm256_unpackhi_epi8(_2A3B6E7F, _mm256_setzero_si256());
+
+                // accum0_R += R0*coeff0 + R8*coeff1, etc.
+                accum04 = _mm256_add_epi32(accum04, _mm256_madd_epi16(_084C, interlaced_coeffs));
+                accum15 = _mm256_add_epi32(accum15, _mm256_madd_epi16(_195D, interlaced_coeffs));
+                accum26 = _mm256_add_epi32(accum26, _mm256_madd_epi16(_2A6E, interlaced_coeffs));
+                accum37 = _mm256_add_epi32(accum37, _mm256_madd_epi16(_3B7F, interlaced_coeffs));
+            }
+            // There may be one last filter coefficient.
+            if (i < filterLen) {
                 auto coeffs = _mm256_set1_epi16(filter[i]);
                 auto pixels = _mm256_loadu_si256((const __m256i*)(srcRows[i] + x*4));
 
