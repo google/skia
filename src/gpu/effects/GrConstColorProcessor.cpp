@@ -85,6 +85,19 @@ void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) c
     }
 }
 
+GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
+    switch (fMode) {
+        case kIgnore_InputMode:
+            return fColor;
+        case kModulateA_InputMode:
+            return fColor.mulByScalar(input.fRGBA[3]);
+        case kModulateRGBA_InputMode:
+            return fColor.modulate(input);
+    }
+    SkFAIL("Unexpected mode");
+    return GrColor4f::TransparentBlack();
+}
+
 void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(fMode);

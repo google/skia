@@ -59,7 +59,6 @@ public:
     static sk_sp<GrFragmentProcessor> Make(const SkPMColor* colors);
 
     const char* name() const override { return "Overdraw"; }
-
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
@@ -105,7 +104,10 @@ sk_sp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colo
     return sk_sp<OverdrawFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
 }
 
-OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors) {
+// This could implement the constant input -> constant output optimization, but we don't really
+// care given how this is used.
+OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors)
+        : INHERITED(kNone_OptimizationFlags) {
     this->initClassID<OverdrawFragmentProcessor>();
     memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
 }
