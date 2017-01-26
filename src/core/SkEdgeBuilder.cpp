@@ -377,14 +377,11 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
                     // we ignore these, and just get the whole segment from
                     // the corresponding line/quad/cubic verbs
                     break;
-                case SkPath::kLine_Verb: {
-                    SkPoint lines[SkLineClipper::kMaxPoints];
-                    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, canCullToTheRight);
-                    for (int i = 0; i < lineCount; i++) {
-                        this->addLine(&lines[i]);
+                case SkPath::kLine_Verb:
+                    if (clipper.clipLine(pts[0], pts[1], clip)) {
+                        this->addClipper(&clipper);
                     }
                     break;
-                }
                 case SkPath::kQuad_Verb:
                     if (clipper.clipQuad(pts, clip)) {
                         this->addClipper(&clipper);

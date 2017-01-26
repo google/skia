@@ -8,6 +8,7 @@
 
 #include "SkEdgeClipper.h"
 #include "SkGeometry.h"
+#include "SkLineClipper.h"
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
@@ -40,6 +41,23 @@ static bool sort_increasing_Y(SkPoint dst[], const SkPoint src[], int count) {
         memcpy(dst, src, count * sizeof(SkPoint));
         return false;
     }
+}
+
+bool SkEdgeClipper::clipLine(SkPoint p0, SkPoint p1, const SkRect& clip) {
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+
+    SkPoint lines[SkLineClipper::kMaxPoints];
+    const SkPoint pts[] = { p0, p1 };
+    int lineCount = SkLineClipper::ClipLine(pts, clip, lines, fCanCullToTheRight);
+    for (int i = 0; i < lineCount; i++) {
+        this->appendLine(lines[i], lines[i + 1]);
+    }
+
+    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+    return SkPath::kDone_Verb != fVerbs[0];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -406,6 +424,13 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void SkEdgeClipper::appendLine(SkPoint p0, SkPoint p1) {
+    *fCurrVerb++ = SkPath::kLine_Verb;
+    fCurrPoint[0] = p0;
+    fCurrPoint[1] = p1;
+    fCurrPoint += 2;
+}
 
 void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
                                 bool reverse) {
