@@ -174,15 +174,12 @@ size_t SkNormalMapSourceImpl::providerSize(const SkShader::ContextRec& rec) cons
 
 bool SkNormalMapSourceImpl::computeNormTotalInverse(const SkShader::ContextRec& rec,
                                                     SkMatrix* normTotalInverse) const {
-    SkMatrix total;
-    total.setConcat(*rec.fMatrix, fMapShader->getLocalMatrix());
-
-    const SkMatrix* m = &total;
+    SkMatrix total = SkMatrix::Concat(*rec.fMatrix, fMapShader->getLocalMatrix());
     if (rec.fLocalMatrix) {
-        total.setConcat(*m, *rec.fLocalMatrix);
-        m = &total;
+        total.preConcat(*rec.fLocalMatrix);
     }
-    return m->invert(normTotalInverse);
+
+    return total.invert(normTotalInverse);
 }
 
 #define BUFFER_MAX 16

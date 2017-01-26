@@ -66,15 +66,12 @@ void SkShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkMatrix total;
-    total.setConcat(*rec.fMatrix, fLocalMatrix);
-
-    const SkMatrix* m = &total;
+    SkMatrix total = SkMatrix::Concat(*rec.fMatrix, fLocalMatrix);
     if (rec.fLocalMatrix) {
-        total.setConcat(*m, *rec.fLocalMatrix);
-        m = &total;
+        total.preConcat(*rec.fLocalMatrix);
     }
-    return m->invert(totalInverse);
+
+    return total.invert(totalInverse);
 }
 
 bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
