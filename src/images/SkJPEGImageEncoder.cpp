@@ -9,15 +9,10 @@
 
 #ifdef SK_HAS_JPEG_LIBRARY
 
-#include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkDither.h"
 #include "SkJPEGWriteUtility.h"
-#include "SkRect.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-#include "SkTime.h"
-#include "SkUtils.h"
 
 #include <stdio.h>
 
@@ -25,9 +20,6 @@ extern "C" {
     #include "jpeglib.h"
     #include "jerror.h"
 }
-
-// These enable timing code that report milliseconds for an encoding
-//#define TIME_ENCODE
 
 typedef void (*WriteScanline)(uint8_t* SK_RESTRICT dst,
                               const void* SK_RESTRICT src, int width,
@@ -101,10 +93,6 @@ static WriteScanline ChooseWriter(SkColorType ct) {
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
-#ifdef TIME_ENCODE
-    SkAutoTime atm("JPEG Encode");
-#endif
-
     if (!pixmap.addr()) {
         return false;
     }
