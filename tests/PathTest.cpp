@@ -4501,6 +4501,20 @@ DEF_TEST(PathInterp, reporter) {
     test_interp(reporter);
 }
 
+#include "SkSurface.h"
+DEF_TEST(PathBigCubic, reporter) {
+    SkPath path;
+    path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+    path.moveTo(SkBits2Float(0x44000000), SkBits2Float(0x373938b8));  // 512, 1.10401e-05f
+    path.cubicTo(SkBits2Float(0x00000001), SkBits2Float(0xdf000052), SkBits2Float(0x00000100), SkBits2Float(0x00000000), SkBits2Float(0x00000100), SkBits2Float(0x00000000));  // 1.4013e-45f, -9.22346e+18f, 3.58732e-43f, 0, 3.58732e-43f, 0
+    path.moveTo(0, 512);
+
+    // this call should not assert
+    if (false) {
+        SkSurface::MakeRasterN32Premul(255, 255, nullptr)->getCanvas()->drawPath(path, SkPaint());
+    }
+}
+
 DEF_TEST(PathContains, reporter) {
     test_contains(reporter);
 }
