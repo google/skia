@@ -1192,7 +1192,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
-        fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
+        fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
         fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }

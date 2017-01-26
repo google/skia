@@ -153,8 +153,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
-    sk_sp<GrFragmentProcessor> fp) {
+sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
+        sk_sp<GrFragmentProcessor> fp) {
 
     class PremulFragmentProcessor : public GrFragmentProcessor {
     public:
