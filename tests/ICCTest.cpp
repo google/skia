@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkData.h"
 #include "SkICC.h"
 #include "SkMatrix44.h"
@@ -137,4 +138,154 @@ DEF_TEST(ICC_WriteICC, r) {
     srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
     test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(),
                    false);
+}
+
+static inline void test_raw_transfer_fn(skiatest::Reporter* r, SkICC* icc) {
+    SkICC::Tables tables;
+    bool result = icc->rawTransferFnData(&tables);
+    REPORTER_ASSERT(r, result);
+
+    REPORTER_ASSERT(r, 0.0f == tables.red()[0]);
+    REPORTER_ASSERT(r, 0.0f == tables.green()[0]);
+    REPORTER_ASSERT(r, 0.0f == tables.blue()[0]);
+    REPORTER_ASSERT(r, 1.0f == tables.red()[tables.fRed.fCount - 1]);
+    REPORTER_ASSERT(r, 1.0f == tables.green()[tables.fGreen.fCount - 1]);
+    REPORTER_ASSERT(r, 1.0f == tables.blue()[tables.fBlue.fCount - 1]);
+}
+
+class ICCTest {
+public:
+    static sk_sp<SkICC> MakeICC(sk_sp<SkColorSpace> space) {
+        return sk_sp<SkICC>(new SkICC(std::move(space)));
+    }
+    static sk_sp<SkICC> MakeICC(sk_sp<SkGammas> gammas) {
+        return MakeICC(sk_sp<SkColorSpace>(new SkColorSpace_XYZ(
+                kNonStandard_SkGammaNamed, std::move(gammas),
+                SkMatrix44(SkMatrix44::kIdentity_Constructor), nullptr)));
+    }
+};
+
+DEF_TEST(ICC_RawTransferFns, r) {
+    sk_sp<SkICC> srgb = ICCTest::MakeICC(SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+    test_raw_transfer_fn(r, srgb.get());
+
+    sk_sp<SkICC> adobe =
+            ICCTest::MakeICC(SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named));
+    test_raw_transfer_fn(r, adobe.get());
+
+    // Lookup-table based gamma curves
+    constexpr size_t tableSize = 10;
+    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize);
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+    for (int i = 0; i < 3; ++i) {
+        gammas->fType[i] = SkGammas::Type::kTable_Type;
+        gammas->fData[i].fTable.fSize = tableSize;
+        gammas->fData[i].fTable.fOffset = 0;
+    }
+
+    float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
+    table[0] = 0.00f;
+    table[1] = 0.05f;
+    table[2] = 0.10f;
+    table[3] = 0.15f;
+    table[4] = 0.25f;
+    table[5] = 0.35f;
+    table[6] = 0.45f;
+    table[7] = 0.60f;
+    table[8] = 0.75f;
+    table[9] = 1.00f;
+    sk_sp<SkICC> tbl = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, tbl.get());
+
+    // Parametric gamma curves
+    memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
+    gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+    for (int i = 0; i < 3; ++i) {
+        gammas->fType[i] = SkGammas::Type::kParam_Type;
+        gammas->fData[i].fParamOffset = 0;
+    }
+
+    SkColorSpaceTransferFn* params = SkTAddOffset<SkColorSpaceTransferFn>
+            (memory, sizeof(SkGammas));
+
+    // Interval.
+    params->fD = 0.04045f;
+
+    // First equation:
+    params->fC = 1.0f / 12.92f;
+    params->fF = 0.0f;
+
+    // Second equation:
+    // Note that the function is continuous (it's actually sRGB).
+    params->fA = 1.0f / 1.055f;
+    params->fB = 0.055f / 1.055f;
+    params->fE = 0.0f;
+    params->fG = 2.4f;
+    sk_sp<SkICC> param = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, param.get());
+
+    // Exponential gamma curves
+    gammas = sk_sp<SkGammas>(new SkGammas(3));
+    for (int i = 0; i < 3; ++i) {
+        gammas->fType[i] = SkGammas::Type::kValue_Type;
+        gammas->fData[i].fValue = 1.4f;
+    }
+    sk_sp<SkICC> exp = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, exp.get());
+
+    gammas = sk_sp<SkGammas>(new SkGammas(3));
+    gammas->fType[0] = gammas->fType[1] = gammas->fType[2] = SkGammas::Type::kNamed_Type;
+    gammas->fData[0].fNamed = kSRGB_SkGammaNamed;
+    gammas->fData[1].fNamed = k2Dot2Curve_SkGammaNamed;
+    gammas->fData[2].fNamed = kLinear_SkGammaNamed;
+    sk_sp<SkICC> named = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, named.get());
+
+    memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize +
+                                   sizeof(SkColorSpaceTransferFn));
+    gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+
+    table = SkTAddOffset<float>(memory, sizeof(SkGammas));
+    table[0] = 0.00f;
+    table[1] = 0.15f;
+    table[2] = 0.20f;
+    table[3] = 0.25f;
+    table[4] = 0.35f;
+    table[5] = 0.45f;
+    table[6] = 0.55f;
+    table[7] = 0.70f;
+    table[8] = 0.85f;
+    table[9] = 1.00f;
+
+    params = SkTAddOffset<SkColorSpaceTransferFn>(memory,
+            sizeof(SkGammas) + sizeof(float) * tableSize);
+    params->fA = 1.0f / 1.055f;
+    params->fB = 0.055f / 1.055f;
+    params->fC = 1.0f / 12.92f;
+    params->fD = 0.04045f;
+    params->fE = 0.0f;
+    params->fF = 0.0f;
+    params->fG = 2.4f;
+
+    gammas->fType[0] = SkGammas::Type::kValue_Type;
+    gammas->fData[0].fValue = 1.2f;
+
+    gammas->fType[1] = SkGammas::Type::kTable_Type;
+    gammas->fData[1].fTable.fSize = tableSize;
+    gammas->fData[1].fTable.fOffset = 0;
+
+    gammas->fType[2] = SkGammas::Type::kParam_Type;
+    gammas->fData[2].fParamOffset = sizeof(float) * tableSize;
+    sk_sp<SkICC> nonstd = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, nonstd.get());
+
+    // Reverse order of table and exponent
+    gammas->fType[1] = SkGammas::Type::kValue_Type;
+    gammas->fData[1].fValue = 1.2f;
+
+    gammas->fType[0] = SkGammas::Type::kTable_Type;
+    gammas->fData[0].fTable.fSize = tableSize;
+    gammas->fData[0].fTable.fOffset = 0;
+    sk_sp<SkICC> nonstd2 = ICCTest::MakeICC(gammas);
+    test_raw_transfer_fn(r, nonstd2.get());
 }
