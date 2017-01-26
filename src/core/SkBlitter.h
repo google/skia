@@ -107,10 +107,6 @@ public:
      */
     virtual bool isNullBlitter() const;
 
-    /**
-     *  Special methods for SkShaderBlitter. On all other classes this is a no-op.
-     */
-    virtual bool resetShaderContext(const SkShader::ContextRec&);
     virtual SkShader::Context* getShaderContext() const;
 
     /**

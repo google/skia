@@ -15,6 +15,7 @@
 #include "SkDeviceLooper.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkFixed.h"
+#include "SkLocalMatrixShader.h"
 #include "SkMaskFilter.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -24,7 +25,6 @@
 #include "SkRRect.h"
 #include "SkScan.h"
 #include "SkShader.h"
-#include "SkSmallAllocator.h"
 #include "SkString.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
@@ -1952,13 +1952,21 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         SkTriColorShader::TriColorShaderData verticesSetup = { vertices, colors, &state };
 
         while (vertProc(&state)) {
+            auto* blitterPtr = blitter.get();
+
+            SkTLazy<SkLocalMatrixShader> localShader;
+            SkTLazy<SkAutoBlitterChoose> localBlitter;
+
             if (textures) {
                 SkMatrix tempM;
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
-                    SkShader::ContextRec rec(p, *fMatrix, &tempM,
-                                             SkBlitter::PreferredShaderDest(fDst.info()),
-                                             fDst.colorSpace());
-                    if (!blitter->resetShaderContext(rec)) {
+                    localShader.init(p.refShader(), tempM);
+
+                    SkPaint localPaint(p);
+                    localPaint.setShader(sk_ref_sp(localShader.get()));
+
+                    blitterPtr = localBlitter.init(fDst, *fMatrix, localPaint)->get();
+                    if (blitterPtr->isNullBlitter()) {
                         continue;
                     }
                 }
@@ -1970,8 +1978,8 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             SkPoint tmp[] = {
                 devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
             };
-            SkScan::FillTriangle(tmp, *fRC, blitter.get());
-            triShader->bindSetupData(NULL);
+            SkScan::FillTriangle(tmp, *fRC, blitterPtr);
+            triShader->bindSetupData(nullptr);
         }
     } else {
         // no colors[] and no texture, stroke hairlines with paint's color.
