@@ -37,6 +37,9 @@ public:
     // but some of them like blitV could probably benefit from custom
     // blits using something like a SkRasterPipeline::runFew() method.
 
+    // https://bugs.chromium.org/p/skia/issues/detail?id=6168
+    bool resetShaderContext(const SkShader::ContextRec&) override { return false; }
+
 private:
     void append_load_d(SkRasterPipeline*) const;
     void append_blend (SkRasterPipeline*) const;

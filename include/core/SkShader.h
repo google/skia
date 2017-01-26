@@ -502,9 +502,7 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                const SkMatrix&, const SkPaint&) const {
-        return false;
-    }
+                                const SkMatrix&, const SkPaint&) const;
 
 private:
     // This is essentially const, but not officially so it can be modified in
