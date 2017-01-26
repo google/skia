@@ -51,6 +51,10 @@ struct IndexExpression : public Expression {
         ASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
     }
 
+    virtual bool hasSideEffects() const override {
+        return fBase->hasSideEffects() || fIndex->hasSideEffects();
+    }
+
     SkString description() const override {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
