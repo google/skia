@@ -28,7 +28,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
 
     private:
         TestFP(sk_sp<GrTexture> texture, GrSLMemoryModel mm, GrSLRestrict restrict)
-                : fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
+                : INHERITED(kNone_OptimizationFlags)
+                , fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
             this->initClassID<TestFP>();
             this->addImageStorageAccess(&fImageStorageAccess);
         }
@@ -73,6 +74,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
         }
 
         ImageStorageAccess fImageStorageAccess;
+        typedef GrFragmentProcessor INHERITED;
     };
 
     static constexpr int kS = 256;

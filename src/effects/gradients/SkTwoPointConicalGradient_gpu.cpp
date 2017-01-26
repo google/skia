@@ -91,8 +91,7 @@ private:
                 this->fDiffRadius == s.fDiffRadius);
     }
 
-    Edge2PtConicalEffect(const CreateArgs& args)
-        : INHERITED(args) {
+    Edge2PtConicalEffect(const CreateArgs& args) : INHERITED(args, false /* opaque */) {
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
         fCenterX1 = shader.getCenterX1();
@@ -398,10 +397,15 @@ private:
                 this->fIsFlipped == s.fIsFlipped);
     }
 
+    static bool IsFlipped(const CreateArgs& args) {
+        // eww.
+        return static_cast<const SkTwoPointConicalGradient*>(args.fShader)->isFlippedGrad();
+    }
+
     FocalOutside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-    : INHERITED(args)
-    , fFocalX(focalX)
-    , fIsFlipped(static_cast<const SkTwoPointConicalGradient*>(args.fShader)->isFlippedGrad()) {
+            : INHERITED(args, false /* opaque */)
+            , fFocalX(focalX)
+            , fIsFlipped(IsFlipped(args)) {
         this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
@@ -606,7 +610,7 @@ private:
     }
 
     FocalInside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-        : INHERITED(args), fFocalX(focalX) {
+            : INHERITED(args, args.fShader->colorsAreOpaque()), fFocalX(focalX) {
         this->initClassID<FocalInside2PtConicalEffect>();
     }
 
@@ -847,7 +851,7 @@ private:
     }
 
     CircleInside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-        : INHERITED(args), fInfo(info) {
+            : INHERITED(args, args.fShader->colorsAreOpaque()), fInfo(info) {
         this->initClassID<CircleInside2PtConicalEffect>();
     }
 
@@ -1064,7 +1068,7 @@ private:
     }
 
     CircleOutside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-        : INHERITED(args), fInfo(info) {
+            : INHERITED(args, false /* opaque */), fInfo(info) {
         this->initClassID<CircleOutside2PtConicalEffect>();
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);

@@ -1572,7 +1572,8 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
 /////////////////////////////////////////////////////////////////////
 
-GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
+GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
+        : INHERITED(isOpaque ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags) {
     const SkGradientShaderBase& shader(*args.fShader);
 
     fIsOpaque = shader.isOpaque();
