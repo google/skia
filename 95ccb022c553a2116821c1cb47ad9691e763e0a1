@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c589d60_d5ebcc06",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-26T21:36:07Z",
+      "side": 1,
+      "message": "Why not like sk_sp and std::unique_ptr\n\n    constexpr SkTScopedComPtr() : fPtr(nullptr) {}\n    constexpr SkTScopedComPtr(std::nullptr_t) : fPtr(nullptr) {}",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 19
+      },
+      "revId": "95ccb022c553a2116821c1cb47ad9691e763e0a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f7844c2_0a9bbdb6",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-26T21:36:07Z",
+      "side": 1,
+      "message": "And then\n\nSkTScopedPtr\u003cT\u003e\u0026 operator\u003d(std::nullptr_t) { this-\u003ereset(); return *this; }",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 30
+      },
+      "revId": "95ccb022c553a2116821c1cb47ad9691e763e0a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
