@@ -35,11 +35,12 @@ public:
     static sk_sp<GrFragmentProcessor> MulOutputByInputAlpha(sk_sp<GrFragmentProcessor>);
 
     /**
-     *  Similar to the above but it modulates the output r,g,b of the child processor by the input
-     *  rgb and then multiplies all the components by the input alpha. This effectively modulates
-     *  the child processor's premul color by a unpremul'ed input and produces a premul output
+     *  This assumes that the input color to the returned processor will be unpremul and that the
+     *  passed processor (which becomes the returned processor's child) produces a premul output.
+     *  The result of the returned processor is a premul of its input color modulated by the child
+     *  processor's premul output.
      */
-    static sk_sp<GrFragmentProcessor> MulOutputByInputUnpremulColor(sk_sp<GrFragmentProcessor>);
+    static sk_sp<GrFragmentProcessor> MakeInputPremulAndMulByOutput(sk_sp<GrFragmentProcessor>);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
