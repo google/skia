@@ -352,8 +352,6 @@ public:
 
     class GLSLProcessor;
 
-    GrGradientEffect(const CreateArgs&);
-
     virtual ~GrGradientEffect();
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
@@ -402,6 +400,8 @@ public:
     }
 
 protected:
+    GrGradientEffect(const CreateArgs&, bool isOpaque);
+
     /** Helper struct that stores (and populates) parameters to construct a random gradient.
         If fUseColors4f is true, then the SkColor4f factory should be called, with fColors4f and
         fColorSpace. Otherwise, the SkColor factory should be called, with fColors. fColorCount
