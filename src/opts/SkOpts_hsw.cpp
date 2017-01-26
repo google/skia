@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#if defined(__AVX2__)
+
 // It is not safe to #include any header file here unless it has been vetted for ODR safety:
 // all symbols used must be file-scoped static or in an anonymous namespace.  This applies
 // to _all_ header files:  C standard library, C++ standard library, Skia... everything.
@@ -94,3 +96,9 @@ namespace SkOpts {
         convolve_vertically = hsw::convolve_vertically;
     }
 }
+
+#else  // defined(__AVX2__) is not true...
+
+namespace SkOpts { void Init_hsw() {} }
+
+#endif
