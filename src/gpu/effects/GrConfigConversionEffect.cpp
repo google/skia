@@ -98,9 +98,9 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
-    : INHERITED(texture, nullptr, matrix)
-    , fSwizzle(swizzle)
-    , fPMConversion(pmConversion) {
+        : INHERITED(texture, nullptr, matrix, ModulationFlags(texture->config()))
+        , fSwizzle(swizzle)
+        , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
     // We expect to get here with non-BGRA/RGBA only if we're doing not doing a premul/unpremul
     // conversion.
@@ -116,7 +116,7 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrContext* context,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
-    : INHERITED(context, proxy, nullptr, matrix)
+    : INHERITED(context, ModulationFlags(proxy->config()), proxy, nullptr, matrix)
     , fSwizzle(swizzle)
     , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();

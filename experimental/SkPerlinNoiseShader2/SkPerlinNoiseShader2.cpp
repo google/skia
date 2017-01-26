@@ -675,17 +675,17 @@ private:
         inout->setToUnknown();
     }
 
-    GrPerlinNoise2Effect(SkPerlinNoiseShader2::Type type,
-                        int numOctaves, bool stitchTiles,
-                        SkPerlinNoiseShader2::PaintingData* paintingData,
-                        GrTexture* permutationsTexture, GrTexture* noiseTexture,
-                        const SkMatrix& matrix)
-      : fType(type)
-      , fNumOctaves(numOctaves)
-      , fStitchTiles(stitchTiles)
-      , fPermutationsSampler(permutationsTexture)
-      , fNoiseSampler(noiseTexture)
-      , fPaintingData(paintingData) {
+    GrPerlinNoise2Effect(SkPerlinNoiseShader2::Type type, int numOctaves, bool stitchTiles,
+                         SkPerlinNoiseShader2::PaintingData* paintingData,
+                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
+                         const SkMatrix& matrix)
+            : INHERITED(kNone_OptimizationFlags)
+            , fType(type)
+            , fNumOctaves(numOctaves)
+            , fStitchTiles(stitchTiles)
+            , fPermutationsSampler(permutationsTexture)
+            , fNoiseSampler(noiseTexture)
+            , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
@@ -703,7 +703,6 @@ private:
     TextureSampler                      fNoiseSampler;
     SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
-private:
     typedef GrFragmentProcessor INHERITED;
 };
 
@@ -1087,15 +1086,16 @@ private:
         inout->setToUnknown();
     }
 
-    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z, 
+    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
                                 SkPerlinNoiseShader2::PaintingData* paintingData,
                                 GrTexture* permutationsTexture, GrTexture* gradientTexture,
                                 const SkMatrix& matrix)
-      : fOctaves(octaves)
-      , fZ(z)
-      , fPermutationsSampler(permutationsTexture)
-      , fGradientSampler(gradientTexture)
-      , fPaintingData(paintingData) {
+            : INHERITED(kNone_OptimizationFlags)
+            , fOctaves(octaves)
+            , fZ(z)
+            , fPermutationsSampler(permutationsTexture)
+            , fGradientSampler(gradientTexture)
+            , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
@@ -1112,7 +1112,6 @@ private:
     TextureSampler                      fGradientSampler;
     SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
-private:
     typedef GrFragmentProcessor INHERITED;
 };
 

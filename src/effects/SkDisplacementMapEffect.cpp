@@ -487,24 +487,26 @@ void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(
-                             SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
-                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                             const SkVector& scale,
-                             GrTexture* displacement,
-                             const SkMatrix& offsetMatrix,
-                             GrTexture* color,
-                             sk_sp<GrColorSpaceXform> colorSpaceXform,
-                             const SkISize& colorDimensions)
-    : fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
-    , fDisplacementSampler(displacement)
-    , fColorTransform(color, GrSamplerParams::kNone_FilterMode)
-    , fDomain(color, GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
-              GrTextureDomain::kDecal_Mode)
-    , fColorSampler(color)
-    , fColorSpaceXform(std::move(colorSpaceXform))
-    , fXChannelSelector(xChannelSelector)
-    , fYChannelSelector(yChannelSelector)
-    , fScale(scale) {
+        SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+        SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
+        const SkVector& scale,
+        GrTexture* displacement,
+        const SkMatrix& offsetMatrix,
+        GrTexture* color,
+        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        const SkISize& colorDimensions)
+        : INHERITED(GrPixelConfigIsOpaque(color->config()) ? kPreservesOpaqueInput_OptimizationFlag
+                                                           : kNone_OptimizationFlags)
+        , fDisplacementTransform(offsetMatrix, displacement, GrSamplerParams::kNone_FilterMode)
+        , fDisplacementSampler(displacement)
+        , fColorTransform(color, GrSamplerParams::kNone_FilterMode)
+        , fDomain(color, GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
+                  GrTextureDomain::kDecal_Mode)
+        , fColorSampler(color)
+        , fColorSpaceXform(std::move(colorSpaceXform))
+        , fXChannelSelector(xChannelSelector)
+        , fYChannelSelector(yChannelSelector)
+        , fScale(scale) {
     this->initClassID<GrDisplacementMapEffect>();
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureSampler(&fDisplacementSampler);
