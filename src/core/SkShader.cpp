@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
@@ -13,9 +14,11 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureShader.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkShader.h"
+#include "SkTLazy.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -263,6 +266,36 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             const SkMatrix& ctm,
                             const SkPaint& paint) const {
     return this->onAppendStages(pipeline, dst, scratch, ctm, paint);
+}
+
+bool SkShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
+                              const SkMatrix& ctm, const SkPaint& paint) const {
+    // Legacy shaders handle the paint opacity internally,
+    // but RP applies it as a separate stage.
+    SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
+    if (paint.getAlpha() != SK_AlphaOPAQUE) {
+        opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
+    }
+
+    ContextRec rec{ *opaquePaint, ctm, nullptr, ContextRec::kPM4f_DstType, cs };
+    if (this->contextSize(rec) > 4096) {
+        return false;
+    }
+
+    struct Buffer {
+        Context* ctx;
+        uint8_t bytes[4096];
+        ~Buffer() { if (ctx) ctx->~Context(); }
+    };
+
+    auto b = alloc->make<Buffer>();
+    b->ctx = this->createContext(rec, b->bytes);
+    if (!b->ctx) {
+        return false;
+    }
+
+    p->append(SkRasterPipeline::shader_adapter, b->ctx);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
