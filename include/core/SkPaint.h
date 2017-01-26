@@ -37,8 +37,6 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTypeface;
 
-#define kBicubicFilterBitmap_Flag kHighQualityFilterBitmap_Flag
-
 /** \class SkPaint
 
     The SkPaint class holds the style and color information about how to draw
