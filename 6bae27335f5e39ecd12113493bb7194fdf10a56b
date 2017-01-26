@@ -22,6 +22,23 @@
       "revId": "6bae27335f5e39ecd12113493bb7194fdf10a56b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3e0e89c_395c4935",
+        "filename": "src/opts/SkOpts_hsw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T18:21:17Z",
+      "side": 1,
+      "message": "Yeah, was thinking along the same lines myself.  It seems weird to do 2 16-bit multiplies when we can just do one 32-bit multiply.  Will follow up here.",
+      "revId": "6bae27335f5e39ecd12113493bb7194fdf10a56b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
