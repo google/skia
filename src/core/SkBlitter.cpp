@@ -25,10 +25,6 @@ SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
 
-bool SkBlitter::resetShaderContext(const SkShader::ContextRec&) {
-    return true;
-}
-
 const SkPixmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return nullptr;
 }
@@ -1003,23 +999,6 @@ SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
 
 SkShaderBlitter::~SkShaderBlitter() {
     fShader->unref();
-}
-
-bool SkShaderBlitter::resetShaderContext(const SkShader::ContextRec& rec) {
-    // Only destroy the old context if we have a new one. We need to ensure to have a
-    // live context in fShaderContext because the storage is owned by an SkSmallAllocator
-    // outside of this class.
-    // The new context will be of the same size as the old one because we use the same
-    // shader to create it. It is therefore safe to re-use the storage.
-    fShaderContext->~Context();
-    SkShader::Context* ctx = fShader->createContext(rec, (void*)fShaderContext);
-    if (nullptr == ctx) {
-        // Need a valid context in fShaderContext's storage, so we can later (or our caller) call
-        // the in-place destructor.
-        new (fShaderContext) SkZeroShaderContext(*fShader, rec);
-        return false;
-    }
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
