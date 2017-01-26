@@ -170,7 +170,7 @@ constexpr GradMaker gGradMakers4f[] ={
 class GradientsGM : public GM {
 public:
     GradientsGM(bool dither) : fDither(dither) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        //this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
     }
 
 protected:
@@ -185,10 +185,10 @@ protected:
 
         SkPoint pts[2] = {
             { 0, 0 },
-            { SkIntToScalar(100), SkIntToScalar(100) }
+            { SkIntToScalar(500), SkIntToScalar(500) }
         };
         SkShader::TileMode tm = SkShader::kClamp_TileMode;
-        SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
+        SkRect r = { 0, 0, SkIntToScalar(500), SkIntToScalar(500) };
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setDither(fDither);
@@ -207,8 +207,10 @@ protected:
                 paint.setShader(gGradMakers[j](pts, gGradData[i], tm, scale));
                 canvas->drawRect(r, paint);
                 canvas->translate(0, SkIntToScalar(120));
+                break;
             }
             canvas->restore();
+            break;
             canvas->translate(SkIntToScalar(120), 0);
         }
     }
