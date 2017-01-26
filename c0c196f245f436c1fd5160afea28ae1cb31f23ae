@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "392c95f5_2d442e39",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T22:35:34Z",
+      "side": 1,
+      "message": "D\u0027oh! No, fixed.",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00021736_a3d52ef2",
         "filename": "src/effects/SkDisplacementMapEffect.cpp",
         "patchSetId": 15
@@ -33,6 +50,23 @@
       "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a965b40_091a7724",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T22:35:34Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +87,23 @@
     },
     {
       "key": {
+        "uuid": "4b3a4fde_92314a9b",
+        "filename": "src/effects/SkMagnifierImageFilter.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T22:35:34Z",
+      "side": 1,
+      "message": "Yeah, I think when many of the image filter effects were written it was assumed they\u0027d basically be used in isolation with a solid white paint. Not ideal.",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "14afb033_5cbdbfd6",
         "filename": "src/gpu/effects/GrSingleTextureEffect.h",
         "patchSetId": 15
@@ -67,6 +118,23 @@
       "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a108463_f0d4e5ee",
+        "filename": "src/gpu/effects/GrSingleTextureEffect.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T22:35:34Z",
+      "side": 1,
+      "message": "Hm, must have been some rebaseing weirdness. Done.",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
