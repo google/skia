@@ -37,7 +37,8 @@ private:
     T *fPtr;
 
 public:
-    explicit SkTScopedComPtr(T *ptr = nullptr) : fPtr(ptr) { }
+    SkTScopedComPtr(nullptr_t) : fPtr(nullptr) {}
+    explicit SkTScopedComPtr(T *ptr) : fPtr(ptr) { }
 
     ~SkTScopedComPtr() { this->reset();}
 
