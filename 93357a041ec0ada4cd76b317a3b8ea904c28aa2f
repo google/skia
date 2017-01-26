@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fed41e12_624c3d4d",
+        "filename": "include/gpu/effects/GrConstColorProcessor.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "couldn\u0027t this also know about opaqueness if we pass in the color?",
+      "range": {
+        "startLine": 50,
+        "startChar": 9,
+        "endLine": 50,
+        "endChar": 82
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe9f28c1_8da730b4",
+        "filename": "src/core/SkLightingShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "so computeInvar says mulBy unknown color. So I think we sould be able to say modulates input here. I think the preserves opaqueness is correct, but that is an additional thing not covered previously.",
+      "range": {
+        "startLine": 121,
+        "startChar": 24,
+        "endLine": 121,
+        "endChar": 62
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ba9cc81_3487a9cf",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "this always does a multiply. Also we lost the opaque check for GrPixelConfigIsOpaque(config) \u0026\u0026 fOuterThreshold \u003e\u003d 1.f",
+      "range": {
+        "startLine": 42,
+        "startChar": 20,
+        "endLine": 42,
+        "endChar": 43
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc1b78e4_b5e676fc",
+        "filename": "src/effects/SkArithmeticImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "Any other processors we decide to just leave out ops for I think we be nice to have this kind of comment on it",
+      "range": {
+        "startLine": 293,
+        "startChar": 4,
+        "endLine": 293,
+        "endChar": 48
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d5c927_e89df9e7",
+        "filename": "src/effects/SkGaussianEdgeShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "modulate?",
+      "range": {
+        "startLine": 66,
+        "startChar": 33,
+        "endLine": 66,
+        "endChar": 56
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5593b0bc_a0aa6152",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1705,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "Does this at least preserve opaqueness?",
+      "range": {
+        "startLine": 1705,
+        "startChar": 53,
+        "endLine": 1705,
+        "endChar": 76
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6009a481_be09771b",
+        "filename": "src/effects/SkMorphologyImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "why does this one not use the helper?",
+      "range": {
+        "startLine": 339,
+        "startChar": 48,
+        "endLine": 339,
+        "endChar": 80
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "548ba791_7700852e",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1575,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "seems annoying to have to pull this out for every gradient just to shorten the initialization line here....",
+      "range": {
+        "startLine": 1575,
+        "startChar": 58,
+        "endLine": 1575,
+        "endChar": 72
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b587918_60d78d47",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "Should this be modulates as well?",
+      "range": {
+        "startLine": 1576,
+        "startChar": 20,
+        "endLine": 1576,
+        "endChar": 95
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c587bb8_2137f546",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "I don\u0027t think this one is always false since the edge case should still fill the screen.",
+      "range": {
+        "startLine": 94,
+        "startChar": 67,
+        "endLine": 94,
+        "endChar": 72
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a35f7b7c_ecae8a04",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "Does the Outside case deserve a comment why it is false here? I\u0027m assuming cause this causes the cone to form where we fill the outside of the cone with transparent black.",
+      "range": {
+        "startLine": 406,
+        "startChar": 30,
+        "endLine": 406,
+        "endChar": 35
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9da98585_f0ef49c8",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "nit space",
+      "range": {
+        "startLine": 420,
+        "startChar": 71,
+        "endLine": 420,
+        "endChar": 72
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b39e918_9efd44d9",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "modulate?",
+      "range": {
+        "startLine": 143,
+        "startChar": 31,
+        "endLine": 143,
+        "endChar": 55
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f3afc39_7b9faa22",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-26T16:32:04Z",
+      "side": 1,
+      "message": "since the proxy isn\u0027t being moved, why does this need \"{\u0027",
+      "range": {
+        "startLine": 119,
+        "startChar": 15,
+        "endLine": 119,
+        "endChar": 16
+      },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
