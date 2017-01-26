@@ -26,6 +26,15 @@ struct BasicBlock {
             kExpression_Kind
         };
 
+        SkString description() const {
+            if (fKind == kStatement_Kind) {
+                return (*fStatement)->description();
+            } else {
+                ASSERT(fKind == kExpression_Kind);
+                return (*fExpression)->description();
+            }
+        }
+
         Kind fKind;
         // if false, this node should not be subject to constant propagation. This happens with
         // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
@@ -36,7 +45,7 @@ struct BasicBlock {
         // and then collapse down to a simple x = 2;).
         bool fConstantPropagation;
         std::unique_ptr<Expression>* fExpression;
-        const Statement* fStatement;
+        std::unique_ptr<Statement>* fStatement;
     };
 
     std::vector<Node> fNodes;
@@ -51,9 +60,56 @@ struct CFG {
     BlockId fExit;
     std::vector<BasicBlock> fBlocks;
 
+    /**
+     * Attempts to remove the expression (and its subexpressions) pointed to by the iterator. If the
+     * expression can be cleanly removed, returns true and updates the iterator to point to the
+     * expression after the deleted expression. Otherwise returns false (and the CFG will need to be
+     * regenerated).
+     */
+    bool SK_WARN_UNUSED_RESULT tryRemoveExpression(BasicBlock* block,
+                                                   std::vector<BasicBlock::Node>::iterator* iter);
+
+    /**
+     * Locates and attempts remove an expression occurring before the indicated expression. If the
+     * expression can be cleanly removed, returns true and provides a valid iterator pointing to the
+     * same element it did initially. Otherwise returns false (and the CFG will need to be
+     * regenerated).
+     */
+    bool SK_WARN_UNUSED_RESULT tryRemoveExpressionBefore(
+                                                      BasicBlock* block,
+                                                      std::vector<BasicBlock::Node>::iterator* iter,
+                                                      Expression* e);
+
+    /**
+     * As tryRemoveExpressionBefore, but for lvalues. As lvalues are at most partially evaluated
+     * (for instance, x[i] = 0 evaluates i but not x) this will only look for the parts of the
+     * lvalue that are actually evaluated.
+     */
+    bool SK_WARN_UNUSED_RESULT tryRemoveLValueBefore(BasicBlock* block,
+                                                     std::vector<BasicBlock::Node>::iterator* iter,
+                                                     Expression* lvalue);
+
+    /**
+     * Attempts to replace the indicated expression with a new one. If the expression can be cleanly
+     * removed, returns true and updates the iterator to point to the newly-inserted element.
+     * Otherwise returns false (and the CFG will need to be regenerated).
+     */
+    bool SK_WARN_UNUSED_RESULT tryReplaceExpression(BasicBlock* block,
+                                                    std::vector<BasicBlock::Node>::iterator* iter,
+                                                    Expression* newExpression);
+
     void dump();
 
 private:
+    /**
+     * Attempts to inserts a new expression before the node pointed to by iter. If the
+     * expression can be cleanly inserted, returns true and updates the iterator to point to the
+     * newly inserted expression. Otherwise returns false (and the CFG will need to be regenerated).
+     */
+    bool SK_WARN_UNUSED_RESULT tryInsertExpression(BasicBlock* block,
+                                                   std::vector<BasicBlock::Node>::iterator* iter,
+                                                   std::unique_ptr<Expression>* expr);
+
     BlockId fCurrent;
 
     // Adds a new block, adds an exit* from the current block to the new block, then marks the new
@@ -81,10 +137,10 @@ class CFGGenerator {
 public:
     CFGGenerator() {}
 
-    CFG getCFG(const FunctionDefinition& f);
+    CFG getCFG(FunctionDefinition& f);
 
 private:
-    void addStatement(CFG& cfg, const Statement* s);
+    void addStatement(CFG& cfg, std::unique_ptr<Statement>* s);
 
     void addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate);
 
