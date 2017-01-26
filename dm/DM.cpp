@@ -1382,6 +1382,7 @@ int dm_main() {
 #endif  // SK_PDF_IMAGE_STATS
 
     print_status();
+    SkGraphics::PurgeAllCaches();
     info("Finished!\n");
     return 0;
 }

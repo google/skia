@@ -1364,6 +1364,8 @@ int nanobench_main() {
         }
     }
 
+    SkGraphics::PurgeAllCaches();
+
     log->bench("memory_usage", 0,0);
     log->config("meta");
     log->metric("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
