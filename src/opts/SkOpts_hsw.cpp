@@ -23,39 +23,60 @@ namespace hsw {
         // Output up to eight pixels per iteration.
         for (int x = 0; x < width; x += 8) {
             // Accumulated result for 4 adjacent pairs of pixels, in signed 17.14 fixed point.
-            auto accum01 = _mm256_setzero_si256(),
-                 accum23 = _mm256_setzero_si256(),
-                 accum45 = _mm256_setzero_si256(),
-                 accum67 = _mm256_setzero_si256();
+            auto accum04 = _mm256_setzero_si256(),
+                 accum15 = _mm256_setzero_si256(),
+                 accum26 = _mm256_setzero_si256(),
+                 accum37 = _mm256_setzero_si256();
+
+            auto accum_16_pixels = [&](__m256i interlaced_coeffs,
+                                       __m256i pixels01234567, __m256i pixels89ABCDEF) {
+                // Interlaced R0 R8 G0 G8 B0 B8 A0 A8 R1 R9 G1 G9... 32 8-bit values each.
+                auto _08194C5D = _mm256_unpacklo_epi8(pixels01234567, pixels89ABCDEF),
+                     _2A3B6E7F = _mm256_unpackhi_epi8(pixels01234567, pixels89ABCDEF);
+
+                // Still interlaced R0 R8 G0 G8... as above, expanded to 16-bit lanes each.
+                auto _084C = _mm256_unpacklo_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _195D = _mm256_unpackhi_epi8(_08194C5D, _mm256_setzero_si256()),
+                     _2A6E = _mm256_unpacklo_epi8(_2A3B6E7F, _mm256_setzero_si256()),
+                     _3B7F = _mm256_unpackhi_epi8(_2A3B6E7F, _mm256_setzero_si256());
+
+                accum04 = _mm256_add_epi32(accum04, _mm256_madd_epi16(_084C, interlaced_coeffs));
+                accum15 = _mm256_add_epi32(accum15, _mm256_madd_epi16(_195D, interlaced_coeffs));
+                accum26 = _mm256_add_epi32(accum26, _mm256_madd_epi16(_2A6E, interlaced_coeffs));
+                accum37 = _mm256_add_epi32(accum37, _mm256_madd_epi16(_3B7F, interlaced_coeffs));
+            };
 
             // Convolve with the filter.  (This inner loop is where we spend ~all our time.)
-            for (int i = 0; i < filterLen; i++) {
-                auto coeffs = _mm256_set1_epi16(filter[i]);
-                auto pixels = _mm256_loadu_si256((const __m256i*)(srcRows[i] + x*4));
+            int i = 0;
+            for (; i < filterLen/2*2; i+= 2) {
+                auto interlaced_coeffs = _mm256_set1_epi32(filter[i+1] << 16 | filter[i+0] << 0);
 
-                auto pixels_0123 = _mm256_unpacklo_epi8(pixels, _mm256_setzero_si256()),
-                     pixels_4567 = _mm256_unpackhi_epi8(pixels, _mm256_setzero_si256());
-
-                auto lo_0123 = _mm256_mullo_epi16(pixels_0123, coeffs),
-                     hi_0123 = _mm256_mulhi_epi16(pixels_0123, coeffs),
-                     lo_4567 = _mm256_mullo_epi16(pixels_4567, coeffs),
-                     hi_4567 = _mm256_mulhi_epi16(pixels_4567, coeffs);
-
-                accum01 = _mm256_add_epi32(accum01, _mm256_unpacklo_epi16(lo_0123, hi_0123));
-                accum23 = _mm256_add_epi32(accum23, _mm256_unpackhi_epi16(lo_0123, hi_0123));
-                accum45 = _mm256_add_epi32(accum45, _mm256_unpacklo_epi16(lo_4567, hi_4567));
-                accum67 = _mm256_add_epi32(accum67, _mm256_unpackhi_epi16(lo_4567, hi_4567));
+                // R0 G0 B0 ... 32 8-bit values each (8 pixels)
+                auto pixels01234567 = _mm256_loadu_si256((const __m256i*)(srcRows[i+0] + x*4)),
+                     pixels89ABCDEF = _mm256_loadu_si256((const __m256i*)(srcRows[i+1] + x*4));
+                accum_16_pixels(interlaced_coeffs, pixels01234567, pixels89ABCDEF);
+            }
+            if (i < filterLen) {
+                auto interlaced_coeffs = _mm256_set1_epi32(filter[i]);
+                auto pixels01234567 = _mm256_loadu_si256((const __m256i*)(srcRows[i] + x*4));
+                accum_16_pixels(interlaced_coeffs, pixels01234567, _mm256_setzero_si256());
             }
 
             // Trim the fractional parts.
-            accum01 = _mm256_srai_epi32(accum01, 14);
-            accum23 = _mm256_srai_epi32(accum23, 14);
-            accum45 = _mm256_srai_epi32(accum45, 14);
-            accum67 = _mm256_srai_epi32(accum67, 14);
+            accum04 = _mm256_srai_epi32(accum04, 14);
+            accum15 = _mm256_srai_epi32(accum15, 14);
+            accum26 = _mm256_srai_epi32(accum26, 14);
+            accum37 = _mm256_srai_epi32(accum37, 14);
+
+            // Rearrange into the usual order.
+            auto _01 = _mm256_permute2x128_si256(accum04, accum15, 0x20),
+                 _23 = _mm256_permute2x128_si256(accum26, accum37, 0x20),
+                 _45 = _mm256_permute2x128_si256(accum04, accum15, 0x31),
+                 _67 = _mm256_permute2x128_si256(accum26, accum37, 0x31);
 
             // Pack back down to 8-bit channels.
-            auto pixels = _mm256_packus_epi16(_mm256_packs_epi32(accum01, accum23),
-                                              _mm256_packs_epi32(accum45, accum67));
+            auto pixels = _mm256_packus_epi16(_mm256_packs_epi32(_01, _23),
+                                              _mm256_packs_epi32(_45, _67));
 
             if (hasAlpha) {
                 // Clamp alpha to the max of r,g,b to make sure we stay premultiplied.
