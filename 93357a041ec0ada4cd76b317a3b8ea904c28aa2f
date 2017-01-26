@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "452825ae_d5157971",
+        "filename": "include/gpu/effects/GrConstColorProcessor.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe9f28c1_8da730b4",
         "filename": "src/core/SkLightingShader.cpp",
         "patchSetId": 11
@@ -42,6 +59,23 @@
         "endLine": 121,
         "endChar": 62
       },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d290770_baa8f01b",
+        "filename": "src/core/SkLightingShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "This outputs something like vec4(max(X.rgb * input.rgb, input.a), input.a) where X is computed and can be \u003e 1.",
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -68,6 +102,23 @@
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "797de4f4_6e962615",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +168,23 @@
     },
     {
       "key": {
+        "uuid": "622aac04_f1972014",
+        "filename": "src/effects/SkGaussianEdgeShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Not really. Also this is only used on the coverage side.",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5593b0bc_a0aa6152",
         "filename": "src/effects/SkLightingImageFilter.cpp",
         "patchSetId": 11
@@ -140,6 +208,23 @@
     },
     {
       "key": {
+        "uuid": "3fb0fff9_b100a259",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1705,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "This one is really complicated and low frequency. I\u0027d rather just punt. Added a comment.",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6009a481_be09771b",
         "filename": "src/effects/SkMorphologyImageFilter.cpp",
         "patchSetId": 11
@@ -157,6 +242,23 @@
         "endLine": 339,
         "endChar": 80
       },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106840d5_52f032dc",
+        "filename": "src/effects/SkMorphologyImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "My mistake, I thought it was zero outside of range, but it is clamped.",
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -209,6 +311,23 @@
     },
     {
       "key": {
+        "uuid": "47c5d917_83a377e3",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c587bb8_2137f546",
         "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
         "patchSetId": 11
@@ -226,6 +345,23 @@
         "endLine": 94,
         "endChar": 72
       },
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dad5463_09d7458c",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "The code for this one assigns vec(0) and then conditionally assigns a color. (Line 271)",
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -255,6 +391,23 @@
     },
     {
       "key": {
+        "uuid": "2856218f_12a43dd2",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9da98585_f0ef49c8",
         "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
         "patchSetId": 11
@@ -275,6 +428,23 @@
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb1dd23b_55d728cc",
+        "filename": "src/effects/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -301,6 +471,23 @@
     },
     {
       "key": {
+        "uuid": "93f5440c_aa9eb114",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Nope, the output is (0, 0, 0, input.b * computed value)",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f3afc39_7b9faa22",
         "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
         "patchSetId": 11
@@ -321,6 +508,23 @@
       "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69678a54_4c1e0b25",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T19:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "93357a041ec0ada4cd76b317a3b8ea904c28aa2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
