@@ -113,14 +113,16 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
         srcProxy = copyCtx->asDeferredSurface();
     }
 
+#if 0
     // TODO: add proxy-backed SkImage_Gpu
     GrTexture* tex = srcProxy->instantiate(ctx->textureProvider())->asTexture();
+#endif
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (tex) {
-        image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
-                                        info.alphaType(), sk_ref_sp(tex),
+    if (srcProxy) {
+        image = sk_make_sp<SkImage_Gpu>(ctx, info.width(), info.height(), kNeedNewImageUniqueID,
+                                        info.alphaType(), sk_ref_sp(srcProxy),
                                         sk_ref_sp(info.colorSpace()), budgeted);
     }
     return image;
@@ -138,8 +140,8 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(image);
-    if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
+    if (rt->asTexture() == as_IB(image)->peekTexture1()) {
+        fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();

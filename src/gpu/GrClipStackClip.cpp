@@ -411,10 +411,10 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clip
 
 sk_sp<GrTexture> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                       const GrReducedClip& reducedClip) const {
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrTextureProvider* textureProvider = context->textureProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
-    if (GrTexture* texture = resourceProvider->findAndRefTextureByUniqueKey(key)) {
+    if (GrTexture* texture = textureProvider->findAndRefTextureByUniqueKey(key)) {
         return sk_sp<GrTexture>(texture);
     }
 

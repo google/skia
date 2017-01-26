@@ -12,6 +12,8 @@
 #include "SkSmallAllocator.h"
 #include "SkSurface.h"
 
+class GrTexture;
+
 enum SkCopyPixelsMode {
     kIfMutable_SkCopyPixelsMode,  //!< only copy src pixels if they are marked mutable
     kAlways_SkCopyPixelsMode,     //!< always copy src pixels (even if they are marked immutable)
