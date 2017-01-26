@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "873a2d4a_eda84892",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T16:25:08Z",
+      "side": 1,
+      "message": "frragment -\u003e fragment\nprocessors -\u003e processor\u0027s",
+      "revId": "d8d6add2c94ce38565d802bcee7eaa82e449e9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e7414eb_58239a47",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T16:25:08Z",
+      "side": 1,
+      "message": "Any reason this flag doesn\u0027t get _OptimizationFlag (other than the absurd length)?",
+      "revId": "d8d6add2c94ce38565d802bcee7eaa82e449e9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7948b2f_c61fbf99",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T16:25:08Z",
+      "side": 1,
+      "message": "kAll_OptimizationFlags, to at least mirror kNone?",
+      "revId": "d8d6add2c94ce38565d802bcee7eaa82e449e9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5678182d_8e44ed71",
+        "filename": "src/gpu/effects/GrGammaEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T16:25:08Z",
+      "side": 1,
+      "message": "I just landed the rename and change of this. Sorry. (Of course, this is another FP that\u0027s never used with constant input).",
+      "revId": "d8d6add2c94ce38565d802bcee7eaa82e449e9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
