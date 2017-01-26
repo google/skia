@@ -52,7 +52,6 @@ public:
     static void TestForPreservingPMConversions(GrContext* context,
                                                PMConversion* PMToUPMRule,
                                                PMConversion* UPMToPMRule);
-
 private:
     GrConfigConversionEffect(GrTexture*, const GrSwizzle&, PMConversion, const SkMatrix& matrix);
 
