@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "1035967a_1afe33d6",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba9d7631_bb76791f",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 3
@@ -36,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "7e204755_c6b1e27e",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4211d985_208e07dd",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 3
@@ -47,6 +81,23 @@
       "writtenOn": "2017-01-26T22:09:25Z",
       "side": 1,
       "message": "Shouldn\u0027t this be left to the build configuration?",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "322aa911_7891aabd",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Do you mean Android\u0027s? sgtm. Removed.",
       "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +121,23 @@
     },
     {
       "key": {
+        "uuid": "12332232_1d5edc25",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f0b3bcc_431b1199",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 3
@@ -84,6 +152,23 @@
       "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "346f3497_84152f53",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +189,23 @@
     },
     {
       "key": {
+        "uuid": "cea0964b_d2f306b4",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc20f00d_35a66080",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 3
@@ -115,6 +217,23 @@
       "writtenOn": "2017-01-26T22:09:25Z",
       "side": 1,
       "message": "If it fits nicely, it\u0027s probably best to name these variables all fully nanobench to distinguish from things like monobench and skpbench.",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55971683_c240d101",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "To make it fit I assigned js[\u0027targets\u0027][\u0027//:nanobench\u0027] to a separate variable",
       "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -144,6 +263,23 @@
     },
     {
       "key": {
+        "uuid": "864e6135_b35ee4ef",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be2122fa_fd67ff7e",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 3
@@ -158,6 +294,23 @@
       "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "802b5655_afddb0ef",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-26T22:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
