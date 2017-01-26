@@ -15,6 +15,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
+#include "SkTLazy.h"
 #include "SkUtils.h"
 
 
@@ -114,12 +115,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     bool is_opaque   = paintColor->a() == 1.0f,
          is_constant = true;
     if (shader) {
+        // Some shaders handle paint alpha internally, some do not.  For now, we always
+        // append a dedicated stage and hide paint alpha from shaders.
+        // TODO: allow shaders to handle alpha (and skip the stage below).
+        SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
+        if (!is_opaque) {
+            opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
+        }
+
         pipeline->append(SkRasterPipeline::seed_shader, &blitter->fCurrentY);
         if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fArena,
-                                  ctm, paint)) {
+                                  ctm, *opaquePaint)) {
             return earlyOut();
         }
         if (!is_opaque) {
+            // is this correct for non-linear dst.colorSpace()?
             pipeline->append(SkRasterPipeline::scale_1_float,
                              &paintColor->fVec[SkPM4f::A]);
         }
