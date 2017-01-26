@@ -1,0 +1,163 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "918331a3_06368c75",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "Pretty sure this is the default and only choice on Android.  No need to mention it.",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba9d7631_bb76791f",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "I think we can probably leave this out.  We\u0027re already well tested with this warning enabled in our builds.\n\nIt\u0027s really only important to disable the warnings we need disabled, i.e. -Wno-unused-parameter.",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4211d985_208e07dd",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be left to the build configuration?",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af40c789_8dcf5672",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "There\u0027s no way we\u0027d be compiling libskia today if this weren\u0027t the default. :)",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f0b3bcc_431b1199",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "We can leave this off.  It\u0027s important that we test somewhere this way, but it\u0027s not important that we always test this way.",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2976664b_353c42ea",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "Might be we should leave a note like,\n\n# It\u0027s easier to maintain one list instead of separate lists.\n\n?",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc20f00d_35a66080",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "If it fits nicely, it\u0027s probably best to name these variables all fully nanobench to distinguish from things like monobench and skpbench.",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55c102a6_d1770e3f",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "Maybe, exclude?  exception is kind of a loaded term here in Python land..",
+      "range": {
+        "startLine": 234,
+        "startChar": 44,
+        "endLine": 234,
+        "endChar": 53
+      },
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be2122fa_fd67ff7e",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-26T22:09:25Z",
+      "side": 1,
+      "message": "Probably now,\n\n# Grab the sources from other targets that $name depends on (e.g. optional Skia components, testing tools).",
+      "revId": "eaa4357feb1c231c0e74fd4b2a1022649eba5c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
