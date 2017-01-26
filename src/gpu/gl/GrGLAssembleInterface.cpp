@@ -808,16 +808,9 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     }
 
     if (extensions.has("GL_EXT_debug_marker")) {
-        GET_PROC(InsertEventMarker);
-        GET_PROC(PushGroupMarker);
-        GET_PROC(PopGroupMarker);
-        // The below check is here because a device has been found that has the extension string but
-        // returns nullptr from the eglGetProcAddress for the functions
-        if (nullptr == functions->fInsertEventMarker ||
-            nullptr == functions->fPushGroupMarker ||
-            nullptr == functions->fPopGroupMarker) {
-            extensions.remove("GL_EXT_debug_marker");
-        }
+        GET_PROC_SUFFIX(InsertEventMarker, EXT);
+        GET_PROC_SUFFIX(PushGroupMarker, EXT);
+        GET_PROC_SUFFIX(PopGroupMarker, EXT);
     }
 
     GET_PROC(InvalidateFramebuffer);
