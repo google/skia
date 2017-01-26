@@ -1625,7 +1625,7 @@ SkString emitNormalFunc(BoundaryMode mode,
 
 }
 
-class GrGLLightingEffect  : public GrGLSLFragmentProcessor {
+class GrGLLightingEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLLightingEffect() : fLight(nullptr) { }
     virtual ~GrGLLightingEffect() { delete fLight; }
@@ -1702,12 +1702,13 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
-    : INHERITED(texture, nullptr, SkMatrix::I())
-    , fLight(light)
-    , fSurfaceScale(surfaceScale)
-    , fFilterMatrix(matrix)
-    , fBoundaryMode(boundaryMode)
-    , fDomain(create_domain(texture, srcBounds, GrTextureDomain::kDecal_Mode)) {
+        // Perhaps this could advertise the opaque or modulating optimizations?
+        : INHERITED(texture, nullptr, SkMatrix::I(), kNone_OptimizationFlags)
+        , fLight(light)
+        , fSurfaceScale(surfaceScale)
+        , fFilterMatrix(matrix)
+        , fBoundaryMode(boundaryMode)
+        , fDomain(create_domain(texture, srcBounds, GrTextureDomain::kDecal_Mode)) {
     fLight->ref();
 }
 

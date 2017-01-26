@@ -538,18 +538,18 @@ private:
         inout->setToUnknown();
     }
 
-    GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type,
-                        int numOctaves, bool stitchTiles,
+    GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type, int numOctaves, bool stitchTiles,
                         SkPerlinNoiseShader::PaintingData* paintingData,
                         GrTexture* permutationsTexture, GrTexture* noiseTexture,
                         const SkMatrix& matrix)
-      : fType(type)
-      , fCoordTransform(matrix)
-      , fNumOctaves(numOctaves)
-      , fStitchTiles(stitchTiles)
-      , fPermutationsSampler(permutationsTexture)
-      , fNoiseSampler(noiseTexture)
-      , fPaintingData(paintingData) {
+            : INHERITED(kNone_OptimizationFlags)
+            , fType(type)
+            , fCoordTransform(matrix)
+            , fNumOctaves(numOctaves)
+            , fStitchTiles(stitchTiles)
+            , fPermutationsSampler(permutationsTexture)
+            , fNoiseSampler(noiseTexture)
+            , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);

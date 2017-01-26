@@ -132,21 +132,23 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkMatrix &matrix,
+                                 const SkMatrix& matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, std::move(colorSpaceXform), matrix,
-              GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
-  , fDomain(GrTextureDomain::IgnoredDomain()) {
+        : INHERITED(texture, std::move(colorSpaceXform), matrix,
+                    GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode),
+                    ModulationFlags(texture->config()))
+        , fDomain(GrTextureDomain::IgnoredDomain()) {
     this->initClassID<GrBicubicEffect>();
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkMatrix &matrix,
+                                 const SkMatrix& matrix,
                                  const SkRect& domain)
-  : INHERITED(texture, std::move(colorSpaceXform), matrix,
-              GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-  , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
+        : INHERITED(texture, std::move(colorSpaceXform), matrix,
+                    GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode),
+                    ModulationFlags(texture->config()))
+        , fDomain(texture, domain, GrTextureDomain::kClamp_Mode) {
     this->initClassID<GrBicubicEffect>();
 }
 

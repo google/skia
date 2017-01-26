@@ -20,7 +20,7 @@
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:
-    NormalFlatFP() {
+    NormalFlatFP() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<NormalFlatFP>();
     }
 
@@ -43,20 +43,23 @@ public:
                            const GrProcessor& proc) override {}
     };
 
+    const char* name() const override { return "NormalFlatFP"; }
+
+private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalFlatFP::GenKey(*this, caps, b);
     }
-
-    const char* name() const override { return "NormalFlatFP"; }
-
     void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
         inout->setToUnknown();
     }
-
-private:
+    GrColor4f constantOutputForConstantInput(GrColor4f) const override {
+        return GrColor4f(0, 0, 1, 0);
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalFlatFP; }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(

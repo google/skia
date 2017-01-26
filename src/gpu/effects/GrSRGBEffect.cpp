@@ -71,7 +71,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrSRGBEffect::GrSRGBEffect(Mode mode)
-    : fMode(mode) {
+        : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
+                    kConstantOutputForConstantInput_OptimizationFlag)
+        , fMode(mode) {
     this->initClassID<GrSRGBEffect>();
 }
 
@@ -82,6 +84,26 @@ bool GrSRGBEffect::onIsEqual(const GrFragmentProcessor& s) const {
 
 void GrSRGBEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->setToUnknown();
+}
+
+static inline float srgb_to_linear(float srgb) {
+    return (srgb <= 0.04045f) ? srgb / 12.92f : powf((srgb + 0.055f) / 1.055f, 2.4f);
+}
+static inline float linear_to_srgb(float linear) {
+    return (linear <= 0.0031308) ? linear * 12.92f : 1.055f * powf(linear, 1.f / 2.4f) - 0.055f;
+}
+
+GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f input) const {
+    switch (fMode) {
+        case Mode::kLinearToSRGB:
+            return GrColor4f(linear_to_srgb(input.fRGBA[0]), linear_to_srgb(input.fRGBA[1]),
+                             linear_to_srgb(input.fRGBA[2]), input.fRGBA[3]);
+        case Mode::kSRGBToLinear:
+            return GrColor4f(srgb_to_linear(input.fRGBA[0]), srgb_to_linear(input.fRGBA[1]),
+                             srgb_to_linear(input.fRGBA[2]), input.fRGBA[3]);
+    }
+    SkFAIL("Unexpected mode");
+    return GrColor4f::TransparentBlack();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

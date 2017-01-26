@@ -8,10 +8,11 @@
 #ifndef SkGrPriv_DEFINED
 #define SkGrPriv_DEFINED
 
-#include "GrTypes.h"
 #include "GrBlend.h"
+#include "GrTypes.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
+#include "SkPM4f.h"
 #include "SkXfermodePriv.h"
 
 class GrCaps;
@@ -99,6 +100,21 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint);
+
+//////////////////////////////////////////////////////////////////////////////
+
+static inline SkPM4f GrColor4fToSkPM4f(const GrColor4f& c) {
+    SkPM4f pm4f;
+    pm4f.fVec[SkPM4f::R] = c.fRGBA[0];
+    pm4f.fVec[SkPM4f::G] = c.fRGBA[1];
+    pm4f.fVec[SkPM4f::B] = c.fRGBA[2];
+    pm4f.fVec[SkPM4f::A] = c.fRGBA[3];
+    return pm4f;
+}
+
+static inline GrColor4f SkPM4fToGrColor4f(const SkPM4f& c) {
+    return GrColor4f{c.r(), c.g(), c.b(), c.a()};
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

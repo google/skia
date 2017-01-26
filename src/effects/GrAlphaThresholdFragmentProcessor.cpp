@@ -32,6 +32,14 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::Make(
                                                                 bounds));
 }
 
+inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::OptFlags(float outerThreshold) {
+    if (outerThreshold >= 1.f) {
+        return kPreservesOpaqueInput_OptimizationFlag | kModulatesInput_OptimizationFlag;
+    } else {
+        return kModulatesInput_OptimizationFlag;
+    }
+}
+
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            GrTexture* texture,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -39,16 +47,17 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            float innerThreshold,
                                                            float outerThreshold,
                                                            const SkIRect& bounds)
-    : fInnerThreshold(innerThreshold)
-    , fOuterThreshold(outerThreshold)
-    , fImageCoordTransform(SkMatrix::I(), texture, GrSamplerParams::kNone_FilterMode)
-    , fImageTextureSampler(texture)
-    , fColorSpaceXform(std::move(colorSpaceXform))
-    , fMaskCoordTransform(SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()),
-                                              SkIntToScalar(-bounds.y())),
-                          maskTexture,
-                          GrSamplerParams::kNone_FilterMode)
-    , fMaskTextureSampler(maskTexture) {
+        : INHERITED(OptFlags(outerThreshold))
+        , fInnerThreshold(innerThreshold)
+        , fOuterThreshold(outerThreshold)
+        , fImageCoordTransform(SkMatrix::I(), texture, GrSamplerParams::kNone_FilterMode)
+        , fImageTextureSampler(texture)
+        , fColorSpaceXform(std::move(colorSpaceXform))
+        , fMaskCoordTransform(
+                  SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
+                  maskTexture,
+                  GrSamplerParams::kNone_FilterMode)
+        , fMaskTextureSampler(maskTexture) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);

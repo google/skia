@@ -140,9 +140,7 @@ void SkAmbientShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 //
 class ShadowEdgeFP : public GrFragmentProcessor {
 public:
-    ShadowEdgeFP() {
-        this->initClassID<ShadowEdgeFP>();
-    }
+    ShadowEdgeFP() : INHERITED(kNone_OptimizationFlags) { this->initClassID<ShadowEdgeFP>(); }
 
     class GLSLShadowEdgeFP : public GrGLSLFragmentProcessor {
     public:
@@ -179,6 +177,8 @@ private:
     }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { return true; }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

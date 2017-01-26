@@ -155,19 +155,17 @@ public:
     };
 
 private:
-    YUVtoRGBEffect(GrContext* ctx,
-                   sk_sp<GrTextureProxy> yProxy,
-                   sk_sp<GrTextureProxy> uProxy,
-                   sk_sp<GrTextureProxy> vProxy,
-                   const SkMatrix yuvMatrix[3], GrSamplerParams::FilterMode uvFilterMode,
-                   SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
-        , fYSampler(ctx->textureProvider(), std::move(yProxy))
-        , fUTransform(ctx, yuvMatrix[1], uProxy.get(), uvFilterMode)
-        , fUSampler(ctx->textureProvider(), std::move(uProxy), uvFilterMode)
-        , fVSampler(ctx->textureProvider(), vProxy, uvFilterMode)
-        , fColorSpace(colorSpace)
-        , fNV12(nv12) {
+    YUVtoRGBEffect(GrContext* ctx, sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
+                   sk_sp<GrTextureProxy> vProxy, const SkMatrix yuvMatrix[3],
+                   GrSamplerParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fYTransform(ctx, yuvMatrix[0], yProxy.get(), GrSamplerParams::kNone_FilterMode)
+            , fYSampler(ctx->textureProvider(), std::move(yProxy))
+            , fUTransform(ctx, yuvMatrix[1], uProxy.get(), uvFilterMode)
+            , fUSampler(ctx->textureProvider(), std::move(uProxy), uvFilterMode)
+            , fVSampler(ctx->textureProvider(), vProxy, uvFilterMode)
+            , fColorSpace(colorSpace)
+            , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
@@ -228,8 +226,10 @@ public:
 
     RGBToYUVEffect(sk_sp<GrFragmentProcessor> rgbFP, SkYUVColorSpace colorSpace,
                    OutputChannels output)
-        : fColorSpace(colorSpace)
-        , fOutputChannels(output) {
+            // This could advertise kConstantOutputForConstantInput, but doesn't seem useful.
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fColorSpace(colorSpace)
+            , fOutputChannels(output) {
         this->initClassID<RGBToYUVEffect>();
         this->registerChildProcessor(std::move(rgbFP));
     }

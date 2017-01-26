@@ -512,10 +512,11 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
                                    unsigned flags)
-    : fTextureSampler(texture)
-    , fFlags(flags)
-    , fAtlas(atlas)
-    , fRow(row) {
+        : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
+        , fTextureSampler(texture)
+        , fFlags(flags)
+        , fAtlas(atlas)
+        , fRow(row) {
     this->initClassID<ColorTableEffect>();
     this->addTextureSampler(&fTextureSampler);
 }

@@ -26,9 +26,7 @@ public:
     const char* name() const override { return "Dither"; }
 
 private:
-    DitherEffect() {
-        this->initClassID<DitherEffect>();
-    }
+    DitherEffect() : INHERITED(kNone_OptimizationFlags) { this->initClassID<DitherEffect>(); }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
