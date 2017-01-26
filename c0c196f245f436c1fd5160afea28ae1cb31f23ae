@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a47fc73_2221e2f3",
+        "filename": "include/gpu/GrFragmentProcessor.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T20:32:03Z",
+      "side": 1,
+      "message": "This is leaving an unused bit between optimization flags and private flags. Not sure that was intended.",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00021736_a3d52ef2",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T20:32:03Z",
+      "side": 1,
+      "message": "This could claim PreservesOpaque, based on the config of color (the second texture).",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cb564b5_46e42ca5",
+        "filename": "src/effects/SkMagnifierImageFilter.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T20:32:03Z",
+      "side": 1,
+      "message": "Just realized that this modulates by input, but DisplacementMapEffect doesn\u0027t. Strange.",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14afb033_5cbdbfd6",
+        "filename": "src/gpu/effects/GrSingleTextureEffect.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-01-26T20:32:03Z",
+      "side": 1,
+      "message": "nit: Why did this instance of the matrix get a name?",
+      "revId": "c0c196f245f436c1fd5160afea28ae1cb31f23ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
