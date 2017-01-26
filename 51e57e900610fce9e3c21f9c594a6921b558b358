@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dace871_53ee8f36",
+        "filename": "src/core/SkLightingShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-26T14:03:03Z",
+      "side": 1,
+      "message": "I\u0027m not i love with this pattern but it is in our style guide and we are using it for most of the FP subclasses.",
+      "range": {
+        "startLine": 267,
+        "startChar": 4,
+        "endLine": 267,
+        "endChar": 42
+      },
+      "revId": "51e57e900610fce9e3c21f9c594a6921b558b358",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
