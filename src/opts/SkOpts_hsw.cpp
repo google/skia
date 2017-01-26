@@ -12,6 +12,8 @@
 #include <immintrin.h>   // ODR safe
 #include <stdint.h>      // ODR safe
 
+#if defined(__AVX2__)
+
 namespace hsw {
 
     void convolve_vertically(const int16_t* filter, int filterLen,
@@ -94,3 +96,9 @@ namespace SkOpts {
         convolve_vertically = hsw::convolve_vertically;
     }
 }
+
+#else  // defined(__AVX2__) is not true...
+
+namespace SkOpts { void Init_hsw() {} }
+
+#endif
