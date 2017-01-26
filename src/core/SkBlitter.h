@@ -111,7 +111,6 @@ public:
      *  Special methods for SkShaderBlitter. On all other classes this is a no-op.
      */
     virtual bool resetShaderContext(const SkShader::ContextRec&);
-    virtual SkShader::Context* getShaderContext() const;
 
     /**
      * Special methods for blitters that can blit more than one row at a time.

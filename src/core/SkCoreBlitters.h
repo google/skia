@@ -44,8 +44,6 @@ public:
       */
     bool resetShaderContext(const SkShader::ContextRec&) override;
 
-    SkShader::Context* getShaderContext() const override { return fShaderContext; }
-
 protected:
     uint32_t            fShaderFlags;
     const SkShader*     fShader;
