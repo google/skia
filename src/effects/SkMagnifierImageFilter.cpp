@@ -27,7 +27,6 @@
 #include "../private/GrGLSL.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
-
 public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -71,14 +70,15 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-        : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I())
-        , fBounds(bounds)
-        , fXOffset(xOffset)
-        , fYOffset(yOffset)
-        , fXInvZoom(xInvZoom)
-        , fYInvZoom(yInvZoom)
-        , fXInvInset(xInvInset)
-        , fYInvInset(yInvInset) {
+            : INHERITED(texture, std::move(colorSpaceXform), SkMatrix::I(),
+                        ModulationFlags(texture->config()))
+            , fBounds(bounds)
+            , fXOffset(xOffset)
+            , fYOffset(yOffset)
+            , fXInvZoom(xInvZoom)
+            , fYInvZoom(yInvZoom)
+            , fXInvInset(xInvInset)
+            , fYInvInset(yInvInset) {
         this->initClassID<GrMagnifierEffect>();
     }
 

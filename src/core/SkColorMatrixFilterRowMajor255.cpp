@@ -345,9 +345,10 @@ public:
 
         typedef GrGLSLFragmentProcessor INHERITED;
     };
-
 private:
-    ColorMatrixEffect(const SkScalar matrix[20]) {
+    // We could implement the constant input->constant output optimization but haven't. Other
+    // optimizations would be matrix-dependent.
+    ColorMatrixEffect(const SkScalar matrix[20]) : INHERITED(kNone_OptimizationFlags) {
         memcpy(fMatrix, matrix, sizeof(SkScalar) * 20);
         this->initClassID<ColorMatrixEffect>();
     }

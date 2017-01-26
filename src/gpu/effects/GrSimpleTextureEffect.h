@@ -13,6 +13,29 @@
 
 class GrInvariantOutput;
 
+// In a few places below we rely on braced initialization order being defined by the C++ spec (left
+// to right). We use operator-> on a sk_sp and then in a later argument std::move() the sk_sp. GCC
+// 4.9.0 and earlier has a bug where the left to right order evaluation isn't implemented correctly.
+#if defined(__GNUC__) && !defined(__clang__)
+#   define GCC_VERSION (__GNUC__ * 10000  + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#   if (GCC_VERSION > 40900)
+#       define GCC_EVAL_ORDER_BUG 0
+#   else
+#       define GCC_EVAL_ORDER_BUG 1
+#   endif
+#   undef GCC_VERSION
+#else
+#   define GCC_EVAL_ORDER_BUG 0
+#endif
+
+#if GCC_EVAL_ORDER_BUG
+#   define PROXY_MOVE(X) (X)
+#else
+#   define PROXY_MOVE(X) (std::move(X))
+#endif
+
+#undef GCC_EVAL_ORDER_BUG
+
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
  * It allows explicit specification of the filtering and wrap modes (GrSamplerParams) and accepts
@@ -81,32 +104,41 @@ private:
                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                           const SkMatrix& matrix,
                           GrSamplerParams::FilterMode filterMode)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode) {
+            : INHERITED(texture, std::move(colorSpaceXform), matrix, filterMode,
+                        ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
     GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
-                          sk_sp<GrColorSpaceXform> colorSpaceXform,
-                          const SkMatrix& matrix,
+                          sk_sp<GrColorSpaceXform> colorSpaceXform, const SkMatrix& matrix,
                           GrSamplerParams::FilterMode filterMode)
-        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform),
-                                matrix, filterMode) {
+            : INHERITED{ctx,
+                        ModulationFlags(proxy->config()),
+                        PROXY_MOVE(proxy),
+                        std::move(colorSpaceXform),
+                        matrix,
+                        filterMode} {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
     GrSimpleTextureEffect(GrTexture* texture,
-                          sk_sp<GrColorSpaceXform> colorSpaceXform,
+                          sk_sp<GrColorSpaceXform>colorSpaceXform,
                           const SkMatrix& matrix,
                           const GrSamplerParams& params)
-        : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, params) {
+            : INHERITED(texture, std::move(colorSpaceXform), matrix, params,
+                        ModulationFlags(texture->config())) {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
     GrSimpleTextureEffect(GrContext* ctx, sk_sp<GrTextureProxy> proxy,
-                          sk_sp<GrColorSpaceXform> colorSpaceXform,
-                          const SkMatrix& matrix,
+                          sk_sp<GrColorSpaceXform> colorSpaceXform, const SkMatrix& matrix,
                           const GrSamplerParams& params)
-        : GrSingleTextureEffect(ctx, std::move(proxy), std::move(colorSpaceXform), matrix, params) {
+            : INHERITED{ctx,
+                        ModulationFlags(proxy->config()),
+                        PROXY_MOVE(proxy),
+                        std::move(colorSpaceXform),
+                        matrix,
+                        params} {
         this->initClassID<GrSimpleTextureEffect>();
     }
 
@@ -122,5 +154,7 @@ private:
 
     typedef GrSingleTextureEffect INHERITED;
 };
+
+#undef PROXY_MOVE
 
 #endif
