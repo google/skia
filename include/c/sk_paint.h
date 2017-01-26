@@ -26,7 +26,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
         color : opaque black
         shader : NULL
         maskfilter : NULL
-        xfermode_mode : SRCOVER_SK_XFERMODE_MODE
+        blendmode : SRCOVER_SK_BLEND_MODE
 */
 SK_API sk_paint_t* sk_paint_new(void);
 /**
@@ -136,9 +136,14 @@ SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
 SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
 
 /**
- *  Set the paint's xfermode to the specified parameter.
+ *  Set the paint's blend mode to the specified parameter.
  */
-SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
+SK_API sk_blend_mode_t sk_paint_get_blend_mode(sk_paint_t*, sk_blend_mode_t);
+
+/**
+ *  Return the paint's blend mode.
+ */
+SK_API void sk_paint_set_blend_mode(sk_paint_t*, sk_blend_mode_t);
 
 SK_C_PLUS_PLUS_END_GUARD
 

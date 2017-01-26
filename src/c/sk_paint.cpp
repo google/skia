@@ -131,43 +131,10 @@ void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
     }
 }
 
-void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
-    SkASSERT(paint);
-    SkBlendMode skmode;
-    switch (mode) {
-        #define MAP(X, Y) case (X): skmode = (Y); break
-        MAP( CLEAR_SK_XFERMODE_MODE,      SkBlendMode::kClear      );
-        MAP( SRC_SK_XFERMODE_MODE,        SkBlendMode::kSrc        );
-        MAP( DST_SK_XFERMODE_MODE,        SkBlendMode::kDst        );
-        MAP( SRCOVER_SK_XFERMODE_MODE,    SkBlendMode::kSrcOver    );
-        MAP( DSTOVER_SK_XFERMODE_MODE,    SkBlendMode::kDstOver    );
-        MAP( SRCIN_SK_XFERMODE_MODE,      SkBlendMode::kSrcIn      );
-        MAP( DSTIN_SK_XFERMODE_MODE,      SkBlendMode::kDstIn      );
-        MAP( SRCOUT_SK_XFERMODE_MODE,     SkBlendMode::kSrcOut     );
-        MAP( DSTOUT_SK_XFERMODE_MODE,     SkBlendMode::kDstOut     );
-        MAP( SRCATOP_SK_XFERMODE_MODE,    SkBlendMode::kSrcATop    );
-        MAP( DSTATOP_SK_XFERMODE_MODE,    SkBlendMode::kDstATop    );
-        MAP( XOR_SK_XFERMODE_MODE,        SkBlendMode::kXor        );
-        MAP( PLUS_SK_XFERMODE_MODE,       SkBlendMode::kPlus       );
-        MAP( MODULATE_SK_XFERMODE_MODE,   SkBlendMode::kModulate   );
-        MAP( SCREEN_SK_XFERMODE_MODE,     SkBlendMode::kScreen     );
-        MAP( OVERLAY_SK_XFERMODE_MODE,    SkBlendMode::kOverlay    );
-        MAP( DARKEN_SK_XFERMODE_MODE,     SkBlendMode::kDarken     );
-        MAP( LIGHTEN_SK_XFERMODE_MODE,    SkBlendMode::kLighten    );
-        MAP( COLORDODGE_SK_XFERMODE_MODE, SkBlendMode::kColorDodge );
-        MAP( COLORBURN_SK_XFERMODE_MODE,  SkBlendMode::kColorBurn  );
-        MAP( HARDLIGHT_SK_XFERMODE_MODE,  SkBlendMode::kHardLight  );
-        MAP( SOFTLIGHT_SK_XFERMODE_MODE,  SkBlendMode::kSoftLight  );
-        MAP( DIFFERENCE_SK_XFERMODE_MODE, SkBlendMode::kDifference );
-        MAP( EXCLUSION_SK_XFERMODE_MODE,  SkBlendMode::kExclusion  );
-        MAP( MULTIPLY_SK_XFERMODE_MODE,   SkBlendMode::kMultiply   );
-        MAP( HUE_SK_XFERMODE_MODE,        SkBlendMode::kHue        );
-        MAP( SATURATION_SK_XFERMODE_MODE, SkBlendMode::kSaturation );
-        MAP( COLOR_SK_XFERMODE_MODE,      SkBlendMode::kColor      );
-        MAP( LUMINOSITY_SK_XFERMODE_MODE, SkBlendMode::kLuminosity );
-        #undef MAP
-        default:
-            return;
-    }
-    AsPaint(paint)->setBlendMode(skmode);
+sk_blend_mode_t sk_paint_get_blend_mode(sk_paint_t* paint) {
+    return static_cast<sk_blend_mode_t>(AsPaint(*paint).getBlendMode());
+}
+
+void sk_paint_set_blend_mode(sk_paint_t* paint, sk_blend_mode_t mode) {
+    AsPaint(paint)->setBlendMode(static_cast<SkBlendMode>(mode));
 }
