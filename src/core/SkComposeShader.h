@@ -45,9 +45,6 @@ public:
         ComposeShaderContext(const SkComposeShader&, const ContextRec&,
                              SkShader::Context* contextA, SkShader::Context* contextB);
 
-        SkShader::Context* getShaderContextA() const { return fShaderContextA; }
-        SkShader::Context* getShaderContextB() const { return fShaderContextB; }
-
         virtual ~ComposeShaderContext();
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;

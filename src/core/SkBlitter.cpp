@@ -29,10 +29,6 @@ bool SkBlitter::resetShaderContext(const SkShader::ContextRec&) {
     return true;
 }
 
-SkShader::Context* SkBlitter::getShaderContext() const {
-    return nullptr;
-}
-
 const SkPixmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return nullptr;
 }
