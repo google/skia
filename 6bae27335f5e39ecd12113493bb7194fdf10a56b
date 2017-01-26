@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca2d960f_c6004236",
+        "filename": "src/opts/SkOpts_hsw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-26T17:33:33Z",
+      "side": 1,
+      "message": "Could you rearrange to use this instruction?  It\u0027ll do a 16-bit multiply into 32-bits and add (which it seems to me is basically what this is doing).  The tricky part being that the add is horizontal.\n_mm256_madd_epi16 (__m256i a, __m256i b)",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 71
+      },
+      "revId": "6bae27335f5e39ecd12113493bb7194fdf10a56b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
