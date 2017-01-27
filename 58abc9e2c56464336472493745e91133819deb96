@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b2165b1a_071bf820",
+        "filename": "src/effects/SkGaussianEdgeShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-27T17:49:15Z",
+      "side": 0,
+      "message": "You\u0027ll have a small conflict with a change I made here:\n\nhttps://skia-review.googlesource.com/c/7656/2/src/effects/SkGaussianEdgeShader.cpp\n\nShould be easy to resolve",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 20
+      },
+      "revId": "58abc9e2c56464336472493745e91133819deb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65cf3a7c_1ae6fc2b",
         "filename": "src/gpu/effects/GrShadowTessellator.h",
         "patchSetId": 5
