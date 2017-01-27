@@ -39,6 +39,23 @@
       "revId": "b09d6422e18f1a17bf378f058f9778d4804d7560",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b47dfc9c_9180c0fc",
+        "filename": "src/core/SkShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-27T18:46:59Z",
+      "side": 1,
+      "message": "I think this may just have been us in quick hack mode, or perhaps we drafted it before Herb rolled out SkArenaAlloc.  Either way, should be we can do this exactly now:\n\n\nif (auto ctx \u003d this-\u003ecreateContext(rec, alloc-\u003emakeArrayDefault\u003cchar\u003e(this-\u003econtextSize(rec)))) {\n    p-\u003eappend(SkRasterPipeline::shader_adapter, ctx);\n    return true;\n}\nreturn false;",
+      "revId": "b09d6422e18f1a17bf378f058f9778d4804d7560",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
