@@ -167,7 +167,7 @@ public:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
         // Make x and y in range on the tile.
-        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar x = std::min(fXCap, tile_mod(X(start), fXMax));
         SkScalar y = Y(start);
         SkScalar dx = length / (count - 1);
 
@@ -261,7 +261,7 @@ public:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = originalSpan;
         // Make x and y in range on the tile.
-        SkScalar x = tile_mod(X(start), fXMax);
+        SkScalar x = std::min(fXCap, tile_mod(X(start), fXMax));
         SkScalar y = Y(start);
 
         // No need trying to go fast because the steps are larger than a tile or there is one point.
@@ -326,23 +326,25 @@ class YRepeatStrategy {
 public:
     YRepeatStrategy(int32_t max)
         : fYMax{SkScalar(max)}
+        , fYCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
         , fYsInvMax{1.0f / SkScalar(max)} { }
 
     void tileYPoints(Sk4s* ys) {
         Sk4s divY = *ys * fYsInvMax;
         Sk4s modY = *ys - divY.floor() * fYMax;
-        *ys = modY;
+        *ys = Sk4s::Min(fYCap, modY);
         assertTiled(*ys, fYMax);
     }
 
     SkScalar tileY(SkScalar y) {
-        SkScalar answer = tile_mod(y, fYMax);
+        SkScalar answer = std::min(fYCap, tile_mod(y, fYMax));
         SkASSERT(0 <= answer && answer < fYMax);
         return answer;
     }
 
 private:
     const SkScalar fYMax;
+    const SkScalar fYCap;
     const SkScalar fYsInvMax;
 };
 // max = 40
