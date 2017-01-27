@@ -20,8 +20,6 @@ class SkColorFilter;
 class SkData;
 class SkDescriptor;
 class SkDrawLooper;
-class SkReadBuffer;
-class SkWriteBuffer;
 class SkGlyph;
 struct SkRect;
 class SkGlyphCache;
@@ -67,9 +65,6 @@ public:
      *  If operator== returns true for two paints, getHash() returns the same value for each.
      */
     uint32_t getHash() const;
-
-    void flatten(SkWriteBuffer&) const;
-    void unflatten(SkReadBuffer&);
 
     /** Restores the paint to its initial settings.
     */
@@ -1082,6 +1077,9 @@ private:
         uint32_t fBitfieldsUInt;
     };
 
+    void flatten(class SkWriteBuffer&) const;
+    void unflatten(class SkReadBuffer&);
+
     static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
                                             bool isDevKern,
                                             bool needFullMetrics);
@@ -1163,9 +1161,11 @@ private:
 
     friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
+    friend class SkBinaryWriteBuffer;
     friend class SkCanvas;
     friend class SkDraw;
     friend class SkPDFDevice;
+    friend class SkReadBuffer;
     friend class GrAtlasTextBlob;
     friend class GrAtlasTextContext;
     friend class GrStencilAndCoverTextContext;

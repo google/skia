@@ -1,0 +1,390 @@
+##Class #SkPaint
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint::SkPaint() #empty_constructor
+
+#Method constructs an SkPaint with these settings:
+
+##Table
+# ##A anti-aliasing         #anti_alias ##         # ##A false       #kAntiAlias_Flag ##          ##
+#    #alpha                                        # ##A 255         #setAlpha ##                 ##
+# ##A blend mode            #SkBlendMode ##        # ##A srcOver     #SkBlendMode::kSrcOver ##    ##
+# ##A cap type              #Cap ##                # ##A butt        #kButt_Cap ##                ##
+# ##A color                 #SkColor ##            # ##A black       #SK_ColorBLACK ##            ##
+# ##A color filter          #SkColorFilter ##      # #AA nullptr     #setColorFilter ##           ##
+#    #dithering                                    # ##A false       #kDither_Flag ##             ##
+# ##A draw looper           #SkDrawLooper ##       # ##A nullptr     #setDrawLooper ##            ##
+# ##A embedded bitmap fonts #bitmap_text ##        # ##A false       #kEmbeddedBitmapText_Flag ## ##
+# ##A fake bold             #fake_bold ##          # #AA false       #setFakeBoldText ##          ##
+# ##A filter quality        #SkFilterQuality ##    # ##A none        #kNone_SkFilterQuality ##    ##
+# ##A forced autohinting    #auto_hinting ##       # ##A false       #kAutoHinting_Flag ##        ##
+# ##A image filter          #SkImageFilter ##      # ##A nullptr     #setImageFilter ##           ##
+# ##A join type             #Join ##               # ##A miter       #kMiter_Join ##              ##
+# ##A linear text           #linearText ##         # ##A false       #kLinearText_Flag ##         ##
+# ##A mask filter           #SkMaskFilter ##       # ##A nullptr     #setMaskFilter ##            ##
+# ##A miter limit           #miter_limit ##        # ##A 4           #setMiterLimit ##            ##
+# ##A path effect           #SkPathEffect ##       # ##A nullptr     #setPathEffect ##            ##
+# ##A rasterizer            #SkRasterizer ##       # ##A nullptr     #setRasterizer ##            ##
+# ##A shader                #SkShader ##           # ##A nullptr     #setShader ##                ##
+# ##A stroke width          #stroke_width ##       # ##A 0           #hairline ##                 ##
+# ##A subpixel glyphs       #lcd_text ##           # ##A false       #kLCDRenderText_Flag ##      ##
+# ##A subpixel positions    #subpixel_text ##      # ##A false       #kSubpixelText_Flag ##       ##
+# ##A strike through        #strike_thru ##        # ##A false       #setStrikeThruText ##        ##
+# ##A style                 #Style ##              # ##A fill        #kFill_Style ##              ##
+# ##A text alignment        #Align ##              # ##A left        #kLeft_Align ##              ##
+# ##A text direction        #text_direction ##     # ##A horizontal  #kVerticalText_Flag ##       ##
+# ##A text encoding         #TextEncoding ##       # ##A UTF-8       #kUTF8_TextEncoding ##       ##
+# ##A text hinting          #Hinting ##            # ##A normal      #kNormal_Hinting ##          ##
+# ##A text kerning          #text_kerning ##       # ##A false       #kDevKernText_Flag ##        ##
+# ##A text scale x          #text_scale_x ##       # ##A 1           #setTextScaleX ##            ##
+# ##A text size             #text_size ##          # ##A 12          #setTextSize ##              ##
+# ##A text skew x           #text_skew_x ##        # ##A 0           #setTextSkewX ##             ##
+#    #typeface                                     # #AA nullptr     #setTypeface ##              ##
+#    #underline                                    # ##A false       #setUnderlineText ##         ##
+##Table ##
+
+The flags, text size, hinting, and miter limit may be overridden at compile time by defining
+paint default values. The overrides may be included in SkUserConfig.h or predefined by the 
+build system.  
+
+##Example #paint_defaults
+###$  $ redefine markup character so preprocessor commands appear normally
+#ifndef SkUserConfig_DEFINED
+#define SkUserConfig_DEFINED
+
+#define SkPaintDefaults_Flags      0x01   // always enable antialiasing
+#define SkPaintDefaults_TextSize   24.f   // double default font size
+#define SkPaintDefaults_Hinting    3      // use full hinting
+#define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting
+
+#endif
+$$$#  # restore original markup character
+##Example ##
+
+##Example #measureText
+SkPaint paint;
+SkDebugf("default width = %g\n", paint.measureText("!", 1));
+paint.setTextSize(paint.getTextSize() * 2);
+SkDebugf("double width = %g\n", paint.measureText("!", 1));
+##Example ##
+
+##StdOut #measureText
+default width = 3
+double width = 7
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint& paint) #copy_constructor
+
+#Method does a shallow copy of the paint. The paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter are shared
+between the original paint and the copy. These objects' reference counts are increased.
+
+By convention, path effects, shaders, and so on have a Make method to instantiate
+the object, and only const methods to examine it. This prevents the reference-counted
+objects in a paint from being modified on the outside.
+
+##Example #setColor
+SkPaint paint1;
+paint1.setColor(SK_ColorRED);
+SkPaint paint2(paint1);
+paint2.setColor(SK_ColorBLUE);
+SkASSERT(SK_ColorRED == paint1.getColor());
+SkASSERT(SK_ColorBLUE == paint2.getColor());
+##Example ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint&& paint) #move_constructor
+
+#Method implements a move constructor to avoid incrementing the reference counts
+of objects referenced by the paint.
+
+##Example
+SkPaint makeDash(SkPaint paint) {
+    float intervals[] = { 5, 5 };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    return paint;
+}
+
+SkPaint paint = makeDash(SkPaint());
+SkDebugf("ref count = %d\n", paint.getPathEffect()->getRefCnt());
+##Example ##
+
+##StdOut
+ref count = 1
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method ~SkPaint() #destructor
+
+Decrease the reference count of the paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter. If the
+objects' reference count goes to zero, delete them.
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(const SkPaint&) #copy_assignment_operator
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2 = paint1;
+SkASSERT(SK_ColorRED == paint1.getColor());
+SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(SkPaint&&) #move_assignment_operator
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2 = std::move(paint1);
+SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator==(const SkPaint& a, const SkPaint& b) #equal_operator
+
+#Method returns true if the paints are equivalent, but may return false
+if the referenced objects have identical contents but different pointers.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+float intervals[] = { 5, 5 };
+paint1.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+paint2.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+paint1 == paint2
+paint1 != paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator!=(const SkPaint& a, const SkPaint& b) #not_equal_operator
+
+#Method returns true if the paints are not equivalent, but may return true
+if the referenced objects have identical contents but different pointers.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1 %c= paint2\n", paint1 != paint2 ? '!' : '=');
+##Example ##
+
+##StdOut
+paint1 == paint2
+paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method uint32_t getHash() const #getHash
+
+#Method returns a shallow hash. Identical hashes guarantee that the paints are
+equivalent, but differing hashes do not guarantee that the paints have differing
+contents.
+
+If #equal_operator, returns true for two paints, their hashes are also equal.
+
+The hash returned is platform and implementation specific.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1.getHash() %c= paint2.getHash()\n",
+         paint1.getHash() == paint2.getHash() ? '=' : '!');
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void flatten(SkWriteBuffer&) const #flatten
+
+#Method allows serializing the paint into a buffer. A companion #unflatten call
+can reconstitute the paint at a later time.
+
+##Example
+class PaintDumper : public SkWriteBuffer {
+public:
+    bool isCrossProcess() const override { return false };
+    void writeByteArray(const void* data, size_t size) override {}
+    void writeBool(bool value) override {}
+    void writeScalar(SkScalar value) override {}
+    void writeScalarArray(const SkScalar* value, uint32_t count) override {}
+    void writeInt(int32_t value) override {}
+    void writeIntArray(const int32_t* value, uint32_t count) override {}
+    void writeUInt(uint32_t value) override {}
+    void writeString(const char* value) override {}
+    void writeFlattenable(const SkFlattenable* flattenable) override {}
+    void writeColorArray(const SkColor* color, uint32_t count) override {}
+    void writeColor4f(const SkColor4f& color) override {}
+    void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}
+    void writePoint(const SkPoint& point) override {}
+    void writePointArray(const SkPoint* point, uint32_t count) override {}
+    void writeMatrix(const SkMatrix& matrix) override {}
+    void writeIRect(const SkIRect& rect) override {}
+    void writeRect(const SkRect& rect) override {}
+    void writeRegion(const SkRegion& region) override {}
+    void writePath(const SkPath& path) override {}
+    size_t writeStream(SkStream* stream, size_t length) override {}
+    void writeBitmap(const SkBitmap& bitmap) override {}
+    void writeImage(const SkImage*) override {}
+    void writeTypeface(SkTypeface* typeface) override {}
+    void writePaint(const SkPaint& paint) override {}
+
+    void writeColor(SkColor color) override {
+        SkDebugf("color = 0x%08x\n", color);
+    }
+} dumper;
+
+SkPaint paint;
+paint.setColor(SK_ColorRED);
+paint.flatten(dumper);
+##Example ##
+
+##StdOut
+color = 0xffff0000
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void unflatten(SkReadBuffer&) #unflatten
+
+#Method populates a paint, typically from a serialized stream, created by calling
+#flatten at an earlier time.
+
+The #SkReadBuffer class is not public, so #Method cannot be meaningfully called
+by a Skia client.
+
+# why is #Method public? bug.skia.org/6172
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void reset() #reset
+
+Set all paint's contents to their initial values. This is equivalent to replacing
+the paint by calling #empty_constructor.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint1.reset();
+SkDebugf("paint1 %c= paint2", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Enum Hinting #Hinting
+
+    /** Specifies the level of hinting to be performed. These names are taken
+        from the Gnome/Cairo names for the same. They are translated into
+        Freetype concepts the same as in cairo-ft-font.c:
+           kNo_Hinting     -> FT_LOAD_NO_HINTING
+           kSlight_Hinting -> FT_LOAD_TARGET_LIGHT
+           kNormal_Hinting -> <default, no option>
+           kFull_Hinting   -> <same as kNormalHinting, unless we are rendering
+                              subpixel glyphs, in which case TARGET_LCD or
+                              TARGET_LCD_V is used>
+
+CAIRO_HINT_STYLE_NONE
+
+Do not hint outlines.
+
+ 
+CAIRO_HINT_STYLE_SLIGHT
+
+Hint outlines slightly to improve contrast while retaining good fidelity to the original shapes.
+
+ 
+CAIRO_HINT_STYLE_MEDIUM
+
+Hint outlines with medium strength giving a compromise between fidelity to the original
+ shapes and contrast.
+
+ 
+CAIRO_HINT_STYLE_FULL
+
+Hint outlines to maximize contrast.
+
+##Table
+#  kNo_Hinting      #   0   #             ##
+#  kSlight_Hinting  #   1   #             ##
+#  kNormal_Hinting  #   2   #   default   ##
+#  kFull_Hinting    #   3   #             ##
+##Table ##
+
+#ToDo incomplete ##
+
+##Enum ##
+
+##Method Hinting getHinting() const #getHinting
+
+##Method ##
+
+##Method Hinting setHinting(Hinting hintingLevel) const #setHinting
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Class #SkPaint ##
