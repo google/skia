@@ -150,8 +150,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(G
                                                                                float gaussianSigma,
                                                                                bool useBounds,
                                                                                float bounds[2])
-        : INHERITED(texture, direction, radius, ModulationFlags(texture->config()))
-        , fUseBounds(useBounds) {
+        : INHERITED(texture, direction, radius), fUseBounds(useBounds) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
     int width = this->width();

@@ -117,8 +117,8 @@ private:
 // premul'd.
 class LightingFP : public GrFragmentProcessor {
 public:
-    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
-            : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
+    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights) {
+
         // fuse all ambient lights into a single one
         fAmbientColor = lights->ambientLightColor();
         for (int i = 0; i < lights->numLights(); ++i) {
@@ -263,8 +263,6 @@ private:
 
     SkTArray<SkLights::Light> fDirectionalLights;
     SkColor3f                 fAmbientColor;
-
-    typedef GrFragmentProcessor INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////

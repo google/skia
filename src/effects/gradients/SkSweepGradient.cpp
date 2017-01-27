@@ -138,7 +138,8 @@ public:
     const char* name() const override { return "Sweep Gradient"; }
 
 private:
-    GrSweepGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    GrSweepGradient(const CreateArgs& args)
+    : INHERITED(args) {
         this->initClassID<GrSweepGradient>();
     }
 

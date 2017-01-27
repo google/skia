@@ -88,11 +88,10 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circl
                                                              float textureRadius,
                                                              float solidRadius,
                                                              GrTexture* blurProfile)
-        : INHERITED(kModulatesInput_OptimizationFlag)
-        , fCircle(circle)
-        , fSolidRadius(solidRadius)
-        , fTextureRadius(textureRadius)
-        , fBlurProfileSampler(blurProfile, GrSamplerParams::kBilerp_FilterMode) {
+    : fCircle(circle)
+    , fSolidRadius(solidRadius)
+    , fTextureRadius(textureRadius)
+    , fBlurProfileSampler(blurProfile, GrSamplerParams::kBilerp_FilterMode) {
     this->initClassID<GrCircleBlurFragmentProcessor>();
     this->addTextureSampler(&fBlurProfileSampler);
 }
