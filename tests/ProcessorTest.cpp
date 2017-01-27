@@ -245,11 +245,6 @@ static GrColor texel_color(int i, int j) {
 static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(texel_color(i, j)); }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
-    // This tests code under development but not used in skia lib. Leaving this disabled until
-    // some platform-specific issues are addressed.
-    if (1) {
-        return;
-    }
     GrContext* context = ctxInfo.grContext();
     using FPFactory = GrProcessorTestFactory<GrFragmentProcessor>;
     SkRandom random;
@@ -352,9 +347,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter
                         if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
                             ERRORF(reporter,
                                    "Processor %s claimed output for const input doesn't match "
-                                   "actual output.",
-                                   fp->name());
+                                   "actual output. Error: %f, Tolerance: %f",
+                                   fp->name(), SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))), kTol);
                             passing = false;
+                            expected4f = GrColor4f::TransparentBlack();
+                            fp->hasConstantOutputForConstantInput(input4f, &expected4f);
                         }
                     }
                     if (GrColorIsOpaque(input) && fp->preservesOpaqueInput() &&
