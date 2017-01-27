@@ -4510,9 +4510,7 @@ DEF_TEST(PathBigCubic, reporter) {
     path.moveTo(0, 512);
 
     // this call should not assert
-    if (false) {
-        SkSurface::MakeRasterN32Premul(255, 255, nullptr)->getCanvas()->drawPath(path, SkPaint());
-    }
+    SkSurface::MakeRasterN32Premul(255, 255, nullptr)->getCanvas()->drawPath(path, SkPaint());
 }
 
 DEF_TEST(PathContains, reporter) {
