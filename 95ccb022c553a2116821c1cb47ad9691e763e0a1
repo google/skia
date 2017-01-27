@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "a9ef48bc_b9ac27c1",
+        "filename": "src/utils/win/SkTScopedComPtr.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-27T17:40:57Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "95ccb022c553a2116821c1cb47ad9691e763e0a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f7844c2_0a9bbdb6",
         "filename": "src/utils/win/SkTScopedComPtr.h",
         "patchSetId": 1
