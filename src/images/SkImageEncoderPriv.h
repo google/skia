@@ -23,6 +23,7 @@ struct SkEncodeOptions {
 };
 
 #ifdef SK_HAS_JPEG_LIBRARY
+    bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, const SkEncodeOptions&);
     bool SkEncodeImageAsJPEG(SkWStream*, const SkPixmap&, int quality);
 #else
     #define SkEncodeImageAsJPEG(...) false

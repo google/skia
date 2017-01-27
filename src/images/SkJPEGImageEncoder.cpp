@@ -13,6 +13,7 @@
 #include "SkJPEGWriteUtility.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "transform_scanline.h"
 
 #include <stdio.h>
 
@@ -21,75 +22,82 @@ extern "C" {
     #include "jerror.h"
 }
 
-typedef void (*WriteScanline)(uint8_t* SK_RESTRICT dst,
-                              const void* SK_RESTRICT src, int width,
-                              const SkPMColor* SK_RESTRICT ctable);
-
-static void Write_32_RGB(uint8_t* SK_RESTRICT dst,
-                         const void* SK_RESTRICT srcRow, int width,
-                         const SkPMColor*) {
-    const uint32_t* SK_RESTRICT src = (const uint32_t*)srcRow;
-    while (--width >= 0) {
-        uint32_t c = *src++;
-        dst[0] = SkGetPackedR32(c);
-        dst[1] = SkGetPackedG32(c);
-        dst[2] = SkGetPackedB32(c);
-        dst += 3;
-    }
-}
-
-static void Write_4444_RGB(uint8_t* SK_RESTRICT dst,
-                           const void* SK_RESTRICT srcRow, int width,
-                           const SkPMColor*) {
-    const SkPMColor16* SK_RESTRICT src = (const SkPMColor16*)srcRow;
-    while (--width >= 0) {
-        SkPMColor16 c = *src++;
-        dst[0] = SkPacked4444ToR32(c);
-        dst[1] = SkPacked4444ToG32(c);
-        dst[2] = SkPacked4444ToB32(c);
-        dst += 3;
-    }
-}
-
-static void Write_16_RGB(uint8_t* SK_RESTRICT dst,
-                         const void* SK_RESTRICT srcRow, int width,
-                         const SkPMColor*) {
-    const uint16_t* SK_RESTRICT src = (const uint16_t*)srcRow;
-    while (--width >= 0) {
-        uint16_t c = *src++;
-        dst[0] = SkPacked16ToR32(c);
-        dst[1] = SkPacked16ToG32(c);
-        dst[2] = SkPacked16ToB32(c);
-        dst += 3;
-    }
-}
-
-static void Write_Index_RGB(uint8_t* SK_RESTRICT dst,
-                            const void* SK_RESTRICT srcRow, int width,
-                            const SkPMColor* SK_RESTRICT ctable) {
-    const uint8_t* SK_RESTRICT src = (const uint8_t*)srcRow;
-    while (--width >= 0) {
-        uint32_t c = ctable[*src++];
-        dst[0] = SkGetPackedR32(c);
-        dst[1] = SkGetPackedG32(c);
-        dst[2] = SkGetPackedB32(c);
-        dst += 3;
-    }
-}
-
-static WriteScanline ChooseWriter(SkColorType ct) {
-    switch (ct) {
-        case kN32_SkColorType:
-            return Write_32_RGB;
+/**
+ *  Returns true if |info| is supported by the jpeg encoder and false otherwise.
+ *  |jpegColorType| will be set to the proper libjpeg-turbo type for input to the library.
+ *  |numComponents| will be set to the number of components in the |jpegColorType|.
+ *  |proc|          will be set if we need to pre-convert the input before passing to
+ *                  libjpeg-turbo.  Otherwise will be set to nullptr.
+ */
+// TODO (skbug.com/1501):
+// Should we fail on non-opaque encodes?
+// Or should we change alpha behavior (ex: unpremultiply when the input is premul)?
+// Or is ignoring the alpha type and alpha channel ok here?
+static bool set_encode_config(J_COLOR_SPACE* jpegColorType, int* numComponents,
+                              transform_scanline_proc* proc, const SkImageInfo& info) {
+    *proc = nullptr;
+    switch (info.colorType()) {
+        case kRGBA_8888_SkColorType:
+            *jpegColorType = JCS_EXT_RGBA;
+            *numComponents = 4;
+            return true;
+        case kBGRA_8888_SkColorType:
+            *jpegColorType = JCS_EXT_BGRA;
+            *numComponents = 4;
+            return true;
         case kRGB_565_SkColorType:
-            return Write_16_RGB;
+            *proc = transform_scanline_565;
+            *jpegColorType = JCS_RGB;
+            *numComponents = 3;
+            return true;
         case kARGB_4444_SkColorType:
-            return Write_4444_RGB;
+            *proc = transform_scanline_444;
+            *jpegColorType = JCS_RGB;
+            *numComponents = 3;
+            return true;
         case kIndex_8_SkColorType:
-            return Write_Index_RGB;
+            *proc = transform_scanline_index8_opaque;
+            *jpegColorType = JCS_RGB;
+            *numComponents = 3;
+            return true;
+        case kGray_8_SkColorType:
+            SkASSERT(info.isOpaque());
+            *jpegColorType = JCS_GRAYSCALE;
+            *numComponents = 1;
+            return true;
+        case kRGBA_F16_SkColorType:
+            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
+
+            *proc = transform_scanline_F16_to_8888;
+            *jpegColorType = JCS_EXT_RGBA;
+            *numComponents = 4;
+            return true;
         default:
-            return nullptr;
+            return false;
     }
+
+
+}
+
+bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, const SkEncodeOptions& opts) {
+    SkASSERT(!pixmap.colorSpace() || pixmap.colorSpace()->gammaCloseToSRGB() ||
+            pixmap.colorSpace()->gammaIsLinear());
+
+    SkPixmap src = pixmap;
+    if (SkEncodeOptions::PremulBehavior::kLegacy == opts.fPremulBehavior) {
+        src.setColorSpace(nullptr);
+    } else {
+        // kGammaCorrect behavior requires a color space.  It's not actually critical in the
+        // jpeg case (since jpegs are opaque), but Skia color correct behavior generally
+        // requires pixels to be tagged with color spaces.
+        if (!src.colorSpace()) {
+            return false;
+        }
+    }
+
+    return SkEncodeImageAsJPEG(stream, src, 100);
 }
 
 bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
@@ -100,8 +108,8 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     skjpeg_error_mgr        sk_err;
     skjpeg_destination_mgr  sk_wstream(stream);
 
-    // allocate these before set call setjmp
-    SkAutoTMalloc<uint8_t>  oneRow;
+    // Declare before calling setjmp.
+    SkAutoTMalloc<uint8_t>  storage;
 
     cinfo.err = jpeg_std_error(&sk_err);
     sk_err.error_exit = skjpeg_error_exit;
@@ -109,9 +117,10 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
         return false;
     }
 
-    // Keep after setjmp or mark volatile.
-    const WriteScanline writer = ChooseWriter(pixmap.colorType());
-    if (!writer) {
+    J_COLOR_SPACE jpegColorSpace;
+    int numComponents;
+    transform_scanline_proc proc;
+    if (!set_encode_config(&jpegColorSpace, &numComponents, &proc, pixmap.info())) {
         return false;
     }
 
@@ -119,13 +128,8 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
     cinfo.dest = &sk_wstream;
     cinfo.image_width = pixmap.width();
     cinfo.image_height = pixmap.height();
-    cinfo.input_components = 3;
-
-    // FIXME: Can we take advantage of other in_color_spaces in libjpeg-turbo?
-    cinfo.in_color_space = JCS_RGB;
-
-    // The gamma value is ignored by libjpeg-turbo.
-    cinfo.input_gamma = 1;
+    cinfo.input_components = numComponents;
+    cinfo.in_color_space = jpegColorSpace;
 
     jpeg_set_defaults(&cinfo);
 
@@ -137,19 +141,21 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
     jpeg_start_compress(&cinfo, TRUE);
 
-    const int       width = pixmap.width();
-    uint8_t*        oneRowP = oneRow.reset(width * 3);
+    if (proc) {
+        storage.reset(numComponents * pixmap.width());
+    }
 
+    const void* srcRow = pixmap.addr();
     const SkPMColor* colors = pixmap.ctable() ? pixmap.ctable()->readColors() : nullptr;
-    const void*      srcRow = pixmap.addr();
-
     while (cinfo.next_scanline < cinfo.image_height) {
-        JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
+        JSAMPLE* jpegSrcRow = (JSAMPLE*) srcRow;
+        if (proc) {
+            proc((char*)storage.get(), (const char*)srcRow, pixmap.width(), numComponents, colors);
+            jpegSrcRow = storage.get();
+        }
 
-        writer(oneRowP, srcRow, width, colors);
-        row_pointer[0] = oneRowP;
-        (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-        srcRow = (const void*)((const char*)srcRow + pixmap.rowBytes());
+        (void) jpeg_write_scanlines(&cinfo, &jpegSrcRow, 1);
+        srcRow = SkTAddOffset<const void>(srcRow, pixmap.rowBytes());
     }
 
     jpeg_finish_compress(&cinfo);
