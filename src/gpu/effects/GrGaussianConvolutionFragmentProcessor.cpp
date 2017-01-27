@@ -6,6 +6,7 @@
  */
 
 #include "GrGaussianConvolutionFragmentProcessor.h"
+#include "GrProxyMove.h"
 #include "../private/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -144,6 +145,25 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
+    const float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
+
+    float sum = 0.0f;
+    for (int i = 0; i < width; ++i) {
+        float x = static_cast<float>(i - radius);
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        kernel[i] = sk_float_exp(-x * x * denom);
+        sum += kernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < width; ++i) {
+        kernel[i] *= scale;
+    }
+}
+
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(GrTexture* texture,
                                                                                Direction direction,
                                                                                int radius,
@@ -154,22 +174,31 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(G
         , fUseBounds(useBounds) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
-    int width = this->width();
 
-    float sum = 0.0f;
-    float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
-    for (int i = 0; i < width; ++i) {
-        float x = static_cast<float>(i - this->radius());
-        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-        // is dropped here, since we renormalize the kernel below.
-        fKernel[i] = sk_float_exp(-x * x * denom);
-        sum += fKernel[i];
-    }
-    // Normalize the kernel
-    float scale = 1.0f / sum;
-    for (int i = 0; i < width; ++i) {
-        fKernel[i] *= scale;
-    }
+    fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
+
+    memcpy(fBounds, bounds, sizeof(fBounds));
+}
+
+GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
+                                                                    GrContext* context,
+                                                                    sk_sp<GrTextureProxy> proxy,
+                                                                    Direction direction,
+                                                                    int radius,
+                                                                    float gaussianSigma,
+                                                                    bool useBounds,
+                                                                    float bounds[2])
+        : INHERITED{context,
+                    ModulationFlags(proxy->config()),
+                    GR_PROXY_MOVE(proxy),
+                    direction,
+                    radius}
+        , fUseBounds(useBounds) {
+    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
+    SkASSERT(radius <= kMaxKernelRadius);
+
+    fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
+
     memcpy(fBounds, bounds, sizeof(fBounds));
 }
 
@@ -212,5 +241,5 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
 
     float sigma = radius / 3.f;
     return GrGaussianConvolutionFragmentProcessor::Make(
-            d->fTextures[texIdx], dir, radius, sigma, useBounds, bounds);
+            d->context(), d->textureProxy(texIdx), dir, radius, sigma, useBounds, bounds);
 }
