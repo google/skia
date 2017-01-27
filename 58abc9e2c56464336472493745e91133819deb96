@@ -22,6 +22,23 @@
       "revId": "58abc9e2c56464336472493745e91133819deb96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1258f2f_80df48c5",
+        "filename": "src/gpu/effects/GrShadowTessellator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T17:05:05Z",
+      "side": 0,
+      "message": "My plan is to put the matrix back in when I move this up to SkCanvas level.",
+      "revId": "58abc9e2c56464336472493745e91133819deb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

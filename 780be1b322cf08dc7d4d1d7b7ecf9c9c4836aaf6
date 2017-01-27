@@ -16,6 +16,23 @@
       "revId": "780be1b322cf08dc7d4d1d7b7ecf9c9c4836aaf6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6210722c_bbe22481",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T17:05:05Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "780be1b322cf08dc7d4d1d7b7ecf9c9c4836aaf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
