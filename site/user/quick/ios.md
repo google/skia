@@ -22,7 +22,8 @@ First, install [XCode](https://developer.apple.com/xcode/).
     cd skia
 
     # Create the project files.
-    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" python bin/sync-and-gyp
+    python tools/git-sync-deps
+    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
     # Build and run SampleApp.
     xed out/gyp/SampleApp.xcodeproj # opens the SampleApp project in Xcode
 
@@ -60,12 +61,14 @@ Or you can set it to `xcode` alone, if you like.
 
 You can then generate the Xcode projects by running:
 
-    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" python bin/sync-and-gyp
+    python tools/git-sync-deps
+    GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0" ./gyp_skia
 
 Alternatively, you can do:
 
+    python tools/git-sync-deps
     export GYP_DEFINES="skia_os='ios' skia_arch_type='arm' armv7=1 arm_neon=0"
-    python bin/sync-and-gyp
+    ./gyp_skia
 
 Build and run tests
 -------------------
@@ -99,7 +102,7 @@ Here's an example of running nanobench from the command line. We will build with
 Build and run SampleApp in the XCode IDE
 ----------------------------------------
 
-  * Run `sync-and-gyp` as described above.
+  * Run `git-sync-deps` and `gyp_skia` as described above.
   * In the Finder, navigate to $SKIA_INSTALLDIR/trunk/out/gyp
   * Double-click SampleApp.xcodeproj ; this will launch XCode and open the SampleApp project
   * Make sure the SampleApp target is selected, and choose an iOS device to run on
