@@ -554,23 +554,6 @@ public:
         return !bounds->isEmpty();
     }
 
-#ifdef SK_SUPPORT_LEGACY_GETCLIPBOUNDS
-    bool getClipBounds(SkRect* bounds) const {
-        SkRect r = this->getLocalClipBounds();
-        if (bounds) {
-            *bounds = r;
-        }
-        return !r.isEmpty();
-    }
-    bool getClipDeviceBounds(SkIRect* bounds) const {
-        SkIRect r = this->getDeviceClipBounds();
-        if (bounds) {
-            *bounds = r;
-        }
-        return !r.isEmpty();
-    }
-#endif
-
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
         @param a    the alpha component (0..255) of the color to fill the canvas
