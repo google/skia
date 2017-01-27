@@ -42,6 +42,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrTypesPriv.h",
   "$_include/gpu/GrXferProcessor.h",
 
+  "$_include/gpu/effects/GrBlurredEdgeFragmentProcessor.h",
   "$_include/gpu/effects/GrConstColorProcessor.h",
   "$_include/gpu/effects/GrCoverageSetOpXP.h",
   "$_include/gpu/effects/GrCustomXfermode.h",
@@ -296,6 +297,7 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrTestMeshDrawOp.h",
 
   "$_src/gpu/effects/Gr1DKernelEffect.h",
+  "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
   "$_src/gpu/effects/GrConfigConversionEffect.cpp",
   "$_src/gpu/effects/GrConfigConversionEffect.h",
   "$_src/gpu/effects/GrConstColorProcessor.cpp",
