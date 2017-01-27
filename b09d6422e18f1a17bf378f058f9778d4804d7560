@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c68ec3d4_1a9a4cae",
+        "filename": "src/core/SkShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-27T18:18:21Z",
+      "side": 1,
+      "message": "does this deserve a TODO to relax/improve later?",
+      "range": {
+        "startLine": 282,
+        "startChar": 26,
+        "endLine": 282,
+        "endChar": 29
+      },
+      "revId": "b09d6422e18f1a17bf378f058f9778d4804d7560",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
