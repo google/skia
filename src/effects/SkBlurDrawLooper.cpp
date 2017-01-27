@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"     // just for SkBlurMask::ConvertRadiusToSigma
 #include "SkBlurMaskFilter.h"
@@ -96,8 +97,9 @@ bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-SkDrawLooper::Context* SkBlurDrawLooper::createContext(SkCanvas*, void* storage) const {
-    return new (storage) BlurDrawLooperContext(this);
+
+SkDrawLooper::Context* SkBlurDrawLooper::makeContext(SkCanvas*, SkArenaAlloc* alloc) const {
+    return alloc->make<BlurDrawLooperContext>(this);
 }
 
 SkBlurDrawLooper::BlurDrawLooperContext::BlurDrawLooperContext(
