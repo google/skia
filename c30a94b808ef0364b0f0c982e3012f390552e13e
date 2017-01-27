@@ -22,6 +22,23 @@
       "revId": "c30a94b808ef0364b0f0c982e3012f390552e13e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd6f3a19_919d08eb",
+        "filename": "src/gpu/effects/GrProxyMove.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T19:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "c30a94b808ef0364b0f0c982e3012f390552e13e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
