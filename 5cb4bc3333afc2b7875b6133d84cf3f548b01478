@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "8cd71bf7_cc17f59a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "Do we need to update Android to pretend Alpha_8 is Gray?\n\n(Maybe not - we don\u0027t really know whether they truly mean Alpha_8 or Gray, and we did not support encoding Alpha_8 before, so they\u0027ll just not get to take advantage of this feature.)",
+      "range": {
+        "startLine": 12,
+        "startChar": 20,
+        "endLine": 12,
+        "endChar": 24
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "455d142f_6436947e",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "nit: I\u0027d be tempted to rearrange this as a switch statement.",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 28
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "613db518_002d5dbc",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 3
@@ -18,6 +64,115 @@
         "startChar": 5,
         "endLine": 32,
         "endChar": 16
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba1e39ba_ed1ec263",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "\u003e I would really like to disable jpeg encodes if the input is not opaque. \n\nThis is something we\u0027ve actually thought about before. See crrev.com/1517523003 and skbug.com/1501\n\n\u003e I\u0027m guessing that would break Android (and other clients?).\n\nThe Android case might be easy to fix, since we can update the calling code.\n\n\u003e \n\u003e If not that, I would really like to unpremultiply before encoding (so we at least encode premul/unpremul images the same),\n\u003e but I\u0027m guessing this would change Android behavior.\n\nThis was the motivation for the above bug. The client wanted to encode as a JPEG (for PDF), but if there is alpha, they want to unpremultiply and store the alpha in a separate transparency mask. Hal, since you own PDF now, what are your thoughts?\n\n\u003e \n\u003e So now I\u0027m adding F16 and it behaves just like RGBA/BGRA, the alpha type and alpha channel are ignored.\n\nMaybe add a TODO with a reference to the old bug, if you think it\u0027s worth considering? (Or if we again decide it\u0027s not, a reminder of why we made the decision?)",
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12e744f8_4cdb415f",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "Make this method static/namespaced?\n\nOn a separate note, this method is called choose_proc, but it sets two other fields, and may not choose a proc (even on success). But I have not come up with a better name...",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 43
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56c5f87f_8c8e22c0",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "We may remove the color space or return false due to its absence, but the only time we ever look at the color space is if the color type is F16. Does F16 support legacy behavior? (Looking deeper, I realize that if we removed the color space from an F16 input due to using the legacy premul behavior, we would return false from choose_proc.)",
+      "range": {
+        "startLine": 80,
+        "startChar": 5,
+        "endLine": 80,
+        "endChar": 24
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e3cf77_a3c0a12c",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "As long as you\u0027re modifying this line, maybe change \"set call\" to \"calling\"?",
+      "range": {
+        "startLine": 104,
+        "startChar": 22,
+        "endLine": 104,
+        "endChar": 30
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9131c5dd_68cb9e8d",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-01-27T15:08:29Z",
+      "side": 1,
+      "message": "Why do you initialize this one, but not the others?",
+      "range": {
+        "startLine": 115,
+        "startChar": 4,
+        "endLine": 115,
+        "endChar": 42
       },
       "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
