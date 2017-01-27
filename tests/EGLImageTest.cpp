@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -39,58 +40,6 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
     if (texID0) {
         GR_GL_CALL(glctx0->gl(), DeleteTextures(1, &texID0));
     }
-}
-
-static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
-                             GrSurfaceContext* externalTextureContext,
-                             uint32_t expectedPixelValues[]) {
-    int pixelCnt = externalTextureContext->width() * externalTextureContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
-    memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
-
-    SkImageInfo ii = SkImageInfo::Make(externalTextureContext->width(), 
-                                       externalTextureContext->height(),
-                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool read = externalTextureContext->readPixels(ii, pixels.get(), 0, 0, 0);
-    if (!read) {
-        ERRORF(reporter, "Error reading external texture.");
-    }
-    for (int i = 0; i < pixelCnt; ++i) {
-        if (pixels.get()[i] != expectedPixelValues[i]) {
-            ERRORF(reporter, "Error, external texture pixel value %d should be 0x%08x,"
-                             " got 0x%08x.", i, expectedPixelValues[i], pixels.get()[i]);
-            break;
-        }
-    }
-}
-
-static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
-                              GrSurfaceContext* externalTextureContext) {
-    int pixelCnt = externalTextureContext->width() * externalTextureContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
-    memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
-
-    SkImageInfo ii = SkImageInfo::Make(externalTextureContext->width(),
-                                       externalTextureContext->height(),
-                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    bool write = externalTextureContext->writePixels(ii, pixels.get(), 0, 0, 0);
-    REPORTER_ASSERT_MESSAGE(reporter, !write, "Should not be able to write to a EXTERNAL"
-                                              " texture.");
-}
-
-static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
-                              GrSurfaceProxy* externalTextureProxy,
-                              uint32_t expectedPixelValues[]) {
-    GrSurfaceDesc copyDesc;
-    copyDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    copyDesc.fWidth = externalTextureProxy->width();
-    copyDesc.fHeight = externalTextureProxy->height();
-    copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-
-    sk_sp<GrSurfaceContext> copyContext(GrSurfaceProxy::TestCopy(context, copyDesc,
-                                                                 externalTextureProxy));
-
-    test_read_pixels(reporter, context, copyContext.get(), expectedPixelValues);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
@@ -223,12 +172,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         externalDesc.fSampleCnt = 0;
     }
 
-    test_read_pixels(reporter, context0, externalTextureContext.get(), pixels.get());
+    test_read_pixels(reporter, context0, externalTextureContext.get(), pixels.get(),
+                     "EGLImageTest-read");
 
-    test_write_pixels(reporter, context0, externalTextureContext.get());
+    // We should not be able to write to a EXTERNAL texture
+    test_write_pixels(reporter, context0, externalTextureContext.get(), false,
+                      "EGLImageTest-write");
 
-    test_copy_surface(reporter, context0, externalTextureContext->asDeferredSurface(),
-                      pixels.get());
+    // Only test RT-config
+    // TODO: why do we always need to draw to copy from an external texture?
+    test_copy_from_surface(reporter, context0, externalTextureContext->asDeferredSurface(),
+                           pixels.get(), true, "EGLImageTest-copy");
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
 }
