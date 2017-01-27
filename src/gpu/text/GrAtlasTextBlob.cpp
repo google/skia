@@ -74,6 +74,9 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   GrGlyph* glyph,
                                   SkGlyphCache* cache, const SkGlyph& skGlyph,
                                   SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP) {
+    if (positions.isEmpty()) {
+        return;
+    }
 
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
