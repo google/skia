@@ -37,13 +37,6 @@ public:
                     SkShader::Context* shaderContext);
     virtual ~SkShaderBlitter();
 
-    /**
-      *  Create a new shader context and uses it instead of the old one if successful.
-      *  Will create the context at the same location as the old one (this is safe
-      *  because the shader itself is unchanged).
-      */
-    bool resetShaderContext(const SkShader::ContextRec&) override;
-
 protected:
     uint32_t            fShaderFlags;
     const SkShader*     fShader;
