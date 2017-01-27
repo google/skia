@@ -159,6 +159,13 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
 }
 
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
+                                                         GrBackendTextureDesc& desc,
+                                                         GrWrapOwnership ownership) {
+    sk_sp<GrTexture> tex(context->textureProvider()->wrapBackendTexture(desc, ownership));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext* context) const {
     if (fTarget) {

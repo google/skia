@@ -178,6 +178,11 @@ public:
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
+    static sk_sp<GrSurfaceProxy> MakeWrappedBackend(
+                                            GrContext*,
+                                            GrBackendTextureDesc&,
+                                            GrWrapOwnership ownership = kBorrow_GrWrapOwnership);
+
     const GrSurfaceDesc& desc() const { return fDesc; }
 
     GrSurfaceOrigin origin() const {
