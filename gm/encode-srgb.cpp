@@ -81,16 +81,23 @@ static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSp
 
 static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace) {
-    if (kIndex_8_SkColorType == colorType) {
-        make_index8(bitmap, alphaType, colorSpace);
-        return;
-    }
-
-    const char* resource = (kOpaque_SkAlphaType == alphaType) ? "color_wheel.jpg"
-                                                              : "color_wheel.png";
-    if (kGray_8_SkColorType == colorType) {
-        resource = "grayscale.jpg";
-        alphaType = kOpaque_SkAlphaType;
+    const char* resource;
+    switch (colorType) {
+        case kIndex_8_SkColorType:
+            make_index8(bitmap, alphaType, colorSpace);
+            return;
+        case kGray_8_SkColorType:
+            resource = "grayscale.jpg";
+            alphaType = kOpaque_SkAlphaType;
+            break;
+        case kRGB_565_SkColorType:
+            resource = "color_wheel.jpg";
+            alphaType = kOpaque_SkAlphaType;
+            break;
+        default:
+            resource = (kOpaque_SkAlphaType == alphaType) ? "color_wheel.jpg"
+                                                          : "color_wheel.png";
+            break;
     }
 
     sk_sp<SkData> data = GetResourceAsData(resource);
@@ -117,10 +124,13 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkEncodeImageAsPNG(&buf, src, options);
+            SkAssertResult(SkEncodeImageAsPNG(&buf, src, options));
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkEncodeImageAsWEBP(&buf, src, options);
+            SkAssertResult(SkEncodeImageAsWEBP(&buf, src, options));
+            break;
+        case SkEncodedImageFormat::kJPEG:
+            SkAssertResult(SkEncodeImageAsJPEG(&buf, src, options));
             break;
         default:
             break;
@@ -139,24 +149,28 @@ protected:
         const char* format = nullptr;
         switch (fEncodedFormat) {
             case SkEncodedImageFormat::kPNG:
-                format = "-png";
+                format = "png";
                 break;
             case SkEncodedImageFormat::kWEBP:
-                format = "-webp";
+                format = "webp";
+                break;
+            case SkEncodedImageFormat::kJPEG:
+                format = "jpg";
                 break;
             default:
                 break;
         }
-        return SkStringPrintf("encode-srgb%s", format);
+        return SkStringPrintf("encode-srgb-%s", format);
     }
 
     SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 12);
+        return SkISize::Make(imageWidth * 2, imageHeight * 15);
     }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
                 kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType, kGray_8_SkColorType,
+                kRGB_565_SkColorType,
         };
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
@@ -189,4 +203,5 @@ private:
 
 DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kPNG); )
 DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kWEBP); )
+DEF_GM( return new EncodeSRGBGM(SkEncodedImageFormat::kJPEG); )
 }
