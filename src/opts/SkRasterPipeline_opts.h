@@ -18,6 +18,7 @@
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
+#include "SkShader.h"
 #include "SkSRGB.h"
 
 namespace {
@@ -1083,6 +1084,13 @@ STAGE_CTX(byte_tables, const void*) {
     g = SkNf_from_byte(gather(tail, tables->g, SkNf_round(255.0f, g)));
     b = SkNf_from_byte(gather(tail, tables->b, SkNf_round(255.0f, b)));
     a = SkNf_from_byte(gather(tail, tables->a, SkNf_round(255.0f, a)));
+}
+
+STAGE_CTX(shader_adapter, SkShader::Context*) {
+    SkPM4f buf[N];
+    static_assert(sizeof(buf) == sizeof(r) + sizeof(g) + sizeof(b) + sizeof(a), "");
+    ctx->shadeSpan4f(x, (int)g[0], buf, N);
+    SkNf::Load4(buf, &r, &g, &b, &a);
 }
 
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
