@@ -22,6 +22,23 @@
       "revId": "75f02146d994bcc665b89bcdf0b1997f29841a1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0f18a18_dd25af10",
+        "filename": "src/core/SkLinearBitmapPipeline_tile.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-27T20:39:55Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "75f02146d994bcc665b89bcdf0b1997f29841a1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
