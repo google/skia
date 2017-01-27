@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45864099_0cc71991",
+        "filename": "src/core/SkLinearBitmapPipeline_tile.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-01-27T20:34:26Z",
+      "side": 1,
+      "message": "Add a comment...\nWhen x is a negative number *very* close to zero, the difference becomes 0 - (-base) \u003d base which is an out of bound value. The min() corrects these problematic values.",
+      "range": {
+        "startLine": 147,
+        "startChar": 11,
+        "endLine": 147,
+        "endChar": 68
+      },
+      "revId": "75f02146d994bcc665b89bcdf0b1997f29841a1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
