@@ -56,6 +56,23 @@
       "revId": "b09d6422e18f1a17bf378f058f9778d4804d7560",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45b331da_b5419293",
+        "filename": "src/core/SkShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-01-27T19:50:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "b09d6422e18f1a17bf378f058f9778d4804d7560",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
