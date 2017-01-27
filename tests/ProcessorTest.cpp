@@ -70,7 +70,7 @@ public:
 private:
     TestFP(const SkTArray<sk_sp<GrTexture>>& textures, const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)
-            : fSamplers(4), fBuffers(4), fImages(4) {
+            : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         for (const auto& texture : textures) {
             this->addTextureSampler(&fSamplers.emplace_back(texture.get()));
         }
@@ -83,7 +83,8 @@ private:
         }
     }
 
-    TestFP(sk_sp<GrFragmentProcessor> child) : fSamplers(4), fBuffers(4), fImages(4) {
+    TestFP(sk_sp<GrFragmentProcessor> child)
+            : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         this->registerChildProcessor(std::move(child));
     }
 
@@ -106,6 +107,7 @@ private:
     GrTAllocator<TextureSampler> fSamplers;
     GrTAllocator<BufferAccess> fBuffers;
     GrTAllocator<ImageStorageAccess> fImages;
+    typedef GrFragmentProcessor INHERITED;
 };
 }
 
@@ -230,4 +232,144 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         }
     }
 }
+
+// This test uses the random GrFragmentProcessor test factory, which relies on static initializers.
+#if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+
+static GrColor texel_color(int i, int j) {
+    SkASSERT((unsigned)i < 256 && (unsigned)j < 256);
+    GrColor color = GrColorPackRGBA(j, (uint8_t)(i + j), (uint8_t)(2 * j - i), i);
+    return GrPremulColor(color);
+}
+
+static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(texel_color(i, j)); }
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
+    // This tests code under development but not used in skia lib. Leaving this disabled until
+    // some platform-specific issues are addressed.
+    if (1) {
+        return;
+    }
+    GrContext* context = ctxInfo.grContext();
+    using FPFactory = GrProcessorTestFactory<GrFragmentProcessor>;
+    SkRandom random;
+    sk_sp<GrRenderTargetContext> rtc = context->makeRenderTargetContext(
+            SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
+    GrSurfaceDesc desc;
+    desc.fWidth = 256;
+    desc.fHeight = 256;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    sk_sp<GrTexture> tex0(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
+    desc.fConfig = kAlpha_8_GrPixelConfig;
+    sk_sp<GrTexture> tex1(context->textureProvider()->createTexture(desc, SkBudgeted::kYes));
+    GrTexture* textures[] = {tex0.get(), tex1.get()};
+    GrProcessorTestData testData(&random, context, rtc.get(), textures);
+
+    std::unique_ptr<GrColor> data(new GrColor[256 * 256]);
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            data.get()[256 * y + x] = texel_color(x, y);
+        }
+    }
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    sk_sp<GrTexture> dataTexture(context->textureProvider()->createTexture(
+            desc, SkBudgeted::kYes, data.get(), 256 * sizeof(GrColor)));
+
+    // Because processors factories configure themselves in random ways, this is not exhaustive.
+    for (int i = 0; i < FPFactory::Count(); ++i) {
+        int timesToInvokeFactory = 5;
+        // Increase the number of attempts if the FP has child FPs since optimizations likely depend
+        // on child optimizations being present.
+        sk_sp<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
+        for (int j = 0; j < fp->numChildProcessors(); ++j) {
+            // This value made a reasonable trade off between time and coverage when this test was
+            // written.
+            timesToInvokeFactory *= FPFactory::Count() / 2;
+        }
+        for (int j = 0; j < timesToInvokeFactory; ++j) {
+            fp = FPFactory::MakeIdx(i, &testData);
+            if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
+                !fp->modulatesInput()) {
+                continue;
+            }
+            GrPaint paint;
+            paint.addColorTextureProcessor(dataTexture.get(), nullptr, SkMatrix::I());
+            paint.addColorFragmentProcessor(fp);
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            rtc->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                          SkRect::MakeWH(256.f, 256.f));
+            memset(data.get(), 0x0, sizeof(GrColor) * 256 * 256);
+            rtc->readPixels(
+                    SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+                    data.get(), 0, 0, 0);
+            bool passing = true;
+            if (0) {  // Useful to see what FPs are being tested.
+                SkString children;
+                for (int c = 0; c < fp->numChildProcessors(); ++c) {
+                    if (!c) {
+                        children.append("(");
+                    }
+                    children.append(fp->childProcessor(c).name());
+                    children.append(c == fp->numChildProcessors() - 1 ? ")" : ", ");
+                }
+                SkDebugf("%s %s\n", fp->name(), children.c_str());
+            }
+            for (int y = 0; y < 256 && passing; ++y) {
+                for (int x = 0; x < 256 && passing; ++x) {
+                    GrColor input = texel_color(x, y);
+                    GrColor output = data.get()[y * 256 + x];
+                    if (fp->modulatesInput()) {
+                        // A modulating processor is allowed to modulate either the input color or
+                        // just the input alpha.
+                        bool legalColorModulation =
+                                GrColorUnpackA(output) <= GrColorUnpackA(input) &&
+                                GrColorUnpackR(output) <= GrColorUnpackR(input) &&
+                                GrColorUnpackG(output) <= GrColorUnpackG(input) &&
+                                GrColorUnpackB(output) <= GrColorUnpackB(input);
+                        bool legalAlphaModulation =
+                                GrColorUnpackA(output) <= GrColorUnpackA(input) &&
+                                GrColorUnpackR(output) <= GrColorUnpackA(input) &&
+                                GrColorUnpackG(output) <= GrColorUnpackA(input) &&
+                                GrColorUnpackB(output) <= GrColorUnpackA(input);
+                        if (!legalColorModulation && !legalAlphaModulation) {
+                            ERRORF(reporter,
+                                   "\"Modulating\" processor %s made color/alpha value larger. "
+                                   "Input: 0x%0x8, Output: 0x%08x.",
+                                   fp->name(), input, output);
+                            passing = false;
+                        }
+                    }
+                    GrColor4f input4f = texel_color4f(x, y);
+                    GrColor4f output4f = GrColor4f::FromGrColor(output);
+                    GrColor4f expected4f;
+                    if (fp->hasConstantOutputForConstantInput(input4f, &expected4f)) {
+                        float rDiff = fabsf(output4f.fRGBA[0] - expected4f.fRGBA[0]);
+                        float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fRGBA[1]);
+                        float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fRGBA[2]);
+                        float aDiff = fabsf(output4f.fRGBA[3] - expected4f.fRGBA[3]);
+                        static constexpr float kTol = 3 / 255.f;
+                        if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
+                            ERRORF(reporter,
+                                   "Processor %s claimed output for const input doesn't match "
+                                   "actual output.",
+                                   fp->name());
+                            passing = false;
+                        }
+                    }
+                    if (GrColorIsOpaque(input) && fp->preservesOpaqueInput() &&
+                        !GrColorIsOpaque(output)) {
+                        ERRORF(reporter,
+                               "Processor %s claimed opaqueness is preserved but it is not. Input: "
+                               "0x%0x8, Output: 0x%08x.",
+                               fp->name(), input, output);
+                        passing = false;
+                    }
+                }
+            }
+        }
+    }
+}
+#endif
+
 #endif

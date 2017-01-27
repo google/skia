@@ -98,7 +98,7 @@ public:
     };
 
 private:
-    LumaColorFilterEffect() {
+    LumaColorFilterEffect() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<LumaColorFilterEffect>();
     }
 
@@ -117,6 +117,14 @@ private:
         // The output is always black. The alpha value for the color passed in is arbitrary.
         inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0));
     }
+    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+        float luma = SK_ITU_BT709_LUM_COEFF_R * input.fRGBA[0] +
+                     SK_ITU_BT709_LUM_COEFF_G * input.fRGBA[1] +
+                     SK_ITU_BT709_LUM_COEFF_B * input.fRGBA[2];
+        return GrColor4f(0, 0, 0, luma);
+    }
+
+    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
