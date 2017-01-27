@@ -63,15 +63,16 @@ namespace GrDefaultGeoProcFactory {
     struct Color {
         enum Type {
             kNone_Type,
-            kUniform_Type,
-            kAttribute_Type,
+            kPremulGrColorUniform_Type,
+            kPremulGrColorAttribute_Type,
+            kUnpremulSkColorAttribute_Type,
         };
-        explicit Color(GrColor color) : fType(kUniform_Type), fColor(color) {}
+        explicit Color(GrColor color) : fType(kPremulGrColorUniform_Type), fColor(color) {}
         Color(Type type) : fType(type), fColor(GrColor_ILLEGAL) {
-            SkASSERT(type != kUniform_Type);
+            SkASSERT(type != kPremulGrColorUniform_Type);
 
             // TODO This is temporary
-            if (kAttribute_Type == type) {
+            if (kPremulGrColorAttribute_Type == type) {
                 fColor = GrColor_WHITE;
             }
         }

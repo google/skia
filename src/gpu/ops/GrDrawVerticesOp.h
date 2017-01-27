@@ -13,6 +13,7 @@
 #include "GrTypes.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "GrRenderTargetContext.h"
 #include "SkTDArray.h"
 
 class GrOpFlushState;
@@ -26,10 +27,11 @@ public:
                                           const SkMatrix& viewMatrix, const SkPoint* positions,
                                           int vertexCount, const uint16_t* indices, int indexCount,
                                           const GrColor* colors, const SkPoint* localCoords,
-                                          const SkRect& bounds) {
+                                          const SkRect& bounds,
+                                          GrRenderTargetContext::ColorArrayMeaning colorArrayMeaning) {
         return std::unique_ptr<GrDrawOp>(
                 new GrDrawVerticesOp(color, primitiveType, viewMatrix, positions, vertexCount,
-                                     indices, indexCount, colors, localCoords, bounds));
+                                     indices, indexCount, colors, localCoords, bounds, colorArrayMeaning));
     }
 
     const char* name() const override { return "DrawVerticesOp"; }
@@ -47,7 +49,7 @@ private:
     GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
                      const SkPoint* positions, int vertexCount, const uint16_t* indices,
                      int indexCount, const GrColor* colors, const SkPoint* localCoords,
-                     const SkRect& bounds);
+                     const SkRect& bounds, GrRenderTargetContext::ColorArrayMeaning colorArrayMeaning);
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
@@ -75,6 +77,7 @@ private:
     bool fVariableColor;
     int fVertexCount;
     int fIndexCount;
+    GrRenderTargetContext::ColorArrayMeaning fColorArrayMeaning;
 
     SkSTArray<1, Mesh, true> fMeshes;
 

@@ -878,7 +878,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
                                          const SkPoint texCoords[],
                                          const GrColor colors[],
                                          const uint16_t indices[],
-                                         int indexCount) {
+                                         int indexCount,
+                                         ColorArrayMeaning colorArrayMeaning) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -897,7 +898,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     std::unique_ptr<GrDrawOp> op =
             GrDrawVerticesOp::Make(paint.getColor(), primitiveType, viewMatrix, positions,
-                                   vertexCount, indices, indexCount, colors, texCoords, bounds);
+                                   vertexCount, indices, indexCount, colors, texCoords, bounds,
+                                   colorArrayMeaning);
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));

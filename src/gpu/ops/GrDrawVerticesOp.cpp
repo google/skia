@@ -25,7 +25,7 @@ static sk_sp<GrGeometryProcessor> set_vertex_attributes(bool hasLocalCoords,
     if (hasLocalCoords) {
         *texOffset = sizeof(SkPoint) + sizeof(GrColor);
     }
-    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type, Coverage::kSolid_Type,
                                          localCoordsType, viewMatrix);
 }
 
@@ -33,7 +33,8 @@ GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
                                    const SkMatrix& viewMatrix, const SkPoint* positions,
                                    int vertexCount, const uint16_t* indices, int indexCount,
                                    const GrColor* colors, const SkPoint* localCoords,
-                                   const SkRect& bounds)
+                                   const SkRect& bounds,
+                                   GrRenderTargetContext colorArrayMeaning)
         : INHERITED(ClassID()) {
     SkASSERT(positions);
 
@@ -49,8 +50,10 @@ GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
     if (colors) {
         fVariableColor = true;
         mesh.fColors.append(vertexCount, colors);
+        fColorArrayMeaning = colorArrayMeaning;
     } else {
         fVariableColor = false;
+        fColorArrayMeaning = GrRenderTargetContext::ColorArrayMeaning::kPremulGrColor;
     }
 
     if (localCoords) {
