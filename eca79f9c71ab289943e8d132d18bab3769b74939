@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "dbab2e75_b4db8196",
+        "filename": "gm/texturedomaineffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T19:15:53Z",
+      "side": 1,
+      "message": "Yep - I was thinking: asRefTextureProxy.",
+      "revId": "eca79f9c71ab289943e8d132d18bab3769b74939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "246e8607_287f58e4",
         "filename": "gm/windowrectangles.cpp",
         "patchSetId": 3
@@ -42,6 +59,23 @@
         "endLine": 227,
         "endChar": 67
       },
+      "revId": "eca79f9c71ab289943e8d132d18bab3769b74939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7246152f_00f956a0",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T19:15:53Z",
+      "side": 1,
+      "message": "As discussed off-line, we will unify on asTextureProxy and asRenderTargetProxy - since that is the class name and Deferred has some other connotations.",
       "revId": "eca79f9c71ab289943e8d132d18bab3769b74939",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
