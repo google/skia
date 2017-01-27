@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6bae98f_47ac84d6",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-27T16:55:34Z",
+      "side": 1,
+      "message": "if (strokeRec is not fill) {\n    return false;\n}\n\n?",
+      "revId": "780be1b322cf08dc7d4d1d7b7ecf9c9c4836aaf6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65cf3a7c_1ae6fc2b",
+        "filename": "src/gpu/effects/GrShadowTessellator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-27T16:55:34Z",
+      "side": 0,
+      "message": "For caching these it seems like we will have to stop transforming the path into device space, maybe keep the matrix?",
+      "range": {
+        "startLine": 26,
+        "startChar": 47,
+        "endLine": 26,
+        "endChar": 57
+      },
+      "revId": "58abc9e2c56464336472493745e91133819deb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
