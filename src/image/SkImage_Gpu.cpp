@@ -271,14 +271,8 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     uDesc.fWidth = yuvSizes[1].fWidth;
     uDesc.fHeight = yuvSizes[1].fHeight;
 
-    sk_sp<GrTexture> yTex(
-        ctx->textureProvider()->wrapBackendTexture(yDesc, kBorrow_GrWrapOwnership));
-    sk_sp<GrSurfaceProxy> yProxy = GrSurfaceProxy::MakeWrapped(std::move(yTex));
-
-    sk_sp<GrTexture> uTex(
-        ctx->textureProvider()->wrapBackendTexture(uDesc, kBorrow_GrWrapOwnership));
-    sk_sp<GrSurfaceProxy> uProxy = GrSurfaceProxy::MakeWrapped(std::move(uTex));
-
+    sk_sp<GrSurfaceProxy> yProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, yDesc);
+    sk_sp<GrSurfaceProxy> uProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, uDesc);
     sk_sp<GrSurfaceProxy> vProxy;
 
     if (nv12) {
@@ -292,9 +286,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
         vDesc.fWidth = yuvSizes[2].fWidth;
         vDesc.fHeight = yuvSizes[2].fHeight;
 
-        sk_sp<GrTexture> vTex = sk_sp<GrTexture>(
-            ctx->textureProvider()->wrapBackendTexture(vDesc, kBorrow_GrWrapOwnership));
-        vProxy = GrSurfaceProxy::MakeWrapped(std::move(vTex));
+        vProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, vDesc);
     }
     if (!yProxy || !uProxy || !vProxy) {
         return nullptr;
