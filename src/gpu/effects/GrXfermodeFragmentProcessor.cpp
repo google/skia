@@ -19,7 +19,7 @@ class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:
     ComposeTwoFragmentProcessor(sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst,
                                 SkBlendMode mode)
-            : INHERITED(OptFlags(src.get(), dst.get(), mode)), fMode(mode) {
+        : fMode(mode) {
         this->initClassID<ComposeTwoFragmentProcessor>();
         SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
         SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
@@ -35,18 +35,7 @@ public:
 
     SkBlendMode getMode() const { return fMode; }
 
-private:
-    static OptimizationFlags OptFlags(const GrFragmentProcessor* src,
-                                      const GrFragmentProcessor* dst, SkBlendMode mode) {
-        // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && src->hasConstantOutputForConstantInput() &&
-            dst->hasConstantOutputForConstantInput()) {
-            return kConstantOutputForConstantInput_OptimizationFlag;
-        }
-        return kNone_OptimizationFlags;
-    }
-
+protected:
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const ComposeTwoFragmentProcessor& cs = other.cast<ComposeTwoFragmentProcessor>();
         return fMode == cs.fMode;
@@ -56,17 +45,7 @@ private:
         inout->setToUnknown();
     }
 
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        float alpha = input.fRGBA[3];
-        input = input.opaque();
-        GrColor4f srcColor = ConstantOutputForConstantInput(this->childProcessor(0), input);
-        GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), input);
-        SkPM4f src = GrColor4fToSkPM4f(srcColor);
-        SkPM4f dst = GrColor4fToSkPM4f(dstColor);
-        auto proc = SkXfermode::GetProc4f(fMode);
-        return SkPM4fToGrColor4f(proc(src, dst)).mulByScalar(alpha);
-    }
-
+private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     SkBlendMode fMode;
@@ -166,7 +145,8 @@ public:
     };
 
     ComposeOneFragmentProcessor(sk_sp<GrFragmentProcessor> dst, SkBlendMode mode, Child child)
-            : INHERITED(OptFlags(dst.get(), mode)), fMode(mode), fChild(child) {
+        : fMode(mode)
+        , fChild(child) {
         this->initClassID<ComposeOneFragmentProcessor>();
         SkDEBUGCODE(int dstIndex = )this->registerChildProcessor(std::move(dst));
         SkASSERT(0 == dstIndex);
@@ -192,16 +172,7 @@ public:
 
     Child child() const { return fChild; }
 
-private:
-    OptimizationFlags OptFlags(const GrFragmentProcessor* child, SkBlendMode mode) {
-        // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && child->hasConstantOutputForConstantInput()) {
-            return kConstantOutputForConstantInput_OptimizationFlag;
-        }
-        return kNone_OptimizationFlags;
-    }
-
+protected:
     bool onIsEqual(const GrFragmentProcessor& that) const override {
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
     }
@@ -230,21 +201,6 @@ private:
         } else {
             inout->setToUnknown();
         }
-    }
-
-    GrColor4f constantOutputForConstantInput(GrColor4f inputColor) const override {
-        GrColor4f childColor =
-                ConstantOutputForConstantInput(this->childProcessor(0), GrColor4f::OpaqueWhite());
-        SkPM4f src, dst;
-        if (kSrc_Child == fChild) {
-            src = GrColor4fToSkPM4f(childColor);
-            dst = GrColor4fToSkPM4f(inputColor);
-        } else {
-            src = GrColor4fToSkPM4f(inputColor);
-            dst = GrColor4fToSkPM4f(childColor);
-        }
-        auto proc = SkXfermode::GetProc4f(fMode);
-        return SkPM4fToGrColor4f(proc(src, dst));
     }
 
 private:

@@ -178,8 +178,6 @@ private:
                           GrTextureDomain::Mode,
                           GrSamplerParams::FilterMode);
 
-    static OptimizationFlags OptFlags(GrTexture* texture, GrTextureDomain::Mode mode);
-
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

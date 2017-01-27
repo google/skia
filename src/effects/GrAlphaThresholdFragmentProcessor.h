@@ -35,8 +35,6 @@ public:
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
 private:
-    static OptimizationFlags OptFlags(float outerThreshold);
-
     GrAlphaThresholdFragmentProcessor(GrTexture* texture,
                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
                                       GrTexture* maskTexture,

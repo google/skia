@@ -78,7 +78,9 @@ public:
     }
 
 private:
-    BigKeyProcessor() : INHERITED(kNone_OptimizationFlags) { this->initClassID<BigKeyProcessor>(); }
+    BigKeyProcessor() {
+        this->initClassID<BigKeyProcessor>();
+    }
     virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
@@ -120,8 +122,7 @@ private:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-    BlockInputFragmentProcessor(sk_sp<GrFragmentProcessor> child)
-            : INHERITED(kNone_OptimizationFlags) {
+    BlockInputFragmentProcessor(sk_sp<GrFragmentProcessor> child) {
         this->initClassID<BlockInputFragmentProcessor>();
         this->registerChildProcessor(std::move(child));
     }

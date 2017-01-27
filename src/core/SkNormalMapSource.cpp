@@ -26,7 +26,7 @@
 class NormalMapFP : public GrFragmentProcessor {
 public:
     NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
-            : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
+        : fInvCTM(invCTM) {
         this->registerChildProcessor(mapFP);
 
         this->initClassID<NormalMapFP>();
@@ -117,8 +117,6 @@ private:
     }
 
     SkMatrix fInvCTM;
-
-    typedef GrFragmentProcessor INHERITED;
 };
 
 sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(

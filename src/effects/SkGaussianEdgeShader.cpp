@@ -63,11 +63,11 @@ private:
 
 class GaussianEdgeFP : public GrFragmentProcessor {
 public:
-    GaussianEdgeFP() : INHERITED(kNone_OptimizationFlags) {
+    GaussianEdgeFP() {
         this->initClassID<GaussianEdgeFP>();
 
         // enable output of distance information for shape
-        this->setWillUseDistanceVectorField();
+        fUsesDistanceVectorField = true;
     }
 
     class GLSLGaussianEdgeFP : public GrGLSLFragmentProcessor {
@@ -123,8 +123,6 @@ private:
     }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { return true; }
-
-    typedef GrFragmentProcessor INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////

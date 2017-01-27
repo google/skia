@@ -426,7 +426,8 @@ public:
     const char* name() const override { return "Linear Gradient"; }
 
 private:
-    GrLinearGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    GrLinearGradient(const CreateArgs& args)
+        : INHERITED(args) {
         this->initClassID<GrLinearGradient>();
     }
 

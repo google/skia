@@ -156,14 +156,12 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
                                                      const SkIPoint& kernelOffset,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
-        // To advertise either the modulation or opaqueness optimizations we'd have to examine the
-        // parameters.
-        : INHERITED(texture, nullptr, SkMatrix::I(), kNone_OptimizationFlags)
-        , fKernelSize(kernelSize)
-        , fGain(SkScalarToFloat(gain))
-        , fBias(SkScalarToFloat(bias) / 255.0f)
-        , fConvolveAlpha(convolveAlpha)
-        , fDomain(texture, GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
+  : INHERITED(texture, nullptr, SkMatrix::I()),
+    fKernelSize(kernelSize),
+    fGain(SkScalarToFloat(gain)),
+    fBias(SkScalarToFloat(bias) / 255.0f),
+    fConvolveAlpha(convolveAlpha),
+    fDomain(texture, GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
     this->initClassID<GrMatrixConvolutionEffect>();
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
