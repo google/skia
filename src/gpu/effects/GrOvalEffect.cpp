@@ -64,9 +64,7 @@ void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 }
 
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
-    : fCenter(c)
-    , fRadius(r)
-    , fEdgeType(edgeType) {
+        : INHERITED(kModulatesInput_OptimizationFlag), fCenter(c), fRadius(r), fEdgeType(edgeType) {
     this->initClassID<CircleEffect>();
 }
 
@@ -230,10 +228,12 @@ void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     inout->mulByUnknownSingleComponent();
 }
 
-EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx, SkScalar ry)
-    : fCenter(c)
-    , fRadii(SkVector::Make(rx, ry))
-    , fEdgeType(edgeType) {
+EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx,
+                             SkScalar ry)
+        : INHERITED(kModulatesInput_OptimizationFlag)
+        , fCenter(c)
+        , fRadii(SkVector::Make(rx, ry))
+        , fEdgeType(edgeType) {
     this->initClassID<EllipseEffect>();
 }
 

@@ -58,7 +58,7 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
-    fUsesLocalCoords = true;
+    fFlags |= kUsesLocalCoords_Flag;
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
@@ -66,10 +66,10 @@ int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
-        fUsesLocalCoords = true;
+        fFlags |= kUsesLocalCoords_Flag;
     }
     if (child->usesDistanceVectorField()) {
-        fUsesDistanceVectorField = true;
+        fFlags |= kUsesDistanceVectorField_Flag;
     }
 
     int index = fChildProcessors.count();
@@ -111,12 +111,13 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
 
     class PremulInputFragmentProcessor : public GrFragmentProcessor {
     public:
-        PremulInputFragmentProcessor() {
+        PremulInputFragmentProcessor()
+                : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
+                            kConstantOutputForConstantInput_OptimizationFlag) {
             this->initClassID<PremulInputFragmentProcessor>();
         }
 
         const char* name() const override { return "PremultiplyInput"; }
-
     private:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
@@ -139,6 +140,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             inout->premulFourChannelColor();
         }
+        GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+            return input.premul();
+        }
+
+        typedef GrFragmentProcessor INHERITED;
     };
     if (!fp) {
         return nullptr;
@@ -152,7 +158,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
 
     class PremulFragmentProcessor : public GrFragmentProcessor {
     public:
-        PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor) {
+        PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor)
+                : INHERITED(OptFlags(processor.get())) {
             this->initClassID<PremulFragmentProcessor>();
             this->registerChildProcessor(processor);
         }
@@ -178,6 +185,16 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
+        static OptimizationFlags OptFlags(const GrFragmentProcessor* inner) {
+            OptimizationFlags flags = kNone_OptimizationFlags;
+            if (inner->preservesOpaqueInput()) {
+                flags |= kPreservesOpaqueInput_OptimizationFlag;
+            }
+            if (inner->hasConstantOutputForConstantInput()) {
+                flags |= kConstantOutputForConstantInput_OptimizationFlag;
+            }
+            return flags;
+        }
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
             if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
@@ -210,6 +227,16 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             }
             inout->setToOther(commonFlags, color);
         }
+        GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+            GrColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
+                                                                  GrColor4f::OpaqueWhite());
+            return GrColor4f(input.fRGBA[3] * input.fRGBA[0] * childColor.fRGBA[0],
+                             input.fRGBA[3] * input.fRGBA[1] * childColor.fRGBA[1],
+                             input.fRGBA[3] * input.fRGBA[2] * childColor.fRGBA[2],
+                             input.fRGBA[3] * childColor.fRGBA[3]);
+        }
+
+        typedef GrFragmentProcessor INHERITED;
     };
     if (!fp) {
         return nullptr;
@@ -224,7 +251,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
     class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
     public:
         ReplaceInputFragmentProcessor(sk_sp<GrFragmentProcessor> child, GrColor4f color)
-            : fColor(color) {
+                : INHERITED(OptFlags(child.get(), color)), fColor(color) {
             this->initClassID<ReplaceInputFragmentProcessor>();
             this->registerChildProcessor(std::move(child));
         }
@@ -264,6 +291,18 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
     private:
+        static OptimizationFlags OptFlags(const GrFragmentProcessor* child, GrColor4f color) {
+            OptimizationFlags childFlags = child->optimizationFlags();
+            OptimizationFlags flags = kNone_OptimizationFlags;
+            if (childFlags & kConstantOutputForConstantInput_OptimizationFlag) {
+                flags |= kConstantOutputForConstantInput_OptimizationFlag;
+            }
+            if ((childFlags & kPreservesOpaqueInput_OptimizationFlag) && color.isOpaque()) {
+                flags |= kPreservesOpaqueInput_OptimizationFlag;
+            }
+            return flags;
+        }
+
         void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
         {}
 
@@ -276,7 +315,13 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
             this->childProcessor(0).computeInvariantOutput(inout);
         }
 
+        GrColor4f constantOutputForConstantInput(GrColor4f) const override {
+            return ConstantOutputForConstantInput(this->childProcessor(0), fColor);
+        }
+
         GrColor4f fColor;
+
+        typedef GrFragmentProcessor INHERITED;
     };
 
     GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags);
@@ -288,7 +333,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
                                                             int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
     public:
-        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt){
+        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt)
+                : INHERITED(OptFlags(children, cnt)) {
             SkASSERT(cnt > 1);
             this->initClassID<SeriesFragmentProcessor>();
             for (int i = 0; i < cnt; ++i) {
@@ -317,8 +363,14 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             };
             return new GLFP;
         }
-
     private:
+        static OptimizationFlags OptFlags(sk_sp<GrFragmentProcessor>* children, int cnt) {
+            OptimizationFlags flags = kAll_OptimizationFlags;
+            for (int i = 0; i < cnt && flags != kNone_OptimizationFlags; ++i) {
+                flags &= children[i]->optimizationFlags();
+            }
+            return flags;
+        }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -328,6 +380,15 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
                 this->childProcessor(i).computeInvariantOutput(inout);
             }
         }
+        GrColor4f constantOutputForConstantInput(GrColor4f color) const override {
+            int childCnt = this->numChildProcessors();
+            for (int i = 0; i < childCnt; ++i) {
+                color = ConstantOutputForConstantInput(this->childProcessor(i), color);
+            }
+            return color;
+        }
+
+        typedef GrFragmentProcessor INHERITED;
     };
 
     if (!cnt) {

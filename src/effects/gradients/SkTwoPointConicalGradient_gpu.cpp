@@ -92,7 +92,7 @@ private:
     }
 
     Edge2PtConicalEffect(const CreateArgs& args)
-        : INHERITED(args) {
+            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */) {
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
         fCenterX1 = shader.getCenterX1();
@@ -398,10 +398,15 @@ private:
                 this->fIsFlipped == s.fIsFlipped);
     }
 
+    static bool IsFlipped(const CreateArgs& args) {
+        // eww.
+        return static_cast<const SkTwoPointConicalGradient*>(args.fShader)->isFlippedGrad();
+    }
+
     FocalOutside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-    : INHERITED(args)
-    , fFocalX(focalX)
-    , fIsFlipped(static_cast<const SkTwoPointConicalGradient*>(args.fShader)->isFlippedGrad()) {
+            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */)
+            , fFocalX(focalX)
+            , fIsFlipped(IsFlipped(args)) {
         this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
@@ -413,7 +418,7 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-class FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor 
+class FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLFocalOutside2PtConicalProcessor(const GrProcessor&);
@@ -606,7 +611,7 @@ private:
     }
 
     FocalInside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-        : INHERITED(args), fFocalX(focalX) {
+            : INHERITED(args, args.fShader->colorsAreOpaque()), fFocalX(focalX) {
         this->initClassID<FocalInside2PtConicalEffect>();
     }
 
@@ -847,7 +852,7 @@ private:
     }
 
     CircleInside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-        : INHERITED(args), fInfo(info) {
+            : INHERITED(args, args.fShader->colorsAreOpaque()), fInfo(info) {
         this->initClassID<CircleInside2PtConicalEffect>();
     }
 
@@ -1064,7 +1069,8 @@ private:
     }
 
     CircleOutside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-        : INHERITED(args), fInfo(info) {
+            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */)
+            , fInfo(info) {
         this->initClassID<CircleOutside2PtConicalEffect>();
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
