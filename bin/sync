@@ -7,7 +7,7 @@
 
 # This script will update Skia's dependencies as necessary.
 
-# Depends on: Python, Git, and depot_tools.
+# Depends on: Python and Git
 
 # To retreive and use all optional deps:
 #
@@ -18,67 +18,36 @@ import os
 import subprocess
 import sys
 
-skia_dir = os.path.join(os.path.dirname(__file__), os.pardir)
+HASH_FILE = '.deps_sha1'
+DEPS_FLAG = '--deps='
+DEPS_FILE = 'DEPS'
 
-skia_opt_deps = [arg for arg in sys.argv[1:] if arg.startswith('--deps=')]
+skia_opt_deps = [arg[len(DEPS_FLAG):] for arg in sys.argv[1:] if arg.startswith(DEPS_FLAG)]
 
-os.chdir(skia_dir)
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
-if not os.path.isfile('DEPS'):
+if not os.path.isfile(DEPS_FILE):
   sys.stderr.write('DEPS file missing')
   exit(1)
 
 deps_hasher = hashlib.sha1()
-with open('DEPS', 'r') as f:
+with open(DEPS_FILE, 'r') as f:
   deps_hasher.update(f.read())
 deps_hasher.update(repr(skia_opt_deps))
 deps_hash = deps_hasher.hexdigest()
 current_deps_hash = None
-if os.path.isfile('.deps_sha1'):
-  with open('.deps_sha1', 'r') as f:
+if os.path.isfile(HASH_FILE):
+  with open(HASH_FILE, 'r') as f:
     current_deps_hash = f.read().strip()
 
-default_gclient_config = '''
-solutions = [
-  { "name"        : ".",
-    "url"         : "https://skia.googlesource.com/skia.git",
-    "deps_file"   : "DEPS",
-    "managed"     : False,
-    "custom_deps" : {
-    },
-    "safesync_url": "",
-  },
-]
-cache_dir = None
-'''
-
-# Must use gclient.bat rather than gclient on windows (at least on mingw)
-gclient = 'gclient'
-if sys.platform == 'win32' or sys.platform == 'cygwin':
-  gclient = 'gclient.bat'
-
 if current_deps_hash != deps_hash:
-  # `gclient sync` is very slow, so skip whenever we can.
-  try:
-    subprocess.call([gclient, '--version'])
-  except:
-    sys.stdout.write('gclient missing from $PATH, please install ' +
-                     'depot_tools\n    https://skia.org/user/quick/desktop\n')
-    exit(1)
-  if not os.path.isfile('.gclient'):
-    with open('.gclient', 'w') as o:
-      o.write(default_gclient_config)
-  command = [gclient, 'sync'] + skia_opt_deps
-  try:
-    sys.stdout.write('%r\n' % command)
-    subprocess.check_call(command)
-  except:
-    sys.stderr.write('\n%r failed.\n' % command)
-    try:
-      os.remove('.deps_sha1')  # Unknown state.
-    except:
-      pass
-    exit(1)
+  if os.path.isfile(HASH_FILE):
+    os.remove(HASH_FILE)
+  command = [sys.executable, os.path.join('tools', 'git-sync-deps')]
+  command.extend(skia_opt_deps)
+  sys.stdout.write('%r\n' % command)
+  sys.stdout.flush()
+  subprocess.check_call(command)
   # Only write hash after a successful sync.
-  with open('.deps_sha1', 'w') as o:
+  with open(HASH_FILE, 'w') as o:
     o.write(deps_hash)
