@@ -6,8 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestUtils.h"
-
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -15,6 +13,92 @@
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
+
+static void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
+                             GrSurfaceContext* srcContext, uint32_t expectedPixelValues[]) {
+    int pixelCnt = srcContext->width() * srcContext->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    memset(pixels.get(), 0, sizeof(uint32_t)*pixelCnt);
+
+    SkImageInfo ii = SkImageInfo::Make(srcContext->width(), srcContext->height(),
+                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    bool read = srcContext->readPixels(ii, pixels.get(), 0, 0, 0);
+    if (!read) {
+        ERRORF(reporter, "Error reading rectangle texture.");
+    }
+
+    for (int i = 0; i < pixelCnt; ++i) {
+        if (pixels.get()[i] != expectedPixelValues[i]) {
+            ERRORF(reporter, "Error, pixel value %d should be 0x%08x, got 0x%08x.", i,
+                   expectedPixelValues[i], pixels.get()[i]);
+            break;
+        }
+    }
+}
+
+static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
+                              GrSurfaceContext* rectSurfaceContext) {
+    int pixelCnt = rectSurfaceContext->width() * rectSurfaceContext->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    for (int y = 0; y < rectSurfaceContext->width(); ++y) {
+        for (int x = 0; x < rectSurfaceContext->height(); ++x) {
+            pixels.get()[y * rectSurfaceContext->width() + x] = GrColorPackRGBA(x, y, x + y, x * y);
+        }
+    }
+
+    SkImageInfo ii = SkImageInfo::Make(rectSurfaceContext->width(), rectSurfaceContext->height(),
+                                       kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    bool write = rectSurfaceContext->writePixels(ii, pixels.get(), 0, 0, 0);
+    if (!write) {
+        ERRORF(reporter, "Error writing to rectangle texture.");
+    }
+
+    test_read_pixels(reporter, context, rectSurfaceContext, pixels.get());
+}
+
+static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* context,
+                                  GrSurfaceProxy* rectProxy, uint32_t expectedPixelValues[]) {
+    GrSurfaceDesc copyDstDesc;
+    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    copyDstDesc.fWidth = rectProxy->width();
+    copyDstDesc.fHeight = rectProxy->height();
+
+    for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
+        copyDstDesc.fFlags = flags;
+
+        sk_sp<GrSurfaceContext> dstContext(GrSurfaceProxy::TestCopy(context, copyDstDesc,
+                                                                    rectProxy));
+
+        test_read_pixels(reporter, context, dstContext.get(), expectedPixelValues);
+    }
+}
+
+static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* context,
+                                  GrSurfaceContext* rectContext) {
+
+    int pixelCnt = rectContext->width() * rectContext->height();
+    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    for (int y = 0; y < rectContext->width(); ++y) {
+        for (int x = 0; x < rectContext->height(); ++x) {
+            pixels.get()[y * rectContext->width() + x] = GrColorPackRGBA(y, x, x * y, x *+ y);
+        }
+    }
+    for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
+        GrSurfaceDesc copySrcDesc;
+        copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        copySrcDesc.fWidth = rectContext->width();
+        copySrcDesc.fHeight = rectContext->height();
+        copySrcDesc.fFlags = flags;
+
+        sk_sp<GrSurfaceProxy> src(GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                               context->textureProvider(),
+                                                               copySrcDesc,
+                                                               SkBudgeted::kYes, pixels.get(), 0));
+        rectContext->copy(src.get());
+
+        test_read_pixels(reporter, context, rectContext, pixels.get());
+    }
+}
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
@@ -36,8 +120,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
         rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
-        test_read_pixels(reporter, context, rtContext.get(), expectedPixelValues,
-                         "RectangleTexture-basic-draw");
+        test_read_pixels(reporter, context, rtContext.get(), expectedPixelValues);
     }
 }
 
@@ -82,7 +165,7 @@ static void test_clear(skiatest::Reporter* reporter, GrContext* context,
             }
         }
 
-        test_read_pixels(reporter, context, rtc, expectedPixels.get(), "RectangleTexture-clear");
+        test_read_pixels(reporter, context, rtc, expectedPixels.get());
     }
 }
 
@@ -154,19 +237,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
 
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
 
-        // Test copy to both a texture and RT
-        test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
-                               false, "RectangleTexture-copy-from");
+        test_copy_surface_src(reporter, context, rectProxy.get(), refPixels);
 
         sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                     std::move(rectProxy), nullptr);
         SkASSERT(rectContext);
 
-        test_read_pixels(reporter, context, rectContext.get(), refPixels, "RectangleTexture-read");
+        test_read_pixels(reporter, context, rectContext.get(), refPixels);
 
-        test_copy_to_surface(reporter, context, rectContext.get(), "RectangleTexture-copy-to");
+        test_copy_surface_dst(reporter, context, rectContext.get());
 
-        test_write_pixels(reporter, context, rectContext.get(), true, "RectangleTexture-write");
+        test_write_pixels(reporter, context, rectContext.get());
 
         test_clear(reporter, context, rectContext.get());
 
