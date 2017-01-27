@@ -153,9 +153,10 @@ private:
  */
 class AlphaOnlyClip final : public MaskOnlyClipBase {
 public:
-    AlphaOnlyClip(GrTexture* mask, int x, int y) {
+    AlphaOnlyClip(GrContext* context, sk_sp<GrTextureProxy> mask, int x, int y) {
         int w = mask->width(), h = mask->height();
-        fFP = GrDeviceSpaceTextureDecalFragmentProcessor::Make(mask, SkIRect::MakeWH(w, h), {x, y});
+        fFP = GrDeviceSpaceTextureDecalFragmentProcessor::Make(context, std::move(mask),
+                                                               SkIRect::MakeWH(w, h), {x, y});
     }
 private:
     bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out) const override {
@@ -216,7 +217,6 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                                        SkRegion::kDifference_Op, false, GrAA::kNo, SkMatrix::I(),
                                        SkRect::MakeIWH(maskRTC->width(), maskRTC->height()));
     reducedClip.drawAlphaClipMask(maskRTC.get());
-    sk_sp<GrTexture> mask(maskRTC->asTexture());
 
     int x = kCoverRect.x() - kLayerRect.x(),
         y = kCoverRect.y() - kLayerRect.y();
@@ -224,9 +224,9 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // Now visualize the alpha mask by drawing a rect over the area where it is defined. The regions
     // inside window rectangles or outside the scissor should still have the initial checkerboard
     // intact. (This verifies we didn't spend any time modifying those pixels in the mask.)
-    AlphaOnlyClip clip(mask.get(), x, y);
+    AlphaOnlyClip clip(ctx, sk_ref_sp(maskRTC->asDeferredTexture()), x, y);
     rtc->drawRect(clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
-                  SkRect::Make(SkIRect::MakeXYWH(x, y, mask->width(), mask->height())));
+                  SkRect::Make(SkIRect::MakeXYWH(x, y, maskRTC->width(), maskRTC->height())));
 }
 
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,

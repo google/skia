@@ -43,6 +43,33 @@ public:
                                                    SkScalar sigmaX,
                                                    SkScalar sigmaY);
 
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           const SkIRect& bounds,
+                                           const SkISize& kernelSize,
+                                           const SkScalar* kernel,
+                                           SkScalar gain,
+                                           SkScalar bias,
+                                           const SkIPoint& kernelOffset,
+                                           GrTextureDomain::Mode tileMode,
+                                           bool convolveAlpha) {
+        return sk_sp<GrFragmentProcessor>(
+            new GrMatrixConvolutionEffect(context, std::move(proxy), bounds, kernelSize, kernel,
+                                          gain, bias, kernelOffset, tileMode, convolveAlpha));
+    }
+
+    static sk_sp<GrFragmentProcessor> MakeGaussian(GrContext* context,
+                                                   sk_sp<GrTextureProxy> proxy,
+                                                   const SkIRect& bounds,
+                                                   const SkISize& kernelSize,
+                                                   SkScalar gain,
+                                                   SkScalar bias,
+                                                   const SkIPoint& kernelOffset,
+                                                   GrTextureDomain::Mode tileMode,
+                                                   bool convolveAlpha,
+                                                   SkScalar sigmaX,
+                                                   SkScalar sigmaY);
+
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
     const float* kernelOffset() const { return fKernelOffset; }
@@ -56,6 +83,17 @@ public:
 
 private:
     GrMatrixConvolutionEffect(GrTexture*,
+                              const SkIRect& bounds,
+                              const SkISize& kernelSize,
+                              const SkScalar* kernel,
+                              SkScalar gain,
+                              SkScalar bias,
+                              const SkIPoint& kernelOffset,
+                              GrTextureDomain::Mode tileMode,
+                              bool convolveAlpha);
+
+    GrMatrixConvolutionEffect(GrContext*,
+                              sk_sp<GrTextureProxy> proxy,
                               const SkIRect& bounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,

@@ -44,7 +44,8 @@ public:
     static const int kModeCount = kLastMode + 1;
 
     static const GrTextureDomain& IgnoredDomain() {
-        static const GrTextureDomain gDomain(nullptr, SkRect::MakeEmpty(), kIgnore_Mode);
+        static const GrTextureDomain gDomain((GrTexture*)nullptr, 
+                                             SkRect::MakeEmpty(), kIgnore_Mode);
         return gDomain;
     }
 
@@ -53,6 +54,8 @@ public:
      *                  It is used to keep inserted variables from causing name collisions.
      */
     GrTextureDomain(GrTexture*, const SkRect& domain, Mode, int index = -1);
+
+    GrTextureDomain(GrTextureProxy*, const SkRect& domaon, Mode, int index = -1);
 
     const SkRect& domain() const { return fDomain; }
     Mode mode() const { return fMode; }
@@ -157,6 +160,14 @@ public:
                                            GrTextureDomain::Mode,
                                            GrSamplerParams::FilterMode filterMode);
 
+    static sk_sp<GrFragmentProcessor> Make(GrContext*,
+                                           sk_sp<GrTextureProxy>,
+                                           sk_sp<GrColorSpaceXform>,
+                                           const SkMatrix&,
+                                           const SkRect& domain,
+                                           GrTextureDomain::Mode,
+                                           GrSamplerParams::FilterMode filterMode);
+
     const char* name() const override { return "TextureDomain"; }
 
     SkString dumpInfo() const override {
@@ -172,6 +183,14 @@ private:
     GrTextureDomain fTextureDomain;
 
     GrTextureDomainEffect(GrTexture*,
+                          sk_sp<GrColorSpaceXform>,
+                          const SkMatrix&,
+                          const SkRect& domain,
+                          GrTextureDomain::Mode,
+                          GrSamplerParams::FilterMode);
+
+    GrTextureDomainEffect(GrContext*,
+                          sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const SkRect& domain,
@@ -196,6 +215,9 @@ public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture*, const SkIRect& subset,
                                            const SkIPoint& deviceSpaceOffset);
 
+    static sk_sp<GrFragmentProcessor> Make(GrContext*, sk_sp<GrTextureProxy>, const SkIRect& subset,
+                                           const SkIPoint& deviceSpaceOffset);
+
     const char* name() const override { return "GrDeviceSpaceTextureDecalFragmentProcessor"; }
 
     SkString dumpInfo() const override {
@@ -214,6 +236,9 @@ private:
     SkIPoint fDeviceSpaceOffset;
 
     GrDeviceSpaceTextureDecalFragmentProcessor(GrTexture*, const SkIRect&, const SkIPoint&);
+
+    GrDeviceSpaceTextureDecalFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>,
+                                               const SkIRect&, const SkIPoint&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
