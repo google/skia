@@ -133,23 +133,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             }
         }
 
-        sk_sp<GrSurfaceProxy> rectProxy;
-
-        {
-            sk_sp<GrTexture> rectangleTexture(
-                context->textureProvider()->wrapBackendTexture(rectangleDesc));
-            if (!rectangleTexture) {
-                ERRORF(reporter, "Error wrapping rectangle texture in GrTexture.");
-                GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
-                continue;
-            }
-
-            rectProxy = GrSurfaceProxy::MakeWrapped(std::move(rectangleTexture));
-            if (!rectProxy) {
-                ERRORF(reporter, "Error creating proxy for rectangle texture.");
-                GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
-                continue;
-            }
+        sk_sp<GrSurfaceProxy> rectProxy = GrSurfaceProxy::MakeWrappedBackend(context,
+                                                                             rectangleDesc);
+        if (!rectProxy) {
+            ERRORF(reporter, "Error creating proxy for rectangle texture.");
+            GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
+            continue;
         }
 
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);

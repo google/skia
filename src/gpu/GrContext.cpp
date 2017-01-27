@@ -628,6 +628,21 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
     return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
 }
 
+sk_sp<GrSurfaceContext> GrContextPriv::makeBackendSurfaceContext(const GrBackendTextureDesc& desc,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 GrWrapOwnership ownership) {
+    ASSERT_SINGLE_OWNER_PRIV
+
+    sk_sp<GrSurface> surface(fContext->textureProvider()->wrapBackendTexture(desc, ownership));
+    if (!surface) {
+        return nullptr;
+    }
+
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
+
+    return this->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace));
+}
+
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
                                                                    const GrBackendTextureDesc& desc,
                                                                    sk_sp<SkColorSpace> colorSpace,

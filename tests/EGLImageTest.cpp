@@ -135,27 +135,22 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalDesc.fHeight = kSize;
     externalDesc.fTextureHandle = reinterpret_cast<GrBackendObject>(&externalTexture);
 
-    sk_sp<GrSurfaceContext> externalTextureContext;
+    sk_sp<GrSurfaceContext> surfaceContext = context0->contextPriv().makeBackendSurfaceContext(
+                                                                           externalDesc, nullptr);
 
-    {
-        sk_sp<GrTexture> externalTextureObj(
-            context0->textureProvider()->wrapBackendTexture(externalDesc));
-        if (!externalTextureObj) {
-            ERRORF(reporter, "Error wrapping external texture in GrTexture.");
-            cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
-            return;
-        }
-
-        externalTextureContext = context0->contextPriv().makeWrappedSurfaceContext(
-                                                                    std::move(externalTextureObj));
+    if (!surfaceContext) {
+        ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        return;
     }
 
     // Should not be able to wrap as a RT
     {
         externalDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-        sk_sp<GrTexture> externalTextureRTObj(
-            context0->textureProvider()->wrapBackendTexture(externalDesc));
-        if (externalTextureRTObj) {
+
+        sk_sp<GrSurfaceContext> temp = context0->contextPriv().makeBackendSurfaceContext(
+                                                                           externalDesc, nullptr);
+        if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
         }
         externalDesc.fFlags = kNone_GrBackendTextureFlag;
@@ -164,24 +159,24 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // Should not be able to wrap with a sample count
     {
         externalDesc.fSampleCnt = 4;
-        sk_sp<GrTexture> externalTextureMSAAObj(
-            context0->textureProvider()->wrapBackendTexture(externalDesc));
-        if (externalTextureMSAAObj) {
+        sk_sp<GrSurfaceContext> temp = context0->contextPriv().makeBackendSurfaceContext(
+                                                                           externalDesc, nullptr);
+        if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture with MSAA.");
         }
         externalDesc.fSampleCnt = 0;
     }
 
-    test_read_pixels(reporter, context0, externalTextureContext.get(), pixels.get(),
+    test_read_pixels(reporter, context0, surfaceContext.get(), pixels.get(),
                      "EGLImageTest-read");
 
     // We should not be able to write to a EXTERNAL texture
-    test_write_pixels(reporter, context0, externalTextureContext.get(), false,
+    test_write_pixels(reporter, context0, surfaceContext.get(), false,
                       "EGLImageTest-write");
 
     // Only test RT-config
     // TODO: why do we always need to draw to copy from an external texture?
-    test_copy_from_surface(reporter, context0, externalTextureContext->asDeferredSurface(),
+    test_copy_from_surface(reporter, context0, surfaceContext->asDeferredSurface(),
                            pixels.get(), true, "EGLImageTest-copy");
 
     cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
