@@ -1000,11 +1000,13 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 
 DEF_TEST(Codec_jpeg_rewind, r) {
     const char* path = "mandrill_512_q075.jpg";
-    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
-    if (!stream) {
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
         return;
     }
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+
+    data = SkData::MakeSubset(data.get(), 0, data->size() / 2);
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(data));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'.", path);
         return;
@@ -1018,13 +1020,13 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     // Perform a sampled decode.
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 12;
-    SkCodec::Result result = codec->getAndroidPixels(
-            codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(), rowBytes, &opts);
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    auto sampledInfo = codec->getInfo().makeWH(width / 12, height / 12);
+    auto result = codec->getAndroidPixels(sampledInfo, pixelStorage.get(), rowBytes, &opts);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
     // Rewind the codec and perform a full image decode.
     result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
     // Now perform a subset decode.
     {
@@ -1033,14 +1035,17 @@ DEF_TEST(Codec_jpeg_rewind, r) {
         opts.fSubset = &subset;
         result = codec->getAndroidPixels(codec->getInfo().makeWH(100, 100), pixelStorage.get(),
                                          rowBytes, &opts);
+        // Though we only have half the data, it is enough to decode this subset.
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     }
 
     // Perform another full image decode.  ASAN will detect if we look at the subset when it is
     // out of scope.  This would happen if we depend on the old state in the codec.
+    // This tests two layers of bugs: both SkJpegCodec::readRows and SkCodec::fillIncompleteImage
+    // used to look at the old subset.
     opts.fSubset = nullptr;
     result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes, &opts);
-    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
