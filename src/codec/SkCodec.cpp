@@ -215,9 +215,7 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     }
 
     fDstInfo = info;
-    // FIXME: fOptions should be updated to options here, since fillIncompleteImage (called below
-    // in this method) accesses it. Without updating, it uses the old value.
-    //fOptions = *options;
+    fOptions = *options;
 
     // On an incomplete decode, the subclass will specify the number of scanlines that it decoded
     // successfully.
@@ -235,6 +233,12 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     // their own.  They indicate that all of the memory has been filled by
     // setting rowsDecoded equal to the height.
     if (kIncompleteInput == result && rowsDecoded != info.height()) {
+        // FIXME: (skbug.com/5772) fillIncompleteImage will fill using the swizzler's width, unless
+        // there is a subset. In that case, it will use the width of the subset. From here, the
+        // subset will only be non-null in the case of SkWebpCodec, but it treats the subset
+        // differenty from the other codecs, and it needs to use the width specified by the info.
+        // Set the subset to null so SkWebpCodec uses the correct width.
+        fOptions.fSubset = nullptr;
         this->fillIncompleteImage(info, pixels, rowBytes, options->fZeroInitialized, info.height(),
                 rowsDecoded);
     }
