@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac2bb928_0f8865af",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-27T19:07:13Z",
+      "side": 1,
+      "message": "Please comment that we store a pointer to the unique_ptr so that we can replace the Statement without regenerating the entire IR.",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 35
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e5fa6b2_f4ecb755",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-27T19:07:13Z",
+      "side": 1,
+      "message": "s/a-\u003ereset(b.release())/a-\u003eswap(b)/g\n\nor /*a \u003d std::move(b)/",
+      "range": {
+        "startLine": 437,
+        "startChar": 36,
+        "endLine": 437,
+        "endChar": 82
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c16f54e4_ca8d79df",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-27T19:07:13Z",
+      "side": 1,
+      "message": "nit: break lines between arguments rather than within arguments, i.e.:\n            this-\u003emarkWrittenTo(*arguments[i],\n                                function.fParameters[i]-\u003efModifiers.fFlags \u0026 Modifiers::kIn_Flag);",
+      "range": {
+        "startLine": 1035,
+        "startChar": 47,
+        "endLine": 1036,
+        "endChar": 66
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8fc28ab_b84d7d87",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-27T19:07:13Z",
+      "side": 1,
+      "message": "Do we need to check if non-negative?",
+      "range": {
+        "startLine": 39,
+        "startChar": 24,
+        "endLine": 39,
+        "endChar": 32
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23218ef6_b52a778b",
+        "filename": "src/sksl/ir/SkSLExpression.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-27T19:07:13Z",
+      "side": 1,
+      "message": "nit: seems safer to either not provide an implementation here or return true.",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 21
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
