@@ -39,6 +39,108 @@
       "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfcfad72_37a068ac",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e563741_df7351c1",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "1 line ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "215cbb8e_ee049b58",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "missing \u0027 \u0027 ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "784dcac0_c33564ea",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f933ae44_79b14b4d",
+        "filename": "src/gpu/effects/GrShadowTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "// TODO: vectorize ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6db9546f_bcd6d783",
+        "filename": "src/gpu/effects/GrShadowTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-27T16:23:06Z",
+      "side": 1,
+      "message": "Should the xlates be \"const\u0026\" ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
