@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d51fa03b_6b5630a2",
+        "filename": "src/core/SkShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-27T21:26:30Z",
+      "side": 1,
+      "message": "If it\u0027s not to annoying, we should probably leave ourselves a reminder to adjust to dst color space here, or just do it...\n\n// Legacy shaders aren\u0027t aware of color spaces.  We can pretty safely assume they\u0027re in sRGB gamut.\nreturn append_gamut_transform(p, alloc, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), cs);",
+      "revId": "bce38817166e2f71dce60c89dfd32a80eb3074c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
