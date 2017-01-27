@@ -312,8 +312,9 @@ bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, B
 bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkColorSpace* dst,
                                    SkArenaAlloc* scratch,
-                                   const SkMatrix& ctm,
-                                   const SkPaint&) const {
+                                   const SkMatrix&,
+                                   const SkPaint&,
+                                   const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
     return append_gamut_transform(p, scratch,
@@ -323,8 +324,9 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkColorSpace* dst,
                                     SkArenaAlloc* scratch,
-                                    const SkMatrix& ctm,
-                                    const SkPaint&) const {
+                                    const SkMatrix&,
+                                    const SkPaint&,
+                                    const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(fColor4.premul());
     p->append(SkRasterPipeline::constant_color, color);
     return append_gamut_transform(p, scratch, fColorSpace.get(), dst);

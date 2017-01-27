@@ -50,6 +50,21 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
     return fProxyShader->createContext(newRec, storage);
 }
 
+bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
+                                         SkColorSpace* dst,
+                                         SkArenaAlloc* scratch,
+                                         const SkMatrix& ctm,
+                                         const SkPaint& paint,
+                                         const SkMatrix* localM) const {
+    SkMatrix tmp;
+    if (localM) {
+        tmp.setConcat(*localM, this->getLocalMatrix());
+    }
+
+    return fProxyShader->onAppendStages(p, dst, scratch, ctm, paint,
+                                        localM ? &tmp : &this->getLocalMatrix());
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkLocalMatrixShader::toString(SkString* str) const {
     str->append("SkLocalMatrixShader: (");

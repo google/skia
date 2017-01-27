@@ -95,14 +95,18 @@ SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void
 //   * linear_gradient_2stops (lerp c0/c1)
 //   * optional premul
 //
-bool SkLinearGradient::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
-                                      const SkMatrix& ctm, const SkPaint& paint) const {
+bool SkLinearGradient::onAppendStages(SkRasterPipeline* p,
+                                      SkColorSpace* cs,
+                                      SkArenaAlloc* alloc,
+                                      const SkMatrix& ctm,
+                                      const SkPaint&,
+                                      const SkMatrix* localM) const {
     if (fColorCount > 2) {
         return false;
     }
 
     // Local matrix not supported currently.  Remove once we have a generic RP wrapper.
-    if (!getLocalMatrix().isIdentity()) {
+    if (localM || !getLocalMatrix().isIdentity()) {
         return false;
     }
 

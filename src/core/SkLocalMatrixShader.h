@@ -51,6 +51,9 @@ protected:
         return fProxyShader->isAImage(matrix, mode);
     }
 
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
+
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isABitmap(bitmap, matrix, mode);

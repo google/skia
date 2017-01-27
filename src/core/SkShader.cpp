@@ -259,7 +259,7 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             SkArenaAlloc* scratch,
                             const SkMatrix& ctm,
                             const SkPaint& paint) const {
-    return this->onAppendStages(pipeline, dst, scratch, ctm, paint);
+    return this->onAppendStages(pipeline, dst, scratch, ctm, paint, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

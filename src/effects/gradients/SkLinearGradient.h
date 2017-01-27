@@ -70,7 +70,7 @@ protected:
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix&, const SkPaint&) const override;
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
 private:
     class LinearGradient4fContext;
