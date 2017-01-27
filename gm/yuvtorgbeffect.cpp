@@ -86,11 +86,11 @@ protected:
         {
             GrSurfaceDesc desc;
             desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-            desc.fConfig = kAlpha_8_GrPixelConfig;
 
             for (int i = 0; i < 3; ++i) {
                 desc.fWidth = fBmp[i].width();
                 desc.fHeight = fBmp[i].height();
+                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
                 proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                         context->textureProvider(),
@@ -221,11 +221,9 @@ protected:
             for (int i = 0; i < 3; ++i) {
                 int index = (0 == i) ? 0 : 1;
 
-                desc.fConfig = kAlpha_8_SkColorType == fBmp[index].colorType()
-                                    ? kAlpha_8_GrPixelConfig
-                                    : kBGRA_8888_GrPixelConfig;
                 desc.fWidth = fBmp[index].width();
                 desc.fHeight = fBmp[index].height();
+                desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
                 proxy[i] = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                         context->textureProvider(),
