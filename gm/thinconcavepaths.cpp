@@ -44,7 +44,7 @@ DEF_SIMPLE_GM(thinconcavepaths, canvas, 400, 400) {
     paint.setStyle(SkPaint::kFill_Style);
 
     canvas->save();
-    for (SkScalar width = 1.0; width < 2.05; width += 0.25) {
+    for (SkScalar width = 0.5; width < 2.05; width += 0.25) {
         draw_thin_stroked_rect(canvas, paint, width);
         canvas->translate(0, 25);
     }
