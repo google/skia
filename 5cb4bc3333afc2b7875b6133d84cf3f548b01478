@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "7b3dfff7_e3d3b6a5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "I don\u0027t really intend this as an Android feature.  They do have the option to pretend Alpha8 is Gray8 when they decode, but I don\u0027t see a reason to add that as an encoding feature.  I think our other encoders also fail on Alpha8 input.\n\nIt is nice to support Gray as a general Skia feature, since it makes perfect sense to encode Gray jpgs.",
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "455d142f_6436947e",
         "filename": "gm/encode-srgb.cpp",
         "patchSetId": 3
@@ -42,6 +59,23 @@
         "endLine": 96,
         "endChar": 28
       },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebb8cdce_01aa656f",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "Done.  Good idea.",
       "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -88,6 +122,23 @@
     },
     {
       "key": {
+        "uuid": "c480e451_6d1d4582",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "I\u0027ll add a TODO.  It\u0027s definitely too much to think about in this CL.  I\u0027m not convinced that our current behavior makes sense, but I also don\u0027t have a convincing reason to change it.",
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "12e744f8_4cdb415f",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 3
@@ -105,6 +156,23 @@
         "endLine": 33,
         "endChar": 43
       },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "447f56ad_86388420",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "static: Done.\nNew name: setup_encode_config",
       "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -134,6 +202,23 @@
     },
     {
       "key": {
+        "uuid": "8082aee3_42682555",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "I want F16 to work only when:\n(1) There is a linear color space.\n(2) PremulBehavior is kGammaCorrect.\n\nI also want kGammaCorrect behavior to require a color space.\n\nSo all of this is intentional, though maybe a bit confusing.  Adding comments.\n\nFWIW, setting to nullptr on legacy encodes is also useful because my next step is to write icc profiles on gamma correct encodes...",
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "56e3cf77_a3c0a12c",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 3
@@ -157,6 +242,23 @@
     },
     {
       "key": {
+        "uuid": "eaab56ca_8f71811c",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9131c5dd_68cb9e8d",
         "filename": "src/images/SkJPEGImageEncoder.cpp",
         "patchSetId": 3
@@ -174,6 +276,23 @@
         "endLine": 115,
         "endChar": 42
       },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42a2ec4d_aa32b045",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T23:17:32Z",
+      "side": 1,
+      "message": "No reason to initialize here, removed.",
       "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
