@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright 2014 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
@@ -99,6 +99,15 @@ def is_git_toplevel(git, directory):
     return False
 
 
+def status(directory, checkoutable):
+  def truncate(s, length):
+    return s if len(s) <= length else s[:(length - 3)] + '...'
+  dlen = 36
+  directory = truncate(directory, dlen)
+  checkoutable = truncate(checkoutable, 40)
+  sys.stdout.write('%-*s @ %s\n' % (dlen, directory, checkoutable))
+
+
 def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
   """Checkout (and clone if needed) a Git repository.
 
@@ -137,20 +146,20 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
       [git, 'checkout', '--quiet', checkoutable], cwd=directory):
     # if this succeeds, skip slow `git fetch`.
     if verbose:
-      sys.stdout.write('%s\n  @ %s\n' % (directory, checkoutable))
+      status(directory, checkoutable)  # Success.
     return
+
+  # If the repo has changed, always force use of the correct repo.
+  # If origin already points to repo, this is a quick no-op.
+  subprocess.check_call(
+      [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
 
   subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
 
-  if 0 != subprocess.call(
-      [git, 'checkout', '--quiet', checkoutable], cwd=directory):
-      subprocess.check_call(
-          [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
-      subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
-      subprocess.check_call([git, 'checkout', '--quiet'], cwd=directory)
+  subprocess.check_call([git, 'checkout', '--quiet'], cwd=directory)
 
   if verbose:
-    sys.stdout.write('%s\n  @ %s\n' % (directory, checkoutable))  # Success.
+    status(directory, checkoutable)  # Success.
 
 
 def parse_file_to_dict(path):
@@ -183,7 +192,7 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
     if os_name in os_specific_dependencies:
       dependencies.update(os_specific_dependencies[os_name])
   list_of_arg_lists = []
-  for directory in dependencies:
+  for directory in sorted(dependencies):
     if '@' in dependencies[directory]:
       repo, checkoutable = dependencies[directory].split('@', 1)
     else:
@@ -223,7 +232,9 @@ def main(argv):
     return 1
 
   git_sync_deps(deps_file_path, argv, verbose)
-  subprocess.check_call([sys.executable, 'bin/fetch-gn'])
+  subprocess.check_call(
+      [sys.executable,
+       os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
   return 0
 
 
