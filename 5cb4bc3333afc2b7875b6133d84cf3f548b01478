@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "613db518_002d5dbc",
+        "filename": "src/images/SkJPEGImageEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-01-27T00:48:35Z",
+      "side": 1,
+      "message": "I would really like to disable jpeg encodes if the input is not opaque.  I\u0027m guessing that would break Android (and other clients?).\n\nIf not that, I would really like to unpremultiply before encoding (so we at least encode premul/unpremul images the same), but I\u0027m guessing this would change Android behavior.\n\nSo now I\u0027m adding F16 and it behaves just like RGBA/BGRA, the alpha type and alpha channel are ignored.",
+      "range": {
+        "startLine": 32,
+        "startChar": 5,
+        "endLine": 32,
+        "endChar": 16
+      },
+      "revId": "5cb4bc3333afc2b7875b6133d84cf3f548b01478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
