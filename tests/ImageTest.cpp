@@ -541,7 +541,7 @@ static bool has_pixels(const SkPMColor pixels[], int count, SkPMColor expected) 
     return true;
 }
 
-static void image_test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
+static void test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
     if (!image) {
         ERRORF(reporter, "Failed to create image!");
         return;
@@ -591,23 +591,23 @@ static void image_test_read_pixels(skiatest::Reporter* reporter, SkImage* image)
 }
 DEF_TEST(ImageReadPixels, reporter) {
     sk_sp<SkImage> image(create_image());
-    image_test_read_pixels(reporter, image.get());
+    test_read_pixels(reporter, image.get());
 
     image = create_data_image();
-    image_test_read_pixels(reporter, image.get());
+    test_read_pixels(reporter, image.get());
 
     RasterDataHolder dataHolder;
     image = create_rasterproc_image(&dataHolder);
-    image_test_read_pixels(reporter, image.get());
+    test_read_pixels(reporter, image.get());
     image.reset();
     REPORTER_ASSERT(reporter, 1 == dataHolder.fReleaseCount);
 
     image = create_codec_image();
-    image_test_read_pixels(reporter, image.get());
+    test_read_pixels(reporter, image.get());
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
-    image_test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
+    test_read_pixels(reporter, create_gpu_image(ctxInfo.grContext()).get());
 }
 #endif
 
