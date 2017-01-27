@@ -38,7 +38,7 @@ protected:
     SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix& ctm, const SkPaint&) const override;
+                        const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
 
     sk_sp<SkImage>  fImage;
     const TileMode  fTileModeX;

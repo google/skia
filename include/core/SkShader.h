@@ -502,7 +502,8 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                const SkMatrix&, const SkPaint&) const {
+                                const SkMatrix&, const SkPaint&,
+                                const SkMatrix* /*local matrix*/) const {
         return false;
     }
 
