@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "705438c9_8789507b",
+        "filename": "gm/texturedomaineffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-27T19:04:36Z",
+      "side": 1,
+      "message": "Should we have proxy-\u003erefTextureProxy()?",
+      "range": {
+        "startLine": 127,
+        "startChar": 44,
+        "endLine": 127,
+        "endChar": 78
+      },
+      "revId": "eca79f9c71ab289943e8d132d18bab3769b74939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "246e8607_287f58e4",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-27T19:04:36Z",
+      "side": 1,
+      "message": "On GrSurfaceProxy we have asTextureProxy()/asRenderTargetProxy() but on GrRenderTargetContext we have asDeferredSurface(), asDeferredTexture(), and asDeferredRenderTarget(). Is the FooProxy, DeferredFoo naming difference meaningful or accidental. Should we unify them?",
+      "range": {
+        "startLine": 227,
+        "startChar": 28,
+        "endLine": 227,
+        "endChar": 67
+      },
+      "revId": "eca79f9c71ab289943e8d132d18bab3769b74939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
