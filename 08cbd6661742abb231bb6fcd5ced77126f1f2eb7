@@ -59,6 +59,23 @@
     },
     {
       "key": {
+        "uuid": "618a34ff_9ea4f1f5",
+        "filename": "src/effects/shadows/SkAmbientShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e563741_df7351c1",
         "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
         "patchSetId": 3
@@ -76,6 +93,23 @@
     },
     {
       "key": {
+        "uuid": "cdcbdd13_85ff2833",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "215cbb8e_ee049b58",
         "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
         "patchSetId": 3
@@ -87,6 +121,23 @@
       "writtenOn": "2017-01-27T16:23:06Z",
       "side": 1,
       "message": "missing \u0027 \u0027 ?",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35176b09_cd56669e",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Won\u0027t quite fit.",
       "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -110,6 +161,23 @@
     },
     {
       "key": {
+        "uuid": "fa36b8dc_4cc01813",
+        "filename": "src/effects/shadows/SkSpotShadowMaskFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f933ae44_79b14b4d",
         "filename": "src/gpu/effects/GrShadowTessellator.cpp",
         "patchSetId": 3
@@ -127,6 +195,23 @@
     },
     {
       "key": {
+        "uuid": "c02227fe_a58d19c8",
+        "filename": "src/gpu/effects/GrShadowTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db9546f_bcd6d783",
         "filename": "src/gpu/effects/GrShadowTessellator.h",
         "patchSetId": 3
@@ -141,6 +226,23 @@
       "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94f27b39_1a3da8ad",
+        "filename": "src/gpu/effects/GrShadowTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-01-27T16:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "08cbd6661742abb231bb6fcd5ced77126f1f2eb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
