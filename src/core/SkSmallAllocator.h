@@ -15,22 +15,6 @@
 #include <type_traits>
 #include <utility>
 
-
-// max_align_t is needed to calculate the alignment for createWithIniterT when the T used is an
-// abstract type. The complication with max_align_t is that it is defined differently for
-// different builds.
-namespace {
-#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
-    // Use std::max_align_t for compiles that follow the standard.
-    #include <cstddef>
-    using SystemAlignment = std::max_align_t;
-#else
-    // Ubuntu compiles don't have std::max_align_t defined, but MSVC does not define max_align_t.
-    #include <stddef.h>
-    using SystemAlignment = max_align_t;
-#endif
-}
-
 /*
  *  Template class for allocating small objects without additional heap memory
  *  allocations.
@@ -58,7 +42,7 @@ public:
      */
     template<typename T, typename... Args>
     T* createT(Args&&... args) {
-        void* buf = this->reserve(sizeof(T), DefaultDestructor<T>);
+        void* buf = this->reserve(sizeof(T), alignof(T), DefaultDestructor<T>);
         return new (buf) T(std::forward<Args>(args)...);
     }
 
@@ -72,7 +56,8 @@ public:
         using ObjType = typename std::remove_pointer<decltype(initer(nullptr))>::type;
         SkASSERT(size >= sizeof(ObjType));
 
-        void* storage = this->reserve(size, DefaultDestructor<ObjType>);
+        // Just use 16 because ObjType is sometimes abstract.
+        void* storage = this->reserve(size, 16, Default16Destructor<ObjType>);
         auto candidate = initer(storage);
         if (!candidate) {
             // Initializing didn't workout so free the memory.
@@ -94,41 +79,47 @@ public:
     }
 
 private:
-    using Destructor = void(*)(void*);
+    using Destructor = void(*)(char*);
     struct Rec {
         char*      fObj;
         Destructor fDestructor;
     };
 
-    // Used to call the destructor for allocated objects.
-    template<typename T>
-    static void DefaultDestructor(void* ptr) {
-        static_cast<T*>(ptr)->~T();
+    static char* AlignPtr(char* ptr, uint32_t alignment) {
+        uintptr_t mask = alignment - 1;
+        return (char*)(((uintptr_t)ptr + mask) & ~mask);
     }
 
-    static constexpr size_t kAlignment = alignof(SystemAlignment);
+    // Used to call the destructor for allocated objects.
+    template<typename T>
+    static void DefaultDestructor(char* ptr) {
+        ((T*)(AlignPtr(ptr, alignof(T))))->~T();
+    }
 
-    static constexpr size_t AlignSize(size_t size) {
-        return (size + kAlignment - 1) & ~(kAlignment - 1);
+    // Used to call the destructor for allocated objects.
+    template<typename T>
+    static void Default16Destructor(char* ptr) {
+        ((T*)(AlignPtr(ptr, 16)))->~T();
     }
 
     // Reserve storageRequired from fStorage if possible otherwise allocate on the heap.
-    void* reserve(size_t storageRequired, Destructor destructor) {
+    char* reserve(size_t storageRequired, uint32_t alignment, Destructor destructor) {
         // Make sure that all allocations stay aligned by rounding the storageRequired up to the
         // aligned value.
-        char* objectStart = fStorageEnd;
-        char* objectEnd = objectStart + AlignSize(storageRequired);
+        char* objectStart = AlignPtr(fStorageEnd, alignment);
+        char* objectEnd = objectStart + storageRequired;
         Rec& rec = fRecs.push_back();
         if (objectEnd > &fStorage[kTotalBytes]) {
             // Allocate on the heap. Ideally we want to avoid this situation.
-            rec.fObj = new char [storageRequired];
+            rec.fObj = new char [storageRequired + (alignment - 1)];
+            objectStart = AlignPtr(rec.fObj, alignment);
         } else {
             // There is space in fStorage.
             rec.fObj = objectStart;
             fStorageEnd = objectEnd;
         }
         rec.fDestructor = destructor;
-        return rec.fObj;
+        return objectStart;
     }
 
     void freeLast() {
@@ -144,9 +135,7 @@ private:
 
     SkSTArray<kExpectedObjects, Rec, true> fRecs;
     char*                                  fStorageEnd {fStorage};
-    // Since char have an alignment of 1, it should be forced onto an alignment the compiler
-    // expects which is the alignment of std::max_align_t.
-    alignas (kAlignment) char              fStorage[kTotalBytes];
+    char                                   fStorage[kTotalBytes];
 };
 
 #endif // SkSmallAllocator_DEFINED
