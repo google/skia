@@ -35,7 +35,7 @@ static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
     using namespace GrDefaultGeoProcFactory;
     Color gpColor(color);
     if (hasColors) {
-        gpColor.fType = Color::kAttribute_Type;
+        gpColor.fType = Color::kPremulGrColorAttribute_Type;
     }
 
     return GrDefaultGeoProcFactory::Make(gpColor, Coverage::kSolid_Type,

@@ -401,7 +401,7 @@ private:
             sk_sp<GrGeometryProcessor> lineGP;
             {
                 using namespace GrDefaultGeoProcFactory;
-                lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kAttribute_Type),
+                lineGP = GrDefaultGeoProcFactory::Make(Color(Color::kPremulGrColorAttribute_Type),
                                                        Coverage::kSolid_Type,
                                                        LocalCoords(LocalCoords::kUnused_Type),
                                                        fViewMatrix);

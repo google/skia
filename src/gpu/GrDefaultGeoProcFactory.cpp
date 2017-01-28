@@ -24,8 +24,9 @@
 
 enum GPFlag {
     kColor_GPFlag =                 0x1,
-    kLocalCoord_GPFlag =            0x2,
-    kCoverage_GPFlag=               0x4,
+    kConvertFromUnpremulSkColor =   0x2,
+    kLocalCoord_GPFlag =            0x4,
+    kCoverage_GPFlag=               0x8,
 };
 
 class DefaultGeoProc : public GrGeometryProcessor {
@@ -71,7 +72,17 @@ public:
 
             // Setup pass through color
             if (gp.hasVertexColor()) {
-                varyingHandler->addPassThroughAttribute(gp.inColor(), args.fOutputColor);
+                GrGLSLVertToFrag varying(kVec4f_GrSLType);
+                varyingHandler->addVarying("color", &varying);
+                if (gp.fFlags & kConvertFromUnpremulSkColor) {
+                    // Do a red/blue swap and premul the color.
+                    vertBuilder->codeAppendf("%s = vec4(%s.a*%s.bgr, %s.a);", varying.vsOut(),
+                                             gp.inColor()->fName, gp.inColor()->fName,
+                                             gp.inColor()->fName);
+                } else {
+                    vertBuilder->codeAppendf("%s = %s;\n", varying.vsOut(), gp.inColor()->fName);
+                }
+                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
             } else {
                 this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
                                         &fColorUniform);
@@ -128,9 +139,7 @@ public:
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= def.hasVertexColor() << 8;
-            key |= def.hasVertexCoverage() << 9;
-            key |= (def.coverage() == 0xff) ? (0x1 << 10) : 0;
+            key |= (def.coverage() == 0xff) ? 0x20 : 0;
             key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? (0x1 << 24)
                                                                                        : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 25;
@@ -242,6 +251,9 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kColor_GPFlag;
     }
     if (d->fRandom->nextBool()) {
+        flags |= kConvertFromUnpremulSkColor;
+    }
+    if (d->fRandom->nextBool()) {
         flags |= kCoverage_GPFlag;
     }
     if (d->fRandom->nextBool()) {
@@ -252,6 +264,7 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
                                 GrRandomColor(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
+
                                 d->fRandom->nextBool(),
                                 GrRandomCoverage(d->fRandom));
 }
@@ -261,7 +274,11 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
                                                          const LocalCoords& localCoords,
                                                          const SkMatrix& viewMatrix) {
     uint32_t flags = 0;
-    flags |= color.fType == Color::kAttribute_Type ? kColor_GPFlag : 0;
+    if (Color::kPremulGrColorAttribute_Type == color.fType) {
+        flags |= kColor_GPFlag;
+    } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
+        flags |= kColor_GPFlag | kConvertFromUnpremulSkColor;
+    }
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverage_GPFlag : 0;
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoord_GPFlag : 0;
 

@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 #include "GrMeshDrawOp.h"
+#include "GrRenderTargetContext.h"
 #include "GrTypes.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -25,11 +26,12 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
                                           const SkMatrix& viewMatrix, const SkPoint* positions,
                                           int vertexCount, const uint16_t* indices, int indexCount,
-                                          const GrColor* colors, const SkPoint* localCoords,
-                                          const SkRect& bounds) {
-        return std::unique_ptr<GrDrawOp>(
-                new GrDrawVerticesOp(color, primitiveType, viewMatrix, positions, vertexCount,
-                                     indices, indexCount, colors, localCoords, bounds));
+                                          const uint32_t* colors, const SkPoint* localCoords,
+                                          const SkRect& bounds,
+                                          GrRenderTargetContext::ColorArrayType colorArrayType) {
+        return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(
+                color, primitiveType, viewMatrix, positions, vertexCount, indices, indexCount,
+                colors, localCoords, bounds, colorArrayType));
     }
 
     const char* name() const override { return "DrawVerticesOp"; }
@@ -46,8 +48,8 @@ public:
 private:
     GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
                      const SkPoint* positions, int vertexCount, const uint16_t* indices,
-                     int indexCount, const GrColor* colors, const SkPoint* localCoords,
-                     const SkRect& bounds);
+                     int indexCount, const uint32_t* colors, const SkPoint* localCoords,
+                     const SkRect& bounds, GrRenderTargetContext::ColorArrayType colorArrayType);
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
@@ -66,7 +68,7 @@ private:
         GrColor fColor;  // Only used if there are no per-vertex colors
         SkTDArray<SkPoint> fPositions;
         SkTDArray<uint16_t> fIndices;
-        SkTDArray<GrColor> fColors;
+        SkTDArray<uint32_t> fColors;
         SkTDArray<SkPoint> fLocalCoords;
     };
 
@@ -75,6 +77,7 @@ private:
     bool fVariableColor;
     int fVertexCount;
     int fIndexCount;
+    GrRenderTargetContext::ColorArrayType fColorArrayType;
 
     SkSTArray<1, Mesh, true> fMeshes;
 
