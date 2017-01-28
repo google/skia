@@ -251,6 +251,8 @@
           '-std=c++11',
           '-fno-rtti',
           '-fno-threadsafe-statics',
+          '-fvisibility=hidden',
+          '-fvisibility-inlines-hidden',
           '-Wnon-virtual-dtor',
         ],
         'ldflags': [ '-rdynamic' ],
