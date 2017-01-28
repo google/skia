@@ -23,19 +23,19 @@
     #define SK_C_PLUS_PLUS_END_GUARD
 #endif
 
-#if !defined(SK_API)
-    #if defined(SKIA_DLL)
+#if !defined(SK_C_API)
+    #if defined(SKIA_C_DLL)
         #if defined(_MSC_VER)
             #if SKIA_IMPLEMENTATION
-                #define SK_API __declspec(dllexport)
+                #define SK_C_API __declspec(dllexport)
             #else
-                #define SK_API __declspec(dllimport)
+                #define SK_C_API __declspec(dllimport)
             #endif
         #else
-            #define SK_API __attribute__((visibility("default")))
+            #define SK_C_API __attribute__((visibility("default")))
         #endif
     #else
-        #define SK_API
+        #define SK_C_API
     #endif
 #endif
 

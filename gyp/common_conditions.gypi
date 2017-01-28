@@ -19,7 +19,7 @@
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
 
-    'SKIA_DLL',
+    'SKIA_C_DLL',
     'SKIA_IMPLEMENTATION=1',
   ],
   'conditions' : [

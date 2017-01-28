@@ -19,7 +19,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
  *  Return a new image that has made a copy of the provided pixels, or NULL on failure.
  *  Balance with a call to sk_image_unref().
  */
-SK_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
+SK_C_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
 /**
  *  If the specified data can be interpreted as a compressed image (e.g. PNG or JPEG) then this
  *  returns an image. If the encoded data is not supported, returns NULL.
@@ -27,7 +27,7 @@ SK_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* p
  *  On success, the encoded data may be processed immediately, or it may be ref()'d for later
  *  use.
  */
-SK_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_irect_t* subset);
+SK_C_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_irect_t* subset);
 /**
  *  Encode the image's pixels and return the result as a new PNG in a
  *  sk_data_t, which the caller must manage: call sk_data_unref() when
@@ -35,31 +35,31 @@ SK_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_
  *
  *  If the image type cannot be encoded, this will return NULL.
  */
-SK_API sk_data_t* sk_image_encode(const sk_image_t*);
+SK_C_API sk_data_t* sk_image_encode(const sk_image_t*);
 /**
  *  Increment the reference count on the given sk_image_t. Must be
  *  balanced by a call to sk_image_unref().
 */
-SK_API void sk_image_ref(const sk_image_t*);
+SK_C_API void sk_image_ref(const sk_image_t*);
 /**
  *  Decrement the reference count. If the reference count is 1 before
  *  the decrement, then release both the memory holding the sk_image_t
  *  and the memory it is managing.  New sk_image_t are created with a
  *  reference count of 1.
 */
-SK_API void sk_image_unref(const sk_image_t*);
+SK_C_API void sk_image_unref(const sk_image_t*);
 /**
  *  Return the width of the sk_image_t/
  */
-SK_API int sk_image_get_width(const sk_image_t*);
+SK_C_API int sk_image_get_width(const sk_image_t*);
 /**
  *  Return the height of the sk_image_t/
  */
-SK_API int sk_image_get_height(const sk_image_t*);
+SK_C_API int sk_image_get_height(const sk_image_t*);
 /**
  *  Returns a non-zero value unique among all images.
  */
-SK_API uint32_t sk_image_get_unique_id(const sk_image_t*);
+SK_C_API uint32_t sk_image_get_unique_id(const sk_image_t*);
 /**
  *  Encode the image's pixels using the specified format and quality
  *  and return the result as a new image in a
@@ -68,12 +68,12 @@ SK_API uint32_t sk_image_get_unique_id(const sk_image_t*);
  *
  *  If the image type cannot be encoded, this will return NULL.
  */
-SK_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t encoder, int quality);
+SK_C_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_image_encoder_t encoder, int quality);
 /**
  *  Construct a new image from the specified bitmap. If the bitmap is marked immutable, and
  *  its pixel memory is shareable, it may be shared instead of copied.
  */
-SK_API sk_image_t* sk_image_new_from_bitmap (const sk_bitmap_t *cbitmap);
+SK_C_API sk_image_t* sk_image_new_from_bitmap (const sk_bitmap_t *cbitmap);
 
 SK_C_PLUS_PLUS_END_GUARD
 

@@ -15,8 +15,8 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_API sk_xmlstreamwriter_t* sk_xmlstreamwriter_new(sk_wstream_t* stream);
-SK_API void sk_xmlstreamwriter_delete(sk_xmlstreamwriter_t* writer);
+SK_C_API sk_xmlstreamwriter_t* sk_xmlstreamwriter_new(sk_wstream_t* stream);
+SK_C_API void sk_xmlstreamwriter_delete(sk_xmlstreamwriter_t* writer);
 
 SK_C_PLUS_PLUS_END_GUARD
 

@@ -15,10 +15,10 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_API void sk_colortable_unref(sk_colortable_t* ctable);
-SK_API sk_colortable_t* sk_colortable_new(const sk_color_t* colors, int count);
-SK_API int sk_colortable_count(const sk_colortable_t* ctable);
-SK_API void sk_colortable_read_colors(const sk_colortable_t* ctable, sk_color_t** colors);
+SK_C_API void sk_colortable_unref(sk_colortable_t* ctable);
+SK_C_API sk_colortable_t* sk_colortable_new(const sk_color_t* colors, int count);
+SK_C_API int sk_colortable_count(const sk_colortable_t* ctable);
+SK_C_API void sk_colortable_read_colors(const sk_colortable_t* ctable, sk_color_t** colors);
 
 SK_C_PLUS_PLUS_END_GUARD
 
