@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14cb7195_95b4aa86",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-29T14:42:34Z",
+      "side": 0,
+      "message": "These flags all really mean that the GP has a certain vertex attribute, not merely that it has \"color\" for instance",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 40
+      },
+      "revId": "e95941f2c61d8bcb5aaf60968e4391a1c7a0d593",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f6f05b3_7f6d5bfc",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-29T14:42:34Z",
+      "side": 0,
+      "message": "These are already part of def.fFlags.",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 132,
+        "endChar": 48
+      },
+      "revId": "e95941f2c61d8bcb5aaf60968e4391a1c7a0d593",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b7bd651_8e0e9dc0",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-29T14:42:34Z",
+      "side": 0,
+      "message": "This isn\u0027t used. We used have this rarely used feedback loop where the XP could say it didn\u0027t use the color and a small subset of ops would not emit one. It doesn\u0027t save us much, is rare, and SkSL can remove any color code from the shaders. All that was left of it was this unused enum value.",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 65,
+        "endChar": 22
+      },
+      "revId": "e95941f2c61d8bcb5aaf60968e4391a1c7a0d593",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
