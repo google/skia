@@ -30,7 +30,7 @@ static const int kIndicesPerInstance = 6;
  */
 static sk_sp<GrGeometryProcessor> make_gp() {
     using namespace GrDefaultGeoProcFactory;
-    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type, Coverage::kSolid_Type,
                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
