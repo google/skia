@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
 #include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
@@ -14,12 +13,9 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureShader.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkShader.h"
-#include "SkTLazy.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -264,31 +260,6 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             const SkMatrix& ctm,
                             const SkPaint& paint) const {
     return this->onAppendStages(pipeline, dst, scratch, ctm, paint, nullptr);
-}
-
-bool SkShader::onAppendStages(SkRasterPipeline* p,
-                              SkColorSpace* cs,
-                              SkArenaAlloc* alloc,
-                              const SkMatrix& ctm,
-                              const SkPaint& paint,
-                              const SkMatrix* localM) const {
-    // Legacy shaders handle the paint opacity internally,
-    // but RP applies it as a separate stage.
-    SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
-    if (paint.getAlpha() != SK_AlphaOPAQUE) {
-        opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
-    }
-
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (auto* ctx = this->createContext(rec,
-                                        alloc->makeArrayDefault<char>(this->contextSize(rec)))) {
-        p->append(SkRasterPipeline::shader_adapter, ctx);
-        // Legacy shaders aren't aware of color spaces. We can pretty
-        // safely assume they're in sRGB gamut.
-        return append_gamut_transform(p, alloc,
-                                      SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), cs);
-    }
-    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
