@@ -91,7 +91,6 @@ skia_effects_sources = [
   "$_include/effects/Sk1DPathEffect.h",
   "$_include/effects/Sk2DPathEffect.h",
   "$_include/effects/SkAlphaThresholdFilter.h",
-  "$_include/effects/SkArithmeticMode.h",
   "$_include/effects/SkArithmeticImageFilter.h",
   "$_include/effects/SkBlurDrawLooper.h",
   "$_include/effects/SkBlurImageFilter.h",
