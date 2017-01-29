@@ -41,16 +41,17 @@ static sk_sp<GrGeometryProcessor> make_persp_gp(const SkMatrix& viewMatrix,
         LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
                                                        : LocalCoords::kUsePosition_Type,
                                 localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
-                                             localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
-                                             localCoords, SkMatrix::I());
+        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                                             Coverage::kSolid_Type, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
-        return GrDefaultGeoProcFactory::MakeForDeviceSpace(
-                Color::kAttribute_Type, Coverage::kSolid_Type, localCoords, viewMatrix);
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type,
+                                                           Coverage::kSolid_Type, localCoords,
+                                                           viewMatrix);
     }
 }
 
