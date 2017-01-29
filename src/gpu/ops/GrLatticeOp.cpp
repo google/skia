@@ -17,7 +17,7 @@
 
 static sk_sp<GrGeometryProcessor> create_gp() {
     using namespace GrDefaultGeoProcFactory;
-    return GrDefaultGeoProcFactory::Make(Color::kAttribute_Type, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type, Coverage::kSolid_Type,
                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 

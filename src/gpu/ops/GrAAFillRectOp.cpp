@@ -211,7 +211,7 @@ private:
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
-        Color color(Color::kAttribute_Type);
+        Color color(Color::kPremulGrColorAttribute_Type);
         Coverage::Type coverageType;
         if (fCanTweakAlphaForCoverage) {
             coverageType = Coverage::kSolid_Type;

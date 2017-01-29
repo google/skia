@@ -280,7 +280,7 @@ private:
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
-                color = Color(Color::kAttribute_Type);
+                color = Color(Color::kPremulGrColorAttribute_Type);
                 if (fCanTweakAlphaForCoverage) {
                     coverageType = Coverage::kSolid_Type;
                 } else {

@@ -717,7 +717,8 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     }
     LocalCoords::Type localCoordsType =
             usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(Color::kAttribute_Type, coverageType, localCoordsType, viewMatrix);
+    return MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type, coverageType, localCoordsType,
+                              viewMatrix);
 }
 
 class AAConvexPathOp final : public GrMeshDrawOp {

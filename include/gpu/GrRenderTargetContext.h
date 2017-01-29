@@ -195,6 +195,10 @@ public:
                   const SkPath&,
                   const GrStyle& style);
 
+    enum class ColorArrayType {
+        kPremulGrColor,
+        kSkColor,
+    };
     /**
      * Draws vertices with a paint.
      *
@@ -211,6 +215,7 @@ public:
      *                          are drawn non-indexed.
      * @param   indexCount      if indices is non-null then this is the
      *                          number of indices.
+     * @param   ColorArrayType  Determines how the color array should be interpreted.
      */
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
@@ -219,9 +224,10 @@ public:
                       int vertexCount,
                       const SkPoint positions[],
                       const SkPoint texs[],
-                      const GrColor colors[],
+                      const uint32_t colors[],
                       const uint16_t indices[],
-                      int indexCount);
+                      int indexCount,
+                      ColorArrayType = ColorArrayType::kPremulGrColor);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the
