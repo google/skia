@@ -1087,8 +1087,11 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     testLCDCoverageOp.initPipelineAnalysis(&analysis);
     GrProcOptInfo colorPOI = analysis.fColorPOI;
     GrProcOptInfo covPOI = analysis.fCoveragePOI;
+    // Prevent unused var warnings in release;
+    (void)colorPOI;
+    (void)covPOI;
 
-    SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
+    SkASSERT(colorPOI.hasKnownOutputColor());
     SkASSERT(covPOI.isLCDCoverage());
 
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
