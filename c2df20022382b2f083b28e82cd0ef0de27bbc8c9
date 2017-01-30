@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "06b4abda_b330154d",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T19:11:15Z",
+      "side": 1,
+      "message": "Sure, if we make get_flags virtual (or some other virtual)",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e085237_587a8006",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 3
