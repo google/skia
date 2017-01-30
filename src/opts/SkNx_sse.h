@@ -623,6 +623,16 @@ public:
             _mm256_storeu_ps((float*)ptr + 2*8, _45);
             _mm256_storeu_ps((float*)ptr + 3*8, _67);
         }
+        AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+            Sk4f rl, gl, bl, al,
+                 rh, gh, bh, ah;
+            Sk4f::Load4((const float*)ptr +  0, &rl, &gl, &bl, &al);
+            Sk4f::Load4((const float*)ptr + 16, &rh, &gh, &bh, &ah);
+            *r = _mm256_setr_m128(rl.fVec, rh.fVec);
+            *g = _mm256_setr_m128(gl.fVec, gh.fVec);
+            *b = _mm256_setr_m128(bl.fVec, bh.fVec);
+            *a = _mm256_setr_m128(al.fVec, ah.fVec);
+        }
 
         AI SkNx operator+(const SkNx& o) const { return _mm256_add_ps(fVec, o.fVec); }
         AI SkNx operator-(const SkNx& o) const { return _mm256_sub_ps(fVec, o.fVec); }
