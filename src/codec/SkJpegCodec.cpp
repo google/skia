@@ -648,8 +648,14 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
                 fSwizzlerSubset.width() == options.fSubset->width());
         swizzlerOptions.fSubset = &fSwizzlerSubset;
     }
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions,
-                                               nullptr, skipFormatConversion));
+
+    SkImageInfo swizzlerDstInfo = dstInfo;
+    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+        swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
+    }
+
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, swizzlerDstInfo,
+                                               swizzlerOptions, nullptr, skipFormatConversion));
     SkASSERT(fSwizzler);
 }
 
