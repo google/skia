@@ -16,6 +16,23 @@
       "revId": "1dc2b3ea366078fd14eeb240c378cfd95913723d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4d06371_68080384",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-01-30T15:38:26Z",
+      "side": 1,
+      "message": "Done; good catch",
+      "revId": "1dc2b3ea366078fd14eeb240c378cfd95913723d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
