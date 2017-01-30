@@ -120,11 +120,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         sk_sp<GrSurfaceContext> dstContext(GrSurfaceProxy::TestCopy(context, desc,
                                                                     proxy.get()));
         REPORTER_ASSERT(reporter, dstContext);
-        if (!dstContext || !dstContext->asDeferredTexture()) {
+        if (!dstContext || !dstContext->asTextureProxy()) {
             return;
         }
 
-        GrSurface* copySurface = dstContext->asDeferredTexture()->instantiate(
+        GrSurface* copySurface = dstContext->asTextureProxy()->instantiate(
                                                                     context->textureProvider());
         REPORTER_ASSERT(reporter, copySurface);
         if (!copySurface) {

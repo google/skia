@@ -37,8 +37,8 @@ public:
     bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
 
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
-    int width() const { return this->asDeferredSurface()->width(); }
-    int height() const { return this->asDeferredSurface()->height(); }
+    int width() const { return this->asSurfaceProxy()->width(); }
+    int height() const { return this->asSurfaceProxy()->height(); }
 
     /*
      * Copy 'src' into the proxy backing this context
@@ -96,10 +96,15 @@ public:
     }
 
     // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
-    virtual GrSurfaceProxy* asDeferredSurface() = 0;
-    virtual const GrSurfaceProxy* asDeferredSurface() const = 0;
-    virtual GrTextureProxy* asDeferredTexture() = 0;
-    virtual GrRenderTargetProxy* asDeferredRenderTarget() = 0;
+    virtual GrSurfaceProxy* asSurfaceProxy() = 0;
+    virtual const GrSurfaceProxy* asSurfaceProxy() const = 0;
+    virtual sk_sp<GrSurfaceProxy> asSurfaceProxyRef() = 0;
+
+    virtual GrTextureProxy* asTextureProxy() = 0;
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef() = 0;
+
+    virtual GrRenderTargetProxy* asRenderTargetProxy() = 0;
+    virtual sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() = 0;
 
     virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
 

@@ -44,7 +44,13 @@ GrTextureContext::~GrTextureContext() {
     SkSafeUnref(fOpList);
 }
 
-GrRenderTargetProxy* GrTextureContext::asDeferredRenderTarget() {
+GrRenderTargetProxy* GrTextureContext::asRenderTargetProxy() {
+    // If the proxy can return an RTProxy it should've been wrapped in a RTContext
+    SkASSERT(!fTextureProxy->asRenderTargetProxy());
+    return nullptr;
+}
+
+sk_sp<GrRenderTargetProxy> GrTextureContext::asRenderTargetProxyRef() {
     // If the proxy can return an RTProxy it should've been wrapped in a RTContext
     SkASSERT(!fTextureProxy->asRenderTargetProxy());
     return nullptr;

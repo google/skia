@@ -107,7 +107,7 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit
                                                                                 desc,
                                                                                 fit,
                                                                                 SkBudgeted::kYes);
-    if (!sContext || !sContext->asDeferredTexture()) {
+    if (!sContext || !sContext->asTextureProxy()) {
         return nullptr;
     }
 
@@ -116,7 +116,7 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTexture(GrContext* context, SkBackingFit
         return nullptr;
     }
 
-    return sk_ref_sp(sContext->asDeferredTexture());
+    return sContext->asTextureProxyRef();
 }
 
 /**

@@ -115,8 +115,12 @@ GrRenderTarget* GrRenderTargetContext::instantiate() {
     return fRenderTargetProxy->instantiate(fContext->textureProvider());
 }
 
-GrTextureProxy* GrRenderTargetContext::asDeferredTexture() {
+GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
     return fRenderTargetProxy->asTextureProxy();
+}
+
+sk_sp<GrTextureProxy> GrRenderTargetContext::asTextureProxyRef() {
+    return sk_ref_sp(fRenderTargetProxy->asTextureProxy());
 }
 
 GrRenderTargetOpList* GrRenderTargetContext::getOpList() {

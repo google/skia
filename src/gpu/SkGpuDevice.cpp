@@ -271,7 +271,7 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
         if (fRenderTargetContext->wasAbandoned()) {
             return;
         }
-        newRTC->copy(fRenderTargetContext->asDeferredSurface());
+        newRTC->copy(fRenderTargetContext->asSurfaceProxy());
     }
 
     fRenderTargetContext = newRTC;
@@ -1332,13 +1332,13 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
-    sk_sp<GrSurfaceProxy> sProxy(sk_ref_sp(this->accessRenderTargetContext()->asDeferredTexture()));
+    sk_sp<GrSurfaceProxy> sProxy(this->accessRenderTargetContext()->asTextureProxyRef());
     if (!sProxy) {
         // When the device doesn't have a texture, we create a temporary texture.
         // TODO: we should actually only copy the portion of the source needed to apply the image
         // filter
         sProxy = GrSurfaceProxy::Copy(fContext.get(),
-                                      this->accessRenderTargetContext()->asDeferredSurface(),
+                                      this->accessRenderTargetContext()->asSurfaceProxy(),
                                       SkBudgeted::kYes);
         if (!sProxy) {
             return nullptr;

@@ -290,7 +290,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         srcRenderTargetContext = dstRenderTargetContext;
         srcRect = dstRect;
-        srcProxy = sk_ref_sp(srcRenderTargetContext->asDeferredTexture());
+        srcProxy = srcRenderTargetContext->asTextureProxyRef();
         if (!srcProxy) {
             return nullptr;
         }
@@ -315,7 +315,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                           std::move(srcProxy), Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
                           srcBounds, srcOffset);
         srcRenderTargetContext = dstRenderTargetContext;
-        srcProxy = sk_ref_sp(srcRenderTargetContext->asDeferredTexture());
+        srcProxy = srcRenderTargetContext->asTextureProxyRef();
         if (!srcProxy) {
             return nullptr;
         }

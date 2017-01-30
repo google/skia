@@ -101,7 +101,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     }
 
     return draw_mask(context, renderTargetContext, clipData, viewMatrix,
-                     dstM.fBounds, std::move(paint), sk_ref_sp(sContext->asDeferredTexture()));
+                     dstM.fBounds, std::move(paint), sContext->asTextureProxyRef());
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
@@ -138,7 +138,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
     translate.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     rtContext->drawPath(clip, std::move(maskPaint), aa, translate, devPath,
                         GrStyle(fillOrHairline));
-    return sk_ref_sp(rtContext->asDeferredTexture());
+    return rtContext->asTextureProxyRef();
 }
 
 static void draw_path_with_mask_filter(GrContext* context,

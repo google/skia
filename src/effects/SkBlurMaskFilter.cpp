@@ -1135,7 +1135,7 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
         rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 
-        sk_sp<GrTextureProxy> srcProxy(sk_ref_sp(rtc->asDeferredTexture()));
+        sk_sp<GrTextureProxy> srcProxy(rtc->asTextureProxyRef());
         if (!srcProxy) {
             return nullptr;
         }
@@ -1535,7 +1535,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
                                       SkRect::Make(clipRect));
     }
 
-    return sk_ref_sp(renderTargetContext->asDeferredTexture());
+    return renderTargetContext->asTextureProxyRef();
 }
 
 #endif // SK_SUPPORT_GPU
