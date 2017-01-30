@@ -365,7 +365,7 @@ struct Edge {
     void recompute() {
         fLine = Line(fTop, fBottom);
     }
-    bool intersect(const Edge& other, SkPoint* p) {
+    bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) {
         LOG("intersecting %g -> %g with %g -> %g\n",
                fTop->fID, fBottom->fID,
                other.fTop->fID, other.fBottom->fID);
@@ -390,6 +390,15 @@ struct Edge {
         SkASSERT(s >= 0.0 && s <= 1.0);
         p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
         p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
+        if (alpha) {
+            if (fType == Type::kInner || other.fType == Type::kInner) {
+                *alpha = 255;
+            } else if (fType == Type::kOuter && other.fType == Type::kOuter) {
+                *alpha = 0;
+            } else {
+                *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
+            }
+        }
         return true;
     }
 };
@@ -1066,7 +1075,7 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
 }
 
 uint8_t max_edge_alpha(Edge* a, Edge* b) {
-    if (a->fType == Edge::Type::kInner && b->fType == Edge::Type::kInner) {
+    if (a->fType == Edge::Type::kInner || b->fType == Edge::Type::kInner) {
         return 255;
     } else if (a->fType == Edge::Type::kOuter && b->fType == Edge::Type::kOuter) {
         return 0;
@@ -1078,11 +1087,12 @@ uint8_t max_edge_alpha(Edge* a, Edge* b) {
 
 Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Comparator& c,
                                SkChunkAlloc& alloc) {
-    SkPoint p;
     if (!edge || !other) {
         return nullptr;
     }
-    if (edge->intersect(*other, &p)) {
+    SkPoint p;
+    uint8_t alpha;
+    if (edge->intersect(*other, &p, &alpha)) {
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         if (p == edge->fTop->fPoint || c.sweep_lt(p, edge->fTop->fPoint)) {
@@ -1111,7 +1121,6 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, C
             } else if (coincident(nextV->fPoint, p)) {
                 v = nextV;
             } else {
-                uint8_t alpha = max_edge_alpha(edge, other);
                 v = ALLOC_NEW(Vertex, (p, alpha), alloc);
                 LOG("inserting between %g (%g, %g) and %g (%g, %g)\n",
                     prevV->fID, prevV->fPoint.fX, prevV->fPoint.fY,
