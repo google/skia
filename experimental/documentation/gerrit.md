@@ -4,16 +4,11 @@ Using Gerrit without git-cl
 setup
 -----
 
-    cd ...skia_source_dir...
+<pre class="code"><code>
+cd ...skia_source_dir...
 
-    curl -Lo .git/hooks/commit-msg \
-      https://skia-review.googlesource.com/tools/hooks/commit-msg
-
-    chmod +x .git/hooks/commit-msg
-
-    git remote set-url origin https://skia.googlesource.com/skia.git
-
-    git config branch.autosetuprebase always
+sh [experimental/tools/setup-gerrit](../tools/setup-gerrit)
+</code></pre>
 
 
 creating a change
@@ -32,13 +27,13 @@ creating a change
 
 3.  Squash the commits:
 
-        MSG="$(git log --format='%B' ^@{u} @)"
-        git reset --soft $(git merge-base @ @{u})
-        git commit -m "$MSG" -e
+        git squash-commits
+
+    This is only needed if you have more than one commit on your branch.
 
 4.  Push to Gerrit
 
-        git push origin @:refs/for/master%cc=reviews@skia.org
+        git gerrit-push-master
 
 
 updating a change
@@ -48,12 +43,15 @@ updating a change
 1.  Edit your commits more.
 
         echo 3 > whitespace.txt
-        git commit -a --amend --reuse-message=@
+        git amend-head
 
-2.  Re-squash if needed.
+2.  Re-squash if needed.  (Not needed if you only amended your original commit.)
 
 
-3.  Push to Gerrit
+3.  Push to Gerrit.
 
-        git push origin @:refs/for/master%m=this_is_a_message
+        git gerrit-push-master this is a message
+
+    The title of this patchset will be "this is a message".
+
 
