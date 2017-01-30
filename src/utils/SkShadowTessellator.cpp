@@ -13,6 +13,57 @@
 #include "GrPathUtils.h"
 #endif
 
+template <typename T> using UniqueArray = SkShadowVertices::UniqueArray<T>;
+
+// TODO: derive the ambient and spot classes from a base class containing common elements
+
+class SkAmbientShadowTessellator {
+public:
+    SkAmbientShadowTessellator(const SkPath& path, SkScalar radius, SkColor umbraColor,
+                               SkColor penumbraColor, bool transparent);
+
+    int vertexCount() const { return fPositions.count(); }
+    int indexCount() const { return fIndices.count(); }
+
+    UniqueArray<SkPoint> releasePositions() { return UniqueArray<SkPoint>(fPositions.release()); }
+    UniqueArray<SkColor> releaseColors() { return UniqueArray<SkColor>(fColors.release()); }
+    UniqueArray<uint16_t> releaseIndices() { return UniqueArray<uint16_t>(fIndices.release()); }
+
+private:
+    void handleLine(const SkPoint& p);
+
+    void handleQuad(const SkPoint pts[3]);
+
+    void handleCubic(SkPoint pts[4]);
+
+    void handleConic(SkPoint pts[3], SkScalar w);
+
+    void addArc(const SkVector& nextNormal);
+    void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+
+    SkScalar            fRadius;
+    SkColor             fUmbraColor;
+    SkColor             fPenumbraColor;
+    bool                fTransparent;
+
+    SkTDArray<SkPoint>  fPositions;
+    SkTDArray<SkColor>  fColors;
+    SkTDArray<uint16_t> fIndices;
+
+    int                 fPrevInnerIndex;
+    SkVector            fPrevNormal;
+    int                 fFirstVertex;
+    SkVector            fFirstNormal;
+    SkScalar            fDirection;
+    int                 fCentroidCount;
+
+    // first three points
+    SkTDArray<SkPoint>  fInitPoints;
+    // temporary buffer
+    SkTDArray<SkPoint>  fPointBuffer;
+};
+
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar radius, SkScalar dir,
                            SkVector* newNormal) {
     SkVector normal;
@@ -306,6 +357,63 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkSpotShadowTessellator {
+public:
+    SkSpotShadowTessellator(const SkPath& path, SkScalar scale, const SkVector& translate,
+                            SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
+                            bool transparent);
+
+    int vertexCount() const { return fPositions.count(); }
+    int indexCount() const { return fIndices.count(); }
+
+    UniqueArray<SkPoint> releasePositions() { return UniqueArray<SkPoint>(fPositions.release()); }
+    UniqueArray<SkColor> releaseColors() { return UniqueArray<SkColor>(fColors.release()); }
+    UniqueArray<uint16_t> releaseIndices() { return UniqueArray<uint16_t>(fIndices.release()); }
+
+private:
+    void computeClipBounds(const SkPath& path);
+
+    void handleLine(const SkPoint& p);
+    void handleLine(SkScalar scale, const SkVector& xlate, SkPoint p);
+
+    void handleQuad(const SkPoint pts[3]);
+    void handleQuad(SkScalar scale, const SkVector& xlate, SkPoint pts[3]);
+
+    void handleCubic(SkScalar scale, const SkVector& xlate, SkPoint pts[4]);
+
+    void handleConic(SkScalar scale, const SkVector& xlate, SkPoint pts[3], SkScalar w);
+
+    void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
+    void addInnerPoint(const SkPoint& pathPoint, SkColor umbraColor, SkScalar radiusSqd);
+    void addArc(const SkVector& nextNormal);
+    void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+
+    SkScalar            fRadius;
+    SkColor             fUmbraColor;
+    SkColor             fPenumbraColor;
+
+    SkTDArray<SkPoint>  fPositions;
+    SkTDArray<SkColor>  fColors;
+    SkTDArray<uint16_t> fIndices;
+
+    int                 fPrevInnerIndex;
+    SkPoint             fPrevPoint;
+    SkVector            fPrevNormal;
+    int                 fFirstVertex;
+    SkPoint             fFirstPoint;
+    SkVector            fFirstNormal;
+    SkScalar            fDirection;
+
+    SkPoint             fCentroid;
+    SkTDArray<SkPoint>  fClipPolygon;
+
+    // first three points
+    SkTDArray<SkPoint>  fInitPoints;
+    // temporary buffer
+    SkTDArray<SkPoint>  fPointBuffer;
+};
 
 SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
                                                  SkScalar scale, const SkVector& translate,
@@ -644,4 +752,31 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 
     fPrevInnerIndex = fPositions.count() - 2;
     fPrevNormal = nextNormal;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, SkScalar radius,
+                                                      SkColor umbraColor, SkColor penumbraColor,
+                                                      bool transparent) {
+    SkAmbientShadowTessellator ambientTess(path, radius, umbraColor, penumbraColor, transparent);
+    int vcount = ambientTess.vertexCount();
+    int icount = ambientTess.indexCount();
+    return sk_sp<SkShadowVertices>(new SkShadowVertices(ambientTess.releasePositions(),
+                                                        ambientTess.releaseColors(),
+                                                        ambientTess.releaseIndices(), vcount,
+                                                        icount));
+}
+
+sk_sp<SkShadowVertices> SkShadowVertices::MakeSpot(const SkPath& path, SkScalar scale,
+                                                   const SkVector& translate, SkScalar radius,
+                                                   SkColor umbraColor, SkColor penumbraColor,
+                                                   bool transparent) {
+    SkSpotShadowTessellator spotTess(path, scale, translate, radius, umbraColor, penumbraColor,
+                                     transparent);
+    int vcount = spotTess.vertexCount();
+    int icount = spotTess.indexCount();
+    return sk_sp<SkShadowVertices>(new SkShadowVertices(spotTess.releasePositions(),
+                                                        spotTess.releaseColors(),
+                                                        spotTess.releaseIndices(), vcount, icount));
 }
