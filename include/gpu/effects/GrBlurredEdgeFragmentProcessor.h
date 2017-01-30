@@ -18,11 +18,11 @@
  * If the primitive supports an implicit distance to the edge, the radius of the blur is specified
  * by r & g values of the color in 14.2 fixed point. For spot shadows, we increase the stroke width
  * to set the shadow against the shape. This pad is specified by b, also in 6.2 fixed point.
+ * The a value represents the max final alpha.
  *
  * When not using implicit distance, then b in the input color represents the input to the
- * blur function.
+ * blur function, and r the max final alpha.
  *
- * In either case, the a value represents the max final alpha.
  */
 class GrBlurredEdgeFP : public GrFragmentProcessor {
 public:

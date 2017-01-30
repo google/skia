@@ -17,8 +17,6 @@
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
-#include "effects/GrShadowTessellator.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -181,45 +179,20 @@ bool SkSpotShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvi
         return false;
     }
 
-#ifdef SUPPORT_FAST_PATH
     // if circle
     // TODO: switch to SkScalarNearlyEqual when either oval renderer is updated or we
     // have our own GeometryProc.
     if (path.isOval(nullptr) && path.getBounds().width() == path.getBounds().height()) {
         SkRRect rrect = SkRRect::MakeOval(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(nullptr, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     } else if (path.isRect(nullptr)) {
         SkRRect rrect = SkRRect::MakeRect(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(nullptr, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
-#endif
 
-    float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
-
-    SkScalar radius = fLightRadius * zRatio;
-
-    // Compute the scale and translation for the spot shadow.
-    const SkScalar scale = fLightPos.fZ / (fLightPos.fZ - fOccluderHeight);
-
-    SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
-    const SkVector spotOffset = SkVector::Make(zRatio*(center.fX - fLightPos.fX),
-                                               zRatio*(center.fY - fLightPos.fY));
-
-    GrColor  umbraColor = GrColorPackRGBA(0, 0, 255, fSpotAlpha*255.9999f);
-    GrColor  penumbraColor = GrColorPackRGBA(0, 0, 0, fSpotAlpha*255.9999f);
-    GrSpotShadowTessellator tess(path, scale, spotOffset, radius, umbraColor, penumbraColor,
-                                SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
-
-    sk_sp<GrFragmentProcessor> edgeFP = GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
-    paint.addColorFragmentProcessor(std::move(edgeFP));
-
-    rtContext->drawVertices(clip, std::move(paint), SkMatrix::I(), kTriangles_GrPrimitiveType,
-                            tess.vertexCount(), tess.positions(), nullptr,
-                            tess.colors(), tess.indices(), tess.indexCount());
-
-    return true;
+    return false;
 }
 
 bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
@@ -230,10 +203,6 @@ bool SkSpotShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                           const SkStrokeRec& strokeRec,
                                                           const SkRRect& rrect,
                                                           const SkRRect& devRRect) const {
-#ifndef SUPPORT_FAST_PATH
-    return false;
-#endif
-
     // It's likely the caller has already done these checks, but we have to be sure.
     // TODO: support analytic blurring of general rrect
 
