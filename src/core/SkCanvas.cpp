@@ -2869,7 +2869,25 @@ void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
     // drawable bounds are no longer reliable (e.g. android displaylist)
     // so don't use them for quick-reject
-    dr->draw(this, matrix);
+
+    // Check to see if the devices support drawing the drawable. If not we fall back to the cavans
+    // draw.
+    if (this->getDevice()->drawableSupported(dr)) {
+        // We don't actually use a paint for drawDrawable, so we use a default paint so it does not
+        // affect the loop here. We should have a version of the macro the does not require a paint
+        // to be passed in.
+        SkPaint paint;
+
+        LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
+
+        while (iter.next()) {
+            iter.fDevice->drawDrawable(dr, matrix);
+        }
+
+        LOOPER_END
+    } else {
+        dr->draw(this, matrix);
+    }
 }
 
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
