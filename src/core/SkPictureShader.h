@@ -36,6 +36,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
 private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
