@@ -222,6 +222,10 @@ protected:
     virtual void drawTextRSXform(const SkDraw&, const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
+    // Returns whether the specific SkDrawable passed in is supported to be drawn by the SkDevice.
+    virtual bool drawableSupported(SkDrawable*) const { return false; }
+    virtual void drawDrawable(SkDrawable*, const SkMatrix*) {};
+
     virtual void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);

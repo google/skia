@@ -25,6 +25,7 @@ struct SkRect;
 class SkDrawable : public SkFlattenable {
 public:
     SkDrawable();
+    explicit SkDrawable(uint32_t drawSupportFlags);
 
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
@@ -33,6 +34,18 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = NULL);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+    enum DrawSupportFlags {
+        kVulkan_DrawSupportFlag = 0x1,
+    };
+    /**
+     * Draws the SkDrawable using Vulkan specific calls. This will allow the drawable to emit vulkan
+     * calls directly into the stream of vulkan commands going to the GPU without needing a flush.
+     */
+    // TODO: Update signature of this function once we figure out what vulkan handles we will need
+    // to pass in.
+    virtual void drawVulkan() {}
+    bool drawVulkanSupported() { return SkToBool(fDrawSupportFlags & kVulkan_DrawSupportFlag); }
 
     SkPicture* newPictureSnapshot();
 
@@ -65,7 +78,7 @@ public:
 protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    
+
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
      *  may override if they have a more efficient way to return a picture for the current state
@@ -75,7 +88,8 @@ protected:
     virtual SkPicture* onNewPictureSnapshot();
 
 private:
-    int32_t fGenerationID;
+    int32_t  fGenerationID;
+    uint32_t fDrawSupportFlags;
 };
 
 #endif
