@@ -1,0 +1,44 @@
+#! /bin/sh
+
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+set -x
+set -e
+
+cd "$(dirname "$0")/../.."
+
+
+### Configure the Change-Id commit-msg Git hook
+
+commit_message_path="$(git rev-parse --git-dir)/hooks/commit-msg"
+
+curl -Lo "$commit_message_path" \
+  'https://gerrit-review.googlesource.com/tools/hooks/commit-msg'
+
+chmod +x "$commit_message_path"
+
+### Verify that origin points at the canonical origin, not github
+
+git remote set-url origin 'https://skia.googlesource.com/skia.git'
+
+### Skia uses a linear history, so rebase-on-pull is a good idea
+
+git config branch.autoSetupRebase 'always'
+
+### this  alias does the heavy lifting of talking to gerrit
+
+git config alias.gerrit-push-master \
+  '!f() { git push origin @:refs/for/master%m=$(echo "$*"|sed "s/[^a-zA-Z0-9]/_/g");};f'
+
+### this alias ensures that your branch has ony one commit on it
+
+git config alias.squash-commits \
+    '!MSG="$(git log --format=%B ^@{u} @)";git reset --soft $(git merge-base @ @{u});git commit -m "$MSG" -e'
+
+### Amend the HEAD head commit without changing the commit message
+
+git config alias.amend-head 'commit --all --amend --reuse-message=@'
+
