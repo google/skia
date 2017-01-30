@@ -1135,12 +1135,12 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
         rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 
-        sk_sp<GrTextureProxy> srcProxy(sk_ref_sp(rtc->asDeferredTexture()));
-        if (!srcProxy) {
+        sk_sp<GrTexture> srcTexture(rtc->asTexture());
+        if (!srcTexture) {
             return nullptr;
         }
         sk_sp<GrRenderTargetContext> rtc2(SkGpuBlurUtils::GaussianBlur(context,
-                                                                       std::move(srcProxy),
+                                                                       srcTexture.get(),
                                                                        nullptr,
                                                                        SkIRect::MakeWH(
                                                                                     size.fWidth,
@@ -1498,11 +1498,16 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     SkASSERT(xformedSigma > 0);
 
+    // TODO: defer this further (i.e., push the proxy into GaussianBlur)
+    GrTexture* src = srcProxy->instantiate(context->textureProvider());
+    if (!src) {
+        return nullptr;
+    }
+
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
-    sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(context,
-                                                                                  srcProxy,
+    sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(context, src,
                                                                                   nullptr, clipRect,
                                                                                   nullptr,
                                                                                   xformedSigma,
@@ -1515,7 +1520,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
         GrPaint paint;
         // Blend pathTexture over blurTexture.
         paint.addCoverageFragmentProcessor(
-                GrSimpleTextureEffect::Make(context, std::move(srcProxy), nullptr, SkMatrix::I()));
+                                        GrSimpleTextureEffect::Make(src, nullptr, SkMatrix::I()));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);
