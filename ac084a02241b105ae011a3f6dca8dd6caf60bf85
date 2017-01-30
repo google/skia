@@ -22,6 +22,23 @@
       "revId": "ac084a02241b105ae011a3f6dca8dd6caf60bf85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "376522c9_81d56f4a",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T15:32:39Z",
+      "side": 1,
+      "message": "I added a new value to fFlags (which is added to the key on line 130 on the left). This bumped the bit number of bits required for the flags from 3 to 4 so I was looking to make sure this wouldn\u0027t cause a collision. It turns out that the values line 131 and 132 were adding to the key are already included in fFlags and therefore don\u0027t need to be separately included. The rest of the key\u0027s offsets were chosen somewhat haphazardly (though not invalidly) so I modified them. Admittedly, if the pos ley (line 144 on the right) was left shifted by 6 rather than 20 then they\u0027d all be packed low.",
+      "revId": "ac084a02241b105ae011a3f6dca8dd6caf60bf85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
