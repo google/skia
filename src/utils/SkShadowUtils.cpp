@@ -87,6 +87,8 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
     canvas->save();
     canvas->resetMatrix();
 
+    bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+
     if (ambientAlpha > 0) {
         SkScalar radius = occluderHeight * kHeightFactor * kGeomFactor;
         SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
@@ -97,14 +99,15 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
         SkColor  umbraColor = SkColorSetARGB(255, 0, ambientAlpha*255.9999f, umbraAlpha*255.9999f);
         SkColor  penumbraColor = SkColorSetARGB(255, 0, ambientAlpha*255.9999f, 0);
 
-        SkAmbientShadowTessellator tess(xformedPath, radius, umbraColor, penumbraColor,
-                                 SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
-
+        sk_sp<SkShadowVertices> vertices =
+                SkShadowVertices::MakeAmbient(xformedPath, radius, umbraColor, penumbraColor,
+                                              transparent);
         SkPaint paint;
         paint.setColor(color);
         paint.setColorFilter(SkGaussianColorFilter::Make());
-        canvas->drawVertices(SkCanvas::kTriangles_VertexMode, tess.vertexCount(), tess.positions(),
-                             nullptr, tess.colors(), tess.indices(), tess.indexCount(), paint);
+        canvas->drawVertices(SkCanvas::kTriangles_VertexMode, vertices->vertexCount(),
+                             vertices->positions(), nullptr, vertices->colors(),
+                             vertices->indices(), vertices->indexCount(), paint);
     }
 
     if (spotAlpha > 0) {
@@ -120,15 +123,15 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
 
         SkColor  umbraColor = SkColorSetARGB(255, 0, spotAlpha*255.9999f, 255);
         SkColor  penumbraColor = SkColorSetARGB(255, 0, spotAlpha*255.9999f, 0);
-        SkSpotShadowTessellator tess(xformedPath, scale, spotOffset, radius,
-                                     umbraColor, penumbraColor,
-                                 SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
-
+        sk_sp<SkShadowVertices> vertices =
+                SkShadowVertices::MakeSpot(xformedPath, scale, spotOffset, radius, umbraColor,
+                                           penumbraColor, transparent);
         SkPaint paint;
         paint.setColor(color);
         paint.setColorFilter(SkGaussianColorFilter::Make());
-        canvas->drawVertices(SkCanvas::kTriangles_VertexMode, tess.vertexCount(), tess.positions(),
-                             nullptr, tess.colors(), tess.indices(), tess.indexCount(), paint);
+        canvas->drawVertices(SkCanvas::kTriangles_VertexMode, vertices->vertexCount(),
+                             vertices->positions(), nullptr, vertices->colors(),
+                             vertices->indices(), vertices->indexCount(), paint);
     }
 
     canvas->restore();
