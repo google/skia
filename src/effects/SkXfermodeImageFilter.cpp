@@ -307,7 +307,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               renderTargetContext->asTextureProxyRef(),
                                                renderTargetContext->refColorSpace());
 }
 

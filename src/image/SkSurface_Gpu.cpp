@@ -90,7 +90,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 
     GrContext* ctx = fDevice->context();
 
-    GrSurfaceProxy* srcProxy = rtc->asDeferredSurface();
+    GrSurfaceProxy* srcProxy = rtc->asSurfaceProxy();
     sk_sp<GrSurfaceContext> copyCtx;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
@@ -110,7 +110,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
             return nullptr;
         }
 
-        srcProxy = copyCtx->asDeferredSurface();
+        srcProxy = copyCtx->asSurfaceProxy();
     }
 
     // TODO: add proxy-backed SkImage_Gpu
