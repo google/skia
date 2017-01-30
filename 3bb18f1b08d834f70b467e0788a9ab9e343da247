@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8d1e1864_f88c0994",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T15:13:22Z",
+      "side": 1,
+      "message": "This might read more easily when used if you close over sha1 and return the result of the equality check, or rename the function to not say \"check\", e.g. sha1_of_file().",
+      "revId": "3bb18f1b08d834f70b467e0788a9ab9e343da247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "43f0d99f_7c558531",
         "filename": "bin/fetch-gn",
         "patchSetId": 3
