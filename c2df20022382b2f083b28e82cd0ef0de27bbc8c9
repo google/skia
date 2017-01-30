@@ -33,6 +33,23 @@
       "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be50ee9b_c285b0f3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-01-30T15:42:30Z",
+      "side": 1,
+      "message": "So Mike and I talked about this briefly last week. If we return a bool here than we need a check inside the DRAW_LOOPER macro on SkCanvas. Yet really if the first one succeeds in that loop than all the others should as well. So I believe the idea was it becomes easier to read/understand the flow in SkCanvas with this approach. Though either is equally valid, so happy to do whatever.",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
