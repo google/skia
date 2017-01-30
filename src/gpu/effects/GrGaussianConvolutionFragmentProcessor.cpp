@@ -115,17 +115,12 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {
-        const int* bounds = conv.bounds();
-        if (Gr1DKernelEffect::kX_Direction == conv.direction()) {
-            SkScalar inv = SkScalarInvert(SkIntToScalar(texture.width()));
-            pdman.set2f(fBoundsUni, inv * bounds[0], inv * bounds[1]);
+        const float* bounds = conv.bounds();
+        if (Gr1DKernelEffect::kY_Direction == conv.direction() &&
+            texture.origin() != kTopLeft_GrSurfaceOrigin) {
+            pdman.set2f(fBoundsUni, 1.0f - bounds[1], 1.0f - bounds[0]);
         } else {
-            SkScalar inv = SkScalarInvert(SkIntToScalar(texture.height()));
-            if (texture.origin() != kTopLeft_GrSurfaceOrigin) {
-                pdman.set2f(fBoundsUni, 1.0f - (inv * bounds[1]), 1.0f - (inv * bounds[0]));
-            } else {
-                pdman.set2f(fBoundsUni, inv * bounds[1], inv * bounds[0]);
-            }
+            pdman.set2f(fBoundsUni, bounds[0], bounds[1]);
         }
     }
     int width = Gr1DKernelEffect::WidthFromRadius(conv.radius());
@@ -149,6 +144,8 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+
 static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
     const float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
 
@@ -172,7 +169,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(G
                                                                                int radius,
                                                                                float gaussianSigma,
                                                                                bool useBounds,
-                                                                               int bounds[2])
+                                                                               float bounds[2])
         : INHERITED(texture, direction, radius, ModulationFlags(texture->config()))
         , fUseBounds(useBounds) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
@@ -190,7 +187,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                                     int radius,
                                                                     float gaussianSigma,
                                                                     bool useBounds,
-                                                                    int bounds[2])
+                                                                    float bounds[2])
         : INHERITED{context,
                     ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
@@ -233,25 +230,16 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    Direction dir = d->fRandom->nextBool() ? kX_Direction : kY_Direction;
+    int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
 
     bool useBounds = d->fRandom->nextBool();
-    int bounds[2];
-
-    Direction dir;
-    if (d->fRandom->nextBool()) {
-        dir = kX_Direction;
-        bounds[0] = d->fRandom->nextRangeU(0, proxy->width()-1);
-        bounds[1] = d->fRandom->nextRangeU(bounds[0], proxy->width()-1);
-    } else {
-        dir = kY_Direction;
-        bounds[0] = d->fRandom->nextRangeU(0, proxy->height()-1);
-        bounds[1] = d->fRandom->nextRangeU(bounds[0], proxy->height()-1);
+    float bounds[2];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(bounds); ++i) {
+        bounds[i] = d->fRandom->nextF();
     }
 
-    int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
-
     return GrGaussianConvolutionFragmentProcessor::Make(
             d->context(), d->textureProxy(texIdx), dir, radius, sigma, useBounds, bounds);
 }

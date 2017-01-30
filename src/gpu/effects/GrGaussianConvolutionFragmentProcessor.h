@@ -24,7 +24,7 @@ public:
                                            int halfWidth,
                                            float gaussianSigma,
                                            bool useBounds,
-                                           int* bounds) {
+                                           float* bounds) {
         return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
                 tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
@@ -35,7 +35,7 @@ public:
                                            int halfWidth,
                                            float gaussianSigma,
                                            bool useBounds,
-                                           int* bounds) {
+                                           float* bounds) {
         return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
                 context, std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
@@ -44,7 +44,7 @@ public:
 
     const float* kernel() const { return fKernel; }
 
-    const int* bounds() const { return fBounds; }
+    const float* bounds() const { return fBounds; }
     bool useBounds() const { return fUseBounds; }
 
     const char* name() const override { return "GaussianConvolution"; }
@@ -61,11 +61,11 @@ public:
 private:
     /// Convolve with a Gaussian kernel
     GrGaussianConvolutionFragmentProcessor(GrTexture*, Direction, int halfWidth,
-                                           float gaussianSigma, bool useBounds, int bounds[2]);
+                                           float gaussianSigma, bool useBounds, float bounds[2]);
 
     GrGaussianConvolutionFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>, Direction,
                                            int halfWidth, float gaussianSigma, bool useBounds,
-                                           int bounds[2]);
+                                           float bounds[2]);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -85,7 +85,7 @@ private:
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
     float fKernel[kMaxKernelWidth];
     bool  fUseBounds;
-    int   fBounds[2];
+    float fBounds[2];
 
     typedef Gr1DKernelEffect INHERITED;
 };

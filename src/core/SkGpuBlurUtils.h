@@ -22,7 +22,7 @@ namespace SkGpuBlurUtils {
     * as a renderTargetContext in case the caller wishes to future draw into the result.
     * Note: one of sigmaX and sigmaY should be non-zero!
     * @param context         The GPU context
-    * @param src             The source to be blurred.
+    * @param srcTexture      The source texture to be blurred.
     * @param colorSpace      Color space of the source (used for the renderTargetContext result,
     *                        too).
     * @param dstBounds       The destination bounds, relative to the source texture.
@@ -34,7 +34,7 @@ namespace SkGpuBlurUtils {
     * @return                The renderTargetContext containing the blurred result.
     */
     sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
-                                              sk_sp<GrTextureProxy> src,
+                                              GrTexture* srcTexture,
                                               sk_sp<SkColorSpace> colorSpace,
                                               const SkIRect& dstBounds,
                                               const SkIRect* srcBounds,
