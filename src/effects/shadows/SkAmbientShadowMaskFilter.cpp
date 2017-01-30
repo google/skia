@@ -17,8 +17,6 @@
 #include "GrStyle.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
-#include "effects/GrBlurredEdgeFragmentProcessor.h"
-#include "effects/GrShadowTessellator.h"
 #include "SkStrokeRec.h"
 #endif
 
@@ -164,41 +162,21 @@ bool SkAmbientShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texPr
         return false;
     }
 
-#ifdef SUPPORT_FAST_PATH
     // if circle
     // TODO: switch to SkScalarNearlyEqual when either oval renderer is updated or we
     // have our own GeometryProc.
     if (path.isOval(nullptr) && path.getBounds().width() == path.getBounds().height()) {
         SkRRect rrect = SkRRect::MakeOval(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(nullptr, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     } else if (path.isRect(nullptr)) {
         SkRRect rrect = SkRRect::MakeRect(path.getBounds());
-        return this->directFilterRRectMaskGPU(nullptr, drawContext, std::move(paint), clip,
+        return this->directFilterRRectMaskGPU(nullptr, rtContext, std::move(paint), clip,
                                               SkMatrix::I(), strokeRec, rrect, rrect);
     }
-#endif
 
-    SkScalar radius = fOccluderHeight * kHeightFactor * kGeomFactor;
-    SkScalar umbraAlpha = SkScalarInvert((1.0f+SkTMax(fOccluderHeight * kHeightFactor, 0.0f)));
-    // umbraColor is the interior value, penumbraColor the exterior value.
-    // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
-    // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
-    // the final alpha.
-    GrColor  umbraColor = GrColorPackRGBA(0, 0, umbraAlpha*255.9999f, fAmbientAlpha*255.9999f);
-    GrColor  penumbraColor = GrColorPackRGBA(0, 0, 0, fAmbientAlpha*255.9999f);
-
-    GrAmbientShadowTessellator tess(path, radius, umbraColor, penumbraColor,
-                                SkToBool(fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag));
-
-    sk_sp<GrFragmentProcessor> edgeFP = GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
-    paint.addColorFragmentProcessor(std::move(edgeFP));
-
-    rtContext->drawVertices(clip, std::move(paint), SkMatrix::I(), kTriangles_GrPrimitiveType,
-                            tess.vertexCount(), tess.positions(), nullptr,
-                            tess.colors(), tess.indices(), tess.indexCount());
-
-    return true;
+    // TODO
+    return false;
 }
 
 bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
@@ -209,10 +187,6 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
                                                              const SkStrokeRec& strokeRec,
                                                              const SkRRect& rrect,
                                                              const SkRRect& devRRect) const {
-#ifndef SUPPORT_FAST_PATH
-    return false;
-#endif
-
     // It's likely the caller has already done these checks, but we have to be sure.
     // TODO: support analytic blurring of general rrect
 
@@ -246,7 +220,7 @@ bool SkAmbientShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
     if (fAmbientAlpha > 0.0f) {
         SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
         const float umbraAlpha = (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
-        const SkScalar ambientOffset = srcSpaceAmbientRadius * umbraAlpha;
+        const SkScalar ambientOffset = srcSpaceAmbientRadius / umbraAlpha;
 
         // For the ambient rrect, we inset the offset rect by half the srcSpaceAmbientRadius
         // to get our stroke shape.
