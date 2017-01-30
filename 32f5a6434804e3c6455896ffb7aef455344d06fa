@@ -59,6 +59,29 @@
     },
     {
       "key": {
+        "uuid": "d3629981_237a942c",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:53:52Z",
+      "side": 1,
+      "message": "This is interesting.  This shader is temporary, and will be destroyed before the stages it adds are used.\n\nUsually we assume that the shader is alive while the blitter is using the stages it appended.  I _think_ the stages that SkImageShader appends are independent of the SkImageShader itself, and so we may be safe here.  But it is a little surprising that it works... I think we should probably do one of two things:\n\n   1) allocate the sk_sp\u003cSkShader\u003e using alloc instead of on the stack.  This will extend the lifetime of the bitmap shader to match the lifetime of the blitter;\n   2) leave a note explaining that it is safe to allocate this shader temporarily, as the stages it appends can run even if the source shader has been destroyed.\n\nI\u0027m leaning a bit more towards 1) than 2)... even if we can get away with 2), 1) is guaranteed to be safe.",
+      "range": {
+        "startLine": 262,
+        "startChar": 20,
+        "endLine": 262,
+        "endChar": 32
+      },
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d2f4720_e45a5873",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 2
