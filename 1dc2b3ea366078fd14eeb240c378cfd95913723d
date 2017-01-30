@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebac3786_0fca5c82",
+        "filename": "bin/fetch-gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T15:26:12Z",
+      "side": 1,
+      "message": "It\u0027s probably clearer to write these comparisons with !\u003d\n\n   if sha1_of_file(gn_path) !\u003d sha1:\n\nThat way you don\u0027t have to wonder whether \u003d\u003d or not binds tighter.",
+      "revId": "1dc2b3ea366078fd14eeb240c378cfd95913723d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
