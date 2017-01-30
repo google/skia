@@ -16,6 +16,23 @@
       "revId": "7272a5ac4cb3a319a02e0dde4baf07cf5520ed9b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77839ed7_bcaf166c",
+        "filename": "include/gpu/GrSurfaceContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-30T15:48:05Z",
+      "side": 1,
+      "message": "I\u0027m hoping where we\u0027ll ultimately land is with the GrSurfaceContext holding an sk_sp\u003cGrSurfaceProxy\u003e and all the accessors implemented here as non-virtuals.\n\nBut, yeah, it is a bit goofy/redundant right now.",
+      "revId": "7272a5ac4cb3a319a02e0dde4baf07cf5520ed9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
