@@ -50,6 +50,23 @@
       "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13dabe7a_bc55372d",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T15:50:14Z",
+      "side": 1,
+      "message": "Ah, that makes sense.",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
