@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "502fd510_84147815",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:55:24Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "61e77efbe910e6dd3655f9d677bf7171193deeec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74dc46a7_0b8f6d2e",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 6
@@ -36,6 +53,23 @@
         "endLine": 264,
         "endChar": 75
       },
+      "revId": "61e77efbe910e6dd3655f9d677bf7171193deeec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8044e8bc_5c3b8213",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:55:24Z",
+      "side": 1,
+      "message": "Yes, after the rebase, there\u0027s no pixel difference.",
       "revId": "61e77efbe910e6dd3655f9d677bf7171193deeec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
