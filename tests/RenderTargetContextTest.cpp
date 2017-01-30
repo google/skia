@@ -33,7 +33,7 @@ static void check_is_wrapped_status(skiatest::Reporter* reporter,
                                     bool wrappedExpectation) {
     REPORTER_ASSERT(reporter, rtCtx->isWrapped_ForTesting() == wrappedExpectation);
 
-    GrTextureProxy* tProxy = rtCtx->asDeferredTexture();
+    GrTextureProxy* tProxy = rtCtx->asTextureProxy();
     REPORTER_ASSERT(reporter, tProxy);
 
     REPORTER_ASSERT(reporter, tProxy->isWrapped_ForTesting() == wrappedExpectation);
@@ -68,7 +68,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
 
         check_is_wrapped_status(reporter, rtCtx.get(), false);
 
-        GrTextureProxy* tProxy = rtCtx->asDeferredTexture();
+        GrTextureProxy* tProxy = rtCtx->asTextureProxy();
         REPORTER_ASSERT(reporter, tProxy);
 
         GrTexture* tex = tProxy->instantiate(ctx->textureProvider());

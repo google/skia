@@ -515,7 +515,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                 : SK_ColorTRANSPARENT;
         dstRTContext->clear(&clearRect, clearColor, false);
 
-        srcTexture = sk_ref_sp(dstRTContext->asDeferredTexture());
+        srcTexture = dstRTContext->asRefTextureProxy();
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
@@ -530,7 +530,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                               srcRect, dstRect, radius.fHeight, morphType,
                               Gr1DKernelEffect::kY_Direction);
 
-        srcTexture = sk_ref_sp(dstRTContext->asDeferredTexture());
+        srcTexture = dstRTContext->asRefTextureProxy();
     }
 
     return SkSpecialImage::MakeDeferredFromGpu(context,

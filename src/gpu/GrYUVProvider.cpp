@@ -133,9 +133,9 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     GrPaint paint;
     sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
         GrYUVEffect::MakeYUVToRGB(ctx,
-                                  sk_ref_sp(yuvTextureContexts[0]->asDeferredTexture()),
-                                  sk_ref_sp(yuvTextureContexts[1]->asDeferredTexture()),
-                                  sk_ref_sp(yuvTextureContexts[2]->asDeferredTexture()),
+                                  yuvTextureContexts[0]->asRefTextureProxy(),
+                                  yuvTextureContexts[1]->asRefTextureProxy(),
+                                  yuvTextureContexts[2]->asRefTextureProxy(),
                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
