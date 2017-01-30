@@ -27,10 +27,15 @@ class SK_API GrTextureContext : public GrSurfaceContext {
 public:
     ~GrTextureContext() override;
 
-    GrSurfaceProxy* asDeferredSurface() override { return fTextureProxy.get(); }
-    const GrSurfaceProxy* asDeferredSurface() const override { return fTextureProxy.get(); }
-    GrTextureProxy* asDeferredTexture() override { return fTextureProxy.get(); }
-    GrRenderTargetProxy* asDeferredRenderTarget() override;
+    GrSurfaceProxy* asSurfaceProxy() override { return fTextureProxy.get(); }
+    const GrSurfaceProxy* asSurfaceProxy() const override { return fTextureProxy.get(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fTextureProxy; }
+
+    GrTextureProxy* asTextureProxy() override { return fTextureProxy.get(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef() override { return fTextureProxy; }
+
+    GrRenderTargetProxy* asRenderTargetProxy() override;
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() override;
 
 protected:
     GrTextureContext(GrContext*, GrDrawingManager*, sk_sp<GrTextureProxy>,

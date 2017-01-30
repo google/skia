@@ -204,7 +204,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrContext* context,
         return nullptr;
     }
 
-    return sk_ref_sp(dstContext->asDeferredSurface());
+    return dstContext->asSurfaceProxyRef();
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,

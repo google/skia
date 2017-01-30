@@ -303,7 +303,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     return SkSpecialImage::MakeDeferredFromGpu(context, dstIRect,
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               renderTargetContext->asTextureProxyRef(),
                                                renderTargetContext->refColorSpace());
 }
 #endif
