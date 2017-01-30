@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a78f3b8_7aabf0bf",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T15:37:47Z",
+      "side": 1,
+      "message": "Should this be protected?",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a140e8c3_07e4b8c9",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T15:37:47Z",
+      "side": 1,
+      "message": "Would it be nicer to make this return a bool and omit drawableSupported?",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
