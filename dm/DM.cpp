@@ -1473,7 +1473,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 }
 } // namespace skiatest
 
-#if !defined(SK_BUILD_FOR_IOS)
+#if !defined(SK_BUILD_FOR_IOS) || defined(DM_DEFINE_MAIN)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     return dm_main();
