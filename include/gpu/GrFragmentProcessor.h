@@ -100,8 +100,8 @@ public:
 
     /**
      * True if the processor's output is a modulation of its input color or alpha with a computed
-     * color or alpha in the 0..1 range. If true and the blend mode allows it we may fold coverage
-     * into the first color fragment processor's input.
+     * premultiplied color or alpha in the 0..1 range. If true and the blend mode allows it we may
+     * fold coverage into the first color fragment processor's input.
      */
     bool modulatesInput() const { return SkToBool(fFlags & kModulatesInput_OptimizationFlag); }
 

@@ -30,7 +30,12 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }
 
-    const char* name() const override { return "Color"; }
+    const char* name() const override {
+        // TRY BOT HACK
+        SkString* name = new SkString;
+        name->printf("Const color (%f, %f, %f, %f), M: %d", fColor.fRGBA[0], fColor.fRGBA[1], fColor.fRGBA[2], fColor.fRGBA[3], (int)fMode);
+        return name->c_str();
+    }
 
     SkString dumpInfo() const override {
         SkString str;

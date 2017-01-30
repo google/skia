@@ -155,6 +155,10 @@ public:
             fStrings[i].set(str);
         }
 
+        void reset(const SkString& str) {
+            this->reset();
+            fStrings.push_back(str);
+        }
     private:
         void reset() { fStrings.reset(); }
 

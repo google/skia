@@ -1476,6 +1476,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 #if !defined(SK_BUILD_FOR_IOS)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+    FLAGS_match.reset(SkString("ProcessorOptimizationValidationTest"));
     return dm_main();
 }
 #endif
