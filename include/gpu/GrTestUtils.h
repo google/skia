@@ -15,9 +15,9 @@
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
 #include "SkPathEffect.h"
-#include "SkRandom.h"
 #include "SkShader.h"
 #include "SkStrokeRec.h"
+#include "../private/SkRandom.h"
 #include "../private/SkTemplates.h"
 
 struct GrProcessorTestData;
