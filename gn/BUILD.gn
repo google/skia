@@ -211,7 +211,7 @@ config("default") {
     # If we can we'd like to not do that anymore.  While we're building both ways, here's
     # our clever hack to give each tool back its own main().
     cflags += [
-      "-Ddm_main=main",
+      "-DDM_DEFINE_MAIN",
       "-Dnanobench_main=main",
       "-Dtool_main=main",
       "-Dtest_main=main",
