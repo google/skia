@@ -27,7 +27,17 @@ public:
         SkASSERT(1 == shaderBChildIndex);
     }
 
-    const char* name() const override { return "ComposeTwo"; }
+    const char* name() const override {
+        /// TRY BOT HACK
+        SkString names[(int)SkBlendMode::kLastMode + 1];
+        static bool init = true;
+        if (init) {
+            for (int i = 0; i <= (int) SkBlendMode::kLastMode; ++i) {
+                names[i].printf("ComposeTwo (%s)", SkBlendMode_Name((SkBlendMode)i));
+            }
+        }
+        return names[(int)fMode].c_str();
+    }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32((int)fMode);
