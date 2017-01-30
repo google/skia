@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d117d76b_c48cf468",
+        "filename": "src/core/SkSmallAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:05:37Z",
+      "side": 1,
+      "message": "Seems like longer term this would want to be a parameter to createWithIniter(), defaulting to sizeof(void*)?  Or does it need to be a constant to make the destructor work?",
+      "revId": "0a84a343fd4e56029fb172c851630770c247cd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
