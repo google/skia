@@ -1282,8 +1282,15 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
-int dm_main();
-int dm_main() {
+static bool flags_parsed = false;
+
+int dm_main(int argc, char** argv);
+int dm_main(int argc, char** argv) {
+    if (!flags_parsed) {
+        SkCommandLineFlags::Parse(argc, argv);
+        flags_parsed = true;
+    }
+
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
@@ -1473,9 +1480,10 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 }
 } // namespace skiatest
 
-#if !defined(SK_BUILD_FOR_IOS)
+#if !defined(SK_BUILD_FOR_IOS) && !defined(dm_main)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
-    return dm_main();
+    flags_parsed = true;
+    return dm_main(argc, argv);
 }
 #endif
