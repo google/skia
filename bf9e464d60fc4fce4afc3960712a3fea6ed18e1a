@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bee31804_9adb69e6",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T23:44:03Z",
+      "side": 1,
+      "message": "I presume count and the return-type mean the same thing? (the number of axes). To match other skia apis, should they both be int?\n\nI find the different names confusing. Why not getVariationCoordinates()?",
+      "range": {
+        "startLine": 91,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 34
+      },
+      "revId": "bf9e464d60fc4fce4afc3960712a3fea6ed18e1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
