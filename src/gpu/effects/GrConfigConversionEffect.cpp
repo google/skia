@@ -98,7 +98,7 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
-        : INHERITED(texture, nullptr, matrix, ModulationFlags(texture->config()))
+        : INHERITED(texture, nullptr, matrix, kNone_OptimizationFlags)
         , fSwizzle(swizzle)
         , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
@@ -116,7 +116,7 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrContext* context,
                                                    const GrSwizzle& swizzle,
                                                    PMConversion pmConversion,
                                                    const SkMatrix& matrix)
-    : INHERITED(context, ModulationFlags(proxy->config()), proxy, nullptr, matrix)
+    : INHERITED(context, kNone_OptimizationFlags, proxy, nullptr, matrix)
     , fSwizzle(swizzle)
     , fPMConversion(pmConversion) {
     this->initClassID<GrConfigConversionEffect>();
