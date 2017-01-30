@@ -7,6 +7,7 @@
 
 #include "SkPictureShader.h"
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
@@ -253,6 +254,14 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
         return nullptr;
     }
     return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
+}
+
+bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
+                                     const SkMatrix& ctm, const SkPaint& paint,
+                                     const SkMatrix* localMatrix) const {
+    auto bitmapShader = alloc->make<sk_sp<SkShader>>();
+    bitmapShader[0] = this->refBitmapShader(ctm, localMatrix, cs);
+    return bitmapShader[0] && bitmapShader[0]->appendStages(p, cs, alloc, ctm, paint);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
