@@ -37,6 +37,7 @@ protected:
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
+    int onGetVariationDesignPosition(SkFontArguments::VariationCoordinate position[], size_t count) const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;

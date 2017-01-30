@@ -13,6 +13,8 @@
 #include "SkString.h"
 #include "SkTypeface.h"
 
+// SkFontData's 'axis' is what the specification calls 'coordinates', an ordered tuple of coordinate.
+
 class SkFontData {
 public:
     /** Makes a copy of the data in 'axis'. */
