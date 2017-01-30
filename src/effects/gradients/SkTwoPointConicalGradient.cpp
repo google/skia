@@ -219,6 +219,11 @@ SkShader::Context* SkTwoPointConicalGradient::onCreateContext(const ContextRec& 
     return CheckedCreateContext<TwoPointConicalGradientContext>(storage, *this, rec);
 }
 
+SkShader::Context* SkTwoPointConicalGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return CheckedMakeContext<TwoPointConicalGradientContext>(alloc, *this, rec);
+}
+
 SkTwoPointConicalGradient::TwoPointConicalGradientContext::TwoPointConicalGradientContext(
         const SkTwoPointConicalGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec)

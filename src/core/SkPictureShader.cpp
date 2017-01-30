@@ -7,6 +7,7 @@
 
 #include "SkPictureShader.h"
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
@@ -252,22 +253,34 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
     if (!bitmapShader) {
         return nullptr;
     }
-    return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
-}
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
-                   const SkPictureShader& shader, const ContextRec& rec,
-                                                                 sk_sp<SkShader> bitmapShader) {
-    PictureShaderContext* ctx = new (storage) PictureShaderContext(shader, rec,
-                                                                   std::move(bitmapShader));
+    PictureShaderContext* ctx =
+        new (storage) PictureShaderContext(*this, rec, std::move(bitmapShader));
     if (nullptr == ctx->fBitmapShaderContext) {
         ctx->~PictureShaderContext();
         ctx = nullptr;
     }
     return ctx;
 }
+
+SkShader::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
+const {
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
+                                                       rec.fDstColorSpace));
+    if (!bitmapShader) {
+        return nullptr;
+    }
+
+    PictureShaderContext* ctx =
+        alloc->make<PictureShaderContext>(*this, rec, std::move(bitmapShader));
+    if (nullptr == ctx->fBitmapShaderContext) {
+        ctx->~PictureShaderContext();
+        ctx = nullptr;
+    }
+    return ctx;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
 SkPictureShader::PictureShaderContext::PictureShaderContext(
         const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader)

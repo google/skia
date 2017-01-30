@@ -58,6 +58,12 @@ SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* s
                                                  rec, storage);
 }
 
+SkShader::Context* SkImageShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
+                                                 SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
+                                                 rec, alloc);
+}
+
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
     if (texM) {
         *texM = this->getLocalMatrix();

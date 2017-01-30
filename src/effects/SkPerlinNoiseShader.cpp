@@ -6,6 +6,8 @@
  */
 
 #include "SkPerlinNoiseShader.h"
+
+#include "SkArenaAlloc.h"
 #include "SkColorFilter.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -441,6 +443,11 @@ SkShader::Context* SkPerlinNoiseShader::onCreateContext(const ContextRec& rec,
 
 size_t SkPerlinNoiseShader::onContextSize(const ContextRec&) const {
     return sizeof(PerlinNoiseShaderContext);
+}
+
+SkShader::Context* SkPerlinNoiseShader::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
 
 SkPerlinNoiseShader::PerlinNoiseShaderContext::PerlinNoiseShaderContext(

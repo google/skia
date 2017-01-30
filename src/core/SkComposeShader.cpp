@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkComposeShader.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
@@ -28,12 +29,6 @@ sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader>
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-size_t SkComposeShader::onContextSize(const ContextRec& rec) const {
-    return sizeof(ComposeShaderContext)
-        + fShaderA->contextSize(rec)
-        + fShaderB->contextSize(rec);
-}
 
 class SkAutoAlphaRestore {
 public:
@@ -80,6 +75,12 @@ template <typename T> void safe_call_destructor(T* obj) {
     }
 }
 
+size_t SkComposeShader::onContextSize(const ContextRec& rec) const {
+    return sizeof(ComposeShaderContext)
+           + fShaderA->contextSize(rec)
+           + fShaderB->contextSize(rec);
+}
+
 SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void* storage) const {
     char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
     char* bStorage = aStorage + fShaderA->contextSize(rec);
@@ -110,17 +111,41 @@ SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void*
     return new (storage) ComposeShaderContext(*this, rec, contextA, contextB);
 }
 
+SkShader::Context* SkComposeShader::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    // we preconcat our localMatrix (if any) with the device matrix
+    // before calling our sub-shaders
+    SkMatrix tmpM;
+    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
+
+    // Our sub-shaders need to see opaque, so by combining them we don't double-alphatize the
+    // result. ComposeShader itself will respect the alpha, and post-apply it after calling the
+    // sub-shaders.
+    SkPaint opaquePaint(*rec.fPaint);
+    opaquePaint.setAlpha(0xFF);
+
+    ContextRec newRec(rec);
+    newRec.fMatrix = &tmpM;
+    newRec.fPaint = &opaquePaint;
+
+    SkShader::Context* contextA = fShaderA->makeContext(newRec, alloc);
+    SkShader::Context* contextB = fShaderB->makeContext(newRec, alloc);
+    if (!contextA || !contextB) {
+        safe_call_destructor(contextA);
+        safe_call_destructor(contextB);
+        return nullptr;
+    }
+
+    return alloc->make<ComposeShaderContext>(*this, rec, contextA, contextB);
+}
+
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
         const SkComposeShader& shader, const ContextRec& rec,
         SkShader::Context* contextA, SkShader::Context* contextB)
     : INHERITED(shader, rec)
     , fShaderContextA(contextA)
     , fShaderContextB(contextB) {}
-
-SkComposeShader::ComposeShaderContext::~ComposeShaderContext() {
-    fShaderContextA->~Context();
-    fShaderContextB->~Context();
-}
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {

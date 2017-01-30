@@ -71,6 +71,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
     sk_sp<SkShader>     fShaderA;

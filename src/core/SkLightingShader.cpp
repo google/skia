@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
@@ -87,6 +88,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void*) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
     sk_sp<SkShader> fDiffuseShader;
@@ -490,6 +492,26 @@ SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
 
     return new (storage) LightingShaderContext(*this, rec, diffuseContext, normalProvider,
                                                heapAllocated);
+}
+
+SkShader::Context* SkLightingShaderImpl::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    SkShader::Context *diffuseContext = nullptr;
+    if (fDiffuseShader) {
+        diffuseContext = fDiffuseShader->makeContext(rec, alloc);
+        if (!diffuseContext) {
+            return nullptr;
+        }
+    }
+
+    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec, alloc);
+    if (!normalProvider) {
+        diffuseContext->~Context();
+        return nullptr;
+    }
+
+    return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

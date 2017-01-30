@@ -6,6 +6,8 @@
  */
 
 #include "SkBitmapProcShader.h"
+
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcState.h"
 #include "SkBitmapProvider.h"
 #include "SkXfermodePriv.h"
@@ -34,7 +36,8 @@ public:
     }
 
     ~BitmapProcInfoContext() override {
-        fInfo->~SkBitmapProcInfo();
+        // FIXME
+        //fInfo->~SkBitmapProcInfo();
     }
 
     uint32_t getFlags() const override { return fFlags; }
@@ -231,5 +234,36 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
             return nullptr;
         }
         return new (storage) BitmapProcShaderContext(shader, rec, state);
+    }
+}
+
+SkShader::Context* SkBitmapProcLegacyShader::MakeContext(
+    const SkShader& shader, TileMode tmx, TileMode tmy,
+    const SkBitmapProvider& provider, const ContextRec& rec, SkArenaAlloc* alloc)
+{
+    SkMatrix totalInverse;
+    // Do this first, so we know the matrix can be inverted.
+    if (!shader.computeTotalInverse(rec, &totalInverse)) {
+        return nullptr;
+    }
+
+    // Decide if we can/want to use the new linear pipeline
+    bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
+
+    if (useLinearPipeline) {
+        SkBitmapProcInfo* info = alloc->make<SkBitmapProcInfo>(provider, tmx, tmy);
+        if (!info->init(totalInverse, *rec.fPaint)) {
+            //info->~SkBitmapProcInfo();
+            return nullptr;
+        }
+
+        return alloc->make<LinearPipelineContext>(shader, rec, info);
+    } else {
+        SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
+        if (!state->setup(totalInverse, *rec.fPaint)) {
+            //state->~SkBitmapProcState();
+            return nullptr;
+        }
+        return alloc->make<BitmapProcShaderContext>(shader, rec, state);
     }
 }

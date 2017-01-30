@@ -13,6 +13,7 @@
 #include "SkWriteBuffer.h"
 
 class GrFragmentProcessor;
+class SkArenaAlloc;
 
 class SkLocalMatrixShader : public SkShader {
 public:
@@ -46,6 +47,8 @@ protected:
     size_t onContextSize(const ContextRec& rec) const override {
         return fProxyShader->contextSize(rec);
     }
+
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
     SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isAImage(matrix, mode);

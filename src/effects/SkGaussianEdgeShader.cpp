@@ -9,6 +9,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+class SkArenaAlloc;
+
  /** \class SkGaussianEdgeShaderImpl
  This subclass of shader applies a Gaussian to shadow edge
 
@@ -34,7 +36,9 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-
+    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* storage) const override {
+        return nullptr;
+    }
 private:
     friend class SkGaussianEdgeShader;
 
