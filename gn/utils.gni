@@ -23,7 +23,6 @@ skia_utils_sources = [
   "$_include/utils/SkParse.h",
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkPictureUtils.h",
-  "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
   "$_include/utils/SkTextBox.h",
 
@@ -65,6 +64,7 @@ skia_utils_sources = [
   "$_src/utils/SkPatchUtils.h",
   "$_src/utils/SkRGBAToYUV.cpp",
   "$_src/utils/SkRGBAToYUV.h",
+  "$_src/utils/SkRandom.h",
   "$_src/utils/SkShadowPaintFilterCanvas.cpp",
   "$_src/utils/SkShadowPaintFilterCanvas.h",
   "$_src/utils/SkShadowTessellator.cpp",
