@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrShadowTessellator_DEFINED
-#define GrShadowTessellator_DEFINED
+#ifndef SkShadowTessellator_DEFINED
+#define SkShadowTessellator_DEFINED
 
 #include "SkTDArray.h"
 #include "SkPoint.h"
 
-#include "GrColor.h"
+#include "SkColor.h"
 
 class SkMatrix;
 class SkPath;
@@ -23,14 +23,14 @@ class SkPath;
  * radius, and setting inner and outer colors to umbraColor and penumbraColor, respectively.
  * If transparent is true, then the center of the ambient shadow will be filled in.
  */
-class GrAmbientShadowTessellator {
+class SkAmbientShadowTessellator {
 public:
-    GrAmbientShadowTessellator(const SkPath& path, SkScalar radius, GrColor umbraColor,
-                               GrColor penumbraColor, bool transparent);
+    SkAmbientShadowTessellator(const SkPath& path, SkScalar radius, SkColor umbraColor,
+                               SkColor penumbraColor, bool transparent);
 
     int      vertexCount() { return fPositions.count(); }
     SkPoint* positions() { return fPositions.begin(); }
-    GrColor* colors() { return fColors.begin(); }
+    SkColor* colors() { return fColors.begin(); }
     int      indexCount() { return fIndices.count(); }
     uint16_t* indices() { return fIndices.begin(); }
 
@@ -48,12 +48,12 @@ private:
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
     SkScalar            fRadius;
-    GrColor             fUmbraColor;
-    GrColor             fPenumbraColor;
+    SkColor             fUmbraColor;
+    SkColor             fPenumbraColor;
     bool                fTransparent;
 
     SkTDArray<SkPoint>  fPositions;
-    SkTDArray<GrColor>  fColors;
+    SkTDArray<SkColor>  fColors;
     SkTDArray<uint16_t> fIndices;
 
     int                 fPrevInnerIndex;
@@ -74,15 +74,15 @@ private:
  * transforming by the scale and translation, and outsetting and insetting by a radius.
  * The center will be clipped against the original path unless transparent is true.
  */
-class GrSpotShadowTessellator {
+class SkSpotShadowTessellator {
 public:
-    GrSpotShadowTessellator(const SkPath& path, SkScalar scale, const SkVector& translate,
-                            SkScalar radius, GrColor umbraColor, GrColor penumbraColor,
+    SkSpotShadowTessellator(const SkPath& path, SkScalar scale, const SkVector& translate,
+                            SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
                             bool transparent);
 
     int      vertexCount() { return fPositions.count(); }
     SkPoint* positions() { return fPositions.begin(); }
-    GrColor* colors() { return fColors.begin(); }
+    SkColor* colors() { return fColors.begin(); }
     int      indexCount() { return fIndices.count(); }
     uint16_t* indices() { return fIndices.begin(); }
 
@@ -100,17 +100,17 @@ private:
     void handleConic(SkScalar scale, const SkVector& xlate, SkPoint pts[3], SkScalar w);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
-    void addInnerPoint(const SkPoint& pathPoint, GrColor umbraColor, SkScalar radiusSqd);
+    void addInnerPoint(const SkPoint& pathPoint, SkColor umbraColor, SkScalar radiusSqd);
     void addArc(const SkVector& nextNormal);
     void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
     SkScalar            fRadius;
-    GrColor             fUmbraColor;
-    GrColor             fPenumbraColor;
+    SkColor             fUmbraColor;
+    SkColor             fPenumbraColor;
 
     SkTDArray<SkPoint>  fPositions;
-    SkTDArray<GrColor>  fColors;
+    SkTDArray<SkColor>  fColors;
     SkTDArray<uint16_t> fIndices;
 
     int                 fPrevInnerIndex;
