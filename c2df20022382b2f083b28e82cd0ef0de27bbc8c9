@@ -19,6 +19,46 @@
     },
     {
       "key": {
+        "uuid": "64ac2050_6a366bd2",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T16:30:24Z",
+      "side": 1,
+      "message": "seems like it *has* to be public, if we\u0027re going to use flags to know which virtuals we can call.",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e085237_587a8006",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T16:30:24Z",
+      "side": 1,
+      "message": "nit: isDrawableSupported",
+      "range": {
+        "startLine": 226,
+        "startChar": 17,
+        "endLine": 226,
+        "endChar": 34
+      },
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a140e8c3_07e4b8c9",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 3
@@ -64,6 +104,23 @@
       "writtenOn": "2017-01-30T15:50:14Z",
       "side": 1,
       "message": "Ah, that makes sense.",
+      "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ede3907c_1fb7cf37",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T16:30:24Z",
+      "side": 1,
+      "message": "Either way. I\u0027m excited about the meta idea of specialized drawables. If later we think a bool or some other technique is cleaner, I\u0027m not attached to the current way.",
       "revId": "c2df20022382b2f083b28e82cd0ef0de27bbc8c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
