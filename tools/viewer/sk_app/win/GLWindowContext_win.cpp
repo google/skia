@@ -53,7 +53,7 @@ void GLWindowContext_win::onInitializeContext() {
     HDC dc = GetDC(fHWND);
 
     fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, fDisplayParams.fDeepColor,
-                                kGLPreferCompatibilityProfile_SkWGLContextRequest);
+                                kGLPreferCoreProfile_SkWGLContextRequest);
     if (NULL == fHGLRC) {
         return;
     }
