@@ -1186,7 +1186,16 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
                                      bool supportsScanlineDecoder,
                                      bool supportsIncrementalDecoder) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    if (!stream) {
+        return;
+    }
+
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "failed to create a codec for %s", path);
+        return;
+    }
+
     SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
 
     SkBitmap bm;
