@@ -249,7 +249,7 @@ static SkPath create_path_16() {
     return path;
 }
 
-static void test_path(GrResourceProvider* rp, GrRenderTargetContext* renderTargetContext,
+static void test_path(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                       const SkPath& path) {
     GrTessellatingPathRenderer tess;
 
@@ -259,7 +259,7 @@ static void test_path(GrResourceProvider* rp, GrRenderTargetContext* renderTarge
     GrNoClip noClip;
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrShape shape(path, style);
-    GrPathRenderer::DrawPathArgs args{rp,
+    GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
@@ -283,25 +283,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
         return;
     }
 
-    GrResourceProvider* rp = ctx->resourceProvider();
-
     ctx->flush();
-    test_path(rp, rtc.get(), create_path_0());
-    test_path(rp, rtc.get(), create_path_1());
-    test_path(rp, rtc.get(), create_path_2());
-    test_path(rp, rtc.get(), create_path_3());
-    test_path(rp, rtc.get(), create_path_4());
-    test_path(rp, rtc.get(), create_path_5());
-    test_path(rp, rtc.get(), create_path_6());
-    test_path(rp, rtc.get(), create_path_7());
-    test_path(rp, rtc.get(), create_path_8());
-    test_path(rp, rtc.get(), create_path_9());
-    test_path(rp, rtc.get(), create_path_10());
-    test_path(rp, rtc.get(), create_path_11());
-    test_path(rp, rtc.get(), create_path_12());
-    test_path(rp, rtc.get(), create_path_13());
-    test_path(rp, rtc.get(), create_path_14());
-    test_path(rp, rtc.get(), create_path_15());
-    test_path(rp, rtc.get(), create_path_16());
+    test_path(ctx, rtc.get(), create_path_0());
+    test_path(ctx, rtc.get(), create_path_1());
+    test_path(ctx, rtc.get(), create_path_2());
+    test_path(ctx, rtc.get(), create_path_3());
+    test_path(ctx, rtc.get(), create_path_4());
+    test_path(ctx, rtc.get(), create_path_5());
+    test_path(ctx, rtc.get(), create_path_6());
+    test_path(ctx, rtc.get(), create_path_7());
+    test_path(ctx, rtc.get(), create_path_8());
+    test_path(ctx, rtc.get(), create_path_9());
+    test_path(ctx, rtc.get(), create_path_10());
+    test_path(ctx, rtc.get(), create_path_11());
+    test_path(ctx, rtc.get(), create_path_12());
+    test_path(ctx, rtc.get(), create_path_13());
+    test_path(ctx, rtc.get(), create_path_14());
+    test_path(ctx, rtc.get(), create_path_15());
+    test_path(ctx, rtc.get(), create_path_16());
 }
 #endif

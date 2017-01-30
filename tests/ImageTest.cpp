@@ -482,6 +482,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
     }
 }
 
+#if 0
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, contextInfo) {
     auto context = contextInfo.grContext();
     auto image = create_gpu_image(context);
@@ -490,6 +491,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
     as_IB(image)->peekTexture()->abandon();
     surface->getCanvas()->drawImage(image, 0, 0);
 }
+#endif
 
 #endif
 

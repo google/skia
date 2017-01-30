@@ -26,7 +26,7 @@ class SkString;
 class SkSurface;
 class GrContext;
 class GrContextThreadSafeProxy;
-class GrTexture;
+class GrSurfaceProxy;
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
@@ -212,7 +212,7 @@ public:
     bool peekPixels(SkPixmap* pixmap) const;
 
     // DEPRECATED - currently used by Canvas2DLayerBridge in Chromium.
-    GrTexture* getTexture() const;
+    GrSurfaceProxy* getProxy() const;
 
     /**
      *  Returns true if the image is texture backed.
