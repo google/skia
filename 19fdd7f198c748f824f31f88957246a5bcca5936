@@ -56,6 +56,23 @@
       "revId": "19fdd7f198c748f824f31f88957246a5bcca5936",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e00f4d0_fe09ac6a",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T19:20:20Z",
+      "side": 1,
+      "message": "sgtm, I know GPUs support 32K, 64K doesn\u0027t seem impossibly far off.",
+      "revId": "19fdd7f198c748f824f31f88957246a5bcca5936",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
