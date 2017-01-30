@@ -133,6 +133,23 @@
     },
     {
       "key": {
+        "uuid": "52254703_e69fdeef",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T15:38:06Z",
+      "side": 1,
+      "message": "Just to make sure we\u0027re seeing it the same way, caching the shaders does not guarantee that the shader is still alive by the time we use it in the blitter... it just makes it very likely.  Unless the cache 100% guarantees that it keeps the shader alive when blitting (I don\u0027t see this), then we have to make sure it says alive ourselves.  This is a dangerous area to think about precisely because the cache will keep the shader alive with very high probability... we need to ignore that and pretend we just created the shader.\n\nI don\u0027t think there\u0027s any type called SkPictureContext.  Did you mean SkPictureShader::PictureShaderContext?  We never create a PictureShaderContext when using this blitter.",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d2f4720_e45a5873",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 2
