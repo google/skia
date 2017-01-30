@@ -524,6 +524,7 @@ def DM_ARGS(asan):
         "~^gradients",
         "~Math",
         "~Matrix",
+        "~PathBigCubic",
         "~PathOpsCubic",
         "~PathOpsFailOp",
         "~PathOpsOpCubicsThreaded",
