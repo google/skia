@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b161200b_317d8301",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-30T19:12:26Z",
+      "side": 1,
+      "message": "Do you want to add something super large that a gpu will not support in a reasonable time frame?",
+      "range": {
+        "startLine": 118,
+        "startChar": 49,
+        "endLine": 118,
+        "endChar": 50
+      },
+      "revId": "19fdd7f198c748f824f31f88957246a5bcca5936",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
