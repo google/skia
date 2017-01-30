@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd48f130_a853bd6c",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:44:29Z",
+      "side": 1,
+      "message": "When you rebase, you should find that onAppendStages() now has a local matrix argument that you should be able to use.",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da2e7940_5fb114b2",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:44:29Z",
+      "side": 1,
+      "message": "Usually we write this-\u003erefBitmapShader() to remind ourselves it\u0027s a cal to a method of this object.",
+      "range": {
+        "startLine": 262,
+        "startChar": 35,
+        "endLine": 262,
+        "endChar": 50
+      },
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d2f4720_e45a5873",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:44:29Z",
+      "side": 1,
+      "message": "I think we can just write\n\n  return bitmapShader \u0026\u0026 bitmapShader-\u003eappendStages(...).",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ee0afb2_1b29e620",
+        "filename": "src/image/SkImageShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T14:44:29Z",
+      "side": 1,
+      "message": "You should be able to revert this when you call appendStages().",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
