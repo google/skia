@@ -16,11 +16,6 @@
 #include "Resources.h"
 #include "Test.h"
 
-static sk_sp<SkData> make_from_resource(const char* name) {
-    SkString fullPath = GetResourcePath(name);
-    return SkData::MakeFromFileName(fullPath.c_str());
-}
-
 static SkImageInfo standardize_info(SkCodec* codec) {
     SkImageInfo defaultInfo = codec->getInfo();
     // Note: This drops the SkColorSpace, allowing the equality check between two
@@ -52,7 +47,7 @@ static void compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const Sk
 }
 
 static void test_partial(skiatest::Reporter* r, const char* name, size_t minBytes = 0) {
-    sk_sp<SkData> file = make_from_resource(name);
+    sk_sp<SkData> file = GetResourceAsData(name);
     if (!file) {
         SkDebugf("missing resource %s\n", name);
         return;
@@ -139,9 +134,56 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "color_wheel.gif");
 }
 
+// Verify that when decoding an animated gif byte by byte we report the correct
+// fRequiredFrame as soon as getFrameInfo reports the frame.
+DEF_TEST(Codec_requiredFrame, r) {
+    auto path = "colorTables.gif";
+    sk_sp<SkData> file = GetResourceAsData(path);
+    if (!file) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(file));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto frameInfo = codec->getFrameInfo();
+    if (frameInfo.size() <= 1) {
+        ERRORF(r, "Test is uninteresting with 0 or 1 frames");
+        return;
+    }
+
+    HaltingStream* stream(nullptr);
+    std::unique_ptr<SkCodec> partialCodec(nullptr);
+    for (size_t i = 0; !partialCodec; i++) {
+        if (file->size() == i) {
+            ERRORF(r, "Should have created a partial codec for %s", path);
+            return;
+        }
+        stream = new HaltingStream(file, i);
+        partialCodec.reset(SkCodec::NewFromStream(stream));
+    }
+
+    std::vector<SkCodec::FrameInfo> partialInfo;
+    size_t frameToCompare = 0;
+    for (; stream->getLength() <= file->size(); stream->addNewData(1)) {
+        partialInfo = partialCodec->getFrameInfo();
+        for (; frameToCompare < partialInfo.size(); frameToCompare++) {
+            REPORTER_ASSERT(r, partialInfo[frameToCompare].fRequiredFrame
+                                == frameInfo[frameToCompare].fRequiredFrame);
+        }
+
+        if (frameToCompare == frameInfo.size()) {
+            break;
+        }
+    }
+}
+
 DEF_TEST(Codec_partialAnim, r) {
     auto path = "test640x479.gif";
-    sk_sp<SkData> file = make_from_resource(path);
+    sk_sp<SkData> file = GetResourceAsData(path);
     if (!file) {
         return;
     }
@@ -247,7 +289,7 @@ DEF_TEST(Codec_partialAnim, r) {
 // started (but not finished) makes the next call to incrementalDecode
 // require a call to startIncrementalDecode.
 static void test_interleaved(skiatest::Reporter* r, const char* name) {
-    sk_sp<SkData> file = make_from_resource(name);
+    sk_sp<SkData> file = GetResourceAsData(name);
     if (!file) {
         return;
     }
