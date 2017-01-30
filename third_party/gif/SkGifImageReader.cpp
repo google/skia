@@ -457,7 +457,6 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
         case SkGIFLZWStart: {
             SkASSERT(!m_frames.empty());
             auto* currentFrame = m_frames.back().get();
-            setRequiredFrame(currentFrame);
 
             currentFrame->setDataSize(this->getOneByte());
             GETN(1, SkGIFSubBlock);
@@ -800,14 +799,17 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 break;
             }
 
+            setRequiredFrame(currentFrame);
             GETN(1, SkGIFLZWStart);
             break;
         }
 
         case SkGIFImageColormap: {
             SkASSERT(!m_frames.empty());
-            auto& cmap = m_frames.back()->localColorMap();
+            auto* currentFrame = m_frames.back().get();
+            auto& cmap = currentFrame->localColorMap();
             cmap.setTablePosition(m_streamBuffer.markPosition());
+            setRequiredFrame(currentFrame);
             GETN(1, SkGIFLZWStart);
             break;
         }
