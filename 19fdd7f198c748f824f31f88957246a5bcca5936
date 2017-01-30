@@ -39,6 +39,23 @@
       "revId": "19fdd7f198c748f824f31f88957246a5bcca5936",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b8678b6_f6013f5c",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-30T19:17:35Z",
+      "side": 1,
+      "message": "Alright, I raise you 1048576.",
+      "revId": "19fdd7f198c748f824f31f88957246a5bcca5936",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
