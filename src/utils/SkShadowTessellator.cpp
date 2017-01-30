@@ -6,7 +6,9 @@
  */
 
 #include "SkShadowTessellator.h"
+#if SK_SUPPORT_GPU
 #include "GrPathUtils.h"
+#endif
 
 #include "SkGeometry.h"
 
