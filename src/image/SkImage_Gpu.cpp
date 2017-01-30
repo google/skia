@@ -191,7 +191,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     }
 
     // TODO: make gpu images be proxy-backed so we don't need to do this
-    GrSurface* subTx = sContext->asDeferredSurface()->instantiate(ctx->textureProvider());
+    GrSurface* subTx = sContext->asSurfaceProxy()->instantiate(ctx->textureProvider());
     if (!subTx) {
         return nullptr;
     }

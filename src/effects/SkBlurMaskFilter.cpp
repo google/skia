@@ -1540,7 +1540,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
                                       SkRect::Make(clipRect));
     }
 
-    return sk_ref_sp(renderTargetContext->asDeferredTexture());
+    return renderTargetContext->asTextureProxyRef();
 }
 
 #endif // SK_SUPPORT_GPU

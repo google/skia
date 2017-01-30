@@ -265,7 +265,7 @@ protected:
             return nullptr;
         }
 
-        GrSurface* dstSurf = dstContext->asDeferredSurface()->instantiate(fCtx->textureProvider());
+        GrSurface* dstSurf = dstContext->asSurfaceProxy()->instantiate(fCtx->textureProvider());
         if (!dstSurf) {
             return nullptr;
         }

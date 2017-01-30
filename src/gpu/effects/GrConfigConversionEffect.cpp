@@ -254,10 +254,10 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                 context, sk_ref_sp(dataProxy->asTextureProxy()), GrSwizzle::RGBA(),
                 *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                context, sk_ref_sp(readRTC->asDeferredTexture()), GrSwizzle::RGBA(),
+                context, readRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
                 *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                context, sk_ref_sp(tempRTC->asDeferredTexture()), GrSwizzle::RGBA(),
+                context, tempRTC->asTextureProxyRef(), GrSwizzle::RGBA(),
                 *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
