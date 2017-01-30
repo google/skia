@@ -150,6 +150,23 @@
     },
     {
       "key": {
+        "uuid": "1b61460d_4f99707a",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:55:24Z",
+      "side": 1,
+      "message": "I agree that the caching here is not a 100% guarantee. I was just saying that maybe it\u0027s the cache that makes it alive during my test.\n\nYes, I meant PictureShaderContext. Oh, I didn\u0027t notice that we never create such a context when using SkRasterPipelineBlitter. Then the context isn\u0027t the one that keeps the shader alive.",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d2f4720_e45a5873",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 2
