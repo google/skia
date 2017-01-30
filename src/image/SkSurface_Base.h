@@ -83,14 +83,14 @@ public:
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage(SkBudgeted);
 
-    bool hasCachedImage() const { return fCachedImage != nullptr; }
+    bool hasCachedImage() const { return fCachedImage1 != nullptr; }
 
     // called by SkSurface to compute a new genID
     uint32_t newGenerationID();
 
 private:
     std::unique_ptr<SkCanvas>   fCachedCanvas;
-    SkImage*                    fCachedImage;
+    sk_sp<SkImage>              fCachedImage1;
 
     void aboutToDraw(ContentChangeMode mode);
 
@@ -115,17 +115,14 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
 }
 
 sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted) {
-    SkImage* snap = fCachedImage;
-    if (snap) {
-        return sk_ref_sp(snap);
+    if (fCachedImage1) {
+        return fCachedImage1;
     }
 
-    snap = this->onNewImageSnapshot(budgeted).release();
-    SkASSERT(!fCachedImage);
-    fCachedImage = SkSafeRef(snap);
+    fCachedImage1 = this->onNewImageSnapshot(budgeted);
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
-    return sk_sp<SkImage>(snap);
+    return fCachedImage1;
 }
 
 #endif
