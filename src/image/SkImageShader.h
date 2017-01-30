@@ -46,6 +46,7 @@ protected:
 
 private:
     friend class SkShader;
+    friend class SkPictureShader; // for onAppendStages
 
     typedef SkShader INHERITED;
 };

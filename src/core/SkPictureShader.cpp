@@ -255,6 +255,15 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
     return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
 }
 
+bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
+                                     const SkMatrix& ctm, const SkPaint& paint) const {
+    SkMatrix identity;
+    identity.setIdentity();
+    sk_sp<SkShader> bitmapShader = refBitmapShader(ctm, &identity, cs);
+    return static_cast<SkImageShader*>(bitmapShader.get())->onAppendStages(
+            p, cs, alloc, ctm, paint);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
