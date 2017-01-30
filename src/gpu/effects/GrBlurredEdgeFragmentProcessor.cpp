@@ -41,8 +41,13 @@ public:
                 fragBuilder->codeAppend("factor = smoothstep(factor, 0.0, 1.0);");
                 break;
         }
-        fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
-                                 args.fOutputColor);
+        if (!args.fGpImplementsDistanceVector) {
+            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.g);",
+                                     args.fOutputColor);
+        } else {
+            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
+                                     args.fOutputColor);
+        }
     }
 
 protected:
