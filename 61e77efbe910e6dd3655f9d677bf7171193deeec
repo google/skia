@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7fe394a_dc5e74c8",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T15:38:06Z",
+      "side": 1,
+      "message": "You might even do something like this to avoid all the extra * and ():\n\n    auto\u0026 bitmapShader \u003d *alloc-\u003emake\u003csk_sp\u003cSkShader\u003e\u003e();\n    bitmapShader \u003d this-\u003erefBitmapShader(ctm, localMatrix, cs);\n    return bitmapShader \u0026\u0026 bitmapShader-\u003eappendStages(p, cs, alloc, ctm, paint);",
+      "revId": "61e77efbe910e6dd3655f9d677bf7171193deeec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74dc46a7_0b8f6d2e",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-01-30T15:38:06Z",
+      "side": 1,
+      "message": "Are we sure we\u0027re handling ctm correctly?  It looks like we may be applying the transform twice, once in refBitmapShader() and once in appendStages().  Does this all work right?",
+      "range": {
+        "startLine": 264,
+        "startChar": 72,
+        "endLine": 264,
+        "endChar": 75
+      },
+      "revId": "61e77efbe910e6dd3655f9d677bf7171193deeec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
