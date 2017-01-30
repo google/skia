@@ -324,6 +324,7 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrOvalEffect.cpp",
   "$_src/gpu/effects/GrOvalEffect.h",
   "$_src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+  "$_src/gpu/effects/GrProxyMove.h",
   "$_src/gpu/effects/GrRRectEffect.cpp",
   "$_src/gpu/effects/GrRRectEffect.h",
   "$_src/gpu/effects/GrShadowGeoProc.cpp",

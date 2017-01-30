@@ -43,7 +43,10 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fBmp.allocN32Pixels(kTargetWidth, kTargetHeight);
+        // TODO: do this with surfaces & images and gpu backend
+        SkImageInfo ii = SkImageInfo::Make(kTargetWidth, kTargetHeight, kN32_SkColorType,
+                                           kPremul_SkAlphaType);
+        fBmp.allocPixels(ii);
         SkCanvas canvas(fBmp);
         canvas.clear(0x00000000);
         SkPaint paint;
@@ -82,9 +85,17 @@ protected:
             return;
         }
 
-        sk_sp<GrTexture> texture(
-            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter(), nullptr));
-        if (!texture) {
+        GrSurfaceDesc desc;
+        desc.fWidth = fBmp.width();
+        desc.fHeight = fBmp.height();
+        desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());
+
+        sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                                 context->textureProvider(),
+                                                                 desc, SkBudgeted::kYes,
+                                                                 fBmp.getPixels(),
+                                                                 fBmp.rowBytes()));
+        if (!proxy || !proxy->asTextureProxy()) {
             return;
         }
 
@@ -92,14 +103,12 @@ protected:
         textureMatrices.push_back() = SkMatrix::I();
         textureMatrices.push_back() = SkMatrix::MakeScale(1.5f, 0.85f);
         textureMatrices.push_back();
-        textureMatrices.back().setRotate(45.f, texture->width() / 2.f, texture->height() / 2.f);
+        textureMatrices.back().setRotate(45.f, proxy->width() / 2.f, proxy->height() / 2.f);
 
         const SkIRect texelDomains[] = {
             fBmp.bounds(),
-            SkIRect::MakeXYWH(fBmp.width() / 4,
-                              fBmp.height() / 4,
-                              fBmp.width() / 2,
-                              fBmp.height() / 2),
+            SkIRect::MakeXYWH(fBmp.width() / 4, fBmp.height() / 4,
+                              fBmp.width() / 2, fBmp.height() / 2),
         };
 
         SkRect renderRect = SkRect::Make(fBmp.bounds());
@@ -115,7 +124,8 @@ protected:
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(
-                                   texture.get(), nullptr, textureMatrices[tm],
+                                   context, sk_ref_sp(proxy->asTextureProxy()),
+                                   nullptr, textureMatrices[tm],
                                    GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode),
                                    mode, GrSamplerParams::kNone_FilterMode));
 

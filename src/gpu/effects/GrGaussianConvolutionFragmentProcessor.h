@@ -29,7 +29,18 @@ public:
                 tex, dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
 
-    virtual ~GrGaussianConvolutionFragmentProcessor();
+    static sk_sp<GrFragmentProcessor> Make(GrContext* context,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           Direction dir,
+                                           int halfWidth,
+                                           float gaussianSigma,
+                                           bool useBounds,
+                                           float* bounds) {
+        return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
+                context, std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
+    }
+
+    ~GrGaussianConvolutionFragmentProcessor() override;
 
     const float* kernel() const { return fKernel; }
 
@@ -52,6 +63,10 @@ private:
     GrGaussianConvolutionFragmentProcessor(GrTexture*, Direction, int halfWidth,
                                            float gaussianSigma, bool useBounds, float bounds[2]);
 
+    GrGaussianConvolutionFragmentProcessor(GrContext*, sk_sp<GrTextureProxy>, Direction,
+                                           int halfWidth, float gaussianSigma, bool useBounds,
+                                           float bounds[2]);
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -69,7 +84,7 @@ private:
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
     float fKernel[kMaxKernelWidth];
-    bool fUseBounds;
+    bool  fUseBounds;
     float fBounds[2];
 
     typedef Gr1DKernelEffect INHERITED;

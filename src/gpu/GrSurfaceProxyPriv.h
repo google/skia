@@ -20,6 +20,9 @@ public:
     // future when the proxy is actually used/instantiated.
     bool hasPendingIO() const { return fProxy->hasPendingIO(); }
 
+    // Don't abuse this!!!!!!!
+    bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
+
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl

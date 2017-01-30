@@ -16,6 +16,7 @@
 #include "GrTextureContext.h"
 #include "GrFixedClip.h"
 #include "SkColorPriv.h"
+#include "SkGr.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -86,9 +87,9 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
 
         GrSurfaceDesc desc;
         desc.fOrigin    = i ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-        desc.fConfig    = kBGRA_8888_GrPixelConfig;
         desc.fWidth     = 2 * S;
         desc.fHeight    = 2 * S;
+        desc.fConfig    = SkImageInfo2GrPixelConfig(ii, *context->caps());
 
         sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                                    context->textureProvider(),
