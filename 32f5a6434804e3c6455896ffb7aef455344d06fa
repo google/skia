@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "b5ed4cc6_f35d1a4b",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:17:17Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2e7940_5fb114b2",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 2
@@ -82,6 +99,40 @@
     },
     {
       "key": {
+        "uuid": "dd9e14e9_aaf8290b",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:17:17Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll implement 1). I think the reason that this shader is available later on is because that we stored it in some cache (according to what I learnt from refBitmapShader method). For example, the SkPictureContext may also have a pointer to this shader.",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd0b3b8c_58a2625b",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:17:17Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d2f4720_e45a5873",
         "filename": "src/core/SkPictureShader.cpp",
         "patchSetId": 2
@@ -96,6 +147,23 @@
       "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbf4ea52_e9ee856c",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-01-30T15:17:17Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "32f5a6434804e3c6455896ffb7aef455344d06fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
