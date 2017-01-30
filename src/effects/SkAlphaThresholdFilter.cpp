@@ -118,7 +118,7 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
         iter.next();
     }
 
-    return sk_ref_sp(rtContext->asDeferredTexture());
+    return rtContext->asTextureProxyRef();
 }
 #endif
 

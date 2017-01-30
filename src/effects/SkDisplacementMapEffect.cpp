@@ -374,7 +374,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                             context,
                                             SkIRect::MakeWH(bounds.width(), bounds.height()),
                                             kNeedNewImageUniqueID_SpecialImage,
-                                            sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                            renderTargetContext->asTextureProxyRef(),
                                             renderTargetContext->refColorSpace());
     }
 #endif
