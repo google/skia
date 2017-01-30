@@ -4,11 +4,11 @@ Using Gerrit without git-cl
 setup
 -----
 
-<pre class="code"><code>
-cd ...skia_source_dir...
+    cd ...skia_source_dir...
 
-sh [experimental/tools/setup-gerrit](../tools/setup-gerrit)
-</code></pre>
+    sh experimental/tools/setup-gerrit
+
+Take a look at [the setup-gerrit script](../tools/setup-gerrit) for more detail.
 
 
 creating a change
