@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7f7d6e9_3684bb07",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-01-30T19:24:23Z",
+      "side": 1,
+      "message": "ah, now I see what Brian was talking about. Yes, this makes sense to be a protected constructor.",
+      "range": {
+        "startLine": 74,
+        "startChar": 13,
+        "endLine": 74,
+        "endChar": 23
+      },
+      "revId": "cd917431daca69e3088ef38e85ac772a44109a2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
