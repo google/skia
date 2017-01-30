@@ -807,6 +807,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fSampleCnt = sampleCnt;
 
     sk_sp<GrSurfaceProxy> rtp = GrSurfaceProxy::MakeDeferred(*this->caps(), desc, fit, budgeted);
+    if (!rtp) {
+        return nullptr;
+    }
 
     return fDrawingManager->makeRenderTargetContext(std::move(rtp),
                                                     std::move(colorSpace),
