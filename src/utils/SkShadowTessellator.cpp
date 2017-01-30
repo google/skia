@@ -6,9 +6,12 @@
  */
 
 #include "SkShadowTessellator.h"
-#include "GrPathUtils.h"
-
 #include "SkGeometry.h"
+#include "SkPath.h"
+
+#if SK_SUPPORT_GPU
+#include "GrPathUtils.h"
+#endif
 
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar radius, SkScalar dir,
                            SkVector* newNormal) {
