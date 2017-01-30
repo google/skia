@@ -135,6 +135,10 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted) {
+    if (desc.fWidth > caps.maxTextureSize() || desc.fHeight > caps.maxTextureSize()) {
+        return nullptr;
+    }
+
     if (kRenderTarget_GrSurfaceFlag & desc.fFlags) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
