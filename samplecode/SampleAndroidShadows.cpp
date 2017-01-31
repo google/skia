@@ -39,7 +39,7 @@ public:
     ShadowsView() 
         : fShowAmbient(true)
         , fShowSpot(true)
-        , fUseAlt(true)
+        , fUseAlt(false)
         , fShowObject(true)
         , fIgnoreShadowAlpha(false) {}
 
@@ -482,6 +482,9 @@ protected:
     }
 
     bool onClick(Click *click) override {
+        if (click->fModifierKeys & kShift_SkModifierKey) {
+            return INHERITED::onClick(click);
+        }
         SkScalar x = click->fCurr.fX;
         SkScalar y = click->fCurr.fY;
 
