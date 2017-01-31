@@ -51,7 +51,7 @@ static SkBitmap create_bm() {
 
 // Basic test of the SkSpecialImage public API (e.g., peekTexture, peekPixels & draw)
 static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* reporter,
-                       GrContext* context, bool peekTextureSucceeds,
+                       GrContext* context, bool isGPUBacked,
                        int offset, int size) {
     const SkIRect subset = img->subset();
     REPORTER_ASSERT(reporter, offset == subset.left());
@@ -61,7 +61,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
     //--------------
     // Test that peekTexture reports the correct backing type
-    REPORTER_ASSERT(reporter, peekTextureSucceeds == img->isTextureBacked());
+    REPORTER_ASSERT(reporter, isGPUBacked == img->isTextureBacked());
 
 #if SK_SUPPORT_GPU
     //--------------
@@ -118,9 +118,9 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
         REPORTER_ASSERT(reporter, tightImg->width() == subset.width());
         REPORTER_ASSERT(reporter, tightImg->height() == subset.height());
-        REPORTER_ASSERT(reporter, peekTextureSucceeds == !!tightImg->getTexture());
+        REPORTER_ASSERT(reporter, isGPUBacked == !!tightImg->isTextureBacked());
         SkPixmap tmpPixmap;
-        REPORTER_ASSERT(reporter, peekTextureSucceeds != !!tightImg->peekPixels(&tmpPixmap));
+        REPORTER_ASSERT(reporter, isGPUBacked != !!tightImg->peekPixels(&tmpPixmap));
     }
     {
         SkImageFilter::OutputProperties outProps(img->getColorSpace());
@@ -128,10 +128,10 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
         REPORTER_ASSERT(reporter, tightSurf->width() == subset.width());
         REPORTER_ASSERT(reporter, tightSurf->height() == subset.height());
-        REPORTER_ASSERT(reporter, peekTextureSucceeds ==
+        REPORTER_ASSERT(reporter, isGPUBacked ==
                      !!tightSurf->getTextureHandle(SkSurface::kDiscardWrite_BackendHandleAccess));
         SkPixmap tmpPixmap;
-        REPORTER_ASSERT(reporter, peekTextureSucceeds != !!tightSurf->peekPixels(&tmpPixmap));
+        REPORTER_ASSERT(reporter, isGPUBacked != !!tightSurf->peekPixels(&tmpPixmap));
     }
 }
 

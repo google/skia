@@ -226,7 +226,7 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fProxy = GrSurfaceProxy::MakeWrapped(sk_ref_sp(as_IB(image)->peekTexture()));
+            fProxy = as_IB(image)->asTextureProxyRef();
         }
     }
 protected:

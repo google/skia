@@ -138,8 +138,11 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(image);
-    if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
+    // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to 
+    // compare proxy uniqueIDs.
+    if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
+        fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
