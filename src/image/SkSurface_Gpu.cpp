@@ -130,16 +130,16 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted) {
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
-    if (!rt) {
+    GrSurfaceProxy* proxy = fDevice->accessRenderTargetContext()->asSurfaceProxy();
+    if (!proxy) {
         return;
     }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(image);
-    if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
+    if (proxy->asTextureProxy() == as_IB(image)->asTextureProxy()) {
+        fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();

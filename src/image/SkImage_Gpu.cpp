@@ -93,8 +93,22 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace,
     return true;
 }
 
-sk_sp<GrSurfaceProxy> SkImage_Gpu::refProxy() const {
-    return GrSurfaceProxy::MakeWrapped(fTexture);
+GrTextureProxy* SkImage_Gpu::asTextureProxy() const {
+    sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(fTexture);
+    if (!sProxy) {
+        return nullptr;
+    }
+
+    return sProxy->asTextureProxy();
+}
+
+sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef() const {
+    sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(fTexture);
+    if (!sProxy) {
+        return nullptr;
+    }
+
+    return sk_ref_sp(sProxy->asTextureProxy());
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
@@ -104,7 +118,7 @@ GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& para
     if (texColorSpace) {
         *texColorSpace = this->fColorSpace;
     }
-    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
+    GrTextureAdjuster adjuster(fTexture.get(), this->alphaType(), this->bounds(),
                                this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, nullptr, scaleAdjust);
 }
