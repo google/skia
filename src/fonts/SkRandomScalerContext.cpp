@@ -242,6 +242,10 @@ SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() con
     return fProxy->createFamilyNameIterator();
 }
 
+int SkRandomTypeface::onGetVariationDesignPosition(SkFontArguments::VariationPosition pos) const {
+    return fProxy->onGetVariationDesignPosition(pos);
+}
+
 int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     return fProxy->getTableTags(tags);
 }

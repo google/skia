@@ -91,6 +91,10 @@ protected:
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition) const override {
+        return 0;
+    }
+
     int onGetTableTags(SkFontTableTag tags[]) const override {
         return 0;
     }
