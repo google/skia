@@ -1147,6 +1147,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("skpinfo") {
+    sources = [
+      "tools/skpinfo.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+    ]
+  }
+
   if (is_linux || is_win || is_mac) {
     test_app("SampleApp") {
       sources = [
