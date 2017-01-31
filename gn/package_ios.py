@@ -17,6 +17,8 @@ import tempfile
 #  app              path to binary to package, e.g. out/Debug/dm
 app, = sys.argv[1:]
 
+print 'Packaging', app
+
 # Find the Google signing identity.
 identity = None
 for line in subprocess.check_output(['security', 'find-identity']).split('\n'):
@@ -24,6 +26,8 @@ for line in subprocess.check_output(['security', 'find-identity']).split('\n'):
   if m:
     identity = m.group(1)
 assert identity
+
+print 'Found an identity'
 
 # Find the Google mobile provisioning profile.
 mobileprovision = None
@@ -33,6 +37,8 @@ for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
 \t<string>Google Development</string>''', open(p).read(), re.MULTILINE):
     mobileprovision = p
 assert mobileprovision
+
+print 'Found mobile provisioning profile'
 
 out, app = os.path.split(app)
 
@@ -44,6 +50,7 @@ if not os.path.exists(pkg):
 shutil.copy(os.path.join(out, app), pkg)
 shutil.copy(mobileprovision,
             os.path.join(pkg, 'embedded.mobileprovision'))
+print 'Copied'
 
 # Write a minimal Info.plist to name the package and point at the binary.
 with open(os.path.join(pkg, 'Info.plist'), 'w') as f:
@@ -55,12 +62,14 @@ with open(os.path.join(pkg, 'Info.plist'), 'w') as f:
   </dict>
 </plist>
 '''.format(app=app))
+print 'Wrote Info.plist'
 
 # Extract the appliciation identitifer prefix from the .mobileprovision.
 m = re.search(r'''<key>ApplicationIdentifierPrefix</key>
 \t<array>
 \t<string>(.*)</string>''', open(mobileprovision).read(), re.MULTILINE)
 prefix = m.group(1)
+print 'Found prefix'
 
 # Write a minimal entitlements file, then codesign.
 with tempfile.NamedTemporaryFile() as f:
@@ -73,6 +82,7 @@ with tempfile.NamedTemporaryFile() as f:
 </plist>
 '''.format(prefix=prefix, app=app))
   f.flush()
+  print 'Wrote entitilements'
 
   subprocess.check_call(['codesign',
                          '--force',
@@ -80,3 +90,4 @@ with tempfile.NamedTemporaryFile() as f:
                          '--entitlements', f.name,
                          '--timestamp=none',
                          pkg])
+print 'Done'
