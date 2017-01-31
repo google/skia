@@ -45,6 +45,7 @@ public:
         necessary data will be initialized in place at 'storage'.
     */
     virtual Provider* asProvider(const SkShader::ContextRec&, void* storage) const = 0;
+    virtual Provider* asProvider(const SkShader::ContextRec&, SkArenaAlloc*) const = 0;
 
     /** Amount of memory needed to store a provider object and its dependencies.
      */

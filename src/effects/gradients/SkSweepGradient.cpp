@@ -53,6 +53,12 @@ SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void*
     return CheckedCreateContext<SweepGradientContext>(storage, *this, rec);
 }
 
+SkShader::Context* SkSweepGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
+}
+
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
         const SkSweepGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec) {}

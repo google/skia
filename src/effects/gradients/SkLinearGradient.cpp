@@ -86,6 +86,14 @@ SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void
         : CheckedCreateContext<  LinearGradientContext>(storage, *this, rec);
 }
 
+SkShader::Context* SkLinearGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    return use_4f_context(rec, fGradFlags)
+           ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
+           : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
+}
+
 // For now, only a 2-stop raster pipeline specialization.
 //
 // Stages:

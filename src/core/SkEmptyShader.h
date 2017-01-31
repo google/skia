@@ -34,6 +34,10 @@ protected:
         return nullptr;
     }
 
+    SkShader::Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
+        return nullptr;
+    }
+
     void flatten(SkWriteBuffer& buffer) const override {
         // Do nothing.
         // We just don't want to fall through to SkShader::flatten(),

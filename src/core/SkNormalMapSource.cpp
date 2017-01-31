@@ -7,6 +7,7 @@
 
 #include "SkNormalMapSource.h"
 
+#include "SkArenaAlloc.h"
 #include "SkLightingShader.h"
 #include "SkMatrix.h"
 #include "SkNormalSource.h"
@@ -168,6 +169,27 @@ SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::Cont
     }
 
     return new (storage) Provider(*this, context, overridePaint);
+}
+
+SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::ContextRec &rec,
+                                                            SkArenaAlloc* alloc) const {
+    SkMatrix normTotalInv;
+    if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
+        return nullptr;
+    }
+
+    // Overriding paint's alpha because we need the normal map's RGB channels to be unpremul'd
+    SkPaint* overridePaint = alloc->make<SkPaint>(*(rec.fPaint));
+    overridePaint->setAlpha(0xFF);
+    SkShader::ContextRec overrideRec(*overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
+                                     rec.fPreferredDstType, rec.fDstColorSpace);
+
+    SkShader::Context* context = fMapShader->makeContext(overrideRec, alloc);
+    if (!context) {
+        return nullptr;
+    }
+
+    return alloc->make<Provider>(*this, context, overridePaint);
 }
 
 size_t SkNormalMapSourceImpl::providerSize(const SkShader::ContextRec& rec) const {
