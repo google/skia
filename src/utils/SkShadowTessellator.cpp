@@ -25,9 +25,17 @@ public:
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
 
-    UniqueArray<SkPoint> releasePositions() { return UniqueArray<SkPoint>(fPositions.release()); }
-    UniqueArray<SkColor> releaseColors() { return UniqueArray<SkColor>(fColors.release()); }
-    UniqueArray<uint16_t> releaseIndices() { return UniqueArray<uint16_t>(fIndices.release()); }
+    // The casts are needed to work around a, older GCC issue where the fact that the pointers are
+    // T* and not const T* causes calls to a deleted unique_ptr constructor.
+    UniqueArray<SkPoint> releasePositions() {
+        return UniqueArray<SkPoint>(static_cast<const SkPoint*>(fPositions.release()));
+    }
+    UniqueArray<SkColor> releaseColors() {
+        return UniqueArray<SkColor>(static_cast<const SkColor*>(fColors.release()));
+    }
+    UniqueArray<uint16_t> releaseIndices() {
+        return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
+    }
 
 private:
     void handleLine(const SkPoint& p);
@@ -367,9 +375,17 @@ public:
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
 
-    UniqueArray<SkPoint> releasePositions() { return UniqueArray<SkPoint>(fPositions.release()); }
-    UniqueArray<SkColor> releaseColors() { return UniqueArray<SkColor>(fColors.release()); }
-    UniqueArray<uint16_t> releaseIndices() { return UniqueArray<uint16_t>(fIndices.release()); }
+    // The casts are needed to work around an older GCC issue where the fact that the pointers are
+    // T* and not const T* causes calls to a deleted unique_ptr constructor.
+    UniqueArray<SkPoint> releasePositions() {
+        return UniqueArray<SkPoint>(static_cast<const SkPoint*>(fPositions.release()));
+    }
+    UniqueArray<SkColor> releaseColors() {
+        return UniqueArray<SkColor>(static_cast<const SkColor*>(fColors.release()));
+    }
+    UniqueArray<uint16_t> releaseIndices() {
+        return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
+    }
 
 private:
     void computeClipBounds(const SkPath& path);
