@@ -199,16 +199,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
 
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kNone_GrBackendTextureFlag;
+    backendDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fWidth = kFullSize;
     backendDesc.fHeight = kFullSize;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = srcTexture->getTextureHandle();
-    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType));
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(ctxInfo.grContext(),
+                                                     backendDesc,
+                                                     kPremul_SkAlphaType));
     if (!srcImage) {
         return;
     }
+
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle &&
+                              readBackOrigin == backendDesc.fOrigin);
 
     test_image_backed(reporter, srcImage);
 }
