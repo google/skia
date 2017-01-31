@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6a9f3db_d69878bc",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "nit: seems like putting this check here removes some optimization opportunities.\n\nnit: add doc to is_dead and assignment_to_dead_var mentioning that it returns false if the left side has side-effects.",
+      "range": {
+        "startLine": 335,
+        "startChar": 42,
+        "endLine": 335,
+        "endChar": 71
+      },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a6a4742_7b90932e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "Will this ever return true when b.fOperator !\u003d Token::EQ? It seems like is_dead will always return false because the var is both read and written in this expression.",
+      "range": {
+        "startLine": 344,
+        "startChar": 12,
+        "endLine": 344,
+        "endChar": 34
+      },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7018ce9_4ec41f0e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "This may not be valid if we\u0027ve just removed the first variable.\n\nAre there unit tests that exercise this?",
+      "range": {
+        "startLine": 486,
+        "startChar": 36,
+        "endLine": 486,
+        "endChar": 45
+      },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831a3cff_0507b852",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "Are prefix and postfix expressions a TODO?",
+      "range": {
+        "startLine": 524,
+        "startChar": 36,
+        "endLine": 524,
+        "endChar": 63
+      },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f6206a7_9fcc4cb4",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "Doesn\u0027t this delete the expression just inserted?\n\nIt seems like you want:\nif (!b.tryRemoveExpression(\u0026iter)) {\n    needsRescan \u003d true;\n}\ne.fExpression \u003d std::move(bin.fRight);\nif (!b.tryInsertExpression(\u0026iter, \u0026e.fExpression)) {\n    needsRescan \u003d true;\n}\nupdated \u003d true;\n\nYou could probably condense the if and else:\nif (!b.tryRemoveExpressionBefore(\u0026iter, \u0026bin)) {\n    needsRescan \u003d true;\n}\nif (bin.fRight-\u003ehasSideEffects()) {\n// still have to evaluate the right due to side effects,\n                                        // replace the binary expression with just the right side\n    e.fExpression \u003d std::move(bin.fRight);\n    if (!b.tryInsertExpression(\u0026iter, \u0026e.fExpression)) {\n        needsRescan \u003d true;\n    }\n} else {\n    // no side effects, kill the whole statement\n    ASSERT(iter-\u003efKind \u003d\u003d BasicBlock::Node::kStatement_Kind \u0026\u0026\n                                               iter-\u003efStatement-\u003eget() \u003d\u003d stmt);\n    iter-\u003efStatement-\u003ereset(new Nop());\n}\nupdated \u003d true;\nbreak;",
+      "range": {
+        "startLine": 546,
+        "startChar": 40,
+        "endLine": 547,
+        "endChar": 68
+      },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
