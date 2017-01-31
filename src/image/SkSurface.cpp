@@ -56,15 +56,11 @@ SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
-    : INHERITED(width, height, props)
-{
-    fCachedImage = nullptr;
+    : INHERITED(width, height, props) {
 }
 
 SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
-    : INHERITED(info, props)
-{
-    fCachedImage = nullptr;
+    : INHERITED(info, props) {
 }
 
 SkSurface_Base::~SkSurface_Base() {
@@ -72,8 +68,6 @@ SkSurface_Base::~SkSurface_Base() {
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
     }
-
-    SkSafeUnref(fCachedImage);
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
@@ -103,8 +97,7 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
 
         // regardless of copy-on-write, we must drop our cached image now, so
         // that the next request will get our new contents.
-        fCachedImage->unref();
-        fCachedImage = nullptr;
+        fCachedImage.reset();
 
         if (unique) {
             // Our content isn't held by any image now, so we can consider that content mutable.
