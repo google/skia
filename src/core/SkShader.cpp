@@ -90,16 +90,13 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
     return false;
 }
 
-SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
+SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
     if (!this->computeTotalInverse(rec, nullptr)) {
         return nullptr;
     }
-    return this->onCreateContext(rec, storage);
+    return this->onMakeContext(rec, alloc);
 }
 
-SkShader::Context* SkShader::onCreateContext(const ContextRec& rec, void*) const {
-    return nullptr;
-}
 
 size_t SkShader::contextSize(const ContextRec& rec) const {
     return this->onContextSize(rec);
@@ -280,16 +277,7 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
     }
 
     ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (auto* ctx = this->createContext(rec,
-                                        alloc->makeArrayDefault<char>(this->contextSize(rec)))) {
-        struct ContextDestroyer {
-            ContextDestroyer(Context* ctx) : fContext(ctx) {}
-            ~ContextDestroyer() { fContext->~Context(); }
-
-            Context* fContext;
-        };
-
-        alloc->make<ContextDestroyer>(ctx);
+    if (auto* ctx = this->makeContext(rec, alloc)) {
         p->append(SkRasterPipeline::shader_adapter, ctx);
 
         // Legacy shaders aren't aware of color spaces. We can pretty

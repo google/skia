@@ -7,6 +7,7 @@
 
 #include "SkNormalMapSource.h"
 
+#include "SkArenaAlloc.h"
 #include "SkLightingShader.h"
 #include "SkMatrix.h"
 #include "SkNormalSource.h"
@@ -136,38 +137,30 @@ sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
 ////////////////////////////////////////////////////////////////////////////
 
 SkNormalMapSourceImpl::Provider::Provider(const SkNormalMapSourceImpl& source,
-                                          SkShader::Context* mapContext,
-                                          SkPaint* overridePaint)
+                                          SkShader::Context* mapContext)
     : fSource(source)
-    , fMapContext(mapContext)
-    , fOverridePaint(overridePaint) {}
-
-SkNormalMapSourceImpl::Provider::~Provider() {
-    fMapContext->~Context();
-    fOverridePaint->~SkPaint();
-}
+    , fMapContext(mapContext) {}
 
 SkNormalSource::Provider* SkNormalMapSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                            void *storage) const {
+                                                            SkArenaAlloc* alloc) const {
     SkMatrix normTotalInv;
     if (!this->computeNormTotalInverse(rec, &normTotalInv)) {
         return nullptr;
     }
 
     // Overriding paint's alpha because we need the normal map's RGB channels to be unpremul'd
-    void* paintStorage = (char*)storage + sizeof(Provider);
-    SkPaint* overridePaint = new (paintStorage) SkPaint(*(rec.fPaint));
-    overridePaint->setAlpha(0xFF);
-    SkShader::ContextRec overrideRec(*overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
+    //SkPaint* overridePaint = alloc->make<SkPaint>(*(rec.fPaint));
+    SkPaint overridePaint {*(rec.fPaint)};
+    overridePaint.setAlpha(0xFF);
+    SkShader::ContextRec overrideRec(overridePaint, *(rec.fMatrix), rec.fLocalMatrix,
                                      rec.fPreferredDstType, rec.fDstColorSpace);
 
-    void* mapContextStorage = (char*) paintStorage + sizeof(SkPaint);
-    SkShader::Context* context = fMapShader->createContext(overrideRec, mapContextStorage);
+    SkShader::Context* context = fMapShader->makeContext(overrideRec, alloc);
     if (!context) {
         return nullptr;
     }
 
-    return new (storage) Provider(*this, context, overridePaint);
+    return alloc->make<Provider>(*this, context);
 }
 
 size_t SkNormalMapSourceImpl::providerSize(const SkShader::ContextRec& rec) const {

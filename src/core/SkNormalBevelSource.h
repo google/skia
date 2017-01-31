@@ -22,7 +22,7 @@ public:
 #endif
 
     SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
-                                         void* storage) const override;
+                                         SkArenaAlloc*) const override;
     size_t providerSize(const SkShader::ContextRec& rec) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalBevelSourceImpl)
