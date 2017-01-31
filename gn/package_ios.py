@@ -5,6 +5,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import glob
 import os
 import re
 import shutil
@@ -14,10 +15,24 @@ import tempfile
 
 # Arguments to the script:
 #  app              path to binary to package, e.g. out/Debug/dm
-#  identity         code signing identity, a long hex string
-#                   (run security find-identity -v -p codesigning | grep Google)
-#  mobileprovision  path to Google_Development.mobileprovision
-app, identity, mobileprovision = sys.argv[1:]
+app, = sys.argv[1:]
+
+# Find the Google signing identity.
+identity = None
+for line in subprocess.check_output(['security', 'find-identity']).split('\n'):
+  m = re.match(r'''.*\) (.*) ".*Google.*"''', line)
+  if m:
+    identity = m.group(1)
+assert identity
+
+# Find the Google mobile provisioning profile.
+mobileprovision = None
+for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
+                                'Provisioning Profiles', '*.mobileprovision')):
+  if re.search(r'''<key>Name</key>
+\t<string>Google Development</string>''', open(p).read(), re.MULTILINE):
+    mobileprovision = p
+assert mobileprovision
 
 out, app = os.path.split(app)
 
