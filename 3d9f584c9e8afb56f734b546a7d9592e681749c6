@@ -225,6 +225,23 @@
     },
     {
       "key": {
+        "uuid": "d3426987_282d871c",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "It might be necessary to add back CFG-level methods in the future, but I think having the BasicBlock-level methods will make the implementation simpler.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6fc6b101_845bfdf3",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -482,6 +499,23 @@
     },
     {
       "key": {
+        "uuid": "2b490837_df214611",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "sgtm",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c59ee583_2c9bfd98",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -522,6 +556,23 @@
     },
     {
       "key": {
+        "uuid": "0d39b999_bb1bf65c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "sgtm, although the way we use needsRescan seems about the same as if it were a field.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "004e63bf_6cdfaeab",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -556,6 +607,23 @@
       "writtenOn": "2017-01-31T17:28:40Z",
       "side": 1,
       "message": "The early exit wasn\u0027t supposed to have been left in, my bad.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb789d4b_e7083962",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "There\u0027s still an early exit in the for loop conditional.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -985,6 +1053,23 @@
       "writtenOn": "2017-01-31T17:28:40Z",
       "side": 1,
       "message": "We may end up sanitizing for 64-bit values eventually (this is certainly not the only spot) but we currently assume that int is 32 bit or less on the GPU.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f46f570_0da5fe77",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T18:58:11Z",
+      "side": 1,
+      "message": "So, is \"uint(-1)\" valid, and does it have the same semantics as in C++?",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
