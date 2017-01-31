@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "38df52e4_e83be7df",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: Maybe make this simpler:\nExpression* oldExp \u003d (*iter)-\u003efExpression-\u003eget();\nStatement* oldStmt \u003d (*iter)-\u003efStatement-\u003eget();\ndo {...\nbool result \u003d ...\nwhile (!((*iter)-\u003efExpression-\u003eget() \u003d\u003d oldExp || (*iter)-\u003efStatement-\u003eget())) {\n  ++(*iter);\n}",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 63
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6807e18a_3e73f13d",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Missing tryRemoveLValueBefore(block, iter, ((...) lvalue)-\u003efBase.get()))",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 43
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da1a173_a3906508",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Should this be b-\u003efOperator \u003d\u003d Token::EQ?",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 155,
+        "endChar": 49
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aec6802a_8fbb947a",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Need to insert a node for expr (or fall through)",
+      "range": {
+        "startLine": 256,
+        "startChar": 13,
+        "endLine": 256,
+        "endChar": 37
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac2bb928_0f8865af",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -25,6 +117,230 @@
     },
     {
       "key": {
+        "uuid": "d5af03fd_5a5d6481",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: Should the following be methods on BasicBlock rather than on CFG? They only use \"this\" to call each other.",
+      "range": {
+        "startLine": 63,
+        "startChar": 1,
+        "endLine": 63,
+        "endChar": 7
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fc6b101_845bfdf3",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: My understanding is that this function removes e, but this sentence seems to indicate it removes the expression immediately before e.",
+      "range": {
+        "startLine": 73,
+        "startChar": 7,
+        "endLine": 73,
+        "endChar": 91
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26a6bf72_73d7026d",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: \"resets iter to\"",
+      "range": {
+        "startLine": 74,
+        "startChar": 59,
+        "endLine": 74,
+        "endChar": 67
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "412093aa_7c2b7855",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: \"expression pointed to by the iterator\"",
+      "range": {
+        "startLine": 93,
+        "startChar": 31,
+        "endLine": 93,
+        "endChar": 51
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "572fd3c6_ae73db12",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: replaced",
+      "range": {
+        "startLine": 94,
+        "startChar": 7,
+        "endLine": 94,
+        "endChar": 14
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cca5e73_cf119032",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Needs to take ownership, so should be std::unique_ptr\u003cExpression\u003e.",
+      "range": {
+        "startLine": 99,
+        "startChar": 52,
+        "endLine": 99,
+        "endChar": 63
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56662578_f434c5a1",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: I don\u0027t think this function belongs here -- the other try* functions don\u0027t actually modify any of the expressions, they only modify the CFG derived from the expressions. This function, OTOH, modifies both the CFG as well as (*iter)-\u003efExpression.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 79
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1289777_d2036a1f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: This is a very long function. Could we split it up?",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c59ee583_2c9bfd98",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nits:\n - Move needsRescan to be a field of CFG (maybe call it \"valid\"?).\n - Instead of returning false, try* methods would just set valid \u003d false\n - Rename try* methods to something like \"noteExpressionRemoved\" and \"noteExpressionReplaced\"\n - Add noteStatementRemoved method for the other cases below where needsRescan is set to true.",
+      "range": {
+        "startLine": 389,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 29
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "004e63bf_6cdfaeab",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Given that needsRescan causes an early exit, it doesn\u0027t seem correct to only check for uninitialized variables on the first pass, since a subsequent pass could be the first time we\u0027ve reached this VariableReference.",
+      "range": {
+        "startLine": 424,
+        "startChar": 32,
+        "endLine": 424,
+        "endChar": 42
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5e5fa6b2_f4ecb755",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -41,6 +357,230 @@
         "startChar": 36,
         "endLine": 437,
         "endChar": 82
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afb5ee65_b444903b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Actually, prefer \"*a \u003d std::move(b)\", since that will set b to be nullptr and avoids the possibility of leaking memory due to cycles.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85d1010a_c7175a9e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: could move outside of if",
+      "range": {
+        "startLine": 438,
+        "startChar": 36,
+        "endLine": 439,
+        "endChar": 55
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e6f817c_e4e84bca",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "I think this skips elements. varIter++ will execute before the next loop iteration, so it skips the element to which the result of erase points.",
+      "range": {
+        "startLine": 469,
+        "startChar": 36,
+        "endLine": 469,
+        "endChar": 70
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "141ba2e4_e90be5c0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: std::move(i.fTest)",
+      "range": {
+        "startLine": 494,
+        "startChar": 51,
+        "endLine": 494,
+        "endChar": 97
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6c7821b_a74ce2e4",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: repeat of 3 lines up",
+      "range": {
+        "startLine": 510,
+        "startChar": 32,
+        "endLine": 510,
+        "endChar": 70
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dcbc63b_a1095404",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "missing \"updated \u003d true\" in this case",
+      "range": {
+        "startLine": 512,
+        "startChar": 36,
+        "endLine": 512,
+        "endChar": 71
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31f7f617_607a23e4",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Also need to check bin.fLeft-\u003ehasSideEffects()",
+      "range": {
+        "startLine": 512,
+        "startChar": 40,
+        "endLine": 512,
+        "endChar": 68
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efad204b_2ea40d93",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "nit: e.fExpresion \u003d std::move(bin.fRight);",
+      "range": {
+        "startLine": 529,
+        "startChar": 0,
+        "endLine": 530,
+        "endChar": 67
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7cb39f2_d6898b3f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Seems like you want cfg.tryReplaceExpression; otherwise you are removing fRight without adding it back to the CFG.",
+      "range": {
+        "startLine": 525,
+        "startChar": 40,
+        "endLine": 530,
+        "endChar": 67
+      },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2865dc06_6e360076",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-01-31T00:51:53Z",
+      "side": 1,
+      "message": "Do we know that we\u0027ll eventually stop making changes?",
+      "range": {
+        "startLine": 565,
+        "startChar": 6,
+        "endLine": 565,
+        "endChar": 22
       },
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
