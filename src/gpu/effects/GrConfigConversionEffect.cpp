@@ -149,6 +149,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #pragma optimize("t", off)
 #endif
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
     GrSwizzle swizzle;
@@ -160,6 +161,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestD
                             d->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx),
                             swizzle, pmConv, GrTest::TestMatrix(d->fRandom)));
 }
+#endif
 
 #if !defined(__clang__) && _MSC_FULL_VER >= 190024213
 // Restore optimization settings.

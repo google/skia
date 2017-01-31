@@ -654,6 +654,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
     return d->fContext->caps()->shaderCaps()->shaderDerivativeSupport()
@@ -662,6 +663,7 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
                                           d->fRandom->nextBool())
                    : nullptr;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -985,7 +987,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     GrColor color = GrRandomColor(random);

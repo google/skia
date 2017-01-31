@@ -10,7 +10,7 @@
 #include "SkRandom.h"
 #include "SkTypes.h"
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern std::unique_ptr<GrDrawOp> Op##__Test(SkRandom*, GrContext* context);

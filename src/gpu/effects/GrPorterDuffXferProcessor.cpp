@@ -830,10 +830,12 @@ bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps, ColorType color
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
+#if GR_TEST_UTILS
 const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {
     SkBlendMode mode = SkBlendMode(d->fRandom->nextULessThan((int)SkBlendMode::kLastCoeffMode));
     return GrPorterDuffXPFactory::Get(mode);
 }
+#endif
 
 void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
                                                  int* outPrimary,
@@ -846,7 +848,6 @@ void GrPorterDuffXPFactory::TestGetXPOutputTypes(const GrXferProcessor* xp,
     *outPrimary = blendFormula.fPrimaryOutputType;
     *outSecondary = blendFormula.fSecondaryOutputType;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // SrcOver Global functions

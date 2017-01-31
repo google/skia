@@ -223,9 +223,11 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(RectGeometryProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(new RectGeometryProcessor(GrTest::TestMatrix(d->fRandom)));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +387,7 @@ std::unique_ptr<GrDrawOp> GrAnalyticRectOp::Make(GrColor color,
             new AnalyticRectOp(color, viewMatrix, rect, croppedRect, bounds));
 }
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(AnalyticRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

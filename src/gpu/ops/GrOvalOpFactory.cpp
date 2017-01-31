@@ -246,11 +246,13 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(new CircleGeometryProcessor(
             d->fRandom->nextBool(), d->fRandom->nextBool(), d->fRandom->nextBool(),
             d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -382,10 +384,12 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(
             new EllipseGeometryProcessor(d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -548,10 +552,12 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     return sk_sp<GrGeometryProcessor>(new DIEllipseGeometryProcessor(
             GrTest::TestMatrix(d->fRandom), (DIEllipseStyle)(d->fRandom->nextRangeU(0, 2))));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -2402,7 +2408,7 @@ std::unique_ptr<GrDrawOp> GrOvalOpFactory::MakeArcOp(GrColor color, const SkMatr
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(CircleOp) {
     do {

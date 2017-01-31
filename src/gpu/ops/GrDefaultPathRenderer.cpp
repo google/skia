@@ -607,7 +607,7 @@ void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     GrColor color = GrRandomColor(random);

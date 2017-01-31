@@ -7,6 +7,7 @@
 
 #include "GrGaussianConvolutionFragmentProcessor.h"
 #include "GrProxyMove.h"
+#include "GrTextureProxy.h"
 #include "../private/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -229,6 +230,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
@@ -255,3 +257,4 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
     return GrGaussianConvolutionFragmentProcessor::Make(
             d->context(), d->textureProxy(texIdx), dir, radius, sigma, useBounds, bounds);
 }
+#endif

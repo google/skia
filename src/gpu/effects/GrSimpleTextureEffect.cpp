@@ -96,6 +96,7 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const  {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -116,3 +117,4 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     return GrSimpleTextureEffect::Make(d->context(), d->textureProxy(texIdx),
                                        std::move(colorSpaceXform), matrix);
 }
+#endif

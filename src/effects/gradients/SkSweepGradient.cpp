@@ -186,6 +186,7 @@ void GrSweepGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
 
@@ -200,6 +201,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     GrAlwaysAssert(fp);
     return fp;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 

@@ -8,10 +8,13 @@
 #ifndef GrProcessorUnitTest_DEFINED
 #define GrProcessorUnitTest_DEFINED
 
+#include "SkTypes.h"
+
+#if GR_TEST_UTILS
+
 #include "../private/GrTextureProxy.h"
 #include "../private/SkTArray.h"
 #include "GrTestUtils.h"
-#include "SkTypes.h"
 
 class SkMatrix;
 class GrCaps;
@@ -183,5 +186,19 @@ private:
     const GrXPFactory* TestGet(GrProcessorTestData*)
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
-#endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#endif
+#endif  // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+#else   // GR_TEST_UTILS
+    #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST
+    #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    #define GR_DECLARE_XP_FACTORY_TEST
+    #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(...)
+    #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(...)
+    #define GR_DEFINE_XP_FACTORY_TEST(...)
+    #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(...)
+    #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST
+    #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(...)
+    #define GR_DECLARE_XP_FACTORY_TEST
+    #define GR_DEFINE_XP_FACTORY_TEST(...)
+#endif  // GR_TEST_UTILS
+#endif  // GrProcessorUnitTest_DEFINED

@@ -14,7 +14,7 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 static const SkMatrix& test_matrix(SkRandom* random,
                                    bool includeNonPerspective,

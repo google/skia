@@ -14,7 +14,7 @@
 #include "GrTextUtils.h"
 #include "SkTextBlobRunIterator.h"
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
 #endif
 
@@ -86,7 +86,7 @@ private:
 
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
     static const uint32_t kTextBlobOpScalerContextFlags =
             SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags;
     DRAW_OP_TEST_FRIEND(TextBlobOp);

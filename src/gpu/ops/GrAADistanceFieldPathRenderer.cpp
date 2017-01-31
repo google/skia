@@ -551,7 +551,7 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 struct PathTestStruct {
     typedef GrAADistanceFieldPathRenderer::ShapeCache ShapeCache;

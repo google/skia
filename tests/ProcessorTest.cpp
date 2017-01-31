@@ -244,6 +244,7 @@ static GrColor texel_color(int i, int j) {
 
 static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(texel_color(i, j)); }
 
+#if GR_TEST_UTILS
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     // This tests code under development but not used in skia lib. Leaving this disabled until
     // some platform-specific issues are addressed.
@@ -370,6 +371,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter
         }
     }
 }
-#endif
-
-#endif
+#endif  // GR_TEST_UTILS
+#endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
+#endif  // SK_SUPPORT_GPU

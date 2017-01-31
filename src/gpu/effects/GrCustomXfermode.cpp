@@ -382,12 +382,14 @@ void CustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
+#if GR_TEST_UTILS
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU((int)SkBlendMode::kLastCoeffMode + 1,
                                       (int)SkBlendMode::kLastSeparableMode);
 
     return GrCustomXfermode::Get((SkBlendMode)mode);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

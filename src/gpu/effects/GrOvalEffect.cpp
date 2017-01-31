@@ -77,6 +77,7 @@ bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> CircleEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -88,6 +89,7 @@ sk_sp<GrFragmentProcessor> CircleEffect::TestCreate(GrProcessorTestData* d) {
     } while (kHairlineAA_GrProcessorEdgeType == et);
     return CircleEffect::Make(et, center, radius);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -246,6 +248,7 @@ bool EllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipseEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> EllipseEffect::TestCreate(GrProcessorTestData* d) {
     SkPoint center;
     center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
@@ -258,6 +261,7 @@ sk_sp<GrFragmentProcessor> EllipseEffect::TestCreate(GrProcessorTestData* d) {
     } while (kHairlineAA_GrProcessorEdgeType == et);
     return EllipseEffect::Make(et, center, rx, ry);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

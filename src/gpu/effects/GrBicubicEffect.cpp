@@ -8,6 +8,7 @@
 #include "GrBicubicEffect.h"
 #include "GrInvariantOutput.h"
 #include "GrProxyMove.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -202,6 +203,7 @@ void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -211,6 +213,7 @@ sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     return GrBicubicEffect::Make(d->context(), d->textureProxy(texIdx), std::move(colorSpaceXform),
                                  SkMatrix::I(), kClampClamp);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -265,6 +265,7 @@ GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -295,6 +296,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
                                               flags,
                                               d->fRandom->nextBool());
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -503,6 +505,7 @@ GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -531,6 +534,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
                                             flags,
                                             d->fRandom->nextBool());
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -801,6 +805,7 @@ GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(cons
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -829,3 +834,4 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
                                                flags,
                                                d->fRandom->nextBool());
 }
+#endif

@@ -63,6 +63,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AARectEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestData* d) {
     SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
@@ -77,6 +78,7 @@ sk_sp<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == fp);
     return fp;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -362,6 +364,7 @@ bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
     int count = d->fRandom->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];
@@ -377,3 +380,4 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d
     } while (nullptr == fp);
     return fp;
 }
+#endif

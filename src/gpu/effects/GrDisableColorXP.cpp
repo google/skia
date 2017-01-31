@@ -98,6 +98,8 @@ GrXferProcessor* GrDisableColorXPFactory::onCreateXferProcessor(const GrCaps& ca
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory);
 
+#if GR_TEST_UTILS
 const GrXPFactory* GrDisableColorXPFactory::TestGet(GrProcessorTestData*) {
     return GrDisableColorXPFactory::Get();
 }
+#endif

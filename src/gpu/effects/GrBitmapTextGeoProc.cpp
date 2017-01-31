@@ -154,6 +154,7 @@ GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShader
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -186,3 +187,4 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
                                      format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
+#endif

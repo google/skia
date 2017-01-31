@@ -709,6 +709,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
     int      numOctaves = d->fRandom->nextRangeU(2, 10);
     bool     stitchTiles = d->fRandom->nextBool();
@@ -729,6 +730,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData*
     GrTest::TestAsFPArgs asFPArgs(d);
     return shader->asFragmentProcessor(asFPArgs.args());
 }
+#endif
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
     const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
@@ -1118,6 +1120,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrImprovedPerlinNoiseEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f,
                                                           0.99f);
@@ -1134,6 +1137,7 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
     GrTest::TestAsFPArgs asFPArgs(d);
     return shader->asFragmentProcessor(asFPArgs.args());
 }
+#endif
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLFragmentBuilder* fsBuilder = args.fFragBuilder;

@@ -11,6 +11,7 @@
 #include "GrOpFlushState.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
+#include "SkStrokeRec.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
@@ -578,7 +579,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 #include "GrDrawOpTest.h"
 
