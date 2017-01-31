@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36f9c47a_83c050bc",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-01-31T16:44:43Z",
+      "side": 1,
+      "message": "For my own edification, does MakeWrapped really make a new one on each call? If so, what happens if you have multiple proxies for the same texture?",
+      "revId": "cfbf8c32822ec5ef58a5c995756a3574a7304e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
