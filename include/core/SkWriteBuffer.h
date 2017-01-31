@@ -83,6 +83,8 @@ public:
     SkBinaryWriteBuffer(void* initialStorage, size_t storageSize, uint32_t flags = 0);
     ~SkBinaryWriteBuffer();
 
+    void flatten(const SkPaint& paint) { paint.flatten(*this); }
+
     bool isCrossProcess() const override {
         return SkToBool(fFlags & kCrossProcess_Flag);
     }
