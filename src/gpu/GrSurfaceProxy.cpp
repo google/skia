@@ -135,11 +135,38 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted) {
-    if (desc.fWidth > caps.maxTextureSize() || desc.fHeight > caps.maxTextureSize()) {
+    // TODO: share this testing code with check_texture_creation_params
+    if (SkBackingFit::kApprox == fit && GrPixelConfigIsCompressed(desc.fConfig)) {
+        // we don't allow scratch compressed textures
         return nullptr;
     }
 
-    if (kRenderTarget_GrSurfaceFlag & desc.fFlags) {
+    if (!caps.isConfigTexturable(desc.fConfig)) {
+        return nullptr;
+    }
+
+    bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (willBeRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return nullptr;
+    }
+
+    // We currently do not support multisampled textures
+    if (!willBeRT && desc.fSampleCnt > 0) {
+        return nullptr;
+    }
+
+    int maxSize;
+    if (willBeRT) {
+        maxSize = caps.maxRenderTargetSize();
+    } else {
+        maxSize = caps.maxTextureSize();
+    }
+
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+        return nullptr;
+    }
+
+    if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
         return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, desc, fit, budgeted));
