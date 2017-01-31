@@ -101,6 +101,14 @@ SkShader::Context* SkShader::onCreateContext(const ContextRec& rec, void*) const
     return nullptr;
 }
 
+SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    if (!this->computeTotalInverse(rec, nullptr)) {
+        return nullptr;
+    }
+    return this->onMakeContext(rec, alloc);
+}
+
+
 size_t SkShader::contextSize(const ContextRec& rec) const {
     return this->onContextSize(rec);
 }

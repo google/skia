@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkColorFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -66,6 +67,16 @@ size_t SkColorFilterShader::onContextSize(const ContextRec& rec) const {
     return sizeof(FilterShaderContext) + fShader->contextSize(rec);
 }
 
+SkShader::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
+                                                      SkArenaAlloc* alloc) const {
+    SkShader::Context* shaderContext = fShader->makeContext(rec, alloc);
+    if (nullptr == shaderContext) {
+        return nullptr;
+    }
+    return alloc->make<FilterShaderContext>(*this, shaderContext, rec);
+}
+
+
 SkColorFilterShader::FilterShaderContext::FilterShaderContext(
                                                          const SkColorFilterShader& filterShader,
                                                          SkShader::Context* shaderContext,
@@ -73,10 +84,6 @@ SkColorFilterShader::FilterShaderContext::FilterShaderContext(
     : INHERITED(filterShader, rec)
     , fShaderContext(shaderContext)
 {}
-
-SkColorFilterShader::FilterShaderContext::~FilterShaderContext() {
-    fShaderContext->~Context();
-}
 
 void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor result[],
                                                          int count) {

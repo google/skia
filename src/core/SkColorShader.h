@@ -60,6 +60,8 @@ protected:
     SkColorShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
+
     size_t onContextSize(const ContextRec&) const override { return sizeof(ColorShaderContext); }
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fColor;
@@ -116,6 +118,7 @@ protected:
     SkColor4Shader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     size_t onContextSize(const ContextRec&) const override { return sizeof(Color4Context); }
     bool onAsLuminanceColor(SkColor* lum) const override {
         *lum = fCachedByteColor;

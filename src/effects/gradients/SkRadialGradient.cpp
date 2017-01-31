@@ -47,6 +47,12 @@ SkShader::Context* SkRadialGradient::onCreateContext(const ContextRec& rec, void
     return CheckedCreateContext<RadialGradientContext>(storage, *this, rec);
 }
 
+SkShader::Context* SkRadialGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    return CheckedMakeContext<RadialGradientContext>(alloc, *this, rec);
+}
+
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
         const SkRadialGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec) {}

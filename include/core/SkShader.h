@@ -17,9 +17,9 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+class SkArenaAlloc;
 class SkColorFilter;
 class SkColorSpace;
-class SkArenaAlloc;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -227,6 +227,8 @@ public:
 
         typedef SkNoncopyable INHERITED;
     };
+
+    Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
     /**
      *  Create the actual object that does the shading.
@@ -486,6 +488,8 @@ protected:
      *  your subclass' context.
      */
     virtual size_t onContextSize(const ContextRec&) const;
+
+    virtual Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const = 0;
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
