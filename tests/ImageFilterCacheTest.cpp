@@ -210,6 +210,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
         return;
     }
 
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle &&
+                              readBackOrigin == backendDesc.fOrigin);
+
     test_image_backed(reporter, srcImage);
 }
 

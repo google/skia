@@ -753,6 +753,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
         SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = refImg->getTextureHandle(false, &readBackOrigin);
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle &&
+                              readBackOrigin == backendDesc.fOrigin);
+
     // Now exercise the release proc
     REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
     refImg.reset(nullptr); // force a release of the image
