@@ -16,6 +16,23 @@
       "revId": "cfbf8c32822ec5ef58a5c995756a3574a7304e74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96f36ad2_e4ad3d1d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-01-31T17:06:12Z",
+      "side": 1,
+      "message": "The answer to the smaller question is that this will ultimately just return the GrTextureProxy held by the SkImage_Gpu, so won\u0027t be making proxies willy-nilly.\n\nThe answer to the bigger question is: yes, I\u0027m being a bit sloppy right now. If we were in a situation where we had to wrap a single GrSurface in multiple proxies, we would propagate the OpList from the GrSurface up to the GrProxy object. So all the calls would funnel into the same oplist.",
+      "revId": "cfbf8c32822ec5ef58a5c995756a3574a7304e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
