@@ -740,8 +740,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
+    backendDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fWidth = kWidth;
     backendDesc.fHeight = kHeight;
     backendDesc.fSampleCnt = 0;
@@ -752,6 +753,23 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     sk_sp<SkImage> refImg(
         SkImage::MakeFromTexture(ctxInfo.grContext(), backendDesc, kPremul_SkAlphaType,
                                  TextureReleaseChecker::Release, &releaseChecker));
+
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = refImg->getTextureHandle(false, &readBackOrigin);
+    // TODO: Make it so we can check this (see skbug.com/5019)
+#if 0
+    if (*readBackHandle != *(backendDesc.fTextureHandle)) {
+        ERRORF(reporter, "backend mismatch %d %d\n",
+                       (int)readBackHandle, (int)backendDesc.fTextureHandle);
+    }
+    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle);
+#else
+    REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
+#endif
+    if (readBackOrigin != backendDesc.fOrigin) {
+        ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, backendDesc.fOrigin);
+    }
+    REPORTER_ASSERT(reporter, readBackOrigin == backendDesc.fOrigin);
 
     // Now exercise the release proc
     REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);

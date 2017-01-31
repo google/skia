@@ -164,14 +164,16 @@ GrTexture* SkImage::getTexture() const {
 
 bool SkImage::isTextureBacked() const { return SkToBool(as_IB(this)->peekTexture()); }
 
-GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
+GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO,
+                                          GrSurfaceOrigin* origin) const {
     GrTexture* texture = as_IB(this)->peekTexture();
     if (texture) {
         GrContext* context = texture->getContext();
-        if (context) {
-            if (flushPendingGrContextIO) {
-                context->prepareSurfaceForExternalIO(texture);
-            }
+        if (context && flushPendingGrContextIO) {
+            context->prepareSurfaceForExternalIO(texture);
+        }
+        if (origin) {
+            *origin = texture->origin();
         }
         return texture->getTextureHandle();
     }
@@ -184,7 +186,7 @@ GrTexture* SkImage::getTexture() const { return nullptr; }
 
 bool SkImage::isTextureBacked() const { return false; }
 
-GrBackendObject SkImage::getTextureHandle(bool) const { return 0; }
+GrBackendObject SkImage::getTextureHandle(bool, GrSurfaceOrigin*) const { return 0; }
 
 #endif
 
