@@ -119,6 +119,9 @@ void GrAtlasGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
   * @param filename      Full path to desired file
   */
 static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* filename) {
+    if (!sProxy) {
+        return false;
+    }
 
     SkImageInfo ii = SkImageInfo::Make(sProxy->width(), sProxy->height(),
                                        kRGBA_8888_SkColorType, kPremul_SkAlphaType);
