@@ -53,6 +53,13 @@ struct Expression : public IRNode {
     }
 
     /**
+     * Returns true if evaluating the expression potentially has side effects. Expressions may never
+     * return false if they actually have side effects, but it is legal (though suboptimal) to
+     * return true if there are not actually any side effects.
+     */
+    virtual bool hasSideEffects() const = 0;
+
+    /**
      * Given a map of known constant variable values, substitute them in for references to those
      * variables occurring in this expression and its subexpressions.  Similar simplifications, such
      * as folding a constant binary expression down to a single value, may also be performed.

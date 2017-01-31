@@ -2430,7 +2430,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, SkWStream& 
         write_data(*fGlobalInitializersBuffer.detachAsData(), out);
     }
     SkDynamicMemoryWStream bodyBuffer;
-    this->writeBlock(*f.fBody, bodyBuffer);
+    this->writeBlock((Block&) *f.fBody, bodyBuffer);
     write_data(*fVariableBuffer.detachAsData(), out);
     write_data(*bodyBuffer.detachAsData(), out);
     if (fCurrentBlock) {
@@ -2608,6 +2608,8 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, SkWSt
 
 void SPIRVCodeGenerator::writeStatement(const Statement& s, SkWStream& out) {
     switch (s.fKind) {
+        case Statement::kNop_Kind:
+            break;
         case Statement::kBlock_Kind:
             this->writeBlock((Block&) s, out);
             break;

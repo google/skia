@@ -16,6 +16,7 @@
 #include "ir/SkSLExtension.h"
 #include "ir/SkSLIndexExpression.h"
 #include "ir/SkSLModifiersDeclaration.h"
+#include "ir/SkSLNop.h"
 #include "ir/SkSLVariableReference.h"
 
 namespace SkSL {
@@ -493,10 +494,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkDynamicMemoryWStream buffer;
     fOut = &buffer;
     fIndentation++;
-    for (const auto& s : f.fBody->fStatements) {
-        this->writeStatement(*s);
-        this->writeLine();
-    }
+    this->writeStatements(((Block&) *f.fBody).fStatements);
     fIndentation--;
     this->writeLine("}");
 
@@ -656,18 +654,27 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kDiscard_Kind:
             this->write("discard;");
             break;
+        case Statement::kNop_Kind:
+            this->write(";");
+            break;
         default:
             ABORT("unsupported statement: %s", s.description().c_str());
+    }
+}
+
+void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
+    for (const auto& s : statements) {
+        if (!s->isEmpty()) {
+            this->writeStatement(*s);
+            this->writeLine();
+        }
     }
 }
 
 void GLSLCodeGenerator::writeBlock(const Block& b) {
     this->writeLine("{");
     fIndentation++;
-    for (const auto& s : b.fStatements) {
-        this->writeStatement(*s);
-        this->writeLine();
-    }
+    this->writeStatements(b.fStatements);
     fIndentation--;
     this->write("}");
 }

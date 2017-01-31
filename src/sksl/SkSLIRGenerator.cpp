@@ -235,6 +235,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+            var->fWriteCount = 1;
         }
         if (storage == Variable::kGlobal_Storage && varDecl.fName == SkString("sk_FragColor") &&
             (*fSymbolTable)[varDecl.fName]) {
@@ -1031,7 +1032,8 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], true);
+            this->markWrittenTo(*arguments[i], 
+                                function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(position, *returnType, function,
