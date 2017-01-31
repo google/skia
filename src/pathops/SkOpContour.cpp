@@ -87,7 +87,7 @@ void SkOpContourBuilder::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkSca
 void SkOpContourBuilder::addLine(const SkPoint pts[2]) {
     // if the previous line added is the exact opposite, eliminate both
     if (fLastIsLine) {
-        if (fLastLine[0] == pts[1] && fLastLine[1] == pts[0]) {
+        if (fLastLine[0] == pts[1] && fLastLine[1] == pts[0] && !fTreatAsStroked) {
             fLastIsLine = false;
             return;
         } else {

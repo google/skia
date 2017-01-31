@@ -59,13 +59,23 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
   */
 bool SK_API Simplify(const SkPath& path, SkPath* result);
 
-/** Set the resulting rectangle to the tight bounds of the path.
+/** Set the resulting rectangle to the tight bounds of the filled path.
 
     @param path The path measured.
     @param result The tight bounds of the path.
     @return True if the bounds could be computed.
   */
 bool SK_API TightBounds(const SkPath& path, SkRect* result);
+
+/** Set the resulting rectangle to the tight bounds of the stroked path. The
+    stroke is treated as if it has no width; that is, the stroke width
+    does not contribute to the bounds.
+
+    @param path The path measured.
+    @param result The tight bounds of the path.
+    @return True if the bounds could be computed.
+  */
+bool SK_API TightStrokeBounds(const SkPath& path, SkRect* result);
 
 /** Perform a series of path operations, optimized for unioning many paths together.
   */

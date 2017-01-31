@@ -18,7 +18,8 @@ public:
         , fPath(path.nativePath())
         , fContourBuilder(contours2)
         , fContoursHead(contours2)
-        , fAllowOpenContours(true) {
+        , fAllowOpenContours(true)
+        , fTreatAsStroked(false) {
         init();
     }
 
@@ -27,7 +28,18 @@ public:
         , fPath(&path)
         , fContourBuilder(contours2)
         , fContoursHead(contours2)
-        , fAllowOpenContours(false) {
+        , fAllowOpenContours(false)
+        , fTreatAsStroked(false) {
+        init();
+    }
+
+    SkOpEdgeBuilder(const SkPath& path, SkOpContourHead* contours2, SkOpGlobalState* globalState, bool stroked)
+        : fGlobalState(globalState)
+        , fPath(&path)
+        , fContourBuilder(contours2)
+        , fContoursHead(contours2)
+        , fAllowOpenContours(false)
+        , fTreatAsStroked(stroked) {
         init();
     }
 
@@ -70,6 +82,7 @@ private:
     bool fOperand;
     bool fAllowOpenContours;
     bool fUnparseable;
+    bool fTreatAsStroked;
 };
 
 #endif

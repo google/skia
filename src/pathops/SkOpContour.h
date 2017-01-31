@@ -448,10 +448,12 @@ public:
     void flush();
     SkOpContour* contour() { return fContour; }
     void setContour(SkOpContour* contour) { flush(); fContour = contour; }
+    void setTreatAsStroked(bool asStroked) { fTreatAsStroked = asStroked; }
 protected:
     SkOpContour* fContour;
     SkPoint fLastLine[2];
     bool fLastIsLine;
+    bool fTreatAsStroked;
 };
 
 #endif

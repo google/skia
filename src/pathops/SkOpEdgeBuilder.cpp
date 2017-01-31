@@ -9,6 +9,9 @@
 #include "SkReduceOrder.h"
 
 void SkOpEdgeBuilder::init() {
+    if (fTreatAsStroked) {
+        fContourBuilder.setTreatAsStroked(true);
+    }
     fOperand = false;
     fXorMask[0] = fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
             : kWinding_PathOpsMask;

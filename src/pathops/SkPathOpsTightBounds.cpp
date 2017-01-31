@@ -7,7 +7,7 @@
 #include "SkOpEdgeBuilder.h"
 #include "SkPathOpsCommon.h"
 
-bool TightBounds(const SkPath& path, SkRect* result) {
+static bool tight_bounds_common(const SkPath& path, SkRect* result, bool stroked) {
     SkPath::RawIter iter(path);
     SkRect moveBounds = { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
     bool wellBehaved = true;
@@ -62,7 +62,7 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     } else {
         workingPath = &path;
     }
-    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState);
+    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState, stroked);
     if (!builder.finish()) {
         return false;
     }
@@ -84,4 +84,13 @@ bool TightBounds(const SkPath& path, SkRect* result) {
         result->join(moveBounds);
     }
     return true;
+}
+
+bool TightBounds(const SkPath& path, SkRect* result) {
+    return tight_bounds_common(path, result, false);
+}
+
+
+bool TightStrokeBounds(const SkPath& path, SkRect* result) {
+    return tight_bounds_common(path, result, true);
 }

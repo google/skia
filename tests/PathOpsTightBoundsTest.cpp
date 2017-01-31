@@ -199,3 +199,19 @@ DEF_TEST(PathOpsTightBoundsIllBehavedScaled, reporter) {
     REPORTER_ASSERT(reporter, tight.right() == 1048576);
     REPORTER_ASSERT(reporter, tight.bottom() == 1048576);
 }
+
+DEF_TEST(PathOpsTightStrokeBounds, reporter) {
+    SkPath path;
+    path.moveTo(10, 20);
+    path.cubicTo(10, 20, 10, 20, 30, 40);
+    path.cubicTo(50, 60, 30, 40, 30, 40);
+    const SkRect& bounds = path.getBounds();
+    SkRect tightFill, tightStroke;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tightFill));
+    REPORTER_ASSERT(reporter, TightStrokeBounds(path, &tightStroke));
+    REPORTER_ASSERT(reporter, tightFill.isEmpty());
+    REPORTER_ASSERT(reporter, !tightStroke.isEmpty());
+    REPORTER_ASSERT(reporter, bounds != tightFill);
+    REPORTER_ASSERT(reporter, bounds != tightStroke);
+    REPORTER_ASSERT(reporter, tightFill != tightStroke);
+}
