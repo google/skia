@@ -1361,7 +1361,7 @@ int nanobench_main() {
     return 0;
 }
 
-#if !defined SK_BUILD_FOR_IOS
+#if !defined(SK_BUILD_FOR_IOS) || defined(NANOBENCH_DEFINE_MAIN)
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     return nanobench_main();
