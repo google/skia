@@ -256,14 +256,14 @@ DEF_TEST(Paint_flattening, reporter) {
     FOR_SETUP(p, styles, setStyle)
 
     SkBinaryWriteBuffer writer;
-    paint.flatten(writer);
+    writer.flatten(paint);
 
     SkAutoMalloc buf(writer.bytesWritten());
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint paint2;
-    paint2.unflatten(reader);
+    reader.readPaint(&paint2);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
     }}}}}}}
@@ -296,14 +296,14 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setLooper(nullptr);  // Default value, ignored.
 
     SkBinaryWriteBuffer writer;
-    paint.flatten(writer);
+    writer.flatten(paint);
 
     SkAutoMalloc buf(writer.bytesWritten());
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
     SkPaint other;
-    other.unflatten(reader);
+    reader.readPaint(&other);
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.
