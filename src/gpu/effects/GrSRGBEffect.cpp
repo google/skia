@@ -110,10 +110,12 @@ GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f input) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSRGBEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSRGBEffect::TestCreate(GrProcessorTestData* d) {
     Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 1));
     return sk_sp<GrFragmentProcessor>(new GrSRGBEffect(testMode));
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

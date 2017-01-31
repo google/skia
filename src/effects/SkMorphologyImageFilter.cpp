@@ -373,6 +373,7 @@ void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -384,6 +385,7 @@ sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d
 
     return GrMorphologyEffect::Make(d->fTextures[texIdx], dir, radius, type);
 }
+#endif
 
 
 static void apply_morphology_rect(GrTextureProvider* provider,

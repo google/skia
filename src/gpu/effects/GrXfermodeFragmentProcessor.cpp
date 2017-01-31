@@ -90,6 +90,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ComposeTwoFragmentProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create two random frag procs.
     sk_sp<GrFragmentProcessor> fpA(GrProcessorUnitTest::MakeChildFP(d));
@@ -100,6 +101,7 @@ sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
     return sk_sp<GrFragmentProcessor>(
         new ComposeTwoFragmentProcessor(std::move(fpA), std::move(fpB), mode));
 }
+#endif
 
 GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() const{
     return new GLComposeTwoFragmentProcessor;
@@ -295,6 +297,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ComposeOneFragmentProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create one random frag procs.
     // For now, we'll prevent either children from being a shader with children to prevent the
@@ -307,6 +310,7 @@ sk_sp<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
         ComposeOneFragmentProcessor::kSrc_Child;
     return sk_sp<GrFragmentProcessor>(new ComposeOneFragmentProcessor(std::move(dst), mode, child));
 }
+#endif
 
 GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() const {
     return new GLComposeOneFragmentProcessor;

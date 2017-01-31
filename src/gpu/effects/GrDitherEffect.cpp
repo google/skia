@@ -50,9 +50,11 @@ void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DitherEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> DitherEffect::TestCreate(GrProcessorTestData*) {
     return DitherEffect::Make();
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

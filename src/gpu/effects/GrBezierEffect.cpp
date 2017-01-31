@@ -258,6 +258,7 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
@@ -270,6 +271,7 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == gp);
     return gp;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Quad
@@ -459,6 +461,7 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
@@ -470,6 +473,7 @@ sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == gp);
     return gp;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Cubic
@@ -679,6 +683,7 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix,
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrCubicEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
@@ -690,3 +695,4 @@ sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     } while (nullptr == gp);
     return gp;
 }
+#endif

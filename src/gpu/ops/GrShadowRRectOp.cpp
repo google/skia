@@ -923,7 +923,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 DRAW_OP_TEST_DEFINE(ShadowCircleOp) {
     do {

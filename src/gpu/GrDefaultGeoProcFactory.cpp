@@ -237,6 +237,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
+#if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
     if (d->fRandom->nextBool()) {
@@ -260,6 +261,7 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
                                 d->fRandom->nextBool(),
                                 GrRandomCoverage(d->fRandom));
 }
+#endif
 
 sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
                                                          const Coverage& coverage,

@@ -418,6 +418,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar colorMatrix[20];
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix); ++i) {
@@ -425,6 +426,7 @@ sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
     }
     return ColorMatrixEffect::Make(colorMatrix);
 }
+#endif
 
 sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
                                                                   GrContext*, SkColorSpace*) const {

@@ -313,6 +313,7 @@ private:
 };
 }
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
@@ -323,6 +324,7 @@ sk_sp<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
     return ArithmeticFP::Make(k1, k2, k3, k4, enforcePMColor, std::move(dst));
 }
+#endif
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ArithmeticFP);
 

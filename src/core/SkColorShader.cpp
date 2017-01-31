@@ -211,6 +211,7 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
+#include "GrColorSpaceXform.h"
 sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs& args) const {
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);

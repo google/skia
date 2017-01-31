@@ -1005,6 +1005,7 @@ void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) {
     float sigma = d->fRandom->nextRangeF(3,8);
     float width = d->fRandom->nextRangeF(200,300);
@@ -1012,6 +1013,7 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
     return GrRectBlurEffect::Make(d->fContext->textureProvider(), SkRect::MakeWH(width, height),
                                   sigma);
 }
+#endif
 
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
                                                GrRenderTargetContext* renderTargetContext,
@@ -1227,6 +1229,7 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar w = d->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar h = d->fRandom->nextRangeScalar(100.f, 1000.f);
@@ -1236,6 +1239,7 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d)
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
     return GrRRectBlurEffect::Make(d->fContext, sigma, sigma, rrect, rrect);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

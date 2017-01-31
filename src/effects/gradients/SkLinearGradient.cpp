@@ -477,6 +477,7 @@ void GrLinearGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
@@ -492,6 +493,7 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
     GrAlwaysAssert(fp);
     return fp;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////
 

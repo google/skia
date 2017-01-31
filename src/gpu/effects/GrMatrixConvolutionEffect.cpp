@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrMatrixConvolutionEffect.h"
+#include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -290,6 +291,7 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(GrContext* co
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -322,3 +324,4 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
                                            tileMode,
                                            convolveAlpha);
 }
+#endif

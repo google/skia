@@ -210,6 +210,7 @@ GrGLSLFragmentProcessor* GrMagnifierEffect::onCreateGLSLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMagnifierEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d) {
     GrTexture* texture = d->fTextures[0];
     const int kMaxWidth = 200;
@@ -235,6 +236,7 @@ sk_sp<GrFragmentProcessor> GrMagnifierEffect::TestCreate(GrProcessorTestData* d)
     SkASSERT(effect);
     return effect;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

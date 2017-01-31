@@ -569,6 +569,7 @@ void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];
@@ -595,6 +596,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) 
     SkASSERT(fp);
     return fp;
 }
+#endif
 
 sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
                                                                     SkColorSpace*) const {

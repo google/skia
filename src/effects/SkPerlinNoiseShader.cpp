@@ -573,6 +573,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoiseEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
     int      numOctaves = d->fRandom->nextRangeU(2, 10);
     bool     stitchTiles = d->fRandom->nextBool();
@@ -593,6 +594,7 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
     GrTest::TestAsFPArgs asFPArgs(d);
     return shader->asFragmentProcessor(asFPArgs.args());
 }
+#endif
 
 void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     const GrPerlinNoiseEffect& pne = args.fFp.cast<GrPerlinNoiseEffect>();

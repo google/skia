@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrTextureProxy.h"
 #include "effects/GrMatrixConvolutionEffect.h"
 #endif
 

@@ -1740,6 +1740,7 @@ void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
     }
 }
 
+#if GR_TEST_UTILS
 GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     fColorCount = random->nextRangeU(1, kMaxRandomGradientColors);
     fUseColors4f = random->nextBool();
@@ -1777,5 +1778,6 @@ GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     }
     fTileMode = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
 }
+#endif
 
 #endif

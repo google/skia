@@ -537,6 +537,7 @@ void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout)
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
     int texIdxDispl = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                                GrProcessorUnitTest::kAlphaTextureIdx;
@@ -560,6 +561,7 @@ sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
                                          d->fTextures[texIdxColor], colorSpaceXform,
                                          colorDimensions);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

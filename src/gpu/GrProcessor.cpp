@@ -17,7 +17,7 @@
 #include "SkSpinlock.h"
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
+#if GR_TEST_UTILS
 class GrFragmentProcessor;
 class GrGeometryProcessor;
 
@@ -79,6 +79,7 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     }
 }
 
+#endif
 #endif
 
 

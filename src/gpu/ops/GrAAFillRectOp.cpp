@@ -383,7 +383,7 @@ std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrColor color,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 #include "GrDrawOpTest.h"
 

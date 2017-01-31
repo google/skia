@@ -1752,6 +1752,7 @@ GrGLSLFragmentProcessor* GrDiffuseLightingEffect::onCreateGLSLInstance() const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDiffuseLightingEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -1771,6 +1772,7 @@ sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
     return GrDiffuseLightingEffect::Make(tex, light.get(), surfaceScale, matrix, kd, mode,
                                          &srcBounds);
 }
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1970,6 +1972,7 @@ GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLSLInstance() const 
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                           GrProcessorUnitTest::kAlphaTextureIdx;
@@ -1991,6 +1994,7 @@ sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestD
                                           light.get(), surfaceScale, matrix, ks, shininess, mode,
                                           &srcBounds);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

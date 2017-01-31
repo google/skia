@@ -375,6 +375,7 @@ void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
@@ -398,6 +399,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
                                        bilerp ? GrSamplerParams::kBilerp_FilterMode
                                               : GrSamplerParams::kNone_FilterMode);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -515,6 +517,7 @@ void GrDeviceSpaceTextureDecalFragmentProcessor::onComputeInvariantOutput(
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceTextureDecalFragmentProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
@@ -531,3 +534,4 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreat
     return GrDeviceSpaceTextureDecalFragmentProcessor::Make(d->context(),
                                                             std::move(proxy), subset, pt);
 }
+#endif

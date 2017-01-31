@@ -170,6 +170,7 @@ void GrGLAlphaThresholdFragmentProcessor::onSetData(const GrGLSLProgramDataManag
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     GrTexture* bmpTex = d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx];
     GrTexture* maskTex = d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx];
@@ -187,6 +188,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
                                                    innerThresh, outerThresh,
                                                    bounds);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

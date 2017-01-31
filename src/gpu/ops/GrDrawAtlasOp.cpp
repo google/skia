@@ -179,7 +179,7 @@ bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     return true;
 }
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
 
 static SkRSXform random_xform(SkRandom* random) {
     static const SkScalar kMinExtent = -100.f;

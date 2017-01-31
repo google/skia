@@ -93,9 +93,11 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
+#if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
     return BigKeyProcessor::Make();
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -164,6 +166,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     return renderTargetContext;
 }
 
+#if GR_TEST_UTILS
 static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
     paint->setXPFactory(GrXPFactoryTestFactory::Get(d));
 }
@@ -281,7 +284,11 @@ static const GrUserStencilSettings* get_random_stencil(SkRandom* random) {
         return &kDoesNotWriteStencil;
     }
 }
+#endif
 
+#if !GR_TEST_UTILS
+bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
+#else
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
 
@@ -378,6 +385,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
     return true;
 }
+#endif
 
 static int get_glprograms_max_stages(GrContext* context) {
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());

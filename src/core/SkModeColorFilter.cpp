@@ -16,6 +16,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkUtils.h"
+#include "SkRandom.h"
 #include "SkString.h"
 #include "SkValidationUtils.h"
 #include "SkPM4f.h"
