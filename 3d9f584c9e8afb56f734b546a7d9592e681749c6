@@ -48,6 +48,23 @@
     },
     {
       "key": {
+        "uuid": "85e2d1b5_389d52c8",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4da1a173_a3906508",
         "filename": "src/sksl/SkSLCFGGenerator.cpp",
         "patchSetId": 4
@@ -65,6 +82,23 @@
         "endLine": 155,
         "endChar": 49
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afc6e8d3_a46b54f2",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Ack",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -94,6 +128,23 @@
     },
     {
       "key": {
+        "uuid": "6d06bf1d_4dac935e",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac2bb928_0f8865af",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -117,6 +168,23 @@
     },
     {
       "key": {
+        "uuid": "0508ee3a_afb51a3d",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5af03fd_5a5d6481",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -134,6 +202,23 @@
         "endLine": 63,
         "endChar": 7
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e525b8d1_cd13d377",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "They originally had to reach into the CFG too, but that requirement ended up falling out as I worked on this. Done.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -163,6 +248,23 @@
     },
     {
       "key": {
+        "uuid": "2547e04d_ede0b07d",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Corrected.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26a6bf72_73d7026d",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -183,6 +285,23 @@
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78a62976_99ded548",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -232,6 +351,23 @@
     },
     {
       "key": {
+        "uuid": "ee319201_4f35ccb7",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cca5e73_cf119032",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 4
@@ -278,6 +414,40 @@
     },
     {
       "key": {
+        "uuid": "fc7908fa_7641694e",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f51a9e3_bfb3ec46",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1289777_d2036a1f",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -289,6 +459,23 @@
       "writtenOn": "2017-01-31T00:51:53Z",
       "side": 1,
       "message": "nit: This is a very long function. Could we split it up?",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e311e206_e1eff0cf",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "I meant to do that in this CL, but it ended up in my next CL by accident. I\u0027d prefer not to have to surgically extract those changes if you\u0027re ok with holding off until the next CL hits.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -318,6 +505,23 @@
     },
     {
       "key": {
+        "uuid": "3281213f_ea7cd0bd",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "That\u0027s actually how I had it set up originally, but I ended up having to check the valid flag after every call, and at that point I changed it to success / failure return values so I could enforce the check with SKIA_WARN_UNUSED_RESULT.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "004e63bf_6cdfaeab",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -335,6 +539,23 @@
         "endLine": 424,
         "endChar": 42
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ee74646_1d30cf0b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "The early exit wasn\u0027t supposed to have been left in, my bad.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -381,6 +602,23 @@
     },
     {
       "key": {
+        "uuid": "290aa50f_60a251a7",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "I swear, that actually made sense the way it was written originally, and then I made it stupid when I was refactoring :-). Fixed.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85d1010a_c7175a9e",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -404,6 +642,23 @@
     },
     {
       "key": {
+        "uuid": "e24f558e_cc2d1fc5",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e6f817c_e4e84bca",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -421,6 +676,23 @@
         "endLine": 469,
         "endChar": 70
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3019d5_94be30f5",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Ack",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -519,6 +791,23 @@
     },
     {
       "key": {
+        "uuid": "9f57165b_16dd8124",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efad204b_2ea40d93",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -565,6 +854,23 @@
     },
     {
       "key": {
+        "uuid": "59d99696_387b9379",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2865dc06_6e360076",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -582,6 +888,23 @@
         "endLine": 565,
         "endChar": 22
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac2e95ca_2b1fa4c5",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Since the changes we are making are always simplifications, we should be monotonically approaching the final state. There\u0027s no way (that I can see) to return to a previous state and cause an infinite loop.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -611,6 +934,23 @@
     },
     {
       "key": {
+        "uuid": "51cf3514_cc364bd5",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8fc28ab_b84d7d87",
         "filename": "src/sksl/ir/SkSLConstructor.h",
         "patchSetId": 4
@@ -628,6 +968,23 @@
         "endLine": 39,
         "endChar": 32
       },
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55f754b3_003e97f3",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "We may end up sanitizing for 64-bit values eventually (this is certainly not the only spot) but we currently assume that int is 32 bit or less on the GPU.",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -654,6 +1011,23 @@
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "777d0cb8_1837e199",
+        "filename": "src/sksl/ir/SkSLExpression.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-01-31T17:28:40Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
