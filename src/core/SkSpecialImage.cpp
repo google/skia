@@ -23,6 +23,7 @@
 #include "GrTextureProxy.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
+#include "SkImage_Gpu.h"
 #endif
 
 // Currently the raster imagefilters can only handle certain imageinfos. Call this to know if
@@ -186,9 +187,11 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    if (GrTexture* texture = as_IB(image)->peekTexture()) {
-        return MakeFromGpu(subset, image->uniqueID(), sk_ref_sp(texture),
-                           sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
+        GrContext* context = ((SkImage_Gpu*) as_IB(image))->context();
+
+        return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
+                                   sk_ref_sp(as_IB(image)->onImageInfo().colorSpace()), props);
     } else
 #endif
     {
@@ -345,7 +348,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
 #include "GrTexture.h"
-#include "SkImage_Gpu.h"
 
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrSurfaceProxy* proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {

@@ -43,8 +43,8 @@ public:
                             sk_sp<SkColorSpace>*, SkScalar scaleAdjust[2]) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
-    sk_sp<GrSurfaceProxy> refProxy() const;
     GrTexture* peekTexture() const override { return fTexture.get(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef() const override;
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();
         return fTexture;

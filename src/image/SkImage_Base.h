@@ -14,6 +14,7 @@
 
 #if SK_SUPPORT_GPU
     #include "GrTexture.h"
+    #include "GrTextureProxy.h"
 #endif
 
 #include <new>
@@ -45,6 +46,7 @@ public:
 
     virtual GrTexture* peekTexture() const { return nullptr; }
 #if SK_SUPPORT_GPU
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }
     virtual sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const { return nullptr; }
 #endif
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }
