@@ -56,7 +56,7 @@ private:
             , fPositions(std::move(positions))
             , fColors(std::move(colors))
             , fIndices(std::move(indices)) {
-        SkASSERT(SkToBool(indices) == SkToBool(indexCnt));
+        SkASSERT(SkToBool(fIndices) == SkToBool(indexCnt));
     }
 
     int fVertexCnt;
