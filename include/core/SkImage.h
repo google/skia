@@ -223,8 +223,11 @@ public:
      *  Retrieves the backend API handle of the texture. If flushPendingGrContextIO then the
      *  GrContext will issue to the backend API any deferred IO operations on the texture before
      *  returning.
+     *  If 'origin' is supplied it will be filled in with the origin of the content drawn
+     *  into the image.
      */
-    GrBackendObject getTextureHandle(bool flushPendingGrContextIO) const;
+    GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
+                                     GrSurfaceOrigin* origin = nullptr) const;
 
     /**
      *  Hints to image calls where the system might cache computed intermediates (e.g. the results
