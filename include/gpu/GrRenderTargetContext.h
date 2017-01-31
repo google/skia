@@ -336,11 +336,13 @@ public:
 
     GrRenderTarget* instantiate();
 
+#if 0
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         return fRenderTargetProxy->instantiate(fContext->textureProvider());
     }
+#endif
 
     GrSurfaceProxy* asDeferredSurface() override { return fRenderTargetProxy.get(); }
     const GrSurfaceProxy* asDeferredSurface() const override { return fRenderTargetProxy.get(); }
@@ -349,6 +351,7 @@ public:
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
 
+#if 0
     sk_sp<GrTexture> asTexture() {
         if (!this->accessRenderTarget()) {
             return nullptr;
@@ -359,6 +362,7 @@ public:
         // It's usage should migrate to asDeferredTexture
         return sk_ref_sp(this->accessRenderTarget()->asTexture());
     }
+#endif
 
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetContextPriv priv();
