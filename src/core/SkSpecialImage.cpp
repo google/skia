@@ -256,6 +256,10 @@ public:
             sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
                 context, fBitmap, GrSamplerParams::ClampNoFilter(), nullptr)));
             sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+            if (!sProxy) {
+                return nullptr;
+            }
+
             return sk_ref_sp(sProxy->asTextureProxy());
         }
 
