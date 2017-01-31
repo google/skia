@@ -90,7 +90,7 @@ public:
 
 private:
     std::unique_ptr<SkCanvas>   fCachedCanvas;
-    SkImage*                    fCachedImage;
+    sk_sp<SkImage>              fCachedImage;
 
     void aboutToDraw(ContentChangeMode mode);
 
@@ -115,17 +115,14 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
 }
 
 sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted) {
-    SkImage* snap = fCachedImage;
-    if (snap) {
-        return sk_ref_sp(snap);
+    if (fCachedImage) {
+        return fCachedImage;
     }
 
-    snap = this->onNewImageSnapshot(budgeted).release();
-    SkASSERT(!fCachedImage);
-    fCachedImage = SkSafeRef(snap);
+    fCachedImage = this->onNewImageSnapshot(budgeted);
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
-    return sk_sp<SkImage>(snap);
+    return fCachedImage;
 }
 
 #endif
