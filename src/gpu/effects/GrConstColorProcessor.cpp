@@ -50,6 +50,9 @@ protected:
         if (fPrevColor != color) {
             pdm.set4fv(fColorUniform, 1, color.fRGBA);
             fPrevColor = color;
+            SkDebugf("Doing upload (%f, %f, %f, %f) %p\n", color.fRGBA[0], color.fRGBA[1], color.fRGBA[2], color.fRGBA[3], this);
+        } else {
+            SkDebugf("Skip uploading (%f, %f, %f, %f) %p\n", color.fRGBA[0], color.fRGBA[1], color.fRGBA[2], color.fRGBA[3], this);
         }
     }
 
