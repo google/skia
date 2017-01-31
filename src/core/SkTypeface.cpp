@@ -73,6 +73,9 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition) const override {
+        return 0;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
         return 0;
@@ -201,6 +204,10 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+int SkTypeface::getVariationDesignPosition(SkFontArguments::VariationPosition position) const {
+    return this->onGetVariationDesignPosition(position);
+}
 
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);

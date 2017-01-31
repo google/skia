@@ -326,8 +326,8 @@ optional("fontmgr_android") {
   enabled = fontmgr_android_enabled
 
   deps = [
+    ":typeface_freetype",
     "//third_party/expat",
-    "//third_party/freetype2",
   ]
   sources = [
     "src/ports/SkFontMgr_android.cpp",
@@ -340,7 +340,7 @@ optional("fontmgr_custom") {
   enabled = is_linux && skia_use_freetype && !skia_use_fontconfig
 
   deps = [
-    "//third_party/freetype2",
+    ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
@@ -352,8 +352,8 @@ optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
 
   deps = [
+    ":typeface_freetype",
     "//third_party:fontconfig",
-    "//third_party/freetype2",
   ]
   sources = [
     "src/ports/SkFontConfigInterface.cpp",
@@ -369,7 +369,7 @@ optional("fontmgr_fuchsia") {
   enabled = is_fuchsia && skia_use_freetype
 
   deps = [
-    "//third_party/freetype2",
+    ":typeface_freetype",
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
@@ -554,7 +554,6 @@ component("skia") {
     ":sse41",
     ":sse42",
     ":ssse3",
-    ":typeface_freetype",
     ":webp",
     ":xml",
   ]
