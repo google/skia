@@ -22,6 +22,23 @@
       "revId": "bf9e464d60fc4fce4afc3960712a3fea6ed18e1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3adf1282_c95a6391",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-01-31T15:34:30Z",
+      "side": 1,
+      "message": "\u003e I presume count and the return-type mean the same thing? (the number of axes). To match other skia apis, should they both be int?\n\nAs the comment states, the passed in \u0027count\u0027 is the number of entries in \u0027position\u0027 the caller has made available to write into. The return value is always the number of axes in the font, or -1 if there was an error. This allows the caller to avoid always calling twice by calling the first time with a small pre-allocated buffer. If it\u0027s big enough it will just be used the first time.\n\n\u003e I find the different names confusing. Why not getVariationCoordinates()?\n\nI believe that for clarity \u0027Design\u0027 needs to be part of the name to distinguish from normalized coordinates. In the future we may wish to provide a means of obtaining the \u0027normalized\u0027 coordinates if they\u0027re available for less expensive inter-operation with HarfBuzz. The reason for \u0027Position\u0027 is that this is (quite pointedly) what the OpenType specification calls a specified location in the design variation space. I was actually just working on an actual type VariationPosition which would effectively be just a VariationCoordinate pointer and a count so that the names line up. It also makes the lines shorter and an number of other things somewhat simpler.",
+      "revId": "bf9e464d60fc4fce4afc3960712a3fea6ed18e1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
