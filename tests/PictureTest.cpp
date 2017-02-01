@@ -1201,3 +1201,28 @@ DEF_TEST(Picture_RecordEmpty, r) {
 }
 #endif
 
+
+DEF_TEST(Picture_UpdatedCull, r) {
+    // If we record well-bounded ops into a picture with a giant cull,
+    // and we calculate the bounds of those ops, we should trim down
+    // the picture cull.
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    auto cull = SkRect::MakeLargest();
+
+    SkCanvas* canvas;
+    sk_sp<SkPicture> pic;
+
+    // First, test a single simple draw (SkMiniPicture).
+    canvas = recorder.beginRecording(cull, &factory);
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,20));
+
+    // Try more than one draw (SkBigPicture).
+    canvas = recorder.beginRecording(cull, &factory);
+    canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
+    canvas->drawRect(SkRect::MakeWH(10,40), SkPaint{});
+    pic = recorder.finishRecordingAsPicture();
+    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,40));
+}

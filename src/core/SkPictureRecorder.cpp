@@ -58,7 +58,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         if (finishFlags & kReturnNullForEmpty_FinishFlag) {
             return nullptr;
         }
-        return fMiniRecorder.detachAsPicture(fCullRect);
+        return fMiniRecorder.detachAsPicture();
     }
 
     // TODO: delay as much of this work until just before first playback?
