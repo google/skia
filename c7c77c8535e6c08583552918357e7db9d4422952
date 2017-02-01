@@ -22,6 +22,23 @@
       "revId": "c7c77c8535e6c08583552918357e7db9d4422952",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02d8e9c5_f3a0a5eb",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-01T17:24:16Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "c7c77c8535e6c08583552918357e7db9d4422952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
