@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "473c4317_4941ef3d",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-01T14:30:49Z",
+      "side": 1,
+      "message": "really? I didn\u0027t think the y-flip code cared at all about the texture format.",
+      "revId": "d76562f8f35b2475377cfa48a1998972c32a2c04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
