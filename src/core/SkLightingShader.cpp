@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
@@ -86,7 +87,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     size_t onContextSize(const ContextRec&) const override;
-    Context* onCreateContext(const ContextRec&, void*) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
     sk_sp<SkShader> fDiffuseShader;
@@ -461,35 +462,23 @@ size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
     return sizeof(LightingShaderContext);
 }
 
-SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
-                                                         void* storage) const {
-    size_t heapRequired = (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0) +
-                          fNormalSource->providerSize(rec);
-    void* heapAllocated = sk_malloc_throw(heapRequired);
-
-    void* diffuseContextStorage = heapAllocated;
-    void* normalProviderStorage = (char*) diffuseContextStorage +
-                                  (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0);
-
+SkShader::Context* SkLightingShaderImpl::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     SkShader::Context *diffuseContext = nullptr;
     if (fDiffuseShader) {
-        diffuseContext = fDiffuseShader->createContext(rec, diffuseContextStorage);
+        diffuseContext = fDiffuseShader->makeContext(rec, alloc);
         if (!diffuseContext) {
-            sk_free(heapAllocated);
             return nullptr;
         }
     }
 
-    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec,
-                                                                         normalProviderStorage);
+    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec, alloc);
     if (!normalProvider) {
-        diffuseContext->~Context();
-        sk_free(heapAllocated);
         return nullptr;
     }
 
-    return new (storage) LightingShaderContext(*this, rec, diffuseContext, normalProvider,
-                                               heapAllocated);
+    return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

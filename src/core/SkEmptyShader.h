@@ -30,7 +30,7 @@ protected:
         return sizeof(SkShader::Context);
     }
 
-    SkShader::Context* onCreateContext(const ContextRec&, void*) const override {
+    SkShader::Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override {
         return nullptr;
     }
 

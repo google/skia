@@ -17,9 +17,9 @@
 #include "SkPaint.h"
 #include "../gpu/GrColor.h"
 
+class SkArenaAlloc;
 class SkColorFilter;
 class SkColorSpace;
-class SkArenaAlloc;
 class SkImage;
 class SkPath;
 class SkPicture;
@@ -229,10 +229,11 @@ public:
     };
 
     /**
-     *  Create the actual object that does the shading.
-     *  Size of storage must be >= contextSize.
+     * Make a context using the memory provided by the arena.
+     *
+     * @return point to context or nullptr if can't be created
      */
-    Context* createContext(const ContextRec&, void* storage) const;
+    Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
     /**
      *  Return the size of a Context returned by createContext.
@@ -476,16 +477,12 @@ protected:
     bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;
 
     /**
-     *  Your subclass must also override contextSize() if it overrides onCreateContext().
-     *  Base class impl returns NULL.
-     */
-    virtual Context* onCreateContext(const ContextRec&, void* storage) const;
-
-    /**
      *  Override this if your subclass overrides createContext, to return the correct size of
      *  your subclass' context.
      */
     virtual size_t onContextSize(const ContextRec&) const;
+
+    virtual Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const = 0;
 
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
