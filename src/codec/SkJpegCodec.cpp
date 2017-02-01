@@ -648,8 +648,15 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
                 fSwizzlerSubset.width() == options.fSubset->width());
         swizzlerOptions.fSubset = &fSwizzlerSubset;
     }
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, dstInfo, swizzlerOptions,
-                                               nullptr, skipFormatConversion));
+
+    SkImageInfo swizzlerDstInfo = dstInfo;
+    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+        // The color xform will handle conversion to F16.  It will be expecting RGBA 8888 input.
+        swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
+    }
+
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr, swizzlerDstInfo,
+                                               swizzlerOptions, nullptr, skipFormatConversion));
     SkASSERT(fSwizzler);
 }
 
