@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11a03e56_61ba6fef",
+        "filename": "src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-01T16:30:47Z",
+      "side": 1,
+      "message": "I assume this is for the color blending?",
+      "range": {
+        "startLine": 45,
+        "startChar": 43,
+        "endLine": 45,
+        "endChar": 63
+      },
+      "revId": "2f1337ab28fa2c46cb89c3ddae19f6d26a0c1644",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0721bd2c_fb27125d",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-01T16:30:47Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 58,
+        "startChar": 17,
+        "endLine": 58,
+        "endChar": 29
+      },
+      "revId": "2f1337ab28fa2c46cb89c3ddae19f6d26a0c1644",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b73bdfc9_f8052b4b",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-01T16:30:47Z",
+      "side": 1,
+      "message": "\"through\" And thank you for setting this up. Does it use a uniform?",
+      "range": {
+        "startLine": 274,
+        "startChar": 28,
+        "endLine": 274,
+        "endChar": 37
+      },
+      "revId": "2f1337ab28fa2c46cb89c3ddae19f6d26a0c1644",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
