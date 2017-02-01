@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ca6e972_783e53f6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T23:47:20Z",
+      "side": 1,
+      "message": "nit: const auto\u0026 varDecl \u003d **varIter;",
+      "range": {
+        "startLine": 483,
+        "startChar": 36,
+        "endLine": 483,
+        "endChar": 48
+      },
+      "revId": "c5c89624b848d1c1968717a1c662897432812eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
