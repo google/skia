@@ -16,6 +16,23 @@
       "revId": "d76562f8f35b2475377cfa48a1998972c32a2c04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c0c73a_325e717a",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-01T14:33:22Z",
+      "side": 1,
+      "message": "Yeah, I was surprised too but it is in there.",
+      "revId": "d76562f8f35b2475377cfa48a1998972c32a2c04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
