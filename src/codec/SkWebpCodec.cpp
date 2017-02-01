@@ -7,9 +7,10 @@
 
 #include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
-#include "SkWebpCodec.h"
+#include "SkSampler.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
+#include "SkWebpCodec.h"
 
 // A WebP decoder on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -59,6 +60,21 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
         return nullptr;
     }
 
+    int width = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
+    int height = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
+
+    // Sanity check for image size that's about to be decoded.
+    {
+        const int64_t size = sk_64_mul(width, height);
+        if (!sk_64_isS32(size)) {
+            return nullptr;
+        }
+        // now check that if we are 4-bytes per pixel, we also don't overflow
+        if (sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
+            return nullptr;
+        }
+    }
+
     WebPChunkIterator chunkIterator;
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
@@ -73,36 +89,14 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
         colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
-    // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|
-    // from the first frame.  It's the only frame we will decode.
-    //
-    // TODO:
-    // When we support animation, we'll want to report the canvas width and canvas height instead.
-    // We can get these from the |demux| directly.
-    // What |color| and |alpha| will we want to report though?  WebP allows different frames
-    // to be encoded in different ways, making the encoded format difficult to describe.
+    // Get the dimensions and offset of the first frame.  Since we do not yet support animated
+    // webp, this is the only frame that we will decode.
     WebPIterator frame;
     SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
     if (!WebPDemuxGetFrame(demux, 1, &frame)) {
         return nullptr;
     }
 
-    // Sanity check for image size that's about to be decoded.
-    {
-        const int64_t size = sk_64_mul(frame.width, frame.height);
-        if (!sk_64_isS32(size)) {
-            return nullptr;
-        }
-        // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
-            return nullptr;
-        }
-    }
-
-    // TODO:
-    // The only reason we actually need to call WebPGetFeatures() is to get the |features.format|.
-    // This call actually re-reads the frame header.  Should we suggest that libwebp expose
-    // the format on the |frame|?
     WebPBitstreamFeatures features;
     VP8StatusCode status = WebPGetFeatures(frame.fragment.bytes, frame.fragment.size, &features);
     if (VP8_STATUS_OK != status) {
@@ -114,7 +108,7 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     switch (features.format) {
         case 0:
             // This indicates a "mixed" format.  We would see this for
-            // animated webps or for webps encoded in multiple fragments.
+            // animated webps (multiple fragments).
             // I believe that this is a rare case.
             // We could also guess kYUV here, but I think it makes more
             // sense to guess kBGRA which is likely closer to the final
@@ -125,7 +119,7 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             break;
         case 1:
             // This is the lossy format (YUV).
-            if (SkToBool(features.has_alpha)) {
+            if (SkToBool(features.has_alpha) || frame.width != width || frame.height != height) {
                 color = SkEncodedInfo::kYUVA_Color;
                 alpha = SkEncodedInfo::kUnpremul_Alpha;
             } else {
@@ -143,9 +137,9 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     }
 
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    SkWebpCodec* codecOut = new SkWebpCodec(features.width, features.height, info,
-                                            std::move(colorSpace), streamDeleter.release(),
-                                            demux.release(), std::move(data));
+    SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
+                                            streamDeleter.release(), demux.release(),
+                                            std::move(data));
     codecOut->setUnsupportedICC(unsupportedICC);
     return codecOut;
 }
@@ -214,51 +208,106 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kInvalidInput;
     }
 
-    // Free any memory associated with the buffer. Must be called last, so we declare it first.
-    SkAutoTCallVProc<WebPDecBuffer, WebPFreeDecBuffer> autoFree(&(config.output));
-
-    SkIRect bounds = SkIRect::MakeSize(this->getInfo().dimensions());
     if (options.fSubset) {
-        // Caller is requesting a subset.
-        if (!bounds.contains(*options.fSubset)) {
-            // The subset is out of bounds.
+        if (!SkIRect::MakeSize(this->getInfo().dimensions()).contains(*options.fSubset)) {
             return kInvalidParameters;
         }
-
-        bounds = *options.fSubset;
 
         // This is tricky. libwebp snaps the top and left to even values. We could let libwebp
         // do the snap, and return a subset which is a different one than requested. The problem
         // with that approach is that the caller may try to stitch subsets together, and if we
         // returned different subsets than requested, there would be artifacts at the boundaries.
-        // Instead, we report that we cannot support odd values for top and left..
-        if (!SkIsAlign2(bounds.fLeft) || !SkIsAlign2(bounds.fTop)) {
+        // Instead, we report that we cannot support odd values for top and left.
+        if (!SkIsAlign2(options.fSubset->fLeft) || !SkIsAlign2(options.fSubset->fTop)) {
             return kInvalidParameters;
         }
-
+    
 #ifdef SK_DEBUG
         {
             // Make a copy, since getValidSubset can change its input.
-            SkIRect subset(bounds);
+            SkIRect subset(*options.fSubset);
             // That said, getValidSubset should *not* change its input, in this case; otherwise
             // getValidSubset does not match the actual subsets we can do.
-            SkASSERT(this->getValidSubset(&subset) && subset == bounds);
+            SkASSERT(this->getValidSubset(&subset) && subset == *options.fSubset);
         }
 #endif
-
-        config.options.use_cropping = 1;
-        config.options.crop_left = bounds.fLeft;
-        config.options.crop_top = bounds.fTop;
-        config.options.crop_width = bounds.width();
-        config.options.crop_height = bounds.height();
     }
 
-    SkISize dstDimensions = dstInfo.dimensions();
-    if (bounds.size() != dstDimensions) {
-        // Caller is requesting scaling.
+    // Free any memory associated with the buffer. Must be called last, so we declare it first.
+    SkAutoTCallVProc<WebPDecBuffer, WebPFreeDecBuffer> autoFree(&(config.output));
+
+    WebPIterator frame;
+    SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
+    // If this succeeded in NewFromStream(), it should succeed again here.
+    SkAssertResult(WebPDemuxGetFrame(fDemux, 1, &frame));
+    
+    // Get the frameRect.  libwebp will have already signaled an error if this is not fully
+    // contained by the canvas.
+    auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
+    SkASSERT(SkIRect::MakeSize(this->getInfo().dimensions()).contains(frameRect));
+    bool frameIsSubset = frameRect.size() != this->getInfo().dimensions();
+    if (frameIsSubset) {
+        SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
+    }
+    
+    int decodeX = 0;
+    int decodeY = 0;
+    int decodeWidth = this->getInfo().width();
+    int decodeHeight = this->getInfo().height();
+    if (frameIsSubset) {
+        decodeX = frameRect.x();
+        decodeY = frameRect.y();
+        decodeWidth = frameRect.width();
+        decodeHeight = frameRect.height();
+    }
+    
+    if (options.fSubset) {
+        SkIRect subset = *options.fSubset;
+        if (!SkIRect::IntersectsNoEmptyCheck(subset, frameRect)) {
+            return kSuccess;
+        }
+
+        int minXOffset = SkTMin(decodeX, subset.x());
+        int minYOffset = SkTMin(decodeY, subset.y());
+        decodeX -= minXOffset;
+        decodeY -= minYOffset;
+        subset.offset(-minXOffset, -minYOffset);
+        SkASSERT(SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
+
+        decodeWidth = SkTMin(subset.width() - decodeX, frameRect.width() - subset.x());
+        decodeHeight = SkTMin(subset.height() - decodeY, frameRect.height() - subset.y());
+
+        config.options.use_cropping = 1;
+        config.options.crop_left = subset.x();
+        config.options.crop_top = subset.y();
+        config.options.crop_width = decodeWidth;
+        config.options.crop_height = decodeHeight;
+    }
+
+    // Ignore the frame size and offset when determining if scaling is necessary.
+    SkISize srcSize = options.fSubset ? options.fSubset->size() : this->getInfo().dimensions();
+    if (srcSize != dstInfo.dimensions()) {
+        float scaleX = (float) dstInfo.width() / (float) srcSize.width();
+        float scaleY = (float) dstInfo.height() / (float) srcSize.height();
         config.options.use_scaling = 1;
-        config.options.scaled_width = dstDimensions.width();
-        config.options.scaled_height = dstDimensions.height();
+
+        if (frameIsSubset || options.fSubset) {
+            // We need to be conservative here and floor rather than round.
+            // Otherwise, we may find ourselves decoding off the end of memory.
+            decodeX = (int) (scaleX * (float) decodeX);
+            decodeWidth = (int) (scaleX * (float) decodeWidth);
+            decodeY = (int) (scaleY * (float) decodeY);
+            decodeHeight = (int) (scaleY * (float) decodeHeight);
+            if (0 == decodeWidth || 0 == decodeHeight) {
+                return kSuccess;
+            }
+            
+            config.options.scaled_width = decodeWidth;
+            config.options.scaled_height = decodeHeight;
+        } else {
+            config.options.scaled_width = dstInfo.width();
+            config.options.scaled_height = dstInfo.height();
+        }
     }
 
     // Swizzling between RGBA and BGRA is zero cost in a color transform.  So when we have a
@@ -274,21 +323,17 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // does not provide a row-by-row API.  This is a shame particularly in the F16 case,
     // where we need to allocate an extra image-sized buffer.
     SkAutoTMalloc<uint32_t> pixels;
-    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        pixels.reset(dstDimensions.width() * dstDimensions.height());
-        config.output.u.RGBA.rgba = (uint8_t*) pixels.get();
-        config.output.u.RGBA.stride = (int) dstDimensions.width() * sizeof(uint32_t);
-        config.output.u.RGBA.size = config.output.u.RGBA.stride * dstDimensions.height();
-    } else {
-        config.output.u.RGBA.rgba = (uint8_t*) dst;
-        config.output.u.RGBA.stride = (int) rowBytes;
-        config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
-    }
-
-    WebPIterator frame;
-    SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
-    // If this succeeded in NewFromStream(), it should succeed again here.
-    SkAssertResult(WebPDemuxGetFrame(fDemux, 1, &frame));
+    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
+    void* webpDst = isF16 ? pixels.reset(dstInfo.width() * dstInfo.height()) : dst;
+    size_t webpRowBytes = isF16 ? dstInfo.width() * sizeof(uint32_t) : rowBytes;
+    size_t totalBytes = isF16 ? webpRowBytes * dstInfo.height() : dstInfo.getSafeSize(webpRowBytes);
+    size_t dstBpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    size_t webpBpp = isF16 ? sizeof(uint32_t) : dstBpp;
+    
+    size_t offset = decodeX * webpBpp + decodeY * webpRowBytes;
+    config.output.u.RGBA.rgba = SkTAddOffset<uint8_t>(webpDst, offset);
+    config.output.u.RGBA.stride = (int) webpRowBytes;
+    config.output.u.RGBA.size = totalBytes - offset;
 
     SkAutoTCallVProc<WebPIDecoder, WebPIDelete> idec(WebPIDecode(nullptr, 0, &config));
     if (!idec) {
@@ -304,7 +349,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             break;
         case VP8_STATUS_SUSPENDED:
             WebPIDecGetRGB(idec, rowsDecodedPtr, nullptr, nullptr, nullptr);
-            rowsDecoded = *rowsDecodedPtr;
+            rowsDecoded = decodeY + *rowsDecodedPtr;
             result = kIncompleteInput;
             break;
         default:
@@ -316,14 +361,15 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
 
-        uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
+        uint32_t* xformSrc = (uint32_t*) config.output.u.RGBA.rgba;
+        void* xformDst = SkTAddOffset<void>(dst, dstBpp * decodeX + rowBytes * decodeY);
         size_t srcRowBytes = config.output.u.RGBA.stride;
-        for (int y = 0; y < rowsDecoded; y++) {
-            SkAssertResult(this->colorXform()->apply(dstColorFormat, dst,
-                    SkColorSpaceXform::kBGRA_8888_ColorFormat, src, dstInfo.width(),
+        for (int y = 0; y < rowsDecoded - decodeY; y++) {
+            SkAssertResult(this->colorXform()->apply(dstColorFormat, xformDst,
+                    SkColorSpaceXform::kBGRA_8888_ColorFormat, xformSrc, decodeWidth,
                     xformAlphaType));
-            dst = SkTAddOffset<void>(dst, rowBytes);
-            src = SkTAddOffset<uint32_t>(src, srcRowBytes);
+            xformDst = SkTAddOffset<void>(xformDst, rowBytes);
+            xformSrc = SkTAddOffset<uint32_t>(xformSrc, srcRowBytes);
         }
     }
 
