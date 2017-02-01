@@ -131,12 +131,19 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
     }
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrContext* context,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted) {
+    const GrCaps& caps = *context->caps();
+
     // TODO: share this testing code with check_texture_creation_params
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        if (context->contextPriv().backend() == kVulkan_GrBackend) {
+            // Our Vulkan backend currently doesn't support compressed textures
+            return nullptr;
+        }
+
         if (SkBackingFit::kApprox == fit || kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
             // We don't allow scratch compressed textures and, apparently can't Y-flip compressed
             // textures
@@ -185,19 +192,19 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     return sk_sp<GrSurfaceProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0));
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
-                                                   GrTextureProvider* texProvider,
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(GrContext* context,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
                                                    size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrSurface> surf(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
+        sk_sp<GrSurface> surf(context->textureProvider()->createTexture(desc, budgeted,
+                                                                        srcData, rowBytes));
         return GrSurfaceProxy::MakeWrapped(std::move(surf));
     }
 
-    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
+    return GrSurfaceProxy::MakeDeferred(context, desc, SkBackingFit::kExact, budgeted);
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
