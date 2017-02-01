@@ -630,6 +630,23 @@
     },
     {
       "key": {
+        "uuid": "7b9f3bdb_5968b218",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "There certainly is. I\u0027ve redone the way this works.",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5e5fa6b2_f4ecb755",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -1070,6 +1087,23 @@
       "writtenOn": "2017-01-31T18:58:11Z",
       "side": 1,
       "message": "So, is \"uint(-1)\" valid, and does it have the same semantics as in C++?",
+      "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f689f1c_1888a69f",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "That\u0027s the intent, yes",
       "revId": "3d9f584c9e8afb56f734b546a7d9592e681749c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
