@@ -45,6 +45,11 @@ public:
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices.get(); }
 
+    size_t size() const {
+        return sizeof(*this) + fVertexCnt * (sizeof(SkPoint) + sizeof(SkColor)) +
+               fIndexCnt * sizeof(uint16_t);
+    }
+
 private:
     template<typename T> using Deleter = SkTDArray<SkPoint>::Deleter;
     template<typename T> using UniqueArray = std::unique_ptr<const T[], Deleter<T>>;
