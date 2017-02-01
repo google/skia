@@ -55,10 +55,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
-        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                                  context->textureProvider(),
-                                                                  desc,
-                                                                  SkBudgeted::kNo,
+        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(context, desc, SkBudgeted::kNo,
                                                                   alphaData, 0));
         if (!sProxy) {
             ERRORF(reporter, "Could not create alpha texture.");

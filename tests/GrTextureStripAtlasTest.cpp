@@ -28,9 +28,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrTextureStripAtlasFlush, reporter, ctxInfo) 
         SkAutoTMalloc<uint32_t> pixels(desc.fWidth * desc.fHeight);
         memset(pixels.get(), 0xFF, sizeof(uint32_t) * desc.fWidth * desc.fHeight);
 
-        srcProxy = GrSurfaceProxy::MakeDeferred(*context->caps(), context->textureProvider(),
-                                                desc, SkBudgeted::kYes,
-                                                pixels.get(), 0);
+        srcProxy = GrSurfaceProxy::MakeDeferred(context, desc, SkBudgeted::kYes, pixels.get(), 0);
     }
 
     // Add a pending read to the src texture, and then make it available for reuse.

@@ -18,6 +18,8 @@ class GrSurfaceProxy;
     data members or virtual methods. */
 class GrContextPriv {
 public:
+    GrBackend backend() { return fContext->fBackend; }
+
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     // Create a renderTargetContext that wraps an existing renderTarget

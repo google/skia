@@ -117,8 +117,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    const GrCaps& caps = *ctxInfo.grContext()->caps();
-
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 64;
@@ -126,7 +124,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     {
-        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps, desc,
+        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(ctxInfo.grContext(), desc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes));
 
@@ -140,7 +138,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     }
     
     {
-        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps, desc,
+        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(ctxInfo.grContext(), desc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes));
 
@@ -156,7 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     {
         desc.fFlags = kNone_GrSurfaceFlags; // force no-RT
 
-        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps, desc,
+        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(ctxInfo.grContext(), desc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes));
 
