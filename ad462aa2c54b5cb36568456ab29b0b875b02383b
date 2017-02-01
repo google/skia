@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffbb86a1_784b8089",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T19:56:41Z",
+      "side": 1,
+      "message": "nit: What\u0027s the reason for having 4 different files instead of one cfg.json?",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8090539c_c54789d5",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T19:56:41Z",
+      "side": 1,
+      "message": "nit: Check that the key exists.",
+      "range": {
+        "startLine": 146,
+        "startChar": 17,
+        "endLine": 146,
+        "endChar": 32
+      },
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28c57f9f_f5a207b0",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T19:56:41Z",
+      "side": 1,
+      "message": "nit: Check that the key exists.",
+      "range": {
+        "startLine": 168,
+        "startChar": 14,
+        "endLine": 168,
+        "endChar": 25
+      },
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0966871_19474ea5",
+        "filename": "infra/bots/gpu_map.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T19:56:41Z",
+      "side": 1,
+      "message": "nit: It\u0027s unfortunate that json doesn\u0027t allow comments. Would it be a pain to switch to TOML?",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
