@@ -138,17 +138,8 @@ inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if SK_SCALAR_IS_FLOAT
-
 #define SkFixedToScalar(x)          SkFixedToFloat(x)
 #define SkScalarToFixed(x)          SkFloatToFixed(x)
-
-#else   // SK_SCALAR_IS_DOUBLE
-
-#define SkFixedToScalar(x)          SkFixedToDouble(x)
-#define SkScalarToFixed(x)          SkDoubleToFixed(x)
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

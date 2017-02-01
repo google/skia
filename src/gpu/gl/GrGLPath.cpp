@@ -218,7 +218,7 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
                                       const SkPath& skPath) {
     SkASSERT(!skPath.isEmpty());
 
-#ifdef SK_SCALAR_IS_FLOAT
+#if 1  //  SK_SCALAR_IS_FLOAT
     // This branch does type punning, converting SkPoint* to GrGLfloat*.
     if ((skPath.getSegmentMasks() & SkPath::kConic_SegmentMask) == 0) {
         int verbCnt = skPath.countVerbs();
