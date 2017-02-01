@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "0369e5ed_d2add36e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "It undoubtedly does prevent some optimizations, but it\u0027s also not a situation that actually occurs within our codebase. Just being conservative for the moment to simplify things.\n\nComment added.",
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a6a4742_7b90932e",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 5
@@ -42,6 +59,23 @@
         "endLine": 344,
         "endChar": 34
       },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b181788b_93bf9da6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "For the time being, no it will not. That will change down the road.",
       "revId": "98119f3ef4e737ceb85814414d687da68e471897",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -71,6 +105,23 @@
     },
     {
       "key": {
+        "uuid": "c198d3e7_01634636",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "Redid this and added tests.",
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "831a3cff_0507b852",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 5
@@ -94,6 +145,23 @@
     },
     {
       "key": {
+        "uuid": "a7b832b5_d8e3099b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "There\u0027s certainly room to improve optimization around them (currently we\u0027re not smart enough to optimize x \u003d 1; x++; into x \u003d 2, for example) but other than missed optimization opportunities, I\u0027m not sure what else would be a TODO around them. Have I missed something that makes this incorrect?",
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f6206a7_9fcc4cb4",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 5
@@ -111,6 +179,23 @@
         "endLine": 547,
         "endChar": 68
       },
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f616bb68_c77d0bcf",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-02-01T21:54:56Z",
+      "side": 1,
+      "message": "It only deleted the extra copy, but your suggestion is definitely simpler. Fixed.",
       "revId": "98119f3ef4e737ceb85814414d687da68e471897",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
