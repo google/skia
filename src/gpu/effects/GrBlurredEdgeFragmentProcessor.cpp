@@ -42,11 +42,9 @@ public:
                 break;
         }
         if (!args.fGpImplementsDistanceVector) {
-            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.g);",
-                                     args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(factor*color.g);", args.fOutputColor);
         } else {
-            fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
-                                     args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(factor*color.a);", args.fOutputColor);
         }
     }
 

@@ -247,6 +247,7 @@ gm_sources = [
   "$_gm/shadertext3.cpp",
   "$_gm/shadowmaps.cpp",
   "$_gm/shadows.cpp",
+  "$_gm/shadowutils.cpp",
   "$_gm/shallowgradient.cpp",
   "$_gm/shapes.cpp",
   "$_gm/showmiplevels.cpp",
