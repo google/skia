@@ -48,19 +48,20 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kGray_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
+        // TODO: add support to our backend for compressed textures
         case kETC1_GrPixelConfig:
             // converting to ETC2 which is a superset of ETC1
-            *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
-            return true;
+            //*format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+            // fall through
         case kLATC_GrPixelConfig:
             // No current vulkan support for this config
-            return false;
+            //fall through
         case kR11_EAC_GrPixelConfig:
-            *format = VK_FORMAT_EAC_R11_UNORM_BLOCK;
-            return true;
+            //*format = VK_FORMAT_EAC_R11_UNORM_BLOCK;
+            //fall through
         case kASTC_12x12_GrPixelConfig:
-            *format = VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
-            return true;
+            //*format = VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
+            return false;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
             return true;
