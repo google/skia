@@ -107,9 +107,22 @@ typedef unsigned int GrEGLBoolean;
  * textures are really const GrGLTexture*
  */
 
-struct GrGLTextureInfo {
+struct GrGLTextureInfo : public GrBackendInfo {
+    GrGLTextureInfo() : INHERITED(Backend::kGL) {}
+
     GrGLenum fTarget;
     GrGLuint fID;
+
+    static const GrGLTextureInfo* IsA(const GrBackendInfo *info) {
+        if (info->backend() == Backend::kGL) {
+            return (GrGLTextureInfo*) info;
+        }
+
+        return nullptr;
+    }
+
+private:
+    typedef GrBackendInfo INHERITED;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

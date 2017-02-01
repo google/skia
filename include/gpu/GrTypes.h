@@ -684,4 +684,28 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
+struct GrBackendInfo {
+
+protected:
+    enum class Backend {
+        kGL,
+        kVulkan
+    };
+
+    GrBackendInfo(Backend backend) : fBackend(backend) {}
+
+    Backend backend() const { return fBackend; }
+
+private:
+    Backend fBackend;
+};
+
+bool Match(const GrBackendObject obj1, const GrBackendObject obj2) {
+    if (obj1 == obj2) {
+        return true;
+    }
+
+
+}
+
 #endif

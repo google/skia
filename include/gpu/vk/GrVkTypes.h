@@ -41,7 +41,8 @@ struct GrVkAlloc {
     };
 };
 
-struct GrVkImageInfo {
+struct GrVkImageInfo : public GrBackendInfo {
+    GrVkImageInfo() : INHERITED(Backend::kVulkan) {}
     /**
      * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
      * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
@@ -57,7 +58,26 @@ struct GrVkImageInfo {
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
     void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
+
+    static const GrVkImageInfo* IsA(const GrBackendInfo* info) {
+        if (info->backend() == Backend::kVulkan) {
+            return (const GrVkImageInfo*) info;
+        }
+
+        return nullptr;
+    }
+
+private:
+    typedef GrBackendInfo INHERITED;
 };
+
+GrGLTextureInfo* isGL(const GrBackendInfo* info) {
+    if (info->backend() == GrBackendInfo::Backend::kGL) {
+        return (GrGLTextureInfo*) info;
+    }
+
+    return nullptr;
+}
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
 
