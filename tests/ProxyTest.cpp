@@ -109,6 +109,10 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
+    if (ctxInfo.backend() == kVulkan_GrBackend) {
+        return;
+    }
+
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
