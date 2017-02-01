@@ -162,6 +162,23 @@
     },
     {
       "key": {
+        "uuid": "d8c0c2ca_017aaeb2",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-01T23:47:20Z",
+      "side": 1,
+      "message": "Nothing appears incorrect. Your explanation on is_dead makes this moot.\n\nBut just to explain what I meant, let\u0027s assume is_dead is super-smart and knows how to simplify this:\nint foo() {\n    int x \u003d globalVar;\n    x \u003d x + 1;\n    return 2;\n}\nto:\nint foo() { return 2; }\n\nIf the input were this:\nint foo() {\n    int x \u003d globalVar;\n    x++;\n    return 2;\n}\nthen it seems like currently the output would be:\nint foo() {\n    x++;\n    return 2;\n}\nbecause there is no code for removing prefix/postfix expressions that modify a dead variable.",
+      "revId": "98119f3ef4e737ceb85814414d687da68e471897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f6206a7_9fcc4cb4",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 5
