@@ -62,6 +62,7 @@
         'tools.gyp:sk_tool_utils',
         'tools.gyp:timer',
         'tools.gyp:url_data_manager',
+        'imgui.gyp:imgui',
       ],
       'conditions' : [
         [ 'skia_os == "android"', {
@@ -112,10 +113,10 @@
           'sources/': [ ['exclude', '_mac.(h|cpp)$'],
           ],
         }],
-	['skia_vulkan == 0', {
-	  'sources/': [ ['exclude', 'Vulkan']
-	  ],
-	}],
+        ['skia_vulkan == 0', {
+          'sources/': [ ['exclude', 'Vulkan']
+          ],
+        }],
       ],
     },
   ],
