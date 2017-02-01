@@ -255,6 +255,17 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
             fConfigTable[i].init(interface, physDev, format);
         }
     }
+
+    // We currently do not support compressed textures in Vulkan
+    const uint16_t kFlagsToRemove = ConfigInfo::kTextureable_Flag|ConfigInfo::kRenderable_Flag;
+    fConfigTable[kETC1_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kETC1_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
+    fConfigTable[kLATC_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kLATC_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
+    fConfigTable[kR11_EAC_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kR11_EAC_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
+    fConfigTable[kASTC_12x12_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
+    fConfigTable[kASTC_12x12_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
 }
 
 void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {

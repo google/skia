@@ -60,7 +60,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             return true;
         case kASTC_12x12_GrPixelConfig:
             *format = VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
-            return true;
+            return false;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
             return true;
