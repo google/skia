@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "9fcd4d0b_59178126",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-01T20:17:51Z",
+      "side": 1,
+      "message": "Originally it was so that the internal repo could use some of the files but not others.  Maybe the better solution is to be able to provide multiple config files and merge them?",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8090539c_c54789d5",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -39,6 +56,23 @@
       "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58edb83d_343cf846",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-01T20:17:51Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +99,23 @@
     },
     {
       "key": {
+        "uuid": "cace4b4e_ee45edd2",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-01T20:17:51Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0966871_19474ea5",
         "filename": "infra/bots/gpu_map.json",
         "patchSetId": 2
@@ -76,6 +127,23 @@
       "writtenOn": "2017-02-01T19:56:41Z",
       "side": 1,
       "message": "nit: It\u0027s unfortunate that json doesn\u0027t allow comments. Would it be a pain to switch to TOML?",
+      "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65a00b55_4d5d009a",
+        "filename": "infra/bots/gpu_map.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-01T20:17:51Z",
+      "side": 1,
+      "message": "So this would be something like:\n\n[gpu_mapping]\nAMDHD7770 \u003d \"1002:683d\"\nGeForce320M \u003d \"10de:08a4\"\n...\n\nI guess I\u0027m okay with that.  I think I have a personal dislike of TOML because it looks like variable assignment instead of a map, and despite the name I find it complex enough that I always need to look up the format, where JSON feels much more \"obvious\" to me.",
       "revId": "ad462aa2c54b5cb36568456ab29b0b875b02383b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
