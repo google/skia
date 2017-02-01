@@ -24,18 +24,34 @@ struct Constructor : public Expression {
     : INHERITED(position, kConstructor_Kind, type)
     , fArguments(std::move(arguments)) {}
 
-    virtual std::unique_ptr<Expression> constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) override {
-        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind &&
-            // promote float(1) to 1.0
-            fType == *irGenerator.fContext.fFloat_Type) {
-            int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
-            return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                fPosition,
-                                                                intValue));
+    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                  const DefinitionMap& definitions) override {
+        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
+            if (fType == *irGenerator.fContext.fFloat_Type) {
+                // promote float(1) to 1.0
+                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
+                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
+                                                                    fPosition,
+                                                                    intValue));
+            } else if (fType == *irGenerator.fContext.fUInt_Type) {
+                // promote uint(1) to 1u
+                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
+                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+                                                                  fPosition,
+                                                                  intValue,
+                                                                  &fType));
+            }
         }
         return nullptr;
+    }
+
+    bool hasSideEffects() const override {
+        for (const auto& arg : fArguments) {
+            if (arg->hasSideEffects()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     SkString description() const override {
