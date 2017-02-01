@@ -1,0 +1,11 @@
+{
+  "pool": "Skia",
+  "no_upload": [
+    "ASAN",
+    "Coverage",
+    "MSAN",
+    "TSAN",
+    "UBSAN",
+    "Valgrind"
+  ]
+}
