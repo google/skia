@@ -1,72 +1,340 @@
-/*
- * Copyright 2006 The Android Open Source Project
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
+##Class #SkPaint
 
-#ifndef SkPaint_DEFINED
-#define SkPaint_DEFINED
+--------------------------------------------------------------------------------
 
-#include "SkBlendMode.h"
-#include "SkColor.h"
-#include "SkFilterQuality.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
+##Method SkPaint::SkPaint() #empty_constructor
 
-class SkAutoDescriptor;
-class SkAutoGlyphCache;
-class SkColorFilter;
-class SkData;
-class SkDescriptor;
-class SkDrawLooper;
-class SkGlyph;
-struct SkRect;
-class SkGlyphCache;
-class SkImageFilter;
-class SkMaskFilter;
-class SkPath;
-class SkPathEffect;
-struct SkPoint;
-class SkRasterizer;
-struct SkScalerContextEffects;
-class SkShader;
-class SkSurfaceProps;
-class SkTextBlob;
-class SkTypeface;
+#Method constructs an SkPaint with these settings:
 
-/** \class SkPaint
+##Table
+# ##A anti-aliasing         #anti_alias ##         # ##A false       #kAntiAlias_Flag ##          ##
+#    #alpha                                        # ##A 255         #setAlpha ##                 ##
+# ##A blend mode            #SkBlendMode ##        # ##A srcOver     #SkBlendMode::kSrcOver ##    ##
+# ##A cap type              #Cap ##                # ##A butt        #kButt_Cap ##                ##
+# ##A color                 #SkColor ##            # ##A black       #SK_ColorBLACK ##            ##
+# ##A color filter          #SkColorFilter ##      # #AA nullptr     #setColorFilter ##           ##
+#    #dithering                                    # ##A false       #kDither_Flag ##             ##
+# ##A draw looper           #SkDrawLooper ##       # ##A nullptr     #setDrawLooper ##            ##
+# ##A embedded bitmap fonts #bitmap_text ##        # ##A false       #kEmbeddedBitmapText_Flag ## ##
+# ##A fake bold             #fake_bold ##          # #AA false       #setFakeBoldText ##          ##
+# ##A filter quality        #SkFilterQuality ##    # ##A none        #kNone_SkFilterQuality ##    ##
+# ##A forced autohinting    #auto_hinting ##       # ##A false       #kAutoHinting_Flag ##        ##
+# ##A image filter          #SkImageFilter ##      # ##A nullptr     #setImageFilter ##           ##
+# ##A join type             #Join ##               # ##A miter       #kMiter_Join ##              ##
+# ##A linear text           #linearText ##         # ##A false       #kLinearText_Flag ##         ##
+# ##A mask filter           #SkMaskFilter ##       # ##A nullptr     #setMaskFilter ##            ##
+# ##A miter limit           #miter_limit ##        # ##A 4           #setMiterLimit ##            ##
+# ##A path effect           #SkPathEffect ##       # ##A nullptr     #setPathEffect ##            ##
+# ##A rasterizer            #SkRasterizer ##       # ##A nullptr     #setRasterizer ##            ##
+# ##A shader                #SkShader ##           # ##A nullptr     #setShader ##                ##
+# ##A stroke width          #stroke_width ##       # ##A 0           #hairline ##                 ##
+# ##A subpixel glyphs       #lcd_text ##           # ##A false       #kLCDRenderText_Flag ##      ##
+# ##A subpixel positions    #subpixel_text ##      # ##A false       #kSubpixelText_Flag ##       ##
+# ##A strike through        #strike_thru ##        # ##A false       #setStrikeThruText ##        ##
+# ##A style                 #Style ##              # ##A fill        #kFill_Style ##              ##
+# ##A text alignment        #Align ##              # ##A left        #kLeft_Align ##              ##
+# ##A text direction        #text_direction ##     # ##A horizontal  #kVerticalText_Flag ##       ##
+# ##A text encoding         #TextEncoding ##       # ##A UTF-8       #kUTF8_TextEncoding ##       ##
+# ##A text hinting          #Hinting ##            # ##A normal      #kNormal_Hinting ##          ##
+# ##A text kerning          #text_kerning ##       # ##A false       #kDevKernText_Flag ##        ##
+# ##A text scale x          #text_scale_x ##       # ##A 1           #setTextScaleX ##            ##
+# ##A text size             #text_size ##          # ##A 12          #setTextSize ##              ##
+# ##A text skew x           #text_skew_x ##        # ##A 0           #setTextSkewX ##             ##
+#    #typeface                                     # #AA nullptr     #setTypeface ##              ##
+#    #underline                                    # ##A false       #setUnderlineText ##         ##
+##Table ##
 
-    The SkPaint class holds the style and color information about how to draw
-    geometries, text and bitmaps.
-*/
-class SK_API SkPaint {
+The flags, text size, hinting, and miter limit may be overridden at compile time by defining
+paint default values. The overrides may be included in SkUserConfig.h or predefined by the 
+build system.  
+
+##Example #paint_defaults
+###$  $ redefine markup character so preprocessor commands appear normally
+#ifndef SkUserConfig_DEFINED
+#define SkUserConfig_DEFINED
+
+#define SkPaintDefaults_Flags      0x01   // always enable antialiasing
+#define SkPaintDefaults_TextSize   24.f   // double default font size
+#define SkPaintDefaults_Hinting    3      // use full hinting
+#define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting
+
+#endif
+$$$#  # restore original markup character
+##Example ##
+
+##Example #measureText
+SkPaint paint;
+SkDebugf("default width = %g\n", paint.measureText("!", 1));
+paint.setTextSize(paint.getTextSize() * 2);
+SkDebugf("double width = %g\n", paint.measureText("!", 1));
+##Example ##
+
+##StdOut #measureText
+default width = 3
+double width = 7
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint& paint) #copy_constructor
+
+#Method does a shallow copy of the paint. The paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter are shared
+between the original paint and the copy. These objects' reference counts are increased.
+
+By convention, path effects, shaders, and so on have a Make method to instantiate
+the object, and only const methods to examine it. This prevents the reference-counted
+objects in a paint from being modified on the outside.
+
+##Example #setColor
+SkPaint paint1;
+paint1.setColor(SK_ColorRED);
+SkPaint paint2(paint1);
+paint2.setColor(SK_ColorBLUE);
+SkASSERT(SK_ColorRED == paint1.getColor());
+SkASSERT(SK_ColorBLUE == paint2.getColor());
+##Example ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint&& paint) #move_constructor
+
+#Method implements a move constructor to avoid incrementing the reference counts
+of objects referenced by the paint.
+
+##Example
+SkPaint makeDash(SkPaint paint) {
+    float intervals[] = { 5, 5 };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    return paint;
+}
+
+SkPaint paint = makeDash(SkPaint());
+SkDebugf("ref count = %d\n", paint.getPathEffect()->getRefCnt());
+##Example ##
+
+##StdOut
+ref count = 1
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method ~SkPaint() #destructor
+
+Decrease the reference count of the paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter. If the
+objects' reference count goes to zero, delete them.
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(const SkPaint&) #copy_assignment_operator
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2 = paint1;
+SkASSERT(SK_ColorRED == paint1.getColor());
+SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(SkPaint&&) #move_assignment_operator
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2 = std::move(paint1);
+SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator==(const SkPaint& a, const SkPaint& b) #equal_operator
+
+#Method returns true if the paints are equivalent, but may return false
+if the referenced objects have identical contents but different pointers.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+float intervals[] = { 5, 5 };
+paint1.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+paint2.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+paint1 == paint2
+paint1 != paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator!=(const SkPaint& a, const SkPaint& b) #not_equal_operator
+
+#Method returns true if the paints are not equivalent, but may return true
+if the referenced objects have identical contents but different pointers.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1 %c= paint2\n", paint1 != paint2 ? '!' : '=');
+##Example ##
+
+##StdOut
+paint1 == paint2
+paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method uint32_t getHash() const #getHash
+
+#Method returns a shallow hash. Identical hashes guarantee that the paints are
+equivalent, but differing hashes do not guarantee that the paints have differing
+contents.
+
+If #equal_operator, returns true for two paints, their hashes are also equal.
+
+The hash returned is platform and implementation specific.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint2.setColor(0xFFFF0000);
+SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+SkDebugf("paint1.getHash() %c= paint2.getHash()\n",
+         paint1.getHash() == paint2.getHash() ? '=' : '!');
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void flatten(SkWriteBuffer&) const #flatten
+
+#Method allows serializing the paint into a buffer. A companion #unflatten call
+can reconstitute the paint at a later time.
+
+##Example
+class PaintDumper : public SkWriteBuffer {
 public:
-    SkPaint();
-    SkPaint(const SkPaint& paint);
-    SkPaint(SkPaint&& paint);
-    ~SkPaint();
+    bool isCrossProcess() const override { return false };
+    void writeByteArray(const void* data, size_t size) override {}
+    void writeBool(bool value) override {}
+    void writeScalar(SkScalar value) override {}
+    void writeScalarArray(const SkScalar* value, uint32_t count) override {}
+    void writeInt(int32_t value) override {}
+    void writeIntArray(const int32_t* value, uint32_t count) override {}
+    void writeUInt(uint32_t value) override {}
+    void writeString(const char* value) override {}
+    void writeFlattenable(const SkFlattenable* flattenable) override {}
+    void writeColorArray(const SkColor* color, uint32_t count) override {}
+    void writeColor4f(const SkColor4f& color) override {}
+    void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}
+    void writePoint(const SkPoint& point) override {}
+    void writePointArray(const SkPoint* point, uint32_t count) override {}
+    void writeMatrix(const SkMatrix& matrix) override {}
+    void writeIRect(const SkIRect& rect) override {}
+    void writeRect(const SkRect& rect) override {}
+    void writeRegion(const SkRegion& region) override {}
+    void writePath(const SkPath& path) override {}
+    size_t writeStream(SkStream* stream, size_t length) override {}
+    void writeBitmap(const SkBitmap& bitmap) override {}
+    void writeImage(const SkImage*) override {}
+    void writeTypeface(SkTypeface* typeface) override {}
+    void writePaint(const SkPaint& paint) override {}
 
-    SkPaint& operator=(const SkPaint&);
-    SkPaint& operator=(SkPaint&&);
-
-    /** operator== may give false negatives: two paints that draw equivalently
-        may return false.  It will never give false positives: two paints that
-        are not equivalent always return false.
-    */
-    SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
-    friend bool operator!=(const SkPaint& a, const SkPaint& b) {
-        return !(a == b);
+    void writeColor(SkColor color) override {
+        SkDebugf("color = 0x%08x\n", color);
     }
+} dumper;
 
-    /** getHash() is a shallow hash, with the same limitations as operator==.
-     *  If operator== returns true for two paints, getHash() returns the same value for each.
-     */
-    uint32_t getHash() const;
+SkPaint paint;
+paint.setColor(SK_ColorRED);
+paint.flatten(dumper);
+##Example ##
 
-    /** Restores the paint to its initial settings.
-    */
-    void reset();
+##StdOut
+color = 0xffff0000
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void unflatten(SkReadBuffer&) #unflatten
+
+#Method populates a paint, typically from a serialized stream, created by calling
+#flatten at an earlier time.
+
+The #SkReadBuffer class is not public, so #Method cannot be meaningfully called
+by a Skia client.
+
+# why is #Method public? bug.skia.org/6172
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void reset() #reset
+
+Set all paint's contents to their initial values. This is equivalent to replacing
+the paint by calling #empty_constructor.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint1.reset();
+SkDebugf("paint1 %c= paint2", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Enum Hinting #Hinting
 
     /** Specifies the level of hinting to be performed. These names are taken
         from the Gnome/Cairo names for the same. They are translated into
@@ -77,23 +345,51 @@ public:
            kFull_Hinting   -> <same as kNormalHinting, unless we are rendering
                               subpixel glyphs, in which case TARGET_LCD or
                               TARGET_LCD_V is used>
-    */
-    enum Hinting {
-        kNo_Hinting            = 0,
-        kSlight_Hinting        = 1,
-        kNormal_Hinting        = 2,     //!< this is the default
-        kFull_Hinting          = 3
-    };
 
-    Hinting getHinting() const {
-        return static_cast<Hinting>(fBitfields.fHinting);
-    }
+CAIRO_HINT_STYLE_NONE
 
-    void setHinting(Hinting hintingLevel);
+Do not hint outlines.
+
+ 
+CAIRO_HINT_STYLE_SLIGHT
+
+Hint outlines slightly to improve contrast while retaining good fidelity to the original shapes.
+
+ 
+CAIRO_HINT_STYLE_MEDIUM
+
+Hint outlines with medium strength giving a compromise between fidelity to the original
+ shapes and contrast.
+
+ 
+CAIRO_HINT_STYLE_FULL
+
+Hint outlines to maximize contrast.
+
+##Table
+#  kNo_Hinting      #   0   #             ##
+#  kSlight_Hinting  #   1   #             ##
+#  kNormal_Hinting  #   2   #   default   ##
+#  kFull_Hinting    #   3   #             ##
+##Table ##
+
+#ToDo incomplete ##
+
+##Enum ##
+
+##Method Hinting getHinting() const #getHinting
+
+##Method ##
+
+##Method Hinting setHinting(Hinting hintingLevel) const #setHinting
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Specifies the bit values that are stored in the paint's flags.
     */
-    enum Flags {
+##Enum Flags #Flags
         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
         kDither_Flag          = 0x04,   //!< mask to enable dithering
         kUnderlineText_Flag   = 0x08,   //!< mask to enable underline text
@@ -111,72 +407,138 @@ public:
         // with a bit-width and you'll have to expand it.
 
         kAllFlags = 0xFFFF
-    };
+##Enum ##
 
-    /** Return the paint's flags. Use the Flag enum to test flag values.
-        @return the paint's flags (see enums ending in _Flag for bit masks)
-    */
-    uint32_t getFlags() const { return fBitfields.fFlags; }
+--------------------------------------------------------------------------------
 
-    /** Set the paint's flags. Use the Flag enum to specific flag values.
-        @param flags    The new flag bits for the paint (see Flags enum)
-    */
-    void setFlags(uint32_t flags);
+##Method uint32_t getFlags() const #getFlags
 
-    /** Helper for getFlags(), returning true if kAntiAlias_Flag bit is set
-        @return true if the antialias bit is set in the paint's flags.
-        */
-    bool isAntiAlias() const {
-        return SkToBool(this->getFlags() & kAntiAlias_Flag);
-    }
+#Method returns paint settings described by #Enum #Flags. Each setting uses one
+bit, and can be tested with #Enum #Flags.
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setFlags(uint32_t flags) #setFlags
+
+#Method sets the paint's flags. Use #Enum #Flags to specify settings.
+#Parameter #flags is the union of #Enum #Flags for the paint.
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isAntiAlias() const #isAntiAlias
+
+#Method returns true if #antialiasing is enabled.
+It is identical to masking the result of #getFlags with #kAntiAlias_Flag.
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kAntiAlias_Flag bit
         @param aa   true to enable antialiasing, false to disable it
         */
-    void setAntiAlias(bool aa);
+##Method void setAntiAlias(bool aa) #setAntiAlias
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returning true if kDither_Flag bit is set
         @return true if the dithering bit is set in the paint's flags.
         */
-    bool isDither() const {
+##Method bool isDither() const #isDither
         return SkToBool(this->getFlags() & kDither_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kDither_Flag bit
         @param dither   true to enable dithering, false to disable it
         */
-    void setDither(bool dither);
+##Method void setDither(bool dither) #setDither
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
         @return true if the lineartext bit is set in the paint's flags
     */
-    bool isLinearText() const {
+##Method bool isLinearText() const #isLinearText
         return SkToBool(this->getFlags() & kLinearText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kLinearText_Flag bit
         @param linearText true to set the linearText bit in the paint's flags,
                           false to clear it.
     */
-    void setLinearText(bool linearText);
+##Method void setLinearText(bool linearText) #setLinearText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returning true if kSubpixelText_Flag bit is set
         @return true if the lineartext bit is set in the paint's flags
     */
-    bool isSubpixelText() const {
+##Method bool isSubpixelText() const #isSubpixelText
         return SkToBool(this->getFlags() & kSubpixelText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /**
      *  Helper for setFlags(), setting or clearing the kSubpixelText_Flag.
      *  @param subpixelText true to set the subpixelText bit in the paint's
      *                      flags, false to clear it.
      */
-    void setSubpixelText(bool subpixelText);
+##Method void setSubpixelText(bool subpixelText) #setSubpixelText
 
-    bool isLCDRenderText() const {
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isLCDRenderText() const #isLCDRenderText
         return SkToBool(this->getFlags() & kLCDRenderText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /**
      *  Helper for setFlags(), setting or clearing the kLCDRenderText_Flag.
@@ -184,32 +546,68 @@ public:
      *  @param lcdText true to set the LCDRenderText bit in the paint's flags,
      *                 false to clear it.
      */
-    void setLCDRenderText(bool lcdText);
+##Method void setLCDRenderText(bool lcdText) #setLCDRenderText
 
-    bool isEmbeddedBitmapText() const {
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isEmbeddedBitmapText() const #isEmbeddedBitmapText
         return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kEmbeddedBitmapText_Flag bit
         @param useEmbeddedBitmapText true to set the kEmbeddedBitmapText bit in the paint's flags,
                                      false to clear it.
     */
-    void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
+##Method void setEmbeddedBitmapText(bool useEmbeddedBitmapText) #setEmbeddedBitmapText
 
-    bool isAutohinted() const {
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isAutohinted() const {
         return SkToBool(this->getFlags() & kAutoHinting_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kAutoHinting_Flag bit
         @param useAutohinter true to set the kEmbeddedBitmapText bit in the
                                   paint's flags,
                              false to clear it.
     */
-    void setAutohinted(bool useAutohinter);
+##Method void setAutohinted(bool useAutohinter); #setAutohinted
 
-    bool isVerticalText() const {
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isVerticalText() const { #isVerticalText
         return SkToBool(this->getFlags() & kVerticalText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /**
      *  Helper for setting or clearing the kVerticalText_Flag bit in
@@ -219,73 +617,139 @@ public:
      *  X values, and drawText will places its glyphs vertically rather than
      *  horizontally.
      */
-    void setVerticalText(bool);
+##Method void setVerticalText(bool); #setVerticalText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
     */
-    bool isUnderlineText() const {
+##Method bool isUnderlineText() const { #isUnderlineText
         return SkToBool(this->getFlags() & kUnderlineText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kUnderlineText_Flag bit
         @param underlineText true to set the underlineText bit in the paint's
                              flags, false to clear it.
     */
-    void setUnderlineText(bool underlineText);
+##Method void setUnderlineText(bool underlineText); #setUnderlineText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
         @return true if the strikeThruText bit is set in the paint's flags.
     */
-    bool isStrikeThruText() const {
+##Method bool isStrikeThruText() const { #isStrikeThruText
         return SkToBool(this->getFlags() & kStrikeThruText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kStrikeThruText_Flag bit
         @param strikeThruText   true to set the strikeThruText bit in the
                                 paint's flags, false to clear it.
     */
-    void setStrikeThruText(bool strikeThruText);
+##Method void setStrikeThruText(bool strikeThruText); #setStrikeThruText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
     */
-    bool isFakeBoldText() const {
+##Method bool isFakeBoldText() const { #isFakeBoldText
         return SkToBool(this->getFlags() & kFakeBoldText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kFakeBoldText_Flag bit
         @param fakeBoldText true to set the kFakeBoldText_Flag bit in the paint's
                             flags, false to clear it.
     */
-    void setFakeBoldText(bool fakeBoldText);
+##Method void setFakeBoldText(bool fakeBoldText); #setFakeBoldText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for getFlags(), returns true if kDevKernText_Flag bit is set
         @return true if the kernText bit is set in the paint's flags.
     */
-    bool isDevKernText() const {
+##Method bool isDevKernText() const { #isDevKernText
         return SkToBool(this->getFlags() & kDevKernText_Flag);
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Helper for setFlags(), setting or clearing the kKernText_Flag bit
         @param kernText true to set the kKernText_Flag bit in the paint's
                             flags, false to clear it.
     */
-    void setDevKernText(bool devKernText);
+##Method void setDevKernText(bool devKernText); #setDevKernText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /**
      *  Return the filter level. This affects the quality (and performance) of
      *  drawing scaled images.
      */
-    SkFilterQuality getFilterQuality() const {
+##Method SkFilterQuality getFilterQuality() const { #getFilterQuality
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /**
      *  Set the filter quality. This affects the quality (and performance) of
      *  drawing scaled images.
      */
-    void setFilterQuality(SkFilterQuality quality);
+##Method void setFilterQuality(SkFilterQuality quality); #setFilterQuality
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
 
     /** Styles apply to rect, oval, path, and text.
         Bitmaps are always drawn in "fill", and lines are always drawn in
@@ -296,14 +760,19 @@ public:
         results may not appear the same as if it was drawn twice, filled and
         then stroked.
     */
-    enum Style {
+##Enum Style #Style
         kFill_Style,            //!< fill the geometry
         kStroke_Style,          //!< stroke the geometry
         kStrokeAndFill_Style,   //!< fill and stroke the geometry
-    };
     enum {
         kStyleCount = kStrokeAndFill_Style + 1
     };
+
+#ToDo incomplete ##
+
+##Enum ##
+
+--------------------------------------------------------------------------------
 
     /** Return the paint's style, used for controlling how primitives'
         geometries are interpreted (except for drawBitmap, which always assumes
@@ -399,27 +868,27 @@ public:
         The zero length contour draws the square cap without rotation, since
         the no direction can be inferred.
     */
-    enum Cap {
+##Enum Cap #Cap
         kButt_Cap,      //!< begin/end contours with no extension
         kRound_Cap,     //!< begin/end contours with a semi-circle extension
         kSquare_Cap,    //!< begin/end contours with a half square extension
 
         kLast_Cap = kSquare_Cap,
         kDefault_Cap = kButt_Cap
-    };
+##Enum ##
     static constexpr int kCapCount = kLast_Cap + 1;
 
     /** Join enum specifies the settings for the paint's strokejoin. This is
         the treatment that is applied to corners in paths and rectangles.
     */
-    enum Join {
+##Enum Join #Join
         kMiter_Join,    //!< connect path segments with a sharp join
         kRound_Join,    //!< connect path segments with a round join
         kBevel_Join,    //!< connect path segments with a flat bevel join
 
         kLast_Join = kBevel_Join,
         kDefault_Join = kMiter_Join
-    };
+##Enum ##
     static constexpr int kJoinCount = kLast_Join + 1;
 
     /** Return the paint's stroke cap type, controlling how the start and end
@@ -626,11 +1095,11 @@ public:
 
     void setLooper(sk_sp<SkDrawLooper>);
 
-    enum Align {
+##Enum Align #Align
         kLeft_Align,
         kCenter_Align,
         kRight_Align,
-    };
+##Enum ##
     enum {
         kAlignCount = 3
     };
@@ -684,12 +1153,12 @@ public:
     /** Describes how to interpret the text parameters that are passed to paint
         methods like measureText() and getTextWidths().
     */
-    enum TextEncoding {
+##Enum TextEncoding #TextEncoding
         kUTF8_TextEncoding,     //!< the text parameters are UTF8
         kUTF16_TextEncoding,    //!< the text parameters are UTF16
         kUTF32_TextEncoding,    //!< the text parameters are UTF32
         kGlyphID_TextEncoding   //!< the text parameters are glyph indices
-    };
+##Enum ##
 
     TextEncoding getTextEncoding() const {
       return (TextEncoding)fBitfields.fTextEncoding;
@@ -701,10 +1170,10 @@ public:
         /** Flags which indicate the confidence level of various metrics.
             A set flag indicates that the metric may be trusted.
         */
-        enum FontMetricsFlags {
+##Enum FontMetricsFlags #FontMetricsFlags
             kUnderlineThinknessIsValid_Flag = 1 << 0,
             kUnderlinePositionIsValid_Flag = 1 << 1,
-        };
+##Enum ##
 
         uint32_t    fFlags;       //!< Bit field to identify which values are unknown
         SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
@@ -1042,137 +1511,6 @@ public:
 
     SK_TO_STRING_NONVIRT()
 
-private:
-    sk_sp<SkTypeface>     fTypeface;
-    sk_sp<SkPathEffect>   fPathEffect;
-    sk_sp<SkShader>       fShader;
-    sk_sp<SkMaskFilter>   fMaskFilter;
-    sk_sp<SkColorFilter>  fColorFilter;
-    sk_sp<SkRasterizer>   fRasterizer;
-    sk_sp<SkDrawLooper>   fDrawLooper;
-    sk_sp<SkImageFilter>  fImageFilter;
+--------------------------------------------------------------------------------
 
-    SkScalar        fTextSize;
-    SkScalar        fTextScaleX;
-    SkScalar        fTextSkewX;
-    SkColor         fColor;
-    SkScalar        fWidth;
-    SkScalar        fMiterLimit;
-    uint32_t        fBlendMode; // just need 5-6 bits
-    union {
-        struct {
-            // all of these bitfields should add up to 32
-            unsigned        fFlags : 16;
-            unsigned        fTextAlign : 2;
-            unsigned        fCapType : 2;
-            unsigned        fJoinType : 2;
-            unsigned        fStyle : 2;
-            unsigned        fTextEncoding : 2;  // 3 values
-            unsigned        fHinting : 2;
-            unsigned        fFilterQuality : 2;
-            //unsigned      fFreeBits : 2;
-        } fBitfields;
-        uint32_t fBitfieldsUInt;
-    };
-
-    void flatten(class SkWriteBuffer&) const;
-    void unflatten(class SkReadBuffer&);
-
-    static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
-                                            bool isDevKern,
-                                            bool needFullMetrics);
-
-    SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
-                          int* count, SkRect* bounds) const;
-
-    enum ScalerContextFlags : uint32_t {
-        kNone_ScalerContextFlags = 0,
-
-        kFakeGamma_ScalerContextFlag = 1 << 0,
-        kBoostContrast_ScalerContextFlag = 1 << 1,
-
-        kFakeGammaAndBoostContrast_ScalerContextFlags =
-            kFakeGamma_ScalerContextFlag | kBoostContrast_ScalerContextFlag,
-    };
-
-    /*
-     * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
-     * SkData.  Caller is responsible for managing the lifetime of this object.
-     */
-    void getScalerContextDescriptor(SkScalerContextEffects*, SkAutoDescriptor*,
-                                    const SkSurfaceProps& surfaceProps,
-                                    uint32_t scalerContextFlags, const SkMatrix*) const;
-
-    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
-                              const SkMatrix*) const;
-
-    void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
-                        const SkMatrix* deviceMatrix,
-                        void (*proc)(SkTypeface*, const SkScalerContextEffects&,
-                                     const SkDescriptor*, void*),
-                        void* context) const;
-
-    /*
-     * The luminance color is used to determine which Gamma Canonical color to map to.  This is
-     * really only used by backends which want to cache glyph masks, and need some way to know if
-     * they need to generate new masks based off a given color.
-     */
-    SkColor computeLuminanceColor() const;
-
-    enum {
-        /*  This is the size we use when we ask for a glyph's path. We then
-         *  post-transform it as we draw to match the request.
-         *  This is done to try to re-use cache entries for the path.
-         *
-         *  This value is somewhat arbitrary. In theory, it could be 1, since
-         *  we store paths as floats. However, we get the path from the font
-         *  scaler, and it may represent its paths as fixed-point (or 26.6),
-         *  so we shouldn't ask for something too big (might overflow 16.16)
-         *  or too small (underflow 26.6).
-         *
-         *  This value could track kMaxSizeForGlyphCache, assuming the above
-         *  constraints, but since we ask for unhinted paths, the two values
-         *  need not match per-se.
-         */
-        kCanonicalTextSizeForPaths  = 64,
-
-        /*
-         *  Above this size (taking into account CTM and textSize), we never use
-         *  the cache for bits or metrics (we might overflow), so we just ask
-         *  for a caononical size and post-transform that.
-         */
-        kMaxSizeForGlyphCache       = 256,
-    };
-
-    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM);
-
-    // Set flags/hinting/textSize up to use for drawing text as paths.
-    // Returns scale factor to restore the original textSize, since will will
-    // have change it to kCanonicalTextSizeForPaths.
-    SkScalar setupForAsPaths();
-
-    static SkScalar MaxCacheSize2() {
-        static const SkScalar kMaxSize = SkIntToScalar(kMaxSizeForGlyphCache);
-        static const SkScalar kMag2Max = kMaxSize * kMaxSize;
-        return kMag2Max;
-    }
-
-    friend class SkAutoGlyphCache;
-    friend class SkAutoGlyphCacheNoGamma;
-    friend class SkBinaryWriteBuffer;
-    friend class SkCanvas;
-    friend class SkDraw;
-    friend class SkPDFDevice;
-    friend class SkReadBuffer;
-    friend class GrAtlasTextBlob;
-    friend class GrAtlasTextContext;
-    friend class GrStencilAndCoverTextContext;
-    friend class GrPathRendering;
-    friend class GrTextUtils;
-    friend class GrGLPathRendering;
-    friend class SkScalerContext;
-    friend class SkTextBaseIter;
-    friend class SkCanonicalizePaint;
-};
-
-#endif
+##Class #SkPaint ##
