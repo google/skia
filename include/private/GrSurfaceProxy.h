@@ -169,13 +169,12 @@ class GrSurfaceProxy : public GrIORefProxy {
 public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
 
-    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
+    static sk_sp<GrSurfaceProxy> MakeDeferred(GrContext*, const GrSurfaceDesc&,
                                               SkBackingFit, SkBudgeted);
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, GrTextureProvider*,
-                                              const GrSurfaceDesc&, SkBudgeted,
+    static sk_sp<GrSurfaceProxy> MakeDeferred(GrContext*, const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
     static sk_sp<GrSurfaceProxy> MakeWrappedBackend(

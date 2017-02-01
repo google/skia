@@ -312,9 +312,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
-                                                             context->textureProvider(),
-                                                             desc, SkBudgeted::kNo,
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(context, desc, SkBudgeted::kNo,
                                                              bm.getPixels(), 0));
     if (!proxy) {
         return;

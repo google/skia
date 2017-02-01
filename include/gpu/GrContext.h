@@ -413,6 +413,7 @@ private:
     const uint32_t                          fUniqueID;
 
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
+    GrBackend                               fBackend;
 
     GrAuditTrail                            fAuditTrail;
 
