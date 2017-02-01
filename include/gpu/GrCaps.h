@@ -30,7 +30,7 @@ public:
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
-    bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
+    bool npotTextureTileSupport() const { return false; } //return fNPOTTextureTileSupport; }
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
     bool mipMapSupport() const { return fMipMapSupport; }

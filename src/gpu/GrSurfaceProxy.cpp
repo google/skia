@@ -136,9 +136,16 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted) {
     // TODO: share this testing code with check_texture_creation_params
-    if (SkBackingFit::kApprox == fit && GrPixelConfigIsCompressed(desc.fConfig)) {
-        // we don't allow scratch compressed textures
-        return nullptr;
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        if (SkBackingFit::kApprox == fit || kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
+            // We don't allow scratch compressed textures and, apparently can't Y-flip compressed
+            // textures
+            return nullptr;
+        }
+
+        if (!caps.npotTextureTileSupport() && (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
+            return nullptr;
+        }
     }
 
     if (!caps.isConfigTexturable(desc.fConfig)) {
@@ -166,13 +173,16 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
         return nullptr;
     }
 
+    GrSurfaceDesc copyDesc = desc;
+    copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps.maxSampleCount());
+
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, desc, fit, budgeted));
+        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, copyDesc, fit, budgeted));
     }
 
-    return sk_sp<GrSurfaceProxy>(new GrTextureProxy(desc, fit, budgeted, nullptr, 0));
+    return sk_sp<GrSurfaceProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0));
 }
 
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
