@@ -10,9 +10,12 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -26,9 +29,6 @@ const (
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
 
-	// Pool for Skia bots.
-	POOL_SKIA = "Skia"
-
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
 )
@@ -36,294 +36,43 @@ const (
 var (
 	// "Constants"
 
-	// Top-level list of all jobs to run at each commit.
-	JOBS = []string{
-		"Build-Mac-Clang-Arm7-Debug-iOS",
-		"Build-Mac-Clang-Arm7-Release-iOS",
-		"Build-Mac-Clang-arm-Debug-GN_iOS",
-		"Build-Mac-Clang-arm-Release-GN_iOS",
-		"Build-Mac-Clang-arm64-Debug-Android",
-		"Build-Mac-Clang-arm64-Debug-GN_iOS",
-		"Build-Mac-Clang-arm64-Release-GN_iOS",
-		"Build-Mac-Clang-x86_64-Debug",
-		"Build-Mac-Clang-x86_64-Debug-CommandBuffer",
-		"Build-Mac-Clang-x86_64-Release",
-		"Build-Mac-Clang-x86_64-Release-CommandBuffer",
-		"Build-Ubuntu-Clang-arm-Debug-Android",
-		"Build-Ubuntu-Clang-arm-Release-Android",
-		"Build-Ubuntu-Clang-arm64-Debug-Android",
-		"Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs",
-		"Build-Ubuntu-Clang-arm64-Debug-Android_Vulkan",
-		"Build-Ubuntu-Clang-arm64-Release-Android",
-		"Build-Ubuntu-Clang-arm64-Release-Android_Vulkan",
-		"Build-Ubuntu-Clang-mips64el-Debug-Android",
-		"Build-Ubuntu-Clang-mips64el-Release-Android",
-		"Build-Ubuntu-Clang-mipsel-Debug-Android",
-		"Build-Ubuntu-Clang-mipsel-Release-Android",
-		"Build-Ubuntu-Clang-x64-Debug-Android",
-		"Build-Ubuntu-Clang-x64-Release-Android",
-		"Build-Ubuntu-Clang-x86-Debug-Android",
-		"Build-Ubuntu-Clang-x86-Debug-Android_Vulkan",
-		"Build-Ubuntu-Clang-x86-Release-Android",
-		"Build-Ubuntu-Clang-x86-Release-Android_Vulkan",
-		"Build-Ubuntu-Clang-x86_64-Debug",
-		"Build-Ubuntu-Clang-x86_64-Debug-ASAN",
-		"Build-Ubuntu-Clang-x86_64-Debug-MSAN",
-		"Build-Ubuntu-Clang-x86_64-Debug-Vulkan",
-		"Build-Ubuntu-Clang-x86_64-Release",
-		"Build-Ubuntu-Clang-x86_64-Release-ASAN",
-		"Build-Ubuntu-Clang-x86_64-Release-Fast",
-		"Build-Ubuntu-Clang-x86_64-Release-TSAN",
-		"Build-Ubuntu-Clang-x86_64-Release-Vulkan",
-		"Build-Ubuntu-GCC-x86-Debug",
-		"Build-Ubuntu-GCC-x86-Release",
-		"Build-Ubuntu-GCC-x86_64-Debug",
-		"Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
-		"Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
-		"Build-Ubuntu-GCC-x86_64-Release",
-		"Build-Ubuntu-GCC-x86_64-Release-ANGLE",
-		"Build-Ubuntu-GCC-x86_64-Release-Mesa",
-		"Build-Ubuntu-GCC-x86_64-Release-NoGPU",
-		"Build-Ubuntu-GCC-x86_64-Release-PDFium",
-		"Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths",
-		"Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
-		"Build-Ubuntu-GCC-x86_64-Release-Shared",
-		"Build-Ubuntu-GCC-x86_64-Release-Valgrind",
-		"Build-Win-Clang-arm64-Release-Android",
-		"Build-Win-MSVC-x86-Debug",
-		"Build-Win-MSVC-x86-Debug-ANGLE",
-		"Build-Win-MSVC-x86-Debug-Exceptions",
-		"Build-Win-MSVC-x86-Debug-GDI",
-		"Build-Win-MSVC-x86-Release",
-		"Build-Win-MSVC-x86-Release-ANGLE",
-		"Build-Win-MSVC-x86-Release-GDI",
-		"Build-Win-MSVC-x86_64-Debug",
-		"Build-Win-MSVC-x86_64-Debug-ANGLE",
-		"Build-Win-MSVC-x86_64-Debug-GDI",
-		"Build-Win-MSVC-x86_64-Debug-Vulkan",
-		"Build-Win-MSVC-x86_64-Release",
-		"Build-Win-MSVC-x86_64-Release-ANGLE",
-		"Build-Win-MSVC-x86_64-Release-GDI",
-		"Build-Win-MSVC-x86_64-Release-Vulkan",
-		"Housekeeper-Nightly-RecreateSKPs_Canary",
-		"Housekeeper-PerCommit",
-		"Housekeeper-PerCommit-InfraTests",
-		"Housekeeper-Weekly-RecreateSKPs",
-		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
-		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
-		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
-		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
-		"Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android",
-		"Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android_Vulkan",
-		"Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
-		"Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android_Vulkan",
-		"Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
-		"Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
-		"Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
-		"Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
-		"Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
-		"Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
-		"Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
-		"Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
-		"Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
-		"Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
-		"Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
-		"Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
-		"Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
-		"Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
-		"Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
-		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
-		// "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
-		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
-		// "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
-		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android",
-		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android_Vulkan",
-		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android",
-		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-Android_Vulkan",
-		"Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
-		"Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
-		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
-		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Vulkan_Skpbench",
-		"Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug",
-		"Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release",
-		"Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
-		"Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
-		"Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
-		"Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
-		"Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
-		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
-		"Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
-		"Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
-		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
-		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
-		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
-		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
-		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
-		"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
-		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
-		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
-		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
-		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
-		"Perf-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
-		"Perf-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
-		"Perf-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-		"Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
-		"Perf-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
-		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
-		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
-		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-		"Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
-		"Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
-		"Perf-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
-		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
-		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
-		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
-		"Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
-		"Perf-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
-		"Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
-		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
-		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
-		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
-		"Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
-		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
-		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
-		"Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
-		"Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
-		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
-		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
-		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android",
-		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-Android_Vulkan",
-		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android",
-		"Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-Android_Vulkan",
-		"Test-Android-Clang-GalaxyTab3-GPU-Vivante-arm-Debug-Android",
-		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android",
-		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan",
-		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android",
-		"Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-Android_Vulkan",
-		"Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-Android",
-		"Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android",
-		"Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android",
-		"Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android",
-		"Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
-		"Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
-		"Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
-		"Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
-		"Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android",
-		"Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android",
-		"Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android",
-		"Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android",
-		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android",
-		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android_Vulkan",
-		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android",
-		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan",
-		"Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android",
-		"Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android",
-		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
-		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan",
-		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android",
-		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-Android_Vulkan",
-		"Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug",
-		"Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release",
-		"Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug",
-		"Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release",
-		"Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug",
-		"Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
-		"Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
-		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
-		"Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
-		"Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
-		"Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
-		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
-		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
-		"Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug",
-		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release",
-		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
-		"Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
-		"Test-Win10-MSVC-Golo-GPU-GT610-x86_64-Release",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-ANGLE",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
-		"Test-Win10-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
-		"Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Debug",
-		"Test-Win10-MSVC-ShuttleA-GPU-AMDHD7770-x86_64-Release",
-		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
-		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
-		"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-		"Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Debug",
-		"Test-Win10-MSVC-ShuttleB-GPU-IntelHD4600-x86_64-Release",
-		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug",
-		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE",
-		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release",
-		"Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Debug",
-		"Test-Win10-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE",
-		"Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
-		"Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
-		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
-		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
+	// Top-level list of all jobs to run at each commit; loaded from
+	// jobs.json.
+	JOBS []string
+
+	// Mapping of human-friendly Android device names to a pair of {device_type, device_os}.
+	ANDROID_MAPPING map[string][]string
+
+	// General configuration information.
+	CONFIG struct {
+		NoUpload []string `json:"no_upload"`
+		Pool     string   `json:"pool"`
 	}
 
-	// LINUX_GCE_DIMENSIONS are the Swarming dimensions for Linux GCE
-	// instances.
-	LINUX_GCE_DIMENSIONS = []string{
-		"cpu:x86-64-avx2",
-		"gpu:none",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
-		fmt.Sprintf("pool:%s", POOL_SKIA),
-	}
+	// Mapping of human-friendly GPU names to PCI IDs.
+	GPU_MAPPING map[string]string
 
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
+
+	// Flags.
+	androidMapFile = flag.String("android_map", "", "JSON file containing a mapping of human-friendly Android device names to a pair of {device_type, device_os}.")
+	assetsDir      = flag.String("assets_dir", "", "Directory containing assets.")
+	cfgFile        = flag.String("cfg_file", "", "JSON file containing general configuration information.")
+	gpuMapFile     = flag.String("gpu_map", "", "JSON file containing a mapping of human-friendly GPU names to PCI IDs.")
+	jobsFile       = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
+
+// linuxGceDimensions are the Swarming dimensions for Linux GCE
+// instances.
+func linuxGceDimensions() []string {
+	return []string{
+		"cpu:x86-64-avx2",
+		"gpu:none",
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
+		fmt.Sprintf("pool:%s", CONFIG.Pool),
+	}
+}
 
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
@@ -370,7 +119,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 // swarmDimensions generates swarming bot dimensions for the given task.
 func swarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
-		"pool": POOL_SKIA,
+		"pool": CONFIG.Pool,
 	}
 	if os, ok := parts["os"]; ok {
 		d["os"] = map[string]string{
@@ -395,22 +144,10 @@ func swarmDimensions(parts map[string]string) []string {
 		if strings.Contains(parts["os"], "Android") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
-			deviceInfo := map[string][]string{
-				"AndroidOne":    {"sprout", "MOB30Q"},
-				"GalaxyS7":      {"heroqlteatt", "MMB29M"},
-				"GalaxyTab3":    {"goyawifi", "JDQ39"},
-				"NVIDIA_Shield": {"foster", "MRA58K"},
-				"Nexus10":       {"manta", "LMY49J"},
-				"Nexus5":        {"hammerhead", "M4B30Z"},
-				"Nexus6":        {"shamu", "M"},
-				"Nexus6p":       {"angler", "NMF26C"},
-				"Nexus7":        {"grouper", "LMY47V"},
-				"Nexus7v2":      {"flo", "M"},
-				"NexusPlayer":   {"fugu", "N2G10B"},
-				"Pixel":         {"sailfish", "NMF26Q"},
-				"PixelC":        {"dragon", "NMF26H"},
-				"PixelXL":       {"marlin", "NMF26Q"},
-			}[parts["model"]]
+			deviceInfo, ok := ANDROID_MAPPING[parts["model"]]
+			if !ok {
+				glog.Fatalf("Entry %q not found in Android mapping: %v", parts["model"], ANDROID_MAPPING)
+			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
 		} else if strings.Contains(parts["os"], "iOS") {
@@ -432,24 +169,11 @@ func swarmDimensions(parts map[string]string) []string {
 				d["os"] = "Windows-2008ServerR2-SP1"
 			}
 		} else {
-			d["gpu"] = map[string]string{
-				"AMDHD7770":   "1002:683d",
-				"GeForce320M": "10de:08a4",
-				"GT610":       "10de:104a",
-				"GTX1070":     "10de:1ba1",
-				"GTX550Ti":    "10de:1244",
-				"GTX660":      "10de:11c0",
-				"GTX960":      "10de:1401",
-				// TODO(benjaminwagner): This device ID doesn't
-				// match HD4000.
-				"HD4000": "8086:0a2e",
-				// This bot will eventually go away, so I'm not
-				// going to bother renaming it.
-				"iHD530":        "8086:1912",
-				"IntelHD4600":   "8086:0412",
-				"IntelIris540":  "8086:1926",
-				"IntelIris6100": "8086:162b",
-			}[parts["cpu_or_gpu_value"]]
+			gpu, ok := GPU_MAPPING[parts["cpu_or_gpu_value"]]
+			if !ok {
+				glog.Fatalf("Entry %q not found in GPU mapping: %v", parts["cpu_or_gpu_value"], GPU_MAPPING)
+			}
+			d["gpu"] = gpu
 		}
 	} else {
 		d["gpu"] = "none"
@@ -528,7 +252,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages:     []*specs.CipdPackage{},
-		Dimensions:       LINUX_GCE_DIMENSIONS,
+		Dimensions:       linuxGceDimensions(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_RecreateSKPs",
@@ -585,7 +309,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dependencies: []string{compileTaskName},
-		Dimensions:   LINUX_GCE_DIMENSIONS,
+		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -611,7 +335,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   LINUX_GCE_DIMENSIONS,
+		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -634,16 +358,12 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 
 // doUpload indicates whether the given Job should upload its results.
 func doUpload(name string) bool {
-	skipUploadBots := []string{
-		"ASAN",
-		"Coverage",
-		"MSAN",
-		"TSAN",
-		"UBSAN",
-		"Valgrind",
-	}
-	for _, s := range skipUploadBots {
-		if strings.Contains(name, s) {
+	for _, s := range CONFIG.NoUpload {
+		m, err := regexp.MatchString(s, name)
+		if err != nil {
+			glog.Fatal(err)
+		}
+		if m {
 			return false
 		}
 	}
@@ -691,7 +411,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   LINUX_GCE_DIMENSIONS,
+			Dimensions:   linuxGceDimensions(),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_dm_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -761,7 +481,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
-			Dimensions:   LINUX_GCE_DIMENSIONS,
+			Dimensions:   linuxGceDimensions(),
 			ExtraArgs: []string{
 				"--workdir", "../../..", "upload_nano_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -875,9 +595,37 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	b.MustAddJob(name, j)
 }
 
+func loadJson(flag *string, defaultFlag string, val interface{}) {
+	if *flag == "" {
+		*flag = defaultFlag
+	}
+	b, err := ioutil.ReadFile(*flag)
+	if err != nil {
+		glog.Fatal(err)
+	}
+	if err := json.Unmarshal(b, val); err != nil {
+		glog.Fatal(err)
+	}
+}
+
 // Regenerate the tasks.json file.
 func main() {
 	b := specs.MustNewTasksCfgBuilder()
+	b.SetAssetsDir(*assetsDir)
+	infraBots := path.Join(b.CheckoutRoot(), "infra", "bots")
+
+	// Load the jobs from a JSON file.
+	loadJson(jobsFile, path.Join(infraBots, "jobs.json"), &JOBS)
+
+	// Load the GPU mapping from a JSON file.
+	loadJson(gpuMapFile, path.Join(infraBots, "gpu_map.json"), &GPU_MAPPING)
+
+	// Load the Android device mapping from a JSON file.
+	loadJson(androidMapFile, path.Join(infraBots, "android_map.json"), &ANDROID_MAPPING)
+
+	// Load general config information from a JSON file.
+	loadJson(cfgFile, path.Join(infraBots, "cfg.json"), &CONFIG)
+
 	// Create the JobNameSchema.
 	schema, err := NewJobNameSchema(path.Join(b.CheckoutRoot(), "infra", "bots", ".recipe_deps", "skia-recipes", "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
 	if err != nil {
