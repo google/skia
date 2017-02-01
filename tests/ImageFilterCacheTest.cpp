@@ -6,6 +6,7 @@
   */
 
 #include "Test.h"
+#include "TestUtils.h"
 
 #include "SkBitmap.h"
 #include "SkImage.h"
@@ -216,15 +217,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     GrSurfaceOrigin readBackOrigin;
     GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
     // TODO: Make it so we can check this (see skbug.com/5019)
-#if 0
-    if (readBackHandle != backendDesc.fTextureHandle) {
+    if (!CompareBackendObjects(readBackHandle, backendDesc.fTextureHandle)) {
         ERRORF(reporter, "backend mismatch %d %d\n",
                        (int)readBackHandle, (int)backendDesc.fTextureHandle);
     }
-    REPORTER_ASSERT(reporter, readBackHandle == backendDesc.fTextureHandle);
-#else
-    REPORTER_ASSERT(reporter, SkToBool(readBackHandle));
-#endif
+    REPORTER_ASSERT(reporter, CompareBackendObjects(readBackHandle, backendDesc.fTextureHandle));
+
     if (readBackOrigin != backendDesc.fOrigin) {
         ERRORF(reporter, "origin mismatch %d %d\n", readBackOrigin, backendDesc.fOrigin);
     }

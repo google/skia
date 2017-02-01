@@ -464,7 +464,18 @@ enum GrSurfaceFlags {
 GR_MAKE_BITFIELD_OPS(GrSurfaceFlags)
 
 // opaque type for 3D API object handles
-typedef intptr_t GrBackendObject;
+struct GrBackendInfo {
+public:
+    GrBackend backend() const { return fBackend; }
+
+protected:
+    GrBackendInfo(GrBackend backend) : fBackend(backend) {}
+
+private:
+    GrBackend fBackend;
+};
+
+typedef GrBackendInfo* GrBackendObject;
 
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the

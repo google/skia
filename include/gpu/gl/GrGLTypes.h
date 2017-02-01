@@ -107,9 +107,26 @@ typedef unsigned int GrEGLBoolean;
  * textures are really const GrGLTexture*
  */
 
-struct GrGLTextureInfo {
+struct GrGLTextureInfo : public GrBackendInfo {
+    GrGLTextureInfo() : INHERITED(kOpenGL_GrBackend) {}
+
     GrGLenum fTarget;
     GrGLuint fID;
+
+    static const GrGLTextureInfo* IsA(const GrBackendInfo *info) {
+        if (info->backend() == kOpenGL_GrBackend) {
+            return (GrGLTextureInfo*) info;
+        }
+
+        return nullptr;
+    }
+
+    bool operator==(const GrGLTextureInfo& other) const {
+        return fTarget == other.fTarget && fID == other.fID;
+    }
+
+private:
+    typedef GrBackendInfo INHERITED;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

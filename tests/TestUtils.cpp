@@ -12,6 +12,9 @@
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
 
+#include "vk/GrVkTypes.h"
+#include "gl/GrGLTypes.h"
+
 void test_read_pixels(skiatest::Reporter* reporter, GrContext* context,
                       GrSurfaceContext* srcContext, uint32_t expectedPixelValues[],
                       const char* testName) {
@@ -116,4 +119,29 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
+bool CompareBackendObjects(const GrBackendObject obj1, const GrBackendObject obj2) {
+    if (obj1 == obj2) {
+        return true;
+    }
+
+    {
+        const GrVkImageInfo* vk1 = GrVkImageInfo::IsA((const GrBackendInfo*) obj1);
+        const GrVkImageInfo* vk2 = GrVkImageInfo::IsA((const GrBackendInfo*) obj2);
+
+        if (SkToBool(vk1) && SkToBool(vk2)) {
+            return *vk1 == *vk2;
+        }
+    }
+
+    {
+        const GrGLTextureInfo* gl1 = GrGLTextureInfo::IsA((const GrBackendInfo*) obj1);
+        const GrGLTextureInfo* gl2 = GrGLTextureInfo::IsA((const GrBackendInfo*) obj2);
+
+        if (SkToBool(gl1) && SkToBool(gl2)) {
+            return *gl1 == *gl2;
+        }
+    }
+
+    return false;
+}
 #endif

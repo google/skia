@@ -31,4 +31,7 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
 // Ensure that RGBA 8888 pixels can be copied into 'dstContext'
 void test_copy_to_surface(skiatest::Reporter* reporter, GrContext* context,
                           GrSurfaceContext* dstContext, const char* testName);
+
+bool CompareBackendObjects(const GrBackendObject obj1, const GrBackendObject obj2);
+
 #endif

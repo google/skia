@@ -31,6 +31,11 @@
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
+    bool operator==(const GrVkAlloc& other) const {
+        return fMemory == other.fMemory && fOffset == other.fOffset &&
+               fSize == other.fSize && fFlags == other.fFlags;
+    }
+
     VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
     VkDeviceSize   fOffset;
     VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
@@ -41,7 +46,8 @@ struct GrVkAlloc {
     };
 };
 
-struct GrVkImageInfo {
+struct GrVkImageInfo : public GrBackendInfo {
+    GrVkImageInfo() : INHERITED(kVulkan_GrBackend) {}
     /**
      * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
      * been created with VkImageCreateFlags containing VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT.
@@ -57,6 +63,23 @@ struct GrVkImageInfo {
     // while we're still holding onto the wrapped texture. They will first need to get a handle
     // to our internal GrVkImageInfo by calling getTextureHandle on a GrVkTexture.
     void updateImageLayout(VkImageLayout layout) { fImageLayout = layout; }
+
+    static const GrVkImageInfo* IsA(const GrBackendInfo* info) {
+        if (info->backend() == kVulkan_GrBackend) {
+            return (const GrVkImageInfo*) info;
+        }
+
+        return nullptr;
+    }
+
+    bool operator==(const GrVkImageInfo& other) const {
+        return fImage == other.fImage && fAlloc == other.fAlloc &&
+               fImageTiling == other.fImageTiling && fImageLayout == other.fImageLayout &&
+               fFormat == other.fFormat && fLevelCount == other.fLevelCount;
+    }
+
+private:
+    typedef GrBackendInfo INHERITED;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrVkImageInfo*));
