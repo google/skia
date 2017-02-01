@@ -364,6 +364,13 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
                     kOpaque_SkAlphaType != decodeInfo->alphaType()) {
                 return false;
             }
+
+            if (kRGBA_F16_SkColorType == canvasColorType) {
+                sk_sp<SkColorSpace> linearSpace =
+                        as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
+                *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
+            }
+
             *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
