@@ -33,6 +33,23 @@
       "revId": "62fd71ba57fbec3dbb1581695dc8dfe0749badb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "500658a9_d8020957",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-01T19:00:23Z",
+      "side": 1,
+      "message": "Yeah it should mean for \"skia on vulkan\", same with renderable.\n\nFor GL we sometimes attach configs to FBOs that we don\u0027t normally consider \"renderable\" in the \"can you make a GrRenderTarget\" sense. GrGLCaps tracks \"FBO bindable\" as a superset of \"renderable\" configs for this reason.",
+      "revId": "62fd71ba57fbec3dbb1581695dc8dfe0749badb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
