@@ -454,7 +454,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
 
     fClipPolygon.setReserve(path.countPoints());
     this->computeClipBounds(path);
-    fCentroid *= scale;
+    // We are going to apply 'scale' and 'xlate' (in that order) to each computed path point. We
+    // want the effect to be to scale the points relative to the path centroid and then translate
+    // them by the 'translate' param we were passed.
+    SkVector xlate = fCentroid * (1.f - scale) + translate;
+    // Also translate the centroid by the global translate.
     fCentroid += translate;
 
     // walk around the path, tessellate and generate inner and outer rings
@@ -466,16 +470,16 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                this->handleLine(scale, translate, pts[1]);
+                this->handleLine(scale, xlate, pts[1]);
                 break;
             case SkPath::kQuad_Verb:
-                this->handleQuad(scale, translate, pts);
+                this->handleQuad(scale, xlate, pts);
                 break;
             case SkPath::kCubic_Verb:
-                this->handleCubic(scale, translate, pts);
+                this->handleCubic(scale, xlate, pts);
                 break;
             case SkPath::kConic_Verb:
-                this->handleConic(scale, translate, pts, iter.conicWeight());
+                this->handleConic(scale, xlate, pts, iter.conicWeight());
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
