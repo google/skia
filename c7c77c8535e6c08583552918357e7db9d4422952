@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2a2a1e8_3f06cc3b",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-01T17:06:19Z",
+      "side": 1,
+      "message": "Couldn\u0027t you just transform \u0027center\u0027 by the viewMatrix and compute the offset in device space? Then you don\u0027t need to compute the inverse matrix.",
+      "range": {
+        "startLine": 348,
+        "startChar": 8,
+        "endLine": 348,
+        "endChar": 74
+      },
+      "revId": "c7c77c8535e6c08583552918357e7db9d4422952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
