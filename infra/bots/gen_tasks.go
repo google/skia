@@ -377,7 +377,7 @@ func swarmDimensions(parts map[string]string) []string {
 			"Android":  "Android",
 			"Mac":      "Mac-10.11",
 			"Ubuntu":   DEFAULT_OS_LINUX,
-			"Ubuntu16": "Ubuntu-16.04",
+			"Ubuntu16": "Ubuntu-16.10",
 			"Win":      "Windows-2008ServerR2-SP1",
 			"Win10":    "Windows-10-14393",
 			"Win2k8":   "Windows-2008ServerR2-SP1",
