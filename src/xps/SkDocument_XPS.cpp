@@ -17,7 +17,9 @@ public:
     SkDocument_XPS(SkWStream* stream,
                    void (*doneProc)(SkWStream*, bool),
                    SkScalar dpi)
-        : SkDocument(stream, doneProc) {
+        : SkDocument(stream, doneProc)
+        , fDevice(SkISize{10000, 10000})
+    {
         const SkScalar kPointsPerMeter = SkDoubleToScalar(360000.0 / 127.0);
         fUnitsPerMeter.set(kPointsPerMeter, kPointsPerMeter);
         SkScalar pixelsPerMeterScale = SkDoubleToScalar(dpi * 5000.0 / 127.0);

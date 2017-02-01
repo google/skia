@@ -35,12 +35,12 @@
 
     The drawing context for the XPS backend.
 */
-class SkXPSDevice : public SkBitmapDevice {
+class SkXPSDevice : public SkBaseDevice {
 public:
-    SK_API SkXPSDevice();
+    SK_API SkXPSDevice(SkISize);
     SK_API virtual ~SkXPSDevice();
 
-    virtual bool beginPortfolio(SkWStream* outputStream);
+    bool beginPortfolio(SkWStream* outputStream);
     /**
       @param unitsPerMeter converts geometry units into physical units.
       @param pixelsPerMeter resolution to use when geometry must be rasterized.
@@ -60,7 +60,7 @@ public:
                      Must be contained within the mediaBox.
                      The default is to coincide with the mediaBox.
      */
-    virtual bool beginSheet(
+    bool beginSheet(
         const SkVector& unitsPerMeter,
         const SkVector& pixelsPerMeter,
         const SkSize& trimSize,
@@ -69,60 +69,60 @@ public:
         const SkRect* artBox = NULL,
         const SkRect* cropBox = NULL);
 
-    virtual bool endSheet();
-    virtual bool endPortfolio();
+    bool endSheet();
+    bool endPortfolio();
 
 protected:
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
 
-    virtual void drawPoints(
+    void drawPoints(
         const SkDraw&,
         SkCanvas::PointMode mode,
         size_t count, const SkPoint[],
         const SkPaint& paint) override;
 
-    virtual void drawRect(
+    void drawRect(
         const SkDraw&,
         const SkRect& r,
         const SkPaint& paint) override;
 
-    virtual void drawRRect(
+    void drawRRect(
         const SkDraw&,
         const SkRRect&,
         const SkPaint& paint) override;
 
-    virtual void drawPath(
+    void drawPath(
         const SkDraw&,
         const SkPath& platonicPath,
         const SkPaint& paint,
         const SkMatrix* prePathMatrix,
         bool pathIsMutable) override;
 
-    virtual void drawBitmap(
+    void drawBitmap(
         const SkDraw&,
         const SkBitmap& bitmap,
         const SkMatrix& matrix,
         const SkPaint& paint) override;
 
-    virtual void drawSprite(
+    void drawSprite(
         const SkDraw&,
         const SkBitmap& bitmap,
         int x, int y,
         const SkPaint& paint) override;
 
-    virtual void drawText(
+    void drawText(
         const SkDraw&,
         const void* text, size_t len,
         SkScalar x, SkScalar y,
         const SkPaint& paint) override;
 
-    virtual void drawPosText(
+    void drawPosText(
         const SkDraw&,
         const void* text, size_t len,
         const SkScalar pos[], int scalarsPerPos,
         const SkPoint& offset, const SkPaint& paint) override;
 
-    virtual void drawVertices(
+    void drawVertices(
         const SkDraw&,
         SkCanvas::VertexMode,
         int vertexCount, const SkPoint verts[],
@@ -131,11 +131,21 @@ protected:
         const uint16_t indices[], int indexCount,
         const SkPaint& paint) override;
 
-    virtual void drawDevice(
+    void drawDevice(
         const SkDraw&,
         SkBaseDevice* device,
         int x, int y,
         const SkPaint& paint) override;
+
+    void drawOval(const SkDraw&, const SkRect&, const SkPaint&) override;
+
+    void drawBitmapRect(const SkDraw&,
+                        const SkBitmap&,
+                        const SkRect*,
+                        const SkRect&,
+                        const SkPaint&,
+                        SkCanvas::SrcRectConstraint) override;
+
 
 private:
     class TypefaceUse : ::SkNoncopyable {
@@ -151,7 +161,7 @@ private:
     };
     friend HRESULT subset_typeface(TypefaceUse* current);
 
-    SkXPSDevice(IXpsOMObjectFactory* xpsFactory);
+    SkXPSDevice(SkISize, IXpsOMObjectFactory*);
 
     SkAutoCoInitialize fAutoCo;
     SkTScopedComPtr<IXpsOMObjectFactory> fXpsFactory;
@@ -317,7 +327,7 @@ private:
     SkXPSDevice(const SkXPSDevice&);
     void operator=(const SkXPSDevice&);
 
-    typedef SkBitmapDevice INHERITED;
+    typedef SkBaseDevice INHERITED;
 };
 
 #endif  // SK_BUILD_FOR_WIN
