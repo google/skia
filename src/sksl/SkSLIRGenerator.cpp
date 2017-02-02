@@ -624,14 +624,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
                                                                             f->fFunctions));
         }
         case Symbol::kVariable_Kind: {
-            const Variable* var = (const Variable*) result;
-            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                fInputs.fFlipY = true;
-                if (fSettings->fFlipY &&
-                    (!fSettings->fCaps ||
-                     !fSettings->fCaps->fragCoordConventionsExtensionString())) {
-                    fInputs.fRTHeight = true;
-                }
+            Variable* var = (Variable*) result;
+            if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
+                fSettings->fFlipY &&
+                (!fSettings->fCaps || !fSettings->fCaps->fragCoordConventionsExtensionString())) {
+                fInputs.fRTHeight = true;
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return std::unique_ptr<VariableReference>(new VariableReference(

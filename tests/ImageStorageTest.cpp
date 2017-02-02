@@ -31,6 +31,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                 : INHERITED(kNone_OptimizationFlags)
                 , fImageStorageAccess(std::move(texture), kRead_GrIOType, mm, restrict) {
             this->initClassID<TestFP>();
+            this->setWillReadFragmentPosition();
             this->addImageStorageAccess(&fImageStorageAccess);
         }
 
@@ -50,7 +51,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     const TestFP& tfp = args.fFp.cast<TestFP>();
                     GrGLSLFPFragmentBuilder* fb = args.fFragBuilder;
                     SkString imageLoadStr;
-                    fb->codeAppend("highp vec2 coord = sk_FragCoord.xy;");
+                    fb->codeAppendf("highp vec2 coord = %s.xy;",
+                                    args.fFragBuilder->fragmentPosition());
                     fb->appendImageStorageLoad(&imageLoadStr, args.fImageStorages[0],
                                                "ivec2(coord)");
                     if (GrPixelConfigIsSint(tfp.fImageStorageAccess.texture()->config())) {
