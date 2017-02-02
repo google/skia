@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import json
+import os
+path = os.path.join(os.path.dirname(__file__), os.pardir, 'infra', 'bots', 'tasks.json')
+for j in sorted(json.load(open(path, 'r'))['jobs'].keys()):
+    print j
+
