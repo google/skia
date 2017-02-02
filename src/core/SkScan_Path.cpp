@@ -295,6 +295,10 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                     blitter->blitH(L, local_top, R - L);
                 }
                 left += dLeft;
+                // TODO TEST
+                if ((long long)rite + dRite != rite + dRite) {
+                    SkDebugf("Overflow: rite = %d, dRite = %d\n", rite, dRite);
+                }
                 rite += dRite;
                 local_top += 1;
             } while (--count >= 0);

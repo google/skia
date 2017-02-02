@@ -555,6 +555,32 @@ static void test_crbug_170666() {
     surface->getCanvas()->drawPath(path, paint);
 }
 
+static void test_crbug_686412_overflow() {
+    SkPath path;
+    SkPaint paint;
+    paint.setAntiAlias(false);
+    auto surface(SkSurface::MakeRasterN32Premul(33053, 6));
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(SkBits2Float(0xc43c8000), SkBits2Float(0x40c00000));  // -754, 6
+    path.lineTo(SkBits2Float(0xc43c8000), SkBits2Float(0x00000000));  // -754, 0
+    // -754, 0, -754, 0, 0.707107f
+    path.conicTo(SkBits2Float(0xc43c8000), SkBits2Float(0x00000000),
+            SkBits2Float(0xc43c8000), SkBits2Float(0x00000000), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0x465ae548), SkBits2Float(0x00000000));  // 14009.3f, 0
+    // 32799, 0, 32799, 3.36f, 0.707107f
+    path.conicTo(SkBits2Float(0x47001f00), SkBits2Float(0x00000000),
+            SkBits2Float(0x47001f00), SkBits2Float(0x40570a3d), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0x47001f00), SkBits2Float(0x40c00000));  // 32799, 6
+    // 32799, 6, 32799, 6, 0.707107f
+    path.conicTo(SkBits2Float(0x47001f00), SkBits2Float(0x40c00000),
+            SkBits2Float(0x47001f00), SkBits2Float(0x40c00000), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0xc43c8000), SkBits2Float(0x40c00000));  // -754, 6
+    // -754, 6, -754, 6, 0.707107f
+    path.conicTo(SkBits2Float(0xc43c8000), SkBits2Float(0x40c00000),
+            SkBits2Float(0xc43c8000), SkBits2Float(0x40c00000), SkBits2Float(0x3f3504f3));
+    path.close();
+    surface->getCanvas()->drawPath(path, paint);
+}
 
 static void test_tiny_path_convexity(skiatest::Reporter* reporter, const char* pathBug,
         SkScalar tx, SkScalar ty, SkScalar scale) {
@@ -2554,7 +2580,7 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     uint8_t buffer[1024];
     SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
     SkASSERT(size <= sizeof(buffer));
-    
+
     // find where the counts and verbs are stored : from the impl in SkPathRef.cpp
     int32_t* vCount = (int32_t*)&buffer[16];
     SkASSERT(*vCount == 5);
@@ -2563,35 +2589,35 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     int32_t* cCount = (int32_t*)&buffer[24];
     SkASSERT(*cCount == 1);
     uint8_t* verbs = &buffer[28];
-    
+
     REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-    
+
     // check that we detect under/over-flow of counts
-    
+
     *vCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *vCount -= 1;   // restore
-    
+
     *pCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *pCount -= 2;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *pCount += 1;   // restore
-    
+
     *cCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *cCount -= 2;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *cCount += 1;   // restore
-    
+
     // Check that we detect when the verbs indicate more or fewer pts/conics
-    
+
     uint8_t save = verbs[0];
     SkASSERT(save == SkPath::kCubic_Verb);
     verbs[0] = SkPath::kQuad_Verb;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     verbs[0] = save;
-    
+
     save = verbs[1];
     SkASSERT(save == SkPath::kConic_Verb);
     verbs[1] = SkPath::kQuad_Verb;
@@ -2599,7 +2625,7 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     verbs[1] = SkPath::kCubic_Verb;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     verbs[1] = save;
-    
+
     // Check that we detect invalid verbs
     save = verbs[1];
     verbs[1] = 17;
@@ -4685,6 +4711,7 @@ DEF_TEST(Paths, reporter) {
     test_skbug_3239(reporter);
     test_bounds_crbug_513799(reporter);
     test_fuzz_crbug_638223();
+    test_crbug_686412_overflow();
 }
 
 DEF_TEST(conservatively_contains_rect, reporter) {
