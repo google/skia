@@ -292,8 +292,9 @@ def dm_flags(bot):
 
   # skbug.com/4888
   # Blacklist RAW images (and a few large PNGs) on GPU bots
-  # until we can resolve failures
-  if 'GPU' in bot:
+  # until we can resolve failures.
+  # Also blacklisted on 32-bit Win2k8 for F16 OOM errors.
+  if 'GPU' in bot or ('Win2k8' in bot and 'x86-' in bot):
     blacklist('_ image _ interlaced1.png')
     blacklist('_ image _ interlaced2.png')
     blacklist('_ image _ interlaced3.png')
