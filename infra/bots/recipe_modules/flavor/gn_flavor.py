@@ -138,10 +138,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     os           = self.m.vars.builder_cfg.get('os',           '')
 
     if 'iOS' == os:
-      self._py('package ' + str(app),
+      self._py('package ' + name,
                self.m.vars.skia_dir.join('gn', 'package_ios.py'),
                args=[str(app)])
-      self._run('deploy', ['ios-deploy', '-b', str(app) + '.app'])
+      self._run(name,
+                ['ios-deploy', '-b', str(app) + '.app',
+                 '-I', '--args', '"%s"' % ' '.join(map(str, cmd[1:]))])
       return
 
     if 'SAN' in extra_config:
