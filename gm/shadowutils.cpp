@@ -90,4 +90,5 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
         canvas->drawCircle(kLightPos.fX, kLightPos.fY, kLightR / 10.f, paint);
         canvas->restore();
     }
+    SkDebugf("============================================================================");
 }
