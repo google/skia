@@ -1,6 +1,19 @@
 [
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skia/resources",
+      "[START_DIR]/skia/resources"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_if_needed [START_DIR]/skia/resources"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
@@ -175,6 +188,19 @@
   },
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_file [START_DIR]/tmp/uninteresting_hashes.txt"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/skia/gn/package_ios.py",
@@ -194,6 +220,14 @@
     ],
     "cwd": "[START_DIR]/skia",
     "name": "dm"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
+    "name": "pull_if_needed [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "name": "$result",

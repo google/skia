@@ -135,16 +135,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
-    os           = self.m.vars.builder_cfg.get('os',           '')
-
-    if 'iOS' == os:
-      self._py('package ' + name,
-               self.m.vars.skia_dir.join('gn', 'package_ios.py'),
-               args=[str(app)])
-      self._run(name,
-                ['ios-deploy', '-b', str(app) + '.app',
-                 '-I', '--args', ' '.join(map(str, cmd[1:]))])
-      return
 
     if 'SAN' in extra_config:
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
