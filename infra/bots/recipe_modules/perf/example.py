@@ -37,7 +37,7 @@ TEST_BUILDERS = {
       'Perf-Win10-MSVC-NUC-GPU-IntelIris540-x86_64-Release-ANGLE',
       'Perf-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
-      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+      'Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release'
     ],
   },
 }

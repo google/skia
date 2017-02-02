@@ -17,8 +17,7 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia.compile': {
     'skiabot-linux-swarm-000': [
-      'Build-Mac-Clang-Arm7-Release-iOS',
-      'Build-Mac-Clang-arm64-Debug-GN_iOS',
+      'Build-Mac-Clang-arm64-Debug-iOS',
       'Build-Mac-Clang-mipsel-Debug-GN_Android',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-GN',
