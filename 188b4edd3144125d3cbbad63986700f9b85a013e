@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ce41867_c99db3c1",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2298,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-02T19:23:21Z",
+      "side": 1,
+      "message": "Can we name this \u0027shader\u0027 or \u0027bitmapShader\u0027 instead?",
+      "range": {
+        "startLine": 2298,
+        "startChar": 9,
+        "endLine": 2298,
+        "endChar": 10
+      },
+      "revId": "188b4edd3144125d3cbbad63986700f9b85a013e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "779b1f4a_79f1671e",
+        "filename": "src/xps/SkXPSDevice.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-02T19:23:21Z",
+      "side": 1,
+      "message": "I don\u0027t see where this is used in the header, is it only needed by the implementation?",
+      "revId": "188b4edd3144125d3cbbad63986700f9b85a013e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
