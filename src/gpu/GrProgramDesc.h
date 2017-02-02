@@ -12,7 +12,6 @@
 #include "GrTypesPriv.h"
 #include "SkOpts.h"
 #include "SkTArray.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrShaderCaps;
 class GrPipeline;
@@ -79,11 +78,6 @@ public:
 
     bool operator!= (const GrProgramDesc& other) const {
         return !(*this == other);
-    }
-
-    void setSurfaceOriginKey(int key) {
-        KeyHeader* header = this->atOffset<KeyHeader, kHeaderOffset>();
-        header->fSurfaceOriginKey = key;
     }
 
     static bool Less(const GrProgramDesc& a, const GrProgramDesc& b) {

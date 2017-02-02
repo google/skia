@@ -101,13 +101,6 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
-        // Didn't find an origin-independent version, check with the specific origin
-        GrSurfaceOrigin origin = pipeline.getRenderTarget()->origin();
-        desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
-        desc.finalize();
-        entry = fMap.find(desc);
-    }
-    if (!entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
@@ -117,7 +110,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
                                                           stencil,
                                                           primProc,
                                                           primitiveType,
-                                                          &desc,
+                                                          desc,
                                                           renderPass));
         if (nullptr == pipelineState) {
             return nullptr;

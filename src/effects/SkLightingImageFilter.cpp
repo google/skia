@@ -770,6 +770,8 @@ public:
     virtual bool isEqual(const SkImageFilterLight& other) const {
         return fColor == other.fColor;
     }
+    // Called to know whether the generated GrGLLight will require access to the fragment position.
+    virtual bool requiresFragmentPosition() const = 0;
     virtual SkImageFilterLight* transform(const SkMatrix& matrix) const = 0;
 
     // Defined below SkLight's subclasses.
@@ -818,6 +820,7 @@ public:
         return nullptr;
 #endif
     }
+    bool requiresFragmentPosition() const override { return false; }
 
     bool isEqual(const SkImageFilterLight& other) const override {
         if (other.type() != kDistant_LightType) {
@@ -876,6 +879,7 @@ public:
         return nullptr;
 #endif
     }
+    bool requiresFragmentPosition() const override { return true; }
     bool isEqual(const SkImageFilterLight& other) const override {
         if (other.type() != kPoint_LightType) {
             return false;
@@ -989,6 +993,7 @@ public:
         return nullptr;
 #endif
     }
+    bool requiresFragmentPosition() const override { return true; }
     LightType type() const override { return kSpot_LightType; }
     const SkPoint3& location() const { return fLocation; }
     const SkPoint3& target() const { return fTarget; }
@@ -1710,6 +1715,9 @@ GrLightingEffect::GrLightingEffect(GrTexture* texture,
         , fBoundaryMode(boundaryMode)
         , fDomain(create_domain(texture, srcBounds, GrTextureDomain::kDecal_Mode)) {
     fLight->ref();
+    if (light->requiresFragmentPosition()) {
+        this->setWillReadFragmentPosition();
+    }
 }
 
 GrLightingEffect::~GrLightingEffect() {
@@ -2094,8 +2102,8 @@ void GrGLPointLight::emitSurfaceToLight(GrGLSLUniformHandler* uniformHandler,
     fLocationUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                               kVec3f_GrSLType, kDefault_GrSLPrecision,
                                               "LightLocation", &loc);
-    fragBuilder->codeAppendf("normalize(%s - vec3(sk_FragCoord.xy, %s))",
-                             loc, z);
+    fragBuilder->codeAppendf("normalize(%s - vec3(%s.xy, %s))",
+                             loc, fragBuilder->fragmentPosition(), z);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2121,8 +2129,8 @@ void GrGLSpotLight::emitSurfaceToLight(GrGLSLUniformHandler* uniformHandler,
                                               kVec3f_GrSLType, kDefault_GrSLPrecision,
                                               "LightLocation", &location);
 
-    fragBuilder->codeAppendf("normalize(%s - vec3(sk_FragCoord.xy, %s))",
-                             location, z);
+    fragBuilder->codeAppendf("normalize(%s - vec3(%s.xy, %s))",
+                             location, fragBuilder->fragmentPosition(), z);
 }
 
 void GrGLSpotLight::emitLightColor(GrGLSLUniformHandler* uniformHandler,

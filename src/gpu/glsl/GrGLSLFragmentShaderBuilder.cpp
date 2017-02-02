@@ -130,6 +130,11 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     return coords2D;
 }
 
+const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
+    SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kFragmentPosition_RequiredFeature;)
+    return "sk_FragCoord";
+}
+
 const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {
     return "fsDistanceVector";
 }
