@@ -14,12 +14,12 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'skia-recipes/core',
-  'skia-recipes/ct',
-  'skia-recipes/flavor',
-  'skia-recipes/run',
-  'skia-recipes/swarming',
-  'skia-recipes/vars',
+  'core',
+  'ct',
+  'flavor',
+  'run',
+  'swarming',
+  'vars',
 ]
 
 
