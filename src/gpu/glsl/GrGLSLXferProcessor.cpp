@@ -49,10 +49,11 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                                                   kDefault_GrSLPrecision,
                                                   "DstTextureCoordScale",
                                                   &dstCoordScaleName);
+        const char* fragPos = fragBuilder->fragmentPosition();
 
         fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-        fragBuilder->codeAppendf("vec2 _dstTexCoord = (sk_FragCoord.xy - %s) * %s;",
-                                 dstTopLeftName, dstCoordScaleName);
+        fragBuilder->codeAppendf("vec2 _dstTexCoord = (%s.xy - %s) * %s;",
+                                 fragPos, dstTopLeftName, dstCoordScaleName);
 
         if (!topDown) {
             fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");

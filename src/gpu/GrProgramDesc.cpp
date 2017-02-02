@@ -195,9 +195,14 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    header->fSurfaceOriginKey = 0;
-
     GrRenderTarget* rt = pipeline.getRenderTarget();
+
+    if (requiredFeatures & (GrProcessor::kFragmentPosition_RequiredFeature |
+                            GrProcessor::kSampleLocations_RequiredFeature)) {
+        header->fSurfaceOriginKey = GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(rt->origin());
+    } else {
+        header->fSurfaceOriginKey = 0;
+    }
 
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());
