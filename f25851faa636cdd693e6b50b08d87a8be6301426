@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d51eaca8_816d4b94",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-02T16:57:12Z",
+      "side": 1,
+      "message": "It seems like this should go before the call to checkUmbraAndTransformCentroid.",
+      "range": {
+        "startLine": 480,
+        "startChar": 21,
+        "endLine": 480,
+        "endChar": 30
+      },
+      "revId": "f25851faa636cdd693e6b50b08d87a8be6301426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efbb48c2_59ef415d",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-02T16:57:12Z",
+      "side": 1,
+      "message": "I think the commented code would be wrong. The overall shape is translated by \u0027xlate\u0027 (\u0027translate\u0027 in the constructor) and the scale is applied just to the vectors between the centroid and the points on the path (scale about the centroid).",
+      "range": {
+        "startLine": 659,
+        "startChar": 4,
+        "endLine": 660,
+        "endChar": 35
+      },
+      "revId": "f25851faa636cdd693e6b50b08d87a8be6301426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "699d9c19_7a7d528b",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-02T16:57:12Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 787,
+        "startChar": 29,
+        "endLine": 787,
+        "endChar": 43
+      },
+      "revId": "f25851faa636cdd693e6b50b08d87a8be6301426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a03e7b47_b4f363ed",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-02T16:57:12Z",
+      "side": 1,
+      "message": "Would SkPMLerp work? (I realize they aren\u0027t PM, but seems like it might).",
+      "range": {
+        "startLine": 881,
+        "startChar": 11,
+        "endLine": 884,
+        "endChar": 37
+      },
+      "revId": "f25851faa636cdd693e6b50b08d87a8be6301426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
