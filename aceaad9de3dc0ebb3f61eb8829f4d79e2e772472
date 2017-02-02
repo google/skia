@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d4cea65_c498422f",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-02T20:43:20Z",
+      "side": 1,
+      "message": "The fix is adding this one line. The rest is just Jim\u0027s original change.",
+      "revId": "aceaad9de3dc0ebb3f61eb8829f4d79e2e772472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
