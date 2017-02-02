@@ -944,9 +944,6 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
     if (1 == colorCount) {
         return SkShader::MakeColorShader(colors[0], std::move(colorSpace));
     }
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
-    }
 
     ColorStopOptimizer opt(colors, pos, colorCount, mode);
 
@@ -982,9 +979,6 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
     }
     if (1 == colorCount) {
         return SkShader::MakeColorShader(colors[0], std::move(colorSpace));
-    }
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
     }
 
     ColorStopOptimizer opt(colors, pos, colorCount, mode);
@@ -1031,9 +1025,6 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
         if (start == end || startRadius == 0) {
             return SkShader::MakeEmptyShader();
         }
-    }
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
     }
     EXPAND_1_COLOR(colorCount);
 
@@ -1094,9 +1085,6 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     }
     if (1 == colorCount) {
         return SkShader::MakeColorShader(colors[0], std::move(colorSpace));
-    }
-    if (localMatrix && !localMatrix->invert(nullptr)) {
-        return nullptr;
     }
 
     auto mode = SkShader::kClamp_TileMode;
