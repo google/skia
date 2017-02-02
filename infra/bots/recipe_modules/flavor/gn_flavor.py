@@ -143,7 +143,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
                args=[str(app)])
       self._run(name,
                 ['ios-deploy', '-b', str(app) + '.app',
-                 '-I', '--args', '"%s"' % ' '.join(map(str, cmd[1:]))])
+                 '-I', '--args', ' '.join(map(str, cmd[1:]))])
       return
 
     if 'SAN' in extra_config:
