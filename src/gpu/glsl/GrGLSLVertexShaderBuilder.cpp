@@ -22,7 +22,7 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     fProgramBuilder->addRTAdjustmentUniform(kHigh_GrSLPrecision,
                                             fProgramBuilder->rtAdjustment(),
                                             &fRtAdjustName);
-    if (this->getProgramBuilder()->desc()->header().fSnapVerticesToPixelCenters) {
+    if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
             this->codeAppendf("{vec2 _posTmp = vec2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
@@ -47,7 +47,7 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     }
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
-    if (this->getProgramBuilder()->desc()->header().fHasPointSize) {
+    if (this->getProgramBuilder()->desc().header().fHasPointSize) {
         this->codeAppend("gl_PointSize = 1.0;");
     }
 }

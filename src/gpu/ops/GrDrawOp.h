@@ -64,6 +64,9 @@ public:
 
     bool installPipeline(const GrPipeline::CreateArgs&);
 
+    // TODO no GrPrimitiveProcessors yet read fragment position
+    bool willReadFragmentPosition() const { return false; }
+
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
         SkString string;

@@ -419,6 +419,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
     this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
+    this->setWillReadFragmentPosition();
 }
 
 sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
@@ -443,6 +444,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
     this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
+    this->setWillReadFragmentPosition();
 }
 
 GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLSLInstance() const  {
@@ -457,7 +459,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                                                      kDefault_GrSLPrecision,
                                                                      "scaleAndTranslate",
                                                                      &scaleAndTranslateName);
-            args.fFragBuilder->codeAppendf("vec2 coords = sk_FragCoord.xy * %s.xy + %s.zw;",
+            args.fFragBuilder->codeAppendf("vec2 coords = %s.xy * %s.xy + %s.zw;",
+                                           args.fFragBuilder->fragmentPosition(),
                                            scaleAndTranslateName, scaleAndTranslateName);
             fGLDomain.sampleTexture(args.fFragBuilder,
                                     args.fUniformHandler,

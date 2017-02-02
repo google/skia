@@ -27,8 +27,6 @@ namespace SkSL {
 struct Program {
     struct Settings {
         const GrShaderCaps* fCaps = nullptr;
-        // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
-        // must be flipped.
         bool fFlipY = false;
     };
 
@@ -36,17 +34,12 @@ struct Program {
         // if true, this program requires the render target height uniform to be defined
         bool fRTHeight;
 
-        // if true, this program must be recompiled if the flipY setting changes. If false, the
-        // program will compile to the same code regardless of the flipY setting.
-        bool fFlipY;
-
         void reset() {
             fRTHeight = false;
-            fFlipY = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fRTHeight;
         }
     };
 
