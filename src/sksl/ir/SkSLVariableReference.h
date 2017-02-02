@@ -38,7 +38,7 @@ struct VariableReference : public Expression {
         }
     }
 
-    virtual ~VariableReference() override {
+    ~VariableReference() override {
         if (fRefKind != kWrite_RefKind) {
             fVariable.fReadCount--;
         }
@@ -64,13 +64,19 @@ struct VariableReference : public Expression {
         fRefKind = refKind;
     }
 
+    bool hasSideEffects() const override {
+        return false;
+    }
+
     SkString description() const override {
         return fVariable.fName;
     }
 
-    virtual std::unique_ptr<Expression> constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) override {
+    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
+                                                  const DefinitionMap& definitions) override {
+        if (fRefKind != kRead_RefKind) {
+            return nullptr;
+        }
         auto exprIter = definitions.find(&fVariable);
         if (exprIter != definitions.end() && exprIter->second) {
             const Expression* expr = exprIter->second->get();
@@ -85,6 +91,11 @@ struct VariableReference : public Expression {
                                                                    irGenerator.fContext,
                                                                    Position(),
                                                                    ((FloatLiteral*) expr)->fValue));
+                case Expression::kBoolLiteral_Kind:
+                    return std::unique_ptr<Expression>(new BoolLiteral(
+                                                                    irGenerator.fContext,
+                                                                    Position(),
+                                                                    ((BoolLiteral*) expr)->fValue));
                 default:
                     break;
             }
@@ -93,10 +104,9 @@ struct VariableReference : public Expression {
     }
 
     const Variable& fVariable;
-
-private:
     RefKind fRefKind;
 
+private:
     typedef Expression INHERITED;
 };
 
