@@ -10,10 +10,10 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
-  'skia-recipes/core',
-  'skia-recipes/infra',
-  'skia-recipes/run',
-  'skia-recipes/vars',
+  'core',
+  'infra',
+  'run',
+  'vars',
 ]
 
 

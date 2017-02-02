@@ -10,9 +10,9 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
-  'skia-recipes/core',
-  'skia-recipes/run',
-  'skia-recipes/vars',
+  'core',
+  'run',
+  'vars',
 ]
 
 

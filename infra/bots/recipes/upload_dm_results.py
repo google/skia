@@ -8,7 +8,7 @@
 
 DEPS = [
   'recipe_engine/properties',
-  'skia-recipes/upload_dm_results',
+  'upload_dm_results',
 ]
 
 

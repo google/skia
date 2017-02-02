@@ -1,0 +1,119 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SKP VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[START_DIR]\\tmp\\SKP_VERSION"
+    ],
+    "name": "write SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded skimage VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
+    ],
+    "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
+      "/path/to/tmp/"
+    ],
+    "name": "Get downloaded SVG VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "42",
+      "[START_DIR]\\tmp\\SVG_VERSION"
+    ],
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]\\out\\Debug_x64\\nanobench",
+      "--undefok",
+      "-i",
+      "[START_DIR]\\skia\\resources",
+      "--skps",
+      "[START_DIR]\\skp",
+      "--images",
+      "[START_DIR]\\skimage\\nanobench",
+      "--svgs",
+      "[START_DIR]\\svg",
+      "--nogpu",
+      "--pre_log",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--config",
+      "8888",
+      "gpu",
+      "nonrendering",
+      "hwui",
+      "f16",
+      "srgb",
+      "565",
+      "msaa16",
+      "nvpr16",
+      "nvprdit16",
+      "--match",
+      "~inc0.gif",
+      "~inc1.gif",
+      "~incInterlaced.gif",
+      "~inc0.jpg",
+      "~incGray.jpg",
+      "~inc0.wbmp",
+      "~inc1.wbmp",
+      "~inc0.webp",
+      "~inc1.webp",
+      "~inc0.ico",
+      "~inc1.ico",
+      "~inc0.png",
+      "~inc1.png",
+      "~inc2.png",
+      "~inc12.png",
+      "~inc13.png",
+      "~inc14.png",
+      "~inc0.webp",
+      "~inc1.webp"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "name": "nanobench"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

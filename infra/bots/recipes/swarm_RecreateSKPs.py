@@ -14,9 +14,9 @@ DEPS = [
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'skia-recipes/core',
-  'skia-recipes/infra',
-  'skia-recipes/vars',
+  'core',
+  'infra',
+  'vars',
 ]
 
 
