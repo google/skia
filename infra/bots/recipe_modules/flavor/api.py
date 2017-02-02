@@ -11,6 +11,7 @@ from recipe_engine import recipe_api
 from . import default_flavor
 from . import gn_android_flavor
 from . import gn_flavor
+from . import ios_flavor
 from . import pdfium_flavor
 from . import valgrind_flavor
 
@@ -28,10 +29,11 @@ VERSION_NONE = -1
 def is_android(builder_cfg):
   return 'Android' in builder_cfg.get('extra_config', '')
 
+def is_ios(builder_cfg):
+  return 'iOS' == builder_cfg.get('os', '')
 
 def is_pdfium(builder_cfg):
   return 'PDFium' in builder_cfg.get('extra_config', '')
-
 
 def is_valgrind(builder_cfg):
   return 'Valgrind' in builder_cfg.get('extra_config', '')
@@ -42,6 +44,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     """Return a flavor utils object specific to the given builder."""
     if is_android(builder_cfg):
       return gn_android_flavor.GNAndroidFlavorUtils(self.m)
+    elif is_ios(builder_cfg):
+      return ios_flavor.iOSFlavorUtils(self.m)
     elif is_pdfium(builder_cfg):
       return pdfium_flavor.PDFiumFlavorUtils(self.m)
     elif is_valgrind(builder_cfg):
