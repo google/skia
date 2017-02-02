@@ -50,7 +50,6 @@ public:
     virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
-    virtual sk_sp<GrTexture> onAsTextureRef(GrContext* context) const = 0;
     virtual sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const = 0;
 #endif
 
@@ -139,10 +138,6 @@ SkColorSpace* SkSpecialImage::getColorSpace() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTexture> SkSpecialImage::asTextureRef(GrContext* context) const {
-    return as_SIB(this)->onAsTextureRef(context);
-}
-
 sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxy(GrContext* context) const {
     return as_SIB(this)->onAsTextureProxy(context);
 }
@@ -242,15 +237,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
-        if (context) {
-            return sk_ref_sp(GrRefCachedBitmapTexture(context, fBitmap,
-                                                      GrSamplerParams::ClampNoFilter(), nullptr));
-        }
-
-        return nullptr;
-    }
-
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
         if (context) {
             sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
@@ -369,17 +355,6 @@ static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, GrSurfaceProxy* pr
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
-    SkSpecialImage_Gpu(const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTexture> tex, SkAlphaType at,
-                       sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
-        : INHERITED(subset, uniqueID, props)
-        , fContext(tex->getContext())
-        , fAlphaType(at)
-        , fColorSpace(std::move(colorSpace))
-        , fAddedRasterVersionToCache(false) {
-        fSurfaceProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
-    }
-
     SkSpecialImage_Gpu(GrContext* context, const SkIRect& subset,
                        uint32_t uniqueID, sk_sp<GrSurfaceProxy> proxy, SkAlphaType at,
                        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
