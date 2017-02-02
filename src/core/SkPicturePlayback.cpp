@@ -134,8 +134,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->skip(size - 4);
         } break;
         case CLIP_PATH: {
-            const SkPath& path = fPictureData->getPath(reader); 
-            uint32_t packed = reader->readInt(); 
+            const SkPath& path = fPictureData->getPath(reader);
+            uint32_t packed = reader->readInt();
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();

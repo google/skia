@@ -263,7 +263,7 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          "void main() {\n"
          "    float x = 0.75;\n"
          "    float y = 1.0;\n"
-         "}\n");    
+         "}\n");
     test(r,
          "void main() { float x = 0.75; highp float y = 1; }",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
@@ -273,7 +273,7 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          "void main() {\n"
          "    float x = 0.75;\n"
          "    highp float y = 1.0;\n"
-         "}\n");    
+         "}\n");
 }
 
 DEF_TEST(SkSLMinAbs, r) {

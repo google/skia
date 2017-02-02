@@ -20,7 +20,7 @@ sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture) {
 
 sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture,
                                                 const SkRect& cropRect) {
-    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture), 
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
                                                          cropRect,
                                                          kDeviceSpace_PictureResolution,
                                                          kLow_SkFilterQuality));
@@ -165,7 +165,7 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(SkSpecialImage* source,
     SkIRect localIBounds = localBounds.roundOut();
 
     sk_sp<SkSpecialImage> localImg;
-    {                                                            
+    {
         sk_sp<SkSpecialSurface> localSurface(source->makeSurface(ctx.outputProperties(),
                                                                  localIBounds.size()));
         if (!localSurface) {
@@ -174,7 +174,7 @@ void SkPictureImageFilter::drawPictureAtLocalResolution(SkSpecialImage* source,
 
         SkCanvas* localCanvas = localSurface->getCanvas();
         SkASSERT(localCanvas);
-        
+
         localCanvas->clear(0x0);
 
         localCanvas->translate(-SkIntToScalar(localIBounds.fLeft),

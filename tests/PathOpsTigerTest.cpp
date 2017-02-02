@@ -252,7 +252,7 @@ static void tiger_threaded(skiatest::Reporter* reporter, const char* filename) {
                     testlines |= 1LL << bit;
                 }
                 *testRunner.fRunnables.append() =
-                        new PathOpsThreadedRunnable(&testTiger, 
+                        new PathOpsThreadedRunnable(&testTiger,
                                                     (int) (unsigned) (testlines & 0xFFFFFFFF),
                                                     (int) (unsigned) (testlines >> 32),
                                                     ab, 0, &testRunner);

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_TERNARYEXPRESSION
 #define SKSL_TERNARYEXPRESSION
 
@@ -27,7 +27,7 @@ struct TernaryExpression : public Expression {
     }
 
     SkString description() const override {
-        return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " + 
+        return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";
     }
 

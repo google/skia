@@ -85,7 +85,7 @@ public:
         return fDebugCanvas->getCurrentClip();
     }
 
-    SkRect pictureCull() const   { 
+    SkRect pictureCull() const   {
         return fPicture ? fPicture->cullRect() : SkRect::MakeEmpty();
     }
 

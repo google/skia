@@ -231,7 +231,7 @@ private:
                            SkTextBlob::GlyphPositioning positioning) {
         return glyphCount * ScalarsPerGlyph(positioning);
     }
-    
+
     uint32_t* textSizePtr() const {
         // textSize follows the position buffer.
         SkASSERT(fExtended);

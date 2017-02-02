@@ -34,7 +34,7 @@ public:
         // ever one GrOpLists and all calls will be funnelled into it.
 #ifdef ENABLE_MDB
         this->setFlag(kClosed_Flag);
-#endif    
+#endif
     }
 
     // TODO: it seems a bit odd that GrOpList has nothing to clear on reset

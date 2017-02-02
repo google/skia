@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTBREAKSTATEMENT
 #define SKSL_ASTBREAKSTATEMENT
 
@@ -13,7 +13,7 @@
 namespace SkSL {
 
 /**
- * A 'break' statement. 
+ * A 'break' statement.
  */
 struct ASTBreakStatement : public ASTStatement {
     ASTBreakStatement(Position position)

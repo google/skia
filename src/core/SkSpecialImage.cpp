@@ -415,7 +415,7 @@ public:
         // texture into the canvas so it is okay to wrap it in an SkImage. This poses
         // some problems for full deferral however in that when the deferred SkImage_Gpu
         // instantiates itself it is going to have to either be okay with having a larger
-        // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs 
+        // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
         auto img = sk_sp<SkImage>(new SkImage_Gpu(surf->width(), surf->height(),
                                                   this->uniqueID(), fAlphaType,

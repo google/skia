@@ -1154,7 +1154,7 @@ public:
                       vertex, to be interpolated across the triangle.
         @param mode Used if both texs and colors are present. In this
                     case the colors are combined with the texture using mode,
-                    before being drawn using the paint. 
+                    before being drawn using the paint.
         @param indices If not null, array of indices to reference into the
                     vertex (texs, colors) array.
         @param indexCount number of entries in the indices array (if not null)

@@ -1471,7 +1471,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     if (context->caps()->maxSampleCount() >= 4) {
         tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
         size = tex->gpuMemorySize();
-        REPORTER_ASSERT(reporter, 
+        REPORTER_ASSERT(reporter,
                             kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
                             kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
                             kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer

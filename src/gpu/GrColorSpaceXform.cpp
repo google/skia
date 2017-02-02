@@ -53,7 +53,7 @@ private:
     uint64_t fSequence;
 };
 
-GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) 
+GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst)
     : fSrcToDst(srcToDst) {}
 
 static SkSpinlock gColorSpaceXformCacheSpinlock;

@@ -96,7 +96,7 @@ private:
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
     void writeFunctionStart(const FunctionDeclaration& f);
-    
+
     void writeFunctionDeclaration(const FunctionDeclaration& f);
 
     void writeFunction(const FunctionDefinition& f);

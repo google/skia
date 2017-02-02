@@ -50,10 +50,10 @@ public:
     static SkTDynamicHash<Window_unix, XWindow> gWindowMap;
 
     void markPendingPaint() { fPendingPaint = true; }
-    void finishPaint() { 
+    void finishPaint() {
         if (fPendingPaint) {
-            this->onPaint(); 
-            fPendingPaint = false; 
+            this->onPaint();
+            fPendingPaint = false;
         }
     }
 
@@ -64,11 +64,11 @@ public:
             fPendingHeight = height;
         }
     }
-    void finishResize() { 
+    void finishResize() {
         if (fPendingResize) {
-            this->onResize(fPendingWidth, fPendingHeight); 
+            this->onResize(fPendingWidth, fPendingHeight);
             fPendingResize = false;
-        } 
+        }
     }
 
 private:

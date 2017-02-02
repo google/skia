@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
@@ -66,7 +66,7 @@ public:
     , fSamplerExternalOES_Type(new Type(SkString("samplerExternalOES"), SpvDim2D, false, false,
                                         false, true))
     , fSamplerCube_Type(new Type(SkString("samplerCube"), SpvDimCube, false, false, false, true))
-    , fSampler2DRect_Type(new Type(SkString("sampler2DRect"), SpvDimRect, false, false, false, 
+    , fSampler2DRect_Type(new Type(SkString("sampler2DRect"), SpvDimRect, false, false, false,
                                    true))
     , fSampler1DArray_Type(new Type(SkString("sampler1DArray")))
     , fSampler2DArray_Type(new Type(SkString("sampler2DArray")))
@@ -261,12 +261,12 @@ public:
 
     const std::unique_ptr<Type> fSkCaps_Type;
 
-    // dummy expression used to mark that a variable has a value during dataflow analysis (when it 
+    // dummy expression used to mark that a variable has a value during dataflow analysis (when it
     // could have several different values, or the analyzer is otherwise unable to assign it a
     // specific expression)
     const std::unique_ptr<Expression> fDefined_Expression;
 
-private:    
+private:
     class Defined : public Expression {
     public:
         Defined(const Type& type)

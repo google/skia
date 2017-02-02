@@ -1016,10 +1016,10 @@ void GLSLInstanceProcessor::BackendCoverage::emitArc(GrGLSLPPFragmentBuilder* f,
         //  - To restrict the arcs of rounded rects to their positive quadrants.
         //  - To avoid inversesqrt(0) in the ellipse formula.
         if (ellipseCoordsMayBeNegative) {
-            f->codeAppendf("mediump vec2 ellipseClampedCoords = max(abs(%s), vec2(1e-4));", 
+            f->codeAppendf("mediump vec2 ellipseClampedCoords = max(abs(%s), vec2(1e-4));",
                            ellipseCoords);
         } else {
-            f->codeAppendf("mediump vec2 ellipseClampedCoords = max(%s, vec2(1e-4));", 
+            f->codeAppendf("mediump vec2 ellipseClampedCoords = max(%s, vec2(1e-4));",
                            ellipseCoords);
         }
         ellipseCoords = "ellipseClampedCoords";
@@ -1525,7 +1525,7 @@ void GLSLInstanceProcessor::BackendMultisample::emitSimpleRRect(GrGLSLPPFragment
                                                                 const EmitShapeCoords& coords,
                                                                 const char* rrect,
                                                                 const EmitShapeOpts& opts) {
-    f->codeAppendf("highp vec2 distanceToArcEdge = abs(%s) - %s.xy;", coords.fVarying->fsIn(), 
+    f->codeAppendf("highp vec2 distanceToArcEdge = abs(%s) - %s.xy;", coords.fVarying->fsIn(),
                    rrect);
     f->codeAppend ("if (any(lessThan(distanceToArcEdge, vec2(0)))) {");
     this->emitRect(f, coords, opts);

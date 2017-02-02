@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_EXTENSION
 #define SKSL_EXTENSION
 
@@ -12,12 +12,12 @@
 
 namespace SkSL {
 
-/** 
- * An extension declaration. 
+/**
+ * An extension declaration.
  */
 struct Extension : public ProgramElement {
     Extension(Position position, SkString name)
-    : INHERITED(position, kExtension_Kind) 
+    : INHERITED(position, kExtension_Kind)
     , fName(std::move(name)) {}
 
     SkString description() const override {

@@ -102,7 +102,7 @@ GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, Gr
     return shader;
 }
 
-GrGLuint GLBench::CreateProgram(const GrGLContext* context, const char* vshader, 
+GrGLuint GLBench::CreateProgram(const GrGLContext* context, const char* vshader,
                                 const char* fshader) {
     const GrGLInterface* gl = context->interface();
     GrGLuint vertexShader = CompileShader(context, vshader, GR_GL_VERTEX_SHADER);

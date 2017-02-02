@@ -131,7 +131,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     {
         SkPDFUtils::AppendRectangle(rect, content);
         return;
-    }    
+    }
 
     enum SkipFillState {
         kEmpty_SkipFillState,

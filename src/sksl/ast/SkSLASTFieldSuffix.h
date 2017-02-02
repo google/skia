@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTFIELDSUFFIX
 #define SKSL_ASTFIELDSUFFIX
 
@@ -17,7 +17,7 @@ namespace SkSL {
  * actually vector swizzle (which looks the same to the parser).
  */
 struct ASTFieldSuffix : public ASTSuffix {
-    ASTFieldSuffix(Position position, SkString field) 
+    ASTFieldSuffix(Position position, SkString field)
     : INHERITED(position, ASTSuffix::kField_Kind)
     , fField(std::move(field)) {}
 

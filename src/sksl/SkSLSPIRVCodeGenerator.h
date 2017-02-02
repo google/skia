@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_SPIRVCODEGENERATOR
 #define SKSL_SPIRVCODEGENERATOR
 
@@ -121,7 +121,7 @@ private:
     SpvId writeInterfaceBlock(const InterfaceBlock& intf);
 
     SpvId writeFunctionStart(const FunctionDeclaration& f, SkWStream& out);
-    
+
     SpvId writeFunctionDeclaration(const FunctionDeclaration& f, SkWStream& out);
 
     SpvId writeFunction(const FunctionDefinition& f, SkWStream& out);
@@ -135,7 +135,7 @@ private:
     std::unique_ptr<LValue> getLValue(const Expression& value, SkWStream& out);
 
     SpvId writeExpression(const Expression& expr, SkWStream& out);
-    
+
     SpvId writeIntrinsicCall(const FunctionCall& c, SkWStream& out);
 
     SpvId writeFunctionCall(const FunctionCall& c, SkWStream& out);
@@ -147,7 +147,7 @@ private:
     SpvId writeFloatConstructor(const Constructor& c, SkWStream& out);
 
     SpvId writeIntConstructor(const Constructor& c, SkWStream& out);
-    
+
     SpvId writeMatrixConstructor(const Constructor& c, SkWStream& out);
 
     SpvId writeVectorConstructor(const Constructor& c, SkWStream& out);

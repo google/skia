@@ -340,7 +340,7 @@ public:
 class PipeSink : public Sink {
 public:
     PipeSink();
-    
+
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "skpipe"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }

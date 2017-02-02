@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTFORSTATEMENT
 #define SKSL_ASTFORSTATEMENT
 
@@ -13,10 +13,10 @@
 namespace SkSL {
 
 /**
- * A 'for' loop. 
+ * A 'for' loop.
  */
 struct ASTForStatement : public ASTStatement {
-    ASTForStatement(Position position, std::unique_ptr<ASTStatement> initializer, 
+    ASTForStatement(Position position, std::unique_ptr<ASTStatement> initializer,
                    std::unique_ptr<ASTExpression> test, std::unique_ptr<ASTExpression> next,
                    std::unique_ptr<ASTStatement> statement)
     : INHERITED(position, kFor_Kind)

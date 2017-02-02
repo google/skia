@@ -36,11 +36,11 @@ int main(int argc, char* argv[]) {
                 case SDL_KEYUP:
                     done = sk_app::Window_mac::HandleWindowEvent(event);
                     break;
-                    
+
                 case SDL_QUIT:
                     done = true;
                     break;
-                    
+
                 default:
                     break;
             }

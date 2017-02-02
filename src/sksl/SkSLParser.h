@@ -91,7 +91,7 @@ private:
 
     void error(Position p, const char* msg);
     void error(Position p, SkString msg);
-   
+
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
@@ -121,7 +121,7 @@ private:
     std::unique_ptr<ASTParameter> parameter();
 
     int layoutInt();
-   
+
     Layout layout();
 
     Modifiers modifiers();
@@ -157,7 +157,7 @@ private:
     std::unique_ptr<ASTExpression> expression();
 
     std::unique_ptr<ASTExpression> assignmentExpression();
-   
+
     std::unique_ptr<ASTExpression> ternaryExpression();
 
     std::unique_ptr<ASTExpression> logicalOrExpression();

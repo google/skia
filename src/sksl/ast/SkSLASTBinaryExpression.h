@@ -14,7 +14,7 @@
 namespace SkSL {
 
 /**
- * Represents a binary operation, with the operator represented by the token's type. 
+ * Represents a binary operation, with the operator represented by the token's type.
  */
 struct ASTBinaryExpression : public ASTExpression {
     ASTBinaryExpression(std::unique_ptr<ASTExpression> left, Token op,

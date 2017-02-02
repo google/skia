@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTBLOCK
 #define SKSL_ASTBLOCK
 
@@ -13,7 +13,7 @@
 namespace SkSL {
 
 /**
- * Represents a curly-braced block of statements. 
+ * Represents a curly-braced block of statements.
  */
 struct ASTBlock : public ASTStatement {
     ASTBlock(Position position, std::vector<std::unique_ptr<ASTStatement>> statements)
@@ -27,7 +27,7 @@ struct ASTBlock : public ASTStatement {
             result += fStatements[i]->description();
         }
         result += "\n}\n";
-        return result;        
+        return result;
     }
 
     const std::vector<std::unique_ptr<ASTStatement>> fStatements;

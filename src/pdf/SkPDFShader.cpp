@@ -275,7 +275,7 @@ static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
 
         encode->appendScalar(0);
         encode->appendScalar(1.0f);
-    
+
         functions->appendObject(createInterpolationFunction(colorData[i-1], colorData[i]));
     }
 
@@ -693,7 +693,7 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
     auto alphaFunctionShader = sk_make_sp<SkPDFStream>(std::move(colorStream));
 
     populate_tiling_pattern_dict(alphaFunctionShader->dict(), bbox,
-                                 std::move(resourceDict), SkMatrix::I()); 
+                                 std::move(resourceDict), SkMatrix::I());
     return alphaFunctionShader;
 }
 
@@ -910,9 +910,9 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         domain->appendScalar(bbox.fRight);
         domain->appendScalar(bbox.fTop);
         domain->appendScalar(bbox.fBottom);
-        
+
         SkDynamicMemoryWStream functionCode;
-        
+
         if (state.fType == SkShader::kConical_GradientType) {
             SkShader::GradientInfo twoPointRadialInfo = *info;
             SkMatrix inverseMapperMatrix;
@@ -928,7 +928,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         } else {
             codeFunction(*info, perspectiveInverseOnly, &functionCode);
         }
-        
+
         pdfShader->insertObject("Domain", domain);
 
         // Call canon->makeRangeObject() instead of

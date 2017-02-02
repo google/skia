@@ -393,7 +393,7 @@ static GLSLCodeGenerator::Precedence get_binary_precedence(Token::Kind op) {
     }
 }
 
-void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b, 
+void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     Precedence precedence = get_binary_precedence(b.fOperator);
     if (precedence >= parentPrecedence) {
@@ -407,7 +407,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
 }
 
-void GLSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t, 
+void GLSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
                                                Precedence parentPrecedence) {
     if (kTernary_Precedence >= parentPrecedence) {
         this->write("(");
@@ -422,7 +422,7 @@ void GLSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
     }
 }
 
-void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p, 
+void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
                                               Precedence parentPrecedence) {
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
@@ -434,7 +434,7 @@ void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     }
 }
 
-void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p, 
+void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
                                                Precedence parentPrecedence) {
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write("(");
@@ -629,7 +629,7 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->writeExpression(*((ExpressionStatement&) s).fExpression, kTopLevel_Precedence);
             this->write(";");
             break;
-        case Statement::kReturn_Kind: 
+        case Statement::kReturn_Kind:
             this->writeReturnStatement((ReturnStatement&) s);
             break;
         case Statement::kVarDeclarations_Kind:

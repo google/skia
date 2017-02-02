@@ -92,7 +92,7 @@ public:
     /**
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
-     */ 
+     */
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
@@ -131,7 +131,7 @@ public:
      * the draw with this xfer processor. If this function is called, the xfer processor may change
      * its state to reflected the given blend optimizations. If the XP needs to see a specific input
      * color to blend correctly, it will set the OverrideColor flag and the output parameter
-     * overrideColor will be the required value that should be passed into the XP. 
+     * overrideColor will be the required value that should be passed into the XP.
      * A caller who calls this function on a XP is required to honor the returned OptFlags
      * and color values for its draw.
      */
@@ -204,7 +204,7 @@ public:
         A return value of true from isEqual() should not be used to test whether the processor would
         generate the same shader code. To test for identical code generation use getGLSLProcessorKey
       */
-    
+
     bool isEqual(const GrXferProcessor& that) const {
         if (this->classID() != that.classID()) {
             return false;
@@ -330,7 +330,7 @@ public:
         GrColorComponentFlags    fKnownColorFlags;
     };
 
-    /** 
+    /**
      * Returns information about the output color, produced by XPs from this factory, that will be
      * known after blending. Note that we can conflate coverage and color, so the actual values
      * written to pixels with partial coverage may not always seem consistent with the invariant

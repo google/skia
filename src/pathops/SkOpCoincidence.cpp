@@ -607,7 +607,7 @@ bool SkOpCoincidence::checkOverlap(SkCoincidentSpans* check,
 /* Please keep this in sync with debugAddIfMissing() */
 // note that over1s, over1e, over2s, over2e are ordered
 bool SkOpCoincidence::addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
-        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg, bool* added  
+        double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg, bool* added
         SkDEBUGPARAMS(const SkOpPtT* over1e) SkDEBUGPARAMS(const SkOpPtT* over2e)) {
     SkASSERT(tStart < tEnd);
     SkASSERT(over1s->fT < over1e->fT);

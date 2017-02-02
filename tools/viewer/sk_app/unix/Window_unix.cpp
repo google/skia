@@ -37,8 +37,8 @@ Window* Window::CreateNativeWindow(void* platformData) {
     return window;
 }
 
-const long kEventMask = ExposureMask | StructureNotifyMask | 
-                        KeyPressMask | KeyReleaseMask | 
+const long kEventMask = ExposureMask | StructureNotifyMask |
+                        KeyPressMask | KeyReleaseMask |
                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
 bool Window_unix::initWindow(Display* display, const DisplayParams* params) {
@@ -216,7 +216,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
         case MotionNotify:
             // only track if left button is down
             if (event.xmotion.state & Button1Mask) {
-                this->onMouse(event.xmotion.x, event.xmotion.y, 
+                this->onMouse(event.xmotion.x, event.xmotion.y,
                               Window::kMove_InputState, get_modifiers(event));
             }
             break;
@@ -230,12 +230,12 @@ bool Window_unix::handleEvent(const XEvent& event) {
             }
             Window::Key key = get_key(keysym);
             if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, Window::kDown_InputState, 
+                (void) this->onKey(key, Window::kDown_InputState,
                                    get_modifiers(event));
             } else {
                 long uni = keysym2ucs(keysym);
                 if (uni != -1) {
-                    (void) this->onChar((SkUnichar) uni, 
+                    (void) this->onChar((SkUnichar) uni,
                                         get_modifiers(event));
                 }
             }
@@ -246,10 +246,10 @@ bool Window_unix::handleEvent(const XEvent& event) {
             KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
                                                0, shiftLevel);
             Window::Key key = get_key(keysym);
-            (void) this->onKey(key, Window::kUp_InputState, 
+            (void) this->onKey(key, Window::kUp_InputState,
                                get_modifiers(event));
         } break;
-        
+
 
         default:
             // these events should be handled in the main event loop
@@ -263,7 +263,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
 void Window_unix::setTitle(const char* title) {
     XTextProperty textproperty;
     XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty);
-    XSetWMName(fDisplay, fWindow, &textproperty);    
+    XSetWMName(fDisplay, fWindow, &textproperty);
 }
 
 void Window_unix::show() {
@@ -305,7 +305,7 @@ void Window_unix::onInval() {
     event.xexpose.width = fWidth;
     event.xexpose.height = fHeight;
     event.xexpose.count = 0;
-    
+
     XSendEvent(fDisplay, fWindow, False, 0, &event);
 }
 

@@ -1293,7 +1293,7 @@ bool GrGLGpu::uploadTexData(const GrSurfaceDesc& desc,
         restoreGLRowLength = false;
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
-      
+
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.
@@ -3577,7 +3577,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         if (dstRT && dstRT->numColorSamples() > 0) {
             return false;
         }
-    }    
+    }
     if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
         if (dst->config() != src->config()) {
             return false;

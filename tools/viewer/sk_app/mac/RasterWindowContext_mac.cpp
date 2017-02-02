@@ -114,7 +114,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
     if (fWindow && fGLContext) {
         // We made/have an off-screen surface. Get the contents as an SkImage:
         sk_sp<SkImage> snapshot = fBackbufferSurface->makeImageSnapshot();
-        
+
         // With ten-bit output, we need to manually apply the gamma of the output device
         // (unless we're in non-gamma correct mode, in which case our data is already
         // fake-sRGB, like we're expected to put in the 10-bit buffer):

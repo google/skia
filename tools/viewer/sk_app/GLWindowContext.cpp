@@ -55,7 +55,7 @@ void GLWindowContext::destroyContext() {
         fContext->unref();
         fContext = nullptr;
     }
-    
+
     fBackendContext.reset(nullptr);
 
     this->onDestroyContext();

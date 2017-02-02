@@ -273,7 +273,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
             return nullptr;
         }
     }
-    
+
     ref->fBoundsIsDirty = false;
 
     // resetToSize clears fSegmentMask and fIsOval

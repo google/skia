@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_TOKEN
 #define SKSL_TOKEN
 
 #include "SkSLPosition.h"
 #include "SkSLUtil.h"
- 
+
 namespace SkSL {
 
 #undef IN
@@ -148,8 +148,8 @@ struct Token {
             case Token::PLUSPLUS:     return SkString("++");
             case Token::MINUSMINUS:   return SkString("--");
             default:
-                ABORT("unsupported operator: %d\n", kind); 
-        }        
+                ABORT("unsupported operator: %d\n", kind);
+        }
     }
 
     Token() {

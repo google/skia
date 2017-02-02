@@ -234,7 +234,7 @@ public:
         }
         return -1;
     }
-    
+
     int find(const T& elem) const {
         const T* iter = fArray;
         const T* stop = fArray + fCount;

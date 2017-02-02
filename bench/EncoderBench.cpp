@@ -38,14 +38,14 @@ public:
                 name.append("Unknown");
                 break;
         }
-        
+
         fName = name;
     }
 
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
-    
+
     const char* onGetName() override { return fName.c_str(); }
-    
+
     void onPreDraw(SkCanvas*) override {
 #ifdef SK_DEBUG
         bool result =

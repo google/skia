@@ -38,7 +38,7 @@ protected:
                                         SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> createMaskTexture(GrContext*, 
+    sk_sp<GrTextureProxy> createMaskTexture(GrContext*,
                                             const SkMatrix&,
                                             const SkIRect& bounds) const;
 #endif

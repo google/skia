@@ -11,7 +11,7 @@
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 
-GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail) 
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
     : fFlags(0)
     , fTarget(surfaceProxy)
     , fAuditTrail(auditTrail) {

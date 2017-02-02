@@ -134,7 +134,7 @@ class SkOpContourHead;
     extern int gDumpTSectNum;
 #endif
 
-#if DEBUG_COINCIDENCE || DEBUG_COINCIDENCE_DUMP 
+#if DEBUG_COINCIDENCE || DEBUG_COINCIDENCE_DUMP
     #define DEBUG_COIN 1
 #else
     #define DEBUG_COIN 0

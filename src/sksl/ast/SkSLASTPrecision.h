@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTPRECISION
 #define SKSL_ASTPRECISION
 
@@ -27,8 +27,8 @@ struct ASTPrecision : public ASTDeclaration {
             case Modifiers::kLowp_Flag: return SkString("precision lowp float;");
             case Modifiers::kMediump_Flag: return SkString("precision mediump float;");
             case Modifiers::kHighp_Flag: return SkString("precision highp float;");
-            default: 
-                ASSERT(false); 
+            default:
+                ASSERT(false);
                 return SkString("<error>");
         }
         ASSERT(false);

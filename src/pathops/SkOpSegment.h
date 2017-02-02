@@ -169,8 +169,8 @@ public:
     void debugValidate() const;
 
 #if DEBUG_COINCIDENCE_ORDER
-    void debugResetCoinT() const; 
-    void debugSetCoinT(int, SkScalar ) const; 
+    void debugResetCoinT() const;
+    void debugSetCoinT(int, SkScalar ) const;
 #endif
 
 #if DEBUG_COIN

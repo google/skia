@@ -158,7 +158,7 @@ protected:
                           const SkPaint*) override;
     void onDrawBitmapLattice(const SkBitmap&, const Lattice& lattice, const SkRect& dst,
                              const SkPaint*) override;
-    
+
 private:
     SkPipeDeduper*  fDeduper;
     SkWStream*      fStream;

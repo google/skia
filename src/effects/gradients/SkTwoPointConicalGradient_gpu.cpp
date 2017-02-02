@@ -626,7 +626,7 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-class FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor 
+class FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLFocalInside2PtConicalProcessor(const GrProcessor&);
@@ -869,7 +869,7 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-class CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor 
+class CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLCircleInside2PtConicalProcessor(const GrProcessor&);

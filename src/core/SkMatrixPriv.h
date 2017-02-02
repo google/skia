@@ -27,7 +27,7 @@ public:
             return true;
         }
         // Insert other special-cases here (e.g. scale+translate)
-        
+
         // general case
         SkMatrix inverse;
         if (mx.invert(&inverse)) {
@@ -42,7 +42,7 @@ public:
         SkASSERT(0 == stride % sizeof(SkScalar));
 
         SkMatrix::TypeMask tm = mx.getType();
-        
+
         if (SkMatrix::kIdentity_Mask == tm) {
             return;
         }
@@ -57,7 +57,7 @@ public:
             return;
         }
         // Insert other special-cases here (e.g. scale+translate)
-        
+
         // general case
         SkMatrix::MapXYProc proc = mx.getMapXYProc();
         for (int i = 0; i < count; ++i) {

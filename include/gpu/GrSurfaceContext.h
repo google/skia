@@ -79,7 +79,7 @@ public:
     }
 
     /**
-     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the 
+     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
      * renderTargetContext at the specified position.
      * @param srcInfo       image info for the source pixels
      * @param srcBuffer     source for the write

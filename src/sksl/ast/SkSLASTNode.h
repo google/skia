@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTNODE
 #define SKSL_ASTNODE
 
@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct ASTNode {
     virtual ~ASTNode() {}
-     
+
     virtual SkString description() const = 0;
 };
 

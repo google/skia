@@ -49,7 +49,7 @@ public:
          *  block, or false if the iterator is exhausted.
          */
         bool next();
-        
+
     private:
         const SkBufferBlock* fBlock;
         size_t               fRemaining;
@@ -97,7 +97,7 @@ public:
 #else
     void validate() const {}
 #endif
-    
+
 private:
     SkBufferHead*   fHead;
     SkBufferBlock*  fTail;

@@ -66,7 +66,7 @@ public:
      *  its pixel memory is shareable, it may be shared instead of copied.
      */
     static sk_sp<SkImage> MakeFromBitmap(const SkBitmap&);
-    
+
     /**
      *  Construct a new SkImage based on the given ImageGenerator. Returns NULL on error.
      *  This function will always take ownership of the passed generator.

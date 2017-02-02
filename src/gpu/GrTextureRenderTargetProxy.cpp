@@ -8,7 +8,7 @@
 #include "GrTextureRenderTargetProxy.h"
 
 // Deferred version
-// This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and 
+// This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        const GrSurfaceDesc& desc,
@@ -20,7 +20,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 }
 
 // Wrapped version
-// This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and 
+// This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf)
     : GrSurfaceProxy(surf, SkBackingFit::kExact)

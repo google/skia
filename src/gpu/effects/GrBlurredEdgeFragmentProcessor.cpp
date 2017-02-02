@@ -58,7 +58,7 @@ GrGLSLFragmentProcessor* GrBlurredEdgeFP::onCreateGLSLInstance() const {
     return new GLSLBlurredEdgeFP();
 }
 
-void GrBlurredEdgeFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, 
+void GrBlurredEdgeFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     b->add32(fMode);
 }

@@ -67,7 +67,7 @@ protected:
             } else {
                 SkASSERT(Mode::kUnclipped == fMode);
                 canvas->saveLayer({ L, T, R, B }, nullptr);
-            } 
+            }
 
             do_draw(canvas);
         }

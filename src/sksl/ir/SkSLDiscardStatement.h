@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_DISCARDSTATEMENT
 #define SKSL_DISCARDSTATEMENT
 
@@ -14,7 +14,7 @@
 namespace SkSL {
 
 /**
- * A 'discard' statement. 
+ * A 'discard' statement.
  */
 struct DiscardStatement : public Statement {
     DiscardStatement(Position position)

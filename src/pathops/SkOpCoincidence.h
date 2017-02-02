@@ -60,7 +60,7 @@ public:
     SkDEBUGCODE(SkOpGlobalState* globalState() { return fGlobalState; })
 
     void init(SkDEBUGCODE(SkOpGlobalState* globalState)) {
-        sk_bzero(this, sizeof(*this)); 
+        sk_bzero(this, sizeof(*this));
         SkDEBUGCODE(fGlobalState = globalState);
     }
 

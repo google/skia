@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTBOOLLITERAL
 #define SKSL_ASTBOOLLITERAL
 
@@ -13,7 +13,7 @@
 namespace SkSL {
 
 /**
- * Represents "true" or "false". 
+ * Represents "true" or "false".
  */
 struct ASTBoolLiteral : public ASTExpression {
     ASTBoolLiteral(Position position, bool value)

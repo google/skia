@@ -52,7 +52,7 @@ public:
     }
 
     void validate() const {
-#ifdef SK_DEBUG    
+#ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 1);
         SkASSERT(fPendingReads >= 0);
         SkASSERT(fPendingWrites >= 0);
@@ -134,7 +134,7 @@ private:
             fTarget->completedRead();
             return;
         }
-    
+
         SkFAIL("How was the read completed if the Proxy hasn't been instantiated?");
     }
 
@@ -156,7 +156,7 @@ private:
             fTarget->completedWrite();
             return;
         }
-    
+
         SkFAIL("How was the write completed if the Proxy hasn't been instantiated?");
     }
 
@@ -267,7 +267,7 @@ public:
     GrTextureOpList* getLastTextureOpList();
 
     /**
-     * Retrieves the amount of GPU memory that will be or currently is used by this resource 
+     * Retrieves the amount of GPU memory that will be or currently is used by this resource
      * in bytes. It is approximate since we aren't aware of additional padding or copies made
      * by the driver.
      *

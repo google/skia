@@ -139,7 +139,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo));
     SkASSERT(image);
     // MDB TODO: this is unfortunate. The snapping of an Image_Gpu from a surface currently
-    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to 
+    // funnels down to a GrTexture. Once Image_Gpus are proxy-backed we should be able to
     // compare proxy uniqueIDs.
     if (rt->asTexture()->getTextureHandle() == image->getTextureHandle(false)) {
         fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);

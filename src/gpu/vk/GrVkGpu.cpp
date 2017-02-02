@@ -410,7 +410,7 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target) {
         SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
         SkASSERT(rt->msaaImage());
-        
+
         const SkIRect& srcRect = rt->getResolveRect();
 
         this->resolveImage(rt, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
@@ -1338,7 +1338,7 @@ inline bool can_copy_image(const GrSurface* dst,
         }
     }
 
-    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src 
+    // We require that all vulkan GrSurfaces have been created with transfer_dst and transfer_src
     // as image usage flags.
     if (src->origin() == dst->origin() &&
         GrBytesPerPixel(src->config()) == GrBytesPerPixel(dst->config())) {

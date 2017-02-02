@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
@@ -25,7 +25,7 @@ namespace SkSL {
  */
 struct InterfaceBlock : public ProgramElement {
     InterfaceBlock(Position position, const Variable& var, std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(position, kInterfaceBlock_Kind) 
+    : INHERITED(position, kInterfaceBlock_Kind)
     , fVariable(std::move(var))
     , fTypeOwner(typeOwner) {
         ASSERT(fVariable.fType.kind() == Type::kStruct_Kind);

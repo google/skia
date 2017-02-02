@@ -51,7 +51,7 @@ public:
      * the resource cache budget. On failure, returns nullptr.
      */
     static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, GrSurfaceOrigin, 
+                                   int sampleCount, GrSurfaceOrigin,
                                    const SkSurfaceProps*, InitContents);
 
     ~SkGpuDevice() override {}

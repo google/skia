@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_POSITION
 #define SKSL_POSITION
 
@@ -17,10 +17,10 @@ namespace SkSL {
  * ignored.
  */
 struct Position {
-    Position() 
+    Position()
     : fLine(-1)
     , fColumn(-1) {}
-    
+
     Position(int line, int column)
     : fLine(line)
     , fColumn(column) {}

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_SWIZZLE
 #define SKSL_SWIZZLE
 
@@ -14,7 +14,7 @@
 namespace SkSL {
 
 /**
- * Given a type and a swizzle component count, returns the type that will result from swizzling. For 
+ * Given a type and a swizzle component count, returns the type that will result from swizzling. For
  * instance, swizzling a vec3 with two components will result in a vec2. It is possible to swizzle
  * with more components than the source vector, as in 'vec2(1).xxxx'.
  */

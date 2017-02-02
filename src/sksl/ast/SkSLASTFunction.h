@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTFUNCTION
 #define SKSL_ASTFUNCTION
 
@@ -16,11 +16,11 @@
 namespace SkSL {
 
 /**
- * A function declaration or definition. The fBody field will be null for declarations. 
+ * A function declaration or definition. The fBody field will be null for declarations.
  */
 struct ASTFunction : public ASTDeclaration {
     ASTFunction(Position position, std::unique_ptr<ASTType> returnType, SkString name,
-                std::vector<std::unique_ptr<ASTParameter>> parameters, 
+                std::vector<std::unique_ptr<ASTParameter>> parameters,
                 std::unique_ptr<ASTBlock> body)
     : INHERITED(position, kFunction_Kind)
     , fReturnType(std::move(returnType))
@@ -41,7 +41,7 @@ struct ASTFunction : public ASTDeclaration {
         } else {
             result += ");";
         }
-        return result;        
+        return result;
     }
 
     const std::unique_ptr<ASTType> fReturnType;

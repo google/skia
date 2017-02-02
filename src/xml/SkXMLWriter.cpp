@@ -47,9 +47,9 @@ void SkXMLWriter::addText(const char text[], size_t length) {
     if (fElems.isEmpty()) {
         return;
     }
-    
+
     this->onAddText(text, length);
-    
+
     fElems.top()->fHasText = true;
 }
 

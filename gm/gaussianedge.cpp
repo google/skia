@@ -39,7 +39,7 @@ static void extract_pts(const SkBitmap& bm, SkTDArray<SkPoint>* pts,
     pts->rewind();
 
     for (int x = 0; x < width; ++x) {
-        SkColor color = bm.getColor(xOff+x, 0);    
+        SkColor color = bm.getColor(xOff+x, 0);
 
         pts->append()->set(SkIntToScalar(x), 255.0f-SkColorGetB(color));
         if (x > 0 && x < width-1) {
@@ -137,7 +137,7 @@ protected:
                 SkScalar inset = kRRRad - 0.5f;
                 rrects[1].inset(inset, inset);
                 SkScalar pad = blurRad/2.0f - inset;
-                paints[1].setStrokeWidth(blurRad + 2.0f * pad);                
+                paints[1].setStrokeWidth(blurRad + 2.0f * pad);
                 paints[1].setColor(SkColorSetARGB(255, (4 * blurRad) >> 8, (4 * blurRad) & 0xff,
                                                   (int)(4.0f*pad)));
             }
@@ -154,7 +154,7 @@ protected:
                 SkScalar inset = kRRRad - 0.5f;
                 rrects[2].inset(inset, inset);
                 SkScalar pad = blurRad/2.0f - inset;
-                paints[2].setStrokeWidth(blurRad + 2.0f * pad);                
+                paints[2].setStrokeWidth(blurRad + 2.0f * pad);
                 paints[2].setColor(SkColorSetARGB(255, (4 * blurRad) >> 8, (4 * blurRad) & 0xff,
                                                   (int)(4.0f*pad)));
             }

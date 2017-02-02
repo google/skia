@@ -32,7 +32,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrTextureProvider* provider,
     return GrSurfaceProxy::MakeWrapped(std::move(defaultFBO));
 }
 
-static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrTextureProvider* provider, 
+static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrTextureProvider* provider,
                                                        skiatest::Reporter* reporter,
                                                        const GrSurfaceDesc& desc,
                                                        SkBudgeted budgeted) {
@@ -43,7 +43,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrTextureProvider* provid
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
-static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrTextureProvider* provider, 
+static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrTextureProvider* provider,
                                                   const GrSurfaceDesc& desc,
                                                   SkBudgeted budgeted) {
     sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
         REPORTER_ASSERT(reporter, tProxy->asRenderTargetProxy() == rtProxy);
         REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
     }
-    
+
     {
         sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(caps, desc,
                                                                   SkBackingFit::kApprox,

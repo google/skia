@@ -97,7 +97,7 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     genericDesc->init();
     genericDesc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     genericDesc->computeChecksum();
-    
+
     // No effects, so we make a dummy struct
     SkScalerContextEffects noEffects;
 

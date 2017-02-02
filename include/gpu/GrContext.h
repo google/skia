@@ -196,7 +196,7 @@ public:
     // Create a new render target context as above but have it backed by a deferred-style
     // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-                                                 SkBackingFit fit, 
+                                                 SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,

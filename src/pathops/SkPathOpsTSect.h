@@ -317,7 +317,7 @@ private:
     void removeSpans(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
     void removedEndCheck(SkTSpan<TCurve, OppCurve>* span);
 
-    void resetRemovedEnds() { 
+    void resetRemovedEnds() {
         fRemovedStartT = fRemovedEndT = false;
     }
 
@@ -858,7 +858,7 @@ void SkTSpan<TCurve, OppCurve>::validatePerpPt(double t, const SkDPoint& pt) con
 
 
 template<typename TCurve, typename OppCurve>
-SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c 
+SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c
         SkDEBUGPARAMS(SkOpGlobalState* debugGlobalState)
         PATH_OPS_DEBUG_T_SECT_PARAMS(int id))
     : fCurve(c)

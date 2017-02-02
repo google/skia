@@ -31,7 +31,7 @@ bool Window_mac::initWindow(const DisplayParams* params) {
     // we already have a window
     if (fWindow) {
         return true;
-    } 
+    }
 
     fWidth = 1280;
     fHeight = 960;
@@ -229,7 +229,7 @@ bool Window_mac::attach(BackendType attachType, const DisplayParams& params) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, params);
             break;
-            
+
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, params);

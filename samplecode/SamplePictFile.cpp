@@ -57,7 +57,7 @@ public:
     ~PictFileView() override {
         this->freePictures();
     }
-    
+
     void freePictures() {
         for (int i = 0; i < kBBoxTypeCount; ++i) {
             SkSafeUnref(fPictures[i]);

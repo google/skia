@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTIFSTATEMENT
 #define SKSL_ASTIFSTATEMENT
 
@@ -13,10 +13,10 @@
 namespace SkSL {
 
 /**
- * An 'if' statement. 
+ * An 'if' statement.
  */
 struct ASTIfStatement : public ASTStatement {
-    ASTIfStatement(Position position, std::unique_ptr<ASTExpression> test, 
+    ASTIfStatement(Position position, std::unique_ptr<ASTExpression> test,
                    std::unique_ptr<ASTStatement> ifTrue, std::unique_ptr<ASTStatement> ifFalse)
     : INHERITED(position, kIf_Kind)
     , fTest(std::move(test))
@@ -32,7 +32,7 @@ struct ASTIfStatement : public ASTStatement {
             result += " else ";
             result += fIfFalse->description();
         }
-        return result;        
+        return result;
     }
 
     const std::unique_ptr<ASTExpression> fTest;

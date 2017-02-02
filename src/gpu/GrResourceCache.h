@@ -50,7 +50,7 @@ public:
     static const int    kDefaultMaxCount            = 2 * (1 << 12);
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
     static const size_t kDefaultMaxSize             = 96 * (1 << 20);
-    // Default number of external flushes a budgeted resources can go unused in the cache before it 
+    // Default number of external flushes a budgeted resources can go unused in the cache before it
     // is purged. Using a value <= 0 disables this feature.
     static const int    kDefaultMaxUnusedFlushes =
             1  * /* flushes per frame */

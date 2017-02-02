@@ -52,16 +52,16 @@ DEF_TEST(SkSLUndefinedSymbol, r) {
 
 DEF_TEST(SkSLUndefinedFunction, r) {
     test_failure(r,
-                 "void main() { int x = foo(1); }", 
+                 "void main() { int x = foo(1); }",
                  "error: 1: unknown identifier 'foo'\n1 error\n");
 }
 
 DEF_TEST(SkSLGenericArgumentMismatch, r) {
     test_failure(r,
-                 "void main() { float x = sin(1, 2); }", 
+                 "void main() { float x = sin(1, 2); }",
                  "error: 1: call to 'sin' expected 1 argument, but found 2\n1 error\n");
     test_failure(r,
-                 "void main() { float x = sin(true); }", 
+                 "void main() { float x = sin(true); }",
                  "error: 1: no match for sin(bool)\n1 error\n");
     test_success(r,
                  "void main() { float x = sin(1); }");
@@ -70,14 +70,14 @@ DEF_TEST(SkSLGenericArgumentMismatch, r) {
 DEF_TEST(SkSLArgumentCountMismatch, r) {
     test_failure(r,
                  "float foo(float x) { return x * x; }"
-                 "void main() { float x = foo(1, 2); }", 
+                 "void main() { float x = foo(1, 2); }",
                  "error: 1: call to 'foo' expected 1 argument, but found 2\n1 error\n");
 }
 
 DEF_TEST(SkSLArgumentMismatch, r) {
-    test_failure(r, 
+    test_failure(r,
                  "float foo(float x) { return x * x; }"
-                 "void main() { float x = foo(true); }", 
+                 "void main() { float x = foo(true); }",
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
@@ -89,25 +89,25 @@ DEF_TEST(SkSLIfTypeMismatch, r) {
 
 DEF_TEST(SkSLDoTypeMismatch, r) {
     test_failure(r,
-                 "void main() { do { } while (vec2(1)); }", 
+                 "void main() { do { } while (vec2(1)); }",
                  "error: 1: expected 'bool', but found 'vec2'\n1 error\n");
 }
 
 DEF_TEST(SkSLWhileTypeMismatch, r) {
     test_failure(r,
-                 "void main() { while (vec3(1)) { } }", 
+                 "void main() { while (vec3(1)) { } }",
                  "error: 1: expected 'bool', but found 'vec3'\n1 error\n");
 }
 
 DEF_TEST(SkSLForTypeMismatch, r) {
     test_failure(r,
-                 "void main() { for (int x = 0; x; x++) { } }", 
+                 "void main() { for (int x = 0; x; x++) { } }",
                  "error: 1: expected 'bool', but found 'int'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
-                 "void main() { vec2 x = vec2(1.0, false); }", 
+                 "void main() { vec2 x = vec2(1.0, false); }",
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
     test_failure(r,
                  "void main() { vec2 x = vec2(bvec2(false)); }",
@@ -195,13 +195,13 @@ DEF_TEST(SkSLReturnMissingValue, r) {
 
 DEF_TEST(SkSLReturnTypeMismatch, r) {
     test_failure(r,
-                 "int foo() { return 1.0; } void main() { }", 
+                 "int foo() { return 1.0; } void main() { }",
                  "error: 1: expected 'int', but found 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLDuplicateFunction, r) {
     test_failure(r,
-                 "void main() { } void main() { }", 
+                 "void main() { } void main() { }",
                  "error: 1: duplicate definition of void main()\n1 error\n");
     test_success(r,
                  "void main(); void main() { }");
@@ -209,29 +209,29 @@ DEF_TEST(SkSLDuplicateFunction, r) {
 
 DEF_TEST(SkSLUsingInvalidValue, r) {
     test_failure(r,
-                 "void main() { int x = int; }", 
+                 "void main() { int x = int; }",
                  "error: 1: expected '(' to begin constructor invocation\n1 error\n");
     test_failure(r,
-                 "int test() { return 1; } void main() { int x = test; }", 
+                 "int test() { return 1; } void main() { int x = test; }",
                  "error: 1: expected '(' to begin function call\n1 error\n");
 }
 DEF_TEST(SkSLDifferentReturnType, r) {
     test_failure(r,
-                 "int main() { return 1; } void main() { }", 
+                 "int main() { return 1; } void main() { }",
                  "error: 1: functions 'void main()' and 'int main()' differ only in return type\n1 "
                  "error\n");
 }
 
 DEF_TEST(SkSLDifferentModifiers, r) {
     test_failure(r,
-                 "void test(int x); void test(out int x) { }", 
+                 "void test(int x); void test(out int x) { }",
                  "error: 1: modifiers on parameter 1 differ between declaration and definition\n1 "
                  "error\n");
 }
 
 DEF_TEST(SkSLDuplicateSymbol, r) {
     test_failure(r,
-                 "int main; void main() { }", 
+                 "int main; void main() { }",
                  "error: 1: symbol 'main' was already defined\n1 error\n");
 
     test_failure(r,

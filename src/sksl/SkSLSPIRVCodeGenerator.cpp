@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #include "SkSLSPIRVCodeGenerator.h"
 
 #include "string.h"
@@ -771,7 +771,7 @@ static SkString opcode_text(SpvOp_ opCode) {
         case SpvOpImageSparseRead:
             return SkString("ImageSparseRead");
         default:
-            ABORT("unsupported SPIR-V op");    
+            ABORT("unsupported SPIR-V op");
     }
 }
 #endif
@@ -1077,7 +1077,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
                                            this->getType(type.componentType(), layout),
                                            this->writeIntLiteral(count), fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(type), 
+                                           (int32_t) layout.stride(type),
                                            fDecorationBuffer);
                 } else {
                     ABORT("runtime-sized arrays are not yet supported");

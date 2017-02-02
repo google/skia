@@ -36,7 +36,7 @@ class ShadowsView : public SampleView {
     bool      fIgnoreShadowAlpha;
 
 public:
-    ShadowsView() 
+    ShadowsView()
         : fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(true)
@@ -117,7 +117,7 @@ protected:
         }
     }
 
-    void drawAmbientShadow(SkCanvas* canvas, const SkPath& path, SkScalar zValue, 
+    void drawAmbientShadow(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                            SkScalar ambientAlpha) {
 
         if (ambientAlpha <= 0) {
@@ -259,7 +259,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setMaskFilter(std::move(mf));
         paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha
-                                                ? 255 
+                                                ? 255
                                                 : (unsigned char)(spotAlpha*255.999f), 0, 0, 0));
 
         // apply transformation to shadow

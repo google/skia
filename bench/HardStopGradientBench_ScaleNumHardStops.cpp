@@ -19,7 +19,7 @@ public:
     HardStopGradientBench_ScaleNumHardStops(int colorCount, int hardStopCount) {
         SkASSERT(hardStopCount <= colorCount/2);
 
-        fName.printf("hardstop_scale_num_hard_stops_%03d_colors_%03d_hard_stops", 
+        fName.printf("hardstop_scale_num_hard_stops_%03d_colors_%03d_hard_stops",
                      colorCount, hardStopCount);
 
         fColorCount    = colorCount;
@@ -37,7 +37,7 @@ public:
     void onPreDraw(SkCanvas* canvas) override {
         // Left to right
         SkPoint points[2] = {
-            SkPoint::Make(0,        kSize/2), 
+            SkPoint::Make(0,        kSize/2),
             SkPoint::Make(kSize-1,  kSize/2),
         };
 

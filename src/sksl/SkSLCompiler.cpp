@@ -140,7 +140,7 @@ Compiler::Compiler()
     ADD_TYPE(GSamplerCubeArrayShadow);
 
     SkString skCapsName("sk_Caps");
-    Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName, 
+    Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName,
                                     *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 

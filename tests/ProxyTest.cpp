@@ -19,7 +19,7 @@
 static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceProxy* proxy,
                           GrSurfaceOrigin origin,
-                          int width, int height, 
+                          int width, int height,
                           GrPixelConfig config,
                           const GrGpuResource::UniqueID& uniqueID,
                           SkBudgeted budgeted) {

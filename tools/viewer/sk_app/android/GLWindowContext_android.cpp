@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include <GLES/gl.h> 
+#include <GLES/gl.h>
 
 #include "WindowContextFactory_android.h"
 #include "../GLWindowContext.h"

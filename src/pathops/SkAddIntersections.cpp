@@ -513,7 +513,7 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 wn.segment()->debugValidate();
                 SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt]);
                 if (!testTAt->contains(nextTAt)) {
-                    SkOpPtT* oppPrev = testTAt->oppPrev(nextTAt);  //  Returns nullptr if pair 
+                    SkOpPtT* oppPrev = testTAt->oppPrev(nextTAt);  //  Returns nullptr if pair
                     if (oppPrev) {                                 //  already share a pt-t loop.
                         testTAt->span()->mergeMatches(nextTAt->span());
                         testTAt->addOpp(nextTAt, oppPrev);

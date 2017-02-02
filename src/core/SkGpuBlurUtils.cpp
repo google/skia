@@ -257,7 +257,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                              std::move(srcProxy), radiusX, radiusY, sigmaX, sigmaY, srcBounds);
 
         return dstRenderTargetContext;
-    } 
+    }
 
     sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kBottomLeft_GrSurfaceOrigin));

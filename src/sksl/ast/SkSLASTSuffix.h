@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTSUFFIX
 #define SKSL_ASTSUFFIX
 
@@ -38,7 +38,7 @@ struct ASTSuffix : public ASTPositionNode {
                 return SkString("--");
             default:
                 ABORT("unsupported suffix operator");
-        }        
+        }
     }
 
     Kind fKind;

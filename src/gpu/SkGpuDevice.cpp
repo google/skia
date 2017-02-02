@@ -260,8 +260,8 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
                                                             this->context(),
                                                             budgeted,
                                                             this->imageInfo(),
-                                                            fRenderTargetContext->numColorSamples(), 
-                                                            fRenderTargetContext->origin(), 
+                                                            fRenderTargetContext->numColorSamples(),
+                                                            fRenderTargetContext->origin(),
                                                             &this->surfaceProps()));
     if (!newRTC) {
         return;
@@ -1793,9 +1793,9 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     sk_sp<GrRenderTargetContext> rtc(fContext->makeRenderTargetContext(
                                                    fit,
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
-                                                   fRenderTargetContext->config(), 
-                                                   fRenderTargetContext->refColorSpace(), 
-                                                   fRenderTargetContext->desc().fSampleCnt, 
+                                                   fRenderTargetContext->config(),
+                                                   fRenderTargetContext->refColorSpace(),
+                                                   fRenderTargetContext->desc().fSampleCnt,
                                                    kDefault_GrSurfaceOrigin,
                                                    &props));
     if (!rtc) {

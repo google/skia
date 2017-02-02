@@ -893,7 +893,7 @@ public:
      *  the string. The caller may pass nullptr for intervals to determine the size of the interval
      *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
      *  intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders. 
+     *  This permits constructing an underline that skips the descenders.
      *
      *  @param text         the text
      *  @param length       number of bytes of text
@@ -912,7 +912,7 @@ public:
      *  string. The caller may pass nullptr for intervals to determine the size of the interval
      *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
      *  intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders. 
+     *  This permits constructing an underline that skips the descenders.
      *
      *  @param text         the text
      *  @param length       number of bytes of text
