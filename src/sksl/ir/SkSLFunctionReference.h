@@ -23,6 +23,10 @@ struct FunctionReference : public Expression {
     : INHERITED(position, kFunctionReference_Kind, *context.fInvalid_Type)
     , fFunctions(function) {}
 
+    bool hasSideEffects() const override {
+        return false;
+    }
+
     virtual SkString description() const override {
         ASSERT(false);
         return SkString("<function>");

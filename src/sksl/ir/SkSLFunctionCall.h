@@ -23,6 +23,21 @@ struct FunctionCall : public Expression {
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 
+    bool hasSideEffects() const override {
+        if (!fFunction.fBuiltin) {
+            // conservatively assume that user-defined functions have side effects
+            return true;
+        }
+        for (const auto& arg : fArguments) {
+            if (arg->hasSideEffects()) {
+                return true;
+            }
+        }
+        // Note that we are assuming no builtin functions have side effects. This is true for the
+        // moment, but could change as our support for GLSL functions expands.
+        return false;
+    }
+
     SkString description() const override {
         SkString result = fFunction.fName + "(";
         SkString separator;

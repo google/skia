@@ -43,12 +43,16 @@ static const Type& index_type(const Context& context, const Type& type) {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
-    IndexExpression(const Context& context, std::unique_ptr<Expression> base, 
+    IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
     : INHERITED(base->fPosition, kIndex_Kind, index_type(context, base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
         ASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
+    }
+
+    bool hasSideEffects() const override {
+        return fBase->hasSideEffects() || fIndex->hasSideEffects();
     }
 
     SkString description() const override {

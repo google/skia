@@ -68,6 +68,10 @@ struct Swizzle : public Expression {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
     }
 
+    bool hasSideEffects() const override {
+        return fBase->hasSideEffects();
+    }
+
     SkString description() const override {
         SkString result = fBase->description() + ".";
         for (int x : fComponents) {
