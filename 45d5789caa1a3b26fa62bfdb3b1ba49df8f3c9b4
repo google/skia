@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5a6f707_e99f23a8",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "nit: Can these be const?",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 13
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4369bee4_e7b14615",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "Should this be \"could\"?",
+      "range": {
+        "startLine": 111,
+        "startChar": 52,
+        "endLine": 111,
+        "endChar": 57
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ff52b3c_30459e93",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "SkImageInfo has a bounds() method that makes this simpler:\n\n  if (!this-\u003egetInfo().bounds().contains(*options.fSubset)) {\n\nYou just moved this code, but I think a lot of it is unnecessary. SkCodec::getPixels already calls onGetValidSubset, which for webp already makes this check, along with the check for alignment. (SkCodec returns kUnimplemented, but it probably should\u0027ve returned kInvalidParameters, as this does.)",
+      "range": {
+        "startLine": 206,
+        "startChar": 13,
+        "endLine": 206,
+        "endChar": 60
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0bee024_eb1b1bbe",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "this-\u003egetInfo().bounds()",
+      "range": {
+        "startLine": 248,
+        "startChar": 13,
+        "endLine": 248,
+        "endChar": 60
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34ffb2a8_94e45ee4",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "Could you remove this conditional and just always set these four ints to the frameRect\u0027s values initially? They\u0027ll be the same if the frame is not subset, right?\n\n(Probably no performance difference, but maybe simpler?)",
+      "range": {
+        "startLine": 258,
+        "startChar": 8,
+        "endLine": 258,
+        "endChar": 21
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb863197_98db259b",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "I\u0027m not convinced this assert is guaranteed to be true.\n\nCan the frame be offset by an odd amount? If so, and it is less than fSubset, then (e.g.) minXOffset will be odd. Subtract that odd number from the even fSubset, and you\u0027ll end up with an odd number.\n\n(It would be good to have a test to verify this.)",
+      "range": {
+        "startLine": 276,
+        "startChar": 17,
+        "endLine": 276,
+        "endChar": 27
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f56072_82d1c3f0",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "For ease of following along, I think it might be better to compute this as the width of the intersection.",
+      "range": {
+        "startLine": 278,
+        "startChar": 8,
+        "endLine": 278,
+        "endChar": 19
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "855339ac_eee68f26",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "I find these names confusing. I was thinking decodeX, decodeWidth etc are \"the X, width, etc we ask the decoder to decode\".\n\nBut it looks more like:\n\ndecodeX/Y is the destination we write into\ndecodeWidth/Height are the dimensions (cropped) we ask for from the decoder, here, but down below, we further modify them and use the new values as the scaled output from the decoder. Lastly, we use decodeWidth to determine how many pixels to colorXform.",
+      "range": {
+        "startLine": 284,
+        "startChar": 36,
+        "endLine": 284,
+        "endChar": 47
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22fe40ee_f142b764",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to cast decodeX to a float. Won\u0027t multiplying a float by an int result in a float?\n\nSame for the casts below.\n\n(On a somewhat related note, when you computed scaleX and scaleY, I think you only need to cast one operand to float.)",
+      "range": {
+        "startLine": 298,
+        "startChar": 39,
+        "endLine": 298,
+        "endChar": 44
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5832ae32_7d8de86e",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "In this case, don\u0027t you need to update decodeWidth to be the same? As I understand it, the scaled_width is going to be the number of pixels you actually wrote. So down below, when you colorXform with decodeWidth, I think you might write off the memory in the case of downscaling? (Note that it doesn\u0027t use decodeHeight, but it does use rowsDecoded, which in the case of success was set to dstInfo.height().)\n\nI think maybe using more/different variables would help make this clearer.",
+      "range": {
+        "startLine": 309,
+        "startChar": 12,
+        "endLine": 309,
+        "endChar": 58
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca6abff9_4919d6d0",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-02T15:43:25Z",
+      "side": 1,
+      "message": "I think rowsDecodedPtr does *not* take scaling into account, but decodeY *does*. I don\u0027t think it makes sense to add the two together.\n\nI think you want decodeY added to a scaled version of rowsDecodedPtr (which I *think* starts from 0, even if frameIsSubset).\n\nAlthough I get confused about whether rowsDecodedPtr (for SkCodec) was supposed to mean rows of input versus rows of output... I *think* what you want to tell the client is the scaled version, so they can fill the remaining rows, if necessary. Likewise, down below you want to know the number of lines you decoded to the output, so you only xform them.",
+      "range": {
+        "startLine": 353,
+        "startChar": 26,
+        "endLine": 353,
+        "endChar": 51
+      },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
