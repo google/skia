@@ -16,9 +16,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     self.m.run(self.m.step, title, cmd=cmd,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
-  def _py(self, title, script, env=None, infra_step=True):
+  def _py(self, title, script, env=None, infra_step=True, args=()):
     self._strip_environment()
-    self.m.run(self.m.python, title, script=script,
+    self.m.run(self.m.python, title, script=script, args=args,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
   def build_command_buffer(self):
@@ -135,6 +135,14 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+    os           = self.m.vars.builder_cfg.get('os',           '')
+
+    if 'iOS' == os:
+      self._py('package ' + str(app),
+               self.m.vars.skia_dir.join('gn', 'package_ios.py'),
+               args=[str(app)])
+      self._run('deploy', ['ios-deploy', '-b', str(app) + '.app'])
+      return
 
     if 'SAN' in extra_config:
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
