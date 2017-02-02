@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87655b63_c5491bf0",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-02T18:09:32Z",
+      "side": 1,
+      "message": "Computing the fake umbra color needs to happen in one spot so we have a single color (otherwise it might vary by the ratio of distance to radius).",
+      "range": {
+        "startLine": 720,
+        "startChar": 7,
+        "endLine": 720,
+        "endChar": 8
+      },
+      "revId": "bb0232542eb3f0267ce3d068176a9fe4cb08c9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
