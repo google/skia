@@ -1,6 +1,19 @@
 [
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skia/resources",
+      "[START_DIR]/skia/resources"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_if_needed [START_DIR]/skia/resources"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
@@ -61,47 +74,27 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
     ],
     "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "rmtree data",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data",
-      "511"
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
     ],
-    "name": "makedirs data",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "mkdir [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
   },
   {
     "cmd": [
@@ -146,6 +139,14 @@
       "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+    ],
+    "name": "pull_if_needed [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
   },
   {
     "name": "$result",
