@@ -10,13 +10,8 @@
 
 #include "../private/SkFloatingPoint.h"
 
-// TODO: move this sort of check into SkPostConfig.h
-#define SK_SCALAR_IS_DOUBLE 0
 #undef SK_SCALAR_IS_FLOAT
 #define SK_SCALAR_IS_FLOAT  1
-
-
-#if SK_SCALAR_IS_FLOAT
 
 typedef float SkScalar;
 
@@ -55,48 +50,6 @@ typedef float SkScalar;
 #define SkScalarExp(x)              (float)sk_float_exp(x)
 #define SkScalarLog(x)              (float)sk_float_log(x)
 #define SkScalarLog2(x)             (float)sk_float_log2(x)
-
-#else   // SK_SCALAR_IS_DOUBLE
-
-typedef double SkScalar;
-
-#define SK_Scalar1                  1.0
-#define SK_ScalarHalf               0.5
-#define SK_ScalarSqrt2              1.414213562373095
-#define SK_ScalarPI                 3.141592653589793
-#define SK_ScalarTanPIOver8         0.4142135623731
-#define SK_ScalarRoot2Over2         0.70710678118655
-#define SK_ScalarMax                1.7976931348623157+308
-#define SK_ScalarInfinity           SK_DoubleInfinity
-#define SK_ScalarNegativeInfinity   SK_DoubleNegativeInfinity
-#define SK_ScalarNaN                SK_DoubleNaN
-
-#define SkScalarFloorToScalar(x)    floor(x)
-#define SkScalarCeilToScalar(x)     ceil(x)
-#define SkScalarRoundToScalar(x)    floor((x) + 0.5)
-#define SkScalarTruncToScalar(x)    trunc(x)
-
-#define SkScalarFloorToInt(x)       (int)floor(x)
-#define SkScalarCeilToInt(x)        (int)ceil(x)
-#define SkScalarRoundToInt(x)       (int)floor((x) + 0.5)
-
-#define SkScalarAbs(x)              abs(x)
-#define SkScalarCopySign(x, y)      copysign(x, y)
-#define SkScalarMod(x, y)           fmod(x,y)
-#define SkScalarSqrt(x)             sqrt(x)
-#define SkScalarPow(b, e)           pow(b, e)
-
-#define SkScalarSin(radians)        sin(radians)
-#define SkScalarCos(radians)        cos(radians)
-#define SkScalarTan(radians)        tan(radians)
-#define SkScalarASin(val)           asin(val)
-#define SkScalarACos(val)           acos(val)
-#define SkScalarATan2(y, x)         atan2(y,x)
-#define SkScalarExp(x)              exp(x)
-#define SkScalarLog(x)              log(x)
-#define SkScalarLog2(x)             log2(x)
-
-#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
