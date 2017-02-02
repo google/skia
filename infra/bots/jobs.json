@@ -1,9 +1,6 @@
 [
-  "Build-Mac-Clang-arm-Debug-iOS",
   "Build-Mac-Clang-arm-Release-iOS",
   "Build-Mac-Clang-arm64-Debug-Android",
-  "Build-Mac-Clang-arm64-Debug-iOS",
-  "Build-Mac-Clang-arm64-Release-iOS",
   "Build-Mac-Clang-x86_64-Debug",
   "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
   "Build-Mac-Clang-x86_64-Release",
