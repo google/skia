@@ -121,8 +121,6 @@ public:
     static const SkScalar* ConicWeightData(const SkPath& path) {
         return path.fPathRef->conicWeights();
     }
-
-    static bool ComputeTightBounds(const SkPath&, SkRect*);
 };
 
 #endif

@@ -358,6 +358,19 @@ public:
     }
 
     /**
+     *  Computes a bounds that is conservatively "snug" around the path. This assumes that the
+     *  path will be filled. It does not attempt to collapse away contours that are logically
+     *  empty (e.g. moveTo(x, y) + lineTo(x, y)) but will include them in the calculation.
+     *
+     *  It differs from getBounds() in that it will look at the snug bounds of curves, whereas
+     *  getBounds() just returns the bounds of the control-points. Thus computing this may be
+     *  slower than just calling getBounds().
+     *
+     *  If the path is empty (i.e. no points or verbs), it will return SkRect::MakeEmpty().
+     */
+    SkRect computeTightBounds() const;
+
+    /**
      * Does a conservative test to see whether a rectangle is inside a path. Currently it only
      * will ever return true for single convex contour paths. The empty-status of the rect is not
      * considered (e.g. a rect that is a point can be inside a path). Points or line segments where
