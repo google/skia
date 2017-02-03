@@ -84,6 +84,23 @@ Mac
 
 Mac users may want to pass `--ide=xcode` to `bin/gn gen` to generate an Xcode project.
 
+iOS
+---
+
+Googlers who want to sign and run iOS test binaries can do so by running something like
+
+    python gn/package_ios.py out/Debug/dm
+    python gn/package_ios.py out/Release/nanobench
+
+These commands will create and sign `dm.app` or `nanobench.app` packages you
+can push to iOS devices registered for Google development.  `ios-deploy` makes
+installing and running these packages easy:
+
+    ios-deploy -b out/Debug/dm.app -d --args "--match foo"
+
+If you find yourself missing a Google signing identity or provisioning profile,
+you'll want to have a read through go/appledev.
+
 Windows
 -------
 
