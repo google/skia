@@ -3,7 +3,7 @@
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
       "[START_DIR]/skia/resources",
-      "[START_DIR]/skia/resources"
+      "resources"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -34,6 +34,81 @@
   },
   {
     "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
+      "tmp/SKP_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "cat_file tmp/SKP_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "tmp/SKP_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm tmp/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "skps"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm skps"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
+      "skps"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "mkdir skps"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skp",
+      "skps"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_if_needed [START_DIR]/skp"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SKP_VERSION",
+      "tmp/SKP_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_file [START_DIR]/tmp/SKP_VERSION"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
@@ -51,6 +126,81 @@
       "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "name": "write SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
+      "tmp/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "cat_file tmp/SK_IMAGE_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "tmp/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm tmp/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "images"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm images"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
+      "images"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "mkdir images"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skimage",
+      "images"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_if_needed [START_DIR]/skimage"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION",
+      "tmp/SK_IMAGE_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_file [START_DIR]/tmp/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -74,27 +224,102 @@
   },
   {
     "cmd": [
-      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
+      "tmp/SVG_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "rm [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+    "name": "cat_file tmp/SVG_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "tmp/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm tmp/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm svgs"
   },
   {
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+      "svgs"
     ],
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "mkdir [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+    "name": "mkdir svgs"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/svg",
+      "svgs"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_if_needed [START_DIR]/svg"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SVG_VERSION",
+      "tmp/SVG_VERSION"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "push_file [START_DIR]/tmp/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
+      "perf"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "rm perf"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
+      "perf"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "mkdir perf"
   },
   {
     "cmd": [
@@ -113,7 +338,7 @@
       "[START_DIR]/out/Release/nanobench.app",
       "-I",
       "--args",
-      "--undefok -i [START_DIR]/skia/resources --skps [START_DIR]/skp --images [START_DIR]/skimage/nanobench --svgs [START_DIR]/svg --nocpu --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --skps ignore_skps --config 8888 gpu nonrendering hwui f16 srgb msaa16 nvpr16 nvprdit16 --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi ~path_hairline ~GLInstancedArraysBench ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data/nanobench_abc123_1337000001.json --properties gitHash abc123 build_number 5 --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value GX6450 model iPadMini4 os iOS"
+      "--undefok -i resources --skps skps --images images/nanobench --svgs svgs --nocpu --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --skps ignore_skps --config 8888 gpu nonrendering hwui f16 srgb msaa16 nvpr16 nvprdit16 --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi ~path_hairline ~GLInstancedArraysBench ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile perf/nanobench_abc123_1337000001.json --properties gitHash abc123 build_number 5 --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value GX6450 model iPadMini4 os iOS"
     ],
     "cwd": "[START_DIR]/skia",
     "name": "nanobench"
@@ -143,10 +368,10 @@
   {
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data",
+      "perf",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
     ],
-    "name": "pull_if_needed [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release/data"
+    "name": "pull_if_needed perf"
   },
   {
     "name": "$result",
