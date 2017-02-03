@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88d4a4b8_bc2312e9",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 133,
+        "startChar": 58,
+        "endLine": 133,
+        "endChar": 59
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b90c9c2a_b7cbd6d2",
+        "filename": "src/xps/SkXPSDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "streamDeleter? is this really necessary? It seems this is only used for the \u0027put it in a file\u0027 constructors, but this seems rather unfortunate. Can we just always have the document take ownership of the stream and then allow the user to pull the ownership back out if it wants it (only after \u0027close\u0027 or effectively closing). I know this isn\u0027t really part of this particular CL, but it\u0027s the most confusing part of this CL.",
+      "range": {
+        "startLine": 17,
+        "startChar": 26,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c921f865_e9d31b05",
+        "filename": "src/xps/SkXPSDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "Where is the MakeXPS that takes a IXpsOMObjectFactory? Isn\u0027t that required for Chrome in sandbox? Maybe it doesn\u0027t exist yet, but I was surprised not to see it here.",
+      "range": {
+        "startLine": 75,
+        "startChar": 30,
+        "endLine": 75,
+        "endChar": 37
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4df0e560_57d84a92",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "Same here, not sure that this number is.",
+      "range": {
+        "startLine": 23,
+        "startChar": 58,
+        "endLine": 23,
+        "endChar": 66
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290049bb_72c210c4",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "Can this be named? I have no idea what this is for.",
+      "range": {
+        "startLine": 23,
+        "startChar": 36,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9bb6b6c_4f86b737",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 1,
+      "message": "I\u0027m not sure what this bool is for.",
+      "range": {
+        "startLine": 23,
+        "startChar": 51,
+        "endLine": 23,
+        "endChar": 55
+      },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "258855b1_bc586795",
+        "filename": "src/xps/SkXPSDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-03T18:14:08Z",
+      "side": 0,
+      "message": "We still need to keep ownership of this guy. The user shouldn\u0027t need to keep it alive. But it looks like you have the SkXPSDocument holding onto the reference but the device not? Maybe this is temporary until all of this code is moved, but can this at least have a big comment now that we\u0027re borrowing ownership from the SkXPSDocument and this class must only be created in that context? Seeing an unknown pointer like this makes me uneasy.",
+      "range": {
+        "startLine": 167,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 20
+      },
+      "revId": "0dda9cb881900241c1c2193ddf3bede72cda898b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
