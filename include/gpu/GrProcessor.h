@@ -227,27 +227,27 @@ public:
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
-        return this->texture() == that.texture() &&
+        return this->texture1() == that.texture1() &&
                fParams == that.fParams &&
                fVisibility == that.fVisibility;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    GrTexture* texture() const { return fTexture.get(); }
+    GrTexture* texture1() const { return fTexture1.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const GrGpuResourceRef* programTexture1() const { return &fTexture1; }
 
 private:
 
     typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
-    ProgramTexture                  fTexture;
+    ProgramTexture                  fTexture1;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
 

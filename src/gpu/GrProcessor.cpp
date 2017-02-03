@@ -213,7 +213,7 @@ GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             const GrSamplerParams& params) {
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    this->reset(proxy->instantiate(texProvider), params);
+    this->reset(nullptr, params); //proxy->instantiate(texProvider), params);
 }
 
 GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
@@ -223,14 +223,13 @@ GrProcessor::TextureSampler::TextureSampler(GrTextureProvider* texProvider,
                                             GrShaderFlags visibility) {
     // For now, end the deferral at this time. Once all the TextureSamplers are swapped over
     // to taking a GrSurfaceProxy just use the IORefs on the proxy
-    this->reset(proxy->instantiate(texProvider), filterMode, tileXAndY, visibility);
+    this->reset(nullptr /*proxy->instantiate(texProvider)*/, filterMode, tileXAndY, visibility);
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,
                                         const GrSamplerParams& params,
                                         GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
+    fTexture.set(SkSafeRef(texture), kRead_GrIOType);
     fParams = params;
     fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
     fVisibility = visibility;
@@ -240,8 +239,7 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
                                         GrSamplerParams::FilterMode filterMode,
                                         SkShader::TileMode tileXAndY,
                                         GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(SkRef(texture), kRead_GrIOType);
+    fTexture.set(SkSafeRef(texture), kRead_GrIOType);
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
     fParams.reset(tileXAndY, filterMode);
     fVisibility = visibility;
