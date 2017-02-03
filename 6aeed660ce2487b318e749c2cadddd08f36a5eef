@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "40470d80_a89f4def",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-03T01:08:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94d8e7dc_8aa4d7e4",
+      "revId": "6aeed660ce2487b318e749c2cadddd08f36a5eef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7efdd1d9_2a993d00",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "6aeed660ce2487b318e749c2cadddd08f36a5eef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e095a5e_e18fb9d6",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-03T01:08:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7efdd1d9_2a993d00",
+      "revId": "6aeed660ce2487b318e749c2cadddd08f36a5eef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
