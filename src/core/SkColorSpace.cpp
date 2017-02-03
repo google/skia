@@ -242,6 +242,16 @@ bool SkColorSpace::gammaIsLinear() const {
     return as_CSB(this)->onGammaIsLinear();
 }
 
+bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
+    const SkMatrix44* matrix = as_CSB(this)->toXYZD50();
+    if (matrix) {
+        *toXYZD50 = *matrix;
+        return true;
+    }
+
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
