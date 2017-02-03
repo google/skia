@@ -181,6 +181,11 @@
       "Win8"
     ],
     "cwd": "[START_DIR]\\skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]\\out"
+    },
     "name": "nanobench"
   },
   {

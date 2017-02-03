@@ -103,6 +103,11 @@
       "~inc1.webp"
     ],
     "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "name": "nanobench"
   },
   {

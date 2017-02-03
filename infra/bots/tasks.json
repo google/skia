@@ -6370,6 +6370,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:3"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
         }
       ],
       "dependencies": [
@@ -6466,6 +6471,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:3"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
         }
       ],
       "dependencies": [
@@ -11189,6 +11199,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:3"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
         }
       ],
       "dependencies": [
@@ -11285,6 +11300,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:3"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
         }
       ],
       "dependencies": [
