@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50a383bb_fe433ba5",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-03T21:06:28Z",
+      "side": 1,
+      "message": "I really prefer this over the old version ... mostly because I don\u0027t like typing. But if we have named gamuts and transfer functions, do we actually need these two helpers? Or do we just ask people to say:\n\nMakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kSRGB_Gamut) ?",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3019fbe_d684d04e",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-03T21:06:28Z",
+      "side": 1,
+      "message": "Maybe put the D65 part in the name? (kDCIP3_D65_Gamut)?\n\nAlso: enum class here? Or wait until we can change RenderTargetGamma over (and rename it) at the same time?",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee4fc704_c0676200",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-03T21:06:28Z",
+      "side": 1,
+      "message": "Looks like we have 3 of the 2x2 options suggested by this comment? Add (SkColorSpaceTransferFn, Gamut) too?",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
