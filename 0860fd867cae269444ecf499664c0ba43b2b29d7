@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "082e7633_17cdf21f",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-03T14:16:14Z",
+      "side": 1,
+      "message": "Might help to have comment here about why -2 and 0.",
+      "revId": "0860fd867cae269444ecf499664c0ba43b2b29d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
