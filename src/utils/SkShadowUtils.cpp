@@ -267,6 +267,9 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
     } else {
         // TODO: handle transforming the path as part of the tessellator
         vertices = factory.makeVertices(path.transformedPath());
+        if (!vertices) {
+            return;
+        }
         translate = &kZeroTranslate;
     }
 

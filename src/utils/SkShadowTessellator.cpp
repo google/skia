@@ -26,6 +26,8 @@ public:
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
 
+    bool succeeded() const { return fSucceeded; }
+
     // The casts are needed to work around a, older GCC issue where the fact that the pointers are
     // T* and not const T* causes calls to a deleted unique_ptr constructor.
     UniqueArray<SkPoint> releasePositions() {
@@ -71,6 +73,8 @@ private:
     SkTDArray<SkPoint>  fInitPoints;
     // temporary buffer
     SkTDArray<SkPoint>  fPointBuffer;
+
+    bool                fSucceeded;
 };
 
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar radius, SkScalar dir,
@@ -107,12 +111,12 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        SkColor umbraColor,
                                                        SkColor penumbraColor,
                                                        bool transparent)
-    : fRadius(radius)
-    , fUmbraColor(umbraColor)
-    , fPenumbraColor(penumbraColor)
-    , fTransparent(transparent)
-    , fPrevUmbraIndex(-1) {
-
+        : fRadius(radius)
+        , fUmbraColor(umbraColor)
+        , fPenumbraColor(penumbraColor)
+        , fTransparent(transparent)
+        , fPrevUmbraIndex(-1)
+        , fSucceeded(false) {
     // Outer ring: 3*numPts
     // Middle ring: numPts
     fPositions.setReserve(4 * path.countPoints());
@@ -152,6 +156,10 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
             case SkPath::kDone_Verb:
                 break;
         }
+    }
+
+    if (!this->indexCount()) {
+        return;
     }
 
     SkVector normal;
@@ -198,6 +206,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         *fIndices.push() = fPositions.count() - 1;
         *fIndices.push() = fFirstVertex + 1;
     }
+    fSucceeded = true;
 }
 
 // tesselation tolerance values, in device space pixels
@@ -388,6 +397,8 @@ public:
         return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
     }
 
+    bool succeeded() const { return fSucceeded; }
+
 private:
     void computeClipBounds(const SkPath& path);
     void checkUmbraAndTransformCentroid(SkScalar scale, const SkVector& xlate,
@@ -439,6 +450,8 @@ private:
     SkTDArray<SkPoint>  fInitPoints;
     // temporary buffer
     SkTDArray<SkPoint>  fPointBuffer;
+
+    bool                fSucceeded;
 };
 
 
@@ -448,15 +461,16 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
                                                  SkScalar radius,
                                                  SkColor umbraColor, SkColor penumbraColor,
                                                  bool transparent)
-    : fRadius(radius)
-    , fUmbraColor(umbraColor)
-    , fPenumbraColor(penumbraColor)
-    , fTransparent(transparent)
-    , fValidUmbra(true)
-    , fPrevUmbraIndex(-1)
-    , fCurrPolyPoint(0)
-    , fPrevUmbraOutside(false)
-    , fFirstUmbraOutside(false) {
+        : fRadius(radius)
+        , fUmbraColor(umbraColor)
+        , fPenumbraColor(penumbraColor)
+        , fTransparent(transparent)
+        , fValidUmbra(true)
+        , fPrevUmbraIndex(-1)
+        , fCurrPolyPoint(0)
+        , fPrevUmbraOutside(false)
+        , fFirstUmbraOutside(false)
+        , fSucceeded(false) {
 
     // TODO: calculate these better
     // Penumbra ring: 3*numPts
@@ -512,6 +526,10 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
             case SkPath::kDone_Verb:
                 break;
         }
+    }
+
+    if (!this->indexCount()) {
+        return;
     }
 
     SkVector normal;
@@ -579,6 +597,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
             *fIndices.push() = fFirstVertex + 1;
         }
     }
+    fSucceeded = true;
 }
 
 void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
@@ -1008,6 +1027,9 @@ sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, SkScal
                                                       SkColor umbraColor, SkColor penumbraColor,
                                                       bool transparent) {
     SkAmbientShadowTessellator ambientTess(path, radius, umbraColor, penumbraColor, transparent);
+    if (!ambientTess.succeeded()) {
+        return nullptr;
+    }
     int vcount = ambientTess.vertexCount();
     int icount = ambientTess.indexCount();
     return sk_sp<SkShadowVertices>(new SkShadowVertices(ambientTess.releasePositions(),
@@ -1022,6 +1044,9 @@ sk_sp<SkShadowVertices> SkShadowVertices::MakeSpot(const SkPath& path, SkScalar 
                                                    bool transparent) {
     SkSpotShadowTessellator spotTess(path, scale, translate, radius, umbraColor, penumbraColor,
                                      transparent);
+    if (!spotTess.succeeded()) {
+        return nullptr;
+    }
     int vcount = spotTess.vertexCount();
     int icount = spotTess.indexCount();
     return sk_sp<SkShadowVertices>(new SkShadowVertices(spotTess.releasePositions(),
