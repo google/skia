@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "57c6679a_d5ce89c0",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-03T21:49:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6b0c1242_e8f4cf3e",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e3019fbe_d684d04e",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I prefer to keep it consistent with RenderTargetGamma (which I think we\u0027ll eventually rename anyway) - then we can maybe update both.",
       "parentUuid": "e3019fbe_d684d04e",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9edbce28_7bbc4cc8",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-03T21:49:59Z",
+      "side": 1,
+      "message": "Agreed re: enum class. But I do think putting D65 in the name is a good idea, in case we ever need/want the other one. (Or we just call the other one DCIP3Theater?)",
+      "parentUuid": "f23a0134_521f3d91",
       "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
