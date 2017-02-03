@@ -27,7 +27,7 @@ PROVISIONING_PROFILE=""
 # Code Signing identity - this needs to be set up on the local machine.
 CODE_SIGN_IDENTITY="iPhone Developer"
 
-IOS_BUNDLE_ID="com.google.iOSShell"
+IOS_BUNDLE_ID="com.google.dm"
 
 IOS_RESULTS_DIR="results"
 
@@ -36,10 +36,10 @@ if [[ -z "$BUILDTYPE" ]]; then
   BUILDTYPE="Debug"
 fi
 
-# Out dir is $SKIA_SRC_DIR/out by default. 
-if [[ -z "$SKIA_OUT" ]]; then 
+# Out dir is $SKIA_SRC_DIR/out by default.
+if [[ -z "$SKIA_OUT" ]]; then
   SKIA_OUT="$SKIA_SRC_DIR/out"
-fi 
+fi
 
 # Location of XCode build products.
 if [[ -z "$XCODEBUILD" ]]; then
@@ -101,7 +101,7 @@ ios_mount() {
   # If this is already mounted we unmount it.
   if $(mount | grep --quiet "$IOS_MOUNT_POINT"); then
     >&2 echo "Device already mounted at: $IOS_MOUNT_POINT - Unmounting."
-    ios_umount || true   
+    ios_umount || true
   fi
 
   # Ensure there is a mount directory.
@@ -111,6 +111,7 @@ ios_mount() {
   ifuse --container $IOS_BUNDLE_ID $IOS_MOUNT_POINT
   sleep 1
   >&2 echo "Successfully mounted device."
+  #find $IOS_MOUNT_POINT
 }
 
 # ios_umount: unmounts the ios device.
@@ -121,7 +122,7 @@ ios_umount() {
 
 # ios_restart: restarts the iOS device.
 ios_restart() {
-  ios_umount || true 
+  ios_umount || true
   idevicediagnostics restart
 }
 
