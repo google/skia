@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6b0c1242_e8f4cf3e",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T21:47:30Z",
+      "side": 1,
+      "message": "I think the convenience is worth it... I am so tired of typing SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) haha.",
+      "parentUuid": "50a383bb_fe433ba5",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e3019fbe_d684d04e",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f23a0134_521f3d91",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T21:47:30Z",
+      "side": 1,
+      "message": "I prefer to keep it consistent with RenderTargetGamma (which I think we\u0027ll eventually rename anyway) - then we can maybe update both.",
+      "parentUuid": "e3019fbe_d684d04e",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee4fc704_c0676200",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-03T21:06:28Z",
       "side": 1,
       "message": "Looks like we have 3 of the 2x2 options suggested by this comment? Add (SkColorSpaceTransferFn, Gamut) too?",
+      "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "528085ef_9d445e25",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T21:47:30Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "ee4fc704_c0676200",
       "revId": "06c242a98ee32abe892893f03a8b67d942b3d699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
