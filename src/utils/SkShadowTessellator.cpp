@@ -452,7 +452,10 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     , fUmbraColor(umbraColor)
     , fPenumbraColor(penumbraColor)
     , fTransparent(transparent)
+    , fValidUmbra(true)
     , fPrevUmbraIndex(-1)
+    , fCurrPolyPoint(0)
+    , fPrevUmbraOutside(false)
     , fFirstUmbraOutside(false) {
 
     // TODO: calculate these better
@@ -481,7 +484,6 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     // check to see if we have a valid umbra at all
     bool usePointCheck = path.isRRect(nullptr) || path.isRect(nullptr) || path.isOval(nullptr);
     this->checkUmbraAndTransformCentroid(scale, translate, usePointCheck);
-    fPrevUmbraOutside = false;
 
     // walk around the path, tessellate and generate inner and outer rings
     SkPath::Iter iter(path, true);
