@@ -203,8 +203,8 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                               DefinitionMap* definitions) {
     switch (node.fKind) {
         case BasicBlock::Node::kExpression_Kind: {
-            ASSERT(node.fExpression);
-            const Expression* expr = (Expression*) node.fExpression->get();
+            ASSERT(node.expression());
+            const Expression* expr = (Expression*) node.expression()->get();
             switch (expr->fKind) {
                 case Expression::kBinary_Kind: {
                     BinaryExpression* b = (BinaryExpression*) expr;
@@ -254,7 +254,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             break;
         }
         case BasicBlock::Node::kStatement_Kind: {
-            const Statement* stmt = (Statement*) node.fStatement->get();
+            const Statement* stmt = (Statement*) node.statement()->get();
             if (stmt->fKind == Statement::kVarDeclarations_Kind) {
                 VarDeclarationsStatement* vd = (VarDeclarationsStatement*) stmt;
                 for (const auto& decl : vd->fDeclaration->fVars) {
@@ -308,8 +308,8 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
     for (const auto& block : cfg.fBlocks) {
         for (const auto& node : block.fNodes) {
             if (node.fKind == BasicBlock::Node::kStatement_Kind) {
-                ASSERT(node.fStatement);
-                const Statement* s = node.fStatement->get();
+                ASSERT(node.statement());
+                const Statement* s = node.statement()->get();
                 if (s->fKind == Statement::kVarDeclarations_Kind) {
                     const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
                     for (const auto& decl : vd->fDeclaration->fVars) {
@@ -368,7 +368,6 @@ void Compiler::computeDataFlow(CFG* cfg) {
     }
 }
 
-
 /**
  * Attempts to replace the expression pointed to by iter with a new one (in both the CFG and the
  * IR). If the expression can be cleanly removed, returns true and updates the iterator to point to
@@ -378,13 +377,174 @@ void Compiler::computeDataFlow(CFG* cfg) {
 bool SK_WARN_UNUSED_RESULT try_replace_expression(BasicBlock* b,
                                                   std::vector<BasicBlock::Node>::iterator* iter,
                                                   std::unique_ptr<Expression> newExpression) {
-    std::unique_ptr<Expression>* target = (*iter)->fExpression;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
         *target = std::move(newExpression);
         return false;
     }
     *target = std::move(newExpression);
     return b->tryInsertExpression( iter, target);
+}
+
+/**
+ * Returns true if the expression is a constant numeric literal with the specified value.
+ */
+bool is_constant(Expression& expr, double value) {
+    switch (expr.fKind) {
+        case Expression::kIntLiteral_Kind:
+            return ((IntLiteral&) expr).fValue == value;
+        case Expression::kFloatLiteral_Kind:
+            return ((FloatLiteral&) expr).fValue == value;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Collapses the binary expression pointed to by iter down to just the right side (in both the IR
+ * and CFG structures).
+ */
+void delete_left(DefinitionMap& definitions,
+                 BasicBlock& b,
+                 std::vector<BasicBlock::Node>::iterator* iter,
+                 bool* outUpdated,
+                 bool* outNeedsRescan) {
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    Expression* expr = target->get();
+    ASSERT(expr && expr->fKind == Expression::kBinary_Kind);
+    BinaryExpression* bin = (BinaryExpression*) expr;
+    if (bin->fOperator == Token::EQ) {
+        if (!b.tryRemoveLValueBefore(iter, bin->fLeft.get())) {
+            *outNeedsRescan = true;
+        }
+    } else if (!b.tryRemoveExpressionBefore(iter, bin->fLeft.get())) {
+        *outNeedsRescan = true;
+    }
+    if (!b.tryRemoveExpressionBefore(iter, bin->fRight.get())) {
+        *outNeedsRescan = true;
+    }
+    ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind &&
+           (*iter)->expression() == target);
+    *target = std::move(bin->fRight);
+    // pick up subexpressions. This will leave an extra copy of the expression in the list.
+    if (!b.tryInsertExpression(iter, (*iter)->expression())) {
+        *outNeedsRescan = true;
+        return;
+    }
+    // delete extra copy
+    *iter = b.fNodes.erase(*iter);
+}
+
+/**
+ * Collapses the binary expression pointed to by iter down to just the left side (in both the IR and
+ * CFG structures).
+ */
+void delete_right(DefinitionMap& definitions,
+                  BasicBlock& b,
+                  std::vector<BasicBlock::Node>::iterator* iter,
+                  bool* outUpdated,
+                  bool* outNeedsRescan) {
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    Expression* expr = target->get();
+    ASSERT(expr && expr->fKind == Expression::kBinary_Kind);
+    BinaryExpression* bin = (BinaryExpression*) expr;
+    if (!b.tryRemoveExpressionBefore(iter, bin->fLeft.get())) {
+        *outNeedsRescan = true;
+    }
+    if (!b.tryRemoveExpressionBefore(iter, bin->fRight.get())) {
+        *outNeedsRescan = true;
+    }
+    Expression* left = bin->fLeft.release();
+    target->reset(left);
+    // pick up subexpressions. This will leave an extra copy of the expression in the list.
+    if (!b.tryInsertExpression(iter, (*iter)->expression())) {
+        *outNeedsRescan = true;
+        return;
+    }
+    // delete extra copy
+    *iter = b.fNodes.erase(*iter);
+}
+
+void Compiler::simplifyExpression(DefinitionMap& definitions,
+                                  BasicBlock& b,
+                                  std::vector<BasicBlock::Node>::iterator* iter,
+                                  std::unordered_set<const Variable*>* undefinedVariables,
+                                  bool* outUpdated,
+                                  bool* outNeedsRescan) {
+    Expression* expr = (*iter)->expression()->get();
+    ASSERT(expr);
+    if ((*iter)->fConstantPropagation) {
+        std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
+        if (optimized) {
+            if (!try_replace_expression(&b, iter, std::move(optimized))) {
+                *outNeedsRescan = true;
+            }
+            ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+            expr = (*iter)->expression()->get();
+            *outUpdated = true;
+        }
+    }
+    switch (expr->fKind) {
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference*) expr)->fVariable;
+            if (var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+                (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
+                (*undefinedVariables).insert(&var);
+                this->error(expr->fPosition,
+                            "'" + var.fName + "' has not been assigned");
+            }
+            break;
+        }
+        case Expression::kTernary_Kind: {
+            TernaryExpression* t = (TernaryExpression*) expr;
+            if (t->fTest->fKind == Expression::kBoolLiteral_Kind) {
+                // ternary has a constant test, replace it with either the true or
+                // false branch
+                if (((BoolLiteral&) *t->fTest).fValue) {
+                    (*iter)->setExpression(std::move(t->fIfTrue));
+                } else {
+                    (*iter)->setExpression(std::move(t->fIfFalse));
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            break;
+        }
+        case Expression::kBinary_Kind: {
+            // collapse useless expressions like x * 1 or x + 0
+            BinaryExpression* bin = (BinaryExpression*) expr;
+            switch (bin->fOperator) {
+                case Token::STAR:
+                    if (is_constant(*bin->fLeft, 1)) {
+                        delete_left(definitions, b, iter, outUpdated, outNeedsRescan);
+                    }
+                    else if (is_constant(*bin->fRight, 1)) {
+                        delete_right(definitions, b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::PLUS: // fall through
+                case Token::MINUS:
+                    if (is_constant(*bin->fLeft, 0)) {
+                        delete_left(definitions, b, iter, outUpdated, outNeedsRescan);
+                    }
+                    else if (is_constant(*bin->fRight, 0)) {
+                        delete_right(definitions, b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::SLASH:
+                    if (is_constant(*bin->fRight, 1)) {
+                        delete_right(definitions, b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        default:
+            break;
+    }
 }
 
 void Compiler::scanCFG(FunctionDefinition& f) {
@@ -398,10 +558,10 @@ void Compiler::scanCFG(FunctionDefinition& f) {
             Position p;
             switch (cfg.fBlocks[i].fNodes[0].fKind) {
                 case BasicBlock::Node::kStatement_Kind:
-                    p = (*cfg.fBlocks[i].fNodes[0].fStatement)->fPosition;
+                    p = (*cfg.fBlocks[i].fNodes[0].statement())->fPosition;
                     break;
                 case BasicBlock::Node::kExpression_Kind:
-                    p = (*cfg.fBlocks[i].fNodes[0].fExpression)->fPosition;
+                    p = (*cfg.fBlocks[i].fNodes[0].expression())->fPosition;
                     break;
             }
             this->error(p, SkString("unreachable"));
@@ -428,54 +588,10 @@ void Compiler::scanCFG(FunctionDefinition& f) {
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
                 if (iter->fKind == BasicBlock::Node::kExpression_Kind) {
-                    Expression* expr = iter->fExpression->get();
-                    ASSERT(expr);
-                    if (iter->fConstantPropagation) {
-                        std::unique_ptr<Expression> optimized = expr->constantPropagate(
-                                                                                      *fIRGenerator,
-                                                                                      definitions);
-                        if (optimized) {
-                            if (!try_replace_expression(&b, &iter, std::move(optimized))) {
-                                needsRescan = true;
-                            }
-                            ASSERT(iter->fKind == BasicBlock::Node::kExpression_Kind);
-                            expr = iter->fExpression->get();
-                            updated = true;
-                        }
-                    }
-                    switch (expr->fKind) {
-                        case Expression::kVariableReference_Kind: {
-                            const Variable& var = ((VariableReference*) expr)->fVariable;
-                            if (var.fStorage == Variable::kLocal_Storage &&
-                                !definitions[&var] &&
-                                undefinedVariables.find(&var) == undefinedVariables.end()) {
-                                undefinedVariables.insert(&var);
-                                this->error(expr->fPosition,
-                                            "'" + var.fName + "' has not been assigned");
-                            }
-                            break;
-                        }
-                        case Expression::kTernary_Kind: {
-                            TernaryExpression* t = (TernaryExpression*) expr;
-                            if (t->fTest->fKind == Expression::kBoolLiteral_Kind) {
-                                // ternary has a constant test, replace it with either the true or
-                                // false branch
-                                if (((BoolLiteral&) *t->fTest).fValue) {
-                                    *iter->fExpression = std::move(t->fIfTrue);
-                                } else {
-                                    *iter->fExpression = std::move(t->fIfFalse);
-                                }
-                                updated = true;
-                                needsRescan = true;
-                            }
-                            break;
-                        }
-                        default:
-                            break;
-                    }
+                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
+                                             &needsRescan);
                 } else {
-                    ASSERT(iter->fKind == BasicBlock::Node::kStatement_Kind);
-                    Statement* stmt = iter->fStatement->get();
+                    Statement* stmt = iter->statement()->get();
                     switch (stmt->fKind) {
                         case Statement::kVarDeclarations_Kind: {
                             VarDeclarations& vd = *((VarDeclarationsStatement&) *stmt).fDeclaration;
@@ -485,8 +601,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                     (!varDecl.fValue ||
                                      !varDecl.fValue->hasSideEffects())) {
                                     if (varDecl.fValue) {
-                                        ASSERT(iter->fKind == BasicBlock::Node::kStatement_Kind &&
-                                               iter->fStatement->get() == stmt);
+                                        ASSERT(iter->statement()->get() == stmt);
                                         if (!b.tryRemoveExpressionBefore(
                                                                         &iter,
                                                                         varDecl.fValue.get())) {
@@ -500,7 +615,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                 }
                             }
                             if (vd.fVars.size() == 0) {
-                                iter->fStatement->reset(new Nop());
+                                iter->setStatement(std::unique_ptr<Statement>(new Nop()));
                             }
                             break;
                         }
@@ -516,12 +631,12 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                 // if block doesn't do anything, no else block
                                 if (i.fTest->hasSideEffects()) {
                                     // test has side effects, keep it
-                                    iter->fStatement->reset(new ExpressionStatement(
-                                                                               std::move(i.fTest)));
+                                    iter->setStatement(std::unique_ptr<Statement>(
+                                                      new ExpressionStatement(std::move(i.fTest))));
                                 } else {
                                     // no if, no else, no test side effects, kill the whole if
                                     // statement
-                                    iter->fStatement->reset(new Nop());
+                                    iter->setStatement(std::unique_ptr<Statement>(new Nop()));
                                 }
                                 updated = true;
                                 needsRescan = true;
@@ -530,7 +645,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                         }
                         case Statement::kExpression_Kind: {
                             ExpressionStatement& e = (ExpressionStatement&) *stmt;
-                            ASSERT(iter->fStatement->get() == &e);
+                            ASSERT(iter->statement()->get() == &e);
                             if (e.fExpression->fKind == Expression::kBinary_Kind) {
                                 BinaryExpression& bin = (BinaryExpression&) *e.fExpression;
                                 if (dead_assignment(bin)) {
@@ -546,9 +661,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                         }
                                     } else {
                                         // no side effects, kill the whole statement
-                                        ASSERT(iter->fKind == BasicBlock::Node::kStatement_Kind &&
-                                                              iter->fStatement->get() == stmt);
-                                        iter->fStatement->reset(new Nop());
+                                        ASSERT(iter->statement()->get() == stmt);
+                                        iter->setStatement(std::unique_ptr<Statement>(new Nop()));
                                     }
                                     updated = true;
                                     break;
@@ -559,9 +673,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                 if (!b.tryRemoveExpressionBefore(&iter, e.fExpression.get())) {
                                     needsRescan = true;
                                 }
-                                ASSERT(iter->fKind == BasicBlock::Node::kStatement_Kind &&
-                                       iter->fStatement->get() == stmt);
-                                iter->fStatement->reset(new Nop());
+                                ASSERT(iter->statement()->get() == stmt);
+                                iter->setStatement(std::unique_ptr<Statement>(new Nop()));
                                 updated = true;
                             }
                             break;

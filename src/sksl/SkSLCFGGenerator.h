@@ -26,6 +26,33 @@ struct BasicBlock {
             kExpression_Kind
         };
 
+        Node(Kind kind, bool constantPropagation, std::unique_ptr<Expression>* expression,
+             std::unique_ptr<Statement>* statement)
+        : fKind(kind)
+        , fConstantPropagation(constantPropagation)
+        , fExpression(expression)
+        , fStatement(statement) {}
+
+        std::unique_ptr<Expression>* expression() const {
+            ASSERT(fKind == kExpression_Kind);
+            return fExpression;
+        }
+
+        void setExpression(std::unique_ptr<Expression> expr) {
+            ASSERT(fKind == kExpression_Kind);
+            *fExpression = std::move(expr);
+        }
+
+        std::unique_ptr<Statement>* statement() const {
+            ASSERT(fKind == kStatement_Kind);
+            return fStatement;
+        }
+
+        void setStatement(std::unique_ptr<Statement> stmt) {
+            ASSERT(fKind == kStatement_Kind);
+            *fStatement = std::move(stmt);
+        }
+
         SkString description() const {
             if (fKind == kStatement_Kind) {
                 return (*fStatement)->description();
@@ -44,6 +71,8 @@ struct BasicBlock {
         // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
         // and then collapse down to a simple x = 2;).
         bool fConstantPropagation;
+
+    private:
         // we store pointers to the unique_ptrs so that we can replace expressions or statements
         // during optimization without having to regenerate the entire tree
         std::unique_ptr<Expression>* fExpression;
@@ -76,6 +105,7 @@ struct BasicBlock {
     bool SK_WARN_UNUSED_RESULT tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                                      Expression* lvalue);
 
+
     /**
      * Attempts to inserts a new expression before the node pointed to by iter. If the
      * expression can be cleanly inserted, returns true and updates the iterator to point to the
@@ -83,6 +113,8 @@ struct BasicBlock {
      */
     bool SK_WARN_UNUSED_RESULT tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
                                                    std::unique_ptr<Expression>* expr);
+
+    void dump();
 
     std::vector<Node> fNodes;
     std::set<BlockId> fEntrances;
