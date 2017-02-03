@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ba32835_f1128a52",
+        "filename": "gm/simple_magnification.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-03T21:58:54Z",
+      "side": 1,
+      "message": "trailing ws",
+      "range": {
+        "startLine": 46,
+        "startChar": 79,
+        "endLine": 46,
+        "endChar": 80
+      },
+      "revId": "fcf431888009e93bf8d16a98382aab3fb9a991e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514dd2b1_4bde6e30",
+        "filename": "src/effects/SkImageSource.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-03T21:58:54Z",
+      "side": 1,
+      "message": "This already converts dstRect.fLeft to an int, then SkScalarRoundToInt does a floor and also casts to an int. Would it be simpler to do:\n\n int iLeft \u003d dstRect.fLeft;\n if (.... \u0026\u0026 iLeft \u003d\u003d dstRect.fLeft ...) {\n     offset-\u003efX \u003d iLeft;\n\n\n?",
+      "range": {
+        "startLine": 89,
+        "startChar": 12,
+        "endLine": 89,
+        "endChar": 40
+      },
+      "revId": "fcf431888009e93bf8d16a98382aab3fb9a991e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
