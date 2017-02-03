@@ -21,6 +21,10 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
+    bool isConstant() const override {
+        return fOperator == Token::MINUS && fOperand->isConstant();
+    }
+
     bool hasSideEffects() const override {
         return fOperator == Token::PLUSPLUS || fOperator == Token::MINUSMINUS ||
                fOperand->hasSideEffects();

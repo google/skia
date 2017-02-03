@@ -68,8 +68,8 @@ void CFG::dump() {
         for (size_t j = 0; j < fBlocks[i].fNodes.size(); j++) {
             BasicBlock::Node& n = fBlocks[i].fNodes[j];
             printf("Node %d (%p): %s\n", (int) j, &n, n.fKind == BasicBlock::Node::kExpression_Kind
-                                                           ? (*n.fExpression)->description().c_str()
-                                                           : (*n.fStatement)->description().c_str());
+                                                         ? (*n.expression())->description().c_str()
+                                                         : (*n.statement())->description().c_str());
         }
         printf("Exits: ");
         separator = "";
@@ -88,35 +88,35 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
     }
     bool result;
     if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
-        ASSERT((*iter)->fExpression->get() != e);
-        Expression* old = (*iter)->fExpression->get();
+        ASSERT((*iter)->expression()->get() != e);
+        Expression* old = (*iter)->expression()->get();
         do {
             if ((*iter) == fNodes.begin()) {
-                SkASSERT(false);
-                return false;
+                ABORT("couldn't find %s before %s\n", e->description().c_str(),
+                                                      old->description().c_str());
             }
             --(*iter);
         } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-                (*iter)->fExpression->get() != e);
+                 (*iter)->expression()->get() != e);
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-               (*iter)->fExpression->get() != old) {
+               (*iter)->expression()->get() != old) {
             ASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     } else {
-        Statement* old = (*iter)->fStatement->get();
+        Statement* old = (*iter)->statement()->get();
         do {
             if ((*iter) == fNodes.begin()) {
-                SkASSERT(false);
-                return false;
+                ABORT("couldn't find %s before %s\n", e->description().c_str(),
+                                                      old->description().c_str());
             }
             --(*iter);
         } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-                 (*iter)->fExpression->get() != e);
+                 (*iter)->expression()->get() != e);
         result = this->tryRemoveExpression(iter);
         while ((*iter)->fKind != BasicBlock::Node::kStatement_Kind ||
-               (*iter)->fStatement->get() != old) {
+               (*iter)->statement()->get() != old) {
             ASSERT(*iter != fNodes.end());
             ++(*iter);
         }
@@ -146,8 +146,7 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
 }
 
 bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* iter) {
-    ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
-    Expression* expr = (*iter)->fExpression->get();
+    Expression* expr = (*iter)->expression()->get();
     switch (expr->fKind) {
         case Expression::kBinary_Kind: {
             BinaryExpression* b = (BinaryExpression*) expr;
@@ -161,8 +160,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             if (!this->tryRemoveExpressionBefore(iter, b->fRight.get())) {
                 return false;
             }
-            ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind &&
-                   (*iter)->fExpression->get() == expr);
+            ASSERT((*iter)->expression()->get() == expr);
             *iter = fNodes.erase(*iter);
             return true;
         }
@@ -203,8 +201,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind &&
-                       (*iter)->fExpression->get() == expr);
+                ASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -215,8 +212,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
-                ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind &&
-                       (*iter)->fExpression->get() == expr);
+                ASSERT((*iter)->expression()->get() == expr);
             }
             *iter = fNodes.erase(*iter);
             return true;
@@ -269,6 +265,18 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
         case Expression::kFloatLiteral_Kind: // fall through
         case Expression::kIntLiteral_Kind:   // fall through
         case Expression::kVariableReference_Kind: {
+            BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
+            *iter = fNodes.insert(*iter, node);
+            return true;
+        }
+        case Expression::kConstructor_Kind: {
+            Constructor* c = (Constructor*) expr->get();
+            for (auto& arg : c->fArguments) {
+                if (!this->tryInsertExpression(iter, &arg)) {
+                    return false;
+                }
+                ++(*iter);
+            }
             BasicBlock::Node node = { BasicBlock::Node::kExpression_Kind, true, expr, nullptr };
             *iter = fNodes.insert(*iter, node);
             return true;
