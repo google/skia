@@ -2,12 +2,26 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# Disable warning about setting self.device_dirs in install(); we need to.
+# pylint: disable=W0201
+
+import default_flavor
 import gn_flavor
 
 # Infra step failures interact really annoyingly with swarming retries.
 kInfraStep = False
 
 class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
+
+  def install(self):
+    self.device_dirs = default_flavor.DeviceDirs(
+        dm_dir='dm',
+        perf_data_dir='perf',
+        resource_dir='resources',
+        images_dir='images',
+        skp_dir='skps',
+        svg_dir='svgs',
+        tmp_dir='tmp')
 
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
