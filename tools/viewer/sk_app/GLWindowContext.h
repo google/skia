@@ -30,6 +30,7 @@ public:
     void swapBuffers() override;
 
     void setDisplayParams(const DisplayParams& params) override;
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override;
 
     GrBackendContext getBackendContext() override {
         return (GrBackendContext) fBackendContext.get();
