@@ -1043,7 +1043,8 @@ void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkC
     }
 }
 
-Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkChunkAlloc& alloc) {
+Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkChunkAlloc& alloc,
+              int winding_scale = 1) {
     Edge* edge = new_edge(prev, next, type, c, alloc);
     if (edge->fWinding > 0) {
         insert_edge_below(edge, prev, c);
@@ -1052,6 +1053,7 @@ Edge* connect(Vertex* prev, Vertex* next, Edge::Type type, Comparator& c, SkChun
         insert_edge_below(edge, next, c);
         insert_edge_above(edge, prev, c);
     }
+    edge->fWinding *= winding_scale;
     merge_collinear_edges(edge, nullptr, c);
     return edge;
 }
@@ -1313,8 +1315,8 @@ void simplify(const VertexList& vertices, Comparator& c, SkChunkAlloc& alloc) {
             }
         } while (restartChecks);
         if (v->fAlpha == 0) {
-            if ((leftEnclosingEdge && leftEnclosingEdge->fWinding > 0) &&
-                (rightEnclosingEdge && rightEnclosingEdge->fWinding < 0)) {
+            if ((leftEnclosingEdge && leftEnclosingEdge->fWinding < 0) &&
+                (rightEnclosingEdge && rightEnclosingEdge->fWinding > 0)) {
                 v->fAlpha = max_edge_alpha(leftEnclosingEdge, rightEnclosingEdge);
             }
         }
@@ -1562,9 +1564,14 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
         return;
     }
     do {
+        // Connect vertices into a quad mesh. Outer edges get default (1) winding.
+        // Inner edges get -2 winding. This ensures that the interior is always filled
+        // (-1 winding number for normal cases, 3 for thin features where the interior inverts).
+        // Connector edges get zero winding, since they're only structural (i.e., to ensure
+        // no 0-0-0 alpha triangles are produced), and shouldn't affect the poly winding number.
         connect(outerVertex->fPrev, outerVertex, Edge::Type::kOuter, c, alloc);
-        connect(innerVertex->fPrev, innerVertex, Edge::Type::kInner, c, alloc);
-        connect(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc)->fWinding = 0;
+        connect(innerVertex->fPrev, innerVertex, Edge::Type::kInner, c, alloc, -2);
+        connect(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc, 0);
         Vertex* innerNext = innerVertex->fNext;
         Vertex* outerNext = outerVertex->fNext;
         mesh->append(innerVertex);
