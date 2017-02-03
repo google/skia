@@ -759,6 +759,25 @@ STAGE(luminance_to_alpha) {
     r = g = b = 0;
 }
 
+STAGE(rgb_to_hsl) {
+    auto max = SkNf::Max(SkNf::Max(r, g), b);
+    auto min = SkNf::Min(SkNf::Min(r, g), b);
+    auto l = (max + min) / 2;
+
+    auto d = max - min;
+    auto s = (l > 0.5f).thenElse(d / (2.f - max - min), d / (max + min));
+    SkNf h = (max == r).thenElse((g - b) / d + (g < b).thenElse(6.0f, 0.0f), 0);
+    h = (max == g).thenElse((b - r) / d + 2.0f, h);
+    h = (max == b).thenElse((r - g) / d + 4.0f, h);
+    h /= 6.0f;
+
+    h = (max == min).thenElse(0.0f, h);
+
+    r = h;
+    g = s;
+    b = l;
+}
+
 STAGE_CTX(matrix_2x3, const float*) {
     auto m = ctx;
 

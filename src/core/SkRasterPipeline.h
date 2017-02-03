@@ -96,7 +96,8 @@
     M(save_xy) M(accumulate)                                     \
     M(linear_gradient_2stops)                                    \
     M(byte_tables)                                               \
-    M(shader_adapter)
+    M(shader_adapter)                                            \
+    M(rgb_to_hsl)
 
 class SkRasterPipeline {
 public:
