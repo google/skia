@@ -302,11 +302,12 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
 #if SK_SUPPORT_GPU
     if (result->isTextureBacked()) {
         GrContext* context = result->getContext();
-        sk_sp<GrTexture> texture = result->asTextureRef(context);
-        if (!texture) {
+        sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(context);
+        if (!proxy) {
             return nullptr;
         }
-        fullSize = SkIRect::MakeWH(texture->width(), texture->height());
+        // ????
+        fullSize = SkIRect::MakeWH(proxy->width(), proxy->height());
     }
 #endif
     *outSubset = SkIRect::MakeWH(result->width(), result->height());

@@ -27,6 +27,14 @@ public:
                                            float outerThreshold,
                                            const SkIRect& bounds);
 
+    static sk_sp<GrFragmentProcessor> Make(GrContext*,
+                                           sk_sp<GrTextureProxy> proxy,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                           GrTexture* maskTexture,
+                                           float innerThreshold,
+                                           float outerThreshold,
+                                           const SkIRect& bounds);
+
     const char* name() const override { return "Alpha Threshold"; }
 
     float innerThreshold() const { return fInnerThreshold; }
