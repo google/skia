@@ -12,6 +12,10 @@
 #include "SkResourceCache.h"
 #include "SkShadowTessellator.h"
 #include "SkTLazy.h"
+
+#include "../effects/shadows/SkAmbientShadowMaskFilter.h"
+#include "../effects/shadows/SkSpotShadowMaskFilter.h"
+
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
 #include "effects/GrBlurredEdgeFragmentProcessor.h"
@@ -310,42 +314,84 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
 
     ShadowedPath shadowedPath(&path, &viewMatrix);
 
+    float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
+    SkScalar scaledRadius = lightRadius * zRatio;
+
     bool transparent = SkToBool(flags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+/*    SkRRect rrect;
+    SkRect rect;
+    bool isRRect = path.isRRect(&rrect) && !path.isRect(nullptr);
+    isRRect = isRRect && rrect.allCornersCircular();
+    bool isCircle = path.isOval(&rect);
+    isCircle = isCircle && SkScalarNearlyEqual(rect.width(), rect.height());
+    SkScalar shapeRadius;
+    if (isRRect) {
+        shapeRadius = rrect.getSimpleRadii().fX;
+    } else if (isCircle) {
+        shapeRadius = 0.5f*rect.width();
+        isRRect = true;
+    }
+    SkScalar scaleFactors[2];
+    if (isRRect) {
+        // Fast path only supports uniform scale.
+        isRRect = viewMatrix.getMinMaxScales(scaleFactors) &&
+                  SkScalarNearlyEqual(scaleFactors[0], scaleFactors[1]);
+    }
+    if (isRRect) {
+        isRRect = (scaledRadius <= scaleFactors[0] * shapeRadius);
+    }*/
+    bool isRRect = false;
 
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
-        AmbientVerticesFactory factory;
-        factory.fRadius = occluderHeight * kHeightFactor * kGeomFactor;
-        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
-        // umbraColor is the interior value, penumbraColor the exterior value.
-        // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
-        // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
-        // the final alpha.
-        factory.fUmbraColor =
-                SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, umbraAlpha * 255.9999f);
-        factory.fPenumbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, 0);
-        factory.fTransparent = transparent;
 
-        draw_shadow(factory, canvas, shadowedPath, color);
+        if (isRRect) {
+            SkPaint newPaint;
+            newPaint.setColor(color);
+            newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(occluderHeight, ambientAlpha,
+                                                                   flags));
+            canvas->drawPath(path, newPaint);
+        } else {
+            AmbientVerticesFactory factory;
+            factory.fRadius = occluderHeight * kHeightFactor * kGeomFactor;
+            SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
+            // umbraColor is the interior value, penumbraColor the exterior value.
+            // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
+            // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
+            // the final alpha.
+            factory.fUmbraColor =
+                SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, umbraAlpha * 255.9999f);
+            factory.fPenumbraColor = SkColorSetARGB(255, 0, ambientAlpha * 255.9999f, 0);
+            factory.fTransparent = transparent;
+
+            draw_shadow(factory, canvas, shadowedPath, color);
+        }
     }
 
     if (spotAlpha > 0) {
-        spotAlpha = SkTMin(spotAlpha, 1.f);
-        SpotVerticesFactory factory;
-        float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
-        factory.fRadius = lightRadius * zRatio;
+        if (isRRect) {
+            SkPaint newPaint;
+            newPaint.setColor(color);
+            newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(occluderHeight, devLightPos,
+                                                                lightRadius, spotAlpha, flags));
+            canvas->drawPath(path, newPaint);
+        } else {
+            spotAlpha = SkTMin(spotAlpha, 1.f);
+            SpotVerticesFactory factory;
+            factory.fRadius = scaledRadius;
 
-        // Compute the scale and translation for the spot shadow.
-        factory.fScale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
+            // Compute the scale and translation for the spot shadow.
+            factory.fScale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
 
-        SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
-        viewMatrix.mapPoints(&center, 1);
-        factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
-                                         zRatio * (center.fY - devLightPos.fY));
-        factory.fUmbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 255);
-        factory.fPenumbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 0);
-        factory.fTransparent = transparent;
+            SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+            viewMatrix.mapPoints(&center, 1);
+            factory.fOffset = SkVector::Make(zRatio * (center.fX - devLightPos.fX),
+                                             zRatio * (center.fY - devLightPos.fY));
+            factory.fUmbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 255);
+            factory.fPenumbraColor = SkColorSetARGB(255, 0, spotAlpha * 255.9999f, 0);
+            factory.fTransparent = transparent;
 
-        draw_shadow(factory, canvas, shadowedPath, color);
+            draw_shadow(factory, canvas, shadowedPath, color);
+        }
     }
 }
