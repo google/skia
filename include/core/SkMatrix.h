@@ -461,8 +461,7 @@ public:
 
     /** Like mapPoints but with custom byte stride between the points.
     */
-    void mapPointsWithStride(SkPoint dst[], SkPoint src[],
-                             size_t stride, int count) const {
+    void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const {
         SkASSERT(stride >= sizeof(SkPoint));
         SkASSERT(0 == stride % sizeof(SkScalar));
         for (int i = 0; i < count; ++i) {

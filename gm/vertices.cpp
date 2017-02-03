@@ -11,12 +11,13 @@
 #include "SkGradientShader.h"
 #include "SkRandom.h"
 
-static sk_sp<SkShader> make_shader1(SkScalar w, SkScalar h) {
+static constexpr SkScalar kShaderSize = 40;
+static sk_sp<SkShader> make_shader1() {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
         SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
     };
-    const SkPoint pts[] = { { w/4, 0 }, { 3*w/4, h } };
+    const SkPoint pts[] = {{kShaderSize / 4, 0}, {3 * kShaderSize / 4, kShaderSize}};
 
     return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                         SkShader::kMirror_TileMode);
@@ -30,10 +31,48 @@ static sk_sp<SkColorFilter> make_color_filter() {
     return SkColorFilter::MakeModeFilter(0xFFAABBCC, SkBlendMode::kDarken);
 }
 
+static constexpr SkScalar kMeshSize = 30;
+
+// start with the center of a 3x3 grid of vertices.
+static constexpr uint16_t kMeshFan[] = {
+        4,
+        0, 1, 2, 5, 8, 7, 6, 3, 0
+};
+
+static const int kMeshVertexCnt = 9;
+
+static void fill_mesh(SkPoint pts[kMeshVertexCnt], SkPoint texs[kMeshVertexCnt],
+                      SkColor colors[kMeshVertexCnt]) {
+    pts[0].set(0, 0);
+    pts[1].set(kMeshSize / 2, 3);
+    pts[2].set(kMeshSize, 0);
+    pts[3].set(3, kMeshSize / 2);
+    pts[4].set(kMeshSize / 2, kMeshSize / 2);
+    pts[5].set(kMeshSize - 3, kMeshSize / 2);
+    pts[6].set(0, kMeshSize);
+    pts[7].set(kMeshSize / 2, kMeshSize - 3);
+    pts[8].set(kMeshSize, kMeshSize);
+
+    texs[0].set(0, 0);
+    texs[1].set(kShaderSize / 2, 0);
+    texs[2].set(kShaderSize, 0);
+    texs[3].set(0, kShaderSize / 2);
+    texs[4].set(kShaderSize / 2, kShaderSize / 2);
+    texs[5].set(kShaderSize, kShaderSize / 2);
+    texs[6].set(0, kShaderSize);
+    texs[7].set(kShaderSize / 2, kShaderSize);
+    texs[8].set(kShaderSize, kShaderSize);
+
+    SkRandom rand;
+    for (size_t i = 0; i < kMeshVertexCnt; ++i) {
+        colors[i] = rand.nextU() | 0xFF000000;
+    }
+}
+
 class VerticesGM : public skiagm::GM {
-    SkPoint                 fPts[9];
-    SkPoint                 fTexs[9];
-    SkColor                 fColors[9];
+    SkPoint                 fPts[kMeshVertexCnt];
+    SkPoint                 fTexs[kMeshVertexCnt];
+    SkColor                 fColors[kMeshVertexCnt];
     sk_sp<SkShader>         fShader1;
     sk_sp<SkShader>         fShader2;
     sk_sp<SkColorFilter>    fColorFilter;
@@ -44,28 +83,10 @@ public:
 protected:
 
     void onOnceBeforeDraw() override {
-        const SkScalar X = 30;
-        const SkScalar Y = 30;
-
-        fPts[0].set(0, 0);    fPts[1].set(X/2, 3);   fPts[2].set(X, 0);
-        fPts[3].set(3, Y/2);  fPts[4].set(X/2, Y/2); fPts[5].set(X-3, Y/2);
-        fPts[6].set(0, Y);    fPts[7].set(X/2, Y-3); fPts[8].set(X, Y);
-
-        const SkScalar w = 40;
-        const SkScalar h = 40;
-
-        fTexs[0].set(0, 0);     fTexs[1].set(w/2, 0);   fTexs[2].set(w, 0);
-        fTexs[3].set(0, h/2);   fTexs[4].set(w/2, h/2); fTexs[5].set(w, h/2);
-        fTexs[6].set(0, h);     fTexs[7].set(w/2, h);   fTexs[8].set(w, h);
-
-        fShader1 = make_shader1(w, h);
+        fill_mesh(fPts, fTexs, fColors);
+        fShader1 = make_shader1();
         fShader2 = make_shader2();
         fColorFilter = make_color_filter();
-
-        SkRandom rand;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fColors); ++i) {
-            fColors[i] = rand.nextU() | 0xFF000000;
-        }
     }
 
     SkString onShortName() override {
@@ -78,12 +99,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        // start with the center of a 3x3 grid
-        constexpr uint16_t fan[] = {
-            4,
-            0, 1, 2, 5, 8, 7, 6, 3, 0
-        };
-
         const struct {
             const SkColor*              fColors;
             const SkPoint*              fTexs;
@@ -160,10 +175,9 @@ protected:
                 paint.setColorFilter(rec[i].fColorFilter);
                 paint.setAlpha(rec[i].fAlpha);
                 //if (2 == x)
-                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
-                                     SK_ARRAY_COUNT(fPts), fPts,
-                                     rec[i].fTexs, rec[i].fColors,
-                                     modes[j], fan, SK_ARRAY_COUNT(fan), paint);
+                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, kMeshVertexCnt, fPts,
+                                     rec[i].fTexs, rec[i].fColors, modes[j], kMeshFan,
+                                     SK_ARRAY_COUNT(kMeshFan), paint);
                 canvas->translate(40, 0);
                 ++x;
             }
@@ -179,3 +193,45 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new VerticesGM();)
+
+// This test exists to exercise batching in the gpu backend.
+DEF_SIMPLE_GM(vertices_batching, canvas, 50, 500) {
+    SkPoint pts[kMeshVertexCnt];
+    SkPoint texs[kMeshVertexCnt];
+    SkColor colors[kMeshVertexCnt];
+    fill_mesh(pts, texs, colors);
+    SkTDArray<SkMatrix> matrices;
+    matrices.push()->reset();
+    matrices.push()->setTranslate(0, 40);
+    SkMatrix* m = matrices.push();
+    m->setRotate(45, kMeshSize / 2, kMeshSize / 2);
+    m->postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2);
+    m->postTranslate(0, 80);
+
+    auto shader = make_shader1();
+
+    // Triangle fans can't batch so we convert to regular triangles,
+    static constexpr int kNumTris = SK_ARRAY_COUNT(kMeshFan) - 2;
+    uint16_t indices[3 * kNumTris];
+    for (size_t i = 0; i < kNumTris; ++i) {
+        indices[3 * i] = kMeshFan[0];
+        indices[3 * i + 1] = kMeshFan[i + 1];
+        indices[3 * i + 2] = kMeshFan[i + 2];
+    }
+    canvas->translate(10, 10);
+    for (bool useShader : {false, true}) {
+        for (bool useTex : {false, true}) {
+            for (const auto& m : matrices) {
+                canvas->save();
+                canvas->concat(m);
+                SkPaint paint;
+                const SkPoint* t = useTex ? texs : nullptr;
+                paint.setShader(useShader ? shader : nullptr);
+                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts, t,
+                                     colors, indices, SK_ARRAY_COUNT(indices), paint);
+                canvas->restore();
+            }
+            canvas->translate(0, 120);
+        }
+    }
+}

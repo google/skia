@@ -70,15 +70,16 @@ private:
         SkTDArray<uint16_t> fIndices;
         SkTDArray<uint32_t> fColors;
         SkTDArray<SkPoint> fLocalCoords;
+        SkMatrix fViewMatrix;
     };
 
     GrPrimitiveType fPrimitiveType;
-    SkMatrix fViewMatrix;
     bool fVariableColor;
     int fVertexCount;
     int fIndexCount;
+    bool fMultipleViewMatrices = false;
+    bool fPipelineNeedsLocalCoords;
     GrRenderTargetContext::ColorArrayType fColorArrayType;
-
     SkSTArray<1, Mesh, true> fMeshes;
 
     typedef GrMeshDrawOp INHERITED;
