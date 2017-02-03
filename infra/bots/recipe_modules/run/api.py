@@ -75,7 +75,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, env=None, **kwargs):
     """Run a step. If it fails, keep going but mark the build status failed."""
-    env = dict(env or {})
+    env = env or {}
     env.update(self.m.vars.default_env)
     try:
       return steptype(name=name, env=env, **kwargs)

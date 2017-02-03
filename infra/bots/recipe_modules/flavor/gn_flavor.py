@@ -6,18 +6,11 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _strip_environment(self):
-    self.m.vars.default_env = {k: v for (k,v)
-                               in self.m.vars.default_env.iteritems()
-                               if k in ['PATH']}
-
   def _run(self, title, cmd, env=None, infra_step=False):
-    self._strip_environment()
     self.m.run(self.m.step, title, cmd=cmd,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
   def _py(self, title, script, env=None, infra_step=True, args=()):
-    self._strip_environment()
     self.m.run(self.m.python, title, script=script, args=args,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
@@ -131,7 +124,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
-    env = {}
+    env = env or {}
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
