@@ -1079,10 +1079,10 @@ private:
 class TightBoundsBench : public Benchmark {
     SkPath      fPath;
     SkString    fName;
-    bool        (*fProc)(const SkPath&, SkRect*);
+    SkRect      (*fProc)(const SkPath&);
 
 public:
-    TightBoundsBench(bool (*proc)(const SkPath&, SkRect*), const char suffix[]) : fProc(proc) {
+    TightBoundsBench(SkRect (*proc)(const SkPath&), const char suffix[]) : fProc(proc) {
         fName.printf("tight_bounds_%s", suffix);
         
         const int N = 100;
@@ -1106,9 +1106,8 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
     
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkRect bounds;
         for (int i = 0; i < loops*100; ++i) {
-            fProc(fPath, &bounds);
+            fProc(fPath);
         }
     }
     
@@ -1186,8 +1185,11 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 
 #include "SkPathOps.h"
 #include "SkPathPriv.h"
-DEF_BENCH( return new TightBoundsBench(SkPathPriv::ComputeTightBounds, "priv"); )
-DEF_BENCH( return new TightBoundsBench(TightBounds, "pathops"); )
+DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
+                                       "priv"); )
+DEF_BENCH( return new TightBoundsBench([](const SkPath& path) {
+        SkRect bounds; TightBounds(path, &bounds); return bounds;
+    }, "pathops"); )
 
 // These seem to be optimized away, which is troublesome for timing.
 /*

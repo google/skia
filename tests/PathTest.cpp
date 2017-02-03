@@ -4741,8 +4741,7 @@ DEF_TEST(path_tight_bounds, reporter) {
                 SkPath path;
                 rand_path(&path, rand, verb, n);
                 SkRect bounds = path.getBounds();
-                SkRect tight;
-                SkPathPriv::ComputeTightBounds(path, &tight);
+                SkRect tight = path.computeTightBounds();
                 REPORTER_ASSERT(reporter, bounds.contains(tight));
                 
                 SkRect tight2;

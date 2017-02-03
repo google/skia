@@ -3435,23 +3435,22 @@ static int compute_cubic_extremas(const SkPoint src[3], SkPoint extremas[5]) {
     return n + 1;
 }
 
-bool SkPathPriv::ComputeTightBounds(const SkPath& path, SkRect* bounds) {
-    if (0 == path.countVerbs()) {
-        return false;
+SkRect SkPath::computeTightBounds() const {
+    if (0 == this->countVerbs()) {
+        return SkRect::MakeEmpty();
     }
 
-    if (path.getSegmentMasks() == SkPath::kLine_SegmentMask) {
-        *bounds = path.getBounds();
-        return true;
+    if (this->getSegmentMasks() == SkPath::kLine_SegmentMask) {
+        return this->getBounds();
     }
     
     SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
     SkPoint pts[4];
-    SkPath::RawIter iter(path);
+    SkPath::RawIter iter(*this);
 
     // initial with the first MoveTo, so we don't have to check inside the switch
     Sk2s min, max;
-    min = max = from_point(path.getPoint(0));
+    min = max = from_point(this->getPoint(0));
     for (;;) {
         int count = 0;
         switch (iter.next(pts)) {
@@ -3484,7 +3483,8 @@ bool SkPathPriv::ComputeTightBounds(const SkPath& path, SkRect* bounds) {
         }
     }
 DONE:
-    min.store((SkPoint*)&bounds->fLeft);
-    max.store((SkPoint*)&bounds->fRight);
-    return true;
+    SkRect bounds;
+    min.store((SkPoint*)&bounds.fLeft);
+    max.store((SkPoint*)&bounds.fRight);
+    return bounds;
 }
