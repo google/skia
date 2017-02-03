@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6161c875_e31c03aa",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-03T19:43:29Z",
+      "side": 1,
+      "message": "If subset is modified by getValidSubset, this comparison won\u0027t tell us that. We\u0027d need to compare against *options.fSubset.",
+      "range": {
+        "startLine": 237,
+        "startChar": 50,
+        "endLine": 237,
+        "endChar": 66
+      },
+      "revId": "761b0de02d1145b3aebaba013cd7af584d54b737",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
