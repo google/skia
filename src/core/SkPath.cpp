@@ -3394,3 +3394,97 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
         path->close();
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkNx.h"
+
+static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
+    SkScalar ts[2];
+    int n  = SkFindQuadExtrema(src[0].fX, src[1].fX, src[2].fX, ts);
+        n += SkFindQuadExtrema(src[0].fY, src[1].fY, src[2].fY, &ts[n]);
+    SkASSERT(n >= 0 && n <= 2);
+    for (int i = 0; i < n; ++i) {
+        extremas[i] = SkEvalQuadAt(src, ts[i]);
+    }
+    extremas[n] = src[2];
+    return n + 1;
+}
+
+static int compute_conic_extremas(const SkPoint src[3], SkScalar w, SkPoint extremas[3]) {
+    SkConic conic(src[0], src[1], src[2], w);
+    SkScalar ts[2];
+    int n  = conic.findXExtrema(ts);
+        n += conic.findYExtrema(&ts[n]);
+    SkASSERT(n >= 0 && n <= 2);
+    for (int i = 0; i < n; ++i) {
+        extremas[i] = conic.evalAt(ts[i]);
+    }
+    extremas[n] = src[2];
+    return n + 1;
+}
+
+static int compute_cubic_extremas(const SkPoint src[3], SkPoint extremas[5]) {
+    SkScalar ts[4];
+    int n  = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX, src[3].fX, ts);
+        n += SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY, src[3].fY, &ts[n]);
+    SkASSERT(n >= 0 && n <= 4);
+    for (int i = 0; i < n; ++i) {
+        SkEvalCubicAt(src, ts[i], &extremas[i], nullptr, nullptr);
+    }
+    extremas[n] = src[3];
+    return n + 1;
+}
+
+bool SkPathPriv::ComputeTightBounds(const SkPath& path, SkRect* bounds) {
+    if (0 == path.countVerbs()) {
+        return false;
+    }
+
+    if (path.getSegmentMasks() == SkPath::kLine_SegmentMask) {
+        *bounds = path.getBounds();
+        return true;
+    }
+    
+    SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
+    SkPoint pts[4];
+    SkPath::RawIter iter(path);
+
+    // initial with the first MoveTo, so we don't have to check inside the switch
+    Sk2s min, max;
+    min = max = from_point(path.getPoint(0));
+    for (;;) {
+        int count = 0;
+        switch (iter.next(pts)) {
+            case SkPath::kMove_Verb:
+                extremas[0] = pts[0];
+                count = 1;
+                break;
+            case SkPath::kLine_Verb:
+                extremas[0] = pts[1];
+                count = 1;
+                break;
+            case SkPath::kQuad_Verb:
+                count = compute_quad_extremas(pts, extremas);
+                break;
+            case SkPath::kConic_Verb:
+                count = compute_conic_extremas(pts, iter.conicWeight(), extremas);
+                break;
+            case SkPath::kCubic_Verb:
+                count = compute_cubic_extremas(pts, extremas);
+                break;
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kDone_Verb:
+                goto DONE;
+        }
+        for (int i = 0; i < count; ++i) {
+            Sk2s tmp = from_point(extremas[i]);
+            min = Sk2s::Min(min, tmp);
+            max = Sk2s::Max(max, tmp);
+        }
+    }
+DONE:
+    min.store((SkPoint*)&bounds->fLeft);
+    max.store((SkPoint*)&bounds->fRight);
+    return true;
+}

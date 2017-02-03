@@ -4700,3 +4700,55 @@ DEF_TEST(conservatively_contains_rect, reporter) {
     // this guy should not assert
     path.conservativelyContainsRect({ -211747, 12.1115f, -197893, 25.0321f });
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void rand_path(SkPath* path, SkRandom& rand, SkPath::Verb verb, int n) {
+    for (int i = 0; i < n; ++i) {
+        switch (verb) {
+            case SkPath::kLine_Verb:
+                path->lineTo(rand.nextF()*100, rand.nextF()*100);
+                break;
+            case SkPath::kQuad_Verb:
+                path->quadTo(rand.nextF()*100, rand.nextF()*100,
+                             rand.nextF()*100, rand.nextF()*100);
+                break;
+            case SkPath::kConic_Verb:
+                path->conicTo(rand.nextF()*100, rand.nextF()*100,
+                              rand.nextF()*100, rand.nextF()*100, rand.nextF()*10);
+                break;
+            case SkPath::kCubic_Verb:
+                path->cubicTo(rand.nextF()*100, rand.nextF()*100,
+                              rand.nextF()*100, rand.nextF()*100,
+                              rand.nextF()*100, rand.nextF()*100);
+                break;
+            default:
+                SkASSERT(false);
+        }
+    }
+}
+
+#include "SkPathOps.h"
+DEF_TEST(path_tight_bounds, reporter) {
+    SkRandom rand;
+
+    const SkPath::Verb verbs[] = {
+        SkPath::kLine_Verb, SkPath::kQuad_Verb, SkPath::kConic_Verb, SkPath::kCubic_Verb,
+    };
+    for (int i = 0; i < 1000; ++i) {
+        for (int n = 1; n <= 10; n += 9) {
+            for (SkPath::Verb verb : verbs) {
+                SkPath path;
+                rand_path(&path, rand, verb, n);
+                SkRect bounds = path.getBounds();
+                SkRect tight;
+                SkPathPriv::ComputeTightBounds(path, &tight);
+                REPORTER_ASSERT(reporter, bounds.contains(tight));
+                
+                SkRect tight2;
+                TightBounds(path, &tight2);
+                REPORTER_ASSERT(reporter, nearly_equal(tight, tight2));
+            }
+        }
+    }
+}
