@@ -6,6 +6,8 @@
  */
 
 #include "SkTypeface.h"
+#include "SkFontMgr.h"
+#include "SkFontStyle.h"
 
 #include "sk_typeface.h"
 
@@ -97,3 +99,31 @@ size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t t
 {
     return AsTypeface(typeface)->getTableData(tag, offset, length, data);
 }
+
+sk_fontmgr_t* sk_fontmgr_ref_default()
+{
+    return ToFontMgr(SkFontMgr::RefDefault());
+}
+
+void sk_fontmgr_unref(sk_fontmgr_t* fontmgr)
+{
+    AsFontMgr(fontmgr)->unref();
+}
+
+int sk_fontmgr_count_families(sk_fontmgr_t* fontmgr)
+{
+    return AsFontMgr(fontmgr)->countFamilies();
+}
+
+void sk_fontmgr_get_family_name(sk_fontmgr_t* fontmgr, int index, sk_string_t* familyName)
+{
+    AsFontMgr(fontmgr)->getFamilyName(index, AsString(familyName));
+}
+
+sk_typeface_t* sk_fontmgr_match_family_style_character(sk_fontmgr_t* fontmgr, const char* familyName, int weight, int width, sk_font_style_slant_t slant, const char** bcp47, int bcp47Count, int32_t character)
+{
+    SkFontStyle style = SkFontStyle(weight, width, (SkFontStyle::Slant)slant);
+    SkTypeface* typeface = AsFontMgr(fontmgr)->matchFamilyStyleCharacter(familyName, style, bcp47, bcp47Count, character);
+    return ToTypeface(typeface);
+}
+

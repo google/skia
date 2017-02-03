@@ -286,6 +286,7 @@ typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;
 */
 typedef struct sk_typeface_t sk_typeface_t;
 typedef uint32_t sk_font_table_tag_t;
+typedef struct sk_fontmgr_t sk_fontmgr_t;
 /**
  *  Abstraction layer directly on top of an image codec.
  */

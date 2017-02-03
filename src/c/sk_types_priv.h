@@ -32,6 +32,7 @@
 #include "SkPathOps.h"
 #include "SkRegion.h"
 #include "SkTypeface.h"
+#include "SkFontMgr.h"
 #include "SkEncodedInfo.h"
 #include "SkTime.h"
 #include "SkCamera.h"
@@ -274,6 +275,14 @@ static inline SkTypeface* AsTypeface(sk_typeface_t* typeface) {
 
 static inline sk_typeface_t* ToTypeface(SkTypeface* typeface) {
     return reinterpret_cast<sk_typeface_t*>(typeface);
+}
+
+static inline SkFontMgr* AsFontMgr(sk_fontmgr_t* fontmgr) {
+    return reinterpret_cast<SkFontMgr*>(fontmgr);
+}
+
+static inline sk_fontmgr_t* ToFontMgr(SkFontMgr* fontmgr) {
+    return reinterpret_cast<sk_fontmgr_t*>(fontmgr);
 }
 
 static inline sk_colorspace_t* ToColorSpace(SkColorSpace* colorspace) {
