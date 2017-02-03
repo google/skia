@@ -25,7 +25,9 @@ class GrSingleTextureEffect : public GrFragmentProcessor {
 public:
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Texture: %d", fTextureSampler.texture()->uniqueID().asUInt());
+        str.appendf("Texture: %d", fTextureSampler.texture1() 
+                                            ? fTextureSampler.texture1()->uniqueID().asUInt()
+                                            : -1);
         return str;
     }
 
@@ -60,7 +62,11 @@ protected:
      * texture.
      */
     void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
-        GrPixelConfig config = this->textureSampler(0).texture()->config();
+        if (!this->textureSampler(0).texture1()) {
+            inout->mulByUnknownFourComponents();            
+        }
+
+        GrPixelConfig config = this->textureSampler(0).texture1()->config();
         if (GrPixelConfigIsAlphaOnly(config)) {
             inout->mulByUnknownSingleComponent();
         } else if (GrPixelConfigIsOpaque(config)) {
