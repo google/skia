@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "86221006_0317a023",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4369bee4_e7b14615",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -42,6 +59,24 @@
         "endLine": 111,
         "endChar": 57
       },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8b8c1be_03507d8d",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Yes, makes more sense.",
+      "parentUuid": "4369bee4_e7b14615",
       "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -71,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "f3ae8822_1c8dd712",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Done.  And great, let\u0027s assert this.",
+      "parentUuid": "9ff52b3c_30459e93",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0bee024_eb1b1bbe",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -94,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "5309c06d_fcbf4d28",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0bee024_eb1b1bbe",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34ffb2a8_94e45ee4",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -111,6 +182,24 @@
         "endLine": 258,
         "endChar": 21
       },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92952216_93c0d32d",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Yes thanks, that\u0027s better.",
+      "parentUuid": "34ffb2a8_94e45ee4",
       "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -140,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "8ff4a90f_585920f1",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "The values of x_offset and y_offset from libwebp are always even.  The spec actually says \"the x_offset is equal to \u003cthe value these bytes\u003e * 2.  I\u0027ll add a comment.",
+      "parentUuid": "eb863197_98db259b",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c0f56072_82d1c3f0",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -157,6 +264,24 @@
         "endLine": 278,
         "endChar": 19
       },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f953a7a_6a3bbed8",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Agreed, done.",
+      "parentUuid": "c0f56072_82d1c3f0",
       "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -209,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "1c1872f8_72e4d082",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "True, it\u0027s a style choice to be super explicit about the casts...  But I don\u0027t think it\u0027s very consistent with Skia, removing them.",
+      "parentUuid": "22fe40ee_f142b764",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5832ae32_7d8de86e",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -232,6 +375,24 @@
     },
     {
       "key": {
+        "uuid": "85305eb9_2891487c",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "Yeah you\u0027re right, should be fixed and a little clearer now.",
+      "parentUuid": "5832ae32_7d8de86e",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca6abff9_4919d6d0",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -249,6 +410,24 @@
         "endLine": 353,
         "endChar": 51
       },
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aba83a9_34a8e074",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-03T18:29:46Z",
+      "side": 1,
+      "message": "It looks to me like it does take scaling into account - we\u0027ve been using it that way for scaled decodes and it has worked fine.  libwebp says:\nint last_y; // coordinate of the line that was last output\n\nSo that seems to me indicate that it is in terms of dst rows.\n\nI think this is fine.  The incomplete images on the test bots should verify - I realize this failed last time but that was potentially caused by a different bug.",
+      "parentUuid": "ca6abff9_4919d6d0",
       "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
