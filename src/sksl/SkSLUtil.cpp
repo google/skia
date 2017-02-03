@@ -82,12 +82,8 @@ long stol(SkString s) {
 }
 
 void sksl_abort() {
-#ifdef SKIA
     sk_abort_no_print();
     exit(1);
-#else
-    abort();
-#endif
 }
 
 void write_data(const SkData& data, SkWStream& out) {
