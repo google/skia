@@ -99,4 +99,9 @@ void GLWindowContext::setDisplayParams(const DisplayParams& params) {
     this->initializeContext();
 }
 
+void GLWindowContext::setColorSpace(sk_sp<SkColorSpace> colorSpace) {
+    fDisplayParams.fColorSpace = std::move(colorSpace);
+    fSurface.reset();
+}
+
 }   //namespace sk_app
