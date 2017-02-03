@@ -335,13 +335,14 @@ public:
         swap(fPtr, that.fPtr);
     }
 
+    sk_sp<T> move() {
+        sk_sp<T> moved(this->release());
+        return moved;
+    }
+
 private:
     T*  fPtr;
 };
-
-template <typename T> inline void swap(sk_sp<T>& a, sk_sp<T>& b) /*noexcept*/ {
-    a.swap(b);
-}
 
 template <typename T, typename U> inline bool operator==(const sk_sp<T>& a, const sk_sp<U>& b) {
     return a.get() == b.get();
@@ -419,6 +420,18 @@ sk_sp<T> sk_make_sp(Args&&... args) {
  */
 template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
     return sk_sp<T>(SkSafeRef(obj));
+}
+
+namespace std {
+
+template <typename T> inline void swap(sk_sp<T>& a, sk_sp<T>& b) /*noexcept*/ {
+    a.swap(b);
+}
+
+template <typename T> inline sk_sp<T> move(sk_sp<T>& sp) /*noexcept*/ {
+    return sp.move();
+}
+
 }
 
 #endif
