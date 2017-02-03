@@ -118,6 +118,12 @@ public:
     bool gammaIsLinear() const;
 
     /**
+     *  Returns true and sets |toXYZD50| if the color gamut can be described as a matrix.
+     *  Returns false otherwise.
+     */
+    bool toXYZD50(SkMatrix44* toXYZD50) const;
+
+    /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
      *  the data is too large to serialize.
      */
