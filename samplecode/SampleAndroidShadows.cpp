@@ -17,6 +17,9 @@
 #include "SkView.h"
 #include "sk_tool_utils.h"
 
+#include "../effects/shadows/SkAmbientShadowMaskFilter.h"
+#include "../effects/shadows/SkSpotShadowMaskFilter.h"
+
 #define USE_SHADOW_UTILS
 
 ////////////////////////////////////////////////////////////////////////////
@@ -157,11 +160,10 @@ protected:
 
     void drawAmbientShadowAlt(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                               SkScalar ambientAlpha) {
-
         if (ambientAlpha <= 0) {
             return;
         }
-
+/*
         const SkScalar kHeightFactor = 1.f / 128.f;
         const SkScalar kGeomFactor = 64;
 
@@ -221,51 +223,66 @@ protected:
 
         paint.setShader(SkGaussianEdgeShader::Make());
         canvas->drawRRect(pathRRect, paint);
+        */
+        SkPaint newPaint;
+        newPaint.setColor(SK_ColorBLACK);
+        newPaint.setMaskFilter(SkAmbientShadowMaskFilter::Make(zValue, ambientAlpha,
+                                                               kGaussianEdge_ShadowFlag));
+        canvas->drawPath(path, newPaint);
+
     }
 
     void drawSpotShadow(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                         SkPoint3 lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
-        if (spotAlpha <= 0) {
-            return;
-        }
+        //if (spotAlpha <= 0) {
+        //    return;
+        //}
 
-        SkScalar zRatio = zValue / (lightPos.fZ - zValue);
-        if (zRatio < 0.0f) {
-            zRatio = 0.0f;
-        } else if (zRatio > 0.95f) {
-            zRatio = 0.95f;
-        }
-        SkScalar blurRadius = lightWidth*zRatio;
+        //SkScalar zRatio = zValue / (lightPos.fZ - zValue);
+        //if (zRatio < 0.0f) {
+        //    zRatio = 0.0f;
+        //} else if (zRatio > 0.95f) {
+        //    zRatio = 0.95f;
+        //}
+        //SkScalar blurRadius = lightWidth*zRatio;
 
-        // compute the transformation params
-        SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
-        SkMatrix ctmInverse;
-        if (!canvas->getTotalMatrix().invert(&ctmInverse)) {
-            return;
-        }
-        SkPoint lightPos2D = SkPoint::Make(lightPos.fX, lightPos.fY);
-        ctmInverse.mapPoints(&lightPos2D, 1);
-        SkPoint offset = SkPoint::Make(zRatio*(center.fX - lightPos2D.fX),
-                                       zRatio*(center.fY - lightPos2D.fY));
-        SkScalar scale = lightPos.fZ / (lightPos.fZ - zValue);
+        //// compute the transformation params
+        //SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
+        //SkMatrix ctmInverse;
+        //if (!canvas->getTotalMatrix().invert(&ctmInverse)) {
+        //    return;
+        //}
+        //SkPoint lightPos2D = SkPoint::Make(lightPos.fX, lightPos.fY);
+        //ctmInverse.mapPoints(&lightPos2D, 1);
+        //SkPoint offset = SkPoint::Make(zRatio*(center.fX - lightPos2D.fX),
+        //                               zRatio*(center.fY - lightPos2D.fY));
+        //SkScalar scale = lightPos.fZ / (lightPos.fZ - zValue);
 
-        SkAutoCanvasRestore acr(canvas, true);
+        //SkAutoCanvasRestore acr(canvas, true);
 
-        sk_sp<SkMaskFilter> mf = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
-                                                        SkBlurMask::ConvertRadiusToSigma(blurRadius),
-                                                        SkBlurMaskFilter::kNone_BlurFlag);
+        //sk_sp<SkMaskFilter> mf = SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
+        //                                                SkBlurMask::ConvertRadiusToSigma(blurRadius),
+        //                                                SkBlurMaskFilter::kNone_BlurFlag);
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setMaskFilter(std::move(mf));
-        paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha
-                                                ? 255 
-                                                : (unsigned char)(spotAlpha*255.999f), 0, 0, 0));
+        //SkPaint paint;
+        //paint.setAntiAlias(true);
+        //paint.setMaskFilter(std::move(mf));
+        //paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha
+        //                                        ? 255 
+        //                                        : (unsigned char)(spotAlpha*255.999f), 0, 0, 0));
 
-        // apply transformation to shadow
-        canvas->scale(scale, scale);
-        canvas->translate(offset.fX, offset.fY);
-        canvas->drawPath(path, paint);
+        //// apply transformation to shadow
+        //canvas->scale(scale, scale);
+        //canvas->translate(offset.fX, offset.fY);
+        //canvas->drawPath(path, paint);
+
+        SkPaint newPaint;
+        newPaint.setColor(SK_ColorBLACK);
+        newPaint.setMaskFilter(SkSpotShadowMaskFilter::Make(zValue, lightPos,
+                                                            lightWidth, spotAlpha, 
+                                                            kLargerUmbra_ShadowFlag |
+                                                            kGaussianEdge_ShadowFlag));
+        canvas->drawPath(path, newPaint);
     }
 
     void drawSpotShadowAlt(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
@@ -462,18 +479,18 @@ protected:
         this->drawShadowedPath(canvas, fRRPath, 64, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
-        paint.setColor(SK_ColorYELLOW);
-        canvas->translate(-250, 110);
-        lightPos.fX -= 250;
-        lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fFunkyRRPath, 8, paint, kAmbientAlpha,
-                               lightPos, kLightWidth, kSpotAlpha);
+        //paint.setColor(SK_ColorYELLOW);
+        //canvas->translate(-250, 110);
+        //lightPos.fX -= 250;
+        //lightPos.fY += 110;
+        //this->drawShadowedPath(canvas, fFunkyRRPath, 8, paint, kAmbientAlpha,
+        //                       lightPos, kLightWidth, kSpotAlpha);
 
-        paint.setColor(SK_ColorCYAN);
-        canvas->translate(250, 0);
-        lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fCubicPath, 16, paint, kAmbientAlpha,
-                               lightPos, kLightWidth, kSpotAlpha);
+        //paint.setColor(SK_ColorCYAN);
+        //canvas->translate(250, 0);
+        //lightPos.fX += 250;
+        //this->drawShadowedPath(canvas, fCubicPath, 16, paint, kAmbientAlpha,
+        //                       lightPos, kLightWidth, kSpotAlpha);
     }
 
 protected:
