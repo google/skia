@@ -83,12 +83,17 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-    if (fSrcRect == bounds && dstRect == bounds) {
-        // No regions cropped out or resized; return entire image.
-        offset->fX = offset->fY = 0;
-        return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                             fImage, ctx.outputProperties().colorSpace(),
-                                             &source->props());
+    if (fSrcRect == bounds) {
+        // TODO: this seems to be a very noise prone way to determine this.
+        if (dstRect.width() == bounds.width() && dstRect.height() == bounds.height() &&
+            SkScalarIsInt(dstRect.fLeft) && SkScalarIsInt(dstRect.fTop)) {
+            // The dest is just an un-scaled integer translation of the entire image; return it
+            offset->fX = SkScalarRoundToInt(dstRect.fLeft);
+            offset->fY = SkScalarRoundToInt(dstRect.fTop);
+            return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
+                                                 fImage, ctx.outputProperties().colorSpace(),
+                                                 &source->props());
+        }
     }
 
     const SkIRect dstIRect = dstRect.roundOut();
