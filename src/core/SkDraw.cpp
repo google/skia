@@ -7,6 +7,8 @@
 #define __STDC_LIMIT_MACROS
 
 #include "SkDraw.h"
+
+#include "SkArenaAlloc.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
@@ -53,7 +55,7 @@ public:
     }
     SkAutoBlitterChoose(const SkPixmap& dst, const SkMatrix& matrix,
                         const SkPaint& paint, bool drawCoverage = false) {
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAllocator, drawCoverage);
+        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
     }
 
     SkBlitter*  operator->() { return fBlitter; }
@@ -62,13 +64,16 @@ public:
     void choose(const SkPixmap& dst, const SkMatrix& matrix,
                 const SkPaint& paint, bool drawCoverage = false) {
         SkASSERT(!fBlitter);
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAllocator, drawCoverage);
+        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
     }
 
 private:
     // Owned by fAllocator, which will handle the delete.
     SkBlitter*          fBlitter;
     SkTBlitterAllocator fAllocator;
+
+    // FIXME - pick a good inline and number.
+    SkArenaAlloc fAlloc{1024};
 };
 #define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
@@ -1770,8 +1775,9 @@ public:
 
 protected:
     size_t onContextSize(const ContextRec&) const override;
-    Context* onCreateContext(const ContextRec& rec, void* storage) const override {
-        return new (storage) TriColorShaderContext(*this, rec);
+
+    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
+        return alloc->make<TriColorShaderContext>(*this, rec);
     }
 
 private:
