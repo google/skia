@@ -49,6 +49,7 @@
 
 #endif
 #include "SkClipOpPriv.h"
+#include "SkVertices.h"
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 
@@ -1859,6 +1860,12 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint ver
                             const uint16_t indices[], int indexCount, const SkPaint& paint) {
     this->onDrawVertices(vmode, vertexCount, vertices, texs, colors, bmode,
                          indices, indexCount, paint);
+}
+
+void SkCanvas::drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint) {
+    this->onDrawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                         vertices->texCoords(), vertices->colors(), mode, vertices->indices(),
+                         vertices->indexCount(), paint);
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {

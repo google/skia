@@ -42,6 +42,7 @@ struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
+class SkVertices;
 
 /** \class SkCanvas
 
@@ -1172,6 +1173,7 @@ public:
         this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
                            indices, indexCount, paint);
     }
+    void drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint);
 
     /**
      Draw a cubic coons patch

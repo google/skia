@@ -1,0 +1,126 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkVertices_DEFINED
+#define SkVertices_DEFINED
+
+#include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkPoint.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+
+class SkVertices : public SkNVRefCnt<SkVertices> {
+public:
+    static sk_sp<SkVertices> Make(SkCanvas::VertexMode mode,
+                                  std::unique_ptr<const SkPoint[]> positions,
+                                  std::unique_ptr<const SkColor[]> colors,
+                                  std::unique_ptr<const SkPoint[]> texs, /* optional */
+                                  std::unique_ptr<const uint16_t[]> indices, int vertexCnt,
+                                  int indexCnt) {
+        if (!positions || !colors || !indices || vertexCnt <= 0 || indexCnt <= 0) {
+            return nullptr;
+        }
+        return sk_sp<SkVertices>(new SkVertices(mode, std::move(positions), std::move(colors),
+                                                std::move(texs), std::move(indices), vertexCnt,
+                                                indexCnt, nullptr));
+    }
+
+    static sk_sp<SkVertices> Make(SkCanvas::VertexMode mode,
+                                  std::unique_ptr<const SkPoint[]> positions,
+                                  std::unique_ptr<const SkColor[]> colors,
+                                  std::unique_ptr<const SkPoint[]> texs, /* optional */
+                                  std::unique_ptr<const uint16_t[]> indices, int vertexCnt,
+                                  int indexCnt, const SkRect& bounds) {
+        if (!positions || !colors || !indices || vertexCnt <= 0 || indexCnt <= 0) {
+            return nullptr;
+        }
+        return sk_sp<SkVertices>(new SkVertices(mode, std::move(positions), std::move(colors),
+                                                std::move(texs), std::move(indices), vertexCnt,
+                                                indexCnt, &bounds));
+    }
+
+    static sk_sp<SkVertices> Make(SkCanvas::VertexMode mode,
+                                  std::unique_ptr<const SkPoint[]>
+                                          positions,
+                                  std::unique_ptr<const SkColor[]>
+                                          colors,
+                                  std::unique_ptr<const SkPoint[]>
+                                          texs, /* optional */
+                                  int vertexCnt) {
+        if (!positions || !colors || vertexCnt <= 0) {
+            return nullptr;
+        }
+        return sk_sp<SkVertices>(new SkVertices(mode, std::move(positions), std::move(colors),
+                                                std::move(texs), nullptr, vertexCnt, 0, nullptr));
+    }
+
+    static sk_sp<SkVertices> Make(SkCanvas::VertexMode mode,
+                                  std::unique_ptr<const SkPoint[]> positions,
+                                  std::unique_ptr<const SkColor[]> colors,
+                                  std::unique_ptr<const SkPoint[]> texs, /* optional */
+                                  int vertexCnt, const SkRect& bounds) {
+        if (!positions || !colors || vertexCnt <= 0) {
+            return nullptr;
+        }
+        return sk_sp<SkVertices>(new SkVertices(mode, std::move(positions), std::move(colors),
+                                                std::move(texs), nullptr, vertexCnt, 0, &bounds));
+    }
+
+    SkCanvas::VertexMode mode() const { return fMode; }
+
+    int vertexCount() const { return fVertexCnt; }
+    bool hasTexCoords() const { return SkToBool(fTexs); }
+    const SkPoint* positions() const { return fPositions.get(); }
+    const SkPoint* texCoords() const { return fTexs.get(); }
+    const SkColor* colors() const { return fColors.get(); }
+
+    bool isIndexed() const { return SkToBool(fIndexCnt); }
+    int indexCount() const { return fIndexCnt; }
+    const uint16_t* indices() const { return fIndices.get(); }
+
+    size_t size() const {
+        return fVertexCnt * (sizeof(SkPoint) * (this->hasTexCoords() ? 2 : 1) + sizeof(SkColor)) +
+               fIndexCnt * sizeof(uint16_t);
+    }
+
+private:
+    SkVertices(SkCanvas::VertexMode mode, std::unique_ptr<const SkPoint[]> positions,
+               std::unique_ptr<const SkColor[]> colors, std::unique_ptr<const SkPoint[]> texs,
+               std::unique_ptr<const uint16_t[]> indices, int vertexCnt, int indexCnt,
+               const SkRect* bounds)
+            : fMode(mode)
+            , fVertexCnt(vertexCnt)
+            , fIndexCnt(indexCnt)
+            , fPositions(std::move(positions))
+            , fColors(std::move(colors))
+            , fTexs(std::move(texs))
+            , fIndices(std::move(indices)) {
+        SkASSERT(SkToBool(fPositions) && SkToBool(fColors) && SkToBool(vertexCnt));
+        SkASSERT(SkToBool(fIndices) == SkToBool(indexCnt));
+        if (bounds) {
+#ifdef SK_DEBUG
+            fBounds.setBounds(positions.get(), fVertexCnt);
+            SkASSERT(bounds->contains(fBounds));
+#endif
+            fBounds = *bounds;
+        } else {
+            fBounds.setBounds(positions.get(), fVertexCnt);
+        }
+    }
+
+    SkCanvas::VertexMode fMode;
+    int fVertexCnt;
+    int fIndexCnt;
+    std::unique_ptr<const SkPoint[]> fPositions;
+    std::unique_ptr<const SkColor[]> fColors;
+    std::unique_ptr<const SkPoint[]> fTexs;
+    std::unique_ptr<const uint16_t[]> fIndices;
+    SkRect fBounds;
+};
+
+#endif
