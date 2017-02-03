@@ -247,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "6209d82c_339ae3be",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-03T19:43:29Z",
+      "side": 1,
+      "message": "Oh, whew. Thanks for the explanation and comments!",
+      "parentUuid": "8ff4a90f_585920f1",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0f56072_82d1c3f0",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -431,6 +449,24 @@
       "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f7306fb_3b227137",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-03T19:43:29Z",
+      "side": 1,
+      "message": "\u003e It looks to me like it does take scaling into account - we\u0027ve been using it that way for scaled decodes and it has worked fine.  libwebp says:\n\u003e int last_y; // coordinate of the line that was last output\n\u003e \n\u003e So that seems to me indicate that it is in terms of dst rows.\n\u003e \n\u003e I think this is fine.  The incomplete images on the test bots should verify - I realize this failed last time but that was potentially caused by a different bug.\n\nLooking at the places last_y is used (https://cs.chromium.org/chromium/src/third_party/libwebp/dec/webpi_dec.h?type\u003dcs\u0026q\u003dlast_y+package:%5Echromium$\u0026l\u003d39), it does look like it\u0027s the last y in the output.\n\nAnd I agree, the test should catch us. We would assume more lines were initialized if this is *not* the scaled version, so we\u0027d be leaving some lines uninitialized.",
+      "parentUuid": "9aba83a9_34a8e074",
+      "revId": "45d5789caa1a3b26fa62bfdb3b1ba49df8f3c9b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
