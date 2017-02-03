@@ -366,6 +366,11 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             }
 
             if (kRGBA_F16_SkColorType == canvasColorType) {
+                if (kUnpremul_SkAlphaType == dstAlphaType) {
+                    // Testing kPremul is enough for adequate coverage of F16 decoding.
+                    return false;
+                }
+
                 sk_sp<SkColorSpace> linearSpace =
                         as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
                 *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
@@ -404,7 +409,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = codec->getInfo();
     if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
                          fDstAlphaType)) {
-        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+        return Error::Nonfatal("Skipping uninteresting test.");
     }
 
     // Try to scale the image if it is desired
@@ -799,7 +804,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = codec->getInfo();
     if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
                          fDstAlphaType)) {
-        return Error::Nonfatal("Testing non-565 to 565 is uninteresting.");
+        return Error::Nonfatal("Skipping uninteresting test.");
     }
 
     // Scale the image if it is desired.
