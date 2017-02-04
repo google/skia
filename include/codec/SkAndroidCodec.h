@@ -77,11 +77,9 @@ public:
 
     /**
      *  @param outputColorType Color type that the client will decode to
+     *  @param isWideGamut     Indicates that the color space of the encoded
      *
      *  Returns the appropriate color space to decode to.
-     *
-     *  For now, this just returns a default.  This could be updated to take
-     *  requests for wide gamut modes or specific output spaces.
      */
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType);
 
@@ -255,6 +253,10 @@ public:
         return this->getAndroidPixels(info, pixels, rowBytes);
     }
 
+    bool isWideGamut() const {
+        return fIsWideGamut;
+    }
+
 protected:
 
     SkAndroidCodec(SkCodec*);
@@ -272,8 +274,8 @@ private:
 
     // This will always be a reference to the info that is contained by the
     // embedded SkCodec.
-    const SkImageInfo& fInfo;
-
+    const SkImageInfo&       fInfo;
     std::unique_ptr<SkCodec> fCodec;
+    const bool               fIsWideGamut;
 };
 #endif // SkAndroidCodec_DEFINED
