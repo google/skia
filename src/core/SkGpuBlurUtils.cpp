@@ -21,10 +21,10 @@
 #define MAX_BLUR_SIGMA 4.0f
 
 static void scale_irect_roundout(SkIRect* rect, float xScale, float yScale) {
-    rect->fLeft   = SkScalarFloorToInt(SkScalarMul(rect->fLeft,  xScale));
-    rect->fTop    = SkScalarFloorToInt(SkScalarMul(rect->fTop,   yScale));
-    rect->fRight  = SkScalarCeilToInt(SkScalarMul(rect->fRight,  xScale));
-    rect->fBottom = SkScalarCeilToInt(SkScalarMul(rect->fBottom, yScale));
+    rect->fLeft   = SkScalarFloorToInt(rect->fLeft  * xScale);
+    rect->fTop    = SkScalarFloorToInt(rect->fTop   * yScale);
+    rect->fRight  = SkScalarCeilToInt(rect->fRight  * xScale);
+    rect->fBottom = SkScalarCeilToInt(rect->fBottom * yScale);
 }
 
 static void scale_irect(SkIRect* rect, int xScale, int yScale) {

@@ -14,6 +14,14 @@
 #include "SkPathRef.h"
 #include "SkRRect.h"
 
+static float poly_eval(float A, float B, float C, float t) {
+    return (A * t + B) * t + C;
+}
+
+static float poly_eval(float A, float B, float C, float D, float t) {
+    return ((A * t + B) * t + C) * t + D;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -239,10 +247,10 @@ static inline bool check_edge_against_rect(const SkPoint& p0,
     }
     if (v.fX || v.fY) {
         // check the cross product of v with the vec from edgeBegin to each rect corner
-        SkScalar yL = SkScalarMul(v.fY, rect.fLeft - edgeBegin->fX);
-        SkScalar xT = SkScalarMul(v.fX, rect.fTop - edgeBegin->fY);
-        SkScalar yR = SkScalarMul(v.fY, rect.fRight - edgeBegin->fX);
-        SkScalar xB = SkScalarMul(v.fX, rect.fBottom - edgeBegin->fY);
+        SkScalar yL = v.fY * (rect.fLeft - edgeBegin->fX);
+        SkScalar xT = v.fX * (rect.fTop - edgeBegin->fY);
+        SkScalar yR = v.fY * (rect.fRight - edgeBegin->fX);
+        SkScalar xB = v.fX * (rect.fBottom - edgeBegin->fY);
         if ((xT < yL) || (xT < yR) || (xB < yL) || (xB < yR)) {
             return false;
         }
@@ -1483,10 +1491,10 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar 
         return;
     }
 
-    SkScalar dist = SkScalarAbs(SkScalarMulDiv(radius, SK_Scalar1 - cosh, sinh));
+    SkScalar dist = SkScalarAbs(radius * (1 - cosh) / sinh);
 
-    SkScalar xx = x1 - SkScalarMul(dist, before.fX);
-    SkScalar yy = y1 - SkScalarMul(dist, before.fY);
+    SkScalar xx = x1 - dist * before.fX;
+    SkScalar yy = y1 - dist * before.fY;
     after.setLength(dist);
     this->lineTo(xx, yy);
     SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
@@ -1738,8 +1746,8 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
         } else {
             SkScalar det2x2 =
-                SkScalarMul(matrix.get(SkMatrix::kMScaleX), matrix.get(SkMatrix::kMScaleY)) -
-                SkScalarMul(matrix.get(SkMatrix::kMSkewX), matrix.get(SkMatrix::kMSkewY));
+                matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
+                matrix.get(SkMatrix::kMSkewX)  * matrix.get(SkMatrix::kMSkewY);
             if (det2x2 < 0) {
                 dst->fFirstDirection = SkPathPriv::OppositeFirstDirection(
                         (SkPathPriv::FirstDirection)fFirstDirection.load());
@@ -2760,18 +2768,13 @@ static bool between(SkScalar a, SkScalar b, SkScalar c) {
     return (a - b) * (c - b) <= 0;
 }
 
-static SkScalar eval_cubic_coeff(SkScalar A, SkScalar B, SkScalar C,
-                                 SkScalar D, SkScalar t) {
-    return SkScalarMulAdd(SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C), t, D);
-}
-
 static SkScalar eval_cubic_pts(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
                                SkScalar t) {
     SkScalar A = c3 + 3*(c1 - c2) - c0;
     SkScalar B = 3*(c2 - c1 - c1 + c0);
     SkScalar C = 3*(c1 - c0);
     SkScalar D = c0;
-    return eval_cubic_coeff(A, B, C, D, t);
+    return poly_eval(A, B, C, D, t);
 }
 
 template <size_t N> static void find_minmax(const SkPoint pts[],
@@ -2856,7 +2859,7 @@ static double conic_eval_numerator(const SkScalar src[], SkScalar w, SkScalar t)
     SkScalar C = src[0];
     SkScalar A = src[4] - 2 * src2w + C;
     SkScalar B = 2 * (src2w - C);
-    return (A * t + B) * t + C;
+    return poly_eval(A, B, C, t);
 }
 
 
@@ -2864,7 +2867,7 @@ static double conic_eval_denominator(SkScalar w, SkScalar t) {
     SkScalar B = 2 * (w - 1);
     SkScalar C = 1;
     SkScalar A = -B;
-    return (A * t + B) * t + C;
+    return poly_eval(A, B, C, t);
 }
 
 static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int* onCurveCount) {
@@ -2985,7 +2988,7 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
         SkScalar C = pts[0].fX;
         SkScalar A = pts[2].fX - 2 * pts[1].fX + C;
         SkScalar B = 2 * (pts[1].fX - C);
-        xt = SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
+        xt = poly_eval(A, B, C, t);
     }
     if (SkScalarNearlyEqual(xt, x)) {
         if (x != pts[2].fX || y != pts[2].fY) {  // don't test end points; they're start points
@@ -3034,7 +3037,7 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     if (y == y1) {
         return 0;
     }
-    SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) - SkScalarMul(dy, x - x0);
+    SkScalar cross = (x1 - x0) * (y - pts[0].fY) - dy * (x - x0);
 
     if (!cross) {
         // zero cross means the point is on the line, and since the case where
@@ -3123,7 +3126,7 @@ static void tangent_quad(const SkPoint pts[], SkScalar x, SkScalar y,
         SkScalar C = pts[0].fX;
         SkScalar A = pts[2].fX - 2 * pts[1].fX + C;
         SkScalar B = 2 * (pts[1].fX - C);
-        SkScalar xt = (A * t + B) * t + C;
+        SkScalar xt = poly_eval(A, B, C, t);
         if (!SkScalarNearlyEqual(x, xt)) {
             continue;
         }

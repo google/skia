@@ -380,8 +380,7 @@ static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
          matrix.postTranslate(pos.fX, pos.fY);
          matrix.mapPoints(&dst[i], &pt, 1);
          */
-        dst[i].set(pos.fX - SkScalarMul(tangent.fY, sy),
-                   pos.fY + SkScalarMul(tangent.fX, sy));
+        dst[i].set(pos.fX - tangent.fY * sy, pos.fY + tangent.fX * sy);
     }
 }
 

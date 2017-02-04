@@ -33,8 +33,8 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     if (fRect.width() < xRad+xRad || fRect.height() < yRad+yRad) {
         SkScalar scale = SkMinScalar(fRect.width() / (xRad + xRad), fRect.height() / (yRad + yRad));
         SkASSERT(scale < SK_Scalar1);
-        xRad = SkScalarMul(xRad, scale);
-        yRad = SkScalarMul(yRad, scale);
+        xRad *= scale;
+        yRad *= scale;
     }
 
     for (int i = 0; i < 4; ++i) {
@@ -79,10 +79,10 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
     }
 
     if (scale < SK_Scalar1) {
-        leftRad = SkScalarMul(leftRad, scale);
-        topRad = SkScalarMul(topRad, scale);
-        rightRad = SkScalarMul(rightRad, scale);
-        bottomRad = SkScalarMul(bottomRad, scale);
+        leftRad *= scale;
+        topRad *= scale;
+        rightRad *= scale;
+        bottomRad *= scale;
     }
 
     if (leftRad == rightRad && topRad == bottomRad) {
@@ -246,9 +246,9 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     //      a^2     b^2
     // or :
     //     b^2*x^2 + a^2*y^2 <= (ab)^2
-    SkScalar dist =  SkScalarMul(SkScalarSquare(canonicalPt.fX), SkScalarSquare(fRadii[index].fY)) +
-                     SkScalarMul(SkScalarSquare(canonicalPt.fY), SkScalarSquare(fRadii[index].fX));
-    return dist <= SkScalarSquare(SkScalarMul(fRadii[index].fX, fRadii[index].fY));
+    SkScalar dist =  SkScalarSquare(canonicalPt.fX) * SkScalarSquare(fRadii[index].fY) +
+                     SkScalarSquare(canonicalPt.fY) * SkScalarSquare(fRadii[index].fX);
+    return dist <= SkScalarSquare(fRadii[index].fX * fRadii[index].fY);
 }
 
 bool SkRRect::allCornersCircular() const {
@@ -404,8 +404,8 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // Scale the radii without respecting the flip.
     for (int i = 0; i < 4; ++i) {
-        dst->fRadii[i].fX = SkScalarMul(fRadii[i].fX, xScale);
-        dst->fRadii[i].fY = SkScalarMul(fRadii[i].fY, yScale);
+        dst->fRadii[i].fX = fRadii[i].fX * xScale;
+        dst->fRadii[i].fY = fRadii[i].fY * yScale;
     }
 
     // Now swap as necessary.
