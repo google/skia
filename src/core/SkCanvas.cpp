@@ -2588,7 +2588,7 @@ void SkCanvas::DrawRect(const SkDraw& draw, const SkPaint& paint,
         draw.fDevice->drawRect(draw, r, paint);
     } else {
         SkPaint p(paint);
-        p.setStrokeWidth(SkScalarMul(textSize, paint.getStrokeWidth()));
+        p.setStrokeWidth(textSize * paint.getStrokeWidth());
         draw.fDevice->drawRect(draw, r, p);
     }
 }
@@ -2631,22 +2631,20 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
     if (flags & (SkPaint::kUnderlineText_Flag |
                  SkPaint::kStrikeThruText_Flag)) {
         SkScalar textSize = paint.getTextSize();
-        SkScalar height = SkScalarMul(textSize, kStdUnderline_Thickness);
+        SkScalar height = textSize * kStdUnderline_Thickness;
         SkRect   r;
 
         r.fLeft = start.fX;
         r.fRight = start.fX + width;
 
         if (flags & SkPaint::kUnderlineText_Flag) {
-            SkScalar offset = SkScalarMulAdd(textSize, kStdUnderline_Offset,
-                                             start.fY);
+            SkScalar offset = textSize * kStdUnderline_Offset + start.fY;
             r.fTop = offset;
             r.fBottom = offset + height;
             DrawRect(draw, paint, r, 1);
         }
         if (flags & SkPaint::kStrikeThruText_Flag) {
-            SkScalar offset = SkScalarMulAdd(textSize, kStdStrikeThru_Offset,
-                                             start.fY);
+            SkScalar offset = textSize * kStdStrikeThru_Offset + start.fY;
             r.fTop = offset;
             r.fBottom = offset + height;
             DrawRect(draw, paint, r, 1);
