@@ -575,14 +575,11 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
     SkASSERT(distance >= startD);
     SkASSERT(seg->fDistance > startD);
 
-    *t = startT + SkScalarMulDiv(seg->getScalarT() - startT,
-                                 distance - startD,
-                                 seg->fDistance - startD);
+    *t = startT + (seg->getScalarT() - startT) * (distance - startD) / (seg->fDistance - startD);
     return seg;
 }
 
-bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
-                              SkVector* tangent) {
+bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) {
     if (nullptr == fPath) {
         return false;
     }

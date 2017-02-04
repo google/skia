@@ -26,8 +26,8 @@ public:
             } else {
                 // Bake the matrix scale/translation components into fOffset,
                 // to expedite proc computations.
-                fOffset.set(SkScalarMul(offset.x(), fMatrix.getScaleX()) + fMatrix.getTranslateX(),
-                            SkScalarMul(offset.y(), fMatrix.getScaleY()) + fMatrix.getTranslateY());
+                fOffset.set(offset.x() * fMatrix.getScaleX() + fMatrix.getTranslateX(),
+                            offset.y() * fMatrix.getScaleY() + fMatrix.getTranslateY());
 
                 if (mtype & SkMatrix::kScale_Mask) {
                     fMapCase = kOnlyScaleX;
@@ -61,7 +61,7 @@ inline void SkTextMapStateProc::operator()(const SkScalar pos[], SkPoint* loc) c
         fProc(fMatrix, pos[0] + fOffset.x(), pos[1] + fOffset.y(), loc);
         break;
     case kOnlyScaleX:
-        loc->set(SkScalarMul(fScaleX, *pos) + fOffset.x(), fOffset.y());
+        loc->set(fScaleX * *pos + fOffset.x(), fOffset.y());
         break;
     case kOnlyTransX:
         loc->set(*pos + fOffset.x(), fOffset.y());
