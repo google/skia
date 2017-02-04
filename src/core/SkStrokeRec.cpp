@@ -147,7 +147,7 @@ static inline SkScalar get_inflation_bounds(SkPaint::Join join,
     SkScalar radius = SkScalarHalf(strokeWidth);
     if (SkPaint::kMiter_Join == join) {
         if (miterLimit > SK_Scalar1) {
-            radius = SkScalarMul(miterLimit, radius);
+            radius *= miterLimit;
         }
     }
     return radius;

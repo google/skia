@@ -83,11 +83,11 @@ void SkPatch3D::transform(const SkMatrix3D& m, SkPatch3D* dst) const {
 }
 
 SkScalar SkPatch3D::dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const {
-    SkScalar cx = SkScalarMul(fU.fY, fV.fZ) - SkScalarMul(fU.fZ, fV.fY);
-    SkScalar cy = SkScalarMul(fU.fZ, fV.fX) - SkScalarMul(fU.fX, fV.fY);
-    SkScalar cz = SkScalarMul(fU.fX, fV.fY) - SkScalarMul(fU.fY, fV.fX);
+    SkScalar cx = fU.fY * fV.fZ - fU.fZ * fV.fY;
+    SkScalar cy = fU.fZ * fV.fX - fU.fX * fV.fY;
+    SkScalar cz = fU.fX * fV.fY - fU.fY * fV.fX;
 
-    return SkScalarMul(cx, dx) + SkScalarMul(cy, dy) + SkScalarMul(cz, dz);
+    return cx * dx + cy * dy + cz * dz;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

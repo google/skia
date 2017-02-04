@@ -470,7 +470,7 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
             fPaint = &paint;
             fClip = nullptr;
             fRC = rc;
-            fRadius = SkScalarToFixed(SkScalarMul(width, sx)) >> 1;
+            fRadius = SkScalarToFixed(width * sx) >> 1;
             return true;
         }
     }
@@ -1148,7 +1148,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                 // this is the old technique, which we preserve for now so
                 // we don't change previous results (testing)
                 // the new way seems fine, its just (a tiny bit) different
-                int scale = (int)SkScalarMul(coverage, 256);
+                int scale = (int)(coverage * 256);
                 newAlpha = origPaint.getAlpha() * scale >> 8;
 #endif
                 SkPaint* writablePaint = paint.writable();

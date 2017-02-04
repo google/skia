@@ -1410,32 +1410,32 @@ bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst,
 
     /* check if abs(x2) > abs(y2) */
     if ( x2 > 0 ? y2 > 0 ? x2 > y2 : x2 > -y2 : y2 > 0 ? -x2 > y2 : x2 < y2) {
-        float denom = SkScalarMulDiv(x1, y2, x2) - y1;
+        float denom = (x1 * y2 / x2) - y1;
         if (checkForZero(denom)) {
             return false;
         }
-        a1 = (SkScalarMulDiv(x0 - x1, y2, x2) - y0 + y1) / denom;
+        a1 = (((x0 - x1) * y2 / x2) - y0 + y1) / denom;
     } else {
-        float denom = x1 - SkScalarMulDiv(y1, x2, y2);
+        float denom = x1 - (y1 * x2 / y2);
         if (checkForZero(denom)) {
             return false;
         }
-        a1 = (x0 - x1 - SkScalarMulDiv(y0 - y1, x2, y2)) / denom;
+        a1 = (x0 - x1 - ((y0 - y1) * x2 / y2)) / denom;
     }
 
     /* check if abs(x1) > abs(y1) */
     if ( x1 > 0 ? y1 > 0 ? x1 > y1 : x1 > -y1 : y1 > 0 ? -x1 > y1 : x1 < y1) {
-        float denom = y2 - SkScalarMulDiv(x2, y1, x1);
+        float denom = y2 - (x2 * y1 / x1);
         if (checkForZero(denom)) {
             return false;
         }
-        a2 = (y0 - y2 - SkScalarMulDiv(x0 - x2, y1, x1)) / denom;
+        a2 = (y0 - y2 - ((x0 - x2) * y1 / x1)) / denom;
     } else {
-        float denom = SkScalarMulDiv(y2, x1, y1) - x2;
+        float denom = (y2 * x1 / y1) - x2;
         if (checkForZero(denom)) {
             return false;
         }
-        a2 = (SkScalarMulDiv(y0 - y2, x1, y1) - x0 + x2) / denom;
+        a2 = (((y0 - y2) * x1 / y1) - x0 + x2) / denom;
     }
 
     float invScale = SkScalarInvert(scale.fX);

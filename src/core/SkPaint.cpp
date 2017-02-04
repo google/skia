@@ -825,12 +825,12 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
 
         width = paint.measure_text(cache, text, length, &tempCount, bounds);
         if (scale) {
-            width = SkScalarMul(width, scale);
+            width *= scale;
             if (bounds) {
-                bounds->fLeft = SkScalarMul(bounds->fLeft, scale);
-                bounds->fTop = SkScalarMul(bounds->fTop, scale);
-                bounds->fRight = SkScalarMul(bounds->fRight, scale);
-                bounds->fBottom = SkScalarMul(bounds->fBottom, scale);
+                bounds->fLeft *= scale;
+                bounds->fTop *= scale;
+                bounds->fRight *= scale;
+                bounds->fBottom *= scale;
             }
         }
     } else if (bounds) {
@@ -945,17 +945,17 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     paint.descriptorProc(nullptr, kNone_ScalerContextFlags, zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale) {
-        metrics->fTop = SkScalarMul(metrics->fTop, scale);
-        metrics->fAscent = SkScalarMul(metrics->fAscent, scale);
-        metrics->fDescent = SkScalarMul(metrics->fDescent, scale);
-        metrics->fBottom = SkScalarMul(metrics->fBottom, scale);
-        metrics->fLeading = SkScalarMul(metrics->fLeading, scale);
-        metrics->fAvgCharWidth = SkScalarMul(metrics->fAvgCharWidth, scale);
-        metrics->fXMin = SkScalarMul(metrics->fXMin, scale);
-        metrics->fXMax = SkScalarMul(metrics->fXMax, scale);
-        metrics->fXHeight = SkScalarMul(metrics->fXHeight, scale);
-        metrics->fUnderlineThickness = SkScalarMul(metrics->fUnderlineThickness, scale);
-        metrics->fUnderlinePosition = SkScalarMul(metrics->fUnderlinePosition, scale);
+        metrics->fTop *= scale;
+        metrics->fAscent *= scale;
+        metrics->fDescent *= scale;
+        metrics->fBottom *= scale;
+        metrics->fLeading *= scale;
+        metrics->fAvgCharWidth *= scale;
+        metrics->fXMin *= scale;
+        metrics->fXMax *= scale;
+        metrics->fXHeight *= scale;
+        metrics->fUnderlineThickness *= scale;
+        metrics->fUnderlinePosition *= scale;
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
@@ -1008,7 +1008,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
                     SkScalar adjust = autokern.adjust(g);
 
                     if (count > 0) {
-                        *widths++ = SkScalarMul(prevWidth + adjust, scale);
+                        *widths++ = (prevWidth + adjust) * scale;
                     }
                     prevWidth = advance(g, xyIndex);
                 }
@@ -1018,7 +1018,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
                 ++count;
             }
             if (count > 0 && widths) {
-                *widths = SkScalarMul(prevWidth, scale);
+                *widths = prevWidth * scale;
             }
         } else {
             while (text < stop) {
@@ -1045,8 +1045,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             while (text < stop) {
                 const SkGlyph& g = glyphCacheProc(cache, &text);
                 if (widths) {
-                    *widths++ = SkScalarMul(advance(g, xyIndex),
-                                            scale);
+                    *widths++ = advance(g, xyIndex) * scale;
                 }
                 if (bounds) {
                     set_bounds(g, bounds++, scale);
@@ -1371,7 +1370,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
                                                     kStdFakeBoldInterpKeys,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
-        SkScalar extra = SkScalarMul(paint.getTextSize(), fakeBoldScale);
+        SkScalar extra = paint.getTextSize() * fakeBoldScale;
 
         if (style == SkPaint::kFill_Style) {
             style = SkPaint::kStrokeAndFill_Style;
@@ -2267,8 +2266,7 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     SkScalar xOffset = 0;
     if (paint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
         int      count;
-        SkScalar width = SkScalarMul(fPaint.measure_text(fCache, text, length,
-                                                         &count, nullptr), fScale);
+        SkScalar width = fPaint.measure_text(fCache, text, length, &count, nullptr) * fScale;
         if (paint.getTextAlign() == SkPaint::kCenter_Align) {
             width = SkScalarHalf(width);
         }
@@ -2291,7 +2289,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
     if (fText < fStop) {
         const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
 
-        fXPos += SkScalarMul(fPrevAdvance + fAutoKern.adjust(glyph), fScale);
+        fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
         fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
 
         if (glyph.fWidth) {
@@ -2313,7 +2311,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
 
 bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
     const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
-    fXPos += SkScalarMul(fPrevAdvance + fAutoKern.adjust(glyph), fScale);
+    fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
     fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
     if (fCache->findPath(glyph)) {
         fCache->findIntercepts(fBounds, fScale, fXPos, SkToBool(fXYIndex),
