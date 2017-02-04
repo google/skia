@@ -239,10 +239,10 @@ static inline bool check_edge_against_rect(const SkPoint& p0,
     }
     if (v.fX || v.fY) {
         // check the cross product of v with the vec from edgeBegin to each rect corner
-        SkScalar yL = SkScalarMul(v.fY, rect.fLeft - edgeBegin->fX);
-        SkScalar xT = SkScalarMul(v.fX, rect.fTop - edgeBegin->fY);
-        SkScalar yR = SkScalarMul(v.fY, rect.fRight - edgeBegin->fX);
-        SkScalar xB = SkScalarMul(v.fX, rect.fBottom - edgeBegin->fY);
+        SkScalar yL = v.fY * (rect.fLeft - edgeBegin->fX);
+        SkScalar xT = v.fX * (rect.fTop - edgeBegin->fY);
+        SkScalar yR = v.fY * (rect.fRight - edgeBegin->fX);
+        SkScalar xB = v.fX * (rect.fBottom - edgeBegin->fY);
         if ((xT < yL) || (xT < yR) || (xB < yL) || (xB < yR)) {
             return false;
         }
@@ -1483,10 +1483,10 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar 
         return;
     }
 
-    SkScalar dist = SkScalarAbs(SkScalarMulDiv(radius, SK_Scalar1 - cosh, sinh));
+    SkScalar dist = SkScalarAbs(radius * (1 - cosh) / sinh);
 
-    SkScalar xx = x1 - SkScalarMul(dist, before.fX);
-    SkScalar yy = y1 - SkScalarMul(dist, before.fY);
+    SkScalar xx = x1 - dist * before.fX;
+    SkScalar yy = y1 - dist * before.fY;
     after.setLength(dist);
     this->lineTo(xx, yy);
     SkScalar weight = SkScalarSqrt(SK_ScalarHalf + cosh * SK_ScalarHalf);
@@ -1738,8 +1738,8 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
         } else {
             SkScalar det2x2 =
-                SkScalarMul(matrix.get(SkMatrix::kMScaleX), matrix.get(SkMatrix::kMScaleY)) -
-                SkScalarMul(matrix.get(SkMatrix::kMSkewX), matrix.get(SkMatrix::kMSkewY));
+                matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
+                matrix.get(SkMatrix::kMSkewX)  * matrix.get(SkMatrix::kMSkewY);
             if (det2x2 < 0) {
                 dst->fFirstDirection = SkPathPriv::OppositeFirstDirection(
                         (SkPathPriv::FirstDirection)fFirstDirection.load());
@@ -2760,8 +2760,7 @@ static bool between(SkScalar a, SkScalar b, SkScalar c) {
     return (a - b) * (c - b) <= 0;
 }
 
-static SkScalar eval_cubic_coeff(SkScalar A, SkScalar B, SkScalar C,
-                                 SkScalar D, SkScalar t) {
+static SkScalar eval_cubic_coeff(SkScalar A, SkScalar B, SkScalar C, SkScalar D, SkScalar t) {
     return SkScalarMulAdd(SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C), t, D);
 }
 
@@ -3034,7 +3033,7 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     if (y == y1) {
         return 0;
     }
-    SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) - SkScalarMul(dy, x - x0);
+    SkScalar cross = (x1 - x0) * (y - pts[0].fY) - dy * (x - x0);
 
     if (!cross) {
         // zero cross means the point is on the line, and since the case where

@@ -581,8 +581,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
     return seg;
 }
 
-bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
-                              SkVector* tangent) {
+bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) {
     if (nullptr == fPath) {
         return false;
     }
