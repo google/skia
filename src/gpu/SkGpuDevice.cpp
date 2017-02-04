@@ -17,7 +17,6 @@
 #include "GrTextureAdjuster.h"
 #include "GrTextureProxy.h"
 #include "GrTracing.h"
-
 #include "SkCanvasPriv.h"
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
@@ -44,6 +43,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
+#include "SkVertices.h"
 #include "SkWritePixelsRec.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -1690,6 +1690,18 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                        indices,
                                        indexCount,
                                        GrRenderTargetContext::ColorArrayType::kSkColor);
+}
+
+void SkGpuDevice::drawVerticesObject(const SkDraw& draw, sk_sp<SkVertices> vertices,
+                                     SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
+    const SkPoint* texs = vertices->texCoords();
+    if ((flags & SkCanvas::kIgnoreTexCoords_VertexFlag) || !texs) {
+        texs = vertices->positions();
+    }
+    const SkColor* colors =
+            (flags & SkCanvas::kIgnoreColors_VertexFlag) ? nullptr : vertices->colors();
+    this->drawVertices(draw, vertices->mode(), vertices->vertexCount(), vertices->positions(), texs,
+                       colors, mode, vertices->indices(), vertices->indexCount(), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
