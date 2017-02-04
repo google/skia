@@ -8,6 +8,7 @@
 #include "sk_types_priv.h"
 #include "SkShadowMaskFilter.h"
 #include "SkBitmapScaler.h"
+#include "SkBlurMaskFilter.h"
 
 #if __cplusplus >= 199711L
 
@@ -174,6 +175,12 @@ static_assert ((int)SkBlurStyle::kNormal_SkBlurStyle   == (int)NORMAL_SK_BLUR_ST
 static_assert ((int)SkBlurStyle::kSolid_SkBlurStyle    == (int)SOLID_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
 static_assert ((int)SkBlurStyle::kOuter_SkBlurStyle    == (int)OUTER_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
 static_assert ((int)SkBlurStyle::kInner_SkBlurStyle    == (int)INNER_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
+
+// sk_blurmaskfilter_blurflags_t
+static_assert ((int)SkBlurMaskFilter::BlurFlags::kNone_BlurFlag               == (int)NONE_SK_BLUR_MASK_FILTER_BLUR_FLAGS,                ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
+static_assert ((int)SkBlurMaskFilter::BlurFlags::kIgnoreTransform_BlurFlag    == (int)IGNORE_TRANSFORM_SK_BLUR_MASK_FILTER_BLUR_FLAGS,    ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
+static_assert ((int)SkBlurMaskFilter::BlurFlags::kHighQuality_BlurFlag        == (int)HIGHT_QUALITY_SK_BLUR_MASK_FILTER_BLUR_FLAGS,       ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
+static_assert ((int)SkBlurMaskFilter::BlurFlags::kAll_BlurFlag                == (int)ALL_SK_BLUR_MASK_FILTER_BLUR_FLAGS,                 ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
 
 // sk_stroke_cap_t
 static_assert ((int)SkPaint::Cap::kButt_Cap     == (int)BUTT_SK_STROKE_CAP,     ASSERT_MSG(SkPaint::Cap, sk_stroke_cap_t));

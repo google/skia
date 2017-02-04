@@ -45,6 +45,10 @@ sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     return ToMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)cstyle, sigma).release());
 }
 
+sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, sk_blurmaskfilter_blurflags_t flags) {
+    return ToMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)cstyle, sigma, AsRect(*occluder), (SkBlurMaskFilter::BlurFlags)flags).release());
+}
+
 sk_maskfilter_t* sk_maskfilter_new_shadow(float occluderHeight, const sk_point3_t* lightPos, float lightRadius, float ambientAlpha, float spotAlpha, sk_shadowmaskfilter_shadowflags_t flags) {
     return ToMaskFilter(SkShadowMaskFilter::Make(occluderHeight, AsPoint3(*lightPos), lightRadius, ambientAlpha, spotAlpha, (SkShadowMaskFilter::ShadowFlags)flags).release());
 }

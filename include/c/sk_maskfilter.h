@@ -34,6 +34,8 @@ SK_C_API void sk_maskfilter_unref(sk_maskfilter_t*);
     @param sigma Standard deviation of the Gaussian blur to apply. Must be > 0.
 */
 SK_C_API sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t, float sigma);
+SK_C_API sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t, float sigma, const sk_rect_t* occluder, sk_blurmaskfilter_blurflags_t flags);
+
 
 /** Create an emboss maskfilter
     @param blurSigma    standard deviation of the Gaussian blur to apply

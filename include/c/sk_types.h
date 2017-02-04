@@ -521,6 +521,13 @@ typedef enum {
 } sk_blurstyle_t;
 
 typedef enum {
+    NONE_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x00,
+    IGNORE_TRANSFORM_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x01,
+    HIGHT_QUALITY_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x02,
+    ALL_SK_BLUR_MASK_FILTER_BLUR_FLAGS = 0x03,
+} sk_blurmaskfilter_blurflags_t;
+
+typedef enum {
     CW_SK_PATH_DIRECTION,
     CCW_SK_PATH_DIRECTION,
 } sk_path_direction_t;
