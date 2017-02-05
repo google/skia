@@ -9,6 +9,7 @@
 #define SkDumpCanvas_DEFINED
 
 #include "SkCanvas.h"
+#include "SkVertices.h"
 
 /** This class overrides all the draw methods on SkCanvas, and formats them
     as text, and then sends that to a Dumper helper object.
@@ -116,6 +117,10 @@ protected:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
+    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+                              uint32_t flags) override {
+        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
+    }
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
