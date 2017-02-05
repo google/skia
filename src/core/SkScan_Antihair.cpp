@@ -747,8 +747,6 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
             AntiFillXRect(xr, nullptr, blitter);
         } else {
             SkAAClipBlitterWrapper wrapper(clip, blitter);
-            blitter = wrapper.getBlitter();
-
             AntiFillXRect(xr, &wrapper.getRgn(), wrapper.getBlitter());
         }
     }
