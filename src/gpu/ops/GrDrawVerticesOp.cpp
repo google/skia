@@ -40,41 +40,61 @@ static sk_sp<GrGeometryProcessor> make_gp(bool clientProvidedLocalCoords,
     return GrDefaultGeoProcFactory::Make(colorType, Coverage::kSolid_Type, localCoordsType, vm);
 }
 
-GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
-                                   const SkMatrix& viewMatrix, const SkPoint* positions,
-                                   int vertexCount, const uint16_t* indices, int indexCount,
-                                   const uint32_t* colors, const SkPoint* localCoords,
-                                   const SkRect& bounds,
-                                   GrRenderTargetContext::ColorArrayType colorArrayType)
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
+        GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
+        const SkPoint* positions, int vertexCount, const uint16_t* indices, int indexCount,
+        const uint32_t* colors, const SkPoint* localCoords, const SkRect& bounds,
+        GrRenderTargetContext::ColorArrayType colorArrayType) {
+    std::unique_ptr<SkPoint[]> pos(new SkPoint[vertexCount]);
+    std::copy(positions, positions + vertexCount, pos.get());
+    std::unique_ptr<SkColor[]> col;
+    if (colors) {
+        col.reset(new SkColor[vertexCount]);
+        std::copy(colors, colors + vertexCount, col.get());
+    } else {
+        // When we tessellate we will fill a color array with the GrColor value passed above as
+        // 'color'.
+        colorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
+    }
+    std::unique_ptr<SkPoint[]> lc;
+    if (localCoords) {
+        lc.reset(new SkPoint[vertexCount]);
+        std::copy(localCoords, localCoords + vertexCount, lc.get());
+    }
+    std::unique_ptr<uint16_t[]> idx;
+    if (indexCount) {
+        idx.reset(new uint16_t[indexCount]);
+        std::copy(indices, indices + indexCount, idx.get());
+    }
+    static constexpr SkCanvas::VertexMode kIgnoredMode = SkCanvas::kTriangles_VertexMode;
+    sk_sp<SkVertices> vertices;
+    if (indices) {
+        vertices = SkVertices::Make(kIgnoredMode, std::move(pos), std::move(col), std::move(lc),
+                                    vertexCount, std::move(idx), indexCount, bounds);
+    } else {
+        vertices = SkVertices::Make(kIgnoredMode, std::move(pos), std::move(col), std::move(lc),
+                                    vertexCount, bounds);
+    }
+    if (!vertices) {
+        return nullptr;
+    }
+    return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(std::move(vertices), primitiveType, color,
+                                                          colorArrayType, viewMatrix));
+}
+
+GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
+                                   GrColor color,
+                                   GrRenderTargetContext::ColorArrayType colorArrayType,
+                                   const SkMatrix& viewMatrix)
         : INHERITED(ClassID()) {
-    SkASSERT(positions);
+    fVertexCount = vertices->vertexCount();
+    fIndexCount = vertices->indexCount();
+    fPrimitiveType = primitiveType;
 
     Mesh& mesh = fMeshes.push_back();
     mesh.fColor = color;
     mesh.fViewMatrix = viewMatrix;
-
-    mesh.fPositions.append(vertexCount, positions);
-    if (indices) {
-        mesh.fIndices.append(indexCount, indices);
-    }
-
-    if (colors) {
-        fVariableColor = true;
-        mesh.fColors.append(vertexCount, colors);
-        fColorArrayType = colorArrayType;
-    } else {
-        fVariableColor = false;
-        // When we tessellate we will fill a color array with the GrColor value passed above as
-        // 'color'.
-        fColorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
-    }
-
-    if (localCoords) {
-        mesh.fLocalCoords.append(vertexCount, localCoords);
-    }
-    fVertexCount = vertexCount;
-    fIndexCount = indexCount;
-    fPrimitiveType = primitiveType;
+    mesh.fVertices = std::move(vertices);
 
     IsZeroArea zeroArea;
     if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
@@ -82,11 +102,11 @@ GrDrawVerticesOp::GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType,
     } else {
         zeroArea = IsZeroArea::kNo;
     }
-    this->setBounds(bounds, HasAABloat::kNo, zeroArea);
+    this->setTransformedBounds(mesh.fVertices->bounds(), viewMatrix, HasAABloat::kNo, zeroArea);
 }
 
 void GrDrawVerticesOp::getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const {
-    if (fVariableColor) {
+    if (this->hasExplicitColors()) {
         input->pipelineColorInput()->setUnknownFourComponents();
     } else {
         input->pipelineColorInput()->setKnownFourComponents(fMeshes[0].fColor);
@@ -99,20 +119,18 @@ void GrDrawVerticesOp::applyPipelineOptimizations(const GrPipelineOptimizations&
     GrColor overrideColor;
     if (optimizations.getOverrideColorIfSet(&overrideColor)) {
         fMeshes[0].fColor = overrideColor;
-        fMeshes[0].fColors.reset();
-        fVariableColor = false;
+        fFlags |= kIgnoreVerticesColors_Flag;
         fColorArrayType = GrRenderTargetContext::ColorArrayType::kPremulGrColor;
     }
     if (!(fPipelineNeedsLocalCoords = optimizations.readsLocalCoords())) {
-        fMeshes[0].fLocalCoords.reset();
+        fFlags |= kIgnoreVerticesLocalCoords_Flag;
     }
 }
 
 void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
-    bool clientLocalCoords = !fMeshes[0].fLocalCoords.isEmpty();
     bool hasLocalCoordAttribute;
     sk_sp<GrGeometryProcessor> gp =
-            make_gp(clientLocalCoords, fPipelineNeedsLocalCoords, fColorArrayType,
+            make_gp(this->hasExplicitLocalCoords(), fPipelineNeedsLocalCoords, fColorArrayType,
                     fMultipleViewMatrices, fMeshes[0].fViewMatrix, &hasLocalCoordAttribute);
     size_t vertexStride = gp->getVertexStride();
 
@@ -135,7 +153,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     int firstIndex = 0;
 
     uint16_t* indices = nullptr;
-    if (!fMeshes[0].fIndices.isEmpty()) {
+    if (this->isIndexed()) {
         indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
 
         if (!indices) {
@@ -148,34 +166,36 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
     int vertexOffset = 0;
     for (int i = 0; i < instanceCount; i++) {
         const Mesh& mesh = fMeshes[i];
-        // Currently we require all meshes to either have explicit local coords or not, though it
-        // wouldn't be hard to allow them to mix.
-        SkASSERT(clientLocalCoords == !mesh.fLocalCoords.isEmpty());
         if (indices) {
-            for (int j = 0; j < mesh.fIndices.count(); ++j, ++indexOffset) {
-                *(indices + indexOffset) = mesh.fIndices[j] + vertexOffset;
+            int indexCount = mesh.fVertices->indexCount();
+            for (int j = 0; j < indexCount; ++j, ++indexOffset) {
+                *(indices + indexOffset) = mesh.fVertices->indices()[j] + vertexOffset;
             }
         }
 
         static constexpr size_t kColorOffset = sizeof(SkPoint);
         static constexpr size_t kLocalCoordOffset = kColorOffset + sizeof(uint32_t);
 
-        for (int j = 0; j < mesh.fPositions.count(); ++j) {
+        int vertexCount = mesh.fVertices->vertexCount();
+        const SkPoint* positions = mesh.fVertices->positions();
+        const SkColor* colors = mesh.fVertices->colors();
+        const SkPoint* localCoords = mesh.fVertices->texCoords();
+        for (int j = 0; j < vertexCount; ++j) {
             if (fMultipleViewMatrices) {
-                mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &mesh.fPositions[j], 1);
+                mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[j], 1);
             } else {
-                *((SkPoint*)verts) = mesh.fPositions[j];
+                *((SkPoint*)verts) = positions[j];
             }
-            if (mesh.fColors.isEmpty()) {
-                *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColor;
+            if (this->hasExplicitColors()) {
+                *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[j];
             } else {
-                *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColors[j];
+                *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColor;
             }
             if (hasLocalCoordAttribute) {
-                if (clientLocalCoords) {
-                    *(SkPoint*)((intptr_t)verts + kLocalCoordOffset) = mesh.fLocalCoords[j];
+                if (this->hasExplicitLocalCoords()) {
+                    *(SkPoint*)((intptr_t)verts + kLocalCoordOffset) = localCoords[j];
                 } else {
-                    *(SkPoint*)((intptr_t)verts + kLocalCoordOffset) = mesh.fPositions[j];
+                    *(SkPoint*)((intptr_t)verts + kLocalCoordOffset) = positions[j];
                 }
             }
             verts = (void*)((intptr_t)verts + vertexStride);
@@ -206,14 +226,12 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-
-    if (fMeshes[0].fIndices.isEmpty() != that->fMeshes[0].fIndices.isEmpty()) {
+    if (fMeshes[0].fVertices->isIndexed() != that->fMeshes[0].fVertices->isIndexed()) {
         return false;
     }
 
-    // This could be relaxed by using positions for the one that doesn't already have explicit
-    // local coordindates.
-    if (fMeshes[0].fLocalCoords.isEmpty() != that->fMeshes[0].fLocalCoords.isEmpty()) {
+    // TODO: relax this
+    if (this->hasExplicitLocalCoords() != that->hasExplicitLocalCoords()) {
         return false;
     }
 
@@ -225,10 +243,9 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (!fVariableColor) {
-        if (that->fVariableColor || that->fMeshes[0].fColor != fMeshes[0].fColor) {
-            fVariableColor = true;
-        }
+    // TODO: relax this
+    if (this->hasExplicitColors() != that->hasExplicitColors()) {
+        return false;
     }
 
     // Check whether we are about to acquire a mesh with a different view matrix.
@@ -347,8 +364,6 @@ DRAW_OP_TEST_DEFINE(VerticesOp) {
     SkRect bounds;
     SkDEBUGCODE(bool result =) bounds.setBoundsCheck(positions.begin(), vertexCount);
     SkASSERT(result);
-
-    viewMatrix.mapRect(&bounds);
 
     GrColor color = GrRandomColor(random);
     return GrDrawVerticesOp::Make(color, type, viewMatrix, positions.begin(), vertexCount,

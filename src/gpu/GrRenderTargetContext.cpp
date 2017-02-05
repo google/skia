@@ -898,8 +898,6 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
 
-    viewMatrix.mapRect(&bounds);
-
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
             indexCount, colors, texCoords, bounds, colorArrayType);
