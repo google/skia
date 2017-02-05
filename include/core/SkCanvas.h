@@ -42,6 +42,7 @@ struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
+class SkVertices;
 
 /** \class SkCanvas
 
@@ -1172,6 +1173,12 @@ public:
         this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
                            indices, indexCount, paint);
     }
+    enum VerticesFlags {
+        kIgnoreColors_VerticesFlag = 0x1,
+        kIgnoreTexCoords_VerticesFlag = 0x2
+    };
+    void drawVertices(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+                      uint32_t flags = 0);
 
     /**
      Draw a cubic coons patch
@@ -1424,6 +1431,12 @@ protected:
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[], SkBlendMode,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
+    virtual void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t flags);
+    // Subclasses can use this put the vertices object call on the regular draw vertices code path.
+    // This is temporary until we teach recording and other SkCanvas classes about SkVertices.
+    void onDrawVerticesObjectFallback(sk_sp<SkVertices> vertices, SkBlendMode mode,
+                                      const SkPaint& paint, uint32_t flags);
 
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                              int count, SkBlendMode, const SkRect* cull, const SkPaint*);
