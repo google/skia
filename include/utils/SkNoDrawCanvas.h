@@ -9,6 +9,7 @@
 #define SkNoDrawCanvas_DEFINED
 
 #include "SkCanvas.h"
+#include "SkVertices.h"
 
 struct SkIRect;
 
@@ -67,6 +68,10 @@ protected:
                              const SkPaint*) override {}
     void onDrawVertices(VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
                         SkBlendMode, const uint16_t[], int, const SkPaint&) override {}
+    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+                              uint32_t flags) override {
+        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
+    }
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}
 
