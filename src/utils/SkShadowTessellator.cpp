@@ -9,12 +9,12 @@
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
+#include "SkVertices.h"
 
 #if SK_SUPPORT_GPU
 #include "GrPathUtils.h"
 #endif
 
-template <typename T> using UniqueArray = SkShadowVertices::UniqueArray<T>;
 
 // TODO: derive the ambient and spot classes from a base class containing common elements
 
@@ -23,24 +23,25 @@ public:
     SkAmbientShadowTessellator(const SkPath& path, SkScalar radius, SkColor umbraColor,
                                SkColor penumbraColor, bool transparent);
 
-    int vertexCount() const { return fPositions.count(); }
-    int indexCount() const { return fIndices.count(); }
-
-    bool succeeded() const { return fSucceeded; }
-
-    // The casts are needed to work around a, older GCC issue where the fact that the pointers are
-    // T* and not const T* causes calls to a deleted unique_ptr constructor.
-    UniqueArray<SkPoint> releasePositions() {
-        return UniqueArray<SkPoint>(static_cast<const SkPoint*>(fPositions.release()));
-    }
-    UniqueArray<SkColor> releaseColors() {
-        return UniqueArray<SkColor>(static_cast<const SkColor*>(fColors.release()));
-    }
-    UniqueArray<uint16_t> releaseIndices() {
-        return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
+    sk_sp<SkVertices> releaseVertices() {
+        if (!fSucceeded) {
+            return nullptr;
+        }
+        int vCount = this->vertexCount();
+        int iCount = this->indexCount();
+        return SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode,
+                                       std::unique_ptr<const SkPoint[]>(fPositions.release()),
+                                       std::unique_ptr<const SkColor[]>(fColors.release()),
+                                       nullptr,
+                                       vCount,
+                                       std::unique_ptr<const uint16_t[]>(fIndices.release()),
+                                       iCount);
     }
 
 private:
+    int vertexCount() const { return fPositions.count(); }
+    int indexCount() const { return fIndices.count(); }
+
     void handleLine(const SkPoint& p);
 
     void handleQuad(const SkPoint pts[3]);
@@ -382,24 +383,25 @@ public:
                             SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
                             bool transparent);
 
+    sk_sp<SkVertices> releaseVertices() {
+        if (!fSucceeded) {
+            return nullptr;
+        }
+        int vCount = this->vertexCount();
+        int iCount = this->indexCount();
+        return SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode,
+                                       std::unique_ptr<const SkPoint[]>(fPositions.release()),
+                                       std::unique_ptr<const SkColor[]>(fColors.release()),
+                                       nullptr,
+                                       vCount,
+                                       std::unique_ptr<const uint16_t[]>(fIndices.release()),
+                                       iCount);
+    }
+
+private:
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
 
-    // The casts are needed to work around an older GCC issue where the fact that the pointers are
-    // T* and not const T* causes calls to a deleted unique_ptr constructor.
-    UniqueArray<SkPoint> releasePositions() {
-        return UniqueArray<SkPoint>(static_cast<const SkPoint*>(fPositions.release()));
-    }
-    UniqueArray<SkColor> releaseColors() {
-        return UniqueArray<SkColor>(static_cast<const SkColor*>(fColors.release()));
-    }
-    UniqueArray<uint16_t> releaseIndices() {
-        return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
-    }
-
-    bool succeeded() const { return fSucceeded; }
-
-private:
     void computeClipBounds(const SkPath& path);
     void checkUmbraAndTransformCentroid(SkScalar scale, const SkVector& xlate,
                                         bool useDistanceToPoint);
@@ -1023,33 +1025,18 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, SkScalar radius,
-                                                      SkColor umbraColor, SkColor penumbraColor,
-                                                      bool transparent) {
-    SkAmbientShadowTessellator ambientTess(path, radius, umbraColor, penumbraColor, transparent);
-    if (!ambientTess.succeeded()) {
-        return nullptr;
-    }
-    int vcount = ambientTess.vertexCount();
-    int icount = ambientTess.indexCount();
-    return sk_sp<SkShadowVertices>(new SkShadowVertices(ambientTess.releasePositions(),
-                                                        ambientTess.releaseColors(),
-                                                        ambientTess.releaseIndices(), vcount,
-                                                        icount));
-}
-
-sk_sp<SkShadowVertices> SkShadowVertices::MakeSpot(const SkPath& path, SkScalar scale,
-                                                   const SkVector& translate, SkScalar radius,
+sk_sp<SkVertices> SkShadowTessellator::MakeAmbient(const SkPath& path, SkScalar radius,
                                                    SkColor umbraColor, SkColor penumbraColor,
                                                    bool transparent) {
-    SkSpotShadowTessellator spotTess(path, scale, translate, radius, umbraColor, penumbraColor,
-                                     transparent);
-    if (!spotTess.succeeded()) {
-        return nullptr;
-    }
-    int vcount = spotTess.vertexCount();
-    int icount = spotTess.indexCount();
-    return sk_sp<SkShadowVertices>(new SkShadowVertices(spotTess.releasePositions(),
-                                                        spotTess.releaseColors(),
-                                                        spotTess.releaseIndices(), vcount, icount));
+    return SkAmbientShadowTessellator(path, radius, umbraColor, penumbraColor, transparent)
+            .releaseVertices();
+}
+
+sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, SkScalar scale,
+                                                const SkVector& translate, SkScalar radius,
+                                                SkColor umbraColor, SkColor penumbraColor,
+                                                bool transparent) {
+    return SkSpotShadowTessellator(path, scale, translate, radius, umbraColor, penumbraColor,
+                                   transparent)
+            .releaseVertices();
 }
