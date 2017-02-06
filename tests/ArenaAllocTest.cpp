@@ -7,6 +7,7 @@
 
 #include "Test.h"
 #include "SkArenaAlloc.h"
+#include "SkRefCnt.h"
 
 namespace {
 
@@ -44,6 +45,15 @@ namespace {
             }
         }
         Node* start;
+    };
+
+    struct FooRefCnt : public SkRefCnt {
+        FooRefCnt() : x(-2), y(-3.0f) { created++; }
+        FooRefCnt(int X, float Y) : x(X), y(Y) { created++; }
+        ~FooRefCnt() { destroyed++; }
+
+        int x;
+        float y;
     };
 
 }
@@ -159,4 +169,19 @@ DEF_TEST(ArenaAlloc, r) {
 
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
+
+    {
+        created = 0;
+        destroyed = 0;
+        char storage[64];
+        SkArenaAlloc arena{storage};
+
+        sk_sp<FooRefCnt> f = arena.makeSkSp<FooRefCnt>(4, 5.0f);
+        REPORTER_ASSERT(r, f->x == 4);
+        REPORTER_ASSERT(r, f->y == 5.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+    }
+    REPORTER_ASSERT(r, created == 1);
+    REPORTER_ASSERT(r, destroyed == 1);
 }
