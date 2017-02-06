@@ -392,6 +392,9 @@ def key_params(api):
 
 def test_steps(api):
   """Run the DM test."""
+  if 'iOS' in api.vars.builder_name:
+    api.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.dm'
+
   use_hash_file = False
   if api.vars.upload_dm_results:
     # This must run before we write anything into

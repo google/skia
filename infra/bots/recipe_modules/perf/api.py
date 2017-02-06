@@ -128,6 +128,9 @@ def nanobench_flags(bot):
 
 def perf_steps(api):
   """Run Skia benchmarks."""
+  if 'iOS' in api.vars.builder_name:
+    api.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
+
   if api.vars.upload_perf_results:
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
