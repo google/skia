@@ -15,7 +15,6 @@
 TAGS
 bower_components
 common
-gyp/build
 infra/bots/tools/luci-go/linux64/cipd
 infra/bots/tools/luci-go/linux64/isolate
 infra/bots/tools/luci-go/mac64/cipd

@@ -7,10 +7,6 @@ Skia](./download).
 Skia uses [GN](https://chromium.googlesource.com/chromium/src/tools/gn/) to
 configure its builds.
 
-A few build configurations remain unported to GN, so you may see some `.gyp`
-files laying around left over from when we used GYP.  Don't bother looking at
-them.
-
 Quickstart
 ----------
 

@@ -30,29 +30,11 @@ def get_extra_env_vars(builder_dict):
   return env
 
 
-def get_gyp_defines(builder_dict):
-  gyp_defs = {}
-
-  if (builder_dict.get('os') == 'iOS' or
-      builder_dict.get('extra_config') == 'iOS'):
-    gyp_defs['skia_arch_type']  = 'arm'
-    gyp_defs['skia_clang_build'] = '1'
-    gyp_defs['skia_os'] = 'ios'
-    gyp_defs['skia_warnings_as_errors'] = 1
-
-  return gyp_defs
-
-
 class CompileApi(recipe_api.RecipeApi):
   def run(self):
     self.m.core.setup()
 
     env = get_extra_env_vars(self.m.vars.builder_cfg)
-    gyp_defs = get_gyp_defines(self.m.vars.builder_cfg)
-    gyp_defs_list = ['%s=%s' % (k, v) for k, v in gyp_defs.iteritems()]
-    gyp_defs_list.sort()
-    env['GYP_DEFINES'] = ' '.join(gyp_defs_list)
-
     build_targets = build_targets_from_builder_dict(self.m.vars.builder_cfg)
 
     try:
