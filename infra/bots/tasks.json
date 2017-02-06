@@ -8222,7 +8222,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:19"
+          "version": "version:20"
         },
         {
           "name": "skia/bots/skp",
@@ -8270,7 +8270,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:19"
+          "version": "version:20"
         },
         {
           "name": "skia/bots/skp",
@@ -13207,7 +13207,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:19"
+          "version": "version:20"
         },
         {
           "name": "skia/bots/skp",
