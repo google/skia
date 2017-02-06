@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ba24e15_5896a011",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Maybe make a copy of *iter to pass to the recursive calls to tryInsertExpression.",
+      "range": {
+        "startLine": 278,
+        "startChar": 16,
+        "endLine": 278,
+        "endChar": 25
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6acf8a64_08aff748",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Maybe\nASSERT(fKind \u003d\u003d kExpression_Kind || !fExpression);\nASSERT(fKind \u003d\u003d kStatement_Kind || !fStatement);",
+      "range": {
+        "startLine": 34,
+        "startChar": 32,
+        "endLine": 34,
+        "endChar": 34
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b28dd78_a7945c74",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: undefinedVariables-\u003e",
+      "range": {
+        "startLine": 454,
+        "startChar": 16,
+        "endLine": 454,
+        "endChar": 38
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39cb531d_dc70f8e9",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "0 - x !\u003d x",
+      "range": {
+        "startLine": 491,
+        "startChar": 24,
+        "endLine": 491,
+        "endChar": 74
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e90f674a_09a79ff0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 653,
+        "startChar": 44,
+        "endLine": 653,
+        "endChar": 45
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a5a114e_e4c48b76",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: RESULT macro above uses left.fPosition. Does it matter?",
+      "range": {
+        "startLine": 921,
+        "startChar": 63,
+        "endLine": 921,
+        "endChar": 73
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0cb7e7_7434b750",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Please add documentation for the new methods.",
+      "range": {
+        "startLine": 78,
+        "startChar": 22,
+        "endLine": 78,
+        "endChar": 37
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a071476_e2457e9b",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Please add a comment explaining why this will be true. E.g. doesn\u0027t SkSL support doing something like:\nmat2x2 foo \u003d mat2x2(1, 2, 3, 4);\nvec2 bar \u003d vec2(foo[1]);\nor\nvec3 foo \u003d vec3(1, 2, 3);\nvec2 bar \u003d vec2(foo);\nor\nvec3 foo \u003d vec3(1, 2, 3);\nvec3 bar \u003d vec3(foo.zx, 4);\n?",
+      "range": {
+        "startLine": 93,
+        "startChar": 23,
+        "endLine": 93,
+        "endChar": 66
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "111232c9_bdee2fb9",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: missing case for IntLiteral?",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 61
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a759a8e_c0879777",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: impossible to be false",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 66
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75f49f79_3665f5b8",
+        "filename": "src/sksl/ir/SkSLVariableReference.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Should this be const Context\u0026 context?",
+      "range": {
+        "startLine": 75,
+        "startChar": 53,
+        "endLine": 75,
+        "endChar": 83
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7da14ce9_a3144f55",
+        "filename": "src/sksl/ir/SkSLVariableReference.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "nit: Please add function documentation.",
+      "range": {
+        "startLine": 75,
+        "startChar": 39,
+        "endLine": 75,
+        "endChar": 52
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9db5fe0_29b8a989",
+        "filename": "src/sksl/ir/SkSLVariableReference.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T18:43:53Z",
+      "side": 1,
+      "message": "Seems like you need to supply the type arg for IntLiteral and FloatLiteral.",
+      "range": {
+        "startLine": 80,
+        "startChar": 55,
+        "endLine": 80,
+        "endChar": 65
+      },
+      "revId": "63b43b904d6ee0e3143f4377e48a0e6339ca553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
