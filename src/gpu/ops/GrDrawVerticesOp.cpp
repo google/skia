@@ -39,13 +39,19 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
     }
     static constexpr SkCanvas::VertexMode kIgnoredMode = SkCanvas::kTriangles_VertexMode;
     sk_sp<SkVertices> vertices;
+    // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
+    // std::unique_ptr<const T[]>. Hence the release() calls below.
     if (indices) {
-        vertices = SkVertices::MakeIndexed(kIgnoredMode, std::move(pos), std::move(col),
-                                           std::move(lc),
-                                           vertexCount, std::move(idx), indexCount, bounds);
+        vertices = SkVertices::MakeIndexed(
+                kIgnoredMode, std::unique_ptr<const SkPoint[]>((const SkPoint*)pos.release()),
+                std::unique_ptr<const SkColor[]>(col.release()),
+                std::unique_ptr<const SkPoint[]>(lc.release()), vertexCount,
+                std::unique_ptr<const uint16_t[]>(idx.release()), indexCount, bounds);
     } else {
-        vertices = SkVertices::Make(kIgnoredMode, std::move(pos), std::move(col), std::move(lc),
-                                    vertexCount, bounds);
+        vertices = SkVertices::Make(kIgnoredMode, std::unique_ptr<const SkPoint[]>(pos.release()),
+                                    std::unique_ptr<const SkColor[]>(col.release()),
+                                    std::unique_ptr<const SkPoint[]>(lc.release()), vertexCount,
+                                    bounds);
     }
     if (!vertices) {
         return nullptr;
