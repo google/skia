@@ -44,14 +44,16 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(
     if (indices) {
         vertices = SkVertices::MakeIndexed(
                 kIgnoredMode, std::unique_ptr<const SkPoint[]>((const SkPoint*)pos.release()),
-                std::unique_ptr<const SkColor[]>(col.release()),
-                std::unique_ptr<const SkPoint[]>(lc.release()), vertexCount,
-                std::unique_ptr<const uint16_t[]>(idx.release()), indexCount, bounds);
+                std::unique_ptr<const SkColor[]>((const SkColor*)col.release()),
+                std::unique_ptr<const SkPoint[]>((const SkPoint*)lc.release()), vertexCount,
+                std::unique_ptr<const uint16_t[]>((const uint16_t*)idx.release()), indexCount,
+                bounds);
     } else {
-        vertices = SkVertices::Make(kIgnoredMode, std::unique_ptr<const SkPoint[]>(pos.release()),
-                                    std::unique_ptr<const SkColor[]>(col.release()),
-                                    std::unique_ptr<const SkPoint[]>(lc.release()), vertexCount,
-                                    bounds);
+        vertices = SkVertices::Make(kIgnoredMode,
+                                    std::unique_ptr<const SkPoint[]>((const SkPoint*)pos.release()),
+                                    std::unique_ptr<const SkColor[]>((const SkColor*)col.release()),
+                                    std::unique_ptr<const SkPoint[]>((const SkPoint*)lc.release()),
+                                    vertexCount, bounds);
     }
     if (!vertices) {
         return nullptr;
