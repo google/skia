@@ -14,10 +14,10 @@
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
+#include "GrSurfaceContextPriv.h"
 #include "GrTextureAdjuster.h"
 #include "GrTextureProxy.h"
 #include "GrTracing.h"
-
 #include "SkCanvasPriv.h"
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
@@ -44,6 +44,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
+#include "SkVertices.h"
 #include "SkWritePixelsRec.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -1568,14 +1569,30 @@ void SkGpuDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
     this->drawProducerLattice(draw, &maker, lattice, dst, paint);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-// must be in SkCanvas::VertexMode order
-static const GrPrimitiveType gVertexMode2PrimitiveType[] = {
-    kTriangles_GrPrimitiveType,
-    kTriangleStrip_GrPrimitiveType,
-    kTriangleFan_GrPrimitiveType,
-};
+bool init_vertices_paint(const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
+                         bool hasTexs, bool hasColors, GrRenderTargetContext* rtc,
+                         GrPaint* grPaint) {
+    GrContext* context = rtc->surfPriv().getContext();
+    if (hasTexs && skPaint.getShader()) {
+        if (hasColors) {
+            // When there are texs and colors the shader and colors are combined using bmode.
+            return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, matrix, bmode, false,
+                                                grPaint);
+        } else {
+            // We have a shader, but no colors to blend it against.
+            return SkPaintToGrPaint(context, rtc, skPaint, matrix, grPaint);
+        }
+    } else {
+        if (hasColors) {
+            // We have colors, but either have no shader or no texture coords (which implies that
+            // we should ignore the shader).
+            return SkPaintToGrPaintWithPrimitiveColor(context, rtc, skPaint, grPaint);
+        } else {
+            // No colors and no shaders. Just draw with the paint color.
+            return (!SkPaintToGrPaintNoShader(context, rtc, skPaint, grPaint));
+        }
+    }
+}
 
 void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                               int vertexCount, const SkPoint vertices[],
@@ -1645,40 +1662,13 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         return;
     }
 
-    GrPrimitiveType primType = gVertexMode2PrimitiveType[vmode];
+    GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vmode);
 
     GrPaint grPaint;
-    if (texs && paint.getShader()) {
-        if (colors) {
-            // When there are texs and colors the shader and colors are combined using bmode.
-            if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext.get(), paint,
-                                              *draw.fMatrix, bmode, false, &grPaint)) {
-                return;
-            }
-        } else {
-            // We have a shader, but no colors to blend it against.
-            if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), paint, *draw.fMatrix,
-                                  &grPaint)) {
-                return;
-            }
-        }
-    } else {
-        if (colors) {
-            // We have colors, but either have no shader or no texture coords (which implies that
-            // we should ignore the shader).
-            if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), fRenderTargetContext.get(),
-                                                    paint, &grPaint)) {
-                return;
-            }
-        } else {
-            // No colors and no shaders. Just draw with the paint color.
-            if (!SkPaintToGrPaintNoShader(this->context(), fRenderTargetContext.get(), paint,
-                                          &grPaint)) {
-                return;
-            }
-        }
+    if (!init_vertices_paint(paint, *draw.fMatrix, bmode, SkToBool(texs), SkToBool(colors),
+                             fRenderTargetContext.get(), &grPaint)) {
+        return;
     }
-
     fRenderTargetContext->drawVertices(fClip,
                                        std::move(grPaint),
                                        *draw.fMatrix,
@@ -1690,6 +1680,30 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                        indices,
                                        indexCount,
                                        GrRenderTargetContext::ColorArrayType::kSkColor);
+}
+
+void SkGpuDevice::drawVerticesObject(const SkDraw& draw, sk_sp<SkVertices> vertices,
+                                     SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    CHECK_SHOULD_DRAW(draw);
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVerticesObject", fContext.get());
+
+    SkASSERT(vertices);
+    GrPaint grPaint;
+    bool hasColors = vertices->hasColors() && !(SkCanvas::kIgnoreColors_VerticesFlag & flags);
+    bool hasTexs = vertices->hasTexCoords() & !(SkCanvas::kIgnoreTexCoords_VerticesFlag & flags);
+    if (!hasTexs && !hasColors) {
+        // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
+        this->drawVertices(draw, vertices->mode(), vertices->vertexCount(), vertices->positions(),
+                           nullptr, nullptr, mode, vertices->indices(), vertices->indexCount(),
+                           paint);
+    }
+    if (!init_vertices_paint(paint, *draw.fMatrix, mode, hasTexs, hasColors,
+                             fRenderTargetContext.get(), &grPaint)) {
+        return;
+    }
+    fRenderTargetContext->drawVertices(fClip, std::move(grPaint), *draw.fMatrix,
+                                       std::move(vertices), flags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

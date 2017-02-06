@@ -15,6 +15,7 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
+#include "SkVertices.h"
 #include "SkWriter32.h"
 
 // These macros help with packing and unpacking a single byte value and
@@ -203,6 +204,10 @@ protected:
                         const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
+    void onDrawVerticesObject(sk_sp<SkVertices> vertices, SkBlendMode mode, const SkPaint& paint,
+                              uint32_t flags) override {
+        this->onDrawVerticesObjectFallback(std::move(vertices), mode, paint, flags);
+    }
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;

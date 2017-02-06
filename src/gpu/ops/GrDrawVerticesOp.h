@@ -15,45 +15,61 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
+#include "SkVertices.h"
 
 class GrOpFlushState;
+class SkVertices;
 struct GrInitInvariantOutput;
 
 class GrDrawVerticesOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    /**
+     * The 'color' param is used if the 'colors' array is null. 'bounds' is the bounds of the
+     * 'positions' array (in local space prior to application of 'viewMatrix'). If 'indices' is null
+     * then 'indexCnt' must be zero and vice versa. In this case the vertices are indexed as 0, 1,
+     * ..., 'vertexCount' - 1. 'localCoords' are optional and if null the vertex positions are used
+     * as local coords. 'colorArrayType' specifies whether the colors are premul GrColors or
+     * unpremul SkColors.
+     */
     static std::unique_ptr<GrDrawOp> Make(GrColor color, GrPrimitiveType primitiveType,
                                           const SkMatrix& viewMatrix, const SkPoint* positions,
                                           int vertexCount, const uint16_t* indices, int indexCount,
                                           const uint32_t* colors, const SkPoint* localCoords,
                                           const SkRect& bounds,
-                                          GrRenderTargetContext::ColorArrayType colorArrayType) {
-        return std::unique_ptr<GrDrawOp>(new GrDrawVerticesOp(
-                color, primitiveType, viewMatrix, positions, vertexCount, indices, indexCount,
-                colors, localCoords, bounds, colorArrayType));
-    }
+                                          GrRenderTargetContext::ColorArrayType colorArrayType);
+
+    /**
+     * Draw a SkVertices. The GrColor param is used if the vertices lack per-vertex color or 'flags'
+     * indicates that the per-vertex color should be ignored.  The 'flags' options are those
+     * specified by SkCanvas::VerticesFlags. If the vertices lack local coords or 'flags' indicates
+     * that they should be ignored then the vertex positions are used as local coords.
+     */
+    static std::unique_ptr<GrDrawOp> Make(GrColor color, sk_sp<SkVertices>,
+                                          const SkMatrix& viewMatrix, uint32_t flags);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("PrimType: %d, VarColor: %d, VCount: %d, ICount: %d\n", fPrimitiveType,
-                       fVariableColor, fVertexCount, fIndexCount);
+        string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", fPrimitiveType,
+                       fMeshes.count(), fVertexCount, fIndexCount);
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
-    GrDrawVerticesOp(GrColor color, GrPrimitiveType primitiveType, const SkMatrix& viewMatrix,
-                     const SkPoint* positions, int vertexCount, const uint16_t* indices,
-                     int indexCount, const uint32_t* colors, const SkPoint* localCoords,
-                     const SkRect& bounds, GrRenderTargetContext::ColorArrayType colorArrayType);
+    GrDrawVerticesOp(sk_sp<SkVertices>, GrPrimitiveType, GrColor,
+                     GrRenderTargetContext::ColorArrayType, const SkMatrix& viewMatrix,
+                     uint32_t flags = 0);
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override;
     void applyPipelineOptimizations(const GrPipelineOptimizations&) override;
     void onPrepareDraws(Target*) const override;
+
+    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute, bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -65,20 +81,55 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Mesh {
-        GrColor fColor;  // Only used if there are no per-vertex colors
-        SkTDArray<SkPoint> fPositions;
-        SkTDArray<uint16_t> fIndices;
-        SkTDArray<uint32_t> fColors;
-        SkTDArray<SkPoint> fLocalCoords;
+        GrColor fColor;  // Used if this->hasPerVertexColors() is false.
+        sk_sp<SkVertices> fVertices;
         SkMatrix fViewMatrix;
+        uint32_t fFlags;
+
+        bool hasExplicitLocalCoords() const {
+            return fVertices->hasTexCoords() && !(SkCanvas::kIgnoreTexCoords_VerticesFlag & fFlags);
+        }
+
+        bool hasPerVertexColors() const {
+            return fVertices->hasColors() && !(SkCanvas::kIgnoreColors_VerticesFlag & fFlags);
+        }
     };
 
+    bool isIndexed() const {
+        // Consistency enforced in onCombineIfPossible.
+        return fMeshes[0].fVertices->isIndexed();
+    }
+
+    bool requiresPerVertexColors() const {
+        return SkToBool(kRequiresPerVertexColors_Flag & fFlags);
+    }
+
+    bool anyMeshHasExplicitLocalCoords() const {
+        return SkToBool(kAnyMeshHasExplicitLocalCoords & fFlags);
+    }
+
+    bool pipelineRequiresLocalCoords() const {
+        return SkToBool(kPipelineRequiresLocalCoords_Flag & fFlags);
+    }
+
+    bool hasMultipleViewMatrices() const {
+        return SkToBool(kHasMultipleViewMatrices_Flag & fFlags);
+    }
+
+    enum Flags {
+        kRequiresPerVertexColors_Flag = 0x1,
+        kAnyMeshHasExplicitLocalCoords = 0x2,
+        kPipelineRequiresLocalCoords_Flag = 0x4,
+        kHasMultipleViewMatrices_Flag = 0x8
+
+    };
+
+    // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
+    // the SkVertices mode (though fPrimitiveType may have been inferred from it).
     GrPrimitiveType fPrimitiveType;
-    bool fVariableColor;
+    uint32_t fFlags;
     int fVertexCount;
     int fIndexCount;
-    bool fMultipleViewMatrices = false;
-    bool fPipelineNeedsLocalCoords;
     GrRenderTargetContext::ColorArrayType fColorArrayType;
     SkSTArray<1, Mesh, true> fMeshes;
 

@@ -898,12 +898,34 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
         return;
     }
 
-    viewMatrix.mapRect(&bounds);
-
     std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
             paint.getColor(), primitiveType, viewMatrix, positions, vertexCount, indices,
             indexCount, colors, texCoords, bounds, colorArrayType);
+    if (!op) {
+        return;
+    }
+    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
+    this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
+}
 
+void GrRenderTargetContext::drawVertices(const GrClip& clip,
+                                         GrPaint&& paint,
+                                         const SkMatrix& viewMatrix,
+                                         sk_sp<SkVertices> vertices,
+                                         uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawVertices");
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkASSERT(vertices);
+    std::unique_ptr<GrDrawOp> op =
+            GrDrawVerticesOp::Make(paint.getColor(), std::move(vertices), viewMatrix, flags);
+    if (!op) {
+        return;
+    }
     GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
     this->getOpList()->addDrawOp(pipelineBuilder, this, clip, std::move(op));
 }

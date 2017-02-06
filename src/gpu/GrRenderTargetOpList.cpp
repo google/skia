@@ -466,7 +466,7 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     // 2) intersect with something
     // 3) find a 'blocker'
     GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), renderTargetID);
-    GrOP_INFO("Re-Recording (%s, B%u)\n"
+    GrOP_INFO("Recording (%s, B%u)\n"
               "\tBounds LRTB (%f, %f, %f, %f)\n",
                op->name(),
                op->uniqueID(),
@@ -492,6 +492,8 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
             if (candidate.fOp->combineIfPossible(op.get(), *this->caps())) {
                 GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
+                GrOP_INFO("\t\t\tCombined op info:\n");
+                GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
                 join(&fRecordedOps.fromBack(i).fClippedBounds,
                      fRecordedOps.fromBack(i).fClippedBounds, clippedBounds);
