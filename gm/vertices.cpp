@@ -104,10 +104,12 @@ protected:
             // std::unique_ptr<const T[]>. Hence the release() calls below.
             fVertices = SkVertices::MakeIndexed(
                     SkCanvas::kTriangleFan_VertexMode,
-                    std::unique_ptr<const SkPoint[]>(points.release()),
-                    std::unique_ptr<const SkColor[]>(colors.release()),
-                    std::unique_ptr<const SkPoint[]>(texs.release()), kMeshVertexCnt,
-                    std::unique_ptr<const uint16_t[]>(indices.release()), kMeshIndexCnt);
+                    std::unique_ptr<const SkPoint[]>((const SkPoint*)points.release()),
+                    std::unique_ptr<const SkColor[]>((const SkColor*)colors.release()),
+                    std::unique_ptr<const SkPoint[]>((const SkPoint*)texs.release()),
+                    kMeshVertexCnt,
+                    std::unique_ptr<const uint16_t[]>((const uint16_t*)indices.release()),
+                    kMeshIndexCnt);
         }
     }
 
@@ -237,10 +239,12 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
         // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
         // std::unique_ptr<const T[]>. Hence the release() calls below.
         vertices = SkVertices::MakeIndexed(
-                SkCanvas::kTriangles_VertexMode, std::unique_ptr<const SkPoint[]>(pts.release()),
-                std::unique_ptr<const SkColor[]>(colors.release()),
-                std::unique_ptr<const SkPoint[]>(texs.release()), kMeshVertexCnt,
-                std::unique_ptr<const uint16_t[]>(indices.release()), 3 * kNumTris);
+                SkCanvas::kTriangles_VertexMode,
+                std::unique_ptr<const SkPoint[]>((const SkPoint*)pts.release()),
+                std::unique_ptr<const SkColor[]>((const SkColor*)colors.release()),
+                std::unique_ptr<const SkPoint[]>((const SkPoint*)texs.release()), kMeshVertexCnt,
+                std::unique_ptr<const uint16_t[]>((const uint16_t*)indices.release()),
+                3 * kNumTris);
     }
     canvas->save();
     canvas->translate(10, 10);
