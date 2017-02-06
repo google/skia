@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f5a98ff_a4547f53",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T20:17:16Z",
+      "side": 1,
+      "message": "Are we abandoning the entire INHERITED thing?",
+      "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92987364_c8e35c58",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T20:17:16Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "575cbfb8_4b2b6400",
+        "filename": "src/utils/SkShadowTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T20:17:16Z",
+      "side": 1,
+      "message": "Can we rm SkPoint.h now ?",
+      "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
