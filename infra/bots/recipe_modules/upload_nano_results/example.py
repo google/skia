@@ -21,6 +21,7 @@ def GenTests(api):
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-perf',
                    revision='abc123',
                    path_config='kitchen')
   )
@@ -29,6 +30,7 @@ def GenTests(api):
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-perf',
                    revision='abc123',
                    path_config='kitchen',
                    issue='12345',
@@ -39,6 +41,7 @@ def GenTests(api):
       api.test('recipe_with_gerrit_patch') +
       api.properties(
           buildername=builder,
+          gs_bucket='skia-perf',
           revision='abc123',
           path_config='kitchen',
           patch_storage='gerrit') +

@@ -45,8 +45,10 @@ var (
 
 	// General configuration information.
 	CONFIG struct {
-		NoUpload []string `json:"no_upload"`
-		Pool     string   `json:"pool"`
+		GsBucketGm   string   `json:"gs_bucket_gm"`
+		GsBucketNano string   `json:"gs_bucket_nano"`
+		NoUpload     []string `json:"no_upload"`
+		Pool         string   `json:"pool"`
 	}
 
 	// Mapping of human-friendly GPU names to PCI IDs.
@@ -425,6 +427,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketGm),
 			},
 			Isolate:  "upload_dm_results.isolate",
 			Priority: 0.8,
@@ -495,6 +498,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketNano),
 			},
 			Isolate:  "upload_nano_results.isolate",
 			Priority: 0.8,

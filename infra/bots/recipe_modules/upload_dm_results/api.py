@@ -13,7 +13,6 @@ from recipe_engine import recipe_api
 
 
 DM_JSON = 'dm.json'
-GS_BUCKET = 'gs://skia-infra-gm'
 UPLOAD_ATTEMPTS = 5
 VERBOSE_LOG = 'verbose.log'
 
@@ -54,7 +53,7 @@ class UploadDmResultsApi(recipe_api.RecipeApi):
     self.m.shutil.remove('rm old verbose.log', log_file)
 
     # Upload the images.
-    image_dest_path = '/'.join((GS_BUCKET, 'dm-images-v1'))
+    image_dest_path = 'gs://%s/dm-images-v1' % self.m.properties['gs_bucket']
     files_to_upload = self.m.file.glob(
         'find images',
         results_dir.join('*'),
@@ -85,7 +84,8 @@ class UploadDmResultsApi(recipe_api.RecipeApi):
       summary_dest_path = '/'.join((
           'trybot', summary_dest_path, issue, patchset))
 
-    summary_dest_path = '/'.join((GS_BUCKET, summary_dest_path))
+    summary_dest_path = 'gs://%s/%s' % (self.m.properties['gs_bucket'],
+                                        summary_dest_path)
 
     self.cp('JSON and logs', tmp_dir.join('*'), summary_dest_path,
        ['-z', 'json,log'])

@@ -20,6 +20,7 @@ def GenTests(api):
   yield (
     api.test('upload') +
     api.properties(buildername='Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
+                   gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen')
   )

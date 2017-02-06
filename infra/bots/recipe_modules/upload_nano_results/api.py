@@ -41,7 +41,8 @@ class UploadNanoResultsApi(recipe_api.RecipeApi):
     if issue and patchset:
       gs_path = '/'.join(('trybot', gs_path, issue, patchset))
 
-    dst = '/'.join(('gs://skia-perf', gs_path, basename))
+    dst = '/'.join((
+        'gs://%s' % self.m.properties['gs_bucket'], gs_path, basename))
 
     self.m.step(
         'upload',
