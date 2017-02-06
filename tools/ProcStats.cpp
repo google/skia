@@ -13,7 +13,7 @@
     int sk_tools::getMaxResidentSetSizeMB() {
         struct rusage ru;
         getrusage(RUSAGE_SELF, &ru);
-    #if defined(SK_BUILD_FOR_MAC)
+    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         return static_cast<int>(ru.ru_maxrss / 1024 / 1024);  // Darwin reports bytes.
     #else
         return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
