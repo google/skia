@@ -189,9 +189,26 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
+  env = {}
+  env.update(api.vars.default_env)
+  if 'Ubuntu' in api.vars.builder_name and 'Vulkan' in api.vars.builder_name:
+    sdk_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'bin')
+    lib_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'lib')
+    dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
+    if 'Debug' in api.vars.builder_name:
+      dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
+
+
+    env.update({
+      'PATH':'%%(PATH)s:%s' % sdk_path,
+      'LD_LIBRARY_PATH': lib_path,
+      'LIBGL_DRIVERS_PATH':'%s' % dri_path,
+      'VK_ICD_FILENAMES':'%s' % dri_path.join('intel_icd.x86_64.json'),
+    })
+
   api.run(api.flavor.step, target, cmd=args,
           abort_on_failure=False,
-          env=api.vars.default_env)
+          env=env)
 
   # See skia:2789.
   if ('Valgrind' in api.vars.builder_name and
