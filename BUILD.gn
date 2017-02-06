@@ -910,6 +910,9 @@ if (skia_enable_tools) {
       "tools/sk_tool_utils_font.cpp",
       "tools/timer/Timer.cpp",
     ]
+    if (is_ios) {
+      sources += [ "tools/ios_utils.m" ]
+    }
     deps = [
       ":common_flags",
       ":flags",
@@ -1031,6 +1034,16 @@ if (skia_enable_tools) {
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]
     }
+  }
+
+  test_app("hello") {
+    sources = [
+      "hello.cc",
+    ]
+    deps = [
+      ":tool_utils",
+    ]
+    libs = [ "Foundation.framework" ]
   }
 
   if (skia_use_lua) {

@@ -32,6 +32,7 @@
 #include "SkThreadUtils.h"
 #include "Test.h"
 #include "Timer.h"
+#include "ios_utils.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
 #include "SkScan.h"
@@ -1284,6 +1285,9 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int dm_main();
 int dm_main() {
+#if defined(SK_BUILD_FOR_IOS)
+    cd_Documents();
+#endif
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
