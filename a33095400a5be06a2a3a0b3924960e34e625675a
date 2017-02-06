@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "80f77336_824c69a5",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf5103cb_4f3194d5",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7275c6e9_4a7a80d7",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a78eec4_da333944",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7275c6e9_4a7a80d7",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7f65cde5_69237857",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6055d365_dd0c1eec",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f13e8179_e2016022",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-06T17:24:58Z",
       "side": 1,
       "message": "??",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81cdb6ee_2d83cdcd",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "The compiler can\u0027t seem to find the protected base class method without this.",
+      "parentUuid": "f13e8179_e2016022",
       "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "e6b34022_ee26860f",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1da4741c_d90d2c73",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91ceccf1_3a577ff5",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-06T17:24:58Z",
       "side": 1,
       "message": "??",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e942955_6e26f9d4",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-06T17:48:21Z",
+      "side": 1,
+      "message": "Ditto above.",
+      "parentUuid": "91ceccf1_3a577ff5",
       "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
