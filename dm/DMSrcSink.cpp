@@ -45,6 +45,9 @@
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
+    #include "SkHRESULT.h"
+    #include "SkTScopedComPtr.h"
+    #include <XpsObjectModel.h>
 #endif
 
 #if defined(SK_XML)
@@ -1332,19 +1335,36 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 
 XPSSink::XPSSink() {}
 
-Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #ifdef SK_BUILD_FOR_WIN
+static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
+    IXpsOMObjectFactory* factory;
+    HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
+                         nullptr,
+                         CLSCTX_INPROC_SERVER,
+                         IID_PPV_ARGS(&factory)));
+    return SkTScopedComPtr<IXpsOMObjectFactory>(factory);
+}
+
+Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
     SkAutoCoInitialize com;
     if (!com.succeeded()) {
         return "Could not initialize COM.";
     }
-#endif
-    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst));
+    SkTScopedComPtr<IXpsOMObjectFactory> factory = make_xps_factory();
+    if (!factory) {
+        return "Failed to create XPS Factory.";
+    }
+    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, factory.get()));
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";
     }
     return draw_skdocument(src, doc.get(), dst);
 }
+#else
+Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    return "XPS not supported on this platform.";
+}
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
