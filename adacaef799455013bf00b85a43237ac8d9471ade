@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5440f31b_14d13998",
+        "filename": "bench/SkLinearBitmapPipelineBench.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 0,
+      "message": "Probably can keep this assert, in terms of kSkBlitterContextSize?",
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3da73858_83d1a487",
+        "filename": "gm/SkLinearBitmapPipelineGM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 0,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 62,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 11
+      },
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e6312aa_2233f4a9",
+        "filename": "gm/SkLinearBitmapPipelineGM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 0,
+      "message": "Ditto.",
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fcefe21_ec880aa8",
+        "filename": "src/core/SkColorFilterShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 0,
+      "message": "We\u0027re sure nothing\u0027s relying on the existing layout when we play tricks like this?",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 78
+      },
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

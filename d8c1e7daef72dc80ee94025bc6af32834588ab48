@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc81c1d2_2c909870",
+        "filename": "bench/SkLinearBitmapPipelineBench.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 1,
+      "message": "I think you\u0027ve made this 4x smaller (uint32_t -\u003e byte).",
+      "revId": "d8c1e7daef72dc80ee94025bc6af32834588ab48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a409a2_6cf1f192",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 1,
+      "message": "*pointer",
+      "range": {
+        "startLine": 234,
+        "startChar": 15,
+        "endLine": 234,
+        "endChar": 20
+      },
+      "revId": "d8c1e7daef72dc80ee94025bc6af32834588ab48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0719545_826d1c1e",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-06T19:21:58Z",
+      "side": 1,
+      "message": "maybe drop unowned here?  Or explicitly say, pointer owned by the SkArenaAlloc?",
+      "range": {
+        "startLine": 476,
+        "startChar": 15,
+        "endLine": 476,
+        "endChar": 44
+      },
+      "revId": "d8c1e7daef72dc80ee94025bc6af32834588ab48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
