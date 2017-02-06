@@ -16,7 +16,6 @@
 #include "ir/SkSLExtension.h"
 #include "ir/SkSLIndexExpression.h"
 #include "ir/SkSLModifiersDeclaration.h"
-#include "ir/SkSLNop.h"
 #include "ir/SkSLVariableReference.h"
 
 namespace SkSL {
@@ -494,7 +493,10 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkDynamicMemoryWStream buffer;
     fOut = &buffer;
     fIndentation++;
-    this->writeStatements(((Block&) *f.fBody).fStatements);
+    for (const auto& s : f.fBody->fStatements) {
+        this->writeStatement(*s);
+        this->writeLine();
+    }
     fIndentation--;
     this->writeLine("}");
 
@@ -587,26 +589,26 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
-    this->writeModifiers(decl.fVars[0]->fVar->fModifiers, global);
+    this->writeModifiers(decl.fVars[0].fVar->fModifiers, global);
     this->writeType(decl.fBaseType);
     SkString separator(" ");
     for (const auto& var : decl.fVars) {
-        ASSERT(var->fVar->fModifiers == decl.fVars[0]->fVar->fModifiers);
+        ASSERT(var.fVar->fModifiers == decl.fVars[0].fVar->fModifiers);
         this->write(separator);
         separator = SkString(", ");
-        this->write(var->fVar->fName);
-        for (const auto& size : var->fSizes) {
+        this->write(var.fVar->fName);
+        for (const auto& size : var.fSizes) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
             }
             this->write("]");
         }
-        if (var->fValue) {
+        if (var.fValue) {
             this->write(" = ");
-            this->writeExpression(*var->fValue, kTopLevel_Precedence);
+            this->writeExpression(*var.fValue, kTopLevel_Precedence);
         }
-        if (!fFoundImageDecl && var->fVar->fType == *fContext.fImage2D_Type) {
+        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
@@ -654,27 +656,18 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::kDiscard_Kind:
             this->write("discard;");
             break;
-        case Statement::kNop_Kind:
-            this->write(";");
-            break;
         default:
             ABORT("unsupported statement: %s", s.description().c_str());
-    }
-}
-
-void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
-    for (const auto& s : statements) {
-        if (!s->isEmpty()) {
-            this->writeStatement(*s);
-            this->writeLine();
-        }
     }
 }
 
 void GLSLCodeGenerator::writeBlock(const Block& b) {
     this->writeLine("{");
     fIndentation++;
-    this->writeStatements(b.fStatements);
+    for (const auto& s : b.fStatements) {
+        this->writeStatement(*s);
+        this->writeLine();
+    }
     fIndentation--;
     this->write("}");
 }
@@ -770,7 +763,7 @@ bool GLSLCodeGenerator::generateCode() {
             case ProgramElement::kVar_Kind: {
                 VarDeclarations& decl = (VarDeclarations&) *e;
                 if (decl.fVars.size() > 0) {
-                    int builtin = decl.fVars[0]->fVar->fModifiers.fLayout.fBuiltin;
+                    int builtin = decl.fVars[0].fVar->fModifiers.fLayout.fBuiltin;
                     if (builtin == -1) {
                         // normal var
                         this->writeVarDeclarations(decl, true);

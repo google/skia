@@ -23,15 +23,6 @@ struct Block : public Statement {
     , fSymbols(std::move(symbols))
     , fStatements(std::move(statements)) {}
 
-    virtual bool isEmpty() const override {
-        for (const auto& s : fStatements) {
-            if (!s->isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     SkString description() const override {
         SkString result("{");
         for (size_t i = 0; i < fStatements.size(); i++) {
@@ -45,7 +36,7 @@ struct Block : public Statement {
     // it's important to keep fStatements defined after (and thus destroyed before) fSymbols,
     // because destroying statements can modify reference counts in symbols
     const std::shared_ptr<SymbolTable> fSymbols;
-    std::vector<std::unique_ptr<Statement>> fStatements;
+    const std::vector<std::unique_ptr<Statement>> fStatements;
 
     typedef Statement INHERITED;
 };

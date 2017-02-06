@@ -21,12 +21,7 @@ struct PrefixExpression : public Expression {
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
-    bool hasSideEffects() const override {
-        return fOperator == Token::PLUSPLUS || fOperator == Token::MINUSMINUS ||
-               fOperand->hasSideEffects();
-    }
-
-    SkString description() const override {
+    virtual SkString description() const override {
         return Token::OperatorName(fOperator) + fOperand->description();
     }
 

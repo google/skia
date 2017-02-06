@@ -26,15 +26,6 @@ struct BasicBlock {
             kExpression_Kind
         };
 
-        SkString description() const {
-            if (fKind == kStatement_Kind) {
-                return (*fStatement)->description();
-            } else {
-                ASSERT(fKind == kExpression_Kind);
-                return (*fExpression)->description();
-            }
-        }
-
         Kind fKind;
         // if false, this node should not be subject to constant propagation. This happens with
         // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
@@ -44,45 +35,9 @@ struct BasicBlock {
         // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
         // and then collapse down to a simple x = 2;).
         bool fConstantPropagation;
-        // we store pointers to the unique_ptrs so that we can replace expressions or statements
-        // during optimization without having to regenerate the entire tree
         std::unique_ptr<Expression>* fExpression;
-        std::unique_ptr<Statement>* fStatement;
+        const Statement* fStatement;
     };
-
-    /**
-     * Attempts to remove the expression (and its subexpressions) pointed to by the iterator. If the
-     * expression can be cleanly removed, returns true and updates the iterator to point to the
-     * expression after the deleted expression. Otherwise returns false (and the CFG will need to be
-     * regenerated).
-     */
-    bool SK_WARN_UNUSED_RESULT tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* iter);
-
-    /**
-     * Locates and attempts remove an expression occurring before the expression pointed to by iter.
-     * If the expression can be cleanly removed, returns true and resets iter to a valid iterator
-     * pointing to the same expression it did initially. Otherwise returns false (and the CFG will
-     * need to be regenerated).
-     */
-    bool SK_WARN_UNUSED_RESULT tryRemoveExpressionBefore(
-                                                      std::vector<BasicBlock::Node>::iterator* iter,
-                                                      Expression* e);
-
-    /**
-     * As tryRemoveExpressionBefore, but for lvalues. As lvalues are at most partially evaluated
-     * (for instance, x[i] = 0 evaluates i but not x) this will only look for the parts of the
-     * lvalue that are actually evaluated.
-     */
-    bool SK_WARN_UNUSED_RESULT tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
-                                                     Expression* lvalue);
-
-    /**
-     * Attempts to inserts a new expression before the node pointed to by iter. If the
-     * expression can be cleanly inserted, returns true and updates the iterator to point to the
-     * newly inserted expression. Otherwise returns false (and the CFG will need to be regenerated).
-     */
-    bool SK_WARN_UNUSED_RESULT tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
-                                                   std::unique_ptr<Expression>* expr);
 
     std::vector<Node> fNodes;
     std::set<BlockId> fEntrances;
@@ -126,10 +81,10 @@ class CFGGenerator {
 public:
     CFGGenerator() {}
 
-    CFG getCFG(FunctionDefinition& f);
+    CFG getCFG(const FunctionDefinition& f);
 
 private:
-    void addStatement(CFG& cfg, std::unique_ptr<Statement>* s);
+    void addStatement(CFG& cfg, const Statement* s);
 
     void addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate);
 

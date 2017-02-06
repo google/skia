@@ -33,9 +33,8 @@ struct IfStatement : public Statement {
     }
 
     std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Statement> fIfTrue;
-    // may be null
-    std::unique_ptr<Statement> fIfFalse;
+    const std::unique_ptr<Statement> fIfTrue;
+    const std::unique_ptr<Statement> fIfFalse;
 
     typedef Statement INHERITED;
 };

@@ -48,10 +48,10 @@ struct ForStatement : public Statement {
     // it's important to keep fSymbols defined first (and thus destroyed last) because destroying
     // the other fields can update symbol reference counts
     const std::shared_ptr<SymbolTable> fSymbols;
-    std::unique_ptr<Statement> fInitializer;
+    const std::unique_ptr<Statement> fInitializer;
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Expression> fNext;
-    std::unique_ptr<Statement> fStatement;
+    const std::unique_ptr<Statement> fStatement;
 
     typedef Statement INHERITED;
 };

@@ -21,12 +21,8 @@ struct FloatLiteral : public Expression {
     : INHERITED(position, kFloatLiteral_Kind, *context.fFloat_Type)
     , fValue(value) {}
 
-    SkString description() const override {
+    virtual SkString description() const override {
         return to_string(fValue);
-    }
-
-    bool hasSideEffects() const override {
-        return false;
     }
 
     bool isConstant() const override {
