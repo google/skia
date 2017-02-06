@@ -551,6 +551,8 @@ def test_steps(api):
 class TestApi(recipe_api.RecipeApi):
   def run(self):
     self.m.core.setup()
+    if 'iOS' in self.m.vars.builder_name:
+      self.m.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.dm'
     try:
       self.m.flavor.install_everything()
       test_steps(self.m)

@@ -230,6 +230,8 @@ def perf_steps(api):
 class PerfApi(recipe_api.RecipeApi):
   def run(self):
     self.m.core.setup()
+    if 'iOS' in self.m.vars.builder_name:
+      self.m.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
     try:
       self.m.flavor.install_everything()
       perf_steps(self.m)

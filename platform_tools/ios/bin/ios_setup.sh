@@ -27,8 +27,6 @@ PROVISIONING_PROFILE=""
 # Code Signing identity - this needs to be set up on the local machine.
 CODE_SIGN_IDENTITY="iPhone Developer"
 
-IOS_BUNDLE_ID="com.google.dm"
-
 IOS_RESULTS_DIR="results"
 
 # BUILDTYPE is 'Debug' by default.
