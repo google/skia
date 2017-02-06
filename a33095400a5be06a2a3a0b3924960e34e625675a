@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf5103cb_4f3194d5",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "init fDirection too ?",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7275c6e9_4a7a80d7",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "spacing ?",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6055d365_dd0c1eec",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "INHERITED ?",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f13e8179_e2016022",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "??",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da4741c_d90d2c73",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "Aren\u0027t you going to get nagged to death if this isn\u0027t lower ?",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91ceccf1_3a577ff5",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:24:58Z",
+      "side": 1,
+      "message": "??",
+      "revId": "a33095400a5be06a2a3a0b3924960e34e625675a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
