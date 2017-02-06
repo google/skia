@@ -305,6 +305,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "rm perf"
@@ -317,6 +318,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "mkdir perf"
@@ -332,6 +334,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "package nanobench"
@@ -349,6 +352,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "nanobench"
@@ -384,6 +388,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "pull_if_needed perf"
