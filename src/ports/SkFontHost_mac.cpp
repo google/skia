@@ -495,22 +495,6 @@ static SkTypeface* create_from_desc(CTFontDescriptorRef desc) {
 
 static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
                                                           const SkFontStyle& style) {
-    CTFontSymbolicTraits ctFontTraits = 0;
-    if (style.weight() >= SkFontStyle::kBold_Weight) {
-        ctFontTraits |= kCTFontBoldTrait;
-    }
-    if (style.slant() != SkFontStyle::kUpright_Slant) {
-        ctFontTraits |= kCTFontItalicTrait;
-    }
-
-    //TODO: add weight width slant
-
-    // Create the font info
-    UniqueCFRef<CFStringRef> cfFontName = make_CFString(familyName);
-
-    UniqueCFRef<CFNumberRef> cfFontTraits(
-            CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
-
     UniqueCFRef<CFMutableDictionaryRef> cfAttributes(
             CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                       &kCFTypeDictionaryKeyCallBacks,
@@ -521,14 +505,34 @@ static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
 
-    if (!cfFontName || !cfFontTraits || !cfAttributes || !cfTraits) {
+    if (!cfAttributes || !cfTraits) {
         return nullptr;
     }
 
-    CFDictionaryAddValue(cfTraits.get(), kCTFontSymbolicTrait, cfFontTraits.get());
+    // CTFontTraits
+    CTFontSymbolicTraits ctFontTraits = 0;
+    if (style.weight() >= SkFontStyle::kBold_Weight) {
+        ctFontTraits |= kCTFontBoldTrait;
+    }
+    if (style.slant() != SkFontStyle::kUpright_Slant) {
+        ctFontTraits |= kCTFontItalicTrait;
+    }
+    UniqueCFRef<CFNumberRef> cfFontTraits(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
+    if (cfFontTraits) {
+        CFDictionaryAddValue(cfTraits.get(), kCTFontSymbolicTrait, cfFontTraits.get());
+        CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());
+    }
 
-    CFDictionaryAddValue(cfAttributes.get(), kCTFontFamilyNameAttribute, cfFontName.get());
-    CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());
+    //TODO: add weight width slant
+
+    // CTFontFamilyName
+    if (familyName) {
+        UniqueCFRef<CFStringRef> cfFontName = make_CFString(familyName);
+        if (cfFontName) {
+            CFDictionaryAddValue(cfAttributes.get(), kCTFontFamilyNameAttribute, cfFontName.get());
+        }
+    }
 
     return UniqueCFRef<CTFontDescriptorRef>(
             CTFontDescriptorCreateWithAttributes(cfAttributes.get()));
@@ -2397,11 +2401,6 @@ protected:
             familyName = map_css_names(familyName);
         }
 
-        static const char FONT_DEFAULT_NAME[] = "Lucida Sans";
-        if (!familyName || !*familyName) {
-            familyName = FONT_DEFAULT_NAME;
-        }
-
         SkTypeface* face = create_from_name(familyName, style);
         if (face) {
             return face;
@@ -2409,6 +2408,7 @@ protected:
 
         static SkTypeface* gDefaultFace;
         static SkOnce lookupDefault;
+        static const char FONT_DEFAULT_NAME[] = "Lucida Sans";
         lookupDefault([]{
             gDefaultFace = create_from_name(FONT_DEFAULT_NAME, SkFontStyle());
         });
