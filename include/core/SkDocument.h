@@ -19,6 +19,10 @@
 class SkCanvas;
 class SkWStream;
 
+#ifdef SK_BUILD_FOR_WIN
+struct IXpsOMObjectFactory;
+#endif
+
 /** SK_ScalarDefaultDPI is 72 DPI.
 */
 #define SK_ScalarDefaultRasterDPI           72.0f
@@ -141,19 +145,34 @@ public:
     static sk_sp<SkDocument> MakePDF(const char outputFilePath[],
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
+#ifdef SK_BUILD_FOR_WIN
     /**
      *  Create a XPS-backed document, writing the results into the stream.
-     *  Returns NULL if XPS is not supported.
+     *
+     *  @param stream A XPS document will be written to this stream.  The
+     *                document may write to the stream at anytime during its
+     *                lifetime, until either close() or abort() are called or
+     *                the document is deleted.
+     *  @param xpsFactory A pointer to a COM XPS factory.  Must be non-null.
+     *                    The document will take a ref to the factory. See
+     *                    dm/DMSrcSink.cpp for an example.
+     *  @param dpi The DPI (pixels-per-inch) at which features without
+     *             native XPS support will be rasterized (e.g. draw image
+     *             with perspective, draw text with perspective, ...)  A
+     *             larger DPI would create a XPS that reflects the
+     *             original intent with better fidelity, but it can make
+     *             for larger XPS files too, which would use more memory
+     *             while rendering, and it would be slower to be processed
+     *             or sent online or to printer.
+     *
+     *  @returns nullptr if XPS is not supported.
      */
     static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
+                                     IXpsOMObjectFactory* xpsFactory,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
-
-    /**
-     *  Create a XPS-backed document, writing the results into a file.
-     *  Returns NULL if XPS is not supported.
-     */
-    static sk_sp<SkDocument> MakeXPS(const char path[],
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
+#endif
+    // DEPRECATED; TODO(halcanary): remove this function after Chromium switches to new API.
+    static sk_sp<SkDocument> MakeXPS(SkWStream*) { return nullptr; }
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw
