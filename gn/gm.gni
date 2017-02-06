@@ -36,6 +36,7 @@ gm_sources = [
   "$_gm/bitmaprect.cpp",
   "$_gm/bitmaprecttest.cpp",
   "$_gm/bitmapshader.cpp",
+  "$_gm/bitmaptiled.cpp",
   "$_gm/bleed.cpp",
   "$_gm/blend.cpp",
   "$_gm/blurcircles.cpp",
