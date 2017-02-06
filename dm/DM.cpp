@@ -1283,8 +1283,8 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
-int dm_main();
-int dm_main() {
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
@@ -1476,10 +1476,3 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 #endif
 }
 } // namespace skiatest
-
-#if !defined(SK_BUILD_FOR_IOS) || defined(DM_DEFINE_MAIN)
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    return dm_main();
-}
-#endif

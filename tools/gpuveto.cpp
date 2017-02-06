@@ -21,8 +21,7 @@ DEFINE_bool2(quiet, q, false, "quiet");
 static const int kSuccess = 0;
 static const int kError = 1;
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
     SkCommandLineFlags::SetUsage("Reports on an skp file's suitability for GPU rasterization");
     SkCommandLineFlags::Parse(argc, argv);
@@ -70,9 +69,3 @@ int tool_main(int argc, char** argv) {
     return kError;
 #endif
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

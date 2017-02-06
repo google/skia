@@ -25,8 +25,7 @@ DEFINE_double(sigma, 1, "Sigma to be used for blur (> 0.0f)");
 static const int kSuccess = 0;
 static const int kError = 1;
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Brute force blur of an image.");
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -72,9 +71,3 @@ int tool_main(int argc, char** argv) {
 
     return kSuccess;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif
