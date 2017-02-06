@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7356f2b3_13d8a5a8",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T19:10:43Z",
+      "side": 1,
+      "message": "nit: \u0027gs://%s/dm-images-v1\u0027 % self.m.properties[\u0027gs_bucket\u0027]",
+      "range": {
+        "startLine": 56,
+        "startChar": 22,
+        "endLine": 57,
+        "endChar": 48
+      },
+      "revId": "733c90ee4207749f943a73047d7ef92770620a06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76236587_e4fd6d30",
+        "filename": "infra/bots/recipe_modules/upload_dm_results/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-02-06T19:10:43Z",
+      "side": 1,
+      "message": "nit: \u0027gs://%s/%s\u0027 % (self.m.properties[\u0027gs_bucket\u0027], summary_dest_path)",
+      "range": {
+        "startLine": 88,
+        "startChar": 24,
+        "endLine": 89,
+        "endChar": 53
+      },
+      "revId": "733c90ee4207749f943a73047d7ef92770620a06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
