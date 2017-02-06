@@ -13,6 +13,7 @@
 #include "SkResourceCache.h"
 #include "SkShadowTessellator.h"
 #include "SkTLazy.h"
+#include "SkVertices.h"
 #if SK_SUPPORT_GPU
 #include "GrShape.h"
 #include "effects/GrBlurredEdgeFragmentProcessor.h"
@@ -98,9 +99,9 @@ struct AmbientVerticesFactory {
         return true;
     }
 
-    sk_sp<SkShadowVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
-        return SkShadowVertices::MakeAmbient(path, ctm, fRadius, fUmbraColor, fPenumbraColor,
-                                             fTransparent);
+    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
+        return SkShadowTessellator::MakeAmbient(path, ctm, fRadius, fUmbraColor, fPenumbraColor,
+                                                fTransparent);
     }
 };
 
@@ -148,10 +149,10 @@ struct SpotVerticesFactory {
         return false;
     }
 
-    sk_sp<SkShadowVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
+    sk_sp<SkVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
         bool transparent = OccluderType::kTransparent == fOccluderType;
-        return SkShadowVertices::MakeSpot(path, ctm, fScale, fOffset, fRadius, fUmbraColor,
-                                          fPenumbraColor, transparent);
+        return SkShadowTessellator::MakeSpot(path, ctm, fScale, fOffset, fRadius, fUmbraColor,
+                                             fPenumbraColor, transparent);
     }
 };
 
@@ -165,23 +166,23 @@ class CachedTessellations : public SkRefCnt {
 public:
     size_t size() const { return fAmbientSet.size() + fSpotSet.size(); }
 
-    sk_sp<SkShadowVertices> find(const AmbientVerticesFactory& ambient, const SkMatrix& matrix,
-                                 SkVector* translate) const {
+    sk_sp<SkVertices> find(const AmbientVerticesFactory& ambient, const SkMatrix& matrix,
+                           SkVector* translate) const {
         return fAmbientSet.find(ambient, matrix, translate);
     }
 
-    sk_sp<SkShadowVertices> add(const SkPath& devPath, const AmbientVerticesFactory& ambient,
-                                const SkMatrix& matrix) {
+    sk_sp<SkVertices> add(const SkPath& devPath, const AmbientVerticesFactory& ambient,
+                          const SkMatrix& matrix) {
         return fAmbientSet.add(devPath, ambient, matrix);
     }
 
-    sk_sp<SkShadowVertices> find(const SpotVerticesFactory& spot, const SkMatrix& matrix,
-                                 SkVector* translate) const {
+    sk_sp<SkVertices> find(const SpotVerticesFactory& spot, const SkMatrix& matrix,
+                           SkVector* translate) const {
         return fSpotSet.find(spot, matrix, translate);
     }
 
-    sk_sp<SkShadowVertices> add(const SkPath& devPath, const SpotVerticesFactory& spot,
-                                const SkMatrix& matrix) {
+    sk_sp<SkVertices> add(const SkPath& devPath, const SpotVerticesFactory& spot,
+                          const SkMatrix& matrix) {
         return fSpotSet.add(devPath, spot, matrix);
     }
 
@@ -191,8 +192,8 @@ private:
     public:
         size_t size() const { return fSize; }
 
-        sk_sp<SkShadowVertices> find(const FACTORY& factory, const SkMatrix& matrix,
-                                     SkVector* translate) const {
+        sk_sp<SkVertices> find(const FACTORY& factory, const SkMatrix& matrix,
+                               SkVector* translate) const {
             for (int i = 0; i < MAX_ENTRIES; ++i) {
                 if (fEntries[i].fFactory.isCompatible(factory, translate)) {
                     const SkMatrix& m = fEntries[i].fMatrix;
@@ -214,9 +215,8 @@ private:
             return nullptr;
         }
 
-        sk_sp<SkShadowVertices> add(const SkPath& devPath, const FACTORY& factory,
-                                    const SkMatrix& matrix) {
-            sk_sp<SkShadowVertices> vertices = factory.makeVertices(devPath, matrix);
+        sk_sp<SkVertices> add(const SkPath& path, const FACTORY& factory, const SkMatrix& matrix) {
+            sk_sp<SkVertices> vertices = factory.makeVertices(path, matrix);
             if (!vertices) {
                 return nullptr;
             }
@@ -237,7 +237,7 @@ private:
     private:
         struct Entry {
             FACTORY fFactory;
-            sk_sp<SkShadowVertices> fVertices;
+            sk_sp<SkVertices> fVertices;
             SkMatrix fMatrix;
         };
         Entry fEntries[MAX_ENTRIES];
@@ -277,8 +277,8 @@ public:
     sk_sp<CachedTessellations> refTessellations() const { return fTessellations; }
 
     template <typename FACTORY>
-    sk_sp<SkShadowVertices> find(const FACTORY& factory, const SkMatrix& matrix,
-                                 SkVector* translate) const {
+    sk_sp<SkVertices> find(const FACTORY& factory, const SkMatrix& matrix,
+                           SkVector* translate) const {
         return fTessellations->find(factory, matrix, translate);
     }
 
@@ -300,7 +300,7 @@ struct FindContext {
     const SkMatrix* const fViewMatrix;
     // If this is valid after Find is called then we found the vertices and they should be drawn
     // with fTranslate applied.
-    sk_sp<SkShadowVertices> fVertices;
+    sk_sp<SkVertices> fVertices;
     SkVector fTranslate = {0, 0};
 
     // If this is valid after Find then the caller should add the vertices to the tessellation set
@@ -385,7 +385,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
         SkResourceCache::Find(*key, FindVisitor<FACTORY>, &context);
     }
 
-    sk_sp<SkShadowVertices> vertices;
+    sk_sp<SkVertices> vertices;
     const SkVector* translate;
     static constexpr SkVector kZeroTranslate = {0, 0};
     bool foundInCache = SkToBool(context.fVertices);
@@ -426,9 +426,7 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
         canvas->save();
         canvas->translate(translate->fX, translate->fY);
     }
-    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, vertices->vertexCount(),
-                         vertices->positions(), nullptr, vertices->colors(), vertices->indices(),
-                         vertices->indexCount(), paint);
+    canvas->drawVertices(vertices, SkBlendMode::kModulate, paint);
     if (translate->fX || translate->fY) {
         canvas->restore();
     }
