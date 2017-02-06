@@ -68,10 +68,9 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
-    // TODO (msarett): This is diabled for crbug.com/683787.  How should we handle this case?
-    //if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
-    //    return false;
-    //}
+    if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
+        return false;
+    }
 
     return true;
 }
