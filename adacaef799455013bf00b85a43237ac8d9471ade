@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86ba8094_131ee7c1",
+        "filename": "bench/SkLinearBitmapPipelineBench.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-02-06T20:26:43Z",
+      "side": 0,
+      "message": "I don\u0027t think this matters much in this situation. It should not change the outcome if the context is allocated on the heap or stack.",
+      "parentUuid": "5440f31b_14d13998",
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3da73858_83d1a487",
         "filename": "gm/SkLinearBitmapPipelineGM.cpp",
         "patchSetId": 8
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "62c41cef_d2a67f89",
+        "filename": "gm/SkLinearBitmapPipelineGM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-02-06T20:26:43Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "3da73858_83d1a487",
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e6312aa_2233f4a9",
         "filename": "gm/SkLinearBitmapPipelineGM.cpp",
         "patchSetId": 8
@@ -53,6 +89,24 @@
       "writtenOn": "2017-02-06T19:21:58Z",
       "side": 0,
       "message": "Ditto.",
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f75c7ba6_3777a655",
+        "filename": "gm/SkLinearBitmapPipelineGM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-02-06T20:26:43Z",
+      "side": 0,
+      "message": "Not needed for test.",
+      "parentUuid": "6e6312aa_2233f4a9",
       "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -76,6 +130,24 @@
         "endLine": 57,
         "endChar": 78
       },
+      "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51e7da05_1284b85e",
+        "filename": "src/core/SkColorFilterShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-02-06T20:26:43Z",
+      "side": 0,
+      "message": "I don\u0027t think so. This change passes ASAN, MSAN and TSAN.",
+      "parentUuid": "7fcefe21_ec880aa8",
       "revId": "adacaef799455013bf00b85a43237ac8d9471ade",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
