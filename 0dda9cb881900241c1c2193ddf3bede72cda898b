@@ -22,6 +22,24 @@
       "revId": "0dda9cb881900241c1c2193ddf3bede72cda898b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da1cd2c9_d07f0ae6",
+        "filename": "src/xps/SkXPSDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 0,
+      "message": "I wanted to save several ref-deref cycles, but in the big scheme of things, it doesn\u0027t matter.  I\u0027ll put the ref back.",
+      "parentUuid": "258855b1_bc586795",
+      "revId": "0dda9cb881900241c1c2193ddf3bede72cda898b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "c73ce345_b8ec3163",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88d4a4b8_bc2312e9",
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b90c9c2a_b7cbd6d2",
         "filename": "src/xps/SkXPSDocument.cpp",
         "patchSetId": 2
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "63f641b9_6ac475a2",
+        "filename": "src/xps/SkXPSDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "Agreed.\n\nI am not changing it here, since this is required by the SkDocument API.  I will propose changes to that API later.",
+      "parentUuid": "b90c9c2a_b7cbd6d2",
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c921f865_e9d31b05",
         "filename": "src/xps/SkXPSDocument.cpp",
         "patchSetId": 2
@@ -65,6 +101,24 @@
         "endLine": 75,
         "endChar": 37
       },
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "403db1bd_e93efa5d",
+        "filename": "src/xps/SkXPSDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "the API doesn\u0027t exist yet.  I will add it in a later CL.\n\nLet me add a comment here to that effect.",
+      "parentUuid": "c921f865_e9d31b05",
       "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -137,6 +191,60 @@
       "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb838ffc_f4c46ee1",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59fcbcf8_c64ee4e8",
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4afaa448_469cbd95",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9bb6b6c_4f86b737",
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59fcbcf8_c64ee4e8",
+        "filename": "src/xps/SkXPSDocument.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-06T14:29:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4afaa448_469cbd95",
+      "revId": "3e42bb9f983a2cbf3895623da478b9d9e7524e37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
