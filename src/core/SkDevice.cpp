@@ -5,26 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorFilter.h"
 #include "SkDevice.h"
+#include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
-#include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
+#include "SkImage_Base.h"
 #include "SkLatticeIter.h"
 #include "SkPatchUtils.h"
-#include "SkPathPriv.h"
 #include "SkPathMeasure.h"
-#include "SkRasterClip.h"
+#include "SkPathPriv.h"
 #include "SkRSXform.h"
+#include "SkRasterClip.h"
 #include "SkShader.h"
 #include "SkSpecialImage.h"
+#include "SkTLazy.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
-#include "SkTLazy.h"
+#include "SkVertices.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
     : fInfo(info)
@@ -307,6 +308,16 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         path.setConvexity(SkPath::kConvex_Convexity);
         this->drawPath(draw, path, pnt, nullptr, true);
     }
+}
+
+void SkBaseDevice::drawVerticesObject(const SkDraw& draw, sk_sp<SkVertices> vertices,
+                                      SkBlendMode mode, const SkPaint& paint, uint32_t flags) {
+    const SkPoint* texs =
+            (flags & SkCanvas::kIgnoreTexCoords_VerticesFlag) ? nullptr : vertices->texCoords();
+    const SkColor* colors =
+            (flags & SkCanvas::kIgnoreColors_VerticesFlag) ? nullptr : vertices->colors();
+    this->drawVertices(draw, vertices->mode(), vertices->vertexCount(), vertices->positions(), texs,
+                       colors, mode, vertices->indices(), vertices->indexCount(), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

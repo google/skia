@@ -10,6 +10,7 @@
 #include "SkColorFilter.h"
 #include "SkGradientShader.h"
 #include "SkRandom.h"
+#include "SkVertices.h"
 
 static constexpr SkScalar kShaderSize = 40;
 static sk_sp<SkShader> make_shader1() {
@@ -39,6 +40,7 @@ static constexpr uint16_t kMeshFan[] = {
         0, 1, 2, 5, 8, 7, 6, 3, 0
 };
 
+static const int kMeshIndexCnt = (int)SK_ARRAY_COUNT(kMeshFan);
 static const int kMeshVertexCnt = 9;
 
 static void fill_mesh(SkPoint pts[kMeshVertexCnt], SkPoint texs[kMeshVertexCnt],
@@ -76,9 +78,11 @@ class VerticesGM : public skiagm::GM {
     sk_sp<SkShader>         fShader1;
     sk_sp<SkShader>         fShader2;
     sk_sp<SkColorFilter>    fColorFilter;
+    sk_sp<SkVertices>       fVertices;
+    bool                    fUseObject;
 
 public:
-    VerticesGM() {}
+    VerticesGM(bool useObject) : fUseObject(useObject) {}
 
 protected:
 
@@ -87,10 +91,27 @@ protected:
         fShader1 = make_shader1();
         fShader2 = make_shader2();
         fColorFilter = make_color_filter();
+        if (fUseObject) {
+            std::unique_ptr<SkPoint[]> points(new SkPoint[kMeshVertexCnt]);
+            std::unique_ptr<SkPoint[]> texs(new SkPoint[kMeshVertexCnt]);
+            std::unique_ptr<SkColor[]> colors(new SkColor[kMeshVertexCnt]);
+            std::unique_ptr<uint16_t[]> indices(new uint16_t[kMeshIndexCnt]);
+            memcpy(points.get(), fPts, sizeof(SkPoint) * kMeshVertexCnt);
+            memcpy(colors.get(), fColors, sizeof(SkColor) * kMeshVertexCnt);
+            memcpy(texs.get(), fTexs, sizeof(SkPoint) * kMeshVertexCnt);
+            memcpy(indices.get(), kMeshFan, sizeof(uint16_t) * kMeshIndexCnt);
+            fVertices = SkVertices::MakeIndexed(SkCanvas::kTriangleFan_VertexMode,
+                                                std::move(points),
+                                                std::move(colors), std::move(texs), kMeshVertexCnt,
+                                                std::move(indices), kMeshIndexCnt);
+        }
     }
 
     SkString onShortName() override {
         SkString name("vertices");
+        if (fUseObject) {
+            name.append("_object");
+        }
         return name;
     }
 
@@ -99,39 +120,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const struct {
-            const SkColor*              fColors;
-            const SkPoint*              fTexs;
-            const sk_sp<SkShader>&      fShader;
-            const sk_sp<SkColorFilter>& fColorFilter;
-            uint8_t                     fAlpha;
-        } rec[] = {
-            { fColors,  nullptr, fShader1, nullptr     , 0xFF },
-            { nullptr,  fTexs  , fShader1, nullptr     , 0xFF },
-            { fColors,  fTexs  , fShader1, nullptr     , 0xFF },
-            { fColors,  nullptr, fShader2, nullptr     , 0xFF },
-            { nullptr,  fTexs  , fShader2, nullptr     , 0xFF },
-            { fColors,  fTexs  , fShader2, nullptr     , 0xFF },
-            { fColors,  nullptr, fShader1, fColorFilter, 0xFF },
-            { nullptr,  fTexs  , fShader1, fColorFilter, 0xFF },
-            { fColors,  fTexs  , fShader1, fColorFilter, 0xFF },
-            { fColors,  nullptr, fShader2, fColorFilter, 0xFF },
-            { nullptr,  fTexs  , fShader2, fColorFilter, 0xFF },
-            { fColors,  fTexs  , fShader2, fColorFilter, 0xFF },
-            { fColors,  nullptr, fShader1, nullptr     , 0x80 },
-            { nullptr,  fTexs  , fShader1, nullptr     , 0x80 },
-            { fColors,  fTexs  , fShader1, nullptr     , 0x80 },
-            { fColors,  nullptr, fShader2, nullptr     , 0x80 },
-            { nullptr,  fTexs  , fShader2, nullptr     , 0x80 },
-            { fColors,  fTexs  , fShader2, nullptr     , 0x80 },
-            { fColors,  nullptr, fShader1, fColorFilter, 0x80 },
-            { nullptr,  fTexs  , fShader1, fColorFilter, 0x80 },
-            { fColors,  fTexs  , fShader1, fColorFilter, 0x80 },
-            { fColors,  nullptr, fShader2, fColorFilter, 0x80 },
-            { nullptr,  fTexs  , fShader2, fColorFilter, 0x80 },
-            { fColors,  fTexs  , fShader2, fColorFilter, 0x80 },
-        };
-
         const SkBlendMode modes[] = {
             SkBlendMode::kClear,
             SkBlendMode::kSrc,
@@ -168,18 +156,38 @@ protected:
 
         canvas->translate(4, 4);
         int x = 0;
-        for (size_t j = 0; j < SK_ARRAY_COUNT(modes); ++j) {
+        for (auto mode : modes) {
             canvas->save();
-            for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
-                paint.setShader(rec[i].fShader);
-                paint.setColorFilter(rec[i].fColorFilter);
-                paint.setAlpha(rec[i].fAlpha);
-                //if (2 == x)
-                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, kMeshVertexCnt, fPts,
-                                     rec[i].fTexs, rec[i].fColors, modes[j], kMeshFan,
-                                     SK_ARRAY_COUNT(kMeshFan), paint);
-                canvas->translate(40, 0);
-                ++x;
+            for (uint8_t alpha : {0xFF, 0x80}) {
+                for (const auto& cf : {sk_sp<SkColorFilter>(nullptr), fColorFilter}) {
+                    for (const auto& shader : {fShader1, fShader2}) {
+                        static constexpr struct {
+                            bool fHasColors;
+                            bool fHasTexs;
+                        } kAttrs[] = {{true, false}, {false, true}, {true, true}};
+                        for (auto attrs : kAttrs) {
+                            paint.setShader(shader);
+                            paint.setColorFilter(cf);
+                            paint.setAlpha(alpha);
+                            if (fUseObject) {
+                                uint32_t flags = 0;
+                                flags |=
+                                        attrs.fHasColors ? 0 : SkCanvas::kIgnoreColors_VerticesFlag;
+                                flags |= attrs.fHasTexs ? 0
+                                                        : SkCanvas::kIgnoreTexCoords_VerticesFlag;
+                                canvas->drawVertices(fVertices, mode, paint, flags);
+                            } else {
+                                const SkColor* colors = attrs.fHasColors ? fColors : nullptr;
+                                const SkPoint* texs = attrs.fHasTexs ? fTexs : nullptr;
+                                canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode,
+                                                     kMeshVertexCnt, fPts, texs, colors, mode,
+                                                     kMeshFan, kMeshIndexCnt, paint);
+                            }
+                            canvas->translate(40, 0);
+                            ++x;
+                        }
+                    }
+                }
             }
             canvas->restore();
             canvas->translate(0, 40);
@@ -192,14 +200,15 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new VerticesGM();)
+DEF_GM(return new VerticesGM(true);)
+DEF_GM(return new VerticesGM(false);)
 
-// This test exists to exercise batching in the gpu backend.
-DEF_SIMPLE_GM(vertices_batching, canvas, 50, 500) {
-    SkPoint pts[kMeshVertexCnt];
-    SkPoint texs[kMeshVertexCnt];
-    SkColor colors[kMeshVertexCnt];
-    fill_mesh(pts, texs, colors);
+static void draw_batching(SkCanvas* canvas, bool useObject) {
+    std::unique_ptr<SkPoint[]> pts(new SkPoint[kMeshVertexCnt]);
+    std::unique_ptr<SkPoint[]> texs(new SkPoint[kMeshVertexCnt]);
+    std::unique_ptr<SkColor[]> colors(new SkColor[kMeshVertexCnt]);
+    fill_mesh(pts.get(), texs.get(), colors.get());
+
     SkTDArray<SkMatrix> matrices;
     matrices.push()->reset();
     matrices.push()->setTranslate(0, 40);
@@ -211,13 +220,23 @@ DEF_SIMPLE_GM(vertices_batching, canvas, 50, 500) {
     auto shader = make_shader1();
 
     // Triangle fans can't batch so we convert to regular triangles,
-    static constexpr int kNumTris = SK_ARRAY_COUNT(kMeshFan) - 2;
-    uint16_t indices[3 * kNumTris];
+    static constexpr int kNumTris = kMeshIndexCnt - 2;
+    std::unique_ptr<uint16_t[]> indices(new uint16_t[3 * kNumTris]);
     for (size_t i = 0; i < kNumTris; ++i) {
         indices[3 * i] = kMeshFan[0];
         indices[3 * i + 1] = kMeshFan[i + 1];
         indices[3 * i + 2] = kMeshFan[i + 2];
     }
+
+    sk_sp<SkVertices> vertices;
+    if (useObject) {
+        vertices =
+                SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode, std::move(pts),
+                                        std::move(colors),
+                                        std::move(texs), kMeshVertexCnt, std::move(indices),
+                                        3 * kNumTris);
+    }
+    canvas->save();
     canvas->translate(10, 10);
     for (bool useShader : {false, true}) {
         for (bool useTex : {false, true}) {
@@ -225,13 +244,26 @@ DEF_SIMPLE_GM(vertices_batching, canvas, 50, 500) {
                 canvas->save();
                 canvas->concat(m);
                 SkPaint paint;
-                const SkPoint* t = useTex ? texs : nullptr;
                 paint.setShader(useShader ? shader : nullptr);
-                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts, t,
-                                     colors, indices, SK_ARRAY_COUNT(indices), paint);
+                if (useObject) {
+                    uint32_t flags = useTex ? 0 : SkCanvas::kIgnoreTexCoords_VerticesFlag;
+                    canvas->drawVertices(vertices, SkBlendMode::kModulate, paint, flags);
+                } else {
+                    const SkPoint* t = useTex ? texs.get() : nullptr;
+                    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, kMeshVertexCnt, pts.get(),
+                                         t, colors.get(), indices.get(), kNumTris * 3, paint);
+                }
                 canvas->restore();
             }
             canvas->translate(0, 120);
         }
     }
+    canvas->restore();
+}
+
+// This test exists to exercise batching in the gpu backend.
+DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
+    draw_batching(canvas, false);
+    canvas->translate(50, 0);
+    draw_batching(canvas, true);
 }

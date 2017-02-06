@@ -42,6 +42,7 @@ class SkRegion;
 class SkRRect;
 struct SkRSXform;
 class SkTextBlob;
+class SkVertices;
 
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
@@ -228,6 +229,20 @@ public:
                       const uint16_t indices[],
                       int indexCount,
                       ColorArrayType = ColorArrayType::kPremulGrColor);
+
+    /**
+     * Draws vertices with a paint.
+     *
+     * @param   paint           describes how to color pixels.
+     * @param   viewMatrix      transformation matrix
+     * @param   veritces        specifies the mesh to draw.
+     * @param   flags           A bitfield of options specified by SkCanvas::VerticesFlags.
+     */
+    void drawVertices(const GrClip&,
+                      GrPaint&& paint,
+                      const SkMatrix& viewMatrix,
+                      sk_sp<SkVertices> vertices,
+                      uint32_t flags);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

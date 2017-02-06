@@ -10,6 +10,7 @@
 
 #include "GrBlend.h"
 #include "GrTypes.h"
+#include "SkCanvas.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkPM4f.h"
@@ -100,6 +101,21 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  sk_sp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint);
+
+//////////////////////////////////////////////////////////////////////////////
+
+static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(const SkCanvas::VertexMode mode) {
+    switch (mode) {
+        case SkCanvas::kTriangles_VertexMode:
+            return kTriangles_GrPrimitiveType;
+        case SkCanvas::kTriangleStrip_VertexMode:
+            return kTriangleStrip_GrPrimitiveType;
+        case SkCanvas::kTriangleFan_VertexMode:
+            return kTriangleFan_GrPrimitiveType;
+    }
+    SkFAIL("Invalid mode");
+    return kPoints_GrPrimitiveType;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
