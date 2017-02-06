@@ -107,7 +107,7 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
 }
 
 SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
+    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
     , fColorTable(nullptr)

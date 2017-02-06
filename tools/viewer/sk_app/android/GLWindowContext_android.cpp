@@ -102,7 +102,7 @@ void GLWindowContext_android::onInitializeContext() {
         EGL_NONE,
     };
     const EGLint* windowAttribs = nullptr;
-    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    auto srgbColorSpace = SkColorSpace::MakeSRGB();
     if (srgbColorSpace == fDisplayParams.fColorSpace && majorVersion == 1 && minorVersion >= 2) {
         windowAttribs = srgbWindowAttribs;
     }

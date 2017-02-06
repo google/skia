@@ -43,7 +43,7 @@ sk_sp<SkSurface> WindowContext::createSurface(
             fWidth, fHeight,
             fDisplayParams.fColorType,
             kPremul_SkAlphaType,
-            forceSRGB ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)
+            forceSRGB ? SkColorSpace::MakeSRGB()
                       : fDisplayParams.fColorSpace
         );
         if (this->isGpuContext()) {
@@ -54,7 +54,7 @@ sk_sp<SkSurface> WindowContext::createSurface(
         }
     } else {
         sk_sp<SkColorSpace> colorSpace = GrPixelConfigIsSRGB(rtDesc->fConfig)
-            ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
+            ? SkColorSpace::MakeSRGB() : nullptr;
         return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, colorSpace,
                                                       &fSurfaceProps);
     }

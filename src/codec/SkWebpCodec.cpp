@@ -70,7 +70,7 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
         }
     }
     if (!colorSpace) {
-        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeSRGB();
     }
 
     // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|
