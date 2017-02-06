@@ -998,8 +998,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             tileR.roundOut(&iTileR);
             SkVector offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft),
                                             SkIntToScalar(iTileR.fTop));
-            SkRect rectToDraw = SkRect::MakeXYWH(offset.fX, offset.fY,
-                                                 tileR.width(), tileR.height());
+            SkRect rectToDraw = tileR;
             dstMatrix.mapRect(&rectToDraw);
             if (GrSamplerParams::kNone_FilterMode != params.filterMode() || bicubic) {
                 SkIRect iClampRect;
