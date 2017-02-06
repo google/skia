@@ -217,6 +217,9 @@ inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {
+    LOG("emit_triangle (%g, %g) %d\n", v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
+    LOG("              (%g, %g) %d\n", v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
+    LOG("              (%g, %g) %d\n", v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
     data = emit_vertex(v0, aaParams, data);
     data = emit_vertex(v1, aaParams, data);
@@ -287,7 +290,6 @@ struct Line {
         double scale = 1.0f / denom;
         point->fX = SkDoubleToScalar((fB * other.fC - other.fB * fC) * scale);
         point->fY = SkDoubleToScalar((other.fA * fC - fA * other.fC) * scale);
-        round(point);
         return true;
     }
     double fA, fB, fC;
@@ -391,12 +393,15 @@ struct Edge {
         p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
         p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
         if (alpha) {
-            if (fType == Type::kInner || other.fType == Type::kInner) {
-                *alpha = 255;
+            if (fType == Type::kConnector) {
+                *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
+            } else if (other.fType == Type::kConnector) {
+                double t = tNumer / denom;
+                *alpha = (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha;
             } else if (fType == Type::kOuter && other.fType == Type::kOuter) {
                 *alpha = 0;
             } else {
-                *alpha = (1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha;
+                *alpha = 255;
             }
         }
         return true;
@@ -1138,6 +1143,7 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, C
             split_edge(edge, v, activeEdges, c, alloc);
             split_edge(other, v, activeEdges, c, alloc);
         }
+        v->fAlpha = SkTMax(v->fAlpha, alpha);
         return v;
     }
     return nullptr;
@@ -1508,6 +1514,20 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkChunkAlloc& alloc) {
     }
 }
 
+void fix_inversions(Vertex* prev, Vertex* next, Edge* prevBisector, Edge* nextBisector,
+                    Edge* prevEdge, Comparator& c) {
+    if (!prev || !next) {
+        return;
+    }
+    int winding = c.sweep_lt(prev->fPoint, next->fPoint) ? 1 : -1;
+    SkPoint p;
+    uint8_t alpha;
+    if (winding != prevEdge->fWinding && prevBisector->intersect(*nextBisector, &p, &alpha)) {
+        prev->fPoint = next->fPoint = p;
+        prev->fAlpha = next->fAlpha = alpha;
+    }
+}
+
 // Stage 5d: Displace edges by half a pixel inward and outward along their normals. Intersect to
 // find new vertices, and set zero alpha on the exterior and one alpha on the interior. Build a
 // new antialiased mesh from those vertices.
@@ -1522,8 +1542,7 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
     prevOuter.fC += offset;
     VertexList innerVertices;
     VertexList outerVertices;
-    SkVector prevNormal;
-    get_edge_normal(prevEdge, &prevNormal);
+    Edge* prevBisector = nullptr;
     for (Edge* e = boundary->fHead; e != nullptr; e = e->fRight) {
         double offset = radius * sqrt(e->fLine.magSq()) * e->fWinding;
         Line inner(e->fTop, e->fBottom);
@@ -1535,25 +1554,18 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
         get_edge_normal(e, &normal);
         if (prevInner.intersect(inner, &innerPoint) &&
             prevOuter.intersect(outer, &outerPoint)) {
-            // cos(theta) < -0.999 implies a miter angle of ~2.5 degrees,
-            // below which we'll bevel the outer edges.
-            if (prevNormal.dot(normal) < -0.999) {
-                SkPoint p = e->fWinding > 0 ? e->fTop->fPoint : e->fBottom->fPoint;
-                SkPoint outerPoint1 = p - prevNormal * radius;
-                SkPoint outerPoint2 = p - normal * radius;
-                innerVertices.append(ALLOC_NEW(Vertex, (innerPoint, 255), alloc));
-                innerVertices.append(ALLOC_NEW(Vertex, (innerPoint, 255), alloc));
-                outerVertices.append(ALLOC_NEW(Vertex, (outerPoint1, 0), alloc));
-                outerVertices.append(ALLOC_NEW(Vertex, (outerPoint2, 0), alloc));
-            } else {
-                innerVertices.append(ALLOC_NEW(Vertex, (innerPoint, 255), alloc));
-                outerVertices.append(ALLOC_NEW(Vertex, (outerPoint, 0), alloc));
-            }
+            Vertex* innerVertex = ALLOC_NEW(Vertex, (innerPoint, 255), alloc);
+            Vertex* outerVertex = ALLOC_NEW(Vertex, (outerPoint, 0), alloc);
+            Edge* bisector = new_edge(outerVertex, innerVertex, Edge::Type::kConnector, c, alloc);
+            fix_inversions(innerVertices.fTail, innerVertex, prevBisector, bisector, prevEdge, c);
+            fix_inversions(outerVertices.fTail, outerVertex, prevBisector, bisector, prevEdge, c);
+            innerVertices.append(innerVertex);
+            outerVertices.append(outerVertex);
+            prevBisector = bisector;
         }
         prevInner = inner;
         prevOuter = outer;
         prevEdge = e;
-        prevNormal = normal;
     }
     innerVertices.close();
     outerVertices.close();
@@ -1563,6 +1575,10 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
     if (!innerVertex || !outerVertex) {
         return;
     }
+    Edge* bisector = new_edge(outerVertices.fHead, innerVertices.fHead, Edge::Type::kConnector, c,
+                              alloc);
+    fix_inversions(innerVertices.fTail, innerVertices.fHead, prevBisector, bisector, prevEdge, c);
+    fix_inversions(outerVertices.fTail, outerVertices.fHead, prevBisector, bisector, prevEdge, c);
     do {
         // Connect vertices into a quad mesh. Outer edges get default (1) winding.
         // Inner edges get -2 winding. This ensures that the interior is always filled
