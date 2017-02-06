@@ -828,6 +828,9 @@ static bool determine_binary_type(const Context& context,
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
                                                       const Expression& right) const {
+    if (!left.isConstant() || !right.isConstant()) {
+        return nullptr;
+    }
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense. The plan is to move the
     // Skia caps into SkSL, so we have access to all of them including the precisions of the various
@@ -851,9 +854,9 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
         switch (op) {
-            case Token::PLUS:       return RESULT(Int,  +);
-            case Token::MINUS:      return RESULT(Int,  -);
-            case Token::STAR:       return RESULT(Int,  *);
+            case Token::PLUS:       return RESULT(Int, +);
+            case Token::MINUS:      return RESULT(Int, -);
+            case Token::STAR:       return RESULT(Int, *);
             case Token::SLASH:
                 if (rightVal) {
                     return RESULT(Int, /);
@@ -894,13 +897,35 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 }
                 fErrors.error(right.fPosition, "division by zero");
                 return nullptr;
-            case Token::EQEQ:       return RESULT(Bool,  ==);
-            case Token::NEQ:        return RESULT(Bool,  !=);
-            case Token::GT:         return RESULT(Bool,  >);
-            case Token::GTEQ:       return RESULT(Bool,  >=);
-            case Token::LT:         return RESULT(Bool,  <);
-            case Token::LTEQ:       return RESULT(Bool,  <=);
+            case Token::EQEQ:       return RESULT(Bool, ==);
+            case Token::NEQ:        return RESULT(Bool, !=);
+            case Token::GT:         return RESULT(Bool, >);
+            case Token::GTEQ:       return RESULT(Bool, >=);
+            case Token::LT:         return RESULT(Bool, <);
+            case Token::LTEQ:       return RESULT(Bool, <=);
             default:                return nullptr;
+        }
+    }
+    if (left.fType.kind() == Type::kVector_Kind &&
+        left.fType.componentType() == *fContext.fFloat_Type &&
+        left.fType == right.fType) {
+        ASSERT(left.fKind  == Expression::kConstructor_Kind);
+        ASSERT(right.fKind == Expression::kConstructor_Kind);
+        std::vector<std::unique_ptr<Expression>> args;
+        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
+            for (int i = 0; i < left.fType.columns(); i++) {                           \
+                float value = ((Constructor&) left).getFVecComponent(i) op             \
+                              ((Constructor&) right).getFVecComponent(i);              \
+                args.emplace_back(new FloatLiteral(fContext, Position(), value));      \
+            }                                                                          \
+            return std::unique_ptr<Expression>(new Constructor(Position(), left.fType, \
+                                                               std::move(args)));
+        switch (op) {
+            case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
+            case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
+            case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
+            case Token::SLASH: RETURN_VEC_COMPONENTWISE_RESULT(/);
+            default:           return nullptr;
         }
     }
     #undef RESULT
