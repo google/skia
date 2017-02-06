@@ -122,9 +122,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_USE_SDL)
-    #include "SkOSWindow_SDL.h"
-#elif defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC)
     #include "SkOSWindow_Mac.h"
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
