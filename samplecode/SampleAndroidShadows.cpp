@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkColorFilter.h"
 #include "SkCanvas.h"
 #include "SkGaussianEdgeShader.h"
 #include "SkPath.h"
@@ -28,6 +29,7 @@ class ShadowsView : public SampleView {
     SkPath    fFunkyRRPath;
     SkPath    fCubicPath;
     SkPoint3  fLightPos;
+    SkScalar  fZDelta;
 
     bool      fShowAmbient;
     bool      fShowSpot;
@@ -36,8 +38,9 @@ class ShadowsView : public SampleView {
     bool      fIgnoreShadowAlpha;
 
 public:
-    ShadowsView() 
-        : fShowAmbient(true)
+    ShadowsView()
+        : fZDelta(0.0f)
+        , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(true)
         , fShowObject(true)
@@ -68,7 +71,7 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case 'B':
+                case 'W':
                     fShowAmbient = !fShowAmbient;
                     break;
                 case 'S':
@@ -81,10 +84,10 @@ protected:
                     fShowObject = !fShowObject;
                     break;
                 case '>':
-                    fLightPos.fZ += 10;
+                    fZDelta += 0.5f;
                     break;
                 case '<':
-                    fLightPos.fZ -= 10;
+                    fZDelta -= 0.5f;
                     break;
                 case '?':
                     fIgnoreShadowAlpha = !fIgnoreShadowAlpha;
@@ -219,6 +222,7 @@ protected:
                                       iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLACK, SkBlendMode::kModulate));
         paint.setShader(SkGaussianEdgeShader::Make());
         canvas->drawRRect(pathRRect, paint);
     }
@@ -355,6 +359,7 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(strokeWidth);
         }
+        paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorBLACK, SkBlendMode::kModulate));
         paint.setShader(SkGaussianEdgeShader::Make());
         // handle scale of radius due to CTM
         radius *= scaleFactors[0];
@@ -440,33 +445,33 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRRPath, 2, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRRPath, SkTMax(1.0f, 2+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRectPath, 4, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRectPath, SkTMax(1.0f, 4+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0,
+        this->drawShadowedPath(canvas, fCirclePath, SkTMax(1.0f, 8+fZDelta), paint, 0,
                                lightPos, kLightWidth, 0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
         lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 64, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fRRPath, SkTMax(1.0f, 64+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorYELLOW);
         canvas->translate(-250, 110);
         lightPos.fX -= 250;
         lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fFunkyRRPath, 8, paint, kAmbientAlpha,
+        this->drawShadowedPath(canvas, fFunkyRRPath, SkTMax(1.0f, 8+fZDelta), paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorCYAN);
