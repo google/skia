@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "9a44a96e_e6d81a04",
+        "filename": "gm/simple_magnification.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ba32835_f1128a52",
+      "revId": "fcf431888009e93bf8d16a98382aab3fb9a991e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "514dd2b1_4bde6e30",
         "filename": "src/effects/SkImageSource.cpp",
         "patchSetId": 3
@@ -45,6 +63,24 @@
       "revId": "fcf431888009e93bf8d16a98382aab3fb9a991e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37cc91e2_58b6312c",
+        "filename": "src/effects/SkImageSource.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T17:41:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "514dd2b1_4bde6e30",
+      "revId": "fcf431888009e93bf8d16a98382aab3fb9a991e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
