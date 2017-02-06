@@ -349,6 +349,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "rm dm"
@@ -361,6 +362,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "mkdir dm"
@@ -398,6 +400,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "get uninteresting hashes",
@@ -444,6 +447,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "push_file [START_DIR]/tmp/uninteresting_hashes.txt"
@@ -459,6 +463,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "package dm"
@@ -476,6 +481,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "dm"
@@ -489,6 +495,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "pull_if_needed dm"

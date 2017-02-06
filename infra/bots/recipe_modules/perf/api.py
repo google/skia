@@ -128,6 +128,9 @@ def nanobench_flags(bot):
 
 def perf_steps(api):
   """Run Skia benchmarks."""
+  if 'iOS' in api.vars.builder_name:
+    api.vars.default_env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
+
   if api.vars.upload_perf_results:
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
@@ -197,7 +200,6 @@ def perf_steps(api):
     dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
     if 'Debug' in api.vars.builder_name:
       dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
-
 
     env.update({
       'PATH':'%%(PATH)s:%s' % sdk_path,
