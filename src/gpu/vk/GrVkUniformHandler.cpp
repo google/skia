@@ -208,15 +208,6 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visi
 void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     SkASSERT(kVertex_GrShaderFlag == visibility || kFragment_GrShaderFlag == visibility);
 
-    for (int i = 0; i < fSamplers.count(); ++i) {
-        const UniformInfo& sampler = fSamplers[i];
-        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
-        if (visibility == sampler.fVisibility) {
-            sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
-            out->append(";\n");
-        }
-    }
-
     SkDEBUGCODE(bool firstOffsetCheck = false);
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
@@ -244,4 +235,14 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
                      kUniformBufferDescSet, uniformBinding, stage);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
+
+    for (int i = 0; i < fSamplers.count(); ++i) {
+        const UniformInfo& sampler = fSamplers[i];
+        SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
+        if (visibility == sampler.fVisibility) {
+            sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
+            out->append(";\n");
+        }
+    }
+
 }
