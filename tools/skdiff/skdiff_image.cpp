@@ -111,8 +111,7 @@ static void usage (char * argv0) {
 const int kNoError = 0;
 const int kGenericError = -1;
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
 
     // Maximum error tolerated in any one color channel in any one pixel before
@@ -366,9 +365,3 @@ int tool_main(int argc, char** argv) {
 
     return num_failing_results;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif
