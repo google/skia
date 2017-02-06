@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3872032c_918ceacd",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-06T18:54:31Z",
+      "side": 1,
+      "message": "do we ever need to guard this if the client has already including windows.h ?",
+      "range": {
+        "startLine": 23,
+        "startChar": 7,
+        "endLine": 23,
+        "endChar": 26
+      },
+      "revId": "1b930269aa623dccd6bc24e0de38864175c9bfcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
