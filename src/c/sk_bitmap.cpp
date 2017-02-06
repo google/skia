@@ -378,3 +378,10 @@ bool sk_bitmap_peek_pixels(sk_bitmap_t* cbitmap, sk_pixmap_t* cpixmap)
     SkBitmap* bmp = AsBitmap(cbitmap);
     return bmp->peekPixels(AsPixmap(cpixmap));
 }
+
+bool sk_bitmap_extract_subset(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, sk_irect_t* subset)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    SkBitmap* dst = AsBitmap(cdst);
+    return bmp->extractSubset(dst, AsIRect(*subset));
+}
