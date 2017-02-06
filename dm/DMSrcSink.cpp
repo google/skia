@@ -1333,6 +1333,12 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 XPSSink::XPSSink() {}
 
 Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+#ifdef SK_BUILD_FOR_WIN
+    SkAutoCoInitialize com;
+    if (!com.succeeded()) {
+        return "Could not initialize COM.";
+    }
+#endif
     sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst));
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";

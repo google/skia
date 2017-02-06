@@ -111,38 +111,18 @@ HRESULT SkXPSDevice::createId(wchar_t* buffer, size_t bufferSize, wchar_t sep) {
     return S_OK;
 }
 
-// TODO: should inherit from SkBaseDevice instead of SkBitmapDevice...
 SkXPSDevice::SkXPSDevice(SkISize s)
     : INHERITED(SkImageInfo::MakeUnknown(s.width(), s.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fCurrentPage(0) {
-}
+    , fCurrentPage(0) {}
 
-SkXPSDevice::SkXPSDevice(SkISize s, IXpsOMObjectFactory* xpsFactory)
-    : INHERITED(SkImageInfo::MakeUnknown(s.width(), s.height()),
-                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fCurrentPage(0) {
-
-    HRVM(CoCreateInstance(
-             CLSID_XpsOMObjectFactory,
-             nullptr,
-             CLSCTX_INPROC_SERVER,
-             IID_PPV_ARGS(&this->fXpsFactory)),
-         "Could not create factory for layer.");
-
-    HRVM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
-         "Could not create canvas for layer.");
-}
-
-SkXPSDevice::~SkXPSDevice() {
-}
+SkXPSDevice::~SkXPSDevice() {}
 
 SkXPSDevice::TypefaceUse::TypefaceUse()
     : typefaceId(0xffffffff)
     , fontData(nullptr)
     , xpsFont(nullptr)
-    , glyphsUsed(nullptr) {
-}
+    , glyphsUsed(nullptr) {}
 
 SkXPSDevice::TypefaceUse::~TypefaceUse() {
     //xpsFont owns fontData ref
@@ -150,20 +130,10 @@ SkXPSDevice::TypefaceUse::~TypefaceUse() {
     delete this->glyphsUsed;
 }
 
-bool SkXPSDevice::beginPortfolio(SkWStream* outputStream) {
-    if (!this->fAutoCo.succeeded()) return false;
-
-    //Create XPS Factory.
-    HRBM(CoCreateInstance(
-             CLSID_XpsOMObjectFactory,
-             nullptr,
-             CLSCTX_INPROC_SERVER,
-             IID_PPV_ARGS(&this->fXpsFactory)),
-         "Could not create XPS factory.");
-
-    HRBM(SkWIStream::CreateFromSkWStream(outputStream, &this->fOutputStream),
-         "Could not convert SkStream to IStream.");
-
+bool SkXPSDevice::beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory* factory) {
+    SkASSERT(factory);
+    fXpsFactory.reset(SkRefComPtr(factory));
+    HRB(SkWIStream::CreateFromSkWStream(outputStream, &this->fOutputStream));
     return true;
 }
 
@@ -182,11 +152,13 @@ bool SkXPSDevice::beginSheet(
     this->fCurrentCanvasSize = trimSize;
     this->fCurrentUnitsPerMeter = unitsPerMeter;
     this->fCurrentPixelsPerMeter = pixelsPerMeter;
+    return this->createCanvasForLayer();
+}
 
-    this->fCurrentXpsCanvas.reset();
-    HRBM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
-         "Could not create base canvas.");
-
+bool SkXPSDevice::createCanvasForLayer() {
+    SkASSERT(fXpsFactory);
+    fCurrentXpsCanvas.reset();
+    HRB(fXpsFactory->CreateCanvas(&fCurrentXpsCanvas));
     return true;
 }
 
@@ -2278,7 +2250,11 @@ SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*
         //return dev;
     }
 #endif
-    return new SkXPSDevice(info.fInfo.dimensions(), this->fXpsFactory.get());
+    SkXPSDevice* dev = new SkXPSDevice(info.fInfo.dimensions());
+    // TODO(halcanary) implement copy constructor on SkTScopedCOmPtr
+    dev->fXpsFactory.reset(SkRefComPtr(fXpsFactory.get()));
+    SkAssertResult(dev->createCanvasForLayer());
+    return dev;
 }
 
 void SkXPSDevice::drawOval(const SkDraw& d, const SkRect& o, const SkPaint& p) {

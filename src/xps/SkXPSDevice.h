@@ -40,7 +40,7 @@ public:
     SK_API SkXPSDevice(SkISize);
     SK_API virtual ~SkXPSDevice();
 
-    bool beginPortfolio(SkWStream* outputStream);
+    bool beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory*);
     /**
       @param unitsPerMeter converts geometry units into physical units.
       @param pixelsPerMeter resolution to use when geometry must be rasterized.
@@ -161,9 +161,8 @@ private:
     };
     friend HRESULT subset_typeface(TypefaceUse* current);
 
-    SkXPSDevice(SkISize, IXpsOMObjectFactory*);
+    bool createCanvasForLayer();
 
-    SkAutoCoInitialize fAutoCo;
     SkTScopedComPtr<IXpsOMObjectFactory> fXpsFactory;
     SkTScopedComPtr<IStream> fOutputStream;
     SkTScopedComPtr<IXpsOMPackageWriter> fPackageWriter;
