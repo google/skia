@@ -514,9 +514,6 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                 }
             }
         }
-        if (factory.fOccluderType == SpotVerticesFactory::OccluderType::kOpaque) {
-            factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
-        }
         draw_shadow(factory, canvas, shadowedPath, color);
     }
 }
