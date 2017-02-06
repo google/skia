@@ -7,7 +7,8 @@
 _src = get_path_info("../src", "abspath")
 
 skia_xps_sources = [
-  "$_src/xps/SkDocument_XPS.cpp",
+  "$_src/xps/SkXPSDocument.cpp",
+  "$_src/xps/SkXPSDocument.h",
   "$_src/xps/SkXPSDevice.cpp",
   "$_src/xps/SkXPSDevice.h",
   "$_src/xps/SkDocument_XPS_None.cpp",
