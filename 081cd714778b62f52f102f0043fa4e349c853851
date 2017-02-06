@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89fd563f_0efe8d0a",
+        "filename": "infra/bots/assets/linux_vulkan_intel_driver_release/README.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-06T17:39:42Z",
+      "side": 1,
+      "message": "Why not have the creation script perform these steps?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 42
+      },
+      "revId": "081cd714778b62f52f102f0043fa4e349c853851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1b08bdc_4835fee3",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-06T17:39:42Z",
+      "side": 1,
+      "message": "nit: indent",
+      "range": {
+        "startLine": 207,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 6
+      },
+      "revId": "081cd714778b62f52f102f0043fa4e349c853851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d4c1761_aa7396d3",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-06T17:39:42Z",
+      "side": 1,
+      "message": "Same nit",
+      "range": {
+        "startLine": 526,
+        "startChar": 4,
+        "endLine": 526,
+        "endChar": 6
+      },
+      "revId": "081cd714778b62f52f102f0043fa4e349c853851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
