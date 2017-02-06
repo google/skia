@@ -400,8 +400,11 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "PATH": "%(PATH)s:[START_DIR]/clang_linux/bin",
+      "SKIA_OUT": "[START_DIR]/out",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "dm"

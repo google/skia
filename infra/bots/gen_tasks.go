@@ -561,6 +561,14 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 	}
+	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "Vulkan") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
+		if strings.Contains(name, "Release") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
+		} else {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
+		}
+	}
 	// Skpbench only needs skps
 	if strings.Contains(name, "Skpbench") {
 		pkgs = []*specs.CipdPackage{
