@@ -75,6 +75,44 @@ struct Constructor : public Expression {
         return true;
     }
 
+    const Expression& getVecComponent(int index) const {
+        ASSERT(fType.kind() == Type::kVector_Kind);
+        ASSERT(this->isConstant());
+        if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+            return *fArguments[0];
+        }
+        int current = 0;
+        for (const auto& arg : fArguments) {
+            ASSERT(current <= index);
+            if (arg->fType.kind() == Type::kScalar_Kind) {
+                if (index == current) {
+                    return *arg;
+                }
+                current++;
+            } else {
+                ASSERT(arg->fType.kind() == Type::kVector_Kind);
+                ASSERT(arg->fKind == Expression::kConstructor_Kind);
+                if (current + arg->fType.columns() > index) {
+                    return ((const Constructor&) *arg).getVecComponent(index - current);
+                }
+                current += arg->fType.columns();
+            }
+        }
+        ABORT("failed to find vector component %d in %s\n", index, description().c_str());
+    }
+
+    double getFVecComponent(int index) const {
+        const Expression& c = this->getVecComponent(index);
+        ASSERT(c.fKind == Expression::kFloatLiteral_Kind);
+        return ((FloatLiteral&) c).fValue;
+    }
+
+    int64_t getIVecComponent(int index) const {
+        const Expression& c = this->getVecComponent(index);
+        ASSERT(c.fKind == Expression::kIntLiteral_Kind);
+        return ((IntLiteral&) c).fValue;
+    }
+
     std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;

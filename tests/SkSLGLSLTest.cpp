@@ -182,9 +182,7 @@ DEF_TEST(SkSLMatrices, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    mat2x4 x = mat2x4(1.0);\n"
-         "    mat3x2 y = mat3x2(1.0, 0.0, 0.0, 1.0, vec2(2.0, 2.0));\n"
-         "    mat3x4 z = x * y;\n"
+         "    mat3x4 z = mat2x4(1.0) * mat3x2(1.0, 0.0, 0.0, 1.0, vec2(2.0, 2.0));\n"
          "    vec3 v1 = mat3(1.0) * vec3(1.0);\n"
          "    vec3 v2 = vec3(1.0) * mat3(1.0);\n"
          "    sk_FragColor = vec4(z[0].x, v1 + v2);\n"
@@ -327,22 +325,22 @@ DEF_TEST(SkSLMinAbs, r) {
 
 DEF_TEST(SkSLNegatedAtan, r) {
     test(r,
-         "void main() { vec2 x = vec2(1, 2); sk_FragColor.r = atan(x.x, -(2 * x.y)); }",
+         "void main() { vec2 x = vec2(sqrt(2)); sk_FragColor.r = atan(x.x, -x.y); }",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    vec2 x = vec2(1.0, 2.0);\n"
-         "    sk_FragColor.x = atan(x.x, -(2.0 * x.y));\n"
+         "    vec2 x = vec2(sqrt(2.0));\n"
+         "    sk_FragColor.x = atan(x.x, -x.y);\n"
          "}\n");
     test(r,
-         "void main() { vec2 x = vec2(1, 2); sk_FragColor.r = atan(x.x, -(2 * x.y)); }",
+         "void main() { vec2 x = vec2(sqrt(2)); sk_FragColor.r = atan(x.x, -x.y); }",
          *SkSL::ShaderCapsFactory::MustForceNegatedAtanParamToFloat(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    vec2 x = vec2(1.0, 2.0);\n"
-         "    sk_FragColor.x = atan(x.x, -1.0 * (2.0 * x.y));\n"
+         "    vec2 x = vec2(sqrt(2.0));\n"
+         "    sk_FragColor.x = atan(x.x, -1.0 * x.y);\n"
          "}\n");
 }
 
@@ -540,6 +538,12 @@ DEF_TEST(SkSLConstantFolding, r) {
          "sk_FragColor.r = xor_f ? 1 : 0;"
          "int ternary = 10 > 5 ? 10 : 5;"
          "sk_FragColor.r = ternary;"
+         "sk_FragColor.r = vec4(0.5, 1, 1, 1).x;"
+         "sk_FragColor = vec4(vec2(1), vec2(2, 3)) + vec4(5, 6, 7, 8);"
+         "sk_FragColor = vec4(8, vec3(10)) - vec4(1);"
+         "sk_FragColor = vec4(2) * vec4(1, 2, 3, 4);"
+         "sk_FragColor = vec4(12) / vec4(1, 2, 3, 4);"
+         "sk_FragColor.r = (vec4(12) / vec4(1, 2, 3, 4)).y;"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -578,6 +582,12 @@ DEF_TEST(SkSLConstantFolding, r) {
          "    sk_FragColor.x = 1.0;\n"
          "    sk_FragColor.x = 0.0;\n"
          "    sk_FragColor.x = 10.0;\n"
+         "    sk_FragColor.x = 0.5;\n"
+         "    sk_FragColor = vec4(6.0, 7.0, 9.0, 11.0);\n"
+         "    sk_FragColor = vec4(7.0, 9.0, 9.0, 9.0);\n"
+         "    sk_FragColor = vec4(2.0, 4.0, 6.0, 8.0);\n"
+         "    sk_FragColor = vec4(12.0, 6.0, 4.0, 3.0);\n"
+         "    sk_FragColor.x = 6.0;\n"
          "}\n");
 }
 
