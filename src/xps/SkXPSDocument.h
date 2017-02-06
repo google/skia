@@ -20,8 +20,7 @@
 
 class SkXPSDocument final : public SkDocument {
 public:
-    SkXPSDocument(SkWStream*, void (*doneProc)(SkWStream*, bool abort),
-                  SkScalar dpi, SkTScopedComPtr<IXpsOMObjectFactory>);
+    SkXPSDocument(SkWStream*, SkScalar dpi, SkTScopedComPtr<IXpsOMObjectFactory>);
     virtual ~SkXPSDocument();
 
 protected:
