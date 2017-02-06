@@ -31,6 +31,12 @@ SK_C_API sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_image
 SK_C_API sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes);
 SK_C_API sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options, sk_color_t ctable[], int* ctableCount);
 SK_C_API sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecoded);
+SK_C_API sk_codec_result_t sk_codec_start_scanline_decode(sk_codec_t* codec, const sk_imageinfo_t* info, const sk_codec_options_t* options, sk_color_t ctable[], int* ctableCount);
+SK_C_API int sk_codec_get_scanlines(sk_codec_t* codec, void* dst, int countLines, size_t rowBytes);
+SK_C_API bool sk_codec_skip_scanlines(sk_codec_t* codec, int countLines);
+SK_C_API sk_codec_scanline_order_t sk_codec_get_scanline_order(sk_codec_t* codec);
+SK_C_API int sk_codec_next_scanline(sk_codec_t* codec);
+SK_C_API int sk_codec_output_scanline(sk_codec_t* codec, int inputScanline);
 SK_C_API int sk_codec_get_frame_count(sk_codec_t* codec);
 SK_C_API void sk_codec_get_frame_info(sk_codec_t* codec, sk_codec_frameinfo_t* frameInfo);
 SK_C_API int sk_codec_get_repetition_count(sk_codec_t* codec);

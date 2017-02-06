@@ -468,6 +468,11 @@ typedef struct {
     bool fHasPriorFrame;
 } sk_codec_options_t;
 
+typedef enum {
+    TOP_DOWN_SK_CODEC_SCANLINE_ORDER,
+    BOTTOM_UP_SK_CODEC_SCANLINE_ORDER,
+} sk_codec_scanline_order_t;
+
 // The verbs that can be foudn on a path
 typedef enum {
     MOVE_SK_PATH_VERB,

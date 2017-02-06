@@ -87,6 +87,38 @@ sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecode
     return (sk_codec_result_t)AsCodec(codec)->incrementalDecode(rowsDecoded);
 }
 
+sk_codec_result_t sk_codec_start_scanline_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, const sk_codec_options_t* coptions, sk_color_t ctable[], int* ctableCount)
+{
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+    return (sk_codec_result_t)AsCodec(codec)->startScanlineDecode(info, AsCodecOptions(coptions), ctable, ctableCount);
+}
+
+int sk_codec_get_scanlines(sk_codec_t* codec, void* dst, int countLines, size_t rowBytes)
+{
+    return AsCodec(codec)->getScanlines(dst, countLines, rowBytes);
+}
+
+bool sk_codec_skip_scanlines(sk_codec_t* codec, int countLines)
+{
+    return AsCodec(codec)->skipScanlines(countLines);
+}
+
+sk_codec_scanline_order_t sk_codec_get_scanline_order(sk_codec_t* codec)
+{
+    return (sk_codec_scanline_order_t)AsCodec(codec)->getScanlineOrder();
+}
+
+int sk_codec_next_scanline(sk_codec_t* codec)
+{
+    return AsCodec(codec)->nextScanline();
+}
+
+int sk_codec_output_scanline(sk_codec_t* codec, int inputScanline)
+{
+    return AsCodec(codec)->outputScanline(inputScanline);
+}
+
 int sk_codec_get_frame_count(sk_codec_t* codec) {
     return AsCodec(codec)->getFrameInfo().size();
 }
