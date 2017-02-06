@@ -9,6 +9,7 @@
 #include "SkPath.h"
 #include "SkShadowTessellator.h"
 #include "SkShadowUtils.h"
+#include "SkVertices.h"
 #include "Test.h"
 
 void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm,
@@ -16,27 +17,28 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
     static constexpr SkScalar kRadius = 2.f;
     static constexpr SkColor kUmbraColor = 0xFFFFFFFF;
     static constexpr SkColor kPenumbraColor = 0x20202020;
-    auto verts = SkShadowVertices::MakeAmbient(path, ctm, kRadius, kUmbraColor, kPenumbraColor,
-                                               true);
+    auto verts =
+            SkShadowTessellator::MakeAmbient(path, ctm, kRadius, kUmbraColor, kPenumbraColor, true);
     if (expectSuccess != SkToBool(verts)) {
-        ERRORF(reporter, "Expected shadow tessellation to % but it did not.",
+        ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowVertices::MakeAmbient(path, ctm, kRadius, kUmbraColor, kPenumbraColor, false);
+    verts = SkShadowTessellator::MakeAmbient(path, ctm, kRadius, kUmbraColor, kPenumbraColor,
+                                             false);
     if (expectSuccess != SkToBool(verts)) {
-        ERRORF(reporter, "Expected shadow tessellation to % but it did not.",
+        ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowVertices::MakeSpot(path, ctm, 1.5f, {0, 0}, kRadius, kUmbraColor,
-                                       kPenumbraColor, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, 1.5f, {0, 0}, kRadius, kUmbraColor,
+                                          kPenumbraColor, false);
     if (expectSuccess != SkToBool(verts)) {
-        ERRORF(reporter, "Expected shadow tessellation to % but it did not.",
+        ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
-    verts = SkShadowVertices::MakeSpot(path, ctm, 1.5f, {0, 0}, kRadius, kUmbraColor,
-                                       kPenumbraColor, true);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, 1.5f, {0, 0}, kRadius, kUmbraColor,
+                                          kPenumbraColor, true);
     if (expectSuccess != SkToBool(verts)) {
-        ERRORF(reporter, "Expected shadow tessellation to % but it did not.",
+        ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
     }
 }
