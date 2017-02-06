@@ -36,6 +36,11 @@ public:
     const DisplayParams& getDisplayParams() { return fDisplayParams; }
     virtual void setDisplayParams(const DisplayParams& params) = 0;
 
+    /**
+     * This can only be called when changes are limited to the gamut.
+     */
+    virtual void setColorSpace(sk_sp<SkColorSpace> colorSpace) = 0;
+
     SkSurfaceProps getSurfaceProps() const { return fSurfaceProps; }
     void setSurfaceProps(const SkSurfaceProps& props) {
         fSurfaceProps = props;
