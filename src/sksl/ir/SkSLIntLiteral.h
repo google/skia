@@ -22,15 +22,11 @@ struct IntLiteral : public Expression {
     : INHERITED(position, kIntLiteral_Kind, type ? *type : *context.fInt_Type)
     , fValue(value) {}
 
-    SkString description() const override {
+    virtual SkString description() const override {
         return to_string(fValue);
     }
 
-    bool hasSideEffects() const override {
-        return false;
-    }
-
-    bool isConstant() const override {
+   bool isConstant() const override {
         return true;
     }
 

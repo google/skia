@@ -26,12 +26,8 @@ struct TernaryExpression : public Expression {
         ASSERT(fIfTrue->fType == fIfFalse->fType);
     }
 
-    bool hasSideEffects() const override {
-        return fTest->hasSideEffects() || fIfTrue->hasSideEffects() || fIfFalse->hasSideEffects();
-    }
-
     SkString description() const override {
-        return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
+        return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " + 
                fIfFalse->description() + ")";
     }
 

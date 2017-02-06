@@ -25,9 +25,7 @@ struct Statement : public IRNode {
         kDo_Kind,
         kExpression_Kind,
         kFor_Kind,
-        kGroup_Kind,
         kIf_Kind,
-        kNop_Kind,
         kReturn_Kind,
         kVarDeclarations_Kind,
         kWhile_Kind
@@ -36,10 +34,6 @@ struct Statement : public IRNode {
     Statement(Position position, Kind kind)
     : INHERITED(position)
     , fKind(kind) {}
-
-    virtual bool isEmpty() const {
-        return false;
-    }
 
     const Kind fKind;
 

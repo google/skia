@@ -67,9 +67,7 @@ private:
 
     void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
 
-    void computeDataFlow(CFG* cfg);
-
-    void scanCFG(FunctionDefinition& f);
+    void scanCFG(const FunctionDefinition& f);
 
     void internalConvertProgram(SkString text,
                                 Modifiers::Flag* defaultPrecision,

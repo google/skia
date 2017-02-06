@@ -27,7 +27,7 @@ struct DoStatement : public Statement {
         return "do " + fStatement->description() + " while (" + fTest->description() + ");";
     }
 
-    std::unique_ptr<Statement> fStatement;
+    const std::unique_ptr<Statement> fStatement;
     std::unique_ptr<Expression> fTest;
 
     typedef Statement INHERITED;

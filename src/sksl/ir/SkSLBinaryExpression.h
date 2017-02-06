@@ -34,11 +34,6 @@ struct BinaryExpression : public Expression {
                                         *fRight);
     }
 
-    virtual bool hasSideEffects() const override {
-        return Token::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
-               fRight->hasSideEffects();
-    }
-
     virtual SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";

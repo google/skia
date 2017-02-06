@@ -52,7 +52,7 @@ struct VarDeclaration {
  */
 struct VarDeclarations : public ProgramElement {
     VarDeclarations(Position position, const Type* baseType, 
-                    std::vector<std::unique_ptr<VarDeclaration>> vars)
+                    std::vector<VarDeclaration> vars)
     : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType)
     , fVars(std::move(vars)) {}
@@ -61,18 +61,18 @@ struct VarDeclarations : public ProgramElement {
         if (!fVars.size()) {
             return SkString();
         }
-        SkString result = fVars[0]->fVar->fModifiers.description() + fBaseType.description() + " ";
+        SkString result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + " ";
         SkString separator;
         for (const auto& var : fVars) {
             result += separator;
             separator = ", ";
-            result += var->description();
+            result += var.description();
         }
         return result;
     }
 
     const Type& fBaseType;
-    std::vector<std::unique_ptr<VarDeclaration>> fVars;
+    std::vector<VarDeclaration> fVars;
 
     typedef ProgramElement INHERITED;
 };
