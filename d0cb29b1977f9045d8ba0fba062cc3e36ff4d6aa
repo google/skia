@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "624bb022_2e3feeb1",
+        "filename": "gm/bitmaptiled.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-06T21:45:43Z",
+      "side": 1,
+      "message": "// This test exercises Ganesh\u0027s drawing of tiled bitmaps. In particular, that the offsets and the extents of the tiles don\u0027t causes gaps between tiles.\n\n??\n\nstatic const draw_tile_bitmap_with_fractional_offset ?",
+      "revId": "d0cb29b1977f9045d8ba0fba062cc3e36ff4d6aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
