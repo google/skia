@@ -7,6 +7,8 @@
 
 #include <memory>
 #include "Benchmark.h"
+
+#include "SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkArenaAlloc.h"
@@ -199,12 +201,11 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
 
         SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
-        uint32_t storage[kSkBlitterContextSize];
+        SkArenaAlloc alloc{kSkBlitterContextSize * sizeof(uint32_t)};
         const SkShader::ContextRec rec(fPaint, fM, nullptr,
                                        SkShader::ContextRec::kPMColor_DstType,
                                        nullptr);
-        SkASSERT(fPaint.getShader()->contextSize(rec) <= sizeof(storage));
-        SkShader::Context* ctx = fPaint.getShader()->createContext(rec, storage);
+        SkShader::Context* ctx = fPaint.getShader()->makeContext(rec, &alloc);
 
         int count = 100;
 

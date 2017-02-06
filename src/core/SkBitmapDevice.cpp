@@ -326,6 +326,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 
     USE_SHADER:
 
+    // TODO(herb): Move this over to SkArenaAlloc when arena alloc has a facility to return sk_sps.
     // Since the shader need only live for our stack-frame, pass in a custom allocator. This
     // can save malloc calls, and signals to SkMakeBitmapShader to not try to copy the bitmap
     // if its mutable, since that precaution is not needed (give the short lifetime of the shader).
