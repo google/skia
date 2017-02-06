@@ -1504,12 +1504,16 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+#ifdef SK_USE_DEVICE_CLIPPING
+    this->getDevice()->clipRect(rect, op, isAA);
+#else
     AutoValidateClip avc(this);
     fClipStack->clipRect(rect, fMCRec->fMatrix, op, isAA);
     fMCRec->fRasterClip.op(rect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
                            isAA);
     fDeviceCMDirty = true;
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+#endif
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {

@@ -101,6 +101,19 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
+    void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
+        this->onClipRect(rect, op, aa);
+    }
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+        this->onClipRRect(rrect, op, aa);
+    }
+    void clipPath(const SkPath& path, SkClipOp op, bool aa) {
+        this->onClipPath(path, op, aa);
+    }
+    void clipRegion(const SkRegion& region, SkClipOp op) {
+        this->onClipRegion(region, op);
+    }
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -118,6 +131,11 @@ protected:
     uint32_t filterTextFlags(const SkPaint&) const;
 
     virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
+
+    virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
+    virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
+    virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
+    virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
