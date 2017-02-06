@@ -174,6 +174,26 @@ void sk_bitmap_erase_rect(sk_bitmap_t* cbitmap, sk_color_t color, sk_irect_t* re
     AsBitmap(cbitmap)->erase(color, AsIRect(*rect));
 }
 
+uint8_t sk_bitmap_get_addr_8(sk_bitmap_t* cbitmap, int x, int y)
+{
+    return *(AsBitmap(cbitmap)->getAddr8(x, y));
+}
+
+uint16_t sk_bitmap_get_addr_16(sk_bitmap_t* cbitmap, int x, int y)
+{
+    return *(AsBitmap(cbitmap)->getAddr16(x, y));
+}
+
+uint32_t sk_bitmap_get_addr_32(sk_bitmap_t* cbitmap, int x, int y)
+{
+    return *(AsBitmap(cbitmap)->getAddr32(x, y));
+}
+
+void* sk_bitmap_get_addr(sk_bitmap_t* cbitmap, int x, int y)
+{
+    return AsBitmap(cbitmap)->getAddr(x, y);
+}
+
 sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y)
 {
     return AsBitmap(cbitmap)->getColor(x, y);
