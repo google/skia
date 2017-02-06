@@ -9,16 +9,17 @@
 #include <cstddef>
 #include "SkArenaAlloc.h"
 
-static char* end_chain(char*) { return nullptr; }
+static char* end_chain(char*, SkArenaAlloc*) { return nullptr; }
 
-char* SkArenaAlloc::SkipPod(char* footerEnd) {
+
+char* SkArenaAlloc::SkipPod(char* footerEnd, SkArenaAlloc*) {
     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(int32_t));
     int32_t skip;
     memmove(&skip, objEnd, sizeof(int32_t));
     return objEnd - skip;
 }
 
-void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd) {
+void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd, SkArenaAlloc* alloc) {
     while (footerEnd != nullptr) {
         Footer footer;
         memcpy(&footer, footerEnd - sizeof(Footer), sizeof(Footer));
@@ -26,16 +27,16 @@ void SkArenaAlloc::RunDtorsOnBlock(char* footerEnd) {
         FooterAction* action = (FooterAction*)(footer >> 6);
         ptrdiff_t padding = footer & 63;
 
-        footerEnd = action(footerEnd) - padding;
+        footerEnd = action(footerEnd, alloc) - padding;
     }
 }
 
-char* SkArenaAlloc::NextBlock(char* footerEnd) {
+char* SkArenaAlloc::NextBlock(char* footerEnd, SkArenaAlloc* alloc) {
     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(char*));
     char* next;
     memmove(&next, objEnd, sizeof(char*));
-    RunDtorsOnBlock(next);
-    delete [] objEnd;
+    RunDtorsOnBlock(next, alloc);
+    alloc->deleteBlock(objEnd);
     return nullptr;
 }
 
@@ -57,7 +58,7 @@ SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize)
 }
 
 SkArenaAlloc::~SkArenaAlloc() {
-    RunDtorsOnBlock(fDtorCursor);
+    RunDtorsOnBlock(fDtorCursor, this);
 }
 
 void SkArenaAlloc::reset() {
@@ -100,16 +101,12 @@ void SkArenaAlloc::ensureSpace(size_t size, size_t alignment) {
         objSizeAndOverhead += alignment - 1;
     }
 
-    auto allocationSize = std::max(objSizeAndOverhead, fExtraSize);
+    uint32_t requestedSize = std::max(objSizeAndOverhead, fExtraSize);
 
-    // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
-    // heuristic is from the JEMalloc behavior.
-    {
-        size_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
-        allocationSize = (allocationSize + mask) & ~mask;
-    }
+    char* newBlock;
+    uint32_t allocationSize;
 
-    char* newBlock = new char[allocationSize];
+    std::tie(newBlock, allocationSize) = this->newBlock(requestedSize);
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
