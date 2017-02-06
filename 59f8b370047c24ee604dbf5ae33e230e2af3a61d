@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "98f22bb0_98e9ba2e",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-06T20:44:35Z",
+      "side": 1,
+      "message": "Oh oops... I did the rename with a refactor tool that somehow undid it. (Though, I\u0027d love to abandon the INHERITED thing).\n\nWill fix.",
+      "parentUuid": "3f5a98ff_a4547f53",
+      "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92987364_c8e35c58",
         "filename": "src/utils/SkShadowTessellator.cpp",
         "patchSetId": 3
@@ -47,6 +65,24 @@
       "writtenOn": "2017-02-06T20:17:16Z",
       "side": 1,
       "message": "Can we rm SkPoint.h now ?",
+      "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d048a11_e245e9ff",
+        "filename": "src/utils/SkShadowTessellator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-06T20:44:35Z",
+      "side": 1,
+      "message": "SkVector is a typedef of SkPoint so it gets ugly forward declaring it here.",
+      "parentUuid": "575cbfb8_4b2b6400",
       "revId": "59f8b370047c24ee604dbf5ae33e230e2af3a61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
