@@ -499,6 +499,10 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                     SkScalar hh = h / 2.f;
                     SkScalar umbraInsetX = s * hw + factory.fRadius;
                     SkScalar umbraInsetY = s * hh + factory.fRadius;
+                    // The umbra is inset by radius along the diagonal, so adjust for that.
+                    SkScalar d = 1.f / SkScalarSqrt(hw * hw + hh * hh);
+                    umbraInsetX *= hw * d;
+                    umbraInsetY *= hh * d;
                     if (umbraInsetX > hw || umbraInsetY > hh) {
                         // There is no umbra to occlude.
                         factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
