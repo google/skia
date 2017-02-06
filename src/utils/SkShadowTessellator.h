@@ -24,19 +24,19 @@ public:
      * the radius, and setting inner and outer colors to umbraColor and penumbraColor, respectively.
      * If transparent is true, then the center of the ambient shadow will be filled in.
      */
-    static sk_sp<SkShadowVertices> MakeAmbient(const SkPath& path, SkScalar radius,
-                                               SkColor umbraColor, SkColor penumbraColor,
-                                               bool transparent);
+    static sk_sp<SkShadowVertices> MakeAmbient(const SkPath& path, const SkMatrix& ctm,
+                                               SkScalar radius, SkColor umbraColor,
+                                               SkColor penumbraColor, bool transparent);
 
     /**
      * This function generates a spot shadow mesh for a path by walking the transformed path,
      * further transforming by the scale and translation, and outsetting and insetting by a radius.
      * The center will be clipped against the original path unless transparent is true.
      */
-    static sk_sp<SkShadowVertices> MakeSpot(const SkPath& path, SkScalar scale,
-                                            const SkVector& translate, SkScalar radius,
-                                            SkColor umbraColor, SkColor penumbraColor,
-                                            bool transparent);
+    static sk_sp<SkShadowVertices> MakeSpot(const SkPath& path, const SkMatrix& ctm,
+                                            SkScalar scale, const SkVector& translate,
+                                            SkScalar radius, SkColor umbraColor,
+                                            SkColor penumbraColor, bool transparent);
 
     int vertexCount() const { return fVertexCnt; }
     const SkPoint* positions() const { return fPositions.get(); }
