@@ -649,6 +649,7 @@ void Compiler::internalConvertProgram(SkString text,
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text,
                                                   const Program::Settings& settings) {
+    SkDebugf("%s\n", text.c_str());
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);

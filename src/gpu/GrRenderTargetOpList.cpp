@@ -184,7 +184,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
-        if (fRecordedOps[i].fRenderTargetID != currentRTID) {
+        if (!currentRTID.isInvalid() || fRecordedOps[i].fRenderTargetID != currentRTID) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();

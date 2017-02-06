@@ -224,6 +224,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         }
         fSamplerDescriptorSet = gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
         int samplerDSIdx = GrVkUniformHandler::kSamplerDescSet;
+        SkDebugf("SamplerDSIdx is %d\n", samplerDSIdx);
         fDescriptorSets[samplerDSIdx] = fSamplerDescriptorSet->descriptorSet();
         this->writeSamplers(gpu, textureBindings, pipeline.getAllowSRGBInputs());
     }
@@ -382,6 +383,7 @@ void GrVkPipelineState::bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffe
     commandBuffer->bindPipeline(gpu, fPipeline);
 
     if (fDSCount) {
+        SkDebugf("fStartDS: %d, fDSCount: %d, fNumSamplers %d\n", fStartDS, fDSCount, fNumSamplers);
         commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout, fStartDS, fDSCount,
                                           &fDescriptorSets[fStartDS], 0, nullptr);
     }
