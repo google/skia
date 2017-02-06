@@ -16,6 +16,24 @@
       "revId": "d0cb29b1977f9045d8ba0fba062cc3e36ff4d6aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c6a70a9_ea1d67af",
+        "filename": "gm/bitmaptiled.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-06T21:48:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "624bb022_2e3feeb1",
+      "revId": "d0cb29b1977f9045d8ba0fba062cc3e36ff4d6aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
