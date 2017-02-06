@@ -100,10 +100,14 @@ protected:
             memcpy(colors.get(), fColors, sizeof(SkColor) * kMeshVertexCnt);
             memcpy(texs.get(), fTexs, sizeof(SkPoint) * kMeshVertexCnt);
             memcpy(indices.get(), kMeshFan, sizeof(uint16_t) * kMeshIndexCnt);
-            fVertices = SkVertices::MakeIndexed(SkCanvas::kTriangleFan_VertexMode,
-                                                std::move(points),
-                                                std::move(colors), std::move(texs), kMeshVertexCnt,
-                                                std::move(indices), kMeshIndexCnt);
+            // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
+            // std::unique_ptr<const T[]>. Hence the release() calls below.
+            fVertices = SkVertices::MakeIndexed(
+                    SkCanvas::kTriangleFan_VertexMode,
+                    std::unique_ptr<const SkPoint[]>(points.release()),
+                    std::unique_ptr<const SkColor[]>(colors.release()),
+                    std::unique_ptr<const SkPoint[]>(texs.release()), kMeshVertexCnt,
+                    std::unique_ptr<const uint16_t[]>(indices.release()), kMeshIndexCnt);
         }
     }
 
@@ -230,11 +234,13 @@ static void draw_batching(SkCanvas* canvas, bool useObject) {
 
     sk_sp<SkVertices> vertices;
     if (useObject) {
-        vertices =
-                SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode, std::move(pts),
-                                        std::move(colors),
-                                        std::move(texs), kMeshVertexCnt, std::move(indices),
-                                        3 * kNumTris);
+        // Older libstdc++ does not allow moving a std::unique_ptr<T[]> into a
+        // std::unique_ptr<const T[]>. Hence the release() calls below.
+        vertices = SkVertices::MakeIndexed(
+                SkCanvas::kTriangles_VertexMode, std::unique_ptr<const SkPoint[]>(pts.release()),
+                std::unique_ptr<const SkColor[]>(colors.release()),
+                std::unique_ptr<const SkPoint[]>(texs.release()), kMeshVertexCnt,
+                std::unique_ptr<const uint16_t[]>(indices.release()), 3 * kNumTris);
     }
     canvas->save();
     canvas->translate(10, 10);
