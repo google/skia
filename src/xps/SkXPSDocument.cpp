@@ -14,10 +14,9 @@
 #include "SkHRESULT.h"
 
 SkXPSDocument::SkXPSDocument(SkWStream* stream,
-                   void (*doneProc)(SkWStream*, bool),
                    SkScalar dpi,
                    SkTScopedComPtr<IXpsOMObjectFactory> xpsFactory)
-        : SkDocument(stream, doneProc)
+        : SkDocument(stream, nullptr)
         , fXpsFactory(std::move(xpsFactory))
         , fDevice(SkISize{10000, 10000})
 {
@@ -59,45 +58,14 @@ void SkXPSDocument::onClose(SkWStream*) {
 
 void SkXPSDocument::onAbort() {}
 
-
-static SkTScopedComPtr<IXpsOMObjectFactory> make_xps_factory() {
-    IXpsOMObjectFactory* factory;
-    HRN(CoCreateInstance(CLSID_XpsOMObjectFactory,
-                         nullptr,
-                         CLSCTX_INPROC_SERVER,
-                         IID_PPV_ARGS(&factory)));
-    return SkTScopedComPtr<IXpsOMObjectFactory>(factory);
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO(halcanary, reed): modify the SkDocument API to take a IXpsOMObjectFactory* pointer.
-/*
 sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream,
                                       IXpsOMObjectFactory* factoryPtr,
                                       SkScalar dpi) {
     SkTScopedComPtr<IXpsOMObjectFactory> factory(SkSafeRefComPtr(factoryPtr));
     return stream && factory
-           ? sk_make_sp<SkXPSDocument>(stream, nullptr, dpi, std::move(factory))
-           : nullptr;
-}
-*/
-
-sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream, SkScalar dpi) {
-    auto factory = make_xps_factory();
-    return stream && factory
-           ? sk_make_sp<SkXPSDocument>(stream, nullptr, dpi, std::move(factory))
-           : nullptr;
-}
-
-sk_sp<SkDocument> SkDocument::MakeXPS(const char path[], SkScalar dpi) {
-    std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
-    auto factory = make_xps_factory();
-    return stream->isValid() && factory
-           ? sk_make_sp<SkXPSDocument>(stream.release(),
-                                       [](SkWStream* s, bool) { delete s; },
-                                       dpi, std::move(factory))
+           ? sk_make_sp<SkXPSDocument>(stream, dpi, std::move(factory))
            : nullptr;
 }
 
