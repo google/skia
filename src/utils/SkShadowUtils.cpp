@@ -98,8 +98,8 @@ struct AmbientVerticesFactory {
         return true;
     }
 
-    sk_sp<SkShadowVertices> makeVertices(const SkPath& devPath) const {
-        return SkShadowVertices::MakeAmbient(devPath, fRadius, fUmbraColor, fPenumbraColor,
+    sk_sp<SkShadowVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
+        return SkShadowVertices::MakeAmbient(path, ctm, fRadius, fUmbraColor, fPenumbraColor,
                                              fTransparent);
     }
 };
@@ -148,9 +148,9 @@ struct SpotVerticesFactory {
         return false;
     }
 
-    sk_sp<SkShadowVertices> makeVertices(const SkPath& devPath) const {
+    sk_sp<SkShadowVertices> makeVertices(const SkPath& path, const SkMatrix& ctm) const {
         bool transparent = OccluderType::kTransparent == fOccluderType;
-        return SkShadowVertices::MakeSpot(devPath, fScale, fOffset, fRadius, fUmbraColor,
+        return SkShadowVertices::MakeSpot(path, ctm, fScale, fOffset, fRadius, fUmbraColor,
                                           fPenumbraColor, transparent);
     }
 };
@@ -216,7 +216,7 @@ private:
 
         sk_sp<SkShadowVertices> add(const SkPath& devPath, const FACTORY& factory,
                                     const SkMatrix& matrix) {
-            sk_sp<SkShadowVertices> vertices = factory.makeVertices(devPath);
+            sk_sp<SkShadowVertices> vertices = factory.makeVertices(devPath, matrix);
             if (!vertices) {
                 return nullptr;
             }
@@ -333,20 +333,14 @@ bool FindVisitor(const SkResourceCache::Rec& baseRec, void* ctx) {
 class ShadowedPath {
 public:
     ShadowedPath(const SkPath* path, const SkMatrix* viewMatrix)
-            : fOriginalPath(path)
+            : fPath(path)
             , fViewMatrix(viewMatrix)
 #if SK_SUPPORT_GPU
             , fShapeForKey(*path, GrStyle::SimpleFill())
 #endif
     {}
 
-    const SkPath& transformedPath() {
-        if (!fTransformedPath.isValid()) {
-            fOriginalPath->transform(*fViewMatrix, fTransformedPath.init());
-        }
-        return *fTransformedPath.get();
-    }
-
+    const SkPath& path() const { return *fPath; }
     const SkMatrix& viewMatrix() const { return *fViewMatrix; }
 #if SK_SUPPORT_GPU
     /** Negative means the vertices should not be cached for this path. */
@@ -362,12 +356,11 @@ public:
 #endif
 
 private:
-    const SkPath* fOriginalPath;
+    const SkPath* fPath;
     const SkMatrix* fViewMatrix;
 #if SK_SUPPORT_GPU
     GrShape fShapeForKey;
 #endif
-    SkTLazy<SkPath> fTransformedPath;
 };
 
 // This creates a domain of keys in SkResourceCache used by this file.
@@ -409,13 +402,13 @@ void draw_shadow(const FACTORY& factory, SkCanvas* canvas, ShadowedPath& path, S
             } else {
                 tessellations.reset(new CachedTessellations());
             }
-            vertices = tessellations->add(path.transformedPath(), factory, path.viewMatrix());
+            vertices = tessellations->add(path.path(), factory, path.viewMatrix());
             if (!vertices) {
                 return;
             }
             SkResourceCache::Add(new CachedTessellationsRec(*key, std::move(tessellations)));
         } else {
-            vertices = factory.makeVertices(path.transformedPath());
+            vertices = factory.makeVertices(path.path(), path.viewMatrix());
             if (!vertices) {
                 return;
             }
@@ -520,6 +513,9 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, SkScalar oc
                     }
                 }
             }
+        }
+        if (factory.fOccluderType == SpotVerticesFactory::OccluderType::kOpaque) {
+            factory.fOccluderType = SpotVerticesFactory::OccluderType::kTransparent;
         }
         draw_shadow(factory, canvas, shadowedPath, color);
     }

@@ -16,12 +16,14 @@
 
 template <typename T> using UniqueArray = SkShadowVertices::UniqueArray<T>;
 
-// TODO: derive the ambient and spot classes from a base class containing common elements
-
-class SkAmbientShadowTessellator {
+/**
+ * Base class
+ */
+class SkShadowTessellator {
 public:
-    SkAmbientShadowTessellator(const SkPath& path, SkScalar radius, SkColor umbraColor,
-                               SkColor penumbraColor, bool transparent);
+    SkShadowTessellator(SkScalar radius, SkColor umbraColor,
+                        SkColor penumbraColor, bool transparent);
+    virtual ~SkShadowTessellator() {}
 
     int vertexCount() const { return fPositions.count(); }
     int indexCount() const { return fIndices.count(); }
@@ -40,41 +42,45 @@ public:
         return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
     }
 
-private:
-    void handleLine(const SkPoint& p);
+protected:
+    virtual void handleLine(const SkPoint& p) = 0;
+    void handleLine(const SkMatrix& m, SkPoint* p);
 
     void handleQuad(const SkPoint pts[3]);
+    void handleQuad(const SkMatrix& m, SkPoint pts[3]);
 
-    void handleCubic(SkPoint pts[4]);
+    void handleCubic(const SkMatrix& m, SkPoint pts[4]);
 
-    void handleConic(SkPoint pts[3], SkScalar w);
+    void handleConic(const SkMatrix& m, SkPoint pts[3], SkScalar w);
 
     void addArc(const SkVector& nextNormal);
     void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
-    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
-
-    SkScalar            fRadius;
-    SkColor             fUmbraColor;
-    SkColor             fPenumbraColor;
-    bool                fTransparent;
-
-    SkTDArray<SkPoint>  fPositions;
-    SkTDArray<SkColor>  fColors;
-    SkTDArray<uint16_t> fIndices;
-
-    int                 fPrevUmbraIndex;
-    SkVector            fPrevNormal;
-    int                 fFirstVertex;
-    SkVector            fFirstNormal;
-    SkScalar            fDirection;
-    int                 fCentroidCount;
+    virtual void addEdge(const SkVector& nextPoint, const SkVector& nextNormal) = 0;
 
     // first three points
     SkTDArray<SkPoint>  fInitPoints;
     // temporary buffer
     SkTDArray<SkPoint>  fPointBuffer;
 
+    SkTDArray<SkPoint>  fPositions;
+    SkTDArray<SkColor>  fColors;
+    SkTDArray<uint16_t> fIndices;
+
+    int                 fFirstVertex;
+    SkVector            fFirstNormal;
+    SkPoint             fFirstPoint;
+
     bool                fSucceeded;
+    bool                fTransparent;
+
+    SkColor             fUmbraColor;
+    SkColor             fPenumbraColor;
+
+    SkScalar            fRadius;
+    SkScalar            fDirection;
+    int                 fPrevUmbraIndex;
+    SkVector            fPrevNormal;
+    SkPoint             fPrevPoint;
 };
 
 static bool compute_normal(const SkPoint& p0, const SkPoint& p1, SkScalar radius, SkScalar dir,
@@ -106,17 +112,151 @@ static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScala
     *n = SkScalarFloorToInt(steps);
 }
 
+SkShadowTessellator::SkShadowTessellator(SkScalar radius, SkColor umbraColor,
+                                         SkColor penumbraColor, bool transparent)
+    : fFirstVertex(-1)
+    , fSucceeded(false)
+    , fTransparent(transparent)
+    , fUmbraColor(umbraColor)
+    , fPenumbraColor(penumbraColor)
+    , fRadius(radius)
+    , fDirection(1)
+    , fPrevUmbraIndex(-1) {
+
+    fInitPoints.setReserve(3);
+
+    // child classes will set reserve for positions, colors and indices
+}
+
+// tesselation tolerance values, in device space pixels
+static const SkScalar kQuadTolerance = 0.2f;
+static const SkScalar kCubicTolerance = 0.2f;
+static const SkScalar kConicTolerance = 0.5f;
+
+void SkShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
+    m.mapPoints(p, 1);
+    this->handleLine(*p);
+}
+
+void SkShadowTessellator::handleQuad(const SkPoint pts[3]) {
+#if SK_SUPPORT_GPU
+    // TODO: Pull PathUtils out of Ganesh?
+    int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
+    fPointBuffer.setReserve(maxCount);
+    SkPoint* target = fPointBuffer.begin();
+    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
+                                                     kQuadTolerance, &target, maxCount);
+    fPointBuffer.setCount(count);
+    for (int i = 0; i < count; i++) {
+        this->handleLine(fPointBuffer[i]);
+    }
+#else
+    // for now, just to draw something
+    this->handleLine(pts[1]);
+    this->handleLine(pts[2]);
+#endif
+}
+
+void SkShadowTessellator::handleQuad(const SkMatrix& m, SkPoint pts[3]) {
+    m.mapPoints(pts, 3);
+    this->handleQuad(pts);
+}
+
+void SkShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
+    m.mapPoints(pts, 4);
+#if SK_SUPPORT_GPU
+    // TODO: Pull PathUtils out of Ganesh?
+    int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
+    fPointBuffer.setReserve(maxCount);
+    SkPoint* target = fPointBuffer.begin();
+    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
+                                                 kCubicTolerance, &target, maxCount);
+    fPointBuffer.setCount(count);
+    for (int i = 0; i < count; i++) {
+        this->handleLine(fPointBuffer[i]);
+    }
+#else
+    // for now, just to draw something
+    this->handleLine(pts[1]);
+    this->handleLine(pts[2]);
+    this->handleLine(pts[3]);
+#endif
+}
+
+void SkShadowTessellator::handleConic(const SkMatrix& m, SkPoint pts[3], SkScalar w) {
+    m.mapPoints(pts, 3);
+    SkAutoConicToQuads quadder;
+    const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
+    SkPoint lastPoint = *(quads++);
+    int count = quadder.countQuads();
+    for (int i = 0; i < count; ++i) {
+        SkPoint quadPts[3];
+        quadPts[0] = lastPoint;
+        quadPts[1] = quads[0];
+        quadPts[2] = i == count - 1 ? pts[2] : quads[1];
+        this->handleQuad(quadPts);
+        lastPoint = quadPts[2];
+        quads += 2;
+    }
+}
+
+void SkShadowTessellator::addArc(const SkVector& nextNormal) {
+    // fill in fan from previous quad
+    SkScalar rotSin, rotCos;
+    int numSteps;
+    compute_radial_steps(fPrevNormal, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+    SkVector prevNormal = fPrevNormal;
+    for (int i = 0; i < numSteps; ++i) {
+        SkVector nextNormal;
+        nextNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
+        nextNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
+        *fPositions.push() = fPrevPoint + nextNormal;
+        *fColors.push() = fPenumbraColor;
+        *fIndices.push() = fPrevUmbraIndex;
+        *fIndices.push() = fPositions.count() - 2;
+        *fIndices.push() = fPositions.count() - 1;
+
+        prevNormal = nextNormal;
+    }
+}
+
+void SkShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
+                                              const SkVector& nextNormal) {
+    // close out previous arc
+    *fPositions.push() = fPrevPoint + nextNormal;
+    *fColors.push() = fPenumbraColor;
+    *fIndices.push() = fPrevUmbraIndex;
+    *fIndices.push() = fPositions.count() - 2;
+    *fIndices.push() = fPositions.count() - 1;
+
+    this->addEdge(nextPoint, nextNormal);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkAmbientShadowTessellator : public SkShadowTessellator {
+public:
+    SkAmbientShadowTessellator(const SkPath& path, const SkMatrix& ctm,
+                               SkScalar radius, SkColor umbraColor,
+                               SkColor penumbraColor, bool transparent);
+
+private:
+    void handleLine(const SkPoint& p) override;
+    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal) override;
+
+    int                 fCentroidCount;
+
+    typedef SkShadowTessellator INHERITED;
+};
+
 SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
+                                                       const SkMatrix& ctm,
                                                        SkScalar radius,
                                                        SkColor umbraColor,
                                                        SkColor penumbraColor,
                                                        bool transparent)
-        : fRadius(radius)
-        , fUmbraColor(umbraColor)
-        , fPenumbraColor(penumbraColor)
-        , fTransparent(transparent)
-        , fPrevUmbraIndex(-1)
-        , fSucceeded(false) {
+        : INHERITED(radius, umbraColor, penumbraColor, transparent) {
     // Outer ring: 3*numPts
     // Middle ring: numPts
     fPositions.setReserve(4 * path.countPoints());
@@ -124,8 +264,6 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // Outer ring: 12*numPts
     // Middle ring: 0
     fIndices.setReserve(12 * path.countPoints());
-
-    fInitPoints.setReserve(3);
 
     // walk around the path, tessellate and generate outer ring
     // if original path is transparent, will accumulate sum of points for centroid
@@ -140,16 +278,16 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                this->handleLine(pts[1]);
+                this->INHERITED::handleLine(ctm, &pts[1]);
                 break;
             case SkPath::kQuad_Verb:
-                this->handleQuad(pts);
+                this->handleQuad(ctm, pts);
                 break;
             case SkPath::kCubic_Verb:
-                this->handleCubic(pts);
+                this->handleCubic(ctm, pts);
                 break;
             case SkPath::kConic_Verb:
-                this->handleConic(pts, iter.conicWeight());
+                this->handleConic(ctm, pts, iter.conicWeight());
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
@@ -163,19 +301,19 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     }
 
     SkVector normal;
-    if (compute_normal(fPositions[fPrevUmbraIndex], fPositions[fFirstVertex], fRadius, fDirection,
+    if (compute_normal(fPrevPoint, fFirstPoint, fRadius, fDirection,
                        &normal)) {
         this->addArc(normal);
 
         // close out previous arc
-        *fPositions.push() = fPositions[fPrevUmbraIndex] + normal;
+        *fPositions.push() = fPrevPoint + normal;
         *fColors.push() = fPenumbraColor;
         *fIndices.push() = fPrevUmbraIndex;
         *fIndices.push() = fPositions.count() - 2;
         *fIndices.push() = fPositions.count() - 1;
 
         // add final edge
-        *fPositions.push() = fPositions[fFirstVertex] + normal;
+        *fPositions.push() = fFirstPoint + normal;
         *fColors.push() = fPenumbraColor;
 
         *fIndices.push() = fPrevUmbraIndex;
@@ -200,6 +338,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     if (fPositions.count() >= 3) {
         fPrevUmbraIndex = fFirstVertex;
         fPrevNormal = normal;
+        fPrevPoint = fFirstPoint;
         this->addArc(fFirstNormal);
 
         *fIndices.push() = fFirstVertex;
@@ -208,11 +347,6 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     }
     fSucceeded = true;
 }
-
-// tesselation tolerance values, in device space pixels
-static const SkScalar kQuadTolerance = 0.2f;
-static const SkScalar kCubicTolerance = 0.2f;
-static const SkScalar kConicTolerance = 0.5f;
 
 void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
     if (fInitPoints.count() < 2) {
@@ -242,8 +376,10 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
             return;
         }
 
+        fFirstPoint = fInitPoints[0];
         fFirstVertex = fPositions.count();
         fPrevNormal = fFirstNormal;
+        fPrevPoint = fFirstPoint;
         fPrevUmbraIndex = fFirstVertex;
 
         *fPositions.push() = fInitPoints[0];
@@ -265,84 +401,6 @@ void SkAmbientShadowTessellator::handleLine(const SkPoint& p)  {
         this->addArc(normal);
         this->finishArcAndAddEdge(p, normal);
     }
-}
-
-void SkAmbientShadowTessellator::handleQuad(const SkPoint pts[3]) {
-#if SK_SUPPORT_GPU
-    // TODO: Pull PathUtils out of Ganesh?
-    int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
-    fPointBuffer.setReserve(maxCount);
-    SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-                                                     kQuadTolerance, &target, maxCount);
-    fPointBuffer.setCount(count);
-    for (int i = 0; i < count; i++) {
-        this->handleLine(fPointBuffer[i]);
-    }
-#endif
-}
-
-void SkAmbientShadowTessellator::handleCubic(SkPoint pts[4]) {
-#if SK_SUPPORT_GPU
-    // TODO: Pull PathUtils out of Ganesh?
-    int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
-    fPointBuffer.setReserve(maxCount);
-    SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
-                                                 kCubicTolerance, &target, maxCount);
-    fPointBuffer.setCount(count);
-    for (int i = 0; i < count; i++) {
-        this->handleLine(fPointBuffer[i]);
-    }
-#endif
-}
-
-void SkAmbientShadowTessellator::handleConic(SkPoint pts[3], SkScalar w) {
-    SkAutoConicToQuads quadder;
-    const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
-    SkPoint lastPoint = *(quads++);
-    int count = quadder.countQuads();
-    for (int i = 0; i < count; ++i) {
-        SkPoint quadPts[3];
-        quadPts[0] = lastPoint;
-        quadPts[1] = quads[0];
-        quadPts[2] = i == count - 1 ? pts[2] : quads[1];
-        this->handleQuad(quadPts);
-        lastPoint = quadPts[2];
-        quads += 2;
-    }
-}
-
-void SkAmbientShadowTessellator::addArc(const SkVector& nextNormal) {
-    // fill in fan from previous quad
-    SkScalar rotSin, rotCos;
-    int numSteps;
-    compute_radial_steps(fPrevNormal, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
-    SkVector prevNormal = fPrevNormal;
-    for (int i = 0; i < numSteps; ++i) {
-        SkVector nextNormal;
-        nextNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
-        nextNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
-        *fPositions.push() = fPositions[fPrevUmbraIndex] + nextNormal;
-        *fColors.push() = fPenumbraColor;
-        *fIndices.push() = fPrevUmbraIndex;
-        *fIndices.push() = fPositions.count() - 2;
-        *fIndices.push() = fPositions.count() - 1;
-
-        prevNormal = nextNormal;
-    }
-}
-
-void SkAmbientShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
-                                                     const SkVector& nextNormal) {
-    // close out previous arc
-    *fPositions.push() = fPositions[fPrevUmbraIndex] + nextNormal;
-    *fColors.push() = fPenumbraColor;
-    *fIndices.push() = fPrevUmbraIndex;
-    *fIndices.push() = fPositions.count() - 2;
-    *fIndices.push() = fPositions.count() - 1;
-
-    this->addEdge(nextPoint, nextNormal);
 }
 
 void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
@@ -372,106 +430,52 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 
     fPrevUmbraIndex = fPositions.count() - 2;
     fPrevNormal = nextNormal;
+    fPrevPoint = nextPoint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkSpotShadowTessellator {
+class SkSpotShadowTessellator : public SkShadowTessellator {
 public:
-    SkSpotShadowTessellator(const SkPath& path, SkScalar scale, const SkVector& translate,
+    SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
+                            SkScalar scale, const SkVector& translate,
                             SkScalar radius, SkColor umbraColor, SkColor penumbraColor,
                             bool transparent);
 
-    int vertexCount() const { return fPositions.count(); }
-    int indexCount() const { return fIndices.count(); }
-
-    // The casts are needed to work around an older GCC issue where the fact that the pointers are
-    // T* and not const T* causes calls to a deleted unique_ptr constructor.
-    UniqueArray<SkPoint> releasePositions() {
-        return UniqueArray<SkPoint>(static_cast<const SkPoint*>(fPositions.release()));
-    }
-    UniqueArray<SkColor> releaseColors() {
-        return UniqueArray<SkColor>(static_cast<const SkColor*>(fColors.release()));
-    }
-    UniqueArray<uint16_t> releaseIndices() {
-        return UniqueArray<uint16_t>(static_cast<const uint16_t*>(fIndices.release()));
-    }
-
-    bool succeeded() const { return fSucceeded; }
-
 private:
-    void computeClipBounds(const SkPath& path);
+    void computeClipBounds(const SkPath& path, const SkMatrix& ctm, SkPath* devPath);
     void checkUmbraAndTransformCentroid(SkScalar scale, const SkVector& xlate,
                                         bool useDistanceToPoint);
     bool clipUmbraPoint(const SkPoint& umbraPoint, const SkPoint& centroid, SkPoint* clipPoint);
 
-    void handleLine(const SkPoint& p);
-    void handleLine(SkScalar scale, const SkVector& xlate, SkPoint p);
-
-    void handleQuad(const SkPoint pts[3]);
-    void handleQuad(SkScalar scale, const SkVector& xlate, SkPoint pts[3]);
-
-    void handleCubic(SkScalar scale, const SkVector& xlate, SkPoint pts[4]);
-
-    void handleConic(SkScalar scale, const SkVector& xlate, SkPoint pts[3], SkScalar w);
+    void handleLine(const SkPoint& p) override;
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
     void addInnerPoint(const SkPoint& pathPoint);
-    void addArc(const SkVector& nextNormal);
-    void finishArcAndAddEdge(const SkVector& nextPoint, const SkVector& nextNormal);
-    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
+    void addEdge(const SkVector& nextPoint, const SkVector& nextNormal) override;
 
-    SkScalar            fRadius;
-    SkColor             fUmbraColor;
-    SkColor             fPenumbraColor;
-    bool                fTransparent;
-    bool                fValidUmbra;
-
-    SkTDArray<SkPoint>  fPositions;
-    SkTDArray<SkColor>  fColors;
-    SkTDArray<uint16_t> fIndices;
-
-    int                 fPrevUmbraIndex;
-    SkPoint             fPrevPoint;
-    SkVector            fPrevNormal;
-    int                 fFirstVertex;
-    SkPoint             fFirstPoint;
-    SkVector            fFirstNormal;
-    SkScalar            fDirection;
-
-    SkPoint             fCentroid;
     SkTDArray<SkPoint>  fClipPolygon;
     SkTDArray<SkVector> fClipVectors;
+    SkPoint             fCentroid;
+
     int                 fCurrPolyPoint;
     bool                fPrevUmbraOutside;
     bool                fFirstUmbraOutside;
+    bool                fValidUmbra;
 
-    // first three points
-    SkTDArray<SkPoint>  fInitPoints;
-    // temporary buffer
-    SkTDArray<SkPoint>  fPointBuffer;
-
-    bool                fSucceeded;
+    typedef SkShadowTessellator INHERITED;
 };
 
-
-
-SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
+SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,
                                                  SkScalar scale, const SkVector& translate,
-                                                 SkScalar radius,
-                                                 SkColor umbraColor, SkColor penumbraColor,
-                                                 bool transparent)
-        : fRadius(radius)
-        , fUmbraColor(umbraColor)
-        , fPenumbraColor(penumbraColor)
-        , fTransparent(transparent)
-        , fValidUmbra(true)
-        , fPrevUmbraIndex(-1)
+                                                 SkScalar radius, SkColor umbraColor,
+                                                 SkColor penumbraColor, bool transparent)
+        : INHERITED(radius, umbraColor, penumbraColor, transparent)
         , fCurrPolyPoint(0)
         , fPrevUmbraOutside(false)
         , fFirstUmbraOutside(false)
-        , fSucceeded(false) {
-
+        , fValidUmbra(true) {
+    
     // TODO: calculate these better
     // Penumbra ring: 3*numPts
     // Umbra ring: numPts
@@ -482,11 +486,10 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     // Umbra ring: 3*numPts
     fIndices.setReserve(15 * path.countPoints());
 
-    fInitPoints.setReserve(3);
-
     fClipPolygon.setReserve(path.countPoints());
     // compute rough clip bounds for umbra, plus centroid
-    this->computeClipBounds(path);
+    SkPath devPath;
+    this->computeClipBounds(path, ctm, &devPath);
     if (fClipPolygon.count() < 3) {
         return;
     }
@@ -500,26 +503,28 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     this->checkUmbraAndTransformCentroid(scale, translate, usePointCheck);
 
     // walk around the path, tessellate and generate inner and outer rings
-    SkPath::Iter iter(path, true);
+    SkPath::Iter iter(devPath, true);
     SkPoint pts[4];
     SkPath::Verb verb;
     if (fTransparent) {
         *fPositions.push() = fCentroid;
         *fColors.push() = fUmbraColor;
     }
+    SkMatrix shadowTransform;
+    shadowTransform.setScaleTranslate(scale, scale, xlate.fX, xlate.fY);
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kLine_Verb:
-                this->handleLine(scale, xlate, pts[1]);
+                this->INHERITED::handleLine(shadowTransform, &pts[1]);
                 break;
             case SkPath::kQuad_Verb:
-                this->handleQuad(scale, xlate, pts);
+                this->handleQuad(shadowTransform, pts);
                 break;
             case SkPath::kCubic_Verb:
-                this->handleCubic(scale, xlate, pts);
+                this->handleCubic(shadowTransform, pts);
                 break;
             case SkPath::kConic_Verb:
-                this->handleConic(scale, xlate, pts, iter.conicWeight());
+                this->handleConic(shadowTransform, pts, iter.conicWeight());
                 break;
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
@@ -600,7 +605,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path,
     fSucceeded = true;
 }
 
-void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
+void SkSpotShadowTessellator::computeClipBounds(const SkPath& path, const SkMatrix& ctm,
+                                                SkPath* devPath) {
     // walk around the path and compute clip polygon
     // if original path is transparent, will accumulate sum of points for centroid
     // for Bezier curves, we compute additional interior points on curve
@@ -623,13 +629,19 @@ void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
+                ctm.mapPoints(&pts[0], 1);
+                devPath->moveTo(pts[0]);
                 break;
             case SkPath::kLine_Verb:
+                ctm.mapPoints(&pts[1], 1);
+                devPath->lineTo(pts[1]);
                 fCentroid += pts[1];
                 centroidCount++;
                 *fClipPolygon.push() = pts[1];
                 break;
             case SkPath::kQuad_Verb:
+                ctm.mapPoints(pts, 3);
+                devPath->quadTo(pts[1], pts[2]);
                 // point at t = 1/2
                 curvePoint.fX = 0.25f*pts[0].fX + 0.5f*pts[1].fX + 0.25f*pts[2].fX;
                 curvePoint.fY = 0.25f*pts[0].fY + 0.5f*pts[1].fY + 0.25f*pts[2].fY;
@@ -640,8 +652,10 @@ void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
                 centroidCount += 2;
                 break;
             case SkPath::kConic_Verb:
-                // point at t = 1/2
+                ctm.mapPoints(pts, 3);
                 w = iter.conicWeight();
+                devPath->conicTo(pts[1], pts[2], w);
+                // point at t = 1/2
                 curvePoint.fX = 0.25f*pts[0].fX + w*0.5f*pts[1].fX + 0.25f*pts[2].fX;
                 curvePoint.fY = 0.25f*pts[0].fY + w*0.5f*pts[1].fY + 0.25f*pts[2].fY;
                 curvePoint *= SkScalarInvert(0.5f + 0.5f*w);
@@ -652,6 +666,8 @@ void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
                 centroidCount += 2;
                 break;
             case SkPath::kCubic_Verb:
+                ctm.mapPoints(pts, 4);
+                devPath->cubicTo(pts[1], pts[2], pts[3]);
                 // point at t = 5/16
                 curvePoint.fX = kA*pts[0].fX + kB*pts[1].fX + kC*pts[2].fX + kD*pts[3].fX;
                 curvePoint.fY = kA*pts[0].fY + kB*pts[1].fY + kC*pts[2].fY + kD*pts[3].fY;
@@ -667,6 +683,7 @@ void SkSpotShadowTessellator::computeClipBounds(const SkPath& path) {
                 centroidCount += 3;
                 break;
             case SkPath::kClose_Verb:
+                devPath->close();
                 break;
             default:
                 SkDEBUGFAIL("unknown verb");
@@ -855,65 +872,6 @@ void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
     }
 }
 
-void SkSpotShadowTessellator::handleLine(SkScalar scale, const SkVector& xlate, SkPoint p) {
-    this->mapPoints(scale, xlate, &p, 1);
-    this->handleLine(p);
-}
-
-void SkSpotShadowTessellator::handleQuad(const SkPoint pts[3]) {
-#if SK_SUPPORT_GPU
-    // TODO: Pull PathUtils out of Ganesh?
-    int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
-    fPointBuffer.setReserve(maxCount);
-    SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-                                                     kQuadTolerance, &target, maxCount);
-    fPointBuffer.setCount(count);
-    for (int i = 0; i < count; i++) {
-        this->handleLine(fPointBuffer[i]);
-    }
-#endif
-}
-
-void SkSpotShadowTessellator::handleQuad(SkScalar scale, const SkVector& xlate, SkPoint pts[3]) {
-    this->mapPoints(scale, xlate, pts, 3);
-    this->handleQuad(pts);
-}
-
-void SkSpotShadowTessellator::handleCubic(SkScalar scale, const SkVector& xlate, SkPoint pts[4]) {
-#if SK_SUPPORT_GPU
-    // TODO: Pull PathUtils out of Ganesh?
-    this->mapPoints(scale, xlate, pts, 4);
-    int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
-    fPointBuffer.setReserve(maxCount);
-    SkPoint* target = fPointBuffer.begin();
-    int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
-                                                 kCubicTolerance, &target, maxCount);
-    fPointBuffer.setCount(count);
-    for (int i = 0; i < count; i++) {
-        this->handleLine(fPointBuffer[i]);
-    }
-#endif
-}
-
-void SkSpotShadowTessellator::handleConic(SkScalar scale, const SkVector& xlate,
-                                          SkPoint pts[3], SkScalar w) {
-    this->mapPoints(scale, xlate, pts, 3);
-    SkAutoConicToQuads quadder;
-    const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
-    SkPoint lastPoint = *(quads++);
-    int count = quadder.countQuads();
-    for (int i = 0; i < count; ++i) {
-        SkPoint quadPts[3];
-        quadPts[0] = lastPoint;
-        quadPts[1] = quads[0];
-        quadPts[2] = i == count - 1 ? pts[2] : quads[1];
-        this->handleQuad(quadPts);
-        lastPoint = quadPts[2];
-        quads += 2;
-    }
-}
-
 void SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
     SkVector v = fCentroid - pathPoint;
     SkScalar distance = v.length();
@@ -930,39 +888,6 @@ void SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
     *fColors.push() = fUmbraColor;
 
     fPrevPoint = pathPoint;
-}
-
-void SkSpotShadowTessellator::addArc(const SkVector& nextNormal) {
-    // fill in fan from previous quad
-    SkScalar rotSin, rotCos;
-    int numSteps;
-    compute_radial_steps(fPrevNormal, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
-    SkVector prevNormal = fPrevNormal;
-    for (int i = 0; i < numSteps; ++i) {
-        SkVector nextNormal;
-        nextNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
-        nextNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
-        *fPositions.push() = fPrevPoint + nextNormal;
-        *fColors.push() = fPenumbraColor;
-        *fIndices.push() = fPrevUmbraIndex;
-        *fIndices.push() = fPositions.count() - 2;
-        *fIndices.push() = fPositions.count() - 1;
-
-        prevNormal = nextNormal;
-    }
-}
-
-void SkSpotShadowTessellator::finishArcAndAddEdge(const SkPoint& nextPoint,
-                                                  const SkVector& nextNormal) {
-    // close out previous arc
-    SkPoint newPoint = fPrevPoint + nextNormal;
-    *fPositions.push() = newPoint;
-    *fColors.push() = fPenumbraColor;
-    *fIndices.push() = fPrevUmbraIndex;
-    *fIndices.push() = fPositions.count() - 2;
-    *fIndices.push() = fPositions.count() - 1;
-
-    this->addEdge(nextPoint, nextNormal);
 }
 
 void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& nextNormal) {
@@ -1023,10 +948,10 @@ void SkSpotShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVector& 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, SkScalar radius,
-                                                      SkColor umbraColor, SkColor penumbraColor,
-                                                      bool transparent) {
-    SkAmbientShadowTessellator ambientTess(path, radius, umbraColor, penumbraColor, transparent);
+sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, const SkMatrix& ctm,
+                                                      SkScalar radius, SkColor umbra,
+                                                      SkColor penumbra, bool transparent) {
+    SkAmbientShadowTessellator ambientTess(path, ctm, radius, umbra, penumbra, transparent);
     if (!ambientTess.succeeded()) {
         return nullptr;
     }
@@ -1038,12 +963,12 @@ sk_sp<SkShadowVertices> SkShadowVertices::MakeAmbient(const SkPath& path, SkScal
                                                         icount));
 }
 
-sk_sp<SkShadowVertices> SkShadowVertices::MakeSpot(const SkPath& path, SkScalar scale,
-                                                   const SkVector& translate, SkScalar radius,
-                                                   SkColor umbraColor, SkColor penumbraColor,
-                                                   bool transparent) {
-    SkSpotShadowTessellator spotTess(path, scale, translate, radius, umbraColor, penumbraColor,
-                                     transparent);
+sk_sp<SkShadowVertices> SkShadowVertices::MakeSpot(const SkPath& path, const SkMatrix& ctm,
+                                                   SkScalar scale, const SkVector& translate,
+                                                   SkScalar radius, SkColor umbraColor,
+                                                   SkColor penumbraColor, bool transparent) {
+    SkSpotShadowTessellator spotTess(path, ctm, scale, translate, radius, umbraColor,
+                                     penumbraColor, transparent);
     if (!spotTess.succeeded()) {
         return nullptr;
     }
