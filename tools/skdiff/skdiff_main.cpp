@@ -610,8 +610,7 @@ static void usage (char * argv0) {
 const int kNoError = 0;
 const int kGenericError = -1;
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     DiffMetricProc diffProc = compute_diff_pmcolor;
     int (*sortProc)(const void*, const void*) = compare<CompareDiffMetrics>;
 
@@ -853,9 +852,3 @@ int tool_main(int argc, char** argv) {
     // make sure that we only return 0 when there were no failures.
     return (num_failing_results > 255) ? 255 : num_failing_results;
 }
-
-#if !defined SK_BUILD_FOR_IOS
-int main(int argc, char * const argv[]) {
-    return tool_main(argc, (char**) argv);
-}
-#endif

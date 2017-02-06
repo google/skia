@@ -135,8 +135,8 @@ static bool should_run(const char* testName, bool isGPUTest) {
     return true;
 }
 
-int test_main();
-int test_main() {
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
 #if DEBUG_DUMP_VERIFY
     SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
     SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;
@@ -268,10 +268,3 @@ int test_main() {
 
     return (status.failCount() == 0) ? 0 : 1;
 }
-
-#if !defined(SK_BUILD_FOR_IOS)
-int main(int argc, char** argv) {
-    SkCommandLineFlags::Parse(argc, argv);
-    return test_main();
-}
-#endif
