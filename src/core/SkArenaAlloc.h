@@ -13,9 +13,31 @@
 #include "SkTypes.h"
 #include <cstddef>
 #include <new>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+class SkArenaBlockAlloc {
+protected:
+    std::tuple<char*, uint32_t> newBlock(uint32_t requestedSize) {
+
+        // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
+        // heuristic is from the JEMalloc behavior.
+        uint32_t mask  = requestedSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
+        uint32_t allocationSize = (requestedSize + mask) & ~mask;
+
+
+        char* newBlock = new char[allocationSize];
+        return std::make_tuple(newBlock, allocationSize);
+    }
+
+    void deleteBlock(char* block) {
+        delete [] block;
+    }
+};
+
+using SkBlockAlloc = SkArenaBlockAlloc;
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -52,7 +74,7 @@
 // typical block overhead of 8 bytes. For non-POD objects there is a per item overhead of 4 bytes.
 // For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There is an
 // addition overhead when switching from POD data to non-POD data of typically 8 bytes.
-class SkArenaAlloc {
+class SkArenaAlloc : public SkBlockAlloc {
 public:
     SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
 
@@ -82,7 +104,7 @@ public:
 
             // Advance to end of object to install footer.
             fCursor = objStart + sizeof(T);
-            FooterAction* releaser = [](char* objEnd) {
+            FooterAction* releaser = [](char* objEnd, SkArenaAlloc*) {
                 char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
                 ((T*)objStart)->~T();
                 return objStart;
@@ -131,11 +153,11 @@ public:
 
 private:
     using Footer = int64_t;
-    using FooterAction = char* (char*);
+    using FooterAction = char* (char*, SkArenaAlloc*);
 
-    static char* SkipPod(char* footerEnd);
-    static void RunDtorsOnBlock(char* footerEnd);
-    static char* NextBlock(char* footerEnd);
+    static char* SkipPod(char* footerEnd, SkArenaAlloc*);
+    static void RunDtorsOnBlock(char* footerEnd, SkArenaAlloc*);
+    static char* NextBlock(char* footerEnd, SkArenaAlloc*);
 
     void installFooter(FooterAction* releaser, uint32_t padding);
     void installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding);
@@ -167,7 +189,7 @@ private:
             // Advance to end of array to install footer.?
             fCursor = objStart + arraySize;
             this->installUint32Footer(
-                [](char* footerEnd) {
+                [](char* footerEnd, SkArenaAlloc*) {
                     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(uint32_t));
                     uint32_t count;
                     memmove(&count, objEnd, sizeof(uint32_t));
