@@ -26,6 +26,7 @@
 #include "SkGaussianEdgeShader.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkGradientShader.h"
+#include "SkHighContrastFilter.h"
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
@@ -86,6 +87,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkArithmeticMode::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkOverdrawColorFilter::InitializeFlattenables();
+    SkHighContrastFilter::InitializeFlattenables();
 
     // Shader
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
