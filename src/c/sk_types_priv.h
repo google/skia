@@ -393,6 +393,10 @@ static inline const SkIPoint* AsIPoint(const sk_ipoint_t* p) {
     return reinterpret_cast<const SkIPoint*>(p);
 }
 
+static inline SkIPoint* AsIPoint(sk_ipoint_t* p) {
+    return reinterpret_cast<SkIPoint*>(p);
+}
+
 static inline const SkSize& AsSize(const sk_size_t& p) {
     return reinterpret_cast<const SkSize&>(p);
 }

@@ -385,3 +385,10 @@ bool sk_bitmap_extract_subset(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, sk_irect_
     SkBitmap* dst = AsBitmap(cdst);
     return bmp->extractSubset(dst, AsIRect(*subset));
 }
+
+bool sk_bitmap_extract_alpha(sk_bitmap_t* cbitmap, sk_bitmap_t* cdst, const sk_paint_t* paint, sk_ipoint_t* offset)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    SkBitmap* dst = AsBitmap(cdst);
+    return bmp->extractAlpha(dst, AsPaint(paint), AsIPoint(offset));
+}
