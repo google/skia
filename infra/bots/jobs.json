@@ -1,6 +1,9 @@
 [
+  "Build-Mac-Clang-arm-Debug-iOS",
   "Build-Mac-Clang-arm-Release-iOS",
   "Build-Mac-Clang-arm64-Debug-Android",
+  "Build-Mac-Clang-arm64-Debug-iOS",
+  "Build-Mac-Clang-arm64-Release-iOS",
   "Build-Mac-Clang-x86_64-Debug",
   "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
   "Build-Mac-Clang-x86_64-Release",
@@ -159,6 +162,8 @@
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+  "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Debug",
+  "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release",
   "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
   "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
   "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
@@ -260,5 +265,6 @@
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
+  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Debug",
   "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release"
 ]
