@@ -17,9 +17,53 @@ static bool is_valid_sample_size(int sampleSize) {
     return sampleSize > 0;
 }
 
+/**
+ *  Loads the gamut as a set of three points (triangle).
+ */
+static void load_gamut(SkPoint rgb[], const SkMatrix44& xyz) {
+    // rx = rX / (rX + rY + rZ)
+    // ry = rY / (rX + rY + rZ)
+    // gx, gy, bx, and gy are calulcated similarly.
+    float rSum = xyz.get(0, 0) + xyz.get(1, 0) + xyz.get(2, 0);
+    float gSum = xyz.get(0, 1) + xyz.get(1, 1) + xyz.get(2, 1);
+    float bSum = xyz.get(0, 2) + xyz.get(1, 2) + xyz.get(2, 2);
+    rgb[0].fX = xyz.get(0, 0) / rSum;
+    rgb[0].fY = xyz.get(1, 0) / rSum;
+    rgb[1].fX = xyz.get(0, 1) / gSum;
+    rgb[1].fY = xyz.get(1, 1) / gSum;
+    rgb[2].fX = xyz.get(0, 2) / bSum;
+    rgb[2].fY = xyz.get(1, 2) / bSum;
+}
+
+/**
+ *  Calculates the area of the triangular gamut.
+ */
+static float calculate_area(SkPoint abc[]) {
+    SkPoint a = abc[0];
+    SkPoint b = abc[1];
+    SkPoint c = abc[2];
+    return 0.5f * SkTAbs(a.fX*b.fY + b.fX*c.fY - a.fX*c.fY - c.fX*b.fY - b.fX*a.fY);
+}
+
+static const float kSRGB_D50_GamutArea = 0.084f;
+
+bool is_wide_gamut(SkColorSpace* colorSpace) {
+    // Determine if the source image has a gamut that is wider than sRGB.  If so, we
+    // will use P3 as the output color space to avoid clipping the gamut.
+    const SkMatrix44* toXYZD50 = as_CSB(colorSpace)->toXYZD50();
+    if (toXYZD50) {
+        SkPoint rgb[3];
+        load_gamut(rgb, *toXYZD50);
+        return calculate_area(rgb) > kSRGB_D50_GamutArea;
+    }
+
+    return false;
+}
+
 SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
     : fInfo(codec->getInfo())
     , fCodec(codec)
+    , fIsWideGamut(is_wide_gamut(codec->getInfo().colorSpace()))
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
@@ -127,11 +171,27 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
 }
 
 sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType) {
+    // TODO (msarett):
+    // Add a constructor to SkColorSpace that allows us to specify P3 using an enum.
+    SkColorSpacePrimaries p3;
+    p3.fRX = 0.680f;
+    p3.fRY = 0.320f;
+    p3.fGX = 0.265f;
+    p3.fGY = 0.690f;
+    p3.fBX = 0.150f;
+    p3.fBY = 0.060f;
+    p3.fWX = 0.3127f;
+    p3.fWY = 0.3290f;
+    SkMatrix44 p3ToXYZD50;
+    SkAssertResult(p3.toXYZD50(&p3ToXYZD50));
+
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kIndex_8_SkColorType:
-            return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+            return fIsWideGamut ? SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                        p3ToXYZD50)
+                                : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         case kRGBA_F16_SkColorType:
             return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
         default:
