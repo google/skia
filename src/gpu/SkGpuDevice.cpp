@@ -809,7 +809,8 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
                                clippedSubset);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
     size_t usedTileBytes = get_tile_count(*clippedSubset, kBmpSmallTileSize) *
-                           kBmpSmallTileSize * kBmpSmallTileSize;
+                           kBmpSmallTileSize * kBmpSmallTileSize *
+                           sizeof(SkPMColor);  // assume 32bit pixels;
 
     return usedTileBytes < 2 * bmpSize;
 }
