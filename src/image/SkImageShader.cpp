@@ -48,14 +48,10 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-size_t SkImageShader::onContextSize(const ContextRec& rec) const {
-    return SkBitmapProcLegacyShader::ContextSize(rec, as_IB(fImage)->onImageInfo());
-}
-
-SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
+SkShader::Context* SkImageShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get(), rec.fDstColorSpace),
-                                                 rec, storage);
+                                                 rec, alloc);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {

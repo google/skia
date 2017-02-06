@@ -45,12 +45,10 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
-size_t SkSweepGradient::onContextSize(const ContextRec&) const {
-    return sizeof(SweepGradientContext);
-}
-
-SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return CheckedCreateContext<SweepGradientContext>(storage, *this, rec);
+SkShader::Context* SkSweepGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
+    return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(

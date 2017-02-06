@@ -178,10 +178,10 @@ private:
 };
 
 SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
-                                   SkTBlitterAllocator*);
+                                   SkArenaAlloc*);
 
 SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShader::Context*,
-                                SkTBlitterAllocator*);
+                                SkArenaAlloc*);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -200,11 +200,11 @@ SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint&, SkShader
 
 SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
                                 SkShader::Context* shaderContext,
-                                SkTBlitterAllocator* allocator);
+                                SkArenaAlloc* allocator);
 
 
 // Returns nullptr if no SkRasterPipeline blitter can be constructed for this paint.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
-                                         SkTBlitterAllocator*);
+                                         SkArenaAlloc*);
 
 #endif

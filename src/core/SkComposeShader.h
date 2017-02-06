@@ -45,8 +45,6 @@ public:
         ComposeShaderContext(const SkComposeShader&, const ContextRec&,
                              SkShader::Context* contextA, SkShader::Context* contextB);
 
-        virtual ~ComposeShaderContext();
-
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
 
     private:
@@ -69,8 +67,7 @@ public:
 protected:
     SkComposeShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    size_t onContextSize(const ContextRec&) const override;
-    Context* onCreateContext(const ContextRec&, void*) const override;
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
     sk_sp<SkShader>     fShaderA;

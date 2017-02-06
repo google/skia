@@ -44,11 +44,7 @@ public:
     /** Returns an instance of 'Provider' that provides normals for the CPU pipeline. The
         necessary data will be initialized in place at 'storage'.
     */
-    virtual Provider* asProvider(const SkShader::ContextRec&, void* storage) const = 0;
-
-    /** Amount of memory needed to store a provider object and its dependencies.
-     */
-    virtual size_t providerSize(const SkShader::ContextRec&) const = 0;
+    virtual Provider* asProvider(const SkShader::ContextRec&, SkArenaAlloc*) const = 0;
 
     /** Returns a normal source that provides normals sourced from the the normal map argument.
 

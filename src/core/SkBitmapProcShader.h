@@ -18,7 +18,7 @@ private:
 
     static size_t ContextSize(const ContextRec&, const SkImageInfo& srcInfo);
     static Context* MakeContext(const SkShader&, TileMode tmx, TileMode tmy,
-                                const SkBitmapProvider&, const ContextRec&, void* storage);
+                                const SkBitmapProvider&, const ContextRec&, SkArenaAlloc* alloc);
 
     typedef SkShader INHERITED;
 };

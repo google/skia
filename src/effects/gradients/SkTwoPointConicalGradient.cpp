@@ -210,13 +210,9 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-size_t SkTwoPointConicalGradient::onContextSize(const ContextRec&) const {
-    return sizeof(TwoPointConicalGradientContext);
-}
-
-SkShader::Context* SkTwoPointConicalGradient::onCreateContext(const ContextRec& rec,
-                                                              void* storage) const {
-    return CheckedCreateContext<TwoPointConicalGradientContext>(storage, *this, rec);
+SkShader::Context* SkTwoPointConicalGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const {
+    return CheckedMakeContext<TwoPointConicalGradientContext>(alloc, *this, rec);
 }
 
 SkTwoPointConicalGradient::TwoPointConicalGradientContext::TwoPointConicalGradientContext(

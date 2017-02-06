@@ -137,7 +137,7 @@ public:
     static SkBlitter* Choose(const SkPixmap& dst,
                              const SkMatrix& matrix,
                              const SkPaint& paint,
-                             SkTBlitterAllocator*,
+                             SkArenaAlloc*,
                              bool drawCoverage = false);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,

@@ -243,19 +243,6 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     return tileShader;
 }
 
-size_t SkPictureShader::onContextSize(const ContextRec&) const {
-    return sizeof(PictureShaderContext);
-}
-
-SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
-                                                       rec.fDstColorSpace));
-    if (!bitmapShader) {
-        return nullptr;
-    }
-    return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
-}
-
 bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
                                      const SkMatrix& ctm, const SkPaint& paint,
                                      const SkMatrix* localMatrix) const {
@@ -266,34 +253,32 @@ bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkAr
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+SkShader::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
+const {
+    sk_sp<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix,
+                                                       rec.fDstColorSpace));
+    if (!bitmapShader) {
+        return nullptr;
+    }
 
-SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
-                   const SkPictureShader& shader, const ContextRec& rec,
-                                                                 sk_sp<SkShader> bitmapShader) {
-    PictureShaderContext* ctx = new (storage) PictureShaderContext(shader, rec,
-                                                                   std::move(bitmapShader));
+    PictureShaderContext* ctx =
+        alloc->make<PictureShaderContext>(*this, rec, std::move(bitmapShader), alloc);
     if (nullptr == ctx->fBitmapShaderContext) {
-        ctx->~PictureShaderContext();
         ctx = nullptr;
     }
     return ctx;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
 SkPictureShader::PictureShaderContext::PictureShaderContext(
-        const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader)
+        const SkPictureShader& shader, const ContextRec& rec, sk_sp<SkShader> bitmapShader,
+        SkArenaAlloc* alloc)
     : INHERITED(shader, rec)
     , fBitmapShader(std::move(bitmapShader))
 {
-    fBitmapShaderContextStorage = sk_malloc_throw(fBitmapShader->contextSize(rec));
-    fBitmapShaderContext = fBitmapShader->createContext(rec, fBitmapShaderContextStorage);
+    fBitmapShaderContext = fBitmapShader->makeContext(rec, alloc);
     //if fBitmapShaderContext is null, we are invalid
-}
-
-SkPictureShader::PictureShaderContext::~PictureShaderContext() {
-    if (fBitmapShaderContext) {
-        fBitmapShaderContext->~Context();
-    }
-    sk_free(fBitmapShaderContextStorage);
 }
 
 uint32_t SkPictureShader::PictureShaderContext::getFlags() const {
