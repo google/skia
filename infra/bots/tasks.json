@@ -13027,7 +13027,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13056,7 +13057,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13085,7 +13087,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13114,7 +13117,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13143,7 +13147,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13172,7 +13177,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13201,7 +13207,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13230,7 +13237,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13259,7 +13267,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13288,7 +13297,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13317,7 +13327,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13346,7 +13357,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13375,7 +13387,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13404,7 +13417,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13433,7 +13447,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13462,7 +13477,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13491,7 +13507,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13520,7 +13537,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13549,7 +13567,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13578,7 +13597,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13607,7 +13627,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13636,7 +13657,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13665,7 +13687,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13694,7 +13717,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13723,7 +13747,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13752,7 +13777,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13781,7 +13807,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13810,7 +13837,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13839,7 +13867,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13868,7 +13897,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13897,7 +13927,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13926,7 +13957,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13955,7 +13987,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -13984,7 +14017,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14013,7 +14047,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14042,7 +14077,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14071,7 +14107,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14100,7 +14137,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14129,7 +14167,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14158,7 +14197,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14187,7 +14227,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14216,7 +14257,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14245,7 +14287,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -14274,7 +14317,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14303,7 +14347,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14332,7 +14377,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14361,7 +14407,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14390,7 +14437,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14419,7 +14467,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14448,7 +14497,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14477,7 +14527,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14506,7 +14557,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14535,7 +14587,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14564,7 +14617,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14593,7 +14647,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14622,7 +14677,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14651,7 +14707,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14680,7 +14737,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14709,7 +14767,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14738,7 +14797,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14767,7 +14827,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14796,7 +14857,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14825,7 +14887,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14854,7 +14917,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14883,7 +14947,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14912,7 +14977,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14941,7 +15007,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14970,7 +15037,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -14999,7 +15067,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15028,7 +15097,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15057,7 +15127,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15086,7 +15157,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15115,7 +15187,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15144,7 +15217,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15173,7 +15247,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15202,7 +15277,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15231,7 +15307,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15260,7 +15337,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15289,7 +15367,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15318,7 +15397,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15347,7 +15427,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15376,7 +15457,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15405,7 +15487,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15434,7 +15517,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15463,7 +15547,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15492,7 +15577,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15521,7 +15607,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15550,7 +15637,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15579,7 +15667,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15608,7 +15697,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15637,7 +15727,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15666,7 +15757,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15695,7 +15787,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15724,7 +15817,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15753,7 +15847,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15782,7 +15877,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15811,7 +15907,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15840,7 +15937,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15869,7 +15967,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15898,7 +15997,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15927,7 +16027,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15956,7 +16057,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -15985,7 +16087,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16014,7 +16117,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16043,7 +16147,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16072,7 +16177,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16101,7 +16207,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16130,7 +16237,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16159,7 +16267,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16188,7 +16297,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16217,7 +16327,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16246,7 +16357,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16275,7 +16387,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16304,7 +16417,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16333,7 +16447,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16362,7 +16477,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16391,7 +16507,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16420,7 +16537,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16449,7 +16567,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16478,7 +16597,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16507,7 +16627,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16536,7 +16657,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16565,7 +16687,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16594,7 +16717,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16623,7 +16747,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16652,7 +16777,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16681,7 +16807,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16710,7 +16837,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16739,7 +16867,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16768,7 +16897,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16797,7 +16927,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16826,7 +16957,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16855,7 +16987,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -16884,7 +17017,8 @@
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
         "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8

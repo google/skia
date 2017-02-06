@@ -21,6 +21,7 @@ def GenTests(api):
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen')
   )
@@ -28,6 +29,7 @@ def GenTests(api):
   yield (
     api.test('failed_once') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen') +
     api.step_data('upload images', retcode=1)
@@ -36,6 +38,7 @@ def GenTests(api):
   yield (
     api.test('failed_all') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen') +
     api.step_data('upload images', retcode=1) +
@@ -49,6 +52,7 @@ def GenTests(api):
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm',
                    revision='abc123',
                    path_config='kitchen',
                    issue='12345',
@@ -59,6 +63,7 @@ def GenTests(api):
       api.test('recipe_with_gerrit_patch') +
       api.properties(
           buildername=builder,
+          gs_bucket='skia-infra-gm',
           revision='abc123',
           path_config='kitchen',
           patch_storage='gerrit') +
