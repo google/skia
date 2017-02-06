@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #endif
+#include "SkColorSpace_Base.h"
 #include "SkImage.h"
 #include "SkSurface.h"
 #include "SkReadBuffer.h"
@@ -50,8 +51,8 @@ DEF_TEST(ImageInfo_flattening, reporter) {
 
     sk_sp<SkColorSpace> spaces[] = {
         nullptr,
-        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
-        SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named),
+        SkColorSpace::MakeSRGB(),
+        SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named),
         space0,
         space1,
         space2,
@@ -126,7 +127,7 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
         GetResourceAsImage("color_wheel.jpg"),
         SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
                                  SkImage::BitDepth::kU8,
-                                 SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)),
+                                 SkColorSpace::MakeSRGB()),
     })
     {
         REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);

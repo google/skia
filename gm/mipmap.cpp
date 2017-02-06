@@ -89,7 +89,7 @@ static void show_mips(SkCanvas* canvas, SkImage* img) {
  */
 DEF_SIMPLE_GM(mipmap_srgb, canvas, 260, 230) {
     sk_sp<SkImage> limg = make(nullptr);
-    sk_sp<SkImage> simg = make(SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+    sk_sp<SkImage> simg = make(SkColorSpace::MakeSRGB());
 
     canvas->translate(10, 10);
     show_mips(canvas, limg.get());
@@ -140,7 +140,7 @@ static void show_mips_only(SkCanvas* canvas, SkImage* img) {
  */
 DEF_SIMPLE_GM(mipmap_gray8_srgb, canvas, 260, 230) {
     sk_sp<SkImage> limg = make_g8_gradient(nullptr);
-    sk_sp<SkImage> simg = make_g8_gradient(SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+    sk_sp<SkImage> simg = make_g8_gradient(SkColorSpace::MakeSRGB());
 
     canvas->translate(10, 10);
     show_mips_only(canvas, limg.get());

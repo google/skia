@@ -266,7 +266,7 @@ DEF_SIMPLE_GM(all_variants_8888, canvas, 4 * SCALE + 30, 2 * SCALE + 10) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     sk_sp<SkColorSpace> colorSpaces[] {
-        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+        SkColorSpace::MakeSRGB(),
         nullptr,
     };
     for (auto colorSpace : colorSpaces) {

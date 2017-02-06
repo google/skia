@@ -52,7 +52,7 @@ static void test_blender(std::string resourceName, skiatest::Reporter* reporter)
         return;
     }
     SkBitmap bm;
-    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
     if (!as_IB(image)->getROPixels(&bm, srgbColorSpace.get())) {
         ERRORF(reporter, "Could not read resource");
         return;

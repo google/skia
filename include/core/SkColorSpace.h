@@ -53,6 +53,7 @@ struct SK_API SkColorSpaceTransferFn {
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
+#ifdef SK_USE_LEGACY_NAMED_COLOR_SPACE
     /**
      *  Common, named profiles that we can recognize.
      */
@@ -76,6 +77,23 @@ public:
         kSRGBLinear_Named,
     };
 
+    /**
+     *  Create a common, named SkColorSpace.
+     */
+    static sk_sp<SkColorSpace> MakeNamed(Named);
+#endif
+
+    /**
+     *  Create the sRGB color space.
+     */
+    static sk_sp<SkColorSpace> MakeSRGB();
+
+    /**
+     *  Colorspace with the sRGB primaries, but a linear (1.0) gamma. Commonly used for
+     *  half-float surfaces, and high precision individual colors (gradient stops, etc...)
+     */
+    static sk_sp<SkColorSpace> MakeSRGBLinear();
+
     enum RenderTargetGamma : uint8_t {
         kLinear_RenderTargetGamma,
 
@@ -86,21 +104,24 @@ public:
         kSRGB_RenderTargetGamma,
     };
 
+    enum Gamut {
+        kSRGB_Gamut,
+        kAdobeRGB_Gamut,
+        kDCIP3_D65_Gamut,
+        kRec2020_Gamut,
+    };
+
     /**
      *  Create an SkColorSpace from a transfer function and a color gamut.
      *
-     *  Transfer function can be specified as a render target, as the coefficients to an equation,
-     *  or as three exponents (R, G, B).
-     *  Gamut is specified using the matrix transformation to XYZ D50.
+     *  Transfer function can be specified as an enum or as the coefficients to an equation.
+     *  Gamut can be specified as an enum or as the matrix transformation to XYZ D50.
      */
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut);
     static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
-                                      const SkMatrix44& toXYZD50);
-
-    /**
-     *  Create a common, named SkColorSpace.
-     */
-    static sk_sp<SkColorSpace> MakeNamed(Named);
+                                       const SkMatrix44& toXYZD50);
 
     /**
      *  Create an SkColorSpace from an ICC profile.

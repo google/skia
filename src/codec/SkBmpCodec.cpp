@@ -593,7 +593,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
+    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))

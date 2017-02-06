@@ -860,8 +860,8 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 #define SINK(t, sink, ...) if (config->getBackend().equals(t)) { return new sink(__VA_ARGS__); }
 
     if (FLAGS_cpu) {
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-        auto srgbLinearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
+        auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
 
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);

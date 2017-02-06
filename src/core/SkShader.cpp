@@ -280,7 +280,7 @@ bool SkShader::onAppendStages(SkRasterPipeline* p,
         // Legacy shaders aren't aware of color spaces. We can pretty
         // safely assume they're in sRGB gamut.
         return append_gamut_transform(p, alloc,
-                                      SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), cs);
+                                      SkColorSpace::MakeSRGB().get(), cs);
     }
     return false;
 }

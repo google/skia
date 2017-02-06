@@ -331,7 +331,7 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
             return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                             SkISize::Make(10, 10), nullptr, nullptr,
                                             SkImage::BitDepth::kU8,
-                                            SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                            SkColorSpace::MakeSRGB());
         });
     }
 }

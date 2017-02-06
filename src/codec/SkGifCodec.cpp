@@ -106,7 +106,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
 
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
                                              colorType, alphaType,
-                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                             SkColorSpace::MakeSRGB());
     return new SkGifCodec(encodedInfo, imageInfo, reader.release());
 }
 

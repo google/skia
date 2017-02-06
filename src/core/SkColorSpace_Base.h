@@ -194,6 +194,14 @@ public:
 
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
+    enum Named : uint8_t {
+        kSRGB_Named,
+        kAdobeRGB_Named,
+        kSRGBLinear_Named,
+    };
+
+    static sk_sp<SkColorSpace> MakeNamed(Named);
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 

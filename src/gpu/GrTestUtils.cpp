@@ -8,7 +8,7 @@
 #include "GrTestUtils.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkDashPathPriv.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -299,8 +299,8 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
         // No color space (legacy mode)
         gColorSpaces[0] = nullptr;
         // sRGB or Adobe
-        gColorSpaces[1] = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-        gColorSpaces[2] = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+        gColorSpaces[1] = SkColorSpace::MakeSRGB();
+        gColorSpaces[2] = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
     }
     return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
 }
@@ -310,8 +310,8 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
-        sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-        sk_sp<SkColorSpace> adobe = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+        sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
         // No gamut change
         gXforms[0] = nullptr;
         // To larger gamut

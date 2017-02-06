@@ -82,7 +82,7 @@ namespace sk_tools {
 
         SkAutoTMalloc<uint32_t> rgba(w*h);
 
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         if (bitmap. colorType() ==  kN32_SkColorType &&
             bitmap.colorSpace() == srgbColorSpace.get()) {
             // These are premul sRGB 8-bit pixels in SkPMColor order.

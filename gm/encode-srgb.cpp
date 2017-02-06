@@ -28,7 +28,7 @@ static inline int div_round_up(int a, int b) {
 sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
         if (!colorSpace) {
-            return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+            return SkColorSpace::MakeSRGBLinear();
         }
 
         return as_CSB(colorSpace)->makeLinearGamma();
@@ -176,7 +176,7 @@ protected:
                 kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
-                nullptr, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+                nullptr, SkColorSpace::MakeSRGB(),
         };
 
         SkBitmap bitmap;

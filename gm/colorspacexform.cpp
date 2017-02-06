@@ -35,7 +35,7 @@ protected:
         SkMatrix44 wideGamut(SkMatrix44::kUninitialized_Constructor);
         wideGamut.set3x3RowMajorf(kWideGamutRGB_toXYZD50);
 
-        sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeSRGB();
         sk_sp<SkColorSpace> dstSpace =
                 SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, wideGamut);
         std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
@@ -60,7 +60,7 @@ protected:
 
             canvas->save();
             for (int i = 0; i < kNumColors; i++) {
-                auto space = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+                auto space = SkColorSpace::MakeSRGBLinear();
                 sk_sp<SkShader> s = SkShader::MakeColorShader(colors[i], space);
                 SkPaint paint;
                 paint.setShader(s);

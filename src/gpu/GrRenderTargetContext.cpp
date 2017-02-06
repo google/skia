@@ -89,7 +89,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
     SkDEBUGCODE(this->validate();)
