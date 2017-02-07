@@ -310,6 +310,25 @@ def dm_flags(bot):
     # skia:5876
     blacklist(['msaa4', 'gm', '_', 'encode-platform'])
 
+  if 'AndroidOne-GPU' in bot:  # skia:4697, skia:4704, skia:4694, skia:4705
+    blacklist(['_',     'gm', '_', 'bigblurs'])
+    blacklist(['_',     'gm', '_', 'bleed'])
+    blacklist(['_',     'gm', '_', 'bleed_alpha_bmp'])
+    blacklist(['_',     'gm', '_', 'bleed_alpha_bmp_shader'])
+    blacklist(['_',     'gm', '_', 'bleed_alpha_image'])
+    blacklist(['_',     'gm', '_', 'bleed_alpha_image_shader'])
+    blacklist(['_',     'gm', '_', 'bleed_image'])
+    blacklist(['_',     'gm', '_', 'dropshadowimagefilter'])
+    blacklist(['_',     'gm', '_', 'filterfastbounds'])
+    blacklist(['gpu',   'gm', '_', 'imageblurtiled'])
+    blacklist(['msaa4', 'gm', '_', 'imageblurtiled'])
+    blacklist(['msaa4', 'gm', '_', 'imagefiltersbase'])
+    blacklist(['_',     'gm', '_', 'imagefiltersclipped'])
+    blacklist(['_',     'gm', '_', 'imagefiltersscaled'])
+    blacklist(['_',     'gm', '_', 'imageresizetiled'])
+    blacklist(['_',     'gm', '_', 'matrixconvolution'])
+    blacklist(['_',     'gm', '_', 'strokedlines'])
+
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
