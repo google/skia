@@ -44,12 +44,8 @@ public:
     virtual GrBackendContext getBackendContext() = 0;
     GrContext* getGrContext() const { return fContext; }
 
-    sk_sp<SkSurface> createOffscreenSurface(bool sRGB);
-
 protected:
     virtual bool isGpuContext() { return true;  }
-
-    sk_sp<SkSurface> createRenderSurface(const GrBackendRenderTargetDesc&, int colorBits);
 
     GrContext*        fContext;
 
@@ -58,10 +54,6 @@ protected:
     DisplayParams     fDisplayParams;
     GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
-
-private:
-    sk_sp<SkSurface> createSurface(
-            const GrBackendRenderTargetDesc*, int colorBits, bool offscreen, bool forceSRGB);
 };
 
 }   // namespace sk_app
