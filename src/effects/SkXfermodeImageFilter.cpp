@@ -235,26 +235,26 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     GrContext* context = source->getContext();
 
-    sk_sp<GrTexture> backgroundTex, foregroundTex;
-    
+    sk_sp<GrTextureProxy> backgroundProxy, foregroundProxy;
+
     if (background) {
-        backgroundTex = background->asTextureRef(context);
+        backgroundProxy = background->asTextureProxyRef(context);
     }
 
     if (foreground) {
-        foregroundTex = foreground->asTextureRef(context);
+        foregroundProxy = foreground->asTextureProxyRef(context);
     }
 
     GrPaint paint;
     sk_sp<GrFragmentProcessor> bgFP;
 
-    if (backgroundTex) {
-        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
-                                                        -SkIntToScalar(backgroundOffset.fY));
+    if (backgroundProxy) {
+        SkMatrix bgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
+                                                -SkIntToScalar(backgroundOffset.fY));
         sk_sp<GrColorSpaceXform> bgXform = GrColorSpaceXform::Make(background->getColorSpace(),
                                                                    outputProperties.colorSpace());
         bgFP = GrTextureDomainEffect::Make(
-                            backgroundTex.get(), std::move(bgXform), backgroundMatrix,
+                            context, std::move(backgroundProxy), std::move(bgXform), bgMatrix,
                             GrTextureDomain::MakeTexelDomain(background->subset()),
                             GrTextureDomain::kDecal_Mode,
                             GrSamplerParams::kNone_FilterMode);
@@ -263,15 +263,15 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
 
-    if (foregroundTex) {
-        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
-                                                        -SkIntToScalar(foregroundOffset.fY));
+    if (foregroundProxy) {
+        SkMatrix fgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
+                                                -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform = GrColorSpaceXform::Make(foreground->getColorSpace(),
                                                                    outputProperties.colorSpace());
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                            foregroundTex.get(), std::move(fgXform), foregroundMatrix,
+                            context, std::move(foregroundProxy), std::move(fgXform), fgMatrix,
                             GrTextureDomain::MakeTexelDomain(foreground->subset()),
                             GrTextureDomain::kDecal_Mode,
                             GrSamplerParams::kNone_FilterMode);
