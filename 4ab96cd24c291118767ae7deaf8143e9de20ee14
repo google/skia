@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "374783f0_953044f1",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-07T17:48:25Z",
+      "side": 1,
+      "message": "default impl of all these could call onClipPath",
+      "range": {
+        "startLine": 157,
+        "startChar": 71,
+        "endLine": 157,
+        "endChar": 72
+      },
+      "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1867b2b4_fe546988",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
