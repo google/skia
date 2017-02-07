@@ -484,38 +484,44 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
         }
     };
 
-    SkColorSpace* legacyColorSpace = nullptr;
-    for (auto factory : imageFactories) {
-        sk_sp<SkImage> image(factory());
-        if (!image) {
-            ERRORF(reporter, "Error creating image.");
-            continue;
-        }
-        GrTexture* origTexture = as_IB(image)->peekTexture();
+    sk_sp<SkColorSpace> dstColorSpaces[] ={
+        nullptr,
+        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+    };
 
-        sk_sp<SkImage> texImage(image->makeTextureImage(context, legacyColorSpace));
-        if (!texImage) {
-            // We execpt to fail if image comes from a different GrContext.
-            if (!origTexture || origTexture->getContext() == context) {
-                ERRORF(reporter, "makeTextureImage failed.");
+    for (auto& dstColorSpace : dstColorSpaces) {
+        for (auto factory : imageFactories) {
+            sk_sp<SkImage> image(factory());
+            if (!image) {
+                ERRORF(reporter, "Error creating image.");
+                continue;
             }
-            continue;
-        }
-        GrTexture* copyTexture = as_IB(texImage)->peekTexture();
-        if (!copyTexture) {
-            ERRORF(reporter, "makeTextureImage returned non-texture image.");
-            continue;
-        }
-        if (origTexture) {
-            if (origTexture != copyTexture) {
-                ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
+            GrTexture* origTexture = as_IB(image)->peekTexture();
+
+            sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
+            if (!texImage) {
+                // We execpt to fail if image comes from a different GrContext.
+                if (!origTexture || origTexture->getContext() == context) {
+                    ERRORF(reporter, "makeTextureImage failed.");
+                }
+                continue;
             }
-        }
-        if (image->width() != texImage->width() || image->height() != texImage->height()) {
-            ERRORF(reporter, "makeTextureImage changed the image size.");
-        }
-        if (image->alphaType() != texImage->alphaType()) {
-            ERRORF(reporter, "makeTextureImage changed image alpha type.");
+            GrTexture* copyTexture = as_IB(texImage)->peekTexture();
+            if (!copyTexture) {
+                ERRORF(reporter, "makeTextureImage returned non-texture image.");
+                continue;
+            }
+            if (origTexture) {
+                if (origTexture != copyTexture) {
+                    ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
+                }
+            }
+            if (image->width() != texImage->width() || image->height() != texImage->height()) {
+                ERRORF(reporter, "makeTextureImage changed the image size.");
+            }
+            if (image->alphaType() != texImage->alphaType()) {
+                ERRORF(reporter, "makeTextureImage changed image alpha type.");
+            }
         }
     }
 }
