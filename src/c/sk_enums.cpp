@@ -59,6 +59,12 @@ static_assert ((int)SkPath::FillType::kEvenOdd_FillType          == (int)EVENODD
 static_assert ((int)SkPath::FillType::kInverseWinding_FillType   == (int)INVERSE_WINDING_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
 static_assert ((int)SkPath::FillType::kInverseEvenOdd_FillType   == (int)INVERSE_EVENODD_SK_PATH_FILLTYPE,   ASSERT_MSG(SkPath::FillType, sk_path_filltype_t));
 
+// sk_path_segment_mask_t
+static_assert ((int)SkPath::SegmentMask::kLine_SegmentMask    == (int)LINE_SK_PATH_SEGMENT_MASK,    ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
+static_assert ((int)SkPath::SegmentMask::kQuad_SegmentMask    == (int)QUAD_SK_PATH_SEGMENT_MASK,    ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
+static_assert ((int)SkPath::SegmentMask::kConic_SegmentMask   == (int)CONIC_SK_PATH_SEGMENT_MASK,   ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
+static_assert ((int)SkPath::SegmentMask::kCubic_SegmentMask   == (int)CUBIC_SK_PATH_SEGMENT_MASK,   ASSERT_MSG(SkPath::SegmentMask, sk_path_segment_mask_t));
+
 // sk_text_align_t
 static_assert ((int)SkPaint::Align::kLeft_Align     == (int)LEFT_SK_TEXT_ALIGN,     ASSERT_MSG(SkPaint::Align, sk_text_align_t));
 static_assert ((int)SkPaint::Align::kCenter_Align   == (int)CENTER_SK_TEXT_ALIGN,   ASSERT_MSG(SkPaint::Align, sk_text_align_t));

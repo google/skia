@@ -267,6 +267,10 @@ SK_C_API bool sk_pathmeasure_is_closed(sk_pathmeasure_t* pathMeasure);
 
 SK_C_API bool sk_pathmeasure_next_contour(sk_pathmeasure_t* pathMeasure);
 
+SK_C_API void sk_path_add_poly(sk_path_t* cpath, const sk_point_t* points, int count, bool close);
+
+SK_C_API uint32_t sk_path_get_segment_masks(sk_path_t* cpath);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

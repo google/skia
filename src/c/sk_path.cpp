@@ -360,3 +360,11 @@ bool sk_pathmeasure_is_closed(sk_pathmeasure_t* pathMeasure) {
 bool sk_pathmeasure_next_contour(sk_pathmeasure_t* pathMeasure) {
     return AsPathMeasure(pathMeasure)->nextContour();
 }
+
+void sk_path_add_poly(sk_path_t* cpath, const sk_point_t* points, int count, bool close) {
+    AsPath(cpath)->addPoly(AsPoint(points), count, close);
+}
+
+uint32_t sk_path_get_segment_masks(sk_path_t* cpath) {
+    return AsPath(cpath)->getSegmentMasks();
+}

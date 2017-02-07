@@ -493,6 +493,13 @@ typedef enum {
 } sk_path_add_mode_t;
 
 typedef enum {
+    LINE_SK_PATH_SEGMENT_MASK  = 1 << 0,
+    QUAD_SK_PATH_SEGMENT_MASK  = 1 << 1,
+    CONIC_SK_PATH_SEGMENT_MASK = 1 << 2,
+    CUBIC_SK_PATH_SEGMENT_MASK = 1 << 3,
+} sk_path_segment_mask_t;
+
+typedef enum {
     TRANSLATE_SK_PATH_EFFECT_1D_STYLE,
     ROTATE_SK_PATH_EFFECT_1D_STYLE,
     MORPH_SK_PATH_EFFECT_1D_STYLE,
