@@ -21,6 +21,12 @@ static inline int grsltype_to_location_size(GrSLType type) {
             return 1;
         case kVec4f_GrSLType:
             return 1;
+        case kVec2i_GrSLType:
+            return 1;
+        case kVec3i_GrSLType:
+            return 1;
+        case kVec4i_GrSLType:
+            return 1;
         case kMat22f_GrSLType:
             return 2;
         case kMat33f_GrSLType:
