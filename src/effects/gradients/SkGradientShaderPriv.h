@@ -11,7 +11,6 @@
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShader.h"
 
-#include "SkArenaAlloc.h"
 #include "SkAutoMalloc.h"
 #include "SkClampRange.h"
 #include "SkColorPriv.h"
@@ -238,9 +237,10 @@ protected:
                                    int count);
 
     template <typename T, typename... Args>
-    static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {
-        auto* ctx = alloc->make<T>(std::forward<Args>(args)...);
+    static Context* CheckedCreateContext(void* storage, Args&&... args) {
+        auto* ctx = new (storage) T(std::forward<Args>(args)...);
         if (!ctx->isValid()) {
+            ctx->~T();
             return nullptr;
         }
         return ctx;

@@ -11,8 +11,6 @@
 #include "SkColorFilter.h"
 #include "SkShader.h"
 
-class SkArenaAlloc;
-
 class SkColorFilterShader : public SkShader {
 public:
     SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter);
@@ -25,6 +23,7 @@ public:
     public:
         // Takes ownership of shaderContext and calls its destructor.
         FilterShaderContext(const SkColorFilterShader&, SkShader::Context*, const ContextRec&);
+        virtual ~FilterShaderContext();
 
         uint32_t getFlags() const override;
 
@@ -47,7 +46,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc* alloc) const override;
+    size_t onContextSize(const ContextRec&) const override;
+    Context* onCreateContext(const ContextRec&, void* storage) const override;
 
 private:
     sk_sp<SkShader>      fShader;

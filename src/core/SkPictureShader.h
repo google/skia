@@ -10,7 +10,6 @@
 
 #include "SkShader.h"
 
-class SkArenaAlloc;
 class SkBitmap;
 class SkPicture;
 
@@ -35,9 +34,10 @@ public:
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
+    size_t onContextSize(const ContextRec&) const override;
+    Context* onCreateContext(const ContextRec&, void* storage) const override;
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 
 private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
@@ -52,13 +52,19 @@ private:
 
     class PictureShaderContext : public SkShader::Context {
     public:
-        PictureShaderContext(
-            const SkPictureShader&, const ContextRec&, sk_sp<SkShader> bitmapShader, SkArenaAlloc*);
+        static Context* Create(void* storage, const SkPictureShader&, const ContextRec&,
+                               sk_sp<SkShader> bitmapShader);
+
+        virtual ~PictureShaderContext();
 
         uint32_t getFlags() const override;
 
         ShadeProc asAShadeProc(void** ctx) override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
+
+    private:
+        PictureShaderContext(const SkPictureShader&, const ContextRec&,
+                             sk_sp<SkShader> bitmapShader);
 
         sk_sp<SkShader>     fBitmapShader;
         SkShader::Context*  fBitmapShaderContext;

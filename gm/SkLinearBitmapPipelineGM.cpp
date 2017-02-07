@@ -6,8 +6,6 @@
  */
 
 #include "gm.h"
-
-#include "SkArenaAlloc.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -61,7 +59,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
 
     sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
-    SkArenaAlloc alloc{kSkBlitterContextSize * sizeof(uint32_t)};
+    int32_t storage[kSkBlitterContextSize];
 
     sk_sp<SkShader> shader = image->makeShader(SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
@@ -75,8 +73,9 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     const SkShader::ContextRec rec(paint, *mat, nullptr,
                                    SkBlitter::PreferredShaderDest(pmsrc.info()),
                                    canvas->imageInfo().colorSpace());
+    SkASSERT(paint.getShader()->contextSize(rec) <= sizeof(storage));
 
-    SkShader::Context* ctx = paint.getShader()->makeContext(rec, &alloc);
+    SkShader::Context* ctx = paint.getShader()->createContext(rec, storage);
 
     for (int y = 0; y < ir.height(); y++) {
         ctx->shadeSpan(0, y, pmdst.writable_addr32(0, y), ir.width());

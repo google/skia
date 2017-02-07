@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkArenaAlloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
@@ -64,6 +63,8 @@ public:
                               SkShader::Context* diffuseContext, SkNormalSource::Provider*,
                               void* heapAllocated);
 
+        ~LightingShaderContext() override;
+
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
 
         uint32_t getFlags() const override { return fFlags; }
@@ -74,6 +75,8 @@ public:
         SkColor                   fPaintColor;
         uint32_t                  fFlags;
 
+        void* fHeapAllocated;
+
         typedef SkShader::Context INHERITED;
     };
 
@@ -82,7 +85,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    size_t onContextSize(const ContextRec&) const override;
+    Context* onCreateContext(const ContextRec&, void*) const override;
 
 private:
     sk_sp<SkShader> fDiffuseShader;
@@ -305,7 +309,8 @@ SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
         void* heapAllocated)
     : INHERITED(shader, rec)
     , fDiffuseContext(diffuseContext)
-    , fNormalProvider(normalProvider) {
+    , fNormalProvider(normalProvider)
+    , fHeapAllocated(heapAllocated) {
     bool isOpaque = shader.isOpaque();
 
     // update fFlags
@@ -316,6 +321,17 @@ SkLightingShaderImpl::LightingShaderContext::LightingShaderContext(
 
     fPaintColor = rec.fPaint->getColor();
     fFlags = flags;
+}
+
+SkLightingShaderImpl::LightingShaderContext::~LightingShaderContext() {
+    // The dependencies have been created outside of the context on memory that was allocated by
+    // the onCreateContext() method. Call the destructors and free the memory.
+    if (fDiffuseContext) {
+        fDiffuseContext->~Context();
+    }
+    fNormalProvider->~Provider();
+
+    sk_free(fHeapAllocated);
 }
 
 static inline SkPMColor convert(SkColor3f color, U8CPU a) {
@@ -441,23 +457,39 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     }
 }
 
-SkShader::Context* SkLightingShaderImpl::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
-{
+size_t SkLightingShaderImpl::onContextSize(const ContextRec& rec) const {
+    return sizeof(LightingShaderContext);
+}
+
+SkShader::Context* SkLightingShaderImpl::onCreateContext(const ContextRec& rec,
+                                                         void* storage) const {
+    size_t heapRequired = (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0) +
+                          fNormalSource->providerSize(rec);
+    void* heapAllocated = sk_malloc_throw(heapRequired);
+
+    void* diffuseContextStorage = heapAllocated;
+    void* normalProviderStorage = (char*) diffuseContextStorage +
+                                  (fDiffuseShader ? fDiffuseShader->contextSize(rec) : 0);
+
     SkShader::Context *diffuseContext = nullptr;
     if (fDiffuseShader) {
-        diffuseContext = fDiffuseShader->makeContext(rec, alloc);
+        diffuseContext = fDiffuseShader->createContext(rec, diffuseContextStorage);
         if (!diffuseContext) {
+            sk_free(heapAllocated);
             return nullptr;
         }
     }
 
-    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec, alloc);
+    SkNormalSource::Provider* normalProvider = fNormalSource->asProvider(rec,
+                                                                         normalProviderStorage);
     if (!normalProvider) {
+        diffuseContext->~Context();
+        sk_free(heapAllocated);
         return nullptr;
     }
 
-    return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
+    return new (storage) LightingShaderContext(*this, rec, diffuseContext, normalProvider,
+                                               heapAllocated);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
