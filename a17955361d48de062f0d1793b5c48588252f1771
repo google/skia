@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e449457_d28f9bc0",
+        "filename": "platform_tools/android/apps/build.gradle",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-07T17:04:41Z",
+      "side": 1,
+      "message": "So I think this is the real issue and not the matching above. The problem is we don\u0027t always get a task that is actually going to run being matched in the first spot \"getAt(0)\" of the collection.\n\nMy local fix was to do this here instead:\ncompileTask.findAll()*.dependsOn copyNativeLib\n\nthoughts on this?",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 52
+      },
+      "revId": "a17955361d48de062f0d1793b5c48588252f1771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
