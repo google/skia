@@ -68,7 +68,7 @@ DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorB
     draw_tile_bitmap_with_fractional_offset(canvas, false);
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 1124, 365, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, true);
 }
 
