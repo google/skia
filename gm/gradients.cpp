@@ -61,7 +61,7 @@ static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data,
 
 static sk_sp<SkShader> MakeLinear4f(const SkPoint pts[2], const GradData& data,
                                     SkShader::TileMode tm, const SkMatrix& localMatrix) {
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgb = SkColorSpace::MakeSRGBLinear();
     return SkGradientShader::MakeLinear(pts, data.fColors4f, srgb, data.fPos, data.fCount, tm, 0,
                                         &localMatrix);
 }
@@ -80,7 +80,7 @@ static sk_sp<SkShader> MakeRadial4f(const SkPoint pts[2], const GradData& data,
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgb = SkColorSpace::MakeSRGBLinear();
     return SkGradientShader::MakeRadial(center, center.fX, data.fColors4f, srgb, data.fPos,
                                         data.fCount, tm, 0, &localMatrix);
 }
@@ -99,7 +99,7 @@ static sk_sp<SkShader> MakeSweep4f(const SkPoint pts[2], const GradData& data,
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgb = SkColorSpace::MakeSRGBLinear();
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors4f, srgb, data.fPos,
                                        data.fCount, 0, &localMatrix);
 }
@@ -124,7 +124,7 @@ static sk_sp<SkShader> Make2Radial4f(const SkPoint pts[2], const GradData& data,
                 SkScalarAve(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3) / 5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1) / 4));
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgb = SkColorSpace::MakeSRGBLinear();
     return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
                                                  center0, (pts[1].fX - pts[0].fX) / 2,
                                                  data.fColors4f, srgb, data.fPos, data.fCount, tm,
@@ -150,7 +150,7 @@ static sk_sp<SkShader> Make2Conical4f(const SkPoint pts[2], const GradData& data
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto srgb = SkColorSpace::MakeSRGBLinear();
     return SkGradientShader::MakeTwoPointConical(center1, radius1, center0, radius0,
                                                  data.fColors4f, srgb, data.fPos,
                                                  data.fCount, tm, 0, &localMatrix);

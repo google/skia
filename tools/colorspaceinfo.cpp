@@ -311,7 +311,7 @@ int main(int argc, char** argv) {
 
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB_gamut) {
-        sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeSRGB();
         const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
         SkASSERT(mat);
         draw_gamut(&gamutCanvas, *mat, "sRGB", 0xFFFF9394, false);
@@ -319,7 +319,8 @@ int main(int argc, char** argv) {
 
     // Draw the Adobe RGB gamut if requested.
     if (FLAGS_adobeRGB) {
-        sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> adobeRGBSpace =
+                SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
         const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
         SkASSERT(mat);
         draw_gamut(&gamutCanvas, *mat, "Adobe RGB", 0xFF31a9e1, false);

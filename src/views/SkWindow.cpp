@@ -354,7 +354,7 @@ sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachment
 
     sk_sp<SkColorSpace> colorSpace =
         grContext->caps()->srgbSupport() && info().colorSpace()
-        ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        ? SkColorSpace::MakeSRGB() : nullptr;
     return SkSurface::MakeFromBackendRenderTarget(grContext, desc, colorSpace, &fSurfaceProps);
 }
 

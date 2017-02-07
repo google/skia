@@ -23,6 +23,35 @@ static constexpr float gAdobeRGB_toXYZD50[] {
     0.0194811f, 0.0608902f, 0.7448387f, // Rz, Gz, Bz
 };
 
+static constexpr float gDCIP3_toXYZD50[] {
+    0.515102f,   0.291965f,  0.157153f,  // Rx, Gx, Bx
+    0.241182f,   0.692236f,  0.0665819f, // Ry, Gy, Gz
+   -0.00104941f, 0.0418818f, 0.784378f,  // Rz, Gz, Bz
+};
+
+static constexpr float gRec2020_toXYZD50[] {
+    0.673459f,   0.165661f,  0.125100f,  // Rx, Gx, Bx
+    0.279033f,   0.675338f,  0.0456288f, // Ry, Gy, Gz
+   -0.00193139f, 0.0299794f, 0.797162f,  // Rz, Gz, Bz
+};
+
+static inline void to_xyz_d50(SkMatrix44* toXYZD50, SkColorSpace::Gamut gamut) {
+    switch (gamut) {
+        case SkColorSpace::kSRGB_Gamut:
+            toXYZD50->set3x3RowMajorf(gSRGB_toXYZD50);
+            break;
+        case SkColorSpace::kAdobeRGB_Gamut:
+            toXYZD50->set3x3RowMajorf(gAdobeRGB_toXYZD50);
+            break;
+        case SkColorSpace::kDCIP3_D65_Gamut:
+            toXYZD50->set3x3RowMajorf(gDCIP3_toXYZD50);
+            break;
+        case SkColorSpace::kRec2020_Gamut:
+            toXYZD50->set3x3RowMajorf(gRec2020_toXYZD50);
+            break;
+    }
+}
+
 static inline bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
 }

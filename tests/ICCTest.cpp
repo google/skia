@@ -124,7 +124,7 @@ DEF_TEST(ICC_WriteICC, r) {
     SkMatrix44 adobeMatrix(SkMatrix44::kUninitialized_Constructor);
     adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
     test_write_icc(r, adobeFn, adobeMatrix,
-                   SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named).get(), false);
+                   SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named).get(), false);
 
     SkColorSpaceTransferFn srgbFn;
     srgbFn.fA = 1.0f / 1.055f;
@@ -136,7 +136,7 @@ DEF_TEST(ICC_WriteICC, r) {
     srgbFn.fG = 2.4f;
     SkMatrix44 srgbMatrix(SkMatrix44::kUninitialized_Constructor);
     srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
-    test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(),
+    test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeSRGB().get(),
                    false);
 }
 
@@ -166,11 +166,11 @@ public:
 };
 
 DEF_TEST(ICC_RawTransferFns, r) {
-    sk_sp<SkICC> srgb = ICCTest::MakeICC(SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+    sk_sp<SkICC> srgb = ICCTest::MakeICC(SkColorSpace::MakeSRGB());
     test_raw_transfer_fn(r, srgb.get());
 
     sk_sp<SkICC> adobe =
-            ICCTest::MakeICC(SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named));
+            ICCTest::MakeICC(SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named));
     test_raw_transfer_fn(r, adobe.get());
 
     // Lookup-table based gamma curves

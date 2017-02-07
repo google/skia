@@ -157,7 +157,7 @@ static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst)
     if (dst) {
         // sRGB gamma, sRGB gamut.
         color4f = to_colorspace(SkColor4f::FromColor(color),
-                                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
+                                SkColorSpace::MakeSRGB().get(), dst);
     } else {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);

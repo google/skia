@@ -1014,7 +1014,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     sk_sp<SkColorSpace> dstSpace = nullptr;
     if (kDst_sRGB_Mode == fMode) {
-        dstSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        dstSpace = SkColorSpace::MakeSRGB();
     } else if (kDst_HPZR30w_Mode == fMode) {
         dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }

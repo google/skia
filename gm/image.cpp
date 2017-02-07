@@ -247,7 +247,7 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                     info.dimensions(), nullptr, nullptr, SkImage::BitDepth::kU8,
-                                    SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                    SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
@@ -346,7 +346,7 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
     sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
     return SkImageGenerator::NewFromPicture(info.dimensions(), pict.get(), nullptr, nullptr,
                                             SkImage::BitDepth::kU8,
-                                            SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                            SkColorSpace::MakeSRGB());
 }
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
@@ -476,7 +476,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
             render_image(canvas);
-            sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+            sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
             return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                             SkISize::Make(kSize, kSize), nullptr, nullptr,
                                             SkImage::BitDepth::kU8, srgbColorSpace);

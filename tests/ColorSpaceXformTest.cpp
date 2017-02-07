@@ -326,8 +326,8 @@ DEF_TEST(SkColorSpaceXform_LoadTail, r) {
     std::unique_ptr<uint64_t[]> srcPixel(new uint64_t[1]);
     srcPixel[0] = 0;
     uint32_t dstPixel;
-    sk_sp<SkColorSpace> adobe = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
-    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(adobe.get(), srgb.get());
 
     // ASAN will catch us if we read past the tail.

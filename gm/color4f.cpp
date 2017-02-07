@@ -76,7 +76,7 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 
     sk_sp<SkColorSpace> colorSpaces[]{
         nullptr,
-        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)
+        SkColorSpace::MakeSRGB()
     };
     for (auto colorSpace : colorSpaces) {
         const SkImageInfo info = SkImageInfo::Make(1024, 100, kN32_SkColorType, kPremul_SkAlphaType,
@@ -95,7 +95,7 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
 
-    auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    auto srgb = SkColorSpace::MakeSRGB();
 
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     // red -> blue, green -> red, blue -> green (sRGB)
