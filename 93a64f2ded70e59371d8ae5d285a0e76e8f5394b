@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d532e21_93bbb036",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T20:52:16Z",
+      "side": 1,
+      "message": "This is rather not thread safe.\n\nYou can probably get the effect you want with\n\n   float* matrix \u003d scratch-\u003emakeArrayDefault\u003cfloat\u003e(12);\n\nThat\u0027ll allocate 12 zeroed floats in memory that your stages can use.  It\u0027ll get cleaned up automatically.",
+      "range": {
+        "startLine": 228,
+        "startChar": 8,
+        "endLine": 228,
+        "endChar": 20
+      },
+      "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f9a060d_01b0ea3b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T20:52:16Z",
+      "side": 1,
+      "message": "If you like, these can be shortened to (1/6.0f), (3/6.0f), etc with no change in the value they represent.  \n\nJust to be completely transparent, (1.0f/6), (3.0f/6) etc. are also the same values, but I find those harder to read.",
+      "range": {
+        "startLine": 775,
+        "startChar": 10,
+        "endLine": 775,
+        "endChar": 19
+      },
+      "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
