@@ -14,8 +14,6 @@
     "cmd": [
       "gsutil",
       "cp",
-      "-a",
-      "public-read",
       "-z",
       "json",
       "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot/data/nanobench_abc123.json",
