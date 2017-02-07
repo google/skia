@@ -374,6 +374,14 @@ def dm_flags(bot):
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~IntTexture') # skia:6086
+    blacklist(['_', 'gm', '_', 'discard']) # skia:6141
+    # skia:6103
+    for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
+      blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
+      blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
+      blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
+      blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
+      blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
 
   if blacklisted:
     args.append('--blacklist')
