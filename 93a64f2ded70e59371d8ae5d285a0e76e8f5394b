@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "7d15dab1_3426615e",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T23:20:19Z",
+      "side": 1,
+      "message": "Oh, right.  I misread that.  Good that the safer method has the shorter name!",
+      "parentUuid": "10847dc6_5745b7d7",
+      "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f9a060d_01b0ea3b",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
