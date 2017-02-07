@@ -366,7 +366,8 @@ def dm_flags(bot):
                   '~gradients_no_texture$', # skia:6132
                   '~tilemodes', # skia:6132
                   '~shadertext$', # skia:6132
-                  '~bitmapfilters']) # skia:6132
+                  '~bitmapfilters', # skia:6132
+                  '~GrContextFactory_abandon']) #skia:6209
 
   if 'Vulkan' in bot and 'GTX1070' in bot and 'Win' in bot:
     # skia:6092
