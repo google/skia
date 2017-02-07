@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6a64425_2798beff",
+        "filename": "include/gpu/effects/GrPorterDuffXferProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T20:23:49Z",
+      "side": 1,
+      "message": "Maybe we should make the \"no coverage\" aspect part of the name.",
+      "revId": "577afad211d0f25599e7c835e9e4a19d472da012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
