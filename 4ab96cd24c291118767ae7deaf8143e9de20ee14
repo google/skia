@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1867b2b4_fe546988",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T16:06:00Z",
+      "side": 1,
+      "message": "Probably not... I think we can just make each draw create a GrClipStackClip on its stack before calling into GrRenderTargetContext.\n\nWill origin always be zero now?",
+      "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9deab092_e4ee61fe",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T16:06:00Z",
+      "side": 1,
+      "message": "Ah, didn\u0027t know we still had this. We could (*gulp*) get the boundary path from the region.",
+      "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
