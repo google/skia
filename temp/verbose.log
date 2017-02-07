@@ -1,0 +1,7 @@
+198ms	1 srcs * 1 sinks + 0 tests == 1 tasks199ms	start gpu gm  testgradient
+204ms	
+203ms elapsed, 1 active, 0 queued, 23MB RAM, 23MB peak
+204ms		gpu gm  testgradient
+335ms	done  gpu gm  testgradient
+1.13s	
+1.13s elapsed, 0 active, 0 queued, 30MB RAM, 30MB peak

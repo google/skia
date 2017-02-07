@@ -1,0 +1,17 @@
+{
+   "max_rss_MB" : 30,
+   "results" : [
+      {
+         "key" : {
+            "config" : "gpu",
+            "name" : "testgradient",
+            "source_type" : "gm"
+         },
+         "md5" : "d7cddfe864c9420e97feed14ff400a32",
+         "options" : {
+            "ext" : "png",
+            "gamma_correct" : "no"
+         }
+      }
+   ]
+}
