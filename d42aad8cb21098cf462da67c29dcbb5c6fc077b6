@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "c82b0e87_d82fe810",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "19f5f592_3fe0237e",
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "73a205fa_5c707838",
         "filename": "include/codec/SkAndroidCodec.h",
         "patchSetId": 4
@@ -42,6 +60,42 @@
         "endLine": 255,
         "endChar": 20
       },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e64eb395_efbb2113",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73a205fa_5c707838",
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ba4d5ad_fca6adbf",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "e64eb395_efbb2113",
       "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -94,6 +148,42 @@
     },
     {
       "key": {
+        "uuid": "c2e32bd8_ce43ed27",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af71d55f_aaac3f06",
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6354850a_b7e5ebe2",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2e32bd8_ce43ed27",
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9633aa12_5944813a",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 4
@@ -117,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "833af2f7_10a48e52",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "Done.  FWIW, the enum is a work in progress.\nhttps://skia-review.googlesource.com/c/8021/",
+      "parentUuid": "9633aa12_5944813a",
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "298bd4cd_2aeefc23",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 4
@@ -134,6 +242,24 @@
         "endLine": 192,
         "endChar": 31
       },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee803744_384682ed",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:06:05Z",
+      "side": 1,
+      "message": "So this tells Android what output color space to request when they decode...  But they make sure to untag the bitmap when they don\u0027t want linear blending.",
+      "parentUuid": "298bd4cd_2aeefc23",
       "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
