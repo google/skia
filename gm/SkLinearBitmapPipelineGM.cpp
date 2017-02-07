@@ -61,7 +61,7 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
 
     sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, pmsrc.addr32(), pmsrc.rowBytes())));
     SkPaint paint;
-    SkArenaAlloc alloc{kSkBlitterContextSize * sizeof(uint32_t)};
+    SkArenaAlloc alloc{0};
 
     sk_sp<SkShader> shader = image->makeShader(SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
