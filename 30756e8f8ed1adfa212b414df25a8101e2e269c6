@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84fd2878_e5c0e9b1",
+        "filename": "gm/image.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T16:15:29Z",
+      "side": 1,
+      "message": "Is this used?",
+      "revId": "30756e8f8ed1adfa212b414df25a8101e2e269c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
