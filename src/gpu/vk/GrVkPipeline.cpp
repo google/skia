@@ -21,6 +21,9 @@ static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
         VK_FORMAT_R32G32_SFLOAT,       // kVec2f_GrVertexAttribType
         VK_FORMAT_R32G32B32_SFLOAT,    // kVec3f_GrVertexAttribType
         VK_FORMAT_R32G32B32A32_SFLOAT, // kVec4f_GrVertexAttribType
+        VK_FORMAT_R32G32_SINT,         // kVec2i_GrVertexAttribType
+        VK_FORMAT_R32G32B32_SINT,      // kVec3i_GrVertexAttribType
+        VK_FORMAT_R32G32B32A32_SINT,   // kVec4i_GrVertexAttribType
         VK_FORMAT_R8_UNORM,            // kUByte_GrVertexAttribType
         VK_FORMAT_R8G8B8A8_UNORM,      // kVec4ub_GrVertexAttribType
         VK_FORMAT_R16G16_UNORM,        // kVec2us_GrVertexAttribType
@@ -29,9 +32,12 @@ static inline const VkFormat& attrib_type_to_vkformat(GrVertexAttribType type) {
     GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
     GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
     GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
-    GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
-    GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(6 == kVec2us_GrVertexAttribType);
+    GR_STATIC_ASSERT(4 == kVec2i_GrVertexAttribType);
+    GR_STATIC_ASSERT(5 == kVec3i_GrVertexAttribType);
+    GR_STATIC_ASSERT(6 == kVec4i_GrVertexAttribType);
+    GR_STATIC_ASSERT(7 == kUByte_GrVertexAttribType);
+    GR_STATIC_ASSERT(8 == kVec4ub_GrVertexAttribType);
+    GR_STATIC_ASSERT(9 == kVec2us_GrVertexAttribType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFormats) == kGrVertexAttribTypeCount);
     return kFormats[type];
 }
