@@ -82,6 +82,8 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
     SkRect dstRect;
     ctx.ctm().mapRect(&dstRect, fDstRect);
 
+    const SkIRect dstIRect = dstRect.roundOut();
+
     SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
     if (fSrcRect == bounds) {
         int iLeft = dstRect.fLeft;
@@ -93,13 +95,12 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
             // The dest is just an un-scaled integer translation of the entire image; return it
             offset->fX = iLeft;
             offset->fY = iTop;
+
             return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(fImage->width(), fImage->height()),
                                                  fImage, ctx.outputProperties().colorSpace(),
                                                  &source->props());
         }
     }
-
-    const SkIRect dstIRect = dstRect.roundOut();
 
     sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), dstIRect.size()));
     if (!surf) {
