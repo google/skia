@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de4b02bc_ed29fa3e",
+        "filename": "gm/image.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "I think getGrContext is always available on SkCanvas",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f87dcc26_bd810173",
+        "filename": "gm/image.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "Isn\u0027t there a allocN32Pixels ?",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6759c1af_636f3f7b",
+        "filename": "gm/image.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "Don\u0027t we actually want to exercise a YUV flavor image ?",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14d0f4a6_898a2617",
+        "filename": "gm/image.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "Don\u0027t think we need the context check here",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "925be1ac_42a30e55",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "Missing \u0027 \u0027 ?",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a716db6_0bfe6899",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:57:21Z",
+      "side": 1,
+      "message": "Should there be any tests for color space handling (beyond legacy) ?",
+      "revId": "8993b16c5a1d0d15a5202dcc0a548f0a1e9d061f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
