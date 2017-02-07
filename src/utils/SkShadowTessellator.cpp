@@ -41,11 +41,11 @@ public:
         memcpy(colors, fColors.begin(), sizeof(SkColor) * vCount);
         memcpy(indices, fIndices.begin(), sizeof(uint16_t) * iCount);
         return SkVertices::MakeIndexed(SkCanvas::kTriangles_VertexMode,
-                                       std::unique_ptr<const SkPoint[]>(positions),
-                                       std::unique_ptr<const SkColor[]>(colors),
+                                       std::unique_ptr<const SkPoint[]>((const SkPoint*)positions),
+                                       std::unique_ptr<const SkColor[]>((const SkColor*)colors),
                                        nullptr,
                                        vCount,
-                                       std::unique_ptr<const uint16_t[]>(indices),
+                                       std::unique_ptr<const uint16_t[]>((const uint16_t*)indices),
                                        iCount);
     }
 
