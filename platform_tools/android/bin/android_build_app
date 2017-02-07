@@ -28,7 +28,7 @@ if args.output_dir == None:
 args_gn_path = os.path.join(args.output_dir, "args.gn")
 if os.path.exists(args_gn_path):
   for line in open(args_gn_path):
-    m = re.match('target_cpu = "(.*)"', line.strip())
+    m = re.match('target_cpu ?= ?"(.*)"', line.strip())
     if m:
       target_cpu = m.group(1)
 
@@ -52,7 +52,7 @@ try:
     subprocess.check_call(['./apps/gradlew',
       ':viewer:assemble' + android_variant + android_buildtype,
       '-papps/' + args.app_name,
-      '-P' + target_cpu + 'out.dir=' + args.output_dir,
+      '-P' + target_cpu + '.out.dir=' + args.output_dir,
       '--daemon'], cwd=os.path.join(os.path.dirname(__file__), ".."))
 except subprocess.CalledProcessError as error:
   print error
