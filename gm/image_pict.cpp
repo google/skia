@@ -62,7 +62,7 @@ protected:
 
         // extract enough just for the oval.
         const SkISize size = SkISize::Make(100, 100);
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
 
         SkMatrix matrix;
         matrix.setTranslate(-100, -100);
@@ -112,7 +112,7 @@ static SkImageGenerator* make_pic_generator(GrContext*, SkPicture* pic) {
     matrix.setTranslate(-100, -100);
     return SkImageGenerator::NewFromPicture(SkISize::Make(100, 100), pic, &matrix, nullptr,
                                             SkImage::BitDepth::kU8,
-                                            SkColorSpace::MakeSRGB());
+                                            SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
 class RasterGenerator : public SkImageGenerator {

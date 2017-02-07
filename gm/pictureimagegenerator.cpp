@@ -138,7 +138,7 @@ protected:
             { SkISize::Make(200, 100), -1, -1, 0.5f },
         };
 
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         const unsigned kDrawsPerRow = 4;
         const SkScalar kDrawSize = 250;
 

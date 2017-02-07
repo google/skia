@@ -131,7 +131,7 @@ static sk_sp<SkImage> create_picture_image() {
     canvas->clear(SK_ColorCYAN);
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
                                     nullptr, nullptr, SkImage::BitDepth::kU8,
-                                    SkColorSpace::MakeSRGB());
+                                    SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 };
 #endif
 // Want to ensure that our Release is called when the owning image is destroyed

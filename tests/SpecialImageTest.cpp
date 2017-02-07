@@ -184,7 +184,7 @@ DEF_TEST(SpecialImage_Image_Legacy, reporter) {
 }
 
 DEF_TEST(SpecialImage_Image_ColorSpaceAware, reporter) {
-    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     test_specialimage_image(reporter, srgbColorSpace.get());
 }
 

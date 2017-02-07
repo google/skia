@@ -19,7 +19,7 @@ static bool color_type_is_valid(SkColorType colorType) {
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
     return SkImageInfo(width, height, kN32_SkColorType, at,
-                       SkColorSpace::MakeSRGB());
+                       SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
 }
 
 static const int kColorTypeMask = 0x0F;

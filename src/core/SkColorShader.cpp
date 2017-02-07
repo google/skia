@@ -319,7 +319,7 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
     return append_gamut_transform(p, scratch,
-                                  SkColorSpace::MakeSRGB().get(), dst);
+                                  SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
 }
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
