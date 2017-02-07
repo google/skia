@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b60887d_7a6d5bf8",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-07T17:39:45Z",
+      "side": 1,
+      "message": "The CTM I store in the device is already post-translated, you don\u0027t have to apply your origin to it. I *presume* that, since the device will now handle all clips, that its clipstack will also have all of its paths (logically) translated by the origin (tho that is up to you).",
+      "parentUuid": "1867b2b4_fe546988",
+      "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9deab092_e4ee61fe",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-07T16:06:00Z",
       "side": 1,
       "message": "Ah, didn\u0027t know we still had this. We could (*gulp*) get the boundary path from the region.",
+      "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e097eed9_cbb230de",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-07T17:39:45Z",
+      "side": 1,
+      "message": "This is just lifted from the previous version. I hate clipRegion, and I see no external pressure to improve support for it so far.",
+      "parentUuid": "9deab092_e4ee61fe",
       "revId": "4ab96cd24c291118767ae7deaf8143e9de20ee14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
