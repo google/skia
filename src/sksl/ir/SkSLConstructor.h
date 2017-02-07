@@ -17,6 +17,12 @@ namespace SkSL {
 
 /**
  * Represents the construction of a compound type, such as "vec2(x, y)".
+ *
+ * Vector constructors will always consist of either exactly 1 scalar, or a collection of vectors
+ * and scalars totalling exactly the right number of scalar components.
+ *
+ * Matrix constructors will always consist of either exactly 1 scalar, exactly 1 matrix, or a
+ * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
     Constructor(Position position, const Type& type,
