@@ -428,11 +428,8 @@ private:
 };
 DEF_GM( return new ScaleGeneratorGM; )
 
-DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
-    GrContext* context = nullptr;
-#if SK_SUPPORT_GPU
-    context = canvas->getGrContext();
-#endif
+DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
+    GrContext* context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;
@@ -468,6 +465,12 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
                 sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kPNG, 100));
             return SkImage::MakeFromEncoded(std::move(src));
         },
+        // Create YUV encoded image.
+        [bmp] {
+            sk_sp<SkData> src(
+                sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kJPEG, 100));
+            return SkImage::MakeFromEncoded(std::move(src));
+        },
         // Create a picture image.
         [render_image] {
             SkPictureRecorder recorder;
@@ -495,10 +498,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
     canvas->translate(kPad, kPad);
     for (auto factory : imageFactories) {
         auto image(factory());
-        if (!image) {
-            continue;
-        }
-        if (context) {
+        if (image) {
             sk_sp<SkImage> texImage(image->makeTextureImage(context,
                                                             canvas->imageInfo().colorSpace()));
             if (texImage) {
