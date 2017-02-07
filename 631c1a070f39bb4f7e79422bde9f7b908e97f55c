@@ -22,6 +22,24 @@
       "revId": "631c1a070f39bb4f7e79422bde9f7b908e97f55c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25d8ce97_dacad7a3",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T16:54:04Z",
+      "side": 1,
+      "message": "I think it\u0027s a good idea for me to go ahead and try the corresponding Android change.  That might help this make more or less sense.\n\nFWIW, checking for P3 wouldn\u0027t tell us about wide gamut bitmaps that we decode to F16 (since we still use sRGB linear there).  This potentially matters in the case that this becomes a Java API on Bitmap.",
+      "parentUuid": "2344f3f2_a2452569",
+      "revId": "631c1a070f39bb4f7e79422bde9f7b908e97f55c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
