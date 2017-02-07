@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "935c043c_ff486741",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "While /2 is probably going to be compiled into *0.5f by a good compiler anyway, we tend to write things like this as *0.5f or *(1/2.0f) just to make it clear that this will not be a divide.\n\nFloat divides tend to be at least 3x more expensive than a multiply or add, and that\u0027s really the best case, so we take some care to avoid them.",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d68533ad_90b32671",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "There might be some way to make these more readable at a glance, as if they were a couple ?: or a little table of cases:\n\nauto s \u003d (max \u003d\u003d min).thenElse(0.0f, \n           (l \u003e 0.5f).thenElse(d / (2.0f - max - min),\n                               d / (max + min));\n\n\nGiven that all paths will actually execute, you might want to play around with reordering this math to avoid divides.\n\n (l \u003e 0.5f).thenElse(d / (2.0f - max - min), d / (max + min));\n\n~~~~\u003e\n\n d / (l \u003e 0.5f).thenElse(2.0f - max - min, max + min);",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd08e77f_292c9eaa",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "I don\u0027t mind which format you use to write integral float constants, but it\u0027s probably best we pick one of 2, 2.f or 2.0f and format the function and file consistently.",
+      "range": {
+        "startLine": 768,
+        "startChar": 60,
+        "endLine": 768,
+        "endChar": 63
+      },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4433412a_271cdc63",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "It looks like we divide by d a few times, so it probably makes sense to multiply by (1/d), or even by d.invert() if its lower precision is good enough.",
+      "range": {
+        "startLine": 769,
+        "startChar": 41,
+        "endLine": 769,
+        "endChar": 44
+      },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f57bfbc_be91775d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "This is a good example of why we tend to write all these as multiplies if possible... while h /\u003d 2.0f can be compiled into a multiply, h /\u003d 6.0f will probably always be a divide.  I suspect we\u0027d rather have both be multiplies at a _very_ slight loss of precision for *(1/6.0f).",
+      "range": {
+        "startLine": 772,
+        "startChar": 6,
+        "endLine": 772,
+        "endChar": 13
+      },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "821a8329_48446e27",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "This is entirely my opinion, but I do find it easier to read code that involves both *,/ and +,- when the * and / have no space around them and the + and - do have some space, to group them visually in the same way the math actually binds.",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a63fe0ad_7769a190",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "It\u0027s usually a good idea to get in the habit of writing float fractions with parentheses.  It doesn\u0027t matter for \u003c or +, but with *, there is an important difference between x * 1/3.0f and x * (1/3.0f).   The first is multiply-then-divide, the second just a multiply.  This is important enough that we try to write all fractions this way to keep the code looking uniform.",
+      "range": {
+        "startLine": 790,
+        "startChar": 16,
+        "endLine": 790,
+        "endChar": 26
+      },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c815b7a2_6d9dafcd",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T14:10:36Z",
+      "side": 1,
+      "message": "It\u0027s a little weird to use 0.5f in one part of the function and (1/2.f) in another... it\u0027s probably best that we write all these constants in a consistent way within the function.  Here I imagine it\u0027d be easier to read everything as fractions.",
+      "range": {
+        "startLine": 791,
+        "startChar": 39,
+        "endLine": 791,
+        "endChar": 44
+      },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
