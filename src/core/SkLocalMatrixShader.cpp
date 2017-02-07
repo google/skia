@@ -37,8 +37,9 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fProxyShader.get());
 }
 
-SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
-                                                        void* storage) const {
+SkShader::Context* SkLocalMatrixShader::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     ContextRec newRec(rec);
     SkMatrix tmp;
     if (rec.fLocalMatrix) {
@@ -47,7 +48,7 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
     } else {
         newRec.fLocalMatrix = &this->getLocalMatrix();
     }
-    return fProxyShader->createContext(newRec, storage);
+    return fProxyShader->makeContext(newRec, alloc);
 }
 
 bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,

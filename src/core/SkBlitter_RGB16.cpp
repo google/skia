@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBlitRow.h"
 #include "SkCoreBlitters.h"
 #include "SkColorPriv.h"
@@ -880,8 +881,8 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
 
 SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
         SkShader::Context* shaderContext,
-        SkTBlitterAllocator* allocator) {
-    SkASSERT(allocator != nullptr);
+        SkArenaAlloc* alloc) {
+    SkASSERT(alloc != nullptr);
 
     SkBlitter* blitter;
     SkShader* shader = paint.getShader();
@@ -893,24 +894,24 @@ SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
     if (shader) {
         SkASSERT(shaderContext != nullptr);
         if (!is_srcover) {
-            blitter = allocator->createT<SkRGB16_Shader_Xfermode_Blitter>(device, paint,
+            blitter = alloc->make<SkRGB16_Shader_Xfermode_Blitter>(device, paint,
                                                                           shaderContext);
         } else {
-            blitter = allocator->createT<SkRGB16_Shader_Blitter>(device, paint, shaderContext);
+            blitter = alloc->make<SkRGB16_Shader_Blitter>(device, paint, shaderContext);
         }
     } else {
         // no shader, no xfermode, (and we always ignore colorfilter)
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {
-            blitter = allocator->createT<SkNullBlitter>();
+            blitter = alloc->make<SkNullBlitter>();
 #ifdef USE_BLACK_BLITTER
         } else if (SK_ColorBLACK == color) {
-            blitter = allocator->createT<SkRGB16_Black_Blitter>(device, paint);
+            blitter = alloc->make<SkRGB16_Black_Blitter>(device, paint);
 #endif
         } else if (0xFF == SkColorGetA(color)) {
-            blitter = allocator->createT<SkRGB16_Opaque_Blitter>(device, paint);
+            blitter = alloc->make<SkRGB16_Opaque_Blitter>(device, paint);
         } else {
-            blitter = allocator->createT<SkRGB16_Blitter>(device, paint);
+            blitter = alloc->make<SkRGB16_Blitter>(device, paint);
         }
     }
 
