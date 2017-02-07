@@ -65,10 +65,10 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
 #if SK_SUPPORT_GPU
     //--------------
-    // Test getTextureAsRef - as long as there is a context this should succeed
+    // Test asTextureProxyRef - as long as there is a context this should succeed
     if (context) {
-        sk_sp<GrTexture> texture(img->asTextureRef(context));
-        REPORTER_ASSERT(reporter, texture);
+        sk_sp<GrTextureProxy> proxy(img->asTextureProxyRef(context));
+        REPORTER_ASSERT(reporter, proxy);
     }
 #endif
 
