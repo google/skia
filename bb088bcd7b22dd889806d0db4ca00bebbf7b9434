@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "70177830_91c8fdbb",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T20:52:16Z",
+      "side": 1,
+      "message": "2 is something we could do at a couple different layers here, or just choose not to do.\n\nIn the past we have indeed done optimizations like this at lower levels (e.g. notice that the whole pipeline is really some sort of memset), but ultimately found the code easiest to maintain when these optimizations are applied at the highest level possible, when they actively know the optimization is possible rather than having to forget and re-detect it.\n\nNo other stage today uses matrix multiplications back to back... they concat them ahead of time and use one matrix_NxM stage.\n\nWhy don\u0027t we start with the code simple like this, then circle around to be fancy if we find a need?",
+      "parentUuid": "a4abc7af_e99814c7",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6eb7b21_62525763",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 7
@@ -410,6 +428,24 @@
       "side": 1,
       "message": "How about this? I made it consistent so that we use 0.5 when the purpose is for the mean or middle,\nand fractions with 6.0 as the denominator when doing hue calculations.",
       "parentUuid": "c815b7a2_6d9dafcd",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f161da6a_4254b81e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T20:52:16Z",
+      "side": 1,
+      "message": "Perfect.",
+      "parentUuid": "4d275e3d_570ca9e0",
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
