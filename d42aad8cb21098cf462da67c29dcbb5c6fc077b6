@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19f5f592_3fe0237e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "Does this mean a class in Android?",
+      "range": {
+        "startLine": 16,
+        "startChar": 3,
+        "endLine": 16,
+        "endChar": 18
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73a205fa_5c707838",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "Add a comment describing what this means? (And maybe describing why this is not part of the SkColorSpace?)",
+      "range": {
+        "startLine": 255,
+        "startChar": 9,
+        "endLine": 255,
+        "endChar": 20
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af71d55f_aaac3f06",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "Can colorSpace be const?",
+      "range": {
+        "startLine": 50,
+        "startChar": 19,
+        "endLine": 50,
+        "endChar": 31
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83ceeac9_92e5c4d8",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "Can this method be static?",
+      "range": {
+        "startLine": 50,
+        "startChar": 5,
+        "endLine": 50,
+        "endChar": 18
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9633aa12_5944813a",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "This is only used if it\u0027s one of the first three color types and fIsWideGamut. Why not move all this setup inside an if statement there?",
+      "range": {
+        "startLine": 185,
+        "startChar": 15,
+        "endLine": 185,
+        "endChar": 25
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "298bd4cd_2aeefc23",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T15:29:06Z",
+      "side": 1,
+      "message": "The commit message says \"we can\u0027t tag the Skia bitmap with a color space\". But it looks like we *are* going to set a color space (or at least report one).",
+      "range": {
+        "startLine": 192,
+        "startChar": 19,
+        "endLine": 192,
+        "endChar": 31
+      },
+      "revId": "d42aad8cb21098cf462da67c29dcbb5c6fc077b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
