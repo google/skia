@@ -9,7 +9,7 @@
 #define SkBlurImageFilter_opts_DEFINED
 
 #include "SkColorPriv.h"
-#include "SkTypes.h"
+#include "SkRect.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <immintrin.h>

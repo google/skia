@@ -8,6 +8,8 @@
 #ifndef SKSL_ASTTYPE
 #define SKSL_ASTTYPE
 
+#include "SkSLASTPositionNode.h"
+
 namespace SkSL {
 
 /**

@@ -9,6 +9,7 @@
 #define SKSL_POSTFIXEXPRESSION
 
 #include "SkSLExpression.h"
+#include "SkSLToken.h"
 
 namespace SkSL {
 

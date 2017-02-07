@@ -8,6 +8,8 @@
 #ifndef SkTextureCompressorUtils_DEFINED
 #define SkTextureCompressorUtils_DEFINED
 
+#include <cstdint>
+
 namespace SkTextureCompressor {
 
     // In some compression formats used for grayscale alpha, i.e. coverage masks, three

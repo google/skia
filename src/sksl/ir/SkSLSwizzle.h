@@ -8,6 +8,7 @@
 #ifndef SKSL_SWIZZLE
 #define SKSL_SWIZZLE
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 #include "SkSLUtil.h"
 

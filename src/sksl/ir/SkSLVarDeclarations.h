@@ -9,6 +9,7 @@
 #define SKSL_VARDECLARATIONS
 
 #include "SkSLExpression.h"
+#include "SkSLProgramElement.h"
 #include "SkSLStatement.h"
 #include "SkSLVariable.h"
 

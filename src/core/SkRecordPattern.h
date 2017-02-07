@@ -8,6 +8,7 @@
 #ifndef SkRecordPattern_DEFINED
 #define SkRecordPattern_DEFINED
 
+#include "SkRecord.h"
 #include "SkTLogic.h"
 
 namespace SkRecords {
