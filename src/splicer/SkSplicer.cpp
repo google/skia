@@ -16,7 +16,6 @@
 #endif
 
 #include "SkSplicer_generated.h"
-#include "SkSplicer_generated_lowp.h"
 #include "SkSplicer_shared.h"
 
 // Uncomment to dump output JIT'd pipeline.
@@ -43,18 +42,11 @@ namespace {
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
     };
-    static const SkSplicer_constants_lowp kConstants_lowp = {
-        0x8000, 0x8081,
-    };
 
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
     template <typename T>
     static void splice(SkWStream* buf, const T& val) {
-        // This null check makes determining whether we can drop to lowp easier.
-        // It's always known at compile time..
-        if (buf) {
-            buf->write(&val, sizeof(val));
-        }
+        buf->write(&val, sizeof(val));
     }
 
 #if defined(__aarch64__)
@@ -241,30 +233,7 @@ namespace {
     }
 #endif
 
-    static bool splice_lowp(SkWStream* buf, SkRasterPipeline::StockStage st) {
-        switch (st) {
-            default: return false;
-            case SkRasterPipeline::clamp_0: break;  // lowp can't go below 0.
-        #define CASE(st) case SkRasterPipeline::st: splice(buf, kSplice_##st##_lowp); break
-            CASE(clear);
-            CASE(plus_);
-            CASE(srcover);
-            CASE(dstover);
-            CASE(clamp_1);
-            CASE(clamp_a);
-            CASE(swap);
-            CASE(move_src_dst);
-            CASE(move_dst_src);
-            CASE(premul);
-            CASE(scale_u8);
-            CASE(load_8888);
-            CASE(store_8888);
-        #undef CASE
-        }
-        return true;
-    }
-
-    static bool splice_highp(SkWStream* buf, SkRasterPipeline::StockStage st) {
+    static bool splice(SkWStream* buf, SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return false;
         #define CASE(st) case SkRasterPipeline::st: splice(buf, kSplice_##st); break
@@ -303,7 +272,6 @@ namespace {
             fBackup     = SkOpts::compile_pipeline(stages, nstages);
             fSplicedLen = 0;
             fSpliced    = nullptr;
-            fLowp       = false;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
         #if defined(__aarch64__)
@@ -318,17 +286,6 @@ namespace {
                 return;
             }
         #endif
-
-            // See if all the stages can run in lowp mode.  If so, we can run at ~2x speed.
-            bool lowp = true;
-            for (int i = 0; i < nstages; i++) {
-                if (!splice_lowp(nullptr, stages[i].stage)) {
-                    //SkDebugf("SkSplicer can't yet handle stage %d in lowp.\n", stages[i].stage);
-                    lowp = false;
-                    break;
-                }
-            }
-            fLowp = lowp;
 
             SkDynamicMemoryWStream buf;
 
@@ -347,18 +304,13 @@ namespace {
                 }
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
-                if (lowp) {
-                    SkAssertResult(splice_lowp(&buf, stages[i].stage));
-                    continue;
-                }
-                if (!splice_highp(&buf, stages[i].stage)) {
+                if (!splice(&buf, stages[i].stage)) {
                     //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
                     return;
                 }
             }
 
-            lowp ? splice(&buf, kSplice_inc_x_lowp)
-                 : splice(&buf, kSplice_inc_x);
+            splice(&buf, kSplice_inc_x);
             loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
             after_loop(&buf);
             ret(&buf);  // We're done.
@@ -375,8 +327,7 @@ namespace {
         // Spliced is stored in a std::function, so it needs to be copyable.
         Spliced(const Spliced& o) : fBackup    (o.fBackup)
                                   , fSplicedLen(o.fSplicedLen)
-                                  , fSpliced   (copy_to_executable_mem(o.fSpliced, &fSplicedLen))
-                                  , fLowp      (o.fLowp) {}
+                                  , fSpliced   (copy_to_executable_mem(o.fSpliced, &fSplicedLen)) {}
 
         ~Spliced() {
             cleanup_executable_mem(fSpliced, fSplicedLen);
@@ -384,14 +335,10 @@ namespace {
 
         // Here's where we call fSpliced if we created it, fBackup if not.
         void operator()(size_t x, size_t n) const {
-            size_t stride = fLowp ? kStride*2
-                                  : kStride;
-            size_t body = n/stride*stride;     // Largest multiple of stride (2, 4, 8, or 16) <= n.
+            size_t body = n/kStride*kStride;   // Largest multiple of kStride (2, 4, 8, or 16) <= n.
             if (fSpliced && body) {            // Can we run fSpliced for at least one stride?
                 using Fn = void(size_t x, size_t limit, void* ctx, const void* k);
-                auto k = fLowp ? (const void*)&kConstants_lowp
-                               : (const void*)&kConstants;
-                ((Fn*)fSpliced)(x, x+body, nullptr, k);
+                ((Fn*)fSpliced)(x, x+body, nullptr, &kConstants);
 
                 // Fall through to fBackup for any n<stride last pixels.
                 x += body;
@@ -403,7 +350,6 @@ namespace {
         std::function<void(size_t, size_t)> fBackup;
         size_t                              fSplicedLen;
         void*                               fSpliced;
-        bool                                fLowp;
     };
 
 }

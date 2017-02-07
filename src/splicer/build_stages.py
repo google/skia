@@ -21,9 +21,6 @@ hsw = '-mavx2 -mfma -mf16c'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'hsw.o'])
-subprocess.check_call(['clang++'] + cflags + hsw +
-                      ['-c', 'src/splicer/SkSplicer_stages_lowp.cpp'] +
-                      ['-o', 'hsw_lowp.o'])
 
 aarch64 = [
     '--target=aarch64-linux-android',
@@ -32,9 +29,6 @@ aarch64 = [
 subprocess.check_call(['clang++'] + cflags + aarch64 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'aarch64.o'])
-subprocess.check_call(['clang++'] + cflags + aarch64 +
-                      ['-c', 'src/splicer/SkSplicer_stages_lowp.cpp'] +
-                      ['-o', 'aarch64_lowp.o'])
 
 armv7 = [
     '--target=armv7a-linux-android',
@@ -45,9 +39,6 @@ armv7 = [
 subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'armv7.o'])
-subprocess.check_call(['clang++'] + cflags + armv7 +
-                      ['-c', 'src/splicer/SkSplicer_stages_lowp.cpp'] +
-                      ['-o', 'armv7_lowp.o'])
 
 def parse_object_file(dst, dot_o, array_type, done, target=None):
   cmd = [ objdump, '-d', dot_o]
@@ -85,28 +76,27 @@ def parse_object_file(dst, dot_o, array_type, done, target=None):
     print >>dst,'    ' + hexed + ' '*(44-len(hexed)) + \
                 '//  ' + inst  + ' '*(14-len(inst))  + args
 
-for suffix in ['', '_lowp']:
-  with open('src/splicer/SkSplicer_generated%s.h' % suffix, 'w') as f:
-    print >>f,'''/*
+with open('src/splicer/SkSplicer_generated.h', 'w') as f:
+  print >>f,'''/*
  * Copyright 2017 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SkSplicer_generated%s_DEFINED
-#define SkSplicer_generated%s_DEFINED
+#ifndef SkSplicer_generated_DEFINED
+#define SkSplicer_generated_DEFINED
 
 // This file is generated semi-automatically with this command:
 //   $ src/splicer/build_stages.py
 
 #if defined(__aarch64__)
-''' % (suffix, suffix)
-    parse_object_file(f, 'aarch64%s.o' % suffix, 'unsigned int', '14000000')
-    print >>f,'\n#elif defined(__ARM_NEON__)\n'
-    parse_object_file(f, 'armv7%s.o' % suffix, 'unsigned int', 'eafffffe',
-                    target='elf32-littlearm')
-    print >>f,'\n#else\n'
-    parse_object_file(f, 'hsw%s.o' % suffix, 'unsigned char', 'e9 00 00 00 00')
-    print >>f,'\n#endif\n'
-    print >>f,'#endif//SkSplicer_generated%s_DEFINED' % suffix
+'''
+  parse_object_file(f, 'aarch64.o', 'unsigned int', '14000000')
+  print >>f,'\n#elif defined(__ARM_NEON__)\n'
+  parse_object_file(f, 'armv7.o', 'unsigned int', 'eafffffe',
+                  target='elf32-littlearm')
+  print >>f,'\n#else\n'
+  parse_object_file(f, 'hsw.o', 'unsigned char', 'e9 00 00 00 00')
+  print >>f,'\n#endif\n'
+  print >>f,'#endif//SkSplicer_generated_DEFINED'
