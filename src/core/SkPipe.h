@@ -9,15 +9,18 @@
 #define SkPipe_DEFINED
 
 #include "SkData.h"
+#include "SkImage.h"
+#include "SkPicture.h"
 
 class SkCanvas;
-class SkImage;
-class SkPicture;
-class SkTypefaceSerializer;
-class SkTypefaceDeserializer;
-class SkImageSerializer;
 class SkImageDeserializer;
+class SkImageSerializer;
+class SkTypeface;
+class SkTypefaceDeserializer;
+class SkTypefaceSerializer;
 class SkWStream;
+
+struct SkRect;
 
 class SkPipeSerializer {
 public:

@@ -8,6 +8,7 @@
 #ifndef SKSL_ASTPARAMETER
 #define SKSL_ASTPARAMETER
 
+#include "SkSLASTPositionNode.h"
 #include "SkSLASTType.h"
 #include "../ir/SkSLModifiers.h"
 

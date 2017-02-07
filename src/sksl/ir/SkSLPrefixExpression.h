@@ -9,6 +9,7 @@
 #define SKSL_PREFIXEXPRESSION
 
 #include "SkSLExpression.h"
+#include "SkSLToken.h"
 
 namespace SkSL {
 

@@ -10,12 +10,12 @@
 #define SkLights_DEFINED
 
 #include "../private/SkTArray.h"
+#include "SkImage.h"
 #include "SkPoint3.h"
 #include "SkRefCnt.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
-class SkImage;
 
 class SK_API SkLights  : public SkRefCnt {
 public:

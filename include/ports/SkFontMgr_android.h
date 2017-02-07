@@ -8,7 +8,7 @@
 #ifndef SkFontMgr_android_DEFINED
 #define SkFontMgr_android_DEFINED
 
-#include "SkTypes.h"
+#include "SkRefCnt.h"
 
 class SkFontMgr;
 

@@ -9,6 +9,9 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "SkSLExpression.h"
+#include "SkSLFloatLiteral.h"
+#include "SkSLIRGenerator.h"
+#include "SkSLIntLiteral.h"
 
 namespace SkSL {
 

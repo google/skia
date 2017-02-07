@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkString.h"
+#include "SkVertices.h"
 
 struct lua_State;
 

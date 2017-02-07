@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkScalar.h"
 #include "SkTime.h"
 
 #ifndef SkAnimTimer_DEFINED

@@ -8,10 +8,9 @@
 #ifndef GrAppliedClip_DEFINED
 #define GrAppliedClip_DEFINED
 
+#include "GrFragmentProcessor.h"
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
-
-class GrFragmentProcessor;
 
 /**
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to

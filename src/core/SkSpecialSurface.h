@@ -8,13 +8,17 @@
 #ifndef SkSpecialSurface_DEFINED
 #define SkSpecialSurface_DEFINED
 
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
+#if SK_SUPPORT_GPU
+#include "GrTypes.h"
+#endif
+
 class GrContext;
-struct GrSurfaceDesc;
+class SkBitmap;
 class SkCanvas;
-struct SkImageInfo;
 class SkSpecialImage;
 
 /**

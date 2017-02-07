@@ -7,6 +7,8 @@
 #ifndef SkShadowParams_DEFINED
 #define SkShadowParams_DEFINED
 
+#include "SkScalar.h"
+
 /** \struct SkShadowParams
 
     This struct holds information needed for drawing shadows.
