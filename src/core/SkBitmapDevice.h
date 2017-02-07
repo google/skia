@@ -14,6 +14,7 @@
 #include "SkDevice.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -68,12 +69,12 @@ protected:
      and are handling any looping from the paint, and any effects from the
      DrawFilter.
      */
-    void drawPaint(const SkDraw&, const SkPaint& paint) override;
-    void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
+    void drawPaint(const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) override;
-    void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkDraw&, const SkRRect& rr, const SkPaint& paint) override;
+    void drawRect(const SkRect& r, const SkPaint& paint) override;
+    void drawOval(const SkRect& oval, const SkPaint& paint) override;
+    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
 
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
@@ -86,34 +87,34 @@ protected:
      *  affect the geometry/rasterization, then the pre matrix can just be
      *  pre-concated with the current matrix.
      */
-    void drawPath(const SkDraw&, const SkPath&, const SkPaint&, const SkMatrix* prePathMatrix,
+    void drawPath(const SkPath&, const SkPaint&, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) override;
-    void drawBitmap(const SkDraw&, const SkBitmap&, const SkMatrix&, const SkPaint&) override;
-    void drawSprite(const SkDraw&, const SkBitmap&, int x, int y, const SkPaint&) override;
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkPaint&) override;
+    void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) override;
 
     /**
      *  The default impl. will create a bitmap-shader from the bitmap,
      *  and call drawRect with it.
      */
-    void drawBitmapRect(const SkDraw&, const SkBitmap&, const SkRect*, const SkRect&,
+    void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&,
                         const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     /**
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    void drawText(const SkDraw&, const void* text, size_t len, SkScalar x, SkScalar y,
+    void drawText(const void* text, size_t len, SkScalar x, SkScalar y,
                   const SkPaint&) override;
-    void drawPosText(const SkDraw&, const void* text, size_t len, const SkScalar pos[],
+    void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
-    void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
+    void drawVertices(SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[], SkBlendMode,
                       const uint16_t indices[], int indexCount, const SkPaint&) override;
-    void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
+    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
     
-    void drawSpecial(const SkDraw&, SkSpecialImage*, int x, int y, const SkPaint&) override;
+    void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;
@@ -124,6 +125,13 @@ protected:
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
+
+    void onSave() override;
+    void onRestore() override;
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
 
 private:
     friend class SkCanvas;
@@ -147,7 +155,8 @@ private:
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
-
+    SkTArray<SkRasterClip>  fRCStack;
+    
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 
     typedef SkBaseDevice INHERITED;
