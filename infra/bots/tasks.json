@@ -992,6 +992,18 @@
         "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release"
       ]
     },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
+      ]
+    },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
+      ]
+    },
     "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -1609,6 +1621,18 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release"
+      ]
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
+      ]
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
       ]
     }
   },
@@ -8313,6 +8337,102 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "cipd_packages": [
         {
@@ -13298,6 +13418,102 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:20"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "dependencies": [
         "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android"
@@ -14604,6 +14820,36 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "dependencies": [
+        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -17364,6 +17610,66 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug": {
+      "dependencies": [
+        "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release": {
+      "dependencies": [
+        "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
