@@ -22,6 +22,24 @@
       "revId": "82270816b4cab64d97e7d3fcf4d1aa53b86e3ee0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20157612_409c39e7",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-07T16:40:24Z",
+      "side": 1,
+      "message": "I was going to have a separate CL to lop them all out at once.",
+      "parentUuid": "3b224c45_33575958",
+      "revId": "82270816b4cab64d97e7d3fcf4d1aa53b86e3ee0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
