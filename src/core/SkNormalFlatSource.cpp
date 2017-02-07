@@ -7,6 +7,7 @@
 
 #include "SkNormalFlatSource.h"
 
+#include "SkArenaAlloc.h"
 #include "SkNormalSource.h"
 #include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
@@ -77,12 +78,8 @@ SkNormalFlatSourceImpl::Provider::Provider() {}
 SkNormalFlatSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalFlatSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                             void *storage) const {
-    return new (storage) Provider();
-}
-
-size_t SkNormalFlatSourceImpl::providerSize(const SkShader::ContextRec&) const {
-    return sizeof(Provider);
+                                                             SkArenaAlloc *alloc) const {
+    return alloc->make<Provider>();
 }
 
 void SkNormalFlatSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output[],

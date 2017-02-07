@@ -74,16 +74,12 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-size_t SkLinearGradient::onContextSize(const ContextRec& rec) const {
+SkShader::Context* SkLinearGradient::onMakeContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const
+{
     return use_4f_context(rec, fGradFlags)
-        ? sizeof(LinearGradient4fContext)
-        : sizeof(LinearGradientContext);
-}
-
-SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return use_4f_context(rec, fGradFlags)
-        ? CheckedCreateContext<LinearGradient4fContext>(storage, *this, rec)
-        : CheckedCreateContext<  LinearGradientContext>(storage, *this, rec);
+           ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
+           : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
 
 // For now, only a 2-stop raster pipeline specialization.
