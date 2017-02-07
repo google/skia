@@ -246,11 +246,6 @@ static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(tex
 
 #if GR_TEST_UTILS
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
-    // This tests code under development but not used in skia lib. Leaving this disabled until
-    // some platform-specific issues are addressed.
-    if (1) {
-        return;
-    }
     GrContext* context = ctxInfo.grContext();
     using FPFactory = GrProcessorTestFactory<GrFragmentProcessor>;
     SkRandom random;
@@ -267,7 +262,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter
     GrTexture* textures[] = {tex0.get(), tex1.get()};
     GrProcessorTestData testData(&random, context, rtc.get(), textures);
 
-    std::unique_ptr<GrColor> data(new GrColor[256 * 256]);
+    std::unique_ptr<GrColor[]> data(new GrColor[256 * 256]);
     for (int y = 0; y < 256; ++y) {
         for (int x = 0; x < 256; ++x) {
             data.get()[256 * y + x] = texel_color(x, y);
@@ -349,12 +344,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter
                         float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fRGBA[1]);
                         float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fRGBA[2]);
                         float aDiff = fabsf(output4f.fRGBA[3] - expected4f.fRGBA[3]);
-                        static constexpr float kTol = 3 / 255.f;
+                        static constexpr float kTol = 4 / 255.f;
                         if (rDiff > kTol || gDiff > kTol || bDiff > kTol || aDiff > kTol) {
                             ERRORF(reporter,
                                    "Processor %s claimed output for const input doesn't match "
-                                   "actual output.",
-                                   fp->name());
+                                   "actual output. Error: %f, Tolerance: %f, input: (%f, %f, %f, %f), actual: (%f, %f, %f, %f), expected(%f, %f, %f, %f)",
+                                   fp->name(), SkTMax(rDiff, SkTMax(gDiff, SkTMax(bDiff, aDiff))),
+                                   kTol,
+                                   input4f.fRGBA[0], input4f.fRGBA[1], input4f.fRGBA[2], input4f.fRGBA[3],
+                                   output4f.fRGBA[0], output4f.fRGBA[1], output4f.fRGBA[2], output4f.fRGBA[3],
+                                   expected4f.fRGBA[0], expected4f.fRGBA[1], expected4f.fRGBA[2], expected4f.fRGBA[3]);
                             passing = false;
                         }
                     }
