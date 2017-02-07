@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "da0ec2f6_75ffbdd8",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-07T16:58:36Z",
+      "side": 1,
+      "message": "At the cost of some complexity here, you can concatenate all consecutive matrix_3x4 stages into a single matrix stage. (Basically, as long as fInvertStyle isn\u0027t InvertLightness, you only need one matrix_3x4 and the two clamps.)",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6eb7b21_62525763",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-07T16:58:36Z",
+      "side": 1,
+      "message": "We\u0027ve stopped injecting \\t and \\n in the shader code like this. It makes it harder to read, and we now have a pretty-printer that handles formatting whenever we need to see the final shader source code.\n\nAdditionally, I think much of this would be easier to read if it things were left vectorized (rather than broken into scalars):\n\ncodeAppendf(\"vec3 color \u003d %s;\", args.fInputColor);\n...\nif (grayscale) { codeAppendf(\"color \u003d dot(color, vec3(%f %f %f));\", SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B); }\n...\nif (invertBrightness) { codeAppend(\"color \u003d 1 - color;\"); }\n...\nif (invertLightness) { // This stays tricky, but you can keep referring to color.r, color.g, color.b }\n...\nif (contrast) { // All of the contrast code can be executed against \u0027color\u0027, no need for per-channel }\n...\ncodeAppend(\"color \u003d clamp(color, 0, 1);\")",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae52af2a_aa7afb3f",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-07T16:58:36Z",
+      "side": 1,
+      "message": "In addition to everything above, we would typically generate different shaders for the different features, rather than have the branches in the shader. So for this example:\n\nif (HighContrastInvertStyle \u003d\u003d invertStyle) {\n  codeAppend(\"color \u003d 1 - color;\");\n}\n\nFor that to work, GenKey needs to look like:\nGenKey(const GrProcessor\u0026 proc, const GrShaderCaps\u0026, GrProcessorKeyBuilder* b) {\n  const HighContrastFilterEffect \u0026hcfe \u003d proc.cast\u003cHighContrastFilterEffect\u003e();\n  b-\u003eadd32(hcfe.config().fInvertStyle);\n}\n\n... that rolls that parameter into the key we use to lookup the shader, so we cache the different variations separately. If you do this, you don\u0027t need the uniform for those parameters, and setData doesn\u0027t need to do anything either.",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "935c043c_ff486741",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
