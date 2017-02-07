@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a4abc7af_e99814c7",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "My only hesitation here is that\n\n(1) inverting lightness is the preferred choice so I don\u0027t want to increase\nthe complexity of the code to optimize a case that will be less common anyway\nand already inherently faster, and\n\n(2) it feels like collapsing matrices ought to be done by SkRasterPipeline\nas an optimization, rather than forcing every filter to do it. Wouldn\u0027t that be\na trivial one-pass optimization that we could add later? In theory we could\noptimize matrices of different sizes too. This could be a big win if earlier or\nlater stages in the pipeline also often include matrix calculations.",
+      "parentUuid": "da0ec2f6_75ffbdd8",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6eb7b21_62525763",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-07T16:58:36Z",
       "side": 1,
       "message": "We\u0027ve stopped injecting \\t and \\n in the shader code like this. It makes it harder to read, and we now have a pretty-printer that handles formatting whenever we need to see the final shader source code.\n\nAdditionally, I think much of this would be easier to read if it things were left vectorized (rather than broken into scalars):\n\ncodeAppendf(\"vec3 color \u003d %s;\", args.fInputColor);\n...\nif (grayscale) { codeAppendf(\"color \u003d dot(color, vec3(%f %f %f));\", SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B); }\n...\nif (invertBrightness) { codeAppend(\"color \u003d 1 - color;\"); }\n...\nif (invertLightness) { // This stays tricky, but you can keep referring to color.r, color.g, color.b }\n...\nif (contrast) { // All of the contrast code can be executed against \u0027color\u0027, no need for per-channel }\n...\ncodeAppend(\"color \u003d clamp(color, 0, 1);\")",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3112613f_bc5c4431",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Oh thank goodness, the \\t and \\n were really making it hard to read.\n\nI added a few spaces for indentation to make it easier to follow in the\nsource code, is that okay? I understand it will all be pretty-printed, but\notherwise it\u0027s hard to see where braces line up.\n\nI tried to do everything with vectors. I got it to work using vec4.\nIf there\u0027s a cleaner way to pull just r,g,b into a vec3 and then stuff it back\nat the end while preserving the alpha channel, please let me know.",
+      "parentUuid": "b6eb7b21_62525763",
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2b4d95cd_650080e2",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Oh perfect - thanks for explaining more clearly what I need to do.\nI knew I needed something along those lines but couldn\u0027t figure out\nwhat I was doing wrong. I didn\u0027t realize how GenKey was related.\n\nI quantized the contrast parameter to use in the key, does that seem reasonable?\nThe valid range is -1.0 through 1.0.",
+      "parentUuid": "ae52af2a_aa7afb3f",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "935c043c_ff486741",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
@@ -67,6 +121,24 @@
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61226618_122d6d8d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "935c043c_ff486741",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +182,41 @@
     },
     {
       "key": {
+        "uuid": "170af79e_5a25129c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57f4c3ef_e9a0bed5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd08e77f_292c9eaa",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4433412a_271cdc63",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
@@ -127,6 +234,24 @@
         "endLine": 769,
         "endChar": 44
       },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eb9802f_e353c21c",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Good idea, done",
+      "parentUuid": "4433412a_271cdc63",
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -156,6 +281,24 @@
     },
     {
       "key": {
+        "uuid": "c3f0a41e_3dcb8b59",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f57bfbc_be91775d",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "821a8329_48446e27",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
@@ -170,6 +313,24 @@
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f02ddf43_c74bd057",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "821a8329_48446e27",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -196,6 +357,24 @@
     },
     {
       "key": {
+        "uuid": "4d329720_b652436f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a63fe0ad_7769a190",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c815b7a2_6d9dafcd",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
@@ -213,6 +392,24 @@
         "endLine": 791,
         "endChar": 44
       },
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d275e3d_570ca9e0",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T20:28:00Z",
+      "side": 1,
+      "message": "How about this? I made it consistent so that we use 0.5 when the purpose is for the mean or middle,\nand fractions with 6.0 as the denominator when doing hue calculations.",
+      "parentUuid": "c815b7a2_6d9dafcd",
       "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
