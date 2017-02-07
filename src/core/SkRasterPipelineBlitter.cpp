@@ -21,12 +21,13 @@
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
-                             SkArenaAlloc*);
+                             SkArenaAlloc*, bool blendCorrectly);
 
-    SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
+    SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor, bool blendCorrectly)
         : fDst(dst)
         , fBlend(blend)
         , fPaintColor(paintColor)
+        , fBlendCorrectly(blendCorrectly)
     {}
 
     void blitH    (int x, int y, int w)                            override;
@@ -47,6 +48,7 @@ private:
     SkBlendMode      fBlend;
     SkPM4f           fPaintColor;
     SkRasterPipeline fShader;
+    bool             fBlendCorrectly;
 
     // These functions are compiled lazily when first used.
     std::function<void(size_t, size_t)> fBlitH         = nullptr,
@@ -71,8 +73,9 @@ private:
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
-                                         SkArenaAlloc* alloc) {
-    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc);
+                                         SkArenaAlloc* alloc,
+                                         bool blendCorrectly) {
+    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc, blendCorrectly);
 }
 
 static bool supported(const SkImageInfo& info) {
@@ -88,11 +91,13 @@ static bool supported(const SkImageInfo& info) {
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            const SkMatrix& ctm,
-                                           SkArenaAlloc* alloc) {
+                                           SkArenaAlloc* alloc,
+                                           bool blendCorrectly) {
     auto blitter = alloc->make<SkRasterPipelineBlitter>(
             dst,
             paint.getBlendMode(),
-            SkPM4f_from_SkColor(paint.getColor(), dst.colorSpace()));
+            SkPM4f_from_SkColor(paint.getColor(), dst.colorSpace()),
+            blendCorrectly);
 
 
     SkBlendMode*      blend       = &blitter->fBlend;
@@ -124,6 +129,11 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         is_constant = shader->isConstant();
     } else {
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
+    }
+
+    // Some people want the rest of the pipeline to operate on sRGB encoded color channels...
+    if (!blendCorrectly && dst.info().gammaCloseToSRGB()) {
+        pipeline->append(SkRasterPipeline::to_srgb);
     }
 
     if (colorFilter) {
@@ -201,7 +211,7 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
-    if (fDst.info().gammaCloseToSRGB()) {
+    if (fBlendCorrectly && fDst.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
     }
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
