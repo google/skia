@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce8027e6_54123696",
+        "filename": "gm/testgradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T22:34:34Z",
+      "side": 1,
+      "message": "nit: Probably don\u0027t need this comment :) and maybe a few others below",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 43
+      },
+      "revId": "a4e8532aad0044859b61b8efffc762ef2dba434d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a98fdd05_b79a866b",
+        "filename": "gm/testgradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T22:34:34Z",
+      "side": 1,
+      "message": "nit: Is there a better name for this gm?",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 11
+      },
+      "revId": "a4e8532aad0044859b61b8efffc762ef2dba434d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "731ed1d5_7f55c965",
+        "filename": "gm/testgradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T22:34:34Z",
+      "side": 1,
+      "message": "nit: No need for extra line?",
+      "revId": "a4e8532aad0044859b61b8efffc762ef2dba434d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c72ee3b7_31fb636c",
+        "filename": "gm/testgradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-07T22:34:34Z",
+      "side": 1,
+      "message": "nit: Be consistent with capitalization, same comment below",
+      "range": {
+        "startLine": 38,
+        "startChar": 25,
+        "endLine": 38,
+        "endChar": 28
+      },
+      "revId": "a4e8532aad0044859b61b8efffc762ef2dba434d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
