@@ -100,6 +100,12 @@ public:
     /** Creates a pipeline into a pre-allocated buffer */
     static GrPipeline* CreateAt(void* memory, const CreateArgs&, GrPipelineOptimizations*);
 
+    /**
+     * Creates a simple pipeline with default settings and no processors. The provided blend mode
+     * must be "Porter Duff" (<= kLastCoeffMode).
+     **/
+    GrPipeline(GrRenderTarget*, SkBlendMode);
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////

@@ -33,6 +33,10 @@ public:
                                                        const GrPipelineAnalysis&,
                                                        bool hasMixedSamples,
                                                        const GrXferProcessor::DstTexture*);
+
+    /** Returns a non-LCD porter duff blend XP using no optimizations and assuming no coverage. */
+    static sk_sp<GrXferProcessor> CreateSimpleXP(SkBlendMode);
+
     /** This XP implements non-LCD src-over using hw blend with no optimizations. It is returned
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
