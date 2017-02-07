@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "10847dc6_5745b7d7",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T23:02:02Z",
+      "side": 1,
+      "message": "Done, but it looks like I want makeArray and not makeArrayDefault if I want it zeroed.",
+      "parentUuid": "0d532e21_93bbb036",
+      "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9f9a060d_01b0ea3b",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 10
@@ -45,6 +63,24 @@
       "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a14fde5a_663f9c82",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T23:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f9a060d_01b0ea3b",
+      "revId": "93a64f2ded70e59371d8ae5d285a0e76e8f5394b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
