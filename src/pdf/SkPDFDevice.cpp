@@ -512,18 +512,18 @@ void SkPDFDevice::cleanUp() {
     fShaderResources.unrefAll();
 }
 
-void SkPDFDevice::drawAnnotation(const SkDraw& d, const SkRect& rect, const char key[],
+void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[],
                                  SkData* value) {
     if (0 == rect.width() && 0 == rect.height()) {
-        handlePointAnnotation({ rect.x(), rect.y() }, *d.fMatrix, key, value);
+        handlePointAnnotation({ rect.x(), rect.y() }, this->getCTM(), key, value);
     } else {
         SkPath path;
         path.addRect(rect);
-        handlePathAnnotation(path, d, key, value);
+        handlePathAnnotation(path, key, value);
     }
 }
 
-void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
+void SkPDFDevice::drawPaint(const SkPaint& paint) {
     SkPaint newPaint = paint;
     replace_srcmode_on_opaque_paint(&newPaint);
 
@@ -550,8 +550,7 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
                           &contentEntry->fContent);
 }
 
-void SkPDFDevice::drawPoints(const SkDraw& d,
-                             SkCanvas::PointMode mode,
+void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
                              size_t count,
                              const SkPoint* points,
                              const SkPaint& srcPaint) {
@@ -681,8 +680,7 @@ static sk_sp<SkPDFDict> create_link_named_dest(const SkData* nameData,
     return annotation;
 }
 
-void SkPDFDevice::drawRect(const SkDraw& d,
-                           const SkRect& rect,
+void SkPDFDevice::drawRect(const SkRect& rect,
                            const SkPaint& srcPaint) {
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
@@ -708,8 +706,7 @@ void SkPDFDevice::drawRect(const SkDraw& d,
                           &content.entry()->fContent);
 }
 
-void SkPDFDevice::drawRRect(const SkDraw& draw,
-                            const SkRRect& rrect,
+void SkPDFDevice::drawRRect(const SkRRect& rrect,
                             const SkPaint& srcPaint) {
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
@@ -718,8 +715,7 @@ void SkPDFDevice::drawRRect(const SkDraw& draw,
     this->drawPath(draw, path, paint, nullptr, true);
 }
 
-void SkPDFDevice::drawOval(const SkDraw& draw,
-                           const SkRect& oval,
+void SkPDFDevice::drawOval(const SkRect& oval,
                            const SkPaint& srcPaint) {
     SkPaint paint = srcPaint;
     replace_srcmode_on_opaque_paint(&paint);
@@ -728,8 +724,7 @@ void SkPDFDevice::drawOval(const SkDraw& draw,
     this->drawPath(draw, path, paint, nullptr, true);
 }
 
-void SkPDFDevice::drawPath(const SkDraw& d,
-                           const SkPath& origPath,
+void SkPDFDevice::drawPath(const SkPath& origPath,
                            const SkPaint& srcPaint,
                            const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
@@ -793,8 +788,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
 }
 
 
-void SkPDFDevice::drawImageRect(const SkDraw& d,
-                                const SkImage* image,
+void SkPDFDevice::drawImageRect(const SkImage* image,
                                 const SkRect* src,
                                 const SkRect& dst,
                                 const SkPaint& srcPaint,
@@ -827,8 +821,7 @@ void SkPDFDevice::drawImageRect(const SkDraw& d,
                             std::move(imageSubset), paint);
 }
 
-void SkPDFDevice::drawBitmapRect(const SkDraw& d,
-                                 const SkBitmap& bitmap,
+void SkPDFDevice::drawBitmapRect(const SkBitmap& bitmap,
                                  const SkRect* src,
                                  const SkRect& dst,
                                 const SkPaint& srcPaint,
@@ -865,8 +858,7 @@ void SkPDFDevice::drawBitmapRect(const SkDraw& d,
                             std::move(imageSubset), paint);
 }
 
-void SkPDFDevice::drawBitmap(const SkDraw& d,
-                             const SkBitmap& bitmap,
+void SkPDFDevice::drawBitmap(const SkBitmap& bitmap,
                              const SkMatrix& matrix,
                              const SkPaint& srcPaint) {
     if (bitmap.drawsNothing() || d.fRC->isEmpty()) {
@@ -886,8 +878,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
             transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
 }
 
-void SkPDFDevice::drawSprite(const SkDraw& d,
-                             const SkBitmap& bitmap,
+void SkPDFDevice::drawSprite(const SkBitmap& bitmap,
                              int x,
                              int y,
                              const SkPaint& srcPaint) {
@@ -907,8 +898,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
             transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
 }
 
-void SkPDFDevice::drawImage(const SkDraw& draw,
-                            const SkImage* image,
+void SkPDFDevice::drawImage(const SkImage* image,
                             SkScalar x,
                             SkScalar y,
                             const SkPaint& srcPaint) {
@@ -1223,7 +1213,7 @@ static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
 }
 
 void SkPDFDevice::internalDrawText(
-        const SkDraw& d, const void* sourceText, size_t sourceByteCount,
+        const void* sourceText, size_t sourceByteCount,
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
         SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
         uint32_t textByteLength, const char* utf8Text) {
@@ -1406,13 +1396,13 @@ void SkPDFDevice::internalDrawText(
     }
 }
 
-void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
+void SkPDFDevice::drawText(const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     this->internalDrawText(d, text, len, nullptr, SkTextBlob::kDefault_Positioning,
                            SkPoint{x, y}, paint, nullptr, 0, nullptr);
 }
 
-void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
+void SkPDFDevice::drawPosText(const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
     this->internalDrawText(d, text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
@@ -1435,7 +1425,7 @@ void SkPDFDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
     }
 }
 
-void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
+void SkPDFDevice::drawVertices(SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],
                                SkBlendMode, const uint16_t indices[],
@@ -1446,7 +1436,7 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
     // TODO: implement drawVertices
 }
 
-void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
+void SkPDFDevice::drawDevice(SkBaseDevice* device,
                              int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
 
@@ -1565,7 +1555,7 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
  * either as a (incorrect) fallback or because the path was not inverse
  * in the first place.
  */
-bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
+bool SkPDFDevice::handleInversePath(const SkPath& origPath,
                                     const SkPaint& paint, bool pathIsMutable,
                                     const SkMatrix* prePathMatrix) {
     if (!origPath.isInverseFillType()) {
@@ -1639,7 +1629,6 @@ void SkPDFDevice::handlePointAnnotation(const SkPoint& point,
 }
 
 void SkPDFDevice::handlePathAnnotation(const SkPath& path,
-                                       const SkDraw& d,
                                        const char key[], SkData* value) {
     if (!value) {
         return;

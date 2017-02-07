@@ -43,6 +43,8 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 
+#define SK_USE_DEVICE_CLIPPING
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
@@ -1377,6 +1379,7 @@ protected:
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
+    virtual void onUpdateCTM(const SkMatrix&);
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     virtual void didTranslateZ(SkScalar) {}

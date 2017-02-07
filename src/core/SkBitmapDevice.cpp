@@ -74,6 +74,8 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    
+    fRCStack.push_back().setRect(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -88,6 +90,8 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+    
+    fRCStack.push_back().setRect(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -187,50 +191,87 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
-    draw.drawPaint(paint);
+void SkBitmapDevice::onSave() {
+    fRCStack.push_back(fRCStack.back());
 }
 
-void SkBitmapDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
+void SkBitmapDevice::onRestore() {
+    fRCStack.pop_back();
+}
+
+void SkBitmapDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+    fRCStack.back().op(rect, this->getCTM(), this->getGlobalBounds(), (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+    fRCStack.back().op(rrect, this->getCTM(), this->getGlobalBounds(), (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    fRCStack.back().op(path, this->getCTM(), this->getGlobalBounds(), (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
+    fRCStack.back().op(rgn, (SkRegion::Op)op);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class DeviceDraw : public SkDraw {
+public:
+    DeviceDraw(SkBaseDevice* device, const SkRasterClip& rc) {
+        device->peekPixels(&fDst);
+        fMatrix = &device->getCTM();
+        fRC = &rc;
+        fClipStack = nullptr;
+        fDevice = device;
+    }
+};
+
+void SkBitmapDevice::drawPaint(const SkPaint& paint) {
+    DeviceDraw(this, fRCStack.back()).drawPaint(paint);
+}
+
+void SkBitmapDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
                                 const SkPoint pts[], const SkPaint& paint) {
-    draw.drawPoints(mode, count, pts, paint);
+    DeviceDraw(this, fRCStack.back()).drawPoints(mode, count, pts, paint);
 }
 
-void SkBitmapDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
-    draw.drawRect(r, paint);
+void SkBitmapDevice::drawRect(const SkRect& r, const SkPaint& paint) {
+    DeviceDraw(this, fRCStack.back()).drawRect(r, paint);
 }
 
-void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+void SkBitmapDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     SkPath path;
     path.addOval(oval);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawOval.
-    this->drawPath(draw, path, paint, nullptr, true);
+    this->drawPath(path, paint, nullptr, true);
 }
 
-void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
+void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 #ifdef SK_IGNORE_BLURRED_RRECT_OPT
     SkPath  path;
 
     path.addRRect(rrect);
     // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
     // required to override drawRRect.
-    this->drawPath(draw, path, paint, nullptr, true);
+    this->drawPath(path, paint, nullptr, true);
 #else
-    draw.drawRRect(rrect, paint);
+    DeviceDraw(this, fRCStack.back()).drawRRect(rrect, paint);
 #endif
 }
 
-void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
+void SkBitmapDevice::drawPath(const SkPath& path,
                               const SkPaint& paint, const SkMatrix* prePathMatrix,
                               bool pathIsMutable) {
-    draw.drawPath(path, paint, prePathMatrix, pathIsMutable);
+    DeviceDraw(this, fRCStack.back()).drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 
-void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
+void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint& paint) {
-    LogDrawScaleFactor(SkMatrix::Concat(*draw.fMatrix, matrix), paint.getFilterQuality());
-    draw.drawBitmap(bitmap, matrix, nullptr, paint);
+    LogDrawScaleFactor(SkMatrix::Concat(this->getCTM(), matrix), paint.getFilterQuality());
+    DeviceDraw(this, fRCStack.back()).drawBitmap(bitmap, matrix, nullptr, paint);
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -242,7 +283,7 @@ static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& pain
     return m.getType() <= SkMatrix::kTranslate_Mask;
 }
 
-void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
+void SkBitmapDevice::drawBitmapRect(const SkBitmap& bitmap,
                                     const SkRect* src, const SkRect& dst,
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkMatrix    matrix;
@@ -259,7 +300,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
-    LogDrawScaleFactor(SkMatrix::Concat(*draw.fMatrix, matrix), paint.getFilterQuality());
+    LogDrawScaleFactor(SkMatrix::Concat(this->getCTM(), matrix), paint.getFilterQuality());
 
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;
@@ -319,7 +360,7 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         if (CanApplyDstMatrixAsCTM(matrix, paint)) {
-            draw.drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
+            DeviceDraw(this, fRCStack.back()).drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
             return;
         }
     }
@@ -345,44 +386,44 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.
-    this->drawRect(draw, *dstPtr, paintWithShader);
+    this->drawRect(*dstPtr, paintWithShader);
 }
 
-void SkBitmapDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
+void SkBitmapDevice::drawSprite(const SkBitmap& bitmap,
                                 int x, int y, const SkPaint& paint) {
-    draw.drawSprite(bitmap, x, y, paint);
+    DeviceDraw(this, fRCStack.back()).drawSprite(bitmap, x, y, paint);
 }
 
-void SkBitmapDevice::drawText(const SkDraw& draw, const void* text, size_t len,
+void SkBitmapDevice::drawText(const void* text, size_t len,
                               SkScalar x, SkScalar y, const SkPaint& paint) {
-    draw.drawText((const char*)text, len, x, y, paint);
+    DeviceDraw(this, fRCStack.back()).drawText((const char*)text, len, x, y, paint);
 }
 
-void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
+void SkBitmapDevice::drawPosText(const void* text, size_t len,
                                  const SkScalar xpos[], int scalarsPerPos,
                                  const SkPoint& offset, const SkPaint& paint) {
-    draw.drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint);
+    DeviceDraw(this, fRCStack.back()).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint);
 }
 
-void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
+void SkBitmapDevice::drawVertices(SkCanvas::VertexMode vmode,
                                   int vertexCount,
                                   const SkPoint verts[], const SkPoint textures[],
                                   const SkColor colors[], SkBlendMode bmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
-    draw.drawVertices(vmode, vertexCount, verts, textures, colors, bmode,
+    DeviceDraw(this, fRCStack.back()).drawVertices(vmode, vertexCount, verts, textures, colors, bmode,
                       indices, indexCount, paint);
 }
 
-void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
+void SkBitmapDevice::drawDevice(SkBaseDevice* device,
                                 int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
-    draw.drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
+    DeviceDraw(this, fRCStack.back()).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int x, int y,
+void SkBitmapDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y,
                                  const SkPaint& paint) {
     SkASSERT(!srcImg->isTextureBacked());
 
@@ -391,9 +432,9 @@ void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int
     SkImageFilter* filter = paint.getImageFilter();
     if (filter) {
         SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = *draw.fMatrix;
+        SkMatrix matrix = this->getCTM();
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
+        const SkIRect clipBounds = fRCStack.back().getBounds().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
@@ -403,12 +444,12 @@ void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int
             SkPaint tmpUnfiltered(paint);
             tmpUnfiltered.setImageFilter(nullptr);
             if (resultImg->getROPixels(&resultBM)) {
-                this->drawSprite(draw, resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
+                this->drawSprite(resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
             }
         }
     } else {
         if (srcImg->getROPixels(&resultBM)) {
-            this->drawSprite(draw, resultBM, x, y, paint);
+            this->drawSprite(resultBM, x, y, paint);
         }
     }
 }
