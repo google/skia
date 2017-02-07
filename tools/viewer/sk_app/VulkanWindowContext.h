@@ -35,6 +35,7 @@ public:
     void setDisplayParams(const DisplayParams& params) override {
         this->createSwapchain(fWidth, fHeight, params);
     }
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override {}
 
     GrBackendContext getBackendContext() override {
         return (GrBackendContext) fBackendContext.get();
