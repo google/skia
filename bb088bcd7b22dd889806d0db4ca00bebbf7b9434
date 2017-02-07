@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "e1362d1b_67f566ac",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-07T23:02:02Z",
+      "side": 1,
+      "message": "Sounds great.\n\nThe current change looks like a reasonable compromise between\nefficiency and simplicity. I\u0027d like to see how efficient it is in practice\nbefore worrying about optimizing it further.",
+      "parentUuid": "70177830_91c8fdbb",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6eb7b21_62525763",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 7
