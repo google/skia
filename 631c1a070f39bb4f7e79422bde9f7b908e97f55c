@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2344f3f2_a2452569",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-07T16:34:25Z",
+      "side": 1,
+      "message": "It looks like if the image is wide gamut, this class will report the P3 color space. Does Android need this method? (Is there a corresponding Android change yet?)",
+      "range": {
+        "startLine": 259,
+        "startChar": 35,
+        "endLine": 259,
+        "endChar": 87
+      },
+      "revId": "631c1a070f39bb4f7e79422bde9f7b908e97f55c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
