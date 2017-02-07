@@ -46,5 +46,5 @@ class UploadNanoResultsApi(recipe_api.RecipeApi):
 
     self.m.step(
         'upload',
-        cmd=['gsutil', 'cp', '-a', 'public-read', '-z', 'json', src, dst],
+        cmd=['gsutil', 'cp', '-z', 'json', src, dst],
         infra_step=True)
