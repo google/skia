@@ -57,15 +57,11 @@ public:
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kOther_Kind) {}
 
-    // Create a generic type which maps to the listed types. As currently implemented, there are
-    // always exactly four coercion targets, mapping to the scalar, vec2, vec3, and vec4 versions of
-    // a type.
+    // Create a generic type which maps to the listed types.
     Type(SkString name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
-    , fCoercibleTypes(std::move(types)) {
-        ASSERT(fCoercibleTypes.size() == 4);
-    }
+    , fCoercibleTypes(std::move(types)) {}
 
     // Create a struct type with the given fields.
     Type(Position position, SkString name, std::vector<Field> fields)

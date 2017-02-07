@@ -126,7 +126,15 @@ public:
                                                        fUVec3_Type.get(), fUVec4_Type.get() }))
     , fGenBType_Type(new Type(SkString("$genBType"), { fBool_Type.get(), fBVec2_Type.get(),
                                                        fBVec3_Type.get(), fBVec4_Type.get() }))
-    , fMat_Type(new Type(SkString("$mat")))
+    , fMat_Type(new Type(SkString("$mat"), { fMat2x2_Type.get(), fMat2x3_Type.get(),
+                                             fMat2x4_Type.get(), fMat3x2_Type.get(),
+                                             fMat3x3_Type.get(), fMat3x4_Type.get(),
+                                             fMat4x2_Type.get(), fMat4x3_Type.get(),
+                                             fMat4x4_Type.get(), fDMat2x2_Type.get(),
+                                             fDMat2x3_Type.get(), fDMat2x4_Type.get(),
+                                             fDMat3x2_Type.get(), fDMat3x3_Type.get(),
+                                             fDMat3x4_Type.get(), fDMat4x2_Type.get(),
+                                             fDMat4x3_Type.get(), fDMat4x4_Type.get() }))
     , fVec_Type(new Type(SkString("$vec"), { fInvalid_Type.get(), fVec2_Type.get(),
                                              fVec3_Type.get(), fVec4_Type.get() }))
     , fGVec_Type(new Type(SkString("$gvec")))
