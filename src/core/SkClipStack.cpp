@@ -580,6 +580,20 @@ void SkClipStack::restoreTo(int saveCount) {
     }
 }
 
+SkRect SkClipStack::bounds(SkIRect deviceBounds) const {
+    // TODO: optimize this.
+    SkRect r;
+    SkClipStack::BoundsType bounds;
+    this->getBounds(&r, &bounds);
+    if (bounds == SkClipStack::kInsideOut_BoundsType) {
+        r = SkRect::MakeLargest();
+    }
+    return r.intersect(SkRect::Make(deviceBounds)) ? r : SkRect::MakeEmpty();
+}
+
+// TODO: optimize this.
+bool SkClipStack::isEmpty(SkIRect r) const { return this->bounds(r).isEmpty(); }
+
 void SkClipStack::getBounds(SkRect* canvFiniteBound,
                             BoundsType* boundType,
                             bool* isIntersectionOfRects) const {

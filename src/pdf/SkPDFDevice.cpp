@@ -566,7 +566,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (passedPaint.getPathEffect()) {
-        if (d.fRC->isEmpty()) {
+        if (d.fClipStack->isEmpty(this->getGlobalBounds())) {
             return;
         }
         SkDraw pointDraw(d);
@@ -690,7 +690,7 @@ void SkPDFDevice::drawRect(const SkDraw& d,
     r.sort();
 
     if (paint.getPathEffect()) {
-        if (d.fRC->isEmpty()) {
+        if (d.fClipStack->isEmpty(this->getGlobalBounds())) {
             return;
         }
         SkPath path;
@@ -752,7 +752,7 @@ void SkPDFDevice::drawPath(const SkDraw& d,
     }
 
     if (paint.getPathEffect()) {
-        if (d.fRC->isEmpty()) {
+        if (d.fClipStack->isEmpty(this->getGlobalBounds())) {
             return;
         }
         if (!pathIsMutable) {
@@ -869,7 +869,7 @@ void SkPDFDevice::drawBitmap(const SkDraw& d,
                              const SkBitmap& bitmap,
                              const SkMatrix& matrix,
                              const SkPaint& srcPaint) {
-    if (bitmap.drawsNothing() || d.fRC->isEmpty()) {
+    if (bitmap.drawsNothing() || d.fClipStack->isEmpty(this->getGlobalBounds())) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -891,7 +891,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
                              int x,
                              int y,
                              const SkPaint& srcPaint) {
-    if (bitmap.drawsNothing() || d.fRC->isEmpty()) {
+    if (bitmap.drawsNothing() || d.fClipStack->isEmpty(this->getGlobalBounds())) {
         return;
     }
     SkPaint paint = srcPaint;
@@ -919,7 +919,7 @@ void SkPDFDevice::drawImage(const SkDraw& draw,
     if (image->isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);
     }
-    if (draw.fRC->isEmpty()) {
+    if (draw.fClipStack->isEmpty(this->getGlobalBounds())) {
         return;
     }
     SkImageSubset imageSubset(sk_ref_sp(const_cast<SkImage*>(image)));
@@ -1440,7 +1440,7 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
                                const SkPoint texs[], const SkColor colors[],
                                SkBlendMode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
-    if (d.fRC->isEmpty()) {
+    if (d.fClipStack->isEmpty(this->getGlobalBounds())) {
         return;
     }
     // TODO: implement drawVertices
@@ -1572,7 +1572,7 @@ bool SkPDFDevice::handleInversePath(const SkDraw& d, const SkPath& origPath,
         return false;
     }
 
-    if (d.fRC->isEmpty()) {
+    if (d.fClipStack->isEmpty(this->getGlobalBounds())) {
         return false;
     }
 
