@@ -353,6 +353,9 @@ public:
                    BoundsType* boundType,
                    bool* isIntersectionOfRects = NULL) const;
 
+    SkRect bounds(const SkIRect& deviceBounds) const;
+    bool isEmpty(const SkIRect& deviceBounds) const;
+
     /**
      * Returns true if the input (r)rect in device space is entirely contained
      * by the clip. A return value of false does not guarantee that the (r)rect
