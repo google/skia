@@ -35,8 +35,7 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
 
         TaskCollection<Task> compileTask = project.tasks.matching {
             //  println(it.name)
-            it.name.toLowerCase().contains("compile" + variant.name.toLowerCase()) &&
-                    it.name.toLowerCase().endsWith("ndk")
+            it.name.toLowerCase().contains("compile" + variant.name.toLowerCase())
         }
         compileTask.getAt(0).dependsOn copyNativeLib
         copyNativeLib.dependsOn buildNativeLib
