@@ -662,6 +662,8 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "empty_images/zero-height.wbmp");
     // This image is an ico with an embedded mask-bmp.  This is illegal.
     test_invalid(r, "invalid_images/mask-bmp-ico.ico");
+    // It is illegal for a webp frame to not be fully contained by the canvas.
+    test_invalid(r, "invalid_images/invalid-offset.webp");
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
     test_invalid(r, "empty_images/zero_height.tiff");
 #endif
