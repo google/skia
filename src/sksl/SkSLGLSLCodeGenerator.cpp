@@ -326,6 +326,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
+        case SK_VERTEXID_BUILTIN:
+            this->write("gl_VertexID");
+            break;
         default:
             this->write(ref.fVariable.fName);
     }
