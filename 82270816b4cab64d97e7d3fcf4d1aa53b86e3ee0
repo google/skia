@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b224c45_33575958",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T16:23:59Z",
+      "side": 1,
+      "message": "For these effects that are embedded in an SkIF\u0027s cpp file, do we still need the GrTexture* versions at all?",
+      "range": {
+        "startLine": 221,
+        "startChar": 38,
+        "endLine": 221,
+        "endChar": 42
+      },
+      "revId": "82270816b4cab64d97e7d3fcf4d1aa53b86e3ee0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
