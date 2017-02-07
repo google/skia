@@ -86,7 +86,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     SkCommandLineConfigArray configs;
     ParseConfigs(config1, &configs);
 
-    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    auto srgbColorSpace = SkColorSpace::MakeSRGB();
 
     REPORTER_ASSERT(reporter, configs.count() == config1.count());
     for (int i = 0; i < config1.count(); ++i) {

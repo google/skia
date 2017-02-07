@@ -794,5 +794,5 @@ SkRawCodec::~SkRawCodec() {}
 
 SkRawCodec::SkRawCodec(SkDngImage* dngImage)
     : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(), nullptr,
-                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
+                SkColorSpace::MakeSRGB())
     , fDngImage(dngImage) {}

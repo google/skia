@@ -303,7 +303,7 @@ GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
 
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
     if (dstColorSpace) {
-        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
         auto gamutXform = GrColorSpaceXform::Make(srgbColorSpace.get(), dstColorSpace);
         return SkColorToUnpremulGrColor4f(c, true, gamutXform.get());
     } else {

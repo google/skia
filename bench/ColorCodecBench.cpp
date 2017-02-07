@@ -67,7 +67,7 @@ void ColorCodecBench::onDelayedSetup() {
 
     fDstSpace = nullptr;
     if (FLAGS_srgb) {
-        fDstSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        fDstSpace = SkColorSpace::MakeSRGB();
     } else if (FLAGS_nonstd) {
         SkColorSpaceTransferFn gamma;
         gamma.fA = 1.0f;

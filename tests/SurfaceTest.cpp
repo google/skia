@@ -807,8 +807,8 @@ static void test_surface_creation_and_snapshot_with_color_space(
     bool f16Support,
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
-    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-    auto adobeColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+    auto srgbColorSpace = SkColorSpace::MakeSRGB();
+    auto adobeColorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
     const SkMatrix44* srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
     SkASSERT(srgbMatrix);
     SkColorSpaceTransferFn oddGamma;
@@ -816,7 +816,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
     oddGamma.fB = oddGamma.fC = oddGamma.fD = oddGamma.fE = oddGamma.fF = 0.0f;
     oddGamma.fG = 4.0f;
     auto oddColorSpace = SkColorSpace::MakeRGB(oddGamma, *srgbMatrix);
-    auto linearColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    auto linearColorSpace = SkColorSpace::MakeSRGBLinear();
 
     const struct {
         SkColorType         fColorType;

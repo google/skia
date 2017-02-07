@@ -86,7 +86,7 @@ static sk_sp<SkImage> make_tagged_picture_image() {
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
                                     SkISize::Make(kWidth, kHeight), nullptr, nullptr,
                                     SkImage::BitDepth::kU8,
-                                    SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
+                                    SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> make_untagged_picture_image() {
@@ -144,7 +144,7 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
 
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
     sk_sp<SkColorSpace> srgb = fix_for_colortype(
-            SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dstColorType);
+            SkColorSpace::MakeSRGB().get(), dstColorType);
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorSpace(srgb), data, rowBytes);
     canvas->drawImage(raw.get(), 0.0f, 0.0f, nullptr);
 }
@@ -179,7 +179,7 @@ protected:
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
                 make_wide_gamut(),
-                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+                SkColorSpace::MakeSRGB(),
                 make_small_gamut(),
         };
 
@@ -237,7 +237,7 @@ protected:
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
                 make_wide_gamut(),
-                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+                SkColorSpace::MakeSRGB(),
                 make_small_gamut(),
         };
         const SkImage::CachingHint hints[] = {
@@ -304,7 +304,7 @@ protected:
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
                 make_wide_gamut(),
-                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+                SkColorSpace::MakeSRGB(),
                 make_small_gamut(),
         };
         const SkImage::CachingHint hints[] = {

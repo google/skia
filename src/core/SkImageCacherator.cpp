@@ -96,7 +96,7 @@ SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRec
     // construct a source-to-dest gamut transformation matrix.
     if (fInfo.colorSpace() &&
         SkColorSpace_Base::Type::kXYZ != as_CSB(fInfo.colorSpace())->type()) {
-        fInfo = fInfo.makeColorSpace(SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
+        fInfo = fInfo.makeColorSpace(SkColorSpace::MakeSRGBLinear());
     }
 }
 

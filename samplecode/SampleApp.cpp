@@ -342,8 +342,8 @@ public:
             // the "correct" output (because we generated the pixel values we wanted in the
             // offscreen canvas).
             auto colorSpace = kRGBA_F16_SkColorType == info.colorType()
-                ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
-                : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+                ? SkColorSpace::MakeSRGBLinear()
+                : SkColorSpace::MakeSRGB();
             auto offscreenImage = SkImage::MakeRasterData(info.makeColorSpace(colorSpace), data,
                                                           rowBytes);
 
@@ -1659,7 +1659,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         sk_sp<SkColorSpace> colorSpace = nullptr;
         switch (gConfig[selected].fColorSpace) {
             case kSRGB_OutputColorSpace:
-                colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+                colorSpace = SkColorSpace::MakeSRGB();
                 break;
             case kNarrow_OutputColorSpace:
                 {
@@ -1680,7 +1680,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
                 colorSpace = getMonitorColorSpace();
                 if (!colorSpace) {
                     // Fallback for platforms / machines where we can't get a monitor profile
-                    colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+                    colorSpace = SkColorSpace::MakeSRGB();
                 }
                 break;
             case kLegacy_OutputColorSpace:

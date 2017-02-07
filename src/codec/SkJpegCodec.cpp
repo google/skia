@@ -252,7 +252,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         }
         if (!colorSpace) {
             // Treat unmarked jpegs as sRGB.
-            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+            colorSpace = SkColorSpace::MakeSRGB();
         }
 
         const int width = decoderMgr->dinfo()->image_width;

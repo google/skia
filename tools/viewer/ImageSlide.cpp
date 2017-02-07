@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkColorSpaceXform.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImage.h"
@@ -46,7 +46,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
     codec->getPixels(codec->getInfo(), fOriginalBitmap.getPixels(), fOriginalBitmap.rowBytes());
 
     SkImageInfo xformedInfo = codec->getInfo().makeColorSpace(
-            SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named));
+            SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named));
     fXformedBitmap.allocPixels(xformedInfo);
     codec->getPixels(xformedInfo, fXformedBitmap.getPixels(), fXformedBitmap.rowBytes());
 }
