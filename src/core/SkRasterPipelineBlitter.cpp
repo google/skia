@@ -63,10 +63,6 @@ private:
     float       fCurrentCoverage = 0.0f;
     int         fCurrentY        = 0;
 
-    // Scratch space for shaders and color filters to use.
-    char            fScratch[64];
-    SkArenaAlloc    fArena{fScratch, sizeof(fScratch), 128};
-
     typedef SkBlitter INHERITED;
 };
 
@@ -116,8 +112,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
          is_constant = true;
     if (shader) {
         pipeline->append(SkRasterPipeline::seed_shader, &blitter->fCurrentY);
-        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fArena,
-                                  ctm, paint)) {
+        if (!shader->appendStages(pipeline, dst.colorSpace(), alloc, ctm, paint)) {
             return nullptr;
         }
         if (!is_opaque) {
@@ -137,8 +132,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     }
 
     if (colorFilter) {
-        if (!colorFilter->appendStages(pipeline, dst.colorSpace(), &blitter->fArena,
-                                       is_opaque)) {
+        if (!colorFilter->appendStages(pipeline, dst.colorSpace(), alloc, is_opaque)) {
             return nullptr;
         }
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
