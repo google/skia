@@ -26,6 +26,7 @@ declare_args() {
   skia_use_zlib = true
 
   skia_android_serial = ""
+  skia_android_cpu_features_dependency = ""
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_gpu = true
@@ -647,7 +648,9 @@ component("skia") {
 
   if (is_android) {
     deps += [ "//third_party/expat" ]
-    if (is_skia_standalone && ndk != "") {
+    if (skia_android_cpu_features_dependency != "") {
+      deps += [ skia_android_cpu_features_dependency ]
+    } else if (is_skia_standalone && ndk != "") {
       deps += [ "//third_party/cpu-features" ]
     }
     sources += [ "src/ports/SkDebug_android.cpp" ]
