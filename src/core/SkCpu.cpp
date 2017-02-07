@@ -62,7 +62,7 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM64) && defined(SK_BUILD_FOR_ANDROID)
+#elif defined(SK_CPU_ARM64) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
     #include <asm/hwcap.h>
     #include <sys/auxv.h>
 
@@ -73,9 +73,8 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID) && \
-    __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
-    // asm/hwcap.h and sys/auxv.h won't be present on builds targeting NDK APIs before 21.
+#elif defined(SK_CPU_ARM32) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
+    // asm/hwcap.h and sys/auxv.h won't be present on NDK builds before API v21.
     #include <asm/hwcap.h>
     #include <sys/auxv.h>
 
@@ -86,8 +85,7 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM32) && defined(SK_BUILD_FOR_ANDROID) && \
-    !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#elif defined(SK_CPU_ARM32) && __has_include(<cpu-features.h>)
     #include <cpu-features.h>
 
     static uint32_t read_cpu_features() {
