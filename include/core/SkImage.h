@@ -323,6 +323,14 @@ public:
     sk_sp<SkImage> makeSubset(const SkIRect& subset) const;
 
     /**
+     *  Ensures that an image is backed by a texture (when GrContext is non-null), suitable for use
+     *  with surfaces that have the supplied destination color space. If no transformation is
+     *  required, the returned image may be the same as this image. If this image is from a
+     * different GrContext, this will fail.
+     */
+    sk_sp<SkImage> makeTextureImage(GrContext*, SkColorSpace* dstColorSpace) const;
+
+    /**
      * If the image is texture-backed this will make a raster copy of it (or nullptr if reading back
      * the pixels fails). Otherwise, it returns the original image.
      */
