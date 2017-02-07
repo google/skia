@@ -58,11 +58,12 @@ var (
 	jobNameSchema *JobNameSchema
 
 	// Flags.
-	androidMapFile = flag.String("android_map", "", "JSON file containing a mapping of human-friendly Android device names to a pair of {device_type, device_os}.")
-	assetsDir      = flag.String("assets_dir", "", "Directory containing assets.")
-	cfgFile        = flag.String("cfg_file", "", "JSON file containing general configuration information.")
-	gpuMapFile     = flag.String("gpu_map", "", "JSON file containing a mapping of human-friendly GPU names to PCI IDs.")
-	jobsFile       = flag.String("jobs", "", "JSON file containing jobs to run.")
+	androidMapFile        = flag.String("android_map", "", "JSON file containing a mapping of human-friendly Android device names to a pair of {device_type, device_os}.")
+	builderNameSchemaFile = flag.String("builder_name_schema", "", "Path to the builder_name_schema.json file. If not specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json from this repo.")
+	assetsDir             = flag.String("assets_dir", "", "Directory containing assets.")
+	cfgFile               = flag.String("cfg_file", "", "JSON file containing general configuration information.")
+	gpuMapFile            = flag.String("gpu_map", "", "JSON file containing a mapping of human-friendly GPU names to PCI IDs.")
+	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
 
 // linuxGceDimensions are the Swarming dimensions for Linux GCE
@@ -639,7 +640,10 @@ func main() {
 	loadJson(cfgFile, path.Join(infraBots, "cfg.json"), &CONFIG)
 
 	// Create the JobNameSchema.
-	schema, err := NewJobNameSchema(path.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
+	if *builderNameSchemaFile == "" {
+		*builderNameSchemaFile = path.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json")
+	}
+	schema, err := NewJobNameSchema(*builderNameSchemaFile)
 	if err != nil {
 		glog.Fatal(err)
 	}
