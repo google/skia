@@ -113,7 +113,6 @@ const char* kBackendStateName = "Backend";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
-const char* kSplitScreenStateName = "Split screen";
 const char* kON = "ON";
 const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
@@ -122,8 +121,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
     , fRefresh(false)
-    , fSplitScreen(false)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
+    , fColorType(kN32_SkColorType)
+    , fColorSpace(nullptr)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
@@ -163,10 +163,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
-        DisplayParams params = fWindow->getDisplayParams();
-        params.fColorSpace = (nullptr == params.fColorSpace)
-            ? SkColorSpace::MakeSRGB() : nullptr;
-        fWindow->setDisplayParams(params);
+        fColorSpace = (nullptr == fColorSpace)
+            ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
         this->updateTitle();
         fWindow->inval();
     });
@@ -337,10 +335,13 @@ void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
 
-    // TODO: For now, any color-space on the window means sRGB
-    if (fWindow->getDisplayParams().fColorSpace) {
-        title.append(" sRGB");
+    title.appendf(" %s", sk_tool_utils::colortype_name(fColorType));
+
+    // TODO: Find a short string to describe the gamut of the color space?
+    if (fColorSpace) {
+        title.append(" ColorManaged");
     }
+
     title.append(kBackendTypeStrings[fBackendType]);
     fWindow->setTitle(title.c_str());
 }
@@ -422,56 +423,37 @@ SkMatrix Viewer::computeMatrix() {
     return m;
 }
 
-void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
-    SkASSERT(!inSplitScreen || fWindow->supportsContentRect());
+void Viewer::drawSlide(SkCanvas* canvas) {
+    // Render off-screen
+    auto slideSurface = canvas->makeSurface(SkImageInfo::Make(fWindow->width(), fWindow->height(),
+                                                              fColorType, kPremul_SkAlphaType,
+                                                              fColorSpace));
+    auto slideCanvas = slideSurface->getCanvas();
 
+    slideCanvas->clear(SK_ColorWHITE);
+    slideCanvas->concat(fDefaultMatrix);
+    slideCanvas->concat(computeMatrix());
+
+    fSlides[fCurrentSlide]->draw(slideCanvas);
+
+    // Push results to window's canvas
     int count = canvas->save();
 
     if (fWindow->supportsContentRect()) {
         SkRect contentRect = fWindow->getContentRect();
-        // If inSplitScreen, translate the image half screen to the right.
-        // Thus we have two copies of the image on each half of the screen.
-        contentRect.fLeft +=
-                inSplitScreen ? (contentRect.fRight - contentRect.fLeft) * 0.5f : 0.0f;
         canvas->clipRect(contentRect);
         canvas->translate(contentRect.fLeft, contentRect.fTop);
     }
-
-    canvas->clear(SK_ColorWHITE);
-    canvas->concat(fDefaultMatrix);
-    canvas->concat(computeMatrix());
-
-    if (inSplitScreen) {
-        sk_sp<SkSurface> offscreenSurface = fWindow->getOffscreenSurface(true);
-        offscreenSurface->getCanvas()->getMetaData().setBool(kImageColorXformMetaData, true);
-        fSlides[fCurrentSlide]->draw(offscreenSurface->getCanvas());
-        sk_sp<SkImage> snapshot = offscreenSurface->makeImageSnapshot();
-        canvas->drawImage(snapshot, 0, 0);
-    } else {
-        fSlides[fCurrentSlide]->draw(canvas);
-    }
+    slideSurface->draw(canvas, 0, 0, nullptr);
 
     canvas->restoreToCount(count);
-
-    if (inSplitScreen) {
-        // Draw split line
-        SkPaint paint;
-        SkScalar intervals[] = {10.0f, 5.0f};
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0.0f));
-        SkRect contentRect = fWindow->getContentRect();
-        SkScalar middleX = (contentRect.fLeft + contentRect.fRight) * 0.5f;
-        canvas->drawLine(middleX, contentRect.fTop, middleX, contentRect.fBottom, paint);
-    }
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
     // Record measurements
     double startTime = SkTime::GetMSecs();
 
-    drawSlide(canvas, false);
-    if (fSplitScreen && fWindow->supportsContentRect()) {
-        drawSlide(canvas, true);
-    }
+    drawSlide(canvas);
 
     if (fDisplayStats) {
         drawStats(canvas);
@@ -600,20 +582,11 @@ void Viewer::updateUIState() {
     fpsState[kValue] = SkStringPrintf("%8.3lf ms", measurement).c_str();
     fpsState[kOptions] = Json::Value(Json::arrayValue);
 
-    // Split screen state
-    Json::Value splitScreenState(Json::objectValue);
-    splitScreenState[kName] = kSplitScreenStateName;
-    splitScreenState[kValue] = fSplitScreen ? kON : kOFF;
-    splitScreenState[kOptions] = Json::Value(Json::arrayValue);
-    splitScreenState[kOptions].append(kON);
-    splitScreenState[kOptions].append(kOFF);
-
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(softkeyState);
     state.append(fpsState);
-    state.append(splitScreenState);
 
     fWindow->setUIState(state);
 }
@@ -655,13 +628,6 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         if (!stateValue.equals(kSoftkeyHint)) {
             fCommands.onSoftkey(stateValue);
             updateUIState(); // This is still needed to reset the value to kSoftkeyHint
-        }
-    } else if (stateName.equals(kSplitScreenStateName)) {
-        bool newSplitScreen = stateValue.equals(kON);
-        if (newSplitScreen != fSplitScreen) {
-            fSplitScreen = newSplitScreen;
-            fWindow->inval();
-            updateUIState();
         }
     } else if (stateName.equals(kRefreshStateName)) {
         // This state is actually NOT in the UI state.
