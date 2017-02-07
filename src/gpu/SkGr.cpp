@@ -286,6 +286,34 @@ GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                                                  nullptr, scaleAdjust);
 }
 
+// This is intended to replace:
+//    SkAutoLockPixels alp(bitmap, true);
+//    if (!bitmap.readyToDraw()) {
+//        return nullptr;
+//    }
+//    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
+//                                                         GrSamplerParams::ClampNoFilter(), nullptr);
+//    if (!texture) {
+//        return nullptr;
+//    }
+sk_sp<GrSurfaceProxy> GrMakeCachedBitmapProxy(GrContext* context, const SkBitmap& bitmap) {
+    SkAutoLockPixels alp(bitmap, true);
+    if (!bitmap.readyToDraw()) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *context->caps());
+
+    // TODO: this needs to be cached (if not volatile)!!!
+    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                               context->textureProvider(),
+                                                               desc, SkBudgeted::kYes,
+                                                               bitmap.getPixels(),
+                                                               bitmap.rowBytes());
+    return proxy;
+}
+
+
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                            const GrSamplerParams& params, SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)

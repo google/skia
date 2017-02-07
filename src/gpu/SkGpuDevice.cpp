@@ -1125,31 +1125,24 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 
-    sk_sp<GrTexture> texture;
-    {
-        SkAutoLockPixels alp(bitmap, true);
-        if (!bitmap.readyToDraw()) {
-            return;
-        }
-
-        // draw sprite neither filters nor tiles.
-        texture.reset(GrRefCachedBitmapTexture(fContext.get(), bitmap,
-                                               GrSamplerParams::ClampNoFilter(), nullptr));
-        if (!texture) {
-            return;
-        }
+    sk_sp<GrSurfaceProxy> proxy = GrMakeCachedBitmapProxy(fContext.get(), bitmap);
+    if (!proxy) {
+        return;
     }
 
+    // This is odd - we cache the bitmap based on its subset but here we treat it as if
+    // we've uploaded the entire bitmap!
     SkIRect srcRect = SkIRect::MakeXYWH(bitmap.pixelRefOrigin().fX,
                                         bitmap.pixelRefOrigin().fY,
                                         bitmap.width(),
                                         bitmap.height());
 
-    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeFromGpu(srcRect,
-                                                             bitmap.getGenerationID(),
-                                                             std::move(texture),
-                                                             bitmap.refColorSpace(),
-                                                             &this->surfaceProps()));
+    sk_sp<SkSpecialImage> srcImg(SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                                                     srcRect,
+                                                                     bitmap.getGenerationID(),
+                                                                     std::move(proxy),
+                                                                     bitmap.refColorSpace(),
+                                                                     &this->surfaceProps()));
 
     this->drawSpecial(draw, srcImg.get(), left, top, paint);
 }
@@ -1178,7 +1171,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     }
 
     SkASSERT(result->isTextureBacked());
-    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(fContext.get());
+    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(this->context());
     if (!proxy) {
         return;
     }
@@ -1190,7 +1183,7 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
 
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(fContext.get(),
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(this->context(),
                                                               std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
@@ -1298,22 +1291,18 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
-    SkAutoLockPixels alp(bitmap, true);
-    if (!bitmap.readyToDraw()) {
+    sk_sp<GrSurfaceProxy> proxy = GrMakeCachedBitmapProxy(fContext.get(), bitmap);
+    if (!proxy) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-                                                         GrSamplerParams::ClampNoFilter(), nullptr);
-    if (!texture) {
-        return nullptr;
-    }
-
-    return SkSpecialImage::MakeFromGpu(bitmap.bounds(),
-                                       bitmap.getGenerationID(),
-                                       texture,
-                                       bitmap.refColorSpace(),
-                                       &this->surfaceProps());
+    // Hmmm - this ignores the subset from the bitmap and just uses the entire bounds
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                               bitmap.bounds(),
+                                               bitmap.getGenerationID(),
+                                               std::move(proxy),
+                                               bitmap.refColorSpace(),
+                                               &this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
