@@ -55,12 +55,12 @@ public:
     sk_sp<SkColorSpace> makeLinearGamma() override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
-        return SkColorSpace::MakeSRGBLinear();
+        return SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
     }
 
     sk_sp<SkColorSpace> makeSRGBGamma() override {
         // See comment in makeLinearGamma
-        return SkColorSpace::MakeSRGB();
+        return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     Type type() const override { return Type::kA2B; }

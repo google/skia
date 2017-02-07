@@ -110,9 +110,9 @@ int main() {
     if (options.f16) {
         SkASSERT(options.srgb);
         colorType = kRGBA_F16_SkColorType;
-        colorSpace = SkColorSpace::MakeSRGBLinear();
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
     } else if (options.srgb) {
-        colorSpace = SkColorSpace::MakeSRGB();
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
     SkImageInfo info = SkImageInfo::Make(options.size.width(), options.size.height(), colorType,
                                          kPremul_SkAlphaType, colorSpace);

@@ -352,7 +352,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
         // FIXME (msarett): Extract this information from the sRGB chunk once
         //                  we are able to handle this information in
         //                  SkColorSpace.
-        return SkColorSpace::MakeSRGB();
+        return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     // Next, check for chromaticities.
@@ -408,7 +408,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
 
     // Report that there is no color space information in the PNG.
     // Guess sRGB in this case.
-    return SkColorSpace::MakeSRGB();
+    return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
 }
 
 void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
@@ -1012,7 +1012,7 @@ void AutoCleanPng::infoCallback() {
         const bool unsupportedICC = !colorSpace;
         if (!colorSpace) {
             // Treat unsupported/invalid color spaces as sRGB.
-            colorSpace = SkColorSpace::MakeSRGB();
+            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
         SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);

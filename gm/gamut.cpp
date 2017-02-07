@@ -133,12 +133,12 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<std::unique_ptr<CellRende
     switch (origInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            srgbCS = SkColorSpace::MakeSRGB();
+            srgbCS = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
             wideCS = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                           wideGamutRGB_toXYZD50);
             break;
         case kRGBA_F16_SkColorType:
-            srgbCS = SkColorSpace::MakeSRGBLinear();
+            srgbCS = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
             wideCS = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
                                           wideGamutRGB_toXYZD50);
             break;
