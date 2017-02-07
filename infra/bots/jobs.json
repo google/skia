@@ -162,8 +162,6 @@
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
   "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
-  "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Debug",
-  "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release",
   "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
   "Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release",
   "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
@@ -267,8 +265,6 @@
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
   "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
-  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Debug",
-  "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release",
   "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug",
   "Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Release"
 ]
