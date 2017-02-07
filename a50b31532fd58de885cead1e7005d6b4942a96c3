@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ceefe99_d035285a",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-07T22:49:31Z",
+      "side": 1,
+      "message": "Can we fold it together something like this?\n\nskia_android_cpu_features_dependency \u003d \"\"\nif (skia_is_standalone \u0026\u0026 ndk !\u003d \"\") {\n  skia_android_cpu_features_dependency \u003d \"//third_party/cpu-features\"\n}\n\nand then \n\nif (skia_android_cpu_features_dependency !\u003d \"\") {\n  deps +\u003d [ skia_android_cpu_features_dependency ]\n}\n\n?",
+      "revId": "a50b31532fd58de885cead1e7005d6b4942a96c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
