@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6821329_a9e6c6a6",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T21:20:19Z",
+      "side": 1,
+      "message": "Can we convert this away from table based w/ static asserts to switch/case?",
+      "revId": "cfaebba1bb4bc52c3bd3d8650ba9108c08d60a01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "471d1d9b_c3599c9c",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-07T21:20:19Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 24,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 29
+      },
+      "revId": "cfaebba1bb4bc52c3bd3d8650ba9108c08d60a01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
