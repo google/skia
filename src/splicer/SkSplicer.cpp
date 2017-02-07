@@ -49,6 +49,13 @@ namespace {
         buf->write(&val, sizeof(val));
     }
 
+    // Splice up to (but not including) the final return instruction in code.
+    template <typename T, size_t N>
+    static void splice_until_ret(SkWStream* buf, const T (&code)[N]) {
+        // On all platforms we splice today, return is a single T (byte on x86, u32 on ARM).
+        buf->write(&code, sizeof(T) * (N-1));
+    }
+
 #if defined(__aarch64__)
     static constexpr int kStride = 4;
     static void set_ctx(SkWStream* buf, void* ctx) {
@@ -236,7 +243,7 @@ namespace {
     static bool splice(SkWStream* buf, SkRasterPipeline::StockStage st) {
         switch (st) {
             default: return false;
-        #define CASE(st) case SkRasterPipeline::st: splice(buf, kSplice_##st); break
+        #define CASE(st) case SkRasterPipeline::st: splice_until_ret(buf, kSplice_##st); break
             CASE(clear);
             CASE(plus_);
             CASE(srcover);
@@ -310,7 +317,7 @@ namespace {
                 }
             }
 
-            splice(&buf, kSplice_inc_x);
+            splice_until_ret(&buf, kSplice_inc_x);
             loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
             after_loop(&buf);
             ret(&buf);  // We're done.

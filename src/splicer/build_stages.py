@@ -40,7 +40,7 @@ subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'armv7.o'])
 
-def parse_object_file(dst, dot_o, array_type, done, target=None):
+def parse_object_file(dst, dot_o, array_type, jump, ret, target=None):
   cmd = [ objdump, '-d', dot_o]
   if target:
     cmd += ['--target', target]
@@ -68,13 +68,18 @@ def parse_object_file(dst, dot_o, array_type, done, target=None):
     for arg in args:
       assert 'rip' not in arg  # TODO: detect on aarch64 too
 
-    if code == done:
-      print >>dst,'};'
-      continue
+    # At the end of every stage function there's a jump to next().
+    # We replace that with a ret to make these stages work with an interpreter.
+    if code == jump:
+      code = ret
+      inst = 'return'
+      args = '(synthetic)'
 
     hexed = ''.join('0x'+x+',' for x in code.split(' '))
     print >>dst,'    ' + hexed + ' '*(44-len(hexed)) + \
                 '//  ' + inst  + ' '*(14-len(inst))  + args
+    if code == ret:
+      print >>dst,'};'
 
 with open('src/splicer/SkSplicer_generated.h', 'w') as f:
   print >>f,'''/*
@@ -92,11 +97,11 @@ with open('src/splicer/SkSplicer_generated.h', 'w') as f:
 
 #if defined(__aarch64__)
 '''
-  parse_object_file(f, 'aarch64.o', 'unsigned int', '14000000')
+  parse_object_file(f, 'aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
   print >>f,'\n#elif defined(__ARM_NEON__)\n'
-  parse_object_file(f, 'armv7.o', 'unsigned int', 'eafffffe',
+  parse_object_file(f, 'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
                   target='elf32-littlearm')
   print >>f,'\n#else\n'
-  parse_object_file(f, 'hsw.o', 'unsigned char', 'e9 00 00 00 00')
+  parse_object_file(f, 'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
   print >>f,'\n#endif\n'
   print >>f,'#endif//SkSplicer_generated_DEFINED'
