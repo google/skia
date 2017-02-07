@@ -89,7 +89,9 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('ninja', ninja, '-C', self.out_dir)
 
   def install(self):
-    self._adb('mkdir ' + self.device_dirs.resource_dir,
+    # getting root can help with the Nexus Players
+    self._adb('root', 'root')
+    return self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
 
   def cleanup_steps(self):
