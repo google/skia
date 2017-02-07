@@ -201,7 +201,7 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
 
         SkAutoTMalloc<SkPMColor> buffer4b(width*height);
 
-        SkArenaAlloc alloc{kSkBlitterContextSize * sizeof(uint32_t)};
+        SkArenaAlloc alloc{0};
         const SkShader::ContextRec rec(fPaint, fM, nullptr,
                                        SkShader::ContextRec::kPMColor_DstType,
                                        nullptr);
