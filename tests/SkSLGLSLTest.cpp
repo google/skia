@@ -12,12 +12,11 @@
 #if SK_SUPPORT_GPU
 
 static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Settings& settings,
-                 const char* expected, SkSL::Program::Inputs* inputs) {
+                 const char* expected, SkSL::Program::Inputs* inputs,
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler;
     SkString output;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkString(src),
-                                                                     settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkString(src), settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
@@ -35,11 +34,11 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
 }
 
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
-                 const char* expected) {
+                 const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     SkSL::Program::Inputs inputs;
-    test(r, src, settings, expected, &inputs);
+    test(r, src, settings, expected, &inputs, kind);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
@@ -675,6 +674,18 @@ DEF_TEST(SkSLFragCoord, r) {
          "}\n",
          &inputs);
     REPORTER_ASSERT(r, !inputs.fRTHeight);
+}
+
+DEF_TEST(SkSLVertexID, r) {
+    test(r,
+         "out int id; void main() { id = sk_VertexID; }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out int id;\n"
+         "void main() {\n"
+         "    id = gl_VertexID;\n"
+         "}\n",
+         SkSL::Program::kVertex_Kind);
 }
 
 #endif

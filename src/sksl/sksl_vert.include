@@ -7,5 +7,7 @@ out gl_PerVertex {
   	layout(builtin=1) float gl_PointSize;
 };
 
+layout(builtin=5) int sk_VertexID;
+
 )
 

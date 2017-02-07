@@ -33,6 +33,7 @@ following differences between SkSL and GLSL:
   'do_something_else();', depending on whether that cap is enabled or not.
 * no #version statement is required, and will be ignored if present
 * the output color is sk_FragColor (do not declare it)
+* use sk_VertexID instead of gl_VertexID
 * lowp, mediump, and highp are always permitted (but will only be respected if 
   you run on a GLES device)
 * you do not need to include ".0" to make a number a float (meaning that
