@@ -14,7 +14,9 @@
 #include "SKPSlide.h"
 
 #include "SkATrace.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommandLineFlags.h"
 #include "SkDashPathEffect.h"
 #include "SkGraphics.h"
@@ -113,7 +115,6 @@ const char* kBackendStateName = "Backend";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
-const char* kSplitScreenStateName = "Split screen";
 const char* kON = "ON";
 const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
@@ -122,8 +123,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
     , fRefresh(false)
-    , fSplitScreen(false)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
+    , fColorType(kN32_SkColorType)
+    , fColorSpace(nullptr)
     , fZoomCenterX(0.0f)
     , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
@@ -162,11 +164,19 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->fDisplayStats = !this->fDisplayStats;
         fWindow->inval();
     });
-    fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
-        DisplayParams params = fWindow->getDisplayParams();
-        params.fColorSpace = (nullptr == params.fColorSpace)
-            ? SkColorSpace::MakeSRGB() : nullptr;
-        fWindow->setDisplayParams(params);
+    fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
+        if (!fColorSpace) {
+            // Legacy -> sRGB
+            fColorSpace = SkColorSpace::MakeSRGB();
+        } else if (kN32_SkColorType == fColorType) {
+            // sRGB -> F16 sRGB
+            fColorType = kRGBA_F16_SkColorType;
+            fColorSpace = SkColorSpace::MakeSRGBLinear();
+        } else {
+            // F16 sRGB -> Legacy
+            fColorType = kN32_SkColorType;
+            fColorSpace = nullptr;
+        }
         this->updateTitle();
         fWindow->inval();
     });
@@ -337,10 +347,13 @@ void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
 
-    // TODO: For now, any color-space on the window means sRGB
-    if (fWindow->getDisplayParams().fColorSpace) {
-        title.append(" sRGB");
+    title.appendf(" %s", sk_tool_utils::colortype_name(fColorType));
+
+    // TODO: Find a short string to describe the gamut of the color space?
+    if (fColorSpace) {
+        title.append(" ColorManaged");
     }
+
     title.append(kBackendTypeStrings[fBackendType]);
     fWindow->setTitle(title.c_str());
 }
@@ -422,56 +435,54 @@ SkMatrix Viewer::computeMatrix() {
     return m;
 }
 
-void Viewer::drawSlide(SkCanvas* canvas, bool inSplitScreen) {
-    SkASSERT(!inSplitScreen || fWindow->supportsContentRect());
+void Viewer::drawSlide(SkCanvas* canvas) {
+    // Render off-screen
+    SkImageInfo slideInfo = SkImageInfo::Make(fWindow->width(), fWindow->height(), fColorType,
+                                              kPremul_SkAlphaType, fColorSpace);
+    auto slideSurface = canvas->makeSurface(slideInfo);
+    auto slideCanvas = slideSurface->getCanvas();
 
+    slideCanvas->clear(SK_ColorWHITE);
+    slideCanvas->concat(fDefaultMatrix);
+    slideCanvas->concat(computeMatrix());
+
+    fSlides[fCurrentSlide]->draw(slideCanvas);
+
+    // Snap the results as an image
+    auto slideImage = slideSurface->makeImageSnapshot();
+
+    // If the offscreen canvas is F16, we need to convert it to 8888, for two reasons:
+    // 1) Raster won't draw F16 to a legacy dest (which our window canvas is) at all.
+    // 2) ... even if it did, we need to apply the linear -> sRGB xform here to avoid darkening.
+    if (kRGBA_F16_SkColorType == fColorType) {
+        // TODO: Make this simpler/faster once we have our color space conversion helper on SkImage
+        SkAutoPixmapStorage pmap;
+        pmap.alloc(slideInfo.makeColorType(kN32_SkColorType)
+                            .makeColorSpace(as_CSB(fColorSpace)->makeSRGBGamma()));
+        slideImage->readPixels(pmap, 0, 0);
+        slideImage = SkImage::MakeRasterCopy(pmap);
+    }
+
+    // Push results to window's canvas
     int count = canvas->save();
 
     if (fWindow->supportsContentRect()) {
         SkRect contentRect = fWindow->getContentRect();
-        // If inSplitScreen, translate the image half screen to the right.
-        // Thus we have two copies of the image on each half of the screen.
-        contentRect.fLeft +=
-                inSplitScreen ? (contentRect.fRight - contentRect.fLeft) * 0.5f : 0.0f;
         canvas->clipRect(contentRect);
         canvas->translate(contentRect.fLeft, contentRect.fTop);
     }
 
-    canvas->clear(SK_ColorWHITE);
-    canvas->concat(fDefaultMatrix);
-    canvas->concat(computeMatrix());
-
-    if (inSplitScreen) {
-        sk_sp<SkSurface> offscreenSurface = fWindow->getOffscreenSurface(true);
-        offscreenSurface->getCanvas()->getMetaData().setBool(kImageColorXformMetaData, true);
-        fSlides[fCurrentSlide]->draw(offscreenSurface->getCanvas());
-        sk_sp<SkImage> snapshot = offscreenSurface->makeImageSnapshot();
-        canvas->drawImage(snapshot, 0, 0);
-    } else {
-        fSlides[fCurrentSlide]->draw(canvas);
-    }
+    canvas->drawImage(slideImage, 0, 0);
 
     canvas->restoreToCount(count);
-
-    if (inSplitScreen) {
-        // Draw split line
-        SkPaint paint;
-        SkScalar intervals[] = {10.0f, 5.0f};
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0.0f));
-        SkRect contentRect = fWindow->getContentRect();
-        SkScalar middleX = (contentRect.fLeft + contentRect.fRight) * 0.5f;
-        canvas->drawLine(middleX, contentRect.fTop, middleX, contentRect.fBottom, paint);
-    }
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
     // Record measurements
     double startTime = SkTime::GetMSecs();
+    canvas->clear(SK_ColorWHITE);
 
-    drawSlide(canvas, false);
-    if (fSplitScreen && fWindow->supportsContentRect()) {
-        drawSlide(canvas, true);
-    }
+    drawSlide(canvas);
 
     if (fDisplayStats) {
         drawStats(canvas);
@@ -600,20 +611,11 @@ void Viewer::updateUIState() {
     fpsState[kValue] = SkStringPrintf("%8.3lf ms", measurement).c_str();
     fpsState[kOptions] = Json::Value(Json::arrayValue);
 
-    // Split screen state
-    Json::Value splitScreenState(Json::objectValue);
-    splitScreenState[kName] = kSplitScreenStateName;
-    splitScreenState[kValue] = fSplitScreen ? kON : kOFF;
-    splitScreenState[kOptions] = Json::Value(Json::arrayValue);
-    splitScreenState[kOptions].append(kON);
-    splitScreenState[kOptions].append(kOFF);
-
     Json::Value state(Json::arrayValue);
     state.append(slideState);
     state.append(backendState);
     state.append(softkeyState);
     state.append(fpsState);
-    state.append(splitScreenState);
 
     fWindow->setUIState(state);
 }
@@ -655,13 +657,6 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         if (!stateValue.equals(kSoftkeyHint)) {
             fCommands.onSoftkey(stateValue);
             updateUIState(); // This is still needed to reset the value to kSoftkeyHint
-        }
-    } else if (stateName.equals(kSplitScreenStateName)) {
-        bool newSplitScreen = stateValue.equals(kON);
-        if (newSplitScreen != fSplitScreen) {
-            fSplitScreen = newSplitScreen;
-            fWindow->inval();
-            updateUIState();
         }
     } else if (stateName.equals(kRefreshStateName)) {
         // This state is actually NOT in the UI state.

@@ -113,8 +113,4 @@ void Window::markInvalProcessed() {
     fIsContentInvalidated = false;
 }
 
-sk_sp<SkSurface> Window::getOffscreenSurface(bool forceSRGB) {
-    return fWindowContext->createOffscreenSurface(forceSRGB);
-}
-
 }   // namespace sk_app
