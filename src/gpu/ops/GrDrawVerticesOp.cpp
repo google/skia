@@ -197,48 +197,71 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
         }
     }
 
-    int indexOffset = 0;
     int vertexOffset = 0;
+    // We have a fast case below for uploading the vertex data when the matrix is translate
+    // only and there are colors but not local coords.
+    bool fastAttrs = hasColorAttribute && !hasLocalCoordsAttribute;
     for (int i = 0; i < instanceCount; i++) {
         const Mesh& mesh = fMeshes[i];
         if (indices) {
             int indexCount = mesh.fVertices->indexCount();
-            for (int j = 0; j < indexCount; ++j, ++indexOffset) {
-                *(indices + indexOffset) = mesh.fVertices->indices()[j] + vertexOffset;
+            for (int j = 0; j < indexCount; ++j) {
+                *indices++ = mesh.fVertices->indices()[j] + vertexOffset;
             }
         }
-
-        static constexpr size_t kColorOffset = sizeof(SkPoint);
-        size_t localCoordOffset =
-                hasColorAttribute ? kColorOffset + sizeof(uint32_t) : kColorOffset;
-
         int vertexCount = mesh.fVertices->vertexCount();
         const SkPoint* positions = mesh.fVertices->positions();
         const SkColor* colors = mesh.fVertices->colors();
         const SkPoint* localCoords = mesh.fVertices->texCoords();
-        for (int j = 0; j < vertexCount; ++j) {
+        bool fastMesh = (!this->hasMultipleViewMatrices() ||
+                         mesh.fViewMatrix.getType() <= SkMatrix::kTranslate_Mask) &&
+                        mesh.hasPerVertexColors();
+        if (fastAttrs && fastMesh) {
+            struct V {
+                SkPoint fPos;
+                uint32_t fColor;
+            };
+            SkASSERT(sizeof(V) == vertexStride);
+            V* v = (V*)verts;
+            Sk2f t(0, 0);
             if (this->hasMultipleViewMatrices()) {
-                mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[j], 1);
-            } else {
-                *((SkPoint*)verts) = positions[j];
+                t = Sk2f(mesh.fViewMatrix.getTranslateX(), mesh.fViewMatrix.getTranslateY());
             }
-            if (hasColorAttribute) {
-                if (mesh.hasPerVertexColors()) {
-                    *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[j];
+            for (int j = 0; j < vertexCount; ++j) {
+                Sk2f p = Sk2f::Load(positions++) + t;
+                p.store(&v[j].fPos);
+                v[j].fColor = colors[j];
+            }
+            verts = v + vertexCount;
+        } else {
+            static constexpr size_t kColorOffset = sizeof(SkPoint);
+            size_t localCoordOffset =
+                    hasColorAttribute ? kColorOffset + sizeof(uint32_t) : kColorOffset;
+
+            for (int j = 0; j < vertexCount; ++j) {
+                if (this->hasMultipleViewMatrices()) {
+                    mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[j], 1);
                 } else {
-                    *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColor;
+                    *((SkPoint*)verts) = positions[j];
                 }
-            }
-            if (hasLocalCoordsAttribute) {
-                if (mesh.hasExplicitLocalCoords()) {
-                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = localCoords[j];
-                } else {
-                    *(SkPoint*)((intptr_t)verts + localCoordOffset) = positions[j];
+                if (hasColorAttribute) {
+                    if (mesh.hasPerVertexColors()) {
+                        *(uint32_t*)((intptr_t)verts + kColorOffset) = colors[j];
+                    } else {
+                        *(uint32_t*)((intptr_t)verts + kColorOffset) = mesh.fColor;
+                    }
                 }
+                if (hasLocalCoordsAttribute) {
+                    if (mesh.hasExplicitLocalCoords()) {
+                        *(SkPoint*)((intptr_t)verts + localCoordOffset) = localCoords[j];
+                    } else {
+                        *(SkPoint*)((intptr_t)verts + localCoordOffset) = positions[j];
+                    }
+                }
+                verts = (void*)((intptr_t)verts + vertexStride);
             }
-            verts = (void*)((intptr_t)verts + vertexStride);
-            vertexOffset++;
         }
+        vertexOffset += vertexCount;
     }
 
     GrMesh mesh;
