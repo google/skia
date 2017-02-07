@@ -847,7 +847,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         return alloc->make<SkA8_Coverage_Blitter>(device, *paint);
     }
 
-    if (SkBlitter* blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc)) {
+    if (SkBlitter* blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc, true)) {
         return blitter;
     }
 
