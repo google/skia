@@ -21,7 +21,8 @@ public:
 #endif
 
     SkNormalSource::Provider* asProvider(const SkShader::ContextRec& rec,
-                                         SkArenaAlloc* alloc) const override;
+                                         void* storage) const override;
+    size_t providerSize(const SkShader::ContextRec& rec) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNormalMapSourceImpl)
 
@@ -33,13 +34,18 @@ protected:
 private:
     class Provider : public SkNormalSource::Provider {
     public:
-        Provider(const SkNormalMapSourceImpl& source, SkShader::Context* mapContext);
+        Provider(const SkNormalMapSourceImpl& source, SkShader::Context* mapContext,
+                 SkPaint* overridePaint);
+
+        virtual ~Provider() override;
 
         void fillScanLine(int x, int y, SkPoint3 output[], int count) const override;
 
     private:
         const SkNormalMapSourceImpl& fSource;
         SkShader::Context* fMapContext;
+
+        SkPaint* fOverridePaint;
 
         typedef SkNormalSource::Provider INHERITED;
     };

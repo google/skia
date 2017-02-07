@@ -7,7 +7,6 @@
 
 #include "SkNormalBevelSource.h"
 
-#include "SkArenaAlloc.h"
 #include "SkNormalSource.h"
 #include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
@@ -264,8 +263,12 @@ SkNormalBevelSourceImpl::Provider::Provider() {}
 SkNormalBevelSourceImpl::Provider::~Provider() {}
 
 SkNormalSource::Provider* SkNormalBevelSourceImpl::asProvider(const SkShader::ContextRec &rec,
-                                                              SkArenaAlloc* alloc) const {
-    return alloc->make<Provider>();
+                                                              void *storage) const {
+    return new (storage) Provider();
+}
+
+size_t SkNormalBevelSourceImpl::providerSize(const SkShader::ContextRec&) const {
+    return sizeof(Provider);
 }
 
 // TODO Implement feature for the CPU pipeline

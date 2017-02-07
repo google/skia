@@ -6,8 +6,6 @@
  */
 
 #include "SkCoreBlitters.h"
-
-#include "SkArenaAlloc.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -405,8 +403,8 @@ struct StateF16 : State4f {
 
 template <typename State> SkBlitter* create(const SkPixmap& device, const SkPaint& paint,
                                             SkShader::Context* shaderContext,
-                                            SkArenaAlloc* alloc) {
-    SkASSERT(alloc != nullptr);
+                                            SkTBlitterAllocator* allocator) {
+    SkASSERT(allocator != nullptr);
 
     if (shaderContext) {
         SkShader::Context::BlitState bstate;
@@ -415,24 +413,24 @@ template <typename State> SkBlitter* create(const SkPixmap& device, const SkPain
         bstate.fMode = paint.getBlendMode();
 
         (void)shaderContext->chooseBlitProcs(device.info(), &bstate);
-        return alloc->make<SkState_Shader_Blitter<State>>(device, paint, bstate);
+        return allocator->createT<SkState_Shader_Blitter<State>>(device, paint, bstate);
     } else {
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {
             return nullptr;
         }
-        return alloc->make<SkState_Blitter<State>>(device, paint);
+        return allocator->createT<SkState_Blitter<State>>(device, paint);
     }
 }
 
 SkBlitter* SkBlitter_ARGB32_Create(const SkPixmap& device, const SkPaint& paint,
                                    SkShader::Context* shaderContext,
-                                   SkArenaAlloc* alloc) {
-    return create<State32>(device, paint, shaderContext, alloc);
+                                   SkTBlitterAllocator* allocator) {
+    return create<State32>(device, paint, shaderContext, allocator);
 }
 
 SkBlitter* SkBlitter_F16_Create(const SkPixmap& device, const SkPaint& paint,
                                 SkShader::Context* shaderContext,
-                                SkArenaAlloc* alloc) {
-    return create<StateF16>(device, paint, shaderContext, alloc);
+                                SkTBlitterAllocator* allocator) {
+    return create<StateF16>(device, paint, shaderContext, allocator);
 }
