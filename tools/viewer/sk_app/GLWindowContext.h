@@ -55,11 +55,9 @@ protected:
 
     // parameters obtained from the native window
     // Note that the platform .cpp file is responsible for
-    // initializing fSampleCount, fStencilBits, and fColorBits!
+    // initializing fSampleCount and fStencilBits!
     int                        fSampleCount;
     int                        fStencilBits;
-    int                        fColorBits;
-    int                        fActualColorBits;
 };
 
 }   // namespace sk_app

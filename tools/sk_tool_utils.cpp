@@ -201,6 +201,7 @@ const char* colortype_name(SkColorType ct) {
         case kRGB_565_SkColorType:      return "RGB_565";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
         case kBGRA_8888_SkColorType:    return "BGRA_8888";
+        case kRGBA_F16_SkColorType:     return "RGBA_F16";
         default:
             SkASSERT(false);
             return "unexpected colortype";
