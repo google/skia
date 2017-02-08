@@ -432,6 +432,7 @@
 #define GR_GL_RGB_INTEGER                    0x8D98
 #define GR_GL_SRGB                           0x8C40
 #define GR_GL_RGBA                           0x1908
+#define GR_GL_RG                             0x8227
 #define GR_GL_SRGB_ALPHA                     0x8C42
 #define GR_GL_RGBA_INTEGER                   0x8D99
 #define GR_GL_BGRA                           0x80E1
@@ -513,6 +514,7 @@
 #define GR_GL_SRGB8_ALPHA8                   0x8C43
 #define GR_GL_RGBA16F                        0x881A
 #define GR_GL_RGBA32F                        0x8814
+#define GR_GL_RG32F                          0x8230
 
 /* RGBA integer sized formats */
 #define GR_GL_RGBA8I                         0x8D8E

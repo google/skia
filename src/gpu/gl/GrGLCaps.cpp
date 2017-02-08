@@ -932,8 +932,9 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         // The manual does not seem to fully match the spec as the spec allows integer formats
         // when the bound color buffer is an integer buffer. It doesn't specify which integer
         // formats are allowed, so perhaps all of them are. We only use GL_RGBA_INTEGER currently.
-        if (readFormat != GR_GL_RED && readFormat != GR_GL_RGB && readFormat != GR_GL_RGBA &&
-            readFormat != GR_GL_BGRA && readFormat != GR_GL_RGBA_INTEGER) {
+        if (readFormat != GR_GL_RED && readFormat != GR_GL_RG && readFormat != GR_GL_RGB &&
+            readFormat != GR_GL_RGBA && readFormat != GR_GL_BGRA &&
+            readFormat != GR_GL_RGBA_INTEGER) {
             return false;
         }
         // There is also a set of allowed types, but all the types we use are in the set:
@@ -1819,39 +1820,32 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
-    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA32F;
-    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-        GR_GL_RGBA;
-    fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fExternalType = GR_GL_FLOAT;
-    fConfigTable[kRGBA_float_GrPixelConfig].fFormatType = kFloat_FormatType;
-    if (hasFPTextures) {
-        fConfigTable[kRGBA_float_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        // For now we only enable rendering to float on desktop, because on ES we'd have to solve
-        // many precision issues and no clients actually want this yet.
-        if (kGL_GrGLStandard == standard /* || version >= GR_GL_VER(3,2) ||
-            ctxInfo.hasExtension("GL_EXT_color_buffer_float")*/) {
-            fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= fpRenderFlags;
+    for (auto fpconfig : {kRGBA_float_GrPixelConfig, kRG_float_GrPixelConfig}) {
+        const GrGLenum format = kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA : GR_GL_RG;
+        fConfigTable[fpconfig].fFormats.fBaseInternalFormat = format;
+        fConfigTable[fpconfig].fFormats.fSizedInternalFormat =
+            kRGBA_float_GrPixelConfig == fpconfig ? GR_GL_RGBA32F : GR_GL_RG32F;
+        fConfigTable[fpconfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = format;
+        fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
+        fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
+        if (hasFPTextures) {
+            fConfigTable[fpconfig].fFlags = ConfigInfo::kTextureable_Flag;
+            // For now we only enable rendering to float on desktop, because on ES we'd have to
+            // solve many precision issues and no clients actually want this yet.
+            if (kGL_GrGLStandard == standard /* || version >= GR_GL_VER(3,2) ||
+                ctxInfo.hasExtension("GL_EXT_color_buffer_float")*/) {
+                fConfigTable[fpconfig].fFlags |= fpRenderFlags;
+            }
         }
+        if (texStorageSupported) {
+            fConfigTable[fpconfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        }
+        if (texelBufferSupport) {
+            fConfigTable[fpconfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
+        }
+        fConfigTable[fpconfig].fSwizzle = GrSwizzle::RGBA();
     }
-    if (texStorageSupported) {
-        fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-    if (texelBufferSupport) {
-        fConfigTable[kRGBA_float_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
-    }
-    fConfigTable[kRGBA_float_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
-    if (hasHalfFPTextures) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        // ES requires either 3.2 or the combination of EXT_color_buffer_half_float and support for
-        // GL_RED internal format.
-        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
-            (this->textureRedSupport() &&
-             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
-            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
-        }
-    }
     if (this->textureRedSupport()) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
         fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R16F;
@@ -1881,6 +1875,16 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     fConfigTable[kAlpha_half_GrPixelConfig].fFormatType = kFloat_FormatType;
     if (texStorageSupported) {
         fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+    if (hasHalfFPTextures) {
+        fConfigTable[kAlpha_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+        // ES requires either 3.2 or the combination of EXT_color_buffer_half_float and support for
+        // GL_RED internal format.
+        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
+            (this->textureRedSupport() &&
+             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
+            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
+        }
     }
 
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;

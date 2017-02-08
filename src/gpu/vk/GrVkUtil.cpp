@@ -64,6 +64,9 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
             return true;
+        case kRG_float_GrPixelConfig:
+            *format = VK_FORMAT_R32G32_SFLOAT;
+            return true;
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
             return true;
@@ -119,6 +122,9 @@ bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
             break;
         case VK_FORMAT_R32G32B32A32_SFLOAT:
             *config = kRGBA_float_GrPixelConfig;
+            break;
+        case VK_FORMAT_R32G32_SFLOAT:
+            *config = kRG_float_GrPixelConfig;
             break;
         case VK_FORMAT_R16G16B16A16_SFLOAT:
             *config = kRGBA_half_GrPixelConfig;
