@@ -355,6 +355,24 @@ STAGE(load_f16) {
     b = _mm256_cvtph_ps(_mm_unpacklo_epi64(ba0123, ba4567));
     a = _mm256_cvtph_ps(_mm_unpackhi_epi64(ba0123, ba4567));
 #elif defined(__SSE2__)
+    auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
+         _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
+
+    auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
+         _13 = _mm_unpackhi_epi16(_01, _23);  // r1 r3 g1 g3 b1 b3 a1 a3
+
+    auto rg = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+         ba = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 a0 a1 a2 a3
+
+    auto half_to_float = [&](U32 h) {
+        return (F)(h << 13)             // Line up the mantissa,
+             * (F)U32(k->_0x77800000);  // then fix up the exponent.
+    };
+
+    r = half_to_float(_mm_unpacklo_epi16(rg, _mm_setzero_si128()));
+    g = half_to_float(_mm_unpackhi_epi16(rg, _mm_setzero_si128()));
+    b = half_to_float(_mm_unpacklo_epi16(ba, _mm_setzero_si128()));
+    a = half_to_float(_mm_unpackhi_epi16(ba, _mm_setzero_si128()));
 #endif
 }
 
@@ -391,6 +409,18 @@ STAGE(store_f16) {
     _mm_storeu_si128((__m128i*)ptr + 2, _mm_unpacklo_epi32(rg4567, ba4567));
     _mm_storeu_si128((__m128i*)ptr + 3, _mm_unpackhi_epi32(rg4567, ba4567));
 #elif defined(__SSE2__)
+    auto float_to_half = [&](F f) {
+        return (U32)(f * (F)U32(k->_0x07800000)) // Fix up the exponent,
+            >> 13;                               // then line up the mantissa;
+    };
+    auto R = float_to_half(r),
+         G = float_to_half(g),
+         B = float_to_half(b),
+         A = float_to_half(a);
+    auto rg = R | (U32)_mm_slli_si128(G,2),
+         ba = B | (U32)_mm_slli_si128(A,2);
+    _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
+    _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
 #endif
 }
 
