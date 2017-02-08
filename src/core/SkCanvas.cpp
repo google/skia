@@ -387,6 +387,16 @@ private:
     typedef SkDraw INHERITED;
 };
 
+#define FOR_EACH_TOP_DEVICE( code )                 \
+    do {                                            \
+        DeviceCM* layer = fMCRec->fTopLayer;        \
+        while (layer) {                             \
+            SkBaseDevice* device = layer->fDevice;  \
+            code;                                   \
+            layer = layer->fNext;                   \
+        }                                           \
+    } while (0)
+
 /////////////////////////////////////////////////////////////////////////////
 
 static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
@@ -999,6 +1009,9 @@ void SkCanvas::doSave() {
     SkASSERT(fMCRec->fDeferredSaveCount > 0);
     fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->save());
+#endif
 }
 
 void SkCanvas::restore() {
@@ -1014,6 +1027,9 @@ void SkCanvas::restore() {
             fSaveCount -= 1;
             this->internalRestore();
             this->didRestore();
+#ifdef SK_USE_DEVICE_CLIPPING
+            FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+#endif
         }
     }
 }
@@ -1456,6 +1472,11 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fMCRec->fMatrix.preConcat(matrix);
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
+
     this->didConcat(matrix);
 }
 
@@ -1505,6 +1526,11 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->clipRect(rect, op, isAA));
+#endif
+
     AutoValidateClip avc(this);
     fClipStack->clipRect(rect, fMCRec->fMatrix, op, isAA);
     fMCRec->fRasterClip.op(rect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
@@ -1542,6 +1568,11 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
     fDeviceCMDirty = true;
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+    
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->clipRRect(rrect, op, isAA));
+#endif
+    
     fClipStack->clipRRect(rrect, fMCRec->fMatrix, op, isAA);
     fMCRec->fRasterClip.op(rrect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
                            isAA);
@@ -1579,7 +1610,11 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
 
     fDeviceCMDirty = true;
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-
+    
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
+#endif
+    
     fClipStack->clipPath(path, fMCRec->fMatrix, op, isAA);
 
     const SkPath* rasterClipPath = &path;
@@ -1602,6 +1637,10 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->clipRegion(rgn, op));
+#endif
+    
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;

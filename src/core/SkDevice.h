@@ -13,6 +13,9 @@
 #include "SkColor.h"
 #include "SkSurfaceProps.h"
 
+// enable to test new device-base clipping
+//#define SK_USE_DEVICE_CLIPPING
+
 class SkBitmap;
 class SkDraw;
 class SkDrawFilter;
@@ -101,6 +104,35 @@ public:
 
     virtual void* getRasterHandle() const { return nullptr; }
 
+    void save() { this->onSave(); }
+    void restore(const SkMatrix& ctm) {
+        this->onRestore();
+        this->setGlobalCTM(ctm);
+    }
+    void clipRect(const SkRect& rect, SkClipOp op, bool aa) {
+        this->onClipRect(rect, op, aa);
+    }
+    void clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+        this->onClipRRect(rrect, op, aa);
+    }
+    void clipPath(const SkPath& path, SkClipOp op, bool aa) {
+        this->onClipPath(path, op, aa);
+    }
+    void clipRegion(const SkRegion& region, SkClipOp op) {
+        this->onClipRegion(region, op);
+    }
+
+    const SkMatrix& ctm() const { return fCTM; }
+    void setCTM(const SkMatrix& ctm) {
+        fCTM = ctm;
+    }
+    void setGlobalCTM(const SkMatrix& ctm) {
+        fCTM = ctm;
+        if (fOrigin.fX | fOrigin.fY) {
+            fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+        }
+    }
+    
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -118,6 +150,13 @@ protected:
     uint32_t filterTextFlags(const SkPaint&) const;
 
     virtual bool onShouldDisableLCD(const SkPaint&) const { return false; }
+
+    virtual void onSave() {}
+    virtual void onRestore() {}
+    virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
+    virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
+    virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
+    virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -348,6 +387,7 @@ private:
     SkIPoint             fOrigin;
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
+    SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
 };
