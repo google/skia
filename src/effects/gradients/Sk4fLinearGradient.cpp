@@ -295,7 +295,7 @@ public:
                             SkScalar fx,
                             SkScalar dx,
                             bool is_vertical)
-        : fAdvX((i->fP1 - fx) / dx)
+        : fAdvX(is_vertical ? SK_ScalarInfinity : (i->fP1 - fx) / dx)
         , fFirstInterval(firstInterval)
         , fLastInterval(lastInterval)
         , fInterval(i)
