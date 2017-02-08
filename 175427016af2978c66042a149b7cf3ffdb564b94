@@ -79,6 +79,24 @@
     },
     {
       "key": {
+        "uuid": "6698da81_1fbc86e7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-08T15:08:07Z",
+      "side": 1,
+      "message": "Good suggestion!",
+      "parentUuid": "a5a7703d_aaabf450",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c0c1859_8327ace2",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -93,6 +111,24 @@
       "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a0d6b1f_d172bed1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1475,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-08T15:08:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c0c1859_8327ace2",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
