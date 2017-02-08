@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "9cabee4c_3c80dc6b",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-08T14:17:28Z",
+      "side": 1,
+      "message": "I\u0027d leave the the contrast as a uniform, given that it\u0027s continuous. (If we ever have a UI slider to control it, for example, users could be causing us to generate and compile thousands of shaders...)",
+      "parentUuid": "2b4d95cd_650080e2",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "935c043c_ff486741",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
