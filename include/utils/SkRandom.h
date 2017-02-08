@@ -138,6 +138,7 @@ public:
      */
     void setSeed(uint32_t seed) { init(seed); }
 
+    void dump() const {SkDebugf("K 0x%08x J 0x%08x\n", fK, fJ);}
 private:
     // Initialize state variables with LCG.
     // We must ensure that both J and K are non-zero, otherwise the
