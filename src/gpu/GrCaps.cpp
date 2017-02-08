@@ -9,6 +9,31 @@
 #include "GrContextOptions.h"
 #include "GrWindowRectangles.h"
 
+static const char* pixel_config_name(GrPixelConfig config) {
+    switch (config) {
+        case kUnknown_GrPixelConfig: return "Unknown";
+        case kAlpha_8_GrPixelConfig: return "Alpha8";
+        case kGray_8_GrPixelConfig: return "Gray8";
+        case kRGB_565_GrPixelConfig: return "RGB565";
+        case kRGBA_4444_GrPixelConfig: return "RGBA444";
+        case kRGBA_8888_GrPixelConfig: return "RGBA8888";
+        case kBGRA_8888_GrPixelConfig: return "BGRA8888";
+        case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
+        case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
+        case kRGBA_8888_sint_GrPixelConfig: return "RGBA8888_sint";
+        case kETC1_GrPixelConfig: return "ETC1";
+        case kLATC_GrPixelConfig: return "LATC";
+        case kR11_EAC_GrPixelConfig: return "R11EAC";
+        case kASTC_12x12_GrPixelConfig: return "ASTC12x12";
+        case kRGBA_float_GrPixelConfig: return "RGBAFloat";
+        case kRG_float_GrPixelConfig: return "RGFloat";
+        case kAlpha_half_GrPixelConfig: return "AlphaHalf";
+        case kRGBA_half_GrPixelConfig: return "RGBAHalf";
+    }
+    SkFAIL("Invalid pixel config");
+    return "<invalid>";
+}
+
 GrCaps::GrCaps(const GrContextOptions& options) {
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
@@ -167,61 +192,23 @@ SkString GrCaps::dump() const {
     r.appendf("Map Buffer Support                 : %s\n",
               map_flags_to_string(fMapBufferFlags).c_str());
 
-    static const char* kConfigNames[] = {
-        "Unknown",       // kUnknown_GrPixelConfig
-        "Alpha8",        // kAlpha_8_GrPixelConfig,
-        "Gray8",         // kGray_8_GrPixelConfig,
-        "RGB565",        // kRGB_565_GrPixelConfig,
-        "RGBA444",       // kRGBA_4444_GrPixelConfig,
-        "RGBA8888",      // kRGBA_8888_GrPixelConfig,
-        "BGRA8888",      // kBGRA_8888_GrPixelConfig,
-        "SRGBA8888",     // kSRGBA_8888_GrPixelConfig,
-        "SBGRA8888",     // kSBGRA_8888_GrPixelConfig,
-        "RGBA8888_sint", // kRGBA_8888_sint_GrPixelConfig,
-        "ETC1",          // kETC1_GrPixelConfig,
-        "LATC",          // kLATC_GrPixelConfig,
-        "R11EAC",        // kR11_EAC_GrPixelConfig,
-        "ASTC12x12",     // kASTC_12x12_GrPixelConfig,
-        "RGBAFloat",     // kRGBA_float_GrPixelConfig
-        "AlphaHalf",     // kAlpha_half_GrPixelConfig
-        "RGBAHalf",      // kRGBA_half_GrPixelConfig
-    };
-    GR_STATIC_ASSERT(0  == kUnknown_GrPixelConfig);
-    GR_STATIC_ASSERT(1  == kAlpha_8_GrPixelConfig);
-    GR_STATIC_ASSERT(2  == kGray_8_GrPixelConfig);
-    GR_STATIC_ASSERT(3  == kRGB_565_GrPixelConfig);
-    GR_STATIC_ASSERT(4  == kRGBA_4444_GrPixelConfig);
-    GR_STATIC_ASSERT(5  == kRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
-
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
 
-    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is renderable: %s, with MSAA: %s\n",
-                  kConfigNames[i],
+                  pixel_config_name(config),
                   gNY[this->isConfigRenderable(config, false)],
                   gNY[this->isConfigRenderable(config, true)]);
     }
 
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
-    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is uploadable to a texture: %s\n",
-                  kConfigNames[i],
+                  pixel_config_name(config),
                   gNY[this->isConfigTexturable(config)]);
     }
 
