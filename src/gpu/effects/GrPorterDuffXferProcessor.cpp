@@ -900,6 +900,11 @@ GrXferProcessor* GrPorterDuffXPFactory::CreateSrcOverXferProcessor(
     return new PorterDuffXferProcessor(blendFormula);
 }
 
+sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode blendmode) {
+    BlendFormula formula = get_blend_formula(false, false, false, blendmode);
+    return sk_make_sp<PorterDuffXferProcessor>(formula);
+}
+
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,
                                                       const GrPipelineAnalysis& analysis) {
     if (caps.shaderCaps()->dstReadInShaderSupport() ||

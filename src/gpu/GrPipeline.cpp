@@ -192,6 +192,18 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
     }
 }
 
+GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
+    : fRenderTarget(rt)
+    , fScissorState()
+    , fWindowRectsState()
+    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+    , fDrawFace(static_cast<uint16_t>(GrDrawFace::kBoth))
+    , fFlags()
+    , fXferProcessor(GrPorterDuffXPFactory::CreateNoCoverageXP(blendmode).get())
+    , fFragmentProcessors()
+    , fNumColorProcessors(0) {
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
