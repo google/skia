@@ -14,7 +14,7 @@
 
 class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:
-    static sk_sp<SkImageFilter> Make(const SkRect& srcRect, SkScalar inset,
+    static sk_sp<SkImageFilter> Make(const SkRect& src, SkScalar inset,
                                      sk_sp<SkImageFilter> input,
                                      const CropRect* cropRect = nullptr);
 
@@ -32,9 +32,8 @@ protected:
                                         SkIPoint* offset) const override;
 
 private:
-    SkRect   fSrcRect;
+    SkRect fSrcRect;
     SkScalar fInset;
-
     typedef SkImageFilter INHERITED;
 };
 

@@ -291,7 +291,9 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
     SkImageFilter::OutputProperties outputProperties(colorSpace);
     SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);
 
-    sk_sp<SkSpecialImage> result = filter->filterImage(srcSpecialImage.get(), context, offset);
+    sk_sp<SkSpecialImage> result =
+        filter->filterImage(srcSpecialImage.get(), context, offset);
+
     if (!result) {
         return nullptr;
     }
@@ -300,13 +302,11 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
 #if SK_SUPPORT_GPU
     if (result->isTextureBacked()) {
         GrContext* context = result->getContext();
-        sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(context);
-        if (!proxy) {
+        sk_sp<GrTexture> texture = result->asTextureRef(context);
+        if (!texture) {
             return nullptr;
         }
-        // MDB TODO: This is okay for now but will need to updated when we have deferred
-        // SkImage_Gpu objects
-        fullSize = SkIRect::MakeWH(proxy->width(), proxy->height());
+        fullSize = SkIRect::MakeWH(texture->width(), texture->height());
     }
 #endif
     *outSubset = SkIRect::MakeWH(result->width(), result->height());
