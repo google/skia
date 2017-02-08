@@ -465,7 +465,9 @@ LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
     } else {
         for (int i = 0; i < count; ++i) {
             fDstToPosProc(fDstToPos, sx, sy, &pt);
-            ts[i] = pt.x();
+            // Perspective may yield NaN values.
+            // Short of a better idea, drop to 0.
+            ts[i] = SkScalarIsNaN(pt.x()) ? 0 : pt.x();
             sx += SK_Scalar1;
         }
     }
