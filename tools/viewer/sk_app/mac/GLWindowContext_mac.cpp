@@ -66,12 +66,6 @@ void GLWindowContext_mac::onInitializeContext() {
         glStencilMask(0xffffffff);
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        int redBits, greenBits, blueBits;
-        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
-        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
-        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &blueBits);
-        fColorBits = redBits + greenBits + blueBits;
-
         SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &fStencilBits);
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &fSampleCount);
 
