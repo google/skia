@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b50a750f_22a33165",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-08T14:17:28Z",
+      "side": 1,
+      "message": "Maybe sanitize (or validate) the range of values here? I think the config should be documented to describe the range of fContrast, in particular, and here we may want to prevent it from getting too close to 1?",
+      "revId": "0e17c797be9b8c92a7c337a539bcbb5c8733bcef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
