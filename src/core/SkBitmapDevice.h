@@ -14,6 +14,7 @@
 #include "SkDevice.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -125,6 +126,13 @@ protected:
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
 
+    void onSave() override;
+    void onRestore() override;
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -147,6 +155,7 @@ private:
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
+    SkTArray<SkRasterClip>  fRCStack;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 
