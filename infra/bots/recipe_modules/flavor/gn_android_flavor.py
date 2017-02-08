@@ -4,6 +4,7 @@
 
 import default_flavor
 import subprocess
+import time
 
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
@@ -11,6 +12,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def __init__(self, m):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
+    self._finished_install = False
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir        = self.m.vars.android_data_dir + 'dm_out',
@@ -42,6 +44,34 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
     return self._run(title, 'adb', *cmd, **kwargs)
+
+  # Waits for an android device to be available
+  def _wait_for_device(self):
+    self.m.python.inline('wait for device', """
+      import subprocess
+      import sys
+      import time
+
+      times = 0
+
+      while times < 30:
+        print 'Waiting for the device to be connected and ready.'
+        try:
+          output = subprocess.check_output(['adb', 'shell',
+                                            'getprop', 'sys.boot_completed'])
+          if '1' in output:
+            print 'Connected'
+            sys.exit(0)
+        except subprocess.CalledProcessError:
+          # no device connected/authorized yet
+          pass
+        time.sleep(5)
+
+      print 'Timed out waiting for device'
+      sys.exit(1)
+      """,
+      infra_step=True)
+
 
   def compile(self, unused_target, **kwargs):
     compiler      = self.m.vars.builder_cfg.get('compiler')
@@ -89,8 +119,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('ninja', ninja, '-C', self.out_dir)
 
   def install(self):
+    if 'NexusPlayer' == self.m.vars.builder_cfg.get('model'):
+      self._adb('rebooting device', 'reboot')
+      self._wait_for_device()
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
+    self._finished_install = True
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
@@ -112,6 +146,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       """,
       args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
       infra_step=True)
+      if not self._finished_install:
+        self._adb('shut down device to quarantine bot', 'shell', 'reboot', '-p')
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):
