@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c80df3d2_013f06c5",
+        "filename": "tools/viewer/sk_app/GLWindowContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-08T17:26:10Z",
+      "side": 1,
+      "message": "Nit: delete whitespace?",
+      "range": {
+        "startLine": 55,
+        "startChar": 1,
+        "endLine": 55,
+        "endChar": 4
+      },
+      "revId": "f3933f68b8131767986b6f4c1498666adacbbcce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a595ec9d_7894651a",
+        "filename": "tools/viewer/sk_app/mac/RasterWindowContext_mac.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-08T17:26:10Z",
+      "side": 1,
+      "message": "Delete whitespace?",
+      "range": {
+        "startLine": 111,
+        "startChar": 5,
+        "endLine": 111,
+        "endChar": 8
+      },
+      "revId": "f3933f68b8131767986b6f4c1498666adacbbcce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
