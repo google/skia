@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkArenaAlloc.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkReadBuffer.h"
@@ -34,9 +35,10 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
     }
 }
 
-SkLayerDrawLooper::Context* SkLayerDrawLooper::createContext(SkCanvas* canvas, void* storage) const {
+SkLayerDrawLooper::Context*
+SkLayerDrawLooper::makeContext(SkCanvas* canvas, SkArenaAlloc* alloc) const {
     canvas->save();
-    return new (storage) LayerDrawLooperContext(this);
+    return alloc->make<LayerDrawLooperContext>(this);
 }
 
 static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {

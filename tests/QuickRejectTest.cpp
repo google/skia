@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
 #include "SkLightingImageFilter.h"
@@ -17,11 +18,9 @@
 class TestLooper : public SkDrawLooper {
 public:
 
-    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override {
-        return new (storage) TestDrawLooperContext;
+    SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc* alloc) const override {
+        return alloc->make<TestDrawLooperContext>();
     }
-
-    size_t contextSize() const override { return sizeof(TestDrawLooperContext); }
 
 #ifndef SK_IGNORE_TO_STRING
     void toString(SkString* str) const override {
