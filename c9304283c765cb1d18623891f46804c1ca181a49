@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06866e09_fa3606ab",
+        "filename": "platform_tools/android/bin/android_build_app",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-08T19:16:20Z",
+      "side": 1,
+      "message": "Any reason to just not use a * instead of a ? (?)",
+      "range": {
+        "startLine": 31,
+        "startChar": 32,
+        "endLine": 31,
+        "endChar": 33
+      },
+      "revId": "c9304283c765cb1d18623891f46804c1ca181a49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
