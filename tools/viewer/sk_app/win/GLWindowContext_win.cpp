@@ -52,7 +52,7 @@ GLWindowContext_win::~GLWindowContext_win() {
 void GLWindowContext_win::onInitializeContext() {
     HDC dc = GetDC(fHWND);
 
-    fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, fDisplayParams.fDeepColor,
+    fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, false /* deepColor */,
                                 kGLPreferCompatibilityProfile_SkWGLContextRequest);
     if (NULL == fHGLRC) {
         return;
@@ -69,8 +69,6 @@ void GLWindowContext_win::onInitializeContext() {
         PIXELFORMATDESCRIPTOR pfd;
         DescribePixelFormat(dc, pixelFormat, sizeof(pfd), &pfd);
         fStencilBits = pfd.cStencilBits;
-        // pfd.cColorBits includes alpha, so it will be 32 in 8/8/8/8 and 10/10/10/2
-        fColorBits = pfd.cRedBits + pfd.cGreenBits + pfd.cBlueBits;
 
         // Get sample count if the MSAA WGL extension is present
         SkWGLExtensions extensions;

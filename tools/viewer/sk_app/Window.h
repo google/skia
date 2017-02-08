@@ -164,9 +164,6 @@ public:
     virtual const DisplayParams& getDisplayParams();
     void setDisplayParams(const DisplayParams& params);
 
-    // This is just for the sRGB split screen
-    sk_sp<SkSurface> getOffscreenSurface(bool forceSRGB);
-
 protected:
     Window();
 
