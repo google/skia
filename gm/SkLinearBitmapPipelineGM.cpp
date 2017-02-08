@@ -83,8 +83,6 @@ static void draw_rect_orig(SkCanvas* canvas, const SkRect& r, SkColor c, const S
     }
 
     canvas->drawBitmap(bmdst, r.left(), r.top(), nullptr);
-
-    ctx->~Context();
 }
 
 static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkMatrix* mat, bool useBilerp) {

@@ -212,8 +212,6 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
         for (int n = 0; n < 1000*loops; n++) {
             ctx->shadeSpan(3, 6, buffer4b, count);
         }
-
-        ctx->~Context();
     }
     SkPaint fPaint;
     sk_sp<SkImage> fImage;
