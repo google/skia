@@ -329,6 +329,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_VERTEXID_BUILTIN:
             this->write("gl_VertexID");
             break;
+        case SK_CLIPDISTANCE_BUILTIN:
+            this->write("gl_ClipDistance");
+            break;
         default:
             this->write(ref.fVariable.fName);
     }
@@ -346,7 +349,13 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->writeExpression(*f.fBase, kPostfix_Precedence);
         this->write(".");
     }
-    this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+    switch (f.fBase->fType.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
+        case SK_CLIPDISTANCE_BUILTIN:
+            this->write("gl_ClipDistance");
+            break;
+        default:
+            this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+    }
 }
 
 void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
