@@ -28,6 +28,12 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
             return 0xF;
         case kVec4f_GrSLType:
             return 0xF;
+        case kVec2i_GrSLType:
+            return 0x7;
+        case kVec3i_GrSLType:
+            return 0xF;
+        case kVec4i_GrSLType:
+            return 0xF;
         case kMat22f_GrSLType:
             return 0x7;
         case kMat33f_GrSLType:
@@ -59,9 +65,9 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
         case kInt_GrSLType:
-            return 4;
+            return sizeof(int32_t);
         case kUint_GrSLType:
-            return 4;
+            return sizeof(int32_t);
         case kFloat_GrSLType:
             return sizeof(float);
         case kVec2f_GrSLType:
@@ -70,6 +76,12 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return 3 * sizeof(float);
         case kVec4f_GrSLType:
             return 4 * sizeof(float);
+        case kVec2i_GrSLType:
+            return 2 * sizeof(int32_t);
+        case kVec3i_GrSLType:
+            return 3 * sizeof(int32_t);
+        case kVec4i_GrSLType:
+            return 4 * sizeof(int32_t);
         case kMat22f_GrSLType:
             //TODO: this will be 4 * szof(float) on std430.
             return 8 * sizeof(float);
