@@ -24,6 +24,14 @@
   {
     "cmd": [
       "adb",
+      "root"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "name": "root"
+  },
+  {
+    "cmd": [
+      "adb",
       "shell",
       "mkdir",
       "-p",

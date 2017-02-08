@@ -97,7 +97,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     self.install(skps=True, images=True, svgs=True, resources=True)
 
   def install(self, skps=False, images=False, svgs=False, resources=False):
-    self._f.install()
+    print self._f.install()
     self.device_dirs = self._f.device_dirs
 
     # TODO(borenet): Only copy files which have changed.
