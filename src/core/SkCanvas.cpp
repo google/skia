@@ -387,6 +387,16 @@ private:
     typedef SkDraw INHERITED;
 };
 
+#define FOR_EACH_DEVICE( code )                     \
+    do {                                            \
+        DeviceCM* layer = fMCRec->fTopLayer;        \
+        while (layer) {                             \
+            SkBaseDevice* device = layer->fDevice;  \
+            code;                                   \
+            layer = layer->fNext;                   \
+        }                                           \
+    } while (0)
+
 /////////////////////////////////////////////////////////////////////////////
 
 static SkPaint* set_if_needed(SkLazyPaint* lazy, const SkPaint& orig) {
@@ -1456,6 +1466,11 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fMCRec->fMatrix.preConcat(matrix);
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+    
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
+
     this->didConcat(matrix);
 }
 

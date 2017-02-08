@@ -8,6 +8,8 @@
 #ifndef SkClipOp_DEFINED
 #define SkClipOp_DEFINED
 
+#define SK_USE_DEVICE_CLIPPING
+
 #include "SkTypes.h"
 
 // SkClipOp enum values always match the corresponding values in SkRegion::Op
