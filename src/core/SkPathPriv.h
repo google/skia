@@ -121,6 +121,11 @@ public:
     static const SkScalar* ConicWeightData(const SkPath& path) {
         return path.fPathRef->conicWeights();
     }
+
+    /** Returns a pointer to the underlying SkPathRef. */
+    static const SkPathRef* PathRef(const SkPath& path) {
+        return path.fPathRef.get();
+    }
 };
 
 #endif
