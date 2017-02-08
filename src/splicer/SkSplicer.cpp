@@ -41,6 +41,7 @@ namespace {
         1.0f, 255.0f, 1/255.0f, 0x000000ff,
         0.0025f, 0.6975f, 0.3000f, 1/12.92f, 0.055f,       // from_srgb
         12.46f, 0.411192f, 0.689206f, -0.0988f, 0.0043f,   //   to_srgb
+        0x77800000, 0x07800000,                            // fp16 <-> fp32
     };
 
     // We do this a lot, so it's nice to infer the correct size.  Works fine with arrays.
