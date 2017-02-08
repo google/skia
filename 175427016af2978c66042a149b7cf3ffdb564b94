@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db00b70e_52df35f4",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-08T14:01:02Z",
+      "side": 1,
+      "message": "Is it possible for the current/top device to change other than via saveLayer/restore?\n\nIf not, do we really need to dispatch these ops to all devices, or only the top device?",
+      "range": {
+        "startLine": 1013,
+        "startChar": 4,
+        "endLine": 1013,
+        "endChar": 19
+      },
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
