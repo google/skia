@@ -38,6 +38,10 @@ struct SkSplicer_constants {
     float    _0689206;     //  0.689206f
     float   n_00988;       // -0.0988f
     float    _00043;       //  0.0043f
+
+    // fp16 <-> fp32
+    uint32_t _0x77800000;
+    uint32_t _0x07800000;
 };
 
 #endif//SkSplicer_shared_DEFINED
