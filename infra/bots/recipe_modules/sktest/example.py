@@ -203,3 +203,27 @@ def GenTests(api):
           stdout=api.raw_io.output('skia-bot-123')) +
       api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
   )
+
+  builder = 'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Debug-GN_Android'
+  yield (
+    api.test('failed_push') +
+    api.properties(buildername=builder,
+                   mastername='client.skia',
+                   slavename='skiabot-linux-swarm-000',
+                   buildnumber=6,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    api.step_data('push [START_DIR]/skia/resources/* '+
+                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
+  )

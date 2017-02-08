@@ -147,6 +147,10 @@ class DefaultFlavorUtils(object):
         svg_dir=self.m.vars.local_svg_dir,
         tmp_dir=self.m.vars.tmp_dir)
 
+  def install_done(self):
+    """Hook for after installation is complete."""
+    pass
+
   def cleanup_steps(self):
     """Run any device-specific cleanup steps."""
     pass

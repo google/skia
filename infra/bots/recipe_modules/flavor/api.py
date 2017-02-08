@@ -112,6 +112,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       self._copy_images()
     if svgs:
       self._copy_svgs()
+    self._f.install_done()
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
