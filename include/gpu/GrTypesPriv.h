@@ -54,6 +54,9 @@ enum GrSLType {
     kVec2f_GrSLType,
     kVec3f_GrSLType,
     kVec4f_GrSLType,
+    kVec2i_GrSLType,
+    kVec3i_GrSLType,
+    kVec4i_GrSLType,
     kMat22f_GrSLType,
     kMat33f_GrSLType,
     kMat44f_GrSLType,
@@ -133,6 +136,9 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kBool_GrSLType:
         case kInt_GrSLType:
         case kUint_GrSLType:
+        case kVec2i_GrSLType:
+        case kVec3i_GrSLType:
+        case kVec4i_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
         case kImageStorage2D_GrSLType:
@@ -156,6 +162,9 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2i_GrSLType:
+        case kVec3i_GrSLType:
+        case kVec4i_GrSLType:
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
@@ -187,6 +196,9 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2i_GrSLType:
+        case kVec3i_GrSLType:
+        case kVec4i_GrSLType:
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
@@ -214,6 +226,9 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2i_GrSLType:
+        case kVec3i_GrSLType:
+        case kVec4i_GrSLType:
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
@@ -241,6 +256,9 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2i_GrSLType:
+        case kVec3i_GrSLType:
+        case kVec4i_GrSLType:
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
@@ -274,6 +292,10 @@ enum GrVertexAttribType {
     kVec3f_GrVertexAttribType,
     kVec4f_GrVertexAttribType,
 
+    kVec2i_GrVertexAttribType,   // vector of 2 32-bit ints
+    kVec3i_GrVertexAttribType,   // vector of 3 32-bit ints
+    kVec4i_GrVertexAttribType,   // vector of 4 32-bit ints
+
     kUByte_GrVertexAttribType,   // unsigned byte, e.g. coverage
     kVec4ub_GrVertexAttribType,  // vector of 4 unsigned bytes, e.g. colors
 
@@ -300,6 +322,12 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return 3*sizeof(float);
         case kVec4f_GrVertexAttribType:
             return 4*sizeof(float);
+        case kVec2i_GrVertexAttribType:
+            return 2*sizeof(int32_t);
+        case kVec3i_GrVertexAttribType:
+            return 3*sizeof(int32_t);
+        case kVec4i_GrVertexAttribType:
+            return 4*sizeof(int32_t);
         case kUByte_GrVertexAttribType:
             return 1*sizeof(char);
         case kVec4ub_GrVertexAttribType:
@@ -328,6 +356,12 @@ static inline bool GrVertexAttribTypeIsIntType(GrVertexAttribType type) {
             return false;
         case kVec4f_GrVertexAttribType:
             return false;
+        case kVec2i_GrVertexAttribType:
+            return true;
+        case kVec3i_GrVertexAttribType:
+            return true;
+        case kVec4i_GrVertexAttribType:
+            return true;
         case kUByte_GrVertexAttribType:
             return false;
         case kVec4ub_GrVertexAttribType:
@@ -359,6 +393,12 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
         case kVec4ub_GrVertexAttribType:
         case kVec4f_GrVertexAttribType:
             return kVec4f_GrSLType;
+        case kVec2i_GrVertexAttribType:
+            return kVec2i_GrSLType;
+        case kVec3i_GrVertexAttribType:
+            return kVec3i_GrSLType;
+        case kVec4i_GrVertexAttribType:
+            return kVec4i_GrSLType;
         case kInt_GrVertexAttribType:
             return kInt_GrSLType;
         case kUint_GrVertexAttribType:
