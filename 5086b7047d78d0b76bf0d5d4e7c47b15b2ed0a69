@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d29f8ab1_8124ab43",
+        "filename": "include/core/SkClipStack.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-08T17:14:41Z",
+      "side": 1,
+      "message": "nit: we (so far) never pass rects by value, but by const\u0026",
+      "range": {
+        "startLine": 356,
+        "startChar": 18,
+        "endLine": 356,
+        "endChar": 25
+      },
+      "revId": "5086b7047d78d0b76bf0d5d4e7c47b15b2ed0a69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
