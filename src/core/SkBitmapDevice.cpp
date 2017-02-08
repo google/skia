@@ -74,6 +74,8 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+
+    fRCStack.push_back().setRect(SkIRect::MakeWH(bitmap.width(), bitmap.height()));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
@@ -88,6 +90,8 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
     fBitmap.lockPixels();
+
+    fRCStack.push_back().setRect(SkIRect::MakeWH(bitmap.width(), bitmap.height()));
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
@@ -439,7 +443,7 @@ SkImageFilterCache* SkBitmapDevice::getImageFilterCache() {
     return cache;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
     if (kN32_SkColorType != fBitmap.colorType() ||
@@ -452,4 +456,33 @@ bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
         return true;
     }
     return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkBitmapDevice::onSave() {
+    fRCStack.push_back(fRCStack.back());
+}
+
+void SkBitmapDevice::onRestore() {
+    fRCStack.pop_back();
+}
+
+void SkBitmapDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+    fRCStack.back().op(rect, this->ctm(), SkIRect::MakeWH(this->width(), this->height()),
+                       (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+    fRCStack.back().op(rrect, this->ctm(), SkIRect::MakeWH(this->width(), this->height()),
+                       (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    fRCStack.back().op(path, this->ctm(), SkIRect::MakeWH(this->width(), this->height()),
+                       (SkRegion::Op)op, aa);
+}
+
+void SkBitmapDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
+    fRCStack.back().op(rgn, (SkRegion::Op)op);
 }
