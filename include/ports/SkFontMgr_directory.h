@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFontMgr_custom_DEFINED
-#define SkFontMgr_custom_DEFINED
+#ifndef SkFontMgr_directory_DEFINED
+#define SkFontMgr_directory_DEFINED
 
+#include "SkRefCnt.h"
 #include "SkTypes.h"
 
 class SkFontMgr;
 
-/** Create a custom font manager which scans a given directory for font files. */
+/** Create a custom font manager which scans a given directory for font files.
+ *  This font manager uses FreeType for rendering.
+ */
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_Custom_Directory(const char* dir);
-
-/** Create a custom font manager that contains no built-in fonts. */
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_Custom_Empty();
 
 #endif // SkFontMgr_custom_DEFINED

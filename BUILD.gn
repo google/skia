@@ -344,7 +344,11 @@ optional("fontmgr_custom") {
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom.h",
+    "src/ports/SkFontMgr_custom_directory.cpp",
     "src/ports/SkFontMgr_custom_directory_factory.cpp",
+    "src/ports/SkFontMgr_custom_embedded.cpp",
+    "src/ports/SkFontMgr_custom_empty.cpp",
   ]
 }
 
@@ -373,6 +377,7 @@ optional("fontmgr_fuchsia") {
   ]
   sources = [
     "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom_empty.cpp",
     "src/ports/SkFontMgr_custom_empty_factory.cpp",
   ]
 }
