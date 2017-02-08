@@ -40,6 +40,24 @@
       "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8728df6_ae7bb141",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-08T14:31:43Z",
+      "side": 1,
+      "message": "The loop is for all the \"top\" layers -- for unclipped save-layers :(",
+      "parentUuid": "11cb21bb_fabeffc5",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
