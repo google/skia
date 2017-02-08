@@ -10,32 +10,43 @@
 #include "GrGLGpu.h"
 
 struct AttribLayout {
-    GrGLint     fCount;
-    GrGLenum    fType;
-    GrGLboolean fNormalized;  // Only used by floating point types.
+    bool        fNormalized;  // Only used by floating point types.
+    uint8_t     fCount;
+    uint16_t    fType;
 };
 
-static const AttribLayout gLayouts[kGrVertexAttribTypeCount] = {
-    {1, GR_GL_FLOAT, false},         // kFloat_GrVertexAttribType
-    {2, GR_GL_FLOAT, false},         // kVec2f_GrVertexAttribType
-    {3, GR_GL_FLOAT, false},         // kVec3f_GrVertexAttribType
-    {4, GR_GL_FLOAT, false},         // kVec4f_GrVertexAttribType
-    {1, GR_GL_UNSIGNED_BYTE, true},  // kUByte_GrVertexAttribType
-    {4, GR_GL_UNSIGNED_BYTE, true},  // kVec4ub_GrVertexAttribType
-    {2, GR_GL_UNSIGNED_SHORT, true}, // kVec2s_GrVertexAttribType
-    {1, GR_GL_INT, false},           // kInt_GrVertexAttribType
-    {1, GR_GL_UNSIGNED_INT, false},  // kUint_GrVertexAttribType
-};
+GR_STATIC_ASSERT(4 == sizeof(AttribLayout));
 
-GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
-GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
-GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
-GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
-GR_STATIC_ASSERT(4 == kUByte_GrVertexAttribType);
-GR_STATIC_ASSERT(5 == kVec4ub_GrVertexAttribType);
-GR_STATIC_ASSERT(6 == kVec2us_GrVertexAttribType);
-GR_STATIC_ASSERT(7 == kInt_GrVertexAttribType);
-GR_STATIC_ASSERT(8 == kUint_GrVertexAttribType);
+static AttribLayout attrib_layout(GrVertexAttribType type) {
+    switch (type) {
+        case kFloat_GrVertexAttribType:
+            return {false, 1, GR_GL_FLOAT};
+        case kVec2f_GrVertexAttribType:
+            return {false, 2, GR_GL_FLOAT};
+        case kVec3f_GrVertexAttribType:
+            return {false, 3, GR_GL_FLOAT};
+        case kVec4f_GrVertexAttribType:
+            return {false, 4, GR_GL_FLOAT};
+        case kVec2i_GrVertexAttribType:
+            return {false, 2, GR_GL_INT};
+        case kVec3i_GrVertexAttribType:
+            return {false, 3, GR_GL_INT};
+        case kVec4i_GrVertexAttribType:
+            return {false, 4, GR_GL_INT};
+        case kUByte_GrVertexAttribType:
+            return {true, 1, GR_GL_UNSIGNED_BYTE};
+        case kVec4ub_GrVertexAttribType:
+            return {true, 4, GR_GL_UNSIGNED_BYTE};
+        case kVec2us_GrVertexAttribType:
+            return {true, 2, GR_GL_UNSIGNED_SHORT};
+        case kInt_GrVertexAttribType:
+            return {false, 1, GR_GL_INT};
+        case kUint_GrVertexAttribType:
+            return {false, 1, GR_GL_UNSIGNED_INT};
+    }
+    SkFAIL("Unknown vertex attrib type");
+    return {false, 0, 0};
+};
 
 void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                int index,
@@ -55,7 +66,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         array->fStride != stride ||
         array->fOffset != offset) {
         gpu->bindBuffer(kVertex_GrBufferType, vertexBuffer);
-        const AttribLayout& layout = gLayouts[type];
+        const AttribLayout& layout = attrib_layout(type);
         if (!GrVertexAttribTypeIsIntType(type)) {
             GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
                                                                layout.fCount,
