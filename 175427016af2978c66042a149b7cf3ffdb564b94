@@ -22,6 +22,24 @@
       "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11cb21bb_fabeffc5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-08T14:17:26Z",
+      "side": 1,
+      "message": "In a related question: So the canvas has a device/layer stack and manages the save count and restoreToCount, does it also track which restores actually undo a saveLayer?",
+      "parentUuid": "db00b70e_52df35f4",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
