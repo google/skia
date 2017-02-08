@@ -78,12 +78,6 @@ void RasterWindowContext_mac::onInitializeContext() {
         glStencilMask(0xffffffff);
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        int redBits, greenBits, blueBits;
-        SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
-        SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
-        SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &blueBits);
-        fColorBits = redBits + greenBits + blueBits;
-
         SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &fStencilBits);
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &fSampleCount);
 
@@ -115,21 +109,9 @@ void RasterWindowContext_mac::onSwapBuffers() {
         // We made/have an off-screen surface. Get the contents as an SkImage:
         sk_sp<SkImage> snapshot = fBackbufferSurface->makeImageSnapshot();
         
-        // With ten-bit output, we need to manually apply the gamma of the output device
-        // (unless we're in non-gamma correct mode, in which case our data is already
-        // fake-sRGB, like we're expected to put in the 10-bit buffer):
-        bool doGamma = (fActualColorBits == 30) &&
-                       (fDisplayParams.fColorSpace != nullptr ||
-                        kRGBA_F16_SkColorType == fDisplayParams.fColorType);
-        SkPaint gammaPaint;
-        gammaPaint.setBlendMode(SkBlendMode::kSrc);
-        if (doGamma) {
-            gammaPaint.setColorFilter(sk_tool_utils::MakeLinearToSRGBColorFilter());
-        }
-
         sk_sp<SkSurface> gpuSurface = INHERITED::getBackbufferSurface();
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
-        gpuCanvas->drawImage(snapshot, 0, 0, &gammaPaint);
+        gpuCanvas->drawImage(snapshot, 0, 0);
         gpuCanvas->flush();
 
         SDL_GL_SwapWindow(fWindow);

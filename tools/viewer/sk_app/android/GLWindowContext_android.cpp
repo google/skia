@@ -123,11 +123,6 @@ void GLWindowContext_android::onInitializeContext() {
     glStencilMask(0xffffffff);
     glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    int redBits, greenBits, blueBits;
-    eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_RED_SIZE, &redBits);
-    eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_GREEN_SIZE, &greenBits);
-    eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_BLUE_SIZE, &blueBits);
-    fColorBits = redBits + greenBits + blueBits;
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_STENCIL_SIZE, &fStencilBits);
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
 }

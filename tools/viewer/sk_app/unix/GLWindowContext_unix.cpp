@@ -61,11 +61,6 @@ void GLWindowContext_xlib::onInitializeContext() {
         glStencilMask(0xffffffff);
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        int redBits, greenBits, blueBits;
-        glXGetConfig(fDisplay, fVisualInfo, GLX_RED_SIZE, &redBits);
-        glXGetConfig(fDisplay, fVisualInfo, GLX_GREEN_SIZE, &greenBits);
-        glXGetConfig(fDisplay, fVisualInfo, GLX_BLUE_SIZE, &blueBits);
-        fColorBits = redBits + greenBits + blueBits;
         glXGetConfig(fDisplay, fVisualInfo, GLX_STENCIL_SIZE, &fStencilBits);
         glXGetConfig(fDisplay, fVisualInfo, GLX_SAMPLES_ARB, &fSampleCount);
 

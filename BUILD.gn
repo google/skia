@@ -1360,7 +1360,6 @@ if (skia_enable_tools) {
         "tools/viewer/sk_app/CommandSet.cpp",
         "tools/viewer/sk_app/GLWindowContext.cpp",
         "tools/viewer/sk_app/Window.cpp",
-        "tools/viewer/sk_app/WindowContext.cpp",
       ]
       libs = []
 
