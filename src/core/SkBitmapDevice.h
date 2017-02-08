@@ -15,6 +15,7 @@
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
+#include "SkRasterClipStack.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -155,7 +156,7 @@ private:
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
-    SkTArray<SkRasterClip>  fRCStack;
+    SkRasterClipStack  fRCStack;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 
