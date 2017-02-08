@@ -47,6 +47,10 @@ class SkiaStepApi(recipe_api.RecipeApi):
       raise self.m.step.StepFailure('Failed build steps: %s' %
                                     ', '.join([f.name for f in self._failed]))
 
+  @property
+  def failed_steps(self):
+    return self._failed[:]
+
   def run_once(self, fn, *args, **kwargs):
     if not fn.__name__ in self._already_ran:
       self._already_ran[fn.__name__] = fn(*args, **kwargs)
