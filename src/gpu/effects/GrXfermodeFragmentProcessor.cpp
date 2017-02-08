@@ -27,7 +27,17 @@ public:
         SkASSERT(1 == shaderBChildIndex);
     }
 
-    const char* name() const override { return "ComposeTwo"; }
+    const char* name() const override {
+        /// TRY BOT HACK
+        SkString names[(int)SkBlendMode::kLastMode + 1];
+        static bool init = true;
+        if (init) {
+            for (int i = 0; i <= (int) SkBlendMode::kLastMode; ++i) {
+                names[i].printf("ComposeTwo (%s)", SkBlendMode_Name((SkBlendMode)i));
+            }
+        }
+        return names[(int)fMode].c_str();
+    }
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32((int)fMode);
@@ -39,8 +49,10 @@ private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* src,
                                       const GrFragmentProcessor* dst, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && src->hasConstantOutputForConstantInput() &&
+        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // softlight.
+        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
+            src->hasConstantOutputForConstantInput() &&
             dst->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
@@ -197,8 +209,10 @@ public:
 private:
     OptimizationFlags OptFlags(const GrFragmentProcessor* child, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && child->hasConstantOutputForConstantInput()) {
+        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // softlight.
+        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
+            child->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
         return kNone_OptimizationFlags;
