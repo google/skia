@@ -26,6 +26,7 @@ public:
     bool isValid() override { return SkToBool(fWnd); }
     void resize(int w, int h) override;
     void setDisplayParams(const DisplayParams& params) override;
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override {}
 
 protected:
     SkAutoMalloc fSurfaceMemory;

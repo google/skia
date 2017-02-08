@@ -1417,6 +1417,7 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":views",
+        "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
       if (is_android) {
