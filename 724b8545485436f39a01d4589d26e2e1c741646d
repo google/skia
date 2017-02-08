@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7dace69_c00589c3",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-08T21:51:51Z",
+      "side": 1,
+      "message": "I don\u0027t think anyone will be confused by this, but we tend to write uint8_t.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 13
+      },
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71b221f7_c4c68bb6",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-08T21:51:51Z",
+      "side": 1,
+      "message": "We\u0027re sure this makes sense?  We seem to be reading the premul r (i.e. r*a) as a byte, sending it through the filter, then multiplying the result of that by a again.  Is\n\n    r\u0027 \u003d a * f(r*a)\n\nreally logically what you want?  SkHighContrastFilter\u0027s input is premul and output is unpremul?",
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76bfae32_77e4e567",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-08T21:51:51Z",
+      "side": 1,
+      "message": "Remind me, are you thinking that this effect operates on premul or unpremul colors?\n\nclamp_1 is what you\u0027d want if these colors were all unpremul.  But your inputs are definitely premul, so if you think you\u0027re operating on unpremul, you probably want to add an SkRasterPipeline::unpremul stage at the beginning and an SkRasterPipeline::premul at the end.\n\nIf you\u0027re looking to operate on premul colors directly, you probably want clamp_a here.  That clamps a to 1 and r,g,b to a (the same logical operation as clamp_1 for unpremul).",
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
