@@ -16,6 +16,24 @@
       "revId": "0e17c797be9b8c92a7c337a539bcbb5c8733bcef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a02ac33_c32ab664",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-08T16:33:35Z",
+      "side": 1,
+      "message": "Sure. Clamped to -1 to 1 here and documented in the header file.\n\nI don\u0027t see any reason to prevent it from getting close to 1 because\nthere isn\u0027t an obvious threshold to pick other than 1 itself.",
+      "parentUuid": "b50a750f_22a33165",
+      "revId": "0e17c797be9b8c92a7c337a539bcbb5c8733bcef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
