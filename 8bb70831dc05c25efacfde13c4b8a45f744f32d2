@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f234973_fb30a180",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-08T23:09:00Z",
+      "side": 1,
+      "message": "Just curious what is the meaning of these numbers?",
+      "range": {
+        "startLine": 23,
+        "startChar": 36,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "8bb70831dc05c25efacfde13c4b8a45f744f32d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
