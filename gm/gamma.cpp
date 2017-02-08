@@ -107,6 +107,13 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     p.setFilterQuality(SkFilterQuality::kNone_SkFilterQuality);
     nextRect("Dither", "Reference");
 
+    // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
+    // sRGB sources decoded to linear before computing mipmaps?
+    SkMatrix scaleMatrix = SkMatrix::MakeScale(0.5f);
+    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
+    p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+    nextRect("MipMaps", 0);
+
     // Black/white dither, sampled at half-texel offset. Tests bilerp.
     // NOTE: We need to apply a non-identity scale and/or rotation to trick
     // the raster pipeline into *not* snapping to nearest.
@@ -117,16 +124,9 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextRect("Dither", "Bilerp");
 
     // Black/white dither, scaled down by 2x. Tests minification.
-    SkMatrix scaleMatrix = SkMatrix::MakeScale(0.5f);
     p.setShader(SkShader::MakeBitmapShader(ditherBmp, rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("Dither", "Scale");
-
-    // 25%/75% dither, scaled down by 2x. Tests ALL aspects of minification. Specifically, are
-    // sRGB sources decoded to linear before computing mipmaps?
-    p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
-    p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-    nextRect("MipMaps", 0);
 
     // 50% grey via paint color. Paint color (SkColor) is specified to be sRGB!
     p.setColor(0xffbcbcbc);
