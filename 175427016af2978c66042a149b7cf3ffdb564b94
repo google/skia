@@ -58,6 +58,41 @@
       "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5a7703d_aaabf450",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-08T14:49:15Z",
+      "side": 1,
+      "message": "Ah, ok.  Nit: rename macro to FOR_EACH_TOP_DEVICE?",
+      "parentUuid": "e8728df6_ae7bb141",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c0c1859_8327ace2",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1475,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-08T14:49:15Z",
+      "side": 1,
+      "message": "nit: stray tab, here and below.",
+      "revId": "175427016af2978c66042a149b7cf3ffdb564b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
