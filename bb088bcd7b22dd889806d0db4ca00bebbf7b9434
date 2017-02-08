@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "ea92e4d7_5465c4c2",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-08T16:33:35Z",
+      "side": 1,
+      "message": "Makes sense. Done.",
+      "parentUuid": "9cabee4c_3c80dc6b",
+      "revId": "bb088bcd7b22dd889806d0db4ca00bebbf7b9434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "935c043c_ff486741",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 7
