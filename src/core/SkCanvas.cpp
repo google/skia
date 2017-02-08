@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
@@ -33,7 +34,6 @@
 #include "SkRRect.h"
 #include "SkShadowPaintFilterCanvas.h"
 #include "SkShadowShader.h"
-#include "SkSmallAllocator.h"
 #include "SkSpecialImage.h"
 #include "SkSurface_Base.h"
 #include "SkTextBlob.h"
@@ -509,11 +509,7 @@ public:
         }
 
         if (SkDrawLooper* looper = paint.getLooper()) {
-            fLooperContext = fLooperContextAllocator.createWithIniter(
-                looper->contextSize(),
-                [&](void* buffer) {
-                    return looper->createContext(canvas, buffer);
-                });
+            fLooperContext = looper->makeContext(canvas, &fAlloc);
             fIsSimple = false;
         } else {
             fLooperContext = nullptr;
@@ -546,7 +542,7 @@ public:
     }
 
 private:
-    SkLazyPaint     fLazyPaintInit; // base paint storage in case we need to modify it
+    SkLazyPaint     fLazyPaintInit;       // base paint storage in case we need to modify it
     SkLazyPaint     fLazyPaintPerLooper;  // per-draw-looper storage, so the looper can modify it
     SkCanvas*       fCanvas;
     const SkPaint&  fOrigPaint;
@@ -557,7 +553,8 @@ private:
     bool            fDone;
     bool            fIsSimple;
     SkDrawLooper::Context* fLooperContext;
-    SkSmallAllocator<1, 32> fLooperContextAllocator;
+    char            fStorage[48];
+    SkArenaAlloc    fAlloc {fStorage};
 
     bool doNext(SkDrawFilter::Type drawType);
 };

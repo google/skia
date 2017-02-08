@@ -12,6 +12,7 @@
 #include "SkDrawLooper.h"
 #include "SkColor.h"
 
+class SkArenaAlloc;
 class SkMaskFilter;
 class SkColorFilter;
 
@@ -40,9 +41,7 @@ public:
         return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy, flags));
     }
 
-    SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override;
-
-    size_t contextSize() const override { return sizeof(BlurDrawLooperContext); }
+    SkDrawLooper::Context* makeContext(SkCanvas*, SkArenaAlloc*) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
