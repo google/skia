@@ -486,7 +486,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                           GrMorphologyEffect::MorphologyType morphType,
                                           SkISize radius,
                                           const SkImageFilter::OutputProperties& outputProperties) {
-    sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
+    sk_sp<GrTextureProxy> srcTexture(input->asTextureProxy(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
