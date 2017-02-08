@@ -31,11 +31,12 @@ public:
 private:
     void initSlides();
     void updateTitle();
+    void setColorMode(SkColorType, sk_sp<SkColorSpace>);
     void setupCurrentSlide(int previousSlide);
 
     void updateUIState();
 
-    void drawSlide(SkCanvas* canvs, bool inSplitScreen);
+    void drawSlide(SkCanvas* canvs);
     void drawStats(SkCanvas* canvas);
 
     void changeZoomLevel(float delta);
@@ -54,10 +55,11 @@ private:
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
-    // whether to split the screen and draw two copies of the slide, one with sRGB and one without
-    bool                   fSplitScreen;
-
     sk_app::Window::BackendType fBackendType;
+
+    // Color properties for slide rendering
+    SkColorType            fColorType;
+    sk_sp<SkColorSpace>    fColorSpace;
 
     // transform data
     SkScalar               fZoomCenterX;

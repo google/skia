@@ -12,8 +12,6 @@
 #include "SkPicture.h"
 #include "SkImage.h"
 
-static const char* kImageColorXformMetaData = "ImageColorSpaceXform";
-
 class ImageSlide : public Slide {
 public:
     ImageSlide(const SkString& name, const SkString& path);
@@ -25,10 +23,8 @@ public:
     void unload() override;
 
 private:
-    SkString               fPath;
-    sk_sp<const SkImage>   fImage;
-    SkBitmap               fOriginalBitmap;
-    SkBitmap               fXformedBitmap;
+    SkString         fPath;
+    sk_sp<SkImage>   fImage;
 };
 
 #endif

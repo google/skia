@@ -276,7 +276,9 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         desc.fStencilBits = 0;
         desc.fRenderTargetHandle = (GrBackendObject) &info;
 
-        fSurfaces[i] = this->createRenderSurface(desc, 24);
+        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
+                                                              fDisplayParams.fColorSpace,
+                                                              &fSurfaceProps);
     }
 
     // create the command pool for the command buffers
