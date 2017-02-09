@@ -370,8 +370,18 @@ static void test_degenerate_linear(skiatest::Reporter*) {
 // "Interesting" fuzzer values.
 static void test_linear_fuzzer(skiatest::Reporter*) {
     static const SkColor gColors0[] = { 0x30303030, 0x30303030 };
+    static const SkColor gColors1[] = { 0x30303030, 0x30303030, 0x30303030 };
+
+    static const SkScalar gPos1[]   = { 0, 0, 1 };
+
     static const SkScalar gMatrix0[9] =
-        { 6.40969056e-10f, 0, 6.40969056e-10f, 0, 4.42539023e-39f, 6.40969056e-10f, 0, 0, 1 };
+        { 6.40969056e-10f, 0              , 6.40969056e-10f,
+          0              , 4.42539023e-39f, 6.40969056e-10f,
+          0              , 0              , 1 };
+    static const SkScalar gMatrix1[9] =
+        { -2.75294113f    , 6.40969056e-10f,  6.40969056e-10f,
+           6.40969056e-10f, 6.40969056e-10f, -3.32810161e+24f,
+           6.40969056e-10f, 6.40969056e-10f,  0 };
 
     static const struct {
         SkPoint            fPts[2];
@@ -384,14 +394,24 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
         const SkScalar*    fGlobalMatrix;
     } gConfigs[] = {
         {
-          {{0, -2.752941f}, {0, 0}},
-          gColors0,
-          nullptr,
-          SK_ARRAY_COUNT(gColors0),
-          SkShader::kClamp_TileMode,
-          0,
-          gMatrix0,
-          nullptr
+            {{0, -2.752941f}, {0, 0}},
+            gColors0,
+            nullptr,
+            SK_ARRAY_COUNT(gColors0),
+            SkShader::kClamp_TileMode,
+            0,
+            gMatrix0,
+            nullptr
+        },
+        {
+            {{4.42539023e-39f, -4.42539023e-39f}, {9.78041162e-15f, 4.42539023e-39f}},
+            gColors1,
+            gPos1,
+            SK_ARRAY_COUNT(gColors1),
+            SkShader::kClamp_TileMode,
+            0,
+            nullptr,
+            gMatrix1
         },
     };
 
@@ -417,6 +437,13 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
                                                          config.fTileMode,
                                                          config.fFlags | forceFlags,
                                                          localMatrix.getMaybeNull()));
+            if (config.fGlobalMatrix) {
+                SkMatrix m;
+                m.set9(config.fGlobalMatrix);
+                canvas->save();
+                canvas->concat(m);
+            }
+
             canvas->drawPaint(paint);
         }
     }
