@@ -20,8 +20,10 @@ if (skia_use_system_libjpeg_turbo) {
     defines = [ "TURBO_FOR_WINDOWS" ]
 
     sources = [
+      "../externals/libjpeg-turbo/jaricom.c",
       "../externals/libjpeg-turbo/jcapimin.c",
       "../externals/libjpeg-turbo/jcapistd.c",
+      "../externals/libjpeg-turbo/jcarith.c",
       "../externals/libjpeg-turbo/jccoefct.c",
       "../externals/libjpeg-turbo/jccolor.c",
       "../externals/libjpeg-turbo/jcdctmgr.c",
@@ -37,6 +39,7 @@ if (skia_use_system_libjpeg_turbo) {
       "../externals/libjpeg-turbo/jcsample.c",
       "../externals/libjpeg-turbo/jdapimin.c",
       "../externals/libjpeg-turbo/jdapistd.c",
+      "../externals/libjpeg-turbo/jdarith.c",
       "../externals/libjpeg-turbo/jdcoefct.c",
       "../externals/libjpeg-turbo/jdcolor.c",
       "../externals/libjpeg-turbo/jddctmgr.c",
