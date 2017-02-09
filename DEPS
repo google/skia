@@ -41,6 +41,9 @@ deps = {
 
   # microhttpd for skiaserve
   "third_party/externals/microhttpd" : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
+
+  # imgui for Viewer/SampleApp widgets
+  "third_party/externals/imgui" : "https://github.com/ocornut/imgui.git@82dcdc9dfc663294f2973f4c7b7313a3ff092187",
 }
 
 recursedeps = [ "common" ]
