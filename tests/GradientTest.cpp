@@ -374,14 +374,26 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
 
     static const SkScalar gPos1[]   = { 0, 0, 1 };
 
-    static const SkScalar gMatrix0[9] =
-        { 6.40969056e-10f, 0              , 6.40969056e-10f,
-          0              , 4.42539023e-39f, 6.40969056e-10f,
-          0              , 0              , 1 };
-    static const SkScalar gMatrix1[9] =
-        { -2.75294113f    , 6.40969056e-10f,  6.40969056e-10f,
-           6.40969056e-10f, 6.40969056e-10f, -3.32810161e+24f,
-           6.40969056e-10f, 6.40969056e-10f,  0 };
+    static const SkScalar gMatrix0[9] = {
+        6.40969056e-10f, 0              , 6.40969056e-10f,
+        0              , 4.42539023e-39f, 6.40969056e-10f,
+        0              , 0              , 1
+    };
+    static const SkScalar gMatrix1[9] = {
+        -2.75294113f    , 6.40969056e-10f,  6.40969056e-10f,
+         6.40969056e-10f, 6.40969056e-10f, -3.32810161e+24f,
+         6.40969056e-10f, 6.40969056e-10f,  0
+    };
+    static const SkScalar gMatrix2[9] = {
+        7.93481258e+17f, 6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 6.40969056e-10f, 0.688235283f
+    };
+    static const SkScalar gMatrix3[9] = {
+        1.89180674e+11f,     6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f,     6.40969056e-10f, 6.40969056e-10f,
+        6.40969056e-10f, 11276.0469f        , 8.12524808e+20f
+    };
 
     static const struct {
         SkPoint            fPts[2];
@@ -412,6 +424,26 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             0,
             nullptr,
             gMatrix1
+        },
+        {
+            {{4.42539023e-39f, 6.40969056e-10f}, {6.40969056e-10f, 1.49237238e-19f}},
+            gColors1,
+            gPos1,
+            SK_ARRAY_COUNT(gColors1),
+            SkShader::kClamp_TileMode,
+            0,
+            nullptr,
+            gMatrix2
+        },
+        {
+            {{6.40969056e-10f, 6.40969056e-10f}, {6.40969056e-10f, -0.688235283f}},
+            gColors0,
+            nullptr,
+            SK_ARRAY_COUNT(gColors0),
+            SkShader::kClamp_TileMode,
+            0,
+            gMatrix3,
+            nullptr
         },
     };
 
