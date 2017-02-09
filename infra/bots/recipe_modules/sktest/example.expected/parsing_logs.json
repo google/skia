@@ -134,7 +134,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -175,7 +175,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/out/Release/dm",
       "--undefok",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -192,9 +192,9 @@
       "master",
       "client.skia",
       "builder",
-      "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
+      "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan",
       "build_number",
-      "5",
+      "6",
       "--svgs",
       "[START_DIR]/svg",
       "--key",
@@ -203,7 +203,7 @@
       "compiler",
       "Clang",
       "configuration",
-      "Debug",
+      "Release",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
@@ -323,20 +323,25 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_sdk/lib",
-      "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
+      "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "PATH": "%(PATH)s:[START_DIR]/linux_vulkan_sdk/bin",
       "SKIA_OUT": "[START_DIR]/out",
-      "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_debug/intel_icd.x86_64.json"
+      "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_release/intel_icd.x86_64.json"
     },
     "name": "dm",
-    "stdout": "/path/to/tmp/"
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "name": "$result",
+    "reason": "Failed build steps: dm",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
