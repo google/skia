@@ -7,6 +7,7 @@
 
 #include "Fuzz.h"
 #include "SkCanvas.h"
+#include "SkCommonFlags.h"
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"
@@ -50,6 +51,58 @@ void initGradientParams(Fuzz* fuzz, std::vector<SkColor>* colors,
     }
 }
 
+static void logOptionalMatrix(const char* label, const SkMatrix* m) {
+    if (!m) {
+        return;
+    }
+
+    SkDebugf("  %s: [ ", label);
+    for (int i = 0; i < 9; ++i) {
+        SkDebugf("%.9g ", m->get(i));
+    }
+    SkDebugf("]\n");
+}
+
+static void logLinearGradient(const SkPoint pts[2],
+                              const std::vector<SkColor>& colors,
+                              const std::vector<SkScalar> pos,
+                              SkShader::TileMode mode,
+                              uint32_t flags,
+                              const SkMatrix* localMatrix,
+                              const SkMatrix* globalMatrix) {
+    if (!FLAGS_verbose) {
+        return;
+    }
+
+    SkDebugf("--- fuzzLinearGradient ---\n");
+    SkDebugf("  pts:\t\t[ (%f %f) (%f %f) ]\n",
+             pts[0].x(), pts[0].y(), pts[1].x(), pts[1].y());
+    SkDebugf("  colors:\t[ ");
+    for (auto color : colors) {
+        SkDebugf("0x%x ", color);
+    }
+
+    SkDebugf("]\n  pos:\t\t");
+    if (pos.empty()) {
+        SkDebugf("nullptr");
+    } else {
+        SkDebugf("[ ");
+        for (auto p : pos) {
+            SkDebugf("%f ", p);
+        }
+    }
+    SkDebugf("]\n");
+
+    static const char* gModeName[] = {
+        "kClamp_TileMode", "kRepeat_TileMode", "kMirror_TileMode"
+    };
+    SkASSERT(mode < SK_ARRAY_COUNT(gModeName));
+    SkDebugf("  mode:\t\t%s\n", gModeName[mode]);
+    SkDebugf("  flags:\t0x%x\n", flags);
+    logOptionalMatrix("local matrix", localMatrix);
+    logOptionalMatrix("global matrix", globalMatrix);
+}
+
 void fuzzLinearGradient(Fuzz* fuzz) {
     SkPoint pts[2];
     fuzz->next(&pts[0].fX, &pts[0].fY, &pts[1].fX, &pts[1].fY);
@@ -76,10 +129,12 @@ void fuzzLinearGradient(Fuzz* fuzz) {
     if (useGlobalMatrix) {
         SkMatrix gm;
         makeMatrix(fuzz, &gm);
+        logLinearGradient(pts, colors, pos, mode, flags, localMatrix.getMaybeNull(), &gm);
         SkCanvas* c = surface->getCanvas();
         c->setMatrix(gm);
         c->drawPaint(p);
     } else {
+        logLinearGradient(pts, colors, pos, mode, flags, localMatrix.getMaybeNull(), nullptr);
         surface->getCanvas()->drawPaint(p);
     }
 }
