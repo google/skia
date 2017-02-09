@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b87e9a5_dfd577d4",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-09T19:20:52Z",
+      "side": 1,
+      "message": "I don\u0027t think it really matters but we do get to use all 65536 values of a short, 65535 is the largest index not the largest count.",
+      "range": {
+        "startLine": 1108,
+        "startChar": 44,
+        "endLine": 1108,
+        "endChar": 49
+      },
+      "revId": "8cefe40ab094bfbea532761dad1a857eb3d4b831",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
