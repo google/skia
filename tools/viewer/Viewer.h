@@ -27,17 +27,20 @@ public:
     void onIdle() override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
+    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
+    bool onChar(SkUnichar c, uint32_t modifiers);
 
 private:
     void initSlides();
     void updateTitle();
-    void setColorMode(SkColorType, sk_sp<SkColorSpace>);
+    void setColorMode(SkColorType, bool colorManaged);
     void setupCurrentSlide(int previousSlide);
 
     void updateUIState();
 
     void drawSlide(SkCanvas* canvs);
     void drawStats(SkCanvas* canvas);
+    void drawImGui(SkCanvas* canvas);
 
     void changeZoomLevel(float delta);
     SkMatrix computeMatrix();
@@ -57,10 +60,15 @@ private:
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
+    SkBitmap               fImGuiFontBitmap;
+    bool                   fShowImGuiDebugWindow;
+    bool                   fShowImGuiTestWindow;
+
     sk_app::Window::BackendType fBackendType;
 
     // Color properties for slide rendering
     SkColorType            fColorType;
+    bool                   fColorManaged;
     sk_sp<SkColorSpace>    fColorSpace;
 
     // transform data
