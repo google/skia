@@ -15,6 +15,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 
+class SkArenaAlloc;
 class SkMatrix;
 class SkPaint;
 class SkPixmap;
@@ -144,7 +145,7 @@ public:
                                    const SkPaint&,
                                    const SkPixmap& src,
                                    int left, int top,
-                                   SkTBlitterAllocator*);
+                                   SkArenaAlloc*);
     ///@}
 
     static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
