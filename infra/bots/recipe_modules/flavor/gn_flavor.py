@@ -79,6 +79,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_mesa'] = 'true'
     if extra_config == 'NoGPU':
       args['skia_enable_gpu'] = 'false'
+    if extra_config == 'Shared':
+      args['is_component_build'] = 'true'
     if extra_config == 'Vulkan':
       if os == 'Ubuntu':
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
