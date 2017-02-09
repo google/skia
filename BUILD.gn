@@ -394,7 +394,8 @@ optional("gpu") {
   enabled = skia_enable_gpu
   public_defines = []
 
-  sources = skia_gpu_sources + [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
+  sources = skia_gpu_sources + skia_sksl_sources +
+            [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
   sources -= get_path_info([
@@ -580,7 +581,6 @@ component("skia") {
 
   sources = []
   sources += skia_core_sources
-  sources += skia_sksl_sources
   sources += skia_utils_sources
   sources += skia_xps_sources
   sources += [
