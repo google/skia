@@ -1,0 +1,2346 @@
+﻿##Class #SkPaint
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint::SkPaint() #empty_constructor
+
+#Method constructs an SkPaint with these settings:
+
+##Table
+# Anti-alias             # ##A false       kAntiAlias_Flag          ## ##
+# Alpha                  # ##A 255         setAlpha                 ## ##
+# Blend Mode             # ##A source-over SkBlendMode::kSrcOver    ## ##
+# Stroke Cap             # ##A butt        kButt_Cap                ## ##
+# Color                  # ##A black       SK_ColorBLACK            ## ##
+# Color Filter           # #AA nullptr     setColorFilter           ## ##
+# Dither                 # ##A false       kDither_Flag             ## ##
+# Draw Looper            # ##A nullptr     setDrawLooper            ## ##
+# Embedded Bitmap Fonts  # ##A false       kEmbeddedBitmapText_Flag ## ##
+# Fake Bold              # #AA false       setFakeBoldText          ## ##
+# Filter Quality         # ##A none        kNone_SkFilterQuality    ## ##
+# Forced Auto-hinting    # ##A false       kAutoHinting_Flag        ## ##
+# Image Filter           # ##A nullptr     setImageFilter           ## ##
+# Join Type              # ##A miter       kMiter_Join              ## ##
+# Linear Text            # ##A false       kLinearText_Flag         ## ##
+# Mask Filter            # ##A nullptr     setMaskFilter            ## ##
+# Miter Limit            # ##A 4           setMiterLimit            ## ##
+# Path Effect            # ##A nullptr     setPathEffect            ## ##
+# Rasterizer             # ##A nullptr     setRasterizer            ## ##
+# Shader                 # ##A nullptr     setShader                ## ##
+# Stroke Width           # ##A 0           setStrokeWidth           ## ##
+# Subpixel Glyph         # ##A false       kLCDRenderText_Flag      ## ##
+# Subpixel Position      # ##A false       kSubpixelText_Flag       ## ##
+# Strikethrough          # ##A false       setStrikeThruText        ## ##
+# Style                  # ##A fill        kFill_Style              ## ##
+# Text Alignment         # ##A left        kLeft_Align              ## ##
+# Text Direction         # ##A horizontal  kVerticalText_Flag       ## ##
+# Text Encoding          # ##A UTF-8       kUTF8_TextEncoding       ## ##
+# Text Hinting           # ##A normal      kNormal_Hinting          ## ##
+# Text Kerning           # ##A false       kDevKernText_Flag        ## ##
+# Text Scale X           # ##A 1           setTextScaleX            ## ##
+# Text Size              # ##A 12          setTextSize              ## ##
+# Text Skew X            # ##A 0           setTextSkewX             ## ##
+# Typeface               # #AA nullptr     setTypeface              ## ##
+# Underline              # ##A false       setUnderlineText         ## ##
+##Table ##
+
+The flags, text size, hinting, and miter limit may be overridden at compile time by defining
+paint default values. The overrides may be included in SkUserConfig.h or predefined by the 
+build system.  
+
+##Example #paint_defaults
+###$  $ redefine markup character so preprocessor commands appear normally
+#ifndef SkUserConfig_DEFINED
+#define SkUserConfig_DEFINED
+
+#define SkPaintDefaults_Flags      0x01   // always enable antialiasing
+#define SkPaintDefaults_TextSize   24.f   // double default font size
+#define SkPaintDefaults_Hinting    3      // use full hinting
+#define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting
+
+#endif
+$$$#  # restore original markup character
+##Example ##
+
+##Example #measureText
+SkPaint paint;
+SkDebugf("default width = %g\n", paint.measureText("!", 1));
+paint.setTextSize(paint.getTextSize() * 2);
+SkDebugf("double width = %g\n", paint.measureText("!", 1));
+##Example ##
+
+##StdOut #measureText
+default width = 3
+double width = 7
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint& paint) #copy_constructor
+
+#Method does a shallow copy of the paint. The paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter are shared
+between the original paint and the copy. These objects' reference counts are increased.
+
+By convention, path effects, shaders, and so on have a Make method to instantiate
+the object, and only const methods to examine it. This prevents the reference-counted
+objects in a paint from being modified on the outside.
+
+##Example #setColor
+    SkPaint paint1;
+    paint1.setColor(SK_ColorRED);
+    SkPaint paint2(paint1);
+    paint2.setColor(SK_ColorBLUE);
+    SkASSERT(SK_ColorRED == paint1.getColor());
+    SkASSERT(SK_ColorBLUE == paint2.getColor());
+##Example ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint(const SkPaint&& paint) #move_constructor
+
+#Method implements a move constructor to avoid incrementing the reference counts
+of objects referenced by the paint.
+
+##Example
+SkPaint makeDash(SkPaint paint) {
+    float intervals[] = { 5, 5 };
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    return paint;
+}
+
+SkPaint paint = makeDash(SkPaint());
+SkDebugf("ref count = %d\n", paint.getPathEffect()->getRefCnt());
+##Example ##
+
+##StdOut
+ref count = 1
+##StdOut ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method ~SkPaint() #destructor
+
+Decrease the reference count of the paint's typeface, path effect, shader,
+mask filter, color filter, rasterizer, draw looper, and image filter. If the
+objects' reference count goes to zero, delete them.
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(const SkPaint&) #copy_assignment_operator
+
+##Example
+    SkPaint paint1, paint2;
+    paint1.setColor(SK_ColorRED);
+    paint2 = paint1;
+    SkASSERT(SK_ColorRED == paint1.getColor());
+    SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPaint& operator=(SkPaint&&) #move_assignment_operator
+
+##Example
+    SkPaint paint1, paint2;
+    paint1.setColor(SK_ColorRED);
+    paint2 = std::move(paint1);
+    SkASSERT(SK_ColorRED == paint2.getColor());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator==(const SkPaint& a, const SkPaint& b) #equal_operator
+
+#Method returns true if the paints are equivalent, but may return false
+if the referenced objects have identical contents but different pointers.
+
+##Example
+    SkPaint paint1, paint2;
+    paint1.setColor(SK_ColorRED);
+    paint2.setColor(0xFFFF0000);
+    SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+    float intervals[] = { 5, 5 };
+    paint1.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    paint2.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+    paint1 == paint2
+    paint1 != paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool operator!=(const SkPaint& a, const SkPaint& b) #not_equal_operator
+
+#Method returns true if the paints are not equivalent, but may return true
+if the referenced objects have identical contents but different pointers.
+
+##Example
+    SkPaint paint1, paint2;
+    paint1.setColor(SK_ColorRED);
+    paint2.setColor(0xFFFF0000);
+    SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+    SkDebugf("paint1 %c= paint2\n", paint1 != paint2 ? '!' : '=');
+##Example ##
+
+##StdOut
+    paint1 == paint2
+    paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method uint32_t getHash() const #getHash
+
+#Method returns a shallow hash. Identical hashes guarantee that the paints are
+equivalent, but differing hashes do not guarantee that the paints have differing
+contents.
+
+If #equal_operator, returns true for two paints, their hashes are also equal.
+
+The hash returned is platform and implementation specific.
+
+##Example
+    SkPaint paint1, paint2;
+    paint1.setColor(SK_ColorRED);
+    paint2.setColor(0xFFFF0000);
+    SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : '!');
+    SkDebugf("paint1.getHash() %c= paint2.getHash()\n",
+             paint1.getHash() == paint2.getHash() ? '=' : '!');
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void flatten(SkWriteBuffer&) const #flatten
+
+#Method allows serializing the paint into a buffer. A companion #unflatten call
+can reconstitute the paint at a later time.
+
+##Example
+    class PaintDumper : public SkWriteBuffer {
+    public:
+        bool isCrossProcess() const override { return false };
+        void writeByteArray(const void* data, size_t size) override {}
+        void writeBool(bool value) override {}
+        void writeScalar(SkScalar value) override {}
+        void writeScalarArray(const SkScalar* value, uint32_t count) override {}
+        void writeInt(int32_t value) override {}
+        void writeIntArray(const int32_t* value, uint32_t count) override {}
+        void writeUInt(uint32_t value) override {}
+        void writeString(const char* value) override {}
+        void writeFlattenable(const SkFlattenable* flattenable) override {}
+        void writeColorArray(const SkColor* color, uint32_t count) override {}
+        void writeColor4f(const SkColor4f& color) override {}
+        void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}
+        void writePoint(const SkPoint& point) override {}
+        void writePointArray(const SkPoint* point, uint32_t count) override {}
+        void writeMatrix(const SkMatrix& matrix) override {}
+        void writeIRect(const SkIRect& rect) override {}
+        void writeRect(const SkRect& rect) override {}
+        void writeRegion(const SkRegion& region) override {}
+        void writePath(const SkPath& path) override {}
+        size_t writeStream(SkStream* stream, size_t length) override {}
+        void writeBitmap(const SkBitmap& bitmap) override {}
+        void writeImage(const SkImage*) override {}
+        void writeTypeface(SkTypeface* typeface) override {}
+        void writePaint(const SkPaint& paint) override {}
+
+        void writeColor(SkColor color) override {
+            SkDebugf("color = 0x%08x\n", color);
+        }
+    } dumper;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.flatten(dumper);
+##Example ##
+
+##StdOut
+    color = 0xffff0000
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void unflatten(SkReadBuffer&)
+
+unflatten populates a paint, typically from a serialized stream, created by calling
+#flatten at an earlier time.
+
+The SkReadBuffer class is not public, so unflatten cannot be meaningfully called
+by a Skia client.
+
+# why is unflatten public? bug.skia.org/6172
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void reset() #reset
+
+Set all paint's contents to their initial values. This is equivalent to replacing
+the paint by calling #empty_constructor.
+
+##Example
+SkPaint paint1, paint2;
+paint1.setColor(SK_ColorRED);
+paint1.reset();
+SkDebugf("paint1 %c= paint2", paint1 == paint2 ? '=' : '!');
+##Example ##
+
+##StdOut
+paint1 == paint2
+##StdOut ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+##Topic Hinting
+
+##Enum Hinting
+
+#Code
+    enum Hinting {
+        kNo_Hinting            = 0,
+        kSlight_Hinting        = 1,
+        kNormal_Hinting        = 2,
+        kFull_Hinting          = 3
+    };
+#Code ##
+
+Text hinting adjusts the glyph outlines so that the shape provides a uniform
+look at a given point size on font engines that support it. Hinting may have a
+muted effect or no effect at all depending on the platform.
+
+On Linux and Android, the four levels roughly control corresponding features
+in FreeType as described in the table below.
+
+#Track
+#File SkFontHost_mac.cpp:1777,1806
+#Time 2013-03-03 07:16:29 +0000
+#Bug 915
+On OS X and iOS, hinting controls whether CoreGraphics dilates the font outlines
+to account for LCD text. No hinting uses Core Text gray scale output.
+Normal hinting uses Core Text LCD output. If kLCDRenderText_Flag is clear,
+the LCD output is reduced to a single grayscale channel.
+#Track ##
+
+On Windows with DirectWrite, Hinting has no effect.
+
+##Table
+#  Hinting Name     # Value #   Description                                         ##
+#  kNo_Hinting      #   0   #   Outlines are unchanged.                             ##
+#  kSlight_Hinting  #   1   #   Shapes are minimally modified to improve constrast. ##
+#  kNormal_Hinting  #   2   #   Shapes are modified to improve constrast.           ##                                    ##
+#  kFull_Hinting    #   3   #   Shapes are modified for maxiumum constrast.         ##
+##Table ##
+
+Paint Hinting defaults to kNormal_Hinting.
+
+#ToDo add an illustration? linux running GM:typefacerendering is best for this
+      the hinting variations are every other character horizontally
+#ToDo ##
+
+##Enum ##
+
+##Method Hinting getHinting() const #getHinting
+SkPaint paint;
+SkASSERT(SkPaint::kNormal_Hinting == paint.getHinting());
+##Method ##
+
+##Method Hinting setHinting(Hinting hintingLevel) const #setHinting
+SkPaint paint1, paint2;
+paint2.setHinting(SkPaint::kNormal_Hinting);
+SkASSERT(paint1 == paint2);
+##Method ##
+
+##Topic ##
+--------------------------------------------------------------------------------
+##Topic Flags
+
+##Enum Flags
+
+#Code
+    enum Flags {
+        kAntiAlias_Flag       = 0x01,
+        kDither_Flag          = 0x04,
+        kUnderlineText_Flag   = 0x08,
+        kStrikeThruText_Flag  = 0x10,
+        kFakeBoldText_Flag    = 0x20,
+        kLinearText_Flag      = 0x40,
+        kSubpixelText_Flag    = 0x80,
+        kDevKernText_Flag     = 0x100,
+        kLCDRenderText_Flag   = 0x200,
+        kEmbeddedBitmapText_Flag = 0x400,
+        kAutoHinting_Flag     = 0x800,
+        kVerticalText_Flag    = 0x1000,
+        kGenA8FromLCD_Flag    = 0x2000,
+        kAllFlags = 0xFFFF
+    };
+#Code ##
+
+The bit values stored in Paint Flags.
+The default value for Flags, normally zero, can be changed at compile time
+with a custom definition of SkPaintDefaults_Flags.
+All flags can be read and written explicitly; Flags allows manipulating
+multiple settings at once.
+
+##Table
+    # Flags Name               # Mask   # Value # Description           ##
+    # kAntiAlias_Flag          # 0x0001 # 1     # Anti-alias            ##
+    # (reserved)               # 0x0002 # 2     #                       ##
+    # kDither_Flag             # 0x0004 # 4     # Dither                ##
+    # kUnderlineText_Flag      # 0x0008 # 8     # Underline             ##
+    # kStrikeThruText_Flag     # 0x0010 # 16    # Strikethrough         ## 
+    # kFakeBoldText_Flag       # 0x0020 # 32    # Fake Bold             ##
+    # kLinearText_Flag         # 0x0040 # 64    # Linear Text           ##
+    # kSubpixelText_Flag       # 0x0080 # 128   # Subpixel Position     ## 
+    # kDevKernText_Flag        # 0x0100 # 256   # Text Kerning          ##
+    # kLCDRenderText_Flag      # 0x0200 # 512   # Subpixel Glyph        ##
+    # kEmbeddedBitmapText_Flag # 0x0400 # 1024  # Embedded Bitmap Fonts ##
+    # kAutoHinting_Flag        # 0x0800 # 2048  # Forced Auto-hinting   ##
+    # kVerticalText_Flag       # 0x1000 # 4096  # Text Direction        ##
+    # kGenA8FromLCD_Flag       # 0x2000 # 8192  # private               ##
+    # (reserved)               # 0x4000 # 16384 #                       ##
+    # (reserved)               # 0x8000 # 32768 #                       ##
+##Table ##
+
+Paint Flags default to all flags clear.
+
+##Enum ##
+
+##Method uint32_t getFlags() const #getFlags
+
+getFlags returns paint settings described by Flags. Each setting uses one
+bit, and can be tested with Flags members.
+
+#Example
+    SkPaint paint;
+    paint.setAntialias(true);
+    SkASSERT(SkPaint::kAntiAlias_Flag & paint.getFlags());
+#Example ##
+
+##Method ##
+
+##Method void setFlags(uint32_t flags)
+
+setFlags sets Paint Flags to the union of the Flags members.
+
+#Param  flags is the union of Flags for the paint.
+
+#Example
+SkPaint paint;
+paint.setFlags((uint32_t) (kAntiAlias_Flag | kDither_Flag));
+SkASSERT(paint.getAntiAlias());
+SkASSERT(paint.getDither());
+#Example ##
+
+##Method ##
+
+##Topic ##
+--------------------------------------------------------------------------------
+##Topic Anti-alias
+
+Anti-alias drawing approximates partial pixel coverage with transparency.
+If kAntiAlias_Flag is clear, pixel centers contained by the shape edge are drawn opaque.
+If kAntiAlias_Flag is set, pixels are drawn with an Alpha equal to their coverage.
+
+The rule for aliased pixels is inconsistent across platforms. A shape edge 
+passing through the pixel center may, but is not required to, draw the pixel.
+
+A platform may only support anti-aliased drawing. Some GPU-backed platforms use
+supersampling to anti-alias all drawing, and have no mechanism to selectively
+alias.
+
+The amount of coverage computed for anti-aliased pixels also varies across platforms.
+
+Anti-alias is disabled by default.
+Anti-alias can be enabled by default by setting SkPaintDefaults_Flags to kAntiAlias_Flag
+at compile time.
+
+##Method bool isAntiAlias() const
+
+    isAntiAlias returns true if Flags kAntiAlias_Flag is set.
+    isAntiAlias is equivalent to getFlags masked with kAntiAlias_Flag.
+
+    #Example
+        SkPaint paint;
+        SkASSERT(paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag));
+        paint.setAntiAlias(true);
+        SkASSERT(paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag));
+    #Example ##
+
+##Method ##
+
+##Method void setAntiAlias(bool aa)
+
+    setAntiAlias sets kAntiAlias_Flag if aa is true, and clears kAntiAlias_Flag if aa is false.
+    setAntiAlias is equivalent to setting the kAntiAlias_Flag in Paint Flags.
+
+    #Example
+        SkPaint paint1, paint2;
+        paint1.setAntiAlias(true);
+        paint2.setFlags(paint2.getFlags() | kAntiAlias_Flag);
+        SkASSERT(paint1 == paint2);
+    ##Example
+
+    #Example
+    #Width 512
+    #Description
+        A red line is drawn with transparency on the edges to make it look smoother.
+        A blue line draws only where the pixel centers are contained.
+        The drawFatBits utility reads the canvas and draws large pixels to make the
+        aliasing easier to see.
+    #Description ##
+
+void drawFatBits(SkCanvas* canvas, const SkRect& bounds) {
+    const SkScalar scale = 10;
+    SkBitmap offscreen;
+    offscreen.allocN32Pixels(SkScalarRoundToInt(bounds.width() + 24),
+            SkScalarRoundToInt(bounds.height() + 24));
+    offscreen.eraseColor(SK_ColorWHITE);
+    SkMatrix cMatrix = canvas->getTotalMatrix();
+    if (!canvas->readPixels(&offscreen, 
+            SkScalarRoundToInt(bounds.fLeft - 12 + cMatrix.getTranslateX()),
+            SkScalarRoundToInt(bounds.fTop - 2 + cMatrix.getTranslateY()))) {
+        return;
+    }
+    canvas->save();
+    canvas->scale(scale, scale);
+    canvas->drawBitmap(offscreen, (bounds.fLeft - 30) / scale, (bounds.fTop - 20) / scale);
+    canvas->restore();
+}
+
+void draw(SkCanvas* canvas) {
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    SkRect bounds = SkRect::MakeLTRB(20, 20, 30, 50);
+    canvas->drawLine(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom, p);
+    drawFatBits(canvas, bounds);
+
+    p.setColor(SK_ColorBLUE);
+    p.setAntiAlias(false);
+    canvas->translate(200, 0);
+    canvas->drawLine(bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom, p);
+    drawFatBits(canvas, bounds);
+}
+    #Example ##
+
+##Method ##
+
+##Topic ##
+--------------------------------------------------------------------------------
+##Topic Dither
+
+Dither distributes color error to smooth color transitions.
+Dithering removes visible banding from gradients and improves rendering into
+a kRGB_565_SkColorType surface.
+
+Dither is disabled by default.
+Dither can be enabled by default by setting SkPaintDefaults_Flags to kDither_Flag
+at compile time.
+
+##Method bool isDither() const
+
+    isDither returns true if Flags kDither_Flag set set.
+    isDither is equivalent to getFlags masked with kDither_Flag.
+
+    #Example
+        SkPaint paint;
+        SkASSERT(paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag));
+        paint.setAntiAlias(true);
+        SkASSERT(paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag));
+    #Example ##
+
+##Method ##
+
+##Method void setDither(bool dither)
+
+    setDither set kDither_Flag if dither is true, and clears kDither_Flag if dither is false.
+    setDither is equivalent to adding the kDither_Flag in Paint Flags.
+
+    #Example
+        SkPaint paint1, paint2;
+        paint1.setDither(true);
+        paint2.setFlags(paint2.getFlags() | kDither_Flag);
+        SkASSERT(paint1 == paint2);
+    #Example ##
+
+    #Example
+    #ToDo doesn't work (need to debug why) but its a compact model of fat bits ##
+void draw(SkCanvas* canvas) {
+    SkBitmap bm16;
+    bm16.allocPixels(SkImageInfo::Make(10, 10, kRGB_565_SkColorType, kOpaque_SkAlphaType));
+    SkCanvas c16(bm16);
+    SkPoint points[2] = {{0, 0}, {10, 0}};
+    SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
+    SkPaint paint;
+    paint.setDither(true);
+    paint.setShader(SkGradientShader::MakeLinear(
+                     points, colors, nullptr, 2,
+                     SkShader::kClamp_TileMode, 0, nullptr));
+    c16.drawPaint(paint);
+    canvas->scale(25, 25);
+    canvas->drawBitmap(bm16, 0, 0);
+}
+    #Example ##
+
+    #ToDo incomplete ##
+
+##Method ##
+
+#SeeAlso Gradient RGB-565
+
+##Topic ##
+--------------------------------------------------------------------------------
+##Topic Linear Text
+
+##Method bool isLinearText() const #isLinearText
+    /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
+        @return true if the lineartext bit is set in the paint's flags
+    */
+
+    #Example
+    #Example ##
+
+##Method ##
+
+    /** Helper for setFlags(), setting or clearing the kLinearText_Flag bit
+        @param linearText true to set the linearText bit in the paint's flags,
+                          false to clear it.
+    */
+##Method void setLinearText(bool linearText) #setLinearText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for getFlags(), returning true if kSubpixelText_Flag bit is set
+        @return true if the lineartext bit is set in the paint's flags
+    */
+##Method bool isSubpixelText() const #isSubpixelText
+        return SkToBool(this->getFlags() & kSubpixelText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /**
+     *  Helper for setFlags(), setting or clearing the kSubpixelText_Flag.
+     *  @param subpixelText true to set the subpixelText bit in the paint's
+     *                      flags, false to clear it.
+     */
+##Method void setSubpixelText(bool subpixelText) #setSubpixelText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isLCDRenderText() const #isLCDRenderText
+        return SkToBool(this->getFlags() & kLCDRenderText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /**
+     *  Helper for setFlags(), setting or clearing the kLCDRenderText_Flag.
+     *  Note: antialiasing must also be on for lcd rendering
+     *  @param lcdText true to set the LCDRenderText bit in the paint's flags,
+     *                 false to clear it.
+     */
+##Method void setLCDRenderText(bool lcdText) #setLCDRenderText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isEmbeddedBitmapText() const #isEmbeddedBitmapText
+        return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kEmbeddedBitmapText_Flag bit
+        @param useEmbeddedBitmapText true to set the kEmbeddedBitmapText bit in the paint's flags,
+                                     false to clear it.
+    */
+##Method void setEmbeddedBitmapText(bool useEmbeddedBitmapText) #setEmbeddedBitmapText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isAutohinted() const {
+        return SkToBool(this->getFlags() & kAutoHinting_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kAutoHinting_Flag bit
+        @param useAutohinter true to set the kEmbeddedBitmapText bit in the
+                                  paint's flags,
+                             false to clear it.
+    */
+##Method void setAutohinted(bool useAutohinter); #setAutohinted
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isVerticalText() const { #isVerticalText
+        return SkToBool(this->getFlags() & kVerticalText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /**
+     *  Helper for setting or clearing the kVerticalText_Flag bit in
+     *  setFlags(...).
+     *
+     *  If this bit is set, then advances are treated as Y values rather than
+     *  X values, and drawText will places its glyphs vertically rather than
+     *  horizontally.
+     */
+##Method void setVerticalText(bool); #setVerticalText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
+        @return true if the underlineText bit is set in the paint's flags.
+    */
+##Method bool isUnderlineText() const { #isUnderlineText
+        return SkToBool(this->getFlags() & kUnderlineText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kUnderlineText_Flag bit
+        @param underlineText true to set the underlineText bit in the paint's
+                             flags, false to clear it.
+    */
+##Method void setUnderlineText(bool underlineText); #setUnderlineText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
+        @return true if the strikeThruText bit is set in the paint's flags.
+    */
+##Method bool isStrikeThruText() const { #isStrikeThruText
+        return SkToBool(this->getFlags() & kStrikeThruText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kStrikeThruText_Flag bit
+        @param strikeThruText   true to set the strikeThruText bit in the
+                                paint's flags, false to clear it.
+    */
+##Method void setStrikeThruText(bool strikeThruText); #setStrikeThruText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
+        @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
+    */
+##Method bool isFakeBoldText() const { #isFakeBoldText
+        return SkToBool(this->getFlags() & kFakeBoldText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kFakeBoldText_Flag bit
+        @param fakeBoldText true to set the kFakeBoldText_Flag bit in the paint's
+                            flags, false to clear it.
+    */
+##Method void setFakeBoldText(bool fakeBoldText); #setFakeBoldText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for getFlags(), returns true if kDevKernText_Flag bit is set
+        @return true if the kernText bit is set in the paint's flags.
+    */
+##Method bool isDevKernText() const { #isDevKernText
+        return SkToBool(this->getFlags() & kDevKernText_Flag);
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /** Helper for setFlags(), setting or clearing the kKernText_Flag bit
+        @param kernText true to set the kKernText_Flag bit in the paint's
+                            flags, false to clear it.
+    */
+##Method void setDevKernText(bool devKernText); #setDevKernText
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+    /**
+     *  Return the filter level. This affects the quality (and performance) of
+     *  drawing scaled images.
+     */
+##Method SkFilterQuality getFilterQuality() const { #getFilterQuality
+        return (SkFilterQuality)fBitfields.fFilterQuality;
+    }
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setFilterQuality(SkFilterQuality quality); #setFilterQuality
+
+Set the filter quality. This affects the quality (and performance) of
+drawing scaled images.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+##Topic Paint Color
+
+Paint Color specifies the Red, Blue, Green, and Alpha values used to draw a filled
+or stroked shape in a
+32-bit value. Each component occupies 8-bits, ranging from zero: no contribution;
+to 255: full intensity. All values in any combination are valid.
+
+Paint Color is not premultiplied;
+Alpha sets the transparency independent of the values of Red, Blue, and Green.
+
+The bit positions of Alpha, Red, Blue, and Green are independent of the bit positions
+on the output device, which may have more or fewer bits, and may have a different arrangement.
+
+##Table
+# bit positions # 31 - 24 # 23 - 16 # 15 - 8 # 7 - 0 ##
+#               # Alpha   # Red     # Blue   # Green ##
+##Table ##
+
+##Method SkColor getColor() const
+
+Retrieve the Alpha and RGB color from the paint packed into 32 bits.
+Use helpers SkColorGetA, SkColorGetR, SkColorGetG, and SkColorGetB to extract
+the color component.
+
+##Example
+    SkPaint paint;
+    paint.setColor(SK_ColorYELLOW);
+    SkColor y = paint.getColor();
+    SkDebugf("Yellow is %d%% red, %d%% green, and %d%% blue.\n", (int) (SkColorGetR(y) / 2.55f),
+            (int) (SkColorGetG(y) / 2.55f), (int) (SkColorGetB(y) / 2.55f));
+##Example ##
+
+##StdOut
+    Yellow is 100% red, 100% green, and 0% blue.
+##StdOut ##
+
+#SeeAlso SkColor
+
+##Method ##
+
+##Method void setColor(#SkColor #color) #setColor
+
+Set the Alpha and RGB color used when stroking and filling. The color is a 32-bit value
+packing 8 bit components for Alpha, Red, Blue, and Green. 
+
+##Param #color    The packed unpremultiplied ARGB color. ##
+        
+##Example
+    SkPaint green1, green2;
+    unsigned a = 255;
+    unsigned r = 0;
+    unsigned g = 255;
+    unsigned b = 0;
+    green1.setColor(a << 24 + r << 16 + g << 8 + b << 0);
+    green2.setColor(0xFF00FF00);
+    SkASSERT(green1 == green2);
+##Example ##
+
+#SeeAlso SkColor setARGB SkColorSetARGB
+
+##Method ##
+
+##Method uint8_t getAlpha() const
+
+Retrieve the Alpha component of the Paint Color used when stroking and filling.
+
+##Return Alpha ranging from zero, fully transparent, to 255, fully opaque.
+
+##Example
+    SkPaint paint;
+    SkASSERT(255 == paint.getAlpha());
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+##Method void setAlpha(U8CPU a) #setAlpha
+
+Helper to setColor(), that only assigns the color's alpha value,
+        leaving its r,g,b values unchanged.
+##Param a    set the alpha component (0..255) of the paint's color.
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+##Method void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+
+Set the #color used by #stroking and #filling. The #color components range from 0 to 255.
+The color is unpremultiplied;
+the color's alpha sets the transparency independent of the values of red, blue, and green.
+
+##Param a    The amount of alpha, from fully transparent (0) to fully opaque (255). ##
+##Param r    The amount of red, from no red (0) to full red (255). ##
+##Param g    The amount of green, from no green (0) to full green (255). ##
+##Param b    The amount of blue, from no blue (0) to full blue (255). ##
+        
+##Example
+    SkPaint transRed1, transRed2;
+    transRed1.setARGB(255 / 2, 255, 0, 0);
+    transRed2.setColor(SkColorSetARGB(255 / 2, 255, 0, 0));
+    SkDebugf("transRed1 %c= transRed2", transRed1 == transRed2 ? '=' : '!');
+##Example ##
+
+##StdOut
+transRed1 == transRed2
+##StdOut ##
+
+#ToDo incomplete ##
+#SeeAlso setColor SkColorSetARGB ##
+
+##Method ##
+
+##Topic Paint Color ##
+
+--------------------------------------------------------------------------------
+##Topic Paint Style
+
+##Subtopic
+    Fill
+    Stroke
+        Stroke Width
+            Hairline
+        Stroke Cap
+            Zero Length Segments
+        Stroke Join
+            Miter Construction
+            Miter Limit
+            Bevel Construction
+    Fill and Stroke
+##Subtopic ##
+
+Paint Style specifies if the geometry is filled, stroked, or both filled and stroked.
+Some shapes ignore Paint Style and are always drawn filled or stroked.
+
+Set Paint Style to kFill_Style to fill the shape.
+The fill covers the area inside the geometry for most shapes.
+
+Set Paint Style to kStroke_Style to stroke the shape.
+The stroke covers the area described by following the shape's edge with a pen or brush of a
+given width. The area covered where the shape starts and stops is described by the paint cap.
+The area covered where the shape turns a corner is described by the paint join.
+The stroke is centered on the shape; it extends equally on either side of the shape's edge.
+
+Set Paint Style to kStrokeAndFill_style to draw both simultaneously. The stroke and fill
+share all paint attributes; for instance, they are drawn with the same color.
+
+##Enum Style
+
+#Code
+    enum Style {
+        kFill_Style,
+        kStroke_Style,
+        kStrokeAndFill_Style,
+    };
+    enum {
+        kStyleCount = kStrokeAndFill_Style + 1
+    };
+#Code ##
+
+kFill_Style applies to Rectangle, Rounded Rectangle, Circle, Oval, Path, and Text. 
+Bitmap, Image, Patch, Region, Sprite, and Vertex are painted as if kFill_Style is set,
+and ignore the set Paint Style.
+The Path Fill Type specifies additional rules to fill the area outside the path edge,
+and to create an unfilled hole inside the shape.
+Paint Style is set to kFill_Style by default.
+
+kStroke_Style applies to Rectangle, Rounded Rectangle, Arc, Circle, Oval,
+Path, and Text. 
+Arc, Line, Point, and Points are always drawn as if kStroke_Style is set,
+and ignore the set Paint Style.
+The stroke construction is unaffected by the Path Fill Type.
+
+kStrokeAndFill_Style applies to Rectangle, Rounded Rectangle, Circle, Oval, Path, and Text.
+Path is treated as if it is set to SkPath::kWinding_FillType,
+and the set Path Fill Type is ignored. 
+
+Use stroke and fill to avoid hitting the same pixels twice with a stroke draw and
+a fill draw.
+
+Path with SkPath::kEvenOdd_FillType drawn with
+kStroke_Style and then drawn with kFill_Style may draw differently from one drawn
+with kStrokeAndFill_Style.
+
+kStyleCount is used to verify that Paint Style is a legal value.
+
+##Enum ##
+
+##Method Style getStyle() const
+
+Returns Paint Style; whether the geometry is filled, stroked, or filled and stroked.
+
+##Example
+    SkPaint paint;
+    SkASSERT(Style::kFillStyle == paint.getStyle());
+##Example ##
+
+##Method ##
+
+##Method void setStyle(Style style)
+
+Set Paint Style; used whether the geometry is filled, stroked, or filled and stroked.
+setStyle has no effect if style is not a legal Style value.
+
+##Example
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setStrokeWidth(5);
+        SkRegion region;
+        region.op(140, 10, 160, 30, SkRegion::kUnion_Op);
+        region.op(170, 40, 190, 60, SkRegion::kUnion_Op);
+        SkBitmap bitmap;
+        bitmap.setInfo(SkImageInfo::MakeA8(50, 50), 50);
+        uint8_t pixels[50][50];
+        for (int x = 0; x < 50; ++x) {
+            for (int y = 0; y < 50; ++y) {
+                pixels[y][x] = (x + y) % 5 ? 0xFF : 0x00;
+            }
+        }
+        bitmap.setPixels(pixels);
+        for (auto style : { SkPaint::kFill_Style,
+                            SkPaint::kStroke_Style,
+                            SkPaint::kStrokeAndFill_Style }) {
+            paint.setStyle(style);
+            canvas->drawLine(10, 10, 60, 60, paint);
+            canvas->drawRectCoords(80, 10, 130, 60, paint);
+            canvas->drawRegion(region, paint);
+            canvas->drawBitmap(bitmap, 200, 10, &paint);
+            canvas->translate(0, 80);
+        }
+    }
+##Example ##
+
+##Method ##
+
+#SeeAlso "Canvas Shape" "Path Fill Type" "Path Effect" "Style Fill" "Style Stroke"
+##Topic Paint Style ##
+
+--------------------------------------------------------------------------------
+##Topic Style Fill
+
+if Anti-alias is clear, kFill_Style 
+
+#SeeAlso "Canvas Fill" "Path Fill Type"
+##Topic ##
+
+--------------------------------------------------------------------------------
+##Topic Stroke Width
+
+##Method SkScalar getStrokeWidth() const  #getStrokeWidth
+
+Call getStrokeWidth to retrieve
+#CommonBody setStrokeWidth
+
+##Example
+
+##Example ##
+
+#ToDo incomplete ##
+#SeeAlso setStrokeWidth
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setStrokeWidth(SkScalar width) #setStrokeWidth
+
+##Param width  The width used when stroking; must be greater than or equal to zero.
+
+Call setStrokeWidth to set
+##CommonBody
+the width for stroking. The width is the thickness
+of the stroke perpendicular to the path's direction when the paint's style is 
+set to kStroke_Style or kStrokeAndFill_Style.
+
+When width is greater than zero, the stroke encompasses as many pixels partially
+or fully as needed. When the width equals zero, the paint enables hairlines;
+the stroke is always one pixel wide. 
+
+The stroke's dimensions are scaled by the canvas matrix, but a hairline stroke
+remains one pixel wide regardless of scaling.
+
+The default width for the paint is zero.
+##CommonBody ##
+
+##Example
+    #Platform raster gpu
+    #Description
+        The pixels hit to represent thin lines vary with the angle of the 
+        line and the platform's implementation.
+    #Description ##
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        for (bool antialias : { false, true }) { 
+            paint.setAntiAlias(antialias);
+            for (int width = 0; width <= 4; ++width) {
+                SkScalar offset = antialias * 100 + width * 20;
+                paint.setStrokeWidth(width * 0.25f);
+                canvas->drawLine(10 + offset,  10, 20 + offset,  60, paint);
+                canvas->drawLine(10 + offset, 110, 60 + offset, 160, paint);
+            }
+        }
+    }
+##Example ##
+
+#ToDo incomplete ##
+#SeeAlso getStrokeWidth
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getStrokeMiter() const  #getStrokeMiter
+
+Call getStrokeMiter to retrieve
+#CommonBody setStrokeMiter
+
+##Example
+SkPaint paint;
+SkDebugf("default miter limit == %g\n", paint.getStrokeMiter());
+##Example ##
+
+##StdOut
+default miter limit == 4
+##StdOut ##
+
+#SeeAlso setStrokeMiter Join
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setStrokeMiter(SkScalar miter)
+
+##Param miter    Set the miter limit; must be greater than or equal to zero.
+
+Call setStrokeMiter to specify
+##CommonBody
+the miter limit; the maximum miter length,
+relative to the stroke width.
+
+The miter limit is used when the paint's Join
+is set to kMiter_Join, and the paint's Style is either kStroke_Style
+or kStrokeAndFill_Style.
+
+If the miter at a corner exceeds this limit, the mitered join
+is replaced with a blunt join.
+
+The miter limit can be computed from the corner angle:
+
+##Formula
+    miter limit = 1 / sin ( angle / 2 )
+##Formula ##
+
+The default miter limit for the paint is 4.
+
+Here are some miter limits and the angles that triggers them.
+##Table
+    # miter limit # angle in degrees ##
+    # 10	      # 11.48            ##
+    # 9		      # 12.76            ##
+    # 8		      # 14.36            ##
+    # 7		      # 16.43            ##
+    # 6		      # 19.19            ##
+    # 5		      # 23.07            ##
+    # 4		      # 28.96            ##
+    # 3		      # 38.94            ##
+    # 2		      # 60               ##
+    # 1		      # 180              ##
+##Table ##
+##CommonBody ##
+
+##Example
+    #Width 512
+    #Description
+        This example draws a stroked corner and the miter length beneath.
+        When the miter limit is decreased slightly, the miter join is replaced
+        by a bevel join.
+    #Description ##
+    void draw(SkCanvas* canvas) {
+        SkPoint pts[] = {{ 10, 50 }, { 110, 80 }, { 10, 110 }};
+        SkVector v[] = { pts[0] - pts[1], pts[2] - pts[1] };
+        SkScalar angle1 = SkScalarATan2(v[0].fY, v[0].fX);
+        SkScalar angle2 = SkScalarATan2(v[1].fY, v[1].fX);
+        const SkScalar strokeWidth = 20;
+        SkScalar miterLimit = 1 / SkScalarSin((angle2 - angle1) / 2);
+        SkScalar miterLength = strokeWidth * miterLimit;
+        SkPath path;
+        path.moveTo(pts[0]);
+        path.lineTo(pts[1]);
+        path.lineTo(pts[2]);
+        SkPaint paint;  // set to default kMiter_Join
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeMiter(miterLimit);
+        paint.setStrokeWidth(strokeWidth);
+        canvas->drawPath(path, paint);
+        paint.setStrokeWidth(1);
+        canvas->drawLine(pts[1].fX - miterLength / 2, pts[1].fY + 50,
+                         pts[1].fX + miterLength / 2, pts[1].fY + 50, paint);
+        canvas->translate(200, 0);
+        miterLimit *= 0.99f;
+        paint.setStrokeMiter(miterLimit);
+        paint.setStrokeWidth(strokeWidth);
+        canvas->drawPath(path, paint);
+        paint.setStrokeWidth(1);
+        canvas->drawLine(pts[1].fX - miterLength / 2, pts[1].fY + 50,
+                         pts[1].fX + miterLength / 2, pts[1].fY + 50, paint);
+    }
+##Example ##
+
+#SeeAlso getStrokeMiter Join
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Enum Join
+
+#Code
+    enum Join {
+        kMiter_Join,
+        kRound_Join,
+        kBevel_Join,
+
+        kLast_Join = kBevel_Join,
+        kDefault_Join = kMiter_Join
+    };
+    static constexpr int kJoinCount = kLast_Join + 1;
+#Code ##
+
+Join specifies how corners are drawn when a shape is stroked. The paint's Join setting
+affects the four corners of a stroked rectangle, and the connected segments in a stroked path.
+
+Choose miter join to draw sharp corners. Choose round join to draw a circle with a
+radius equal to the stroke width on top of the corner. Choose bevel join to minimally connect
+the thick strokes.
+
+The fill path constructed to describe the stroked path respects the join setting but may 
+not contain the actual join. For instance, a fill path constructed with round joins does
+not necessarily include circles at each connected segment.
+
+##Table
+# Type                 # Name          # Value # Description                                   ##
+# SkPaint::Join        # kMiter_Join   # 0     # connect path segments with a sharp join       ##
+# SkPaint::Join        # kRound_Join   # 1     # connect path segments with a round join       ##
+# SkPaint::Join        # kBevel_Join   # 2     # connect path segments with a flat bevel join  ##
+# SkPaint::Join        # kLast_Join    # 2     # same as kBevel_Join                           ##
+# SkPaint::Join        # kDefault_Join # 0     # same as kMiter_Join                           ##
+# static constexpr int # kJoinCount    # 3     # same as kLast_Join + 1                        ##
+##Table ##
+
+##Example
+void draw(SkCanvas* canvas) {
+    SkPath path;
+    path.moveTo(10, 50);
+    path.quadTo(35, 110, 60, 210);
+    path.quadTo(105, 110, 130, 10);
+    SkPaint paint;  // set to default kMiter_Join
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(20);
+    canvas->drawPath(path, paint);
+    canvas->translate(150, 0);
+    paint.setStrokeJoin(SkPaint::kBevel_Join);
+    canvas->drawPath(path, paint);
+    canvas->translate(150, 0);
+    paint.setStrokeJoin(SkPaint::kRound_Join);
+    canvas->drawPath(path, paint);
+}
+##Example ##
+
+##Image #Example ##
+
+#SeeAlso setStrokeJoin getStrokeJoin setStrokeMiter getStrokeMiter ##
+
+##Enum ##
+
+--------------------------------------------------------------------------------
+
+##Method Cap getStrokeCap() const  #getStrokeCap
+
+Return the number of intervals that intersect the intercept along the axis of the advance.
+The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+string. The caller may pass nullptr for intervals to determine the size of the interval
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setStrokeCap(Cap cap) #setStrokeCap
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method Join getStrokeJoin() const  #getStrokeJoin
+
+áÖß 6##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setStrokeJoin(Join join) #setStrokeJoin
+
+Çtß 6##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                     SkScalar resScale = 1) const #getFillPath
+
+Set or clear the shader object.
+Shaders specify the source color(s) for what is being drawn. If a paint
+has no shader, then the paint's color is used. If the paint has a
+shader, then the shader's color(s) are use instead, but they are
+modulated by the paint's alpha. This makes it easy to create a shader
+once (e.g. bitmap tiling or gradient) and then change its transparency
+w/o having to modify the original shader... only the paint's alpha needs
+to be modified.
+*  There is an exception to this only-respect-paint's-alpha rule: If the shader only generates
+alpha (e.g. SkShader::CreateBitmapShader(bitmap, ...) where bitmap's colortype is kAlpha_8)
+then the shader will use the paint's entire color to "colorize" its output (modulating the
+bitmap's alpha with the paint's color+alpha).
+*  Pass NULL to clear any previous shader.
+As a convenience, the parameter passed is also returned.
+If a previous shader exists, its reference count is decremented.
+If shader is not NULL, its reference count is incremented.
+@param shader   May be NULL. The shader to be installed in the paint
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool getFillPath(const SkPath& src, SkPath* dst) const  #getFillPath_2
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkShader* getShader() const  #getShader
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkShader> refShader() const #refShader
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setShader(sk_sp<SkShader>) #setShader
+
+Set or clear the rasterizer object.
+<p />
+Pass NULL to clear any previous rasterizer.
+As a convenience, the parameter passed is also returned.
+If a previous rasterizer exists in the paint, its reference count is
+decremented. If rasterizer is not NULL, its reference count is
+incremented.
+@param rasterizer May be NULL. The new rasterizer to be installed in
+the paint.
+@return           rasterizer
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkColorFilter* getColorFilter() const  #getColorFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkColorFilter> refColorFilter() const #refColorFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setColorFilter(sk_sp<SkColorFilter>) #setColorFilter
+
+Return the number of intervals that intersect the intercept along the axis of the advance.
+The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
+string. The caller may pass nullptr for intervals to determine the size of the interval
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkBlendMode getBlendMode() const  #getBlendMode
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool isSrcOver() const  #isSrcOver
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setBlendMode(SkBlendMode mode)  #setBlendMode
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkPathEffect* getPathEffect() const  #getPathEffect
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkPathEffect> refPathEffect() const #refPathEffect
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setPathEffect(sk_sp<SkPathEffect>) #setPathEffect
+
+unt is decremented.
+If maskfilter is not NULL, its reference count is incremented.
+@param maskfilter   May be NULL. The new maskfilter to be installed in
+the paint
+@return             maskfilter
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkMaskFilter* getMaskFilter() const  #getMaskFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkMaskFilter> refMaskFilter() const #refMaskFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setMaskFilter(sk_sp<SkMaskFilter>) #setMaskFilter
+
+n the paint, its reference count is
+decremented. If rasterizer is not NULL, its reference count is
+incremented.
+@param rasterizer May be NULL. The new rasterizer to be installed in
+the paint.
+@return           rasterizer
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkTypeface* getTypeface() const  #getTypeface
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkTypeface> refTypeface() const #refTypeface
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setTypeface(sk_sp<SkTypeface>) #setTypeface
+
+r to be installed in
+the paint.
+@return           rasterizer
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkRasterizer* getRasterizer() const  #getRasterizer
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkRasterizer> refRasterizer() const #refRasterizer
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setRasterizer(sk_sp<SkRasterizer>) #setRasterizer
+
+Set the paint's horizontal scale factor for text. The default value
+is 1.0. Values > 1.0 will stretch the text wider. Values < 1.0 will
+stretch the text narrower.
+@param scaleX   set the paint's scale factor in X for drawing/measuring
+text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkImageFilter* getImageFilter() const  #getImageFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkImageFilter> refImageFilter() const #refImageFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setImageFilter(sk_sp<SkImageFilter>) #setImageFilter
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkDrawLooper* getDrawLooper() const  #getDrawLooper
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method sk_sp<SkDrawLooper> refDrawLooper() const #refDrawLooper
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkDrawLooper* getLooper() const  #getLooper
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setDrawLooper(sk_sp<SkDrawLooper>) #setDrawLooper
+
+Return the paint's horizontal skew factor for text. The default value
+is 0.
+@return the paint's skew factor in X for drawing text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setLooper(sk_sp<SkDrawLooper>) #setLooper
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method Align   getTextAlign() const  #getTextAlign
+
+Return the paint's Align value for drawing text.
+@return the paint's Align value for drawing text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void    setTextAlign(Align align) #setTextAlign
+
+Set the paint's text alignment.
+@param align set the paint's Align value for drawing text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getTextSize() const  #getTextSize
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setTextSize(SkScalar textSize) #setTextSize
+
+Set the paint's text size. This value must be > 0
+@param textSize set the paint's text size.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getTextScaleX() const  #getTextScaleX
+
+á█ß 6##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setTextScaleX(SkScalar scaleX) #setTextScaleX
+
+Return the paint's horizontal skew factor for text. The default value
+is 0.
+@return the paint's skew factor in X for drawing text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getTextSkewX() const  #getTextSkewX
+
+If the fontmetrics has a valid underlinethickness, return true, and set the
+thickness param to that value. If it doesn't return false and ignore the
+thickness param.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setTextSkewX(SkScalar skewX) #setTextSkewX
+
+Set the paint's horizontal skew factor for text. The default value
+is 0. For approximating oblique text, use values around -0.25.
+@param skewX set the paint's skew factor in X for drawing text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method TextEncoding getTextEncoding() const  #getTextEncoding
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void setTextEncoding(TextEncoding encoding) #setTextEncoding
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const #getFontMetrics
+
+e should
+be treated has a height instead of a width.
+*  @param text         The text to be measured
+@param length       Number of bytes of text to measure
+@param bounds       If not NULL, returns the bounds of the text,
+relative to (0, 0).
+@return             The advance width of the text
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar getFontSpacing() const  #getFontSpacing
+
+`]π 6##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int textToGlyphs(const void* text, size_t byteLength,
+                     SkGlyphID glyphs[]) const #textToGlyphs
+
+Convert the specified text into glyph IDs, returning the number of
+glyphs ID written. If glyphs is NULL, it is ignore and only the count
+is returned.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool containsText(const void* text, size_t byteLength) const #containsText
+
+ in which case the returned value should
+be treated has a height instead of a width.
+*  @param text         The text to be measured
+@param length       Number of bytes of text to measure
+@param bounds       If not NULL, returns the bounds of the text,
+relative to (0, 0).
+@return             The advance width of the text
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const #glyphsToUnichars
+
+Convert the glyph array into Unichars. Unconvertable glyphs are mapped
+to zero. Note: this does not look at the text-encoding setting in the
+paint, only at the typeface.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int countText(const void* text, size_t byteLength) const  #countText
+
+Return the number of drawable units in the specified text buffer.
+This looks at the current TextEncoding field of the paint. If you also
+want to have the text converted into glyph IDs, call textToGlyphs
+instead.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar measureText(const void* text, size_t length, SkRect* bounds) const #measureText
+
+Return a rectangle that represents the union of the bounds of all
+of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
+will not take into account any hinting, but will respect any text-scale-x or text-skew-x
+on this paint.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkScalar measureText(const void* text, size_t length) const  #measureText_2
+
+Return a rectangle that represents the union of the bounds of all
+of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
+will not take into account any hinting, but will respect any text-scale-x or text-skew-x
+on this paint.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
+                      SkScalar* measuredWidth = NULL) const #breakText
+
+Return the path (outline) for the specified text.
+Note: just like SkCanvas::drawText, this will respect the Align setting
+in the paint.
+*  @param text         the text
+@param length       number of bytes of text
+@param x            The x-coordinate of the origin of the text.
+@param y            The y-coordinate of the origin of the text.
+@param path         The outline of the text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
+                      SkRect bounds[] = NULL) const #getTextWidths
+
+t
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
+                     SkPath* path) const #getTextPath
+
+Return the path (outline) for the specified text.
+Note: just like SkCanvas::drawText, this will respect the Align setting
+in the paint.
+*  @param text         the text
+@param length       number of bytes of text
+@param x            The x-coordinate of the origin of the text.
+@param y            The y-coordinate of the origin of the text.
+@param path         The outline of the text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method void getPosTextPath(const void* text, size_t length,
+                        const SkPoint pos[], SkPath* path) const #getPosTextPath
+
+Return the path (outline) for the specified text.
+Note: just like SkCanvas::drawText, this will respect the Align setting
+in the paint.
+*  @param text         the text
+@param length       number of bytes of text
+@param pos          array of positions, used to position each character
+@param path         The outline of the text.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+                          const SkScalar bounds[2], SkScalar* intervals) const #getTextIntercepts
+
+puteFastBounds(r, &storage);
+if (canvas->quickReject(fastR, ...)) {
+// don't draw the path
+}
+}
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+                             const SkScalar bounds[2], SkScalar* intervals) const #getPosTextIntercepts
+
+puteFastBounds(r, &storage);
+if (canvas->quickReject(fastR, ...)) {
+// don't draw the path
+}
+}
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const #getPosTextHIntercepts
+
+puteFastBounds(r, &storage);
+if (canvas->quickReject(fastR, ...)) {
+// don't draw the path
+}
+}
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
+                              SkScalar* intervals) const #getTextBlobIntercepts
+
+puteFastBounds(r, &storage);
+if (canvas->quickReject(fastR, ...)) {
+// don't draw the path
+}
+}
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkRect getFontBounds() const #getFontBounds
+
+Return a rectangle that represents the union of the bounds of all
+of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
+will not take into account any hinting, but will respect any text-scale-x or text-skew-x
+on this paint.
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool nothingToDraw() const #nothingToDraw
+
+//////////////////////////////////////////////////////////////////////////##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method bool canComputeFastBounds() const #canComputeFastBounds
+
+Returns true if the current paint settings allow for fast computation of
+bounds (i.e. there is nothing complex like a patheffect that would make
+the bounds computation expensive.
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const  #computeFastBounds
+
+Only call this if canComputeFastBounds() returned true. This takes a
+raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
+effects in the paint (e.g. stroking). If needed, it uses the storage
+rect parameter. It returns the adjusted bounds that can then be used
+for quickReject tests.
+The returned rect will either be orig or storage, thus the caller
+should not rely on storage being set to the result, but should always
+use the retured value. It is legal for orig and storage to be the same
+rect.
+e.g.
+if (paint.canComputeFastBounds()) {
+SkRect r, storage;
+path.computeBounds(&r, SkPath::kFast_BoundsType);
+const SkRect& fastR = paint.computeFastBounds(r, &storage);
+if (canvas->quickReject(fastR, ...)) {
+// don't draw the path
+}
+}
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method const SkRect& computeFastStrokeBounds(const SkRect& orig,
+                                          SkRect* storage) const  #computeFastStrokeBounds
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
+                                      Style) const #doComputeFastBounds
+
+/ Take the style explicitly, so the caller can force us to be stroked//////////////////////////////////////////////////////////////////////////##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method static SkMatrix* SetTextMatrix(SkMatrix* matrix, SkScalar size,
+                                   SkScalar scaleX, SkScalar skewX)  #SetTextMatrix
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SkMatrix* setTextMatrix(SkMatrix* matrix) const  #setTextMatrix
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
+--------------------------------------------------------------------------------
+
+##Method SK_TO_STRING_NONVIRT #SK_TO_STRING_NONVIRT
+
+##Example
+##Example ##
+
+#ToDo incomplete ##
+
+##Method ##
+
