@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "387403f0_883421ac",
+        "filename": "third_party/ktx/ktx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-09T19:11:30Z",
+      "side": 1,
+      "message": "nit: spacing",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 41,
+        "endChar": 12
+      },
+      "revId": "0d76cfd1a908909531798275ef9ec1f20f21b1e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d27de451_7964d45b",
+        "filename": "third_party/ktx/ktx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-09T19:11:30Z",
+      "side": 1,
+      "message": "nit: spacing does not line up.",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 12
+      },
+      "revId": "0d76cfd1a908909531798275ef9ec1f20f21b1e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
