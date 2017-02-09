@@ -58,6 +58,24 @@
       "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c84c833c_f126442f",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-09T19:53:38Z",
+      "side": 1,
+      "message": "We may need a different config file...  Android\u0027s version only has to compile for Android.  Still I want to try to use AOSP.  I will wait until after the most recent update lands.",
+      "parentUuid": "557c01f1_976545d5",
+      "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
