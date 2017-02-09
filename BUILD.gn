@@ -28,6 +28,7 @@ declare_args() {
   skia_android_serial = ""
   skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
+  skia_enable_effects = true
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_splicer = is_skia_standalone && sanitize != "MSAN" && !is_ios
@@ -322,6 +323,13 @@ template("optional") {
   }
 }
 
+optional("effects") {
+  enabled = skia_enable_effects
+  sources =
+      skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
+  sources_when_disabled = [ "src/ports/SkGlobalInitialization_none.cpp" ]
+}
+
 optional("fontmgr_android") {
   enabled = fontmgr_android_enabled
 
@@ -543,6 +551,7 @@ component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
+    ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",
     ":fontmgr_fontconfig",
@@ -571,7 +580,6 @@ component("skia") {
 
   sources = []
   sources += skia_core_sources
-  sources += skia_effects_sources
   sources += skia_sksl_sources
   sources += skia_utils_sources
   sources += skia_xps_sources
@@ -595,7 +603,6 @@ component("skia") {
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
-    "src/ports/SkGlobalInitialization_default.cpp",
     "src/ports/SkImageGenerator_skia.cpp",
     "src/ports/SkMemory_malloc.cpp",
     "src/ports/SkOSFile_stdio.cpp",
