@@ -21,6 +21,7 @@
 
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
+#include "SkUnPreMultiplyPriv.h"
 
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
@@ -226,21 +227,20 @@ void GrContext::flush() {
 
 bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
-    SkSrcPixelInfo srcPI;
-    if (!GrPixelConfigToColorType(srcConfig, &srcPI.fColorType)) {
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(srcConfig, &colorType) ||
+        4 != SkColorTypeBytesPerPixel(colorType))
+    {
         return false;
     }
-    srcPI.fAlphaType = kUnpremul_SkAlphaType;
-    srcPI.fPixels = inPixels;
-    srcPI.fRowBytes = inRowBytes;
 
-    SkDstPixelInfo dstPI;
-    dstPI.fColorType = srcPI.fColorType;
-    dstPI.fAlphaType = kPremul_SkAlphaType;
-    dstPI.fPixels = outPixels;
-    dstPI.fRowBytes = outRowBytes;
+    for (int y = 0; y < height; y++) {
+        SkOpts::RGBA_to_rgbA((uint32_t*) outPixels, inPixels, width);
+        outPixels = SkTAddOffset<void>(outPixels, outRowBytes);
+        inPixels = SkTAddOffset<const void>(inPixels, inRowBytes);
+    }
 
-    return srcPI.convertPixelsTo(&dstPI, width, height);
+    return true;
 }
 
 bool GrContext::writeSurfacePixels(GrSurface* surface, SkColorSpace* dstColorSpace,
@@ -522,21 +522,17 @@ bool GrContext::readSurfacePixels(GrSurface* src, SkColorSpace* srcColorSpace,
 
     // Perform umpremul conversion if we weren't able to perform it as a draw.
     if (unpremul) {
-        SkDstPixelInfo dstPI;
-        if (!GrPixelConfigToColorType(dstConfig, &dstPI.fColorType)) {
+        SkColorType colorType;
+        if (!GrPixelConfigToColorType(dstConfig, &colorType) ||
+            4 != SkColorTypeBytesPerPixel(colorType))
+        {
             return false;
         }
-        dstPI.fAlphaType = kUnpremul_SkAlphaType;
-        dstPI.fPixels = buffer;
-        dstPI.fRowBytes = rowBytes;
 
-        SkSrcPixelInfo srcPI;
-        srcPI.fColorType = dstPI.fColorType;
-        srcPI.fAlphaType = kPremul_SkAlphaType;
-        srcPI.fPixels = buffer;
-        srcPI.fRowBytes = rowBytes;
-
-        return srcPI.convertPixelsTo(&dstPI, width, height);
+        for (int y = 0; y < height; y++) {
+            SkUnpremultiplyRow<false>((uint32_t*) buffer, (const uint32_t*) buffer, width);
+            buffer = SkTAddOffset<void>(buffer, rowBytes);
+        }
     }
     return true;
 }

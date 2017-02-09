@@ -15,6 +15,7 @@
 #include "SkPreConfig.h"
 #include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
+#include "SkUnPreMultiplyPriv.h"
 
 /**
  * Function template for transforming scanlines.
@@ -128,46 +129,12 @@ static inline void transform_scanline_444(char* SK_RESTRICT dst, const char* SK_
     }
 }
 
-template <bool kIsRGBA>
-static inline void transform_scanline_unpremultiply(char* SK_RESTRICT dst,
-                                                    const char* SK_RESTRICT src, int width) {
-    const uint32_t* srcP = (const SkPMColor*)src;
-    const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
-
-    for (int i = 0; i < width; i++) {
-        uint32_t c = *srcP++;
-        unsigned r, g, b, a;
-        if (kIsRGBA) {
-            r = (c >>  0) & 0xFF;
-            g = (c >>  8) & 0xFF;
-            b = (c >> 16) & 0xFF;
-            a = (c >> 24) & 0xFF;
-        } else {
-            r = (c >> 16) & 0xFF;
-            g = (c >>  8) & 0xFF;
-            b = (c >>  0) & 0xFF;
-            a = (c >> 24) & 0xFF;
-        }
-
-        if (0 != a && 255 != a) {
-            SkUnPreMultiply::Scale scale = table[a];
-            r = SkUnPreMultiply::ApplyScale(scale, r);
-            g = SkUnPreMultiply::ApplyScale(scale, g);
-            b = SkUnPreMultiply::ApplyScale(scale, b);
-        }
-        *dst++ = r;
-        *dst++ = g;
-        *dst++ = b;
-        *dst++ = a;
-    }
-}
-
 /**
  * Transform from legacy kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
  */
 static inline void transform_scanline_rgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                            int width, int, const SkPMColor*) {
-    transform_scanline_unpremultiply<true>(dst, src, width);
+    SkUnpremultiplyRow<false>((uint32_t*) dst, (const uint32_t*) src, width);
 }
 
 /**
@@ -175,7 +142,7 @@ static inline void transform_scanline_rgbA(char* SK_RESTRICT dst, const char* SK
  */
 static inline void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
                                            int width, int, const SkPMColor*) {
-    transform_scanline_unpremultiply<false>(dst, src, width);
+    SkUnpremultiplyRow<true>((uint32_t*) dst, (const uint32_t*) src, width);
 }
 
 template <bool kIsRGBA>
