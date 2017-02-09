@@ -75,7 +75,7 @@ static void logLinearGradient(const SkPoint pts[2],
     }
 
     SkDebugf("--- fuzzLinearGradient ---\n");
-    SkDebugf("  pts:\t\t[ (%f %f) (%f %f) ]\n",
+    SkDebugf("  pts:\t\t[ (%.9g %.9g) (%.9g %.9g) ]\n",
              pts[0].x(), pts[0].y(), pts[1].x(), pts[1].y());
     SkDebugf("  colors:\t[ ");
     for (auto color : colors) {

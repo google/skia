@@ -360,7 +360,7 @@ public:
             // TODO: maybe do this in ctor to remove a branch?
             fInterval = this->findFirstInterval(tiled_t);
             this->loadIntervalData(fInterval);
-        } else if (tiled_t < fInterval->fP0 || tiled_t >= fInterval->fP1) {
+        } else if (!fInterval->contains(tiled_t)) {
             fInterval = this->findNextInterval(t, tiled_t);
             this->loadIntervalData(fInterval);
         }
@@ -391,7 +391,7 @@ private:
     }
 
     Sk4f lerp(SkScalar t) {
-        SkASSERT(t >= fInterval->fP0 && t < fInterval->fP1);
+        SkASSERT(fInterval->contains(t));
         return fCc + fDc * (t - fInterval->fP0);
     }
 
@@ -402,24 +402,24 @@ private:
 
         while (i0 != i1) {
             SkASSERT(i0 < i1);
-            SkASSERT(t >= i0->fP0 && t < i1->fP1);
+            SkASSERT(t >= i0->fP0 && t <= i1->fP1);
 
             const Interval* i = i0 + ((i1 - i0) >> 1);
 
-            if (t >= i->fP1) {
+            if (t > i->fP1) {
                 i0 = i + 1;
             } else {
                 i1 = i;
             }
         }
 
-        SkASSERT(t >= i0->fP0 && t <= i0->fP1);
+        SkASSERT(i0->contains(t));
         return i0;
     }
 
     const Interval* findNextInterval(SkScalar t, SkScalar tiled_t) const {
-        SkASSERT(tiled_t < fInterval->fP0 || tiled_t >= fInterval->fP1);
-        SkASSERT(tiled_t >= fFirstInterval->fP0 && tiled_t < fLastInterval->fP1);
+        SkASSERT(!fInterval->contains(tiled_t));
+        SkASSERT(tiled_t >= fFirstInterval->fP0 && tiled_t <= fLastInterval->fP1);
 
         const Interval* i = fInterval;
 
@@ -431,14 +431,14 @@ private:
                 if (i > fLastInterval) {
                     i = fFirstInterval;
                 }
-            } while (tiled_t < i->fP0 || tiled_t >= i->fP1);
+            } while (!i->contains(tiled_t));
         } else {
             do {
                 i -= 1;
                 if (i < fFirstInterval) {
                     i = fLastInterval;
                 }
-            } while (tiled_t < i->fP0 || tiled_t >= i->fP1);
+            } while (!i->contains(tiled_t));
         }
 
         return i;
