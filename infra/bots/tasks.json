@@ -198,6 +198,12 @@
         "Build-Ubuntu-Clang-x86_64-Release-Fast"
       ]
     },
+    "Build-Ubuntu-Clang-x86_64-Release-Mini": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-x86_64-Release-Mini"
+      ]
+    },
     "Build-Ubuntu-Clang-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
@@ -2605,6 +2611,38 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-x86_64-Release-Fast",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-x86_64-Release-Mini": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-x86_64-Release-Mini",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
