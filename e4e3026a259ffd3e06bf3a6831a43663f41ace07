@@ -22,6 +22,24 @@
       "revId": "e4e3026a259ffd3e06bf3a6831a43663f41ace07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7636653_8855d375",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-09T22:01:26Z",
+      "side": 1,
+      "message": "Agreed in general, but in this case it would make the caller code more convoluted. So I\u0027d rather leave it as is for now (also, this is the legacy gradient code, hopefully soon to be retired).",
+      "parentUuid": "c7f94db5_83731f98",
+      "revId": "e4e3026a259ffd3e06bf3a6831a43663f41ace07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
