@@ -105,8 +105,7 @@ public:
      */
     enum RequiredFeatures {
         kNone_RequiredFeatures             = 0,
-        kFragmentPosition_RequiredFeature  = 1 << 0,
-        kSampleLocations_RequiredFeature   = 1 << 1
+        kSampleLocations_RequiredFeature   = 1 << 0
     };
 
     GR_DECL_BITFIELD_OPS_FRIENDS(RequiredFeatures);
@@ -148,7 +147,6 @@ protected:
      * must call these methods from its constructor. Otherwise, requests to use these features will
      * be denied.
      */
-    void setWillReadFragmentPosition() { fRequiredFeatures |= kFragmentPosition_RequiredFeature; }
     void setWillUseSampleLocations() { fRequiredFeatures |= kSampleLocations_RequiredFeature; }
 
     void combineRequiredFeatures(const GrProcessor& other) {

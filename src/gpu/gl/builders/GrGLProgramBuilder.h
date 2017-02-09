@@ -29,11 +29,14 @@ public:
      * The program implements what is specified in the stages given as input.
      * After successful generation, the builder result objects are available
      * to be used.
+     * This function may modify the GrProgramDesc by setting the surface origin
+     * key to 0 (unspecified) if it turns out the program does not care about
+     * the surface origin.
      * @return true if generation was successful.
      */
     static GrGLProgram* CreateProgram(const GrPipeline&,
                                       const GrPrimitiveProcessor&,
-                                      const GrProgramDesc&,
+                                      GrProgramDesc*,
                                       GrGLGpu*);
 
     const GrCaps* caps() const override;
@@ -42,7 +45,7 @@ public:
 
 private:
     GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
-                       const GrProgramDesc&);
+                       GrProgramDesc*);
 
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
