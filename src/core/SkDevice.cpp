@@ -32,9 +32,16 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     , fSurfaceProps(surfaceProps)
 {
     fOrigin.setZero();
+    fCTM.reset();
 }
 
 SkBaseDevice::~SkBaseDevice() {}
+
+void SkBaseDevice::setOrigin(int x, int y) {
+    SkASSERT(fCTM.isIdentity());
+    fOrigin.set(x, y);
+    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+}
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,

@@ -14,7 +14,7 @@
 #include "SkSurfaceProps.h"
 
 // enable to test new device-base clipping
-//#define SK_USE_DEVICE_CLIPPING
+#define SK_USE_DEVICE_CLIPPING
 
 class SkBitmap;
 class SkDraw;
@@ -127,6 +127,7 @@ public:
         fCTM = ctm;
     }
     void setGlobalCTM(const SkMatrix& ctm) {
+        SkDebugf("%p setGlobalCTM %d %d\n", this, fOrigin.fX, fOrigin.fY);
         fCTM = ctm;
         if (fOrigin.fX | fOrigin.fY) {
             fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
@@ -367,7 +368,7 @@ private:
     virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
     // just called by SkCanvas when built as a layer
-    void setOrigin(int x, int y) { fOrigin.set(x, y); }
+    void setOrigin(int x, int y);
 
     /** Causes any deferred drawing to the device to be completed.
      */
