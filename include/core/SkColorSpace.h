@@ -33,8 +33,8 @@ struct SK_API SkColorSpacePrimaries {
  *  Contains the coefficients for a common transfer function equation, specified as
  *  a transformation from a curved space to linear.
  *
- *  LinearVal = E*InputVal + F        , for 0.0f <= InputVal <  D
- *  LinearVal = (A*InputVal + B)^G + C, for D    <= InputVal <= 1.0f
+ *  LinearVal = C*InputVal + F        , for 0.0f <= InputVal <  D
+ *  LinearVal = (A*InputVal + B)^G + E, for D    <= InputVal <= 1.0f
  *
  *  Function is undefined if InputVal is not in [ 0.0f, 1.0f ].
  *  Resulting LinearVals must be in [ 0.0f, 1.0f ].
