@@ -47,25 +47,32 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   # Waits for an android device to be available
   def _wait_for_device(self):
-    self.m.python.inline('wait for device', """
+    self.m.run(self.m.python.inline, 'wait for device', program="""
       import subprocess
       import sys
       import time
 
-      times = 0
+      kicks = 0
+      while kicks < 2:
 
-      while times < 30:
-        print 'Waiting for the device to be connected and ready.'
-        try:
-          output = subprocess.check_output(['adb', 'shell',
-                                            'getprop', 'sys.boot_completed'])
-          if '1' in output:
-            print 'Connected'
-            sys.exit(0)
-        except subprocess.CalledProcessError:
-          # no device connected/authorized yet
-          pass
-        time.sleep(5)
+        times = 0
+
+        while times < 30:
+          print 'Waiting for the device to be connected and ready.'
+          try:
+            times += 1
+            output = subprocess.check_output(['adb', 'shell',
+                                              'getprop', 'sys.boot_completed'])
+            if '1' in output:
+              print 'Connected'
+              sys.exit(0)
+          except subprocess.CalledProcessError:
+            # no device connected/authorized yet
+            pass
+          time.sleep(5)
+        print 'Giving the device a "kick" by trying to reboot it.'
+        kicks += 1
+        print subprocess.check_output(['adb', 'reboot'])
 
       print 'Timed out waiting for device'
       sys.exit(1)
@@ -128,7 +135,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
-      self.m.python.inline('dump log', """
+      self.m.run(self.m.python.inline, 'dump log', program="""
       import os
       import subprocess
       import sys
@@ -188,7 +195,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def copy_directory_contents_to_device(self, host, device):
     # Copy the tree, avoiding hidden directories and resolving symlinks.
-    self.m.python.inline('push %s/* %s' % (host, device), """
+    self.m.run(self.m.python.inline, 'push %s/* %s' % (host, device),
+               program="""
     import os
     import subprocess
     import sys
