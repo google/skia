@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcf0ea43_c3f6bef3",
+        "filename": "infra/bots/recipe_modules/sktest/example.expected/failed_dm.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-09T14:50:30Z",
+      "side": 1,
+      "message": "Why does this happen? Looks like for some steps it is adding it twice to the list.",
+      "revId": "9f13fc8d1f7cb8190d1bfc3de51e446e2887d653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
