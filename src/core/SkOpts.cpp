@@ -45,7 +45,6 @@
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
-#include "SkTextureCompressor_opts.h"
 #include "SkXfermode_opts.h"
 
 namespace SkOpts {
@@ -64,9 +63,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(dilate_y);
     DEFINE_DEFAULT( erode_x);
     DEFINE_DEFAULT( erode_y);
-
-    DEFINE_DEFAULT(texture_compressor);
-    DEFINE_DEFAULT(fill_block_dimensions);
 
     DEFINE_DEFAULT(blit_mask_d32_a8);
 
