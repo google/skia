@@ -584,6 +584,9 @@ class TestApi(recipe_api.RecipeApi):
     try:
       self.m.flavor.install_everything()
       test_steps(self.m)
+    except recipe_api.InfraFailure as e:
+      self.m.run.add_failed_step(e)
+      raise
     finally:
       self.m.flavor.cleanup_steps()
     self.m.run.check_failure()
