@@ -8,11 +8,10 @@
 #ifndef GrPorterDuffXferProcessor_DEFINED
 #define GrPorterDuffXferProcessor_DEFINED
 
+#include "GrProcOptInfo.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkBlendMode.h"
-
-class GrProcOptInfo;
 
 // See the comment above GrXPFactory's definition about this warning suppression.
 #if defined(__GNUC__) || defined(__clang)
@@ -42,19 +41,18 @@ public:
     static const GrXferProcessor& SimpleSrcOverXP();
 
     static inline void SrcOverInvariantBlendedColor(
-                                                GrColor inputColor,
-                                                GrColorComponentFlags validColorFlags,
-                                                bool isOpaque,
-                                                GrXPFactory::InvariantBlendedColor* blendedColor) {
-        if (!isOpaque) {
+            const GrProcOptInfo& colorPOI, GrXPFactory::InvariantBlendedColor* blendedColor) {
+        if (!colorPOI.isOpaque()) {
             blendedColor->fWillBlendWithDst = true;
             blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
             return;
         }
         blendedColor->fWillBlendWithDst = false;
-
-        blendedColor->fKnownColor = inputColor;
-        blendedColor->fKnownColorFlags = validColorFlags;
+        if (colorPOI.hasKnownOutputColor(&blendedColor->fKnownColor)) {
+            blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
+        } else {
+            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+        }
     }
 
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
