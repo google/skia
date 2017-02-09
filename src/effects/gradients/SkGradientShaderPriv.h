@@ -410,7 +410,7 @@ protected:
         the gradient factory. (The constructor may decide not to use stops, in which case fStops
         will be nullptr). */
     struct RandomGradientParams {
-        static const int kMaxRandomGradientColors = 4;
+        static const int kMaxRandomGradientColors = 5;
 
         RandomGradientParams(SkRandom* r);
 

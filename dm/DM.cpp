@@ -1285,6 +1285,7 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+FLAGS_match.reset(SkString("ProcessorOptimizationValidationTest"));
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
