@@ -14,7 +14,9 @@
 
 class GLConstColorProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLConstColorProcessor() : fPrevColor(GrColor4f::kIllegalConstructor) {}
+    GLConstColorProcessor() : fPrevColor(GrColor4f::kIllegalConstructor) {
+        fInstance = gInstance++;
+    }
 
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -40,6 +42,7 @@ public:
                                        colorUni);
                 break;
         }
+        SkDebugf("Emitted code for [instance %d]\n", fInstance);
     }
 
 protected:
@@ -50,15 +53,20 @@ protected:
         if (fPrevColor != color) {
             pdm.set4fv(fColorUniform, 1, color.fRGBA);
             fPrevColor = color;
+            SkDebugf("Doing upload (%f, %f, %f, %f) [instance %d]\n", color.fRGBA[0], color.fRGBA[1], color.fRGBA[2], color.fRGBA[3], fInstance);
+        } else {
+            SkDebugf("Skip uploading (%f, %f, %f, %f) [instance %d]\n", color.fRGBA[0], color.fRGBA[1], color.fRGBA[2], color.fRGBA[3], fInstance);
         }
     }
 
 private:
     GrGLSLProgramDataManager::UniformHandle fColorUniform;
     GrColor4f                               fPrevColor;
-
+    int fInstance;
+    static int gInstance;
     typedef GrGLSLFragmentProcessor INHERITED;
 };
+int GLConstColorProcessor::gInstance = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 
