@@ -604,6 +604,8 @@ toolchain("gcc_like") {
   }
 
   tool("solink") {
+    rspfile = "{{output}}.rsp"
+    rspfile_content = "{{inputs}}"
     soname = "{{target_output_name}}{{output_extension}}"
 
     rpath = "-Wl,-soname,$soname"
@@ -611,7 +613,7 @@ toolchain("gcc_like") {
       rpath = "-Wl,-install_name,@rpath/$soname"
     }
 
-    command = "$cc_wrapper $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
+    command = "$cc_wrapper $cxx -shared {{ldflags}} @$rspfile {{solibs}} {{libs}} $rpath -o {{output}}"
     outputs = [
       "{{root_out_dir}}/$soname",
     ]
