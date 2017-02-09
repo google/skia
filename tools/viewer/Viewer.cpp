@@ -131,7 +131,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomScale(SK_Scalar1)
 {
     SkGraphics::Init();
-    memset(fMeasurements, 0, sizeof(fMeasurements));
+    memset(fPaintTimes, 0, sizeof(fPaintTimes));
+    memset(fFlushTimes, 0, sizeof(fFlushTimes));
+    memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
 
     SkDebugf("Command line arguments: ");
     for (int i = 1; i < argc; ++i) {
@@ -459,7 +461,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // ... but if we're in F16, or the gamut isn't sRGB, we need to render offscreen
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (kRGBA_F16_SkColorType == fColorType || fColorSpace != SkColorSpace::MakeSRGB()) {
+    if (kRGBA_F16_SkColorType == fColorType ||
+        (fColorSpace && fColorSpace != SkColorSpace::MakeSRGB())) {
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), fColorType,
                                              kPremul_SkAlphaType, fColorSpace);
         offscreenSurface = canvas->makeSurface(info);
@@ -470,7 +473,15 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     slideCanvas->concat(fDefaultMatrix);
     slideCanvas->concat(computeMatrix());
 
+    // Time the painting logic of the slide
+    double startTime = SkTime::GetMSecs();
     fSlides[fCurrentSlide]->draw(slideCanvas);
+    fPaintTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+
+    // Force a flush so we can time that, too
+    startTime = SkTime::GetMSecs();
+    slideCanvas->flush();
+    fFlushTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
@@ -487,20 +498,20 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
-    // Record measurements
-    double startTime = SkTime::GetMSecs();
-
     drawSlide(canvas);
 
+    // Advance our timing bookkeeping
+    fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
+    SkASSERT(fCurrentMeasurement < kMeasurementCount);
+
+    // Draw any overlays or UI that we don't want timed
     if (fDisplayStats) {
         drawStats(canvas);
     }
     fCommands.drawHelp(canvas);
 
-    fMeasurements[fCurrentMeasurement++] = SkTime::GetMSecs() - startTime;
-    fCurrentMeasurement &= (kMeasurementCount - 1);  // fast mod
-    SkASSERT(fCurrentMeasurement < kMeasurementCount);
-    updateUIState(); // Update the FPS
+    // Update the FPS
+    updateUIState();
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
@@ -558,10 +569,25 @@ void Viewer::drawStats(SkCanvas* canvas) {
 
     int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
     const int xStep = 2;
-    const int startY = SkScalarTruncToInt(rect.fBottom);
     int i = fCurrentMeasurement;
     do {
-        int endY = startY - (int)(fMeasurements[i] * kPixelPerMS + 0.5);  // round to nearest value
+        // Round to nearest values
+        int animateHeight = (int)(fAnimateTimes[i] * kPixelPerMS + 0.5);
+        int paintHeight = (int)(fPaintTimes[i] * kPixelPerMS + 0.5);
+        int flushHeight = (int)(fFlushTimes[i] * kPixelPerMS + 0.5);
+        int startY = SkScalarTruncToInt(rect.fBottom);
+        int endY = startY - flushHeight;
+        paint.setColor(SK_ColorRED);
+        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
+                         SkIntToScalar(x), SkIntToScalar(endY), paint);
+        startY = endY;
+        endY = startY - paintHeight;
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
+                         SkIntToScalar(x), SkIntToScalar(endY), paint);
+        startY = endY;
+        endY = startY - animateHeight;
+        paint.setColor(SK_ColorMAGENTA);
         canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
                          SkIntToScalar(x), SkIntToScalar(endY), paint);
         i++;
@@ -573,8 +599,12 @@ void Viewer::drawStats(SkCanvas* canvas) {
 }
 
 void Viewer::onIdle() {
+    double startTime = SkTime::GetMSecs();
     fAnimTimer.updateTime();
-    if (fSlides[fCurrentSlide]->animate(fAnimTimer) || fDisplayStats || fRefresh) {
+    bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
+    fAnimateTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+
+    if (animateWantsInval || fDisplayStats || fRefresh) {
         fWindow->inval();
     }
 }
@@ -613,10 +643,12 @@ void Viewer::updateUIState() {
     // FPS state
     Json::Value fpsState(Json::objectValue);
     fpsState[kName] = kFpsStateName;
-    double measurement = fMeasurements[
-            (fCurrentMeasurement + (kMeasurementCount-1)) % kMeasurementCount
-    ];
-    fpsState[kValue] = SkStringPrintf("%8.3lf ms", measurement).c_str();
+    int idx = (fCurrentMeasurement + (kMeasurementCount - 1)) & (kMeasurementCount - 1);
+    fpsState[kValue] = SkStringPrintf("%8.3lf ms\n\nA %8.3lf\nP %8.3lf\nF%8.3lf",
+                                      fAnimateTimes[idx] + fPaintTimes[idx] + fFlushTimes[idx],
+                                      fAnimateTimes[idx],
+                                      fPaintTimes[idx],
+                                      fFlushTimes[idx]).c_str();
     fpsState[kOptions] = Json::Value(Json::arrayValue);
 
     Json::Value state(Json::arrayValue);
