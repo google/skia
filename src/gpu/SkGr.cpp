@@ -39,7 +39,6 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 #ifndef SK_IGNORE_ETC1_SUPPORT
-#  include "ktx.h"
 #  include "etc1.h"
 #endif
 
@@ -86,22 +85,6 @@ GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
         }
 
         *outStartOfDataToUpload = bytes + ETC_PKM_HEADER_SIZE;
-        return kETC1_GrPixelConfig;
-    } else if (SkKTXFile::is_ktx(bytes, data->size())) {
-        SkKTXFile ktx(data);
-
-        // Is it actually an ETC1 texture?
-        if (!ktx.isCompressedFormat(SkTextureCompressor::kETC1_Format)) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        // Does the data match the dimensions of the bitmap? If not,
-        // then we don't know how to scale the image to match it...
-        if (ktx.width() != expectedW || ktx.height() != expectedH) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        *outStartOfDataToUpload = ktx.pixelData();
         return kETC1_GrPixelConfig;
     }
 #endif
