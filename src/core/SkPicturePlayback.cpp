@@ -134,8 +134,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->skip(size - 4);
         } break;
         case CLIP_PATH: {
-            const SkPath& path = fPictureData->getPath(reader); 
-            uint32_t packed = reader->readInt(); 
+            const SkPath& path = fPictureData->getPath(reader);
+            uint32_t packed = reader->readInt();
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
@@ -329,22 +329,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawDRRect(outer, inner, *paint);
             }
         } break;
-        case BEGIN_COMMENT_GROUP: {
-            SkString tmp;
-            reader->readString(&tmp);
-            // deprecated (M44)
-            break;
-        }
-        case COMMENT: {
-            SkString tmp;
-            reader->readString(&tmp);
-            reader->readString(&tmp);
-            // deprecated (M44)
-            break;
-        }
-        case END_COMMENT_GROUP:
-            // deprecated (M44)
-            break;
         case DRAW_IMAGE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
