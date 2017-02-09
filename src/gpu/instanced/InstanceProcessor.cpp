@@ -115,12 +115,18 @@ public:
 
     void fetchNextParam(GrSLType type = kVec4f_GrSLType) const {
         SkASSERT(fParamsBuffer.isValid());
-        if (type != kVec4f_GrSLType) {
-            fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(type));
-        }
         fVertexBuilder->appendTexelFetch(fParamsBuffer, "paramsIdx++");
-        if (type != kVec4f_GrSLType) {
-            fVertexBuilder->codeAppend(")");
+        switch (type) {
+            case kVec2f_GrSLType:
+                fVertexBuilder->codeAppend(".xy");
+                break;
+            case kVec3f_GrSLType:
+                fVertexBuilder->codeAppend(".xyz");
+                break;
+            case kVec4f_GrSLType:
+                break;
+            default:
+                SkASSERT(false);
         }
     }
 
