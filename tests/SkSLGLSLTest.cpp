@@ -373,24 +373,20 @@ DEF_TEST(SkSLVectorConstructors, r) {
          "vec2 v1 = vec2(1);"
          "vec2 v2 = vec2(1, 2);"
          "vec2 v3 = vec2(vec2(1));"
-         "vec2 v4 = vec2(vec3(1));"
-         "vec3 v5 = vec3(vec2(1), 1.0);"
-         "vec3 v6 = vec3(vec4(1, 2, 3, 4));"
-         "ivec2 v7 = ivec2(1);"
-         "ivec2 v8 = ivec2(vec2(1, 2));"
-         "vec2 v9 = vec2(ivec2(1, 2));",
+         "vec3 v4 = vec3(vec2(1), 1.0);"
+         "ivec2 v5 = ivec2(1);"
+         "ivec2 v6 = ivec2(vec2(1, 2));"
+         "vec2 v7 = vec2(ivec2(1, 2));",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "vec2 v1 = vec2(1.0);\n"
          "vec2 v2 = vec2(1.0, 2.0);\n"
          "vec2 v3 = vec2(1.0);\n"
-         "vec2 v4 = vec2(vec3(1.0));\n"
-         "vec3 v5 = vec3(vec2(1.0), 1.0);\n"
-         "vec3 v6 = vec3(vec4(1.0, 2.0, 3.0, 4.0));\n"
-         "ivec2 v7 = ivec2(1);\n"
-         "ivec2 v8 = ivec2(vec2(1.0, 2.0));\n"
-         "vec2 v9 = vec2(ivec2(1, 2));\n");
+         "vec3 v4 = vec3(vec2(1.0), 1.0);\n"
+         "ivec2 v5 = ivec2(1);\n"
+         "ivec2 v6 = ivec2(vec2(1.0, 2.0));\n"
+         "vec2 v7 = vec2(ivec2(1, 2));\n");
 }
 
 DEF_TEST(SkSLArrayConstructors, r) {
