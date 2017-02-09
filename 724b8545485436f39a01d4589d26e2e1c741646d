@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "fdd02191_4d9b1728",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-09T00:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7dace69_c00589c3",
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71b221f7_c4c68bb6",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 13
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "453de5ab_18b7964f",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-09T00:57:16Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "71b221f7_c4c68bb6",
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76bfae32_77e4e567",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 13
@@ -53,6 +89,24 @@
       "writtenOn": "2017-02-08T21:51:51Z",
       "side": 1,
       "message": "Remind me, are you thinking that this effect operates on premul or unpremul colors?\n\nclamp_1 is what you\u0027d want if these colors were all unpremul.  But your inputs are definitely premul, so if you think you\u0027re operating on unpremul, you probably want to add an SkRasterPipeline::unpremul stage at the beginning and an SkRasterPipeline::premul at the end.\n\nIf you\u0027re looking to operate on premul colors directly, you probably want clamp_a here.  That clamps a to 1 and r,g,b to a (the same logical operation as clamp_1 for unpremul).",
+      "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccdde655_c8b2e547",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-09T00:57:16Z",
+      "side": 1,
+      "message": "Yeah, I didn\u0027t realize that all of these operate on premul colors.\n\nI changed all three implementations to unpremul at the top and\nthen premul at the bottom.",
+      "parentUuid": "76bfae32_77e4e567",
       "revId": "724b8545485436f39a01d4589d26e2e1c741646d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
