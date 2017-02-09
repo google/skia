@@ -688,4 +688,22 @@ DEF_TEST(SkSLVertexID, r) {
          SkSL::Program::kVertex_Kind);
 }
 
+DEF_TEST(SkSLClipDistance, r) {
+    test(r,
+         "void main() { sk_ClipDistance[0] = 0; }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    gl_ClipDistance[0] = 0.0;\n"
+         "}\n",
+         SkSL::Program::kVertex_Kind);
+    test(r,
+         "void main() { sk_FragColor = vec4(sk_ClipDistance[0]); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(gl_ClipDistance[0]);\n"
+         "}\n");
+}
 #endif
