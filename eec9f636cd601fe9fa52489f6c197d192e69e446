@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cd9a313_68624716",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-09T14:44:03Z",
+      "side": 1,
+      "message": "Is there a reason this is inside the loop now? It looks like it\u0027s still constant across all iterations.",
+      "range": {
+        "startLine": 577,
+        "startChar": 0,
+        "endLine": 578,
+        "endChar": 0
+      },
+      "revId": "eec9f636cd601fe9fa52489f6c197d192e69e446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9d04f58_fe38be2e",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-09T14:44:03Z",
+      "side": 1,
+      "message": "Have you tested this on Android? Just want to make sure the string doesn\u0027t go off the screen.",
+      "range": {
+        "startLine": 647,
+        "startChar": 38,
+        "endLine": 649,
+        "endChar": 67
+      },
+      "revId": "eec9f636cd601fe9fa52489f6c197d192e69e446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
