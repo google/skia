@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d094ab5d_5b4c6581",
+        "filename": "infra/bots/recipe_modules/sktest/example.expected/failed_dm.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-09T18:11:37Z",
+      "side": 1,
+      "message": "I\u0027m not entirely sure why this shows up twice.  It goes away if I change it to append only when the raise happens, but I don\u0027t know if that is wise.",
+      "range": {
+        "startLine": 531,
+        "startChar": 37,
+        "endLine": 531,
+        "endChar": 41
+      },
+      "revId": "3ff4a3d4cfc112004b671395a65dbac4fbecb1ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
