@@ -32,9 +32,29 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     , fSurfaceProps(surfaceProps)
 {
     fOrigin.setZero();
+    fCTM.reset();
+    SkDebugf("%p create\n", this);
 }
 
-SkBaseDevice::~SkBaseDevice() {}
+SkBaseDevice::~SkBaseDevice() {
+    SkDebugf("%p destroy\n", this);
+}
+
+void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
+    SkDebugf("%p setOrigin %d %d\n", this, x, y);
+    fOrigin.set(x, y);
+    fCTM = globalCTM;
+    fCTM.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+}
+
+void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
+    SkDebugf("%p setGlobalCTM %d %d\n", this, fOrigin.fX, fOrigin.fY);
+    ctm.dump();
+    fCTM = ctm;
+    if (fOrigin.fX | fOrigin.fY) {
+        fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
+    }
+}
 
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info,
                                                          TileUsage tileUsage,

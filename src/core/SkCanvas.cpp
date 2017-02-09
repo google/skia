@@ -222,6 +222,9 @@ struct DeviceCM {
         int width = fDevice->width();
         int height = fDevice->height();
 
+        SkDebugf("%p [%d %d] update %d %d\n", fDevice, width, height, x, y);
+        totalMatrix.dump();
+
         if ((x | y) == 0) {
             fMatrix = &totalMatrix;
             fClip = totalClip;
@@ -392,7 +395,9 @@ private:
         DeviceCM* layer = fMCRec->fTopLayer;        \
         while (layer) {                             \
             SkBaseDevice* device = layer->fDevice;  \
-            code;                                   \
+            if (device) {                           \
+                code;                               \
+            }                                       \
             layer = layer->fNext;                   \
         }                                           \
     } while (0)
@@ -723,7 +728,7 @@ public:
     SkNoPixelsBitmapDevice(const SkIRect& bounds, const SkSurfaceProps& surfaceProps)
         : INHERITED(make_nopixels(bounds.width(), bounds.height()), surfaceProps)
     {
-        this->setOrigin(bounds.x(), bounds.y());
+        this->setOrigin(SkMatrix::I(), bounds.x(), bounds.y());
     }
 
 private:
@@ -1009,9 +1014,6 @@ void SkCanvas::doSave() {
     SkASSERT(fMCRec->fDeferredSaveCount > 0);
     fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
-#ifdef SK_USE_DEVICE_CLIPPING
-    FOR_EACH_TOP_DEVICE(device->save());
-#endif
 }
 
 void SkCanvas::restore() {
@@ -1027,9 +1029,6 @@ void SkCanvas::restore() {
             fSaveCount -= 1;
             this->internalRestore();
             this->didRestore();
-#ifdef SK_USE_DEVICE_CLIPPING
-            FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
-#endif
         }
     }
 }
@@ -1052,6 +1051,9 @@ void SkCanvas::internalSave() {
     fMCRec = newTop;
 
     fClipStack->save();
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->save());
+#endif
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
@@ -1255,7 +1257,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             return;
         }
     }
-    newDevice->setOrigin(ir.fLeft, ir.fTop);
+    newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
 
     DeviceCM* layer =
             new DeviceCM(newDevice.get(), paint, this, fConservativeRasterClip, stashedMatrix);
@@ -1316,6 +1318,10 @@ void SkCanvas::internalRestore() {
             layer->~DeviceCM();
             // no need to update fMCRec, 'cause we're killing the canvas
         }
+    } else {
+#ifdef SK_USE_DEVICE_CLIPPING
+        FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+#endif
     }
 
     if (fMCRec) {
@@ -1435,6 +1441,10 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         // Translate shouldn't affect the is-scale-translateness of the matrix.
         SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 
+#ifdef SK_USE_DEVICE_CLIPPING
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
+
         this->didTranslate(dx,dy);
     }
 }
@@ -1489,6 +1499,11 @@ void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     this->checkForDeferredSave();
     this->internalSetMatrix(matrix);
+
+#ifdef SK_USE_DEVICE_CLIPPING
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+#endif
+
     this->didSetMatrix(matrix);
 }
 
@@ -2172,6 +2187,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     } else {
         this->predrawNotify(bounds, &paint, false);
         SkDrawIter iter(this);
+        SkDebugf("draw canvas %p rect %g %g %g %g\n", this, r.fLeft, r.fTop, r.fRight, r.fBottom);
         while (iter.next()) {
             iter.fDevice->drawRect(iter, r, paint);
         }
