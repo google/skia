@@ -520,6 +520,12 @@ STAGE_CTX(store_a8, uint8_t**) {
     store(tail, SkNx_cast<uint8_t>(SkNf_round(255.0f, a)), ptr);
 }
 
+STAGE_CTX(load_g8, const uint8_t**) {
+    auto ptr = *ctx + x;
+    r = g = b = SkNf_from_byte(load(tail, ptr));
+    a = 1.0f;
+}
+
 STAGE_CTX(load_565, const uint16_t**) {
     auto ptr = *ctx + x;
     from_565(load(tail, ptr), &r,&g,&b);

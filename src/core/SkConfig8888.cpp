@@ -32,59 +32,44 @@ static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& src
         return false;
     }
 
-    return !dstInfo.colorSpace() || !srcInfo.colorSpace() ||
+    return !dstInfo.colorSpace() ||
            SkColorSpace::Equals(dstInfo.colorSpace(), srcInfo.colorSpace());
 }
 
-// For now disable 565 in the pipeline. Its (higher) quality is so different its too much to
-// rebase (for now)
-//
-//#define PIPELINE_HANDLES_565
-
-static bool is_srgb(const SkImageInfo& info) {
-    return info.colorSpace() && info.colorSpace()->gammaCloseToSRGB();
-}
-
+// Default: Use the pipeline.
 static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
-                                 SkColorTable* ctable) {
-    SkASSERT(srcInfo.width() == dstInfo.width());
-    SkASSERT(srcInfo.height() == dstInfo.height());
-
-    bool src_srgb = is_srgb(srcInfo);
-    const bool dst_srgb = is_srgb(dstInfo);
-    if (!dstInfo.colorSpace()) {
-        src_srgb = false;   // untagged dst means ignore tags on src
-    }
-
+                                 bool isColorAware) {
     SkRasterPipeline pipeline;
-
     switch (srcInfo.colorType()) {
         case kRGBA_8888_SkColorType:
+            pipeline.append(SkRasterPipeline::load_8888, &srcRow);
+            break;
         case kBGRA_8888_SkColorType:
             pipeline.append(SkRasterPipeline::load_8888, &srcRow);
-            if (src_srgb) {
-                pipeline.append_from_srgb(srcInfo.alphaType());
-            }
-            if (kBGRA_8888_SkColorType == srcInfo.colorType()) {
-                pipeline.append(SkRasterPipeline::swap_rb);
-            }
+            pipeline.append(SkRasterPipeline::swap_rb);
             break;
-#ifdef PIPELINE_HANDLES_565
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::load_565, &srcRow);
             break;
-#endif
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::load_f16, &srcRow);
             break;
+        case kGray_8_SkColorType:
+            pipeline.append(SkRasterPipeline::load_g8, &srcRow);
+            break;
         default:
-            return false;   // src colortype unsupported
+            return false;
+    }
+
+    if (isColorAware && srcInfo.gammaCloseToSRGB()) {
+        pipeline.append_from_srgb(srcInfo.alphaType());
     }
 
     float matrix[12];
-    if (!append_gamut_transform(&pipeline, matrix, srcInfo.colorSpace(), dstInfo.colorSpace())) {
-        return false;
+    if (isColorAware) {
+        SkAssertResult(append_gamut_transform(&pipeline, matrix, srcInfo.colorSpace(),
+                                              dstInfo.colorSpace()));
     }
 
     SkAlphaType sat = srcInfo.alphaType();
@@ -95,27 +80,26 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         pipeline.append(SkRasterPipeline::premul);
     }
 
+    if (isColorAware && dstInfo.gammaCloseToSRGB()) {
+        pipeline.append(SkRasterPipeline::to_srgb);
+    }
+
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            if (kBGRA_8888_SkColorType == dstInfo.colorType()) {
-                pipeline.append(SkRasterPipeline::swap_rb);
-            }
-            if (dst_srgb) {
-                pipeline.append(SkRasterPipeline::to_srgb);
-            }
             pipeline.append(SkRasterPipeline::store_8888, &dstRow);
             break;
-#ifdef PIPELINE_HANDLES_565
+        case kBGRA_8888_SkColorType:
+            pipeline.append(SkRasterPipeline::swap_rb);
+            pipeline.append(SkRasterPipeline::store_8888, &dstRow);
+            break;
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::store_565, &dstRow);
             break;
-#endif
         case kRGBA_F16_SkColorType:
             pipeline.append(SkRasterPipeline::store_f16, &dstRow);
             break;
         default:
-            return false;   // dst colortype unsupported
+            return false;
     }
 
     auto p = pipeline.compile();
@@ -124,8 +108,8 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         p(0,srcInfo.width());
         // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
         // loop to move between rows of src/dst.
-        srcRow = (const char*)srcRow + srcRB;
-        dstRow = (char*)dstRow + dstRB;
+        dstRow = SkTAddOffset<void>(dstRow, dstRB);
+        srcRow = SkTAddOffset<const void>(srcRow, srcRB);
     }
     return true;
 }
@@ -229,19 +213,6 @@ bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height)
         srcP += srcInc;
     }
     return true;
-}
-
-static void copy_g8_to_32(void* dst, size_t dstRB, const void* src, size_t srcRB, int w, int h) {
-    uint32_t* dst32 = (uint32_t*)dst;
-    const uint8_t* src8 = (const uint8_t*)src;
-
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            dst32[x] = SkPackARGB32(0xFF, src8[x], src8[x], src8[x]);
-        }
-        dst32 = (uint32_t*)((char*)dst32 + dstRB);
-        src8 += srcRB;
-    }
 }
 
 static bool extract_alpha(void* dst, size_t dstRB, const void* src, size_t srcRB,
@@ -384,7 +355,8 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return true;
     }
 
-    const bool isColorAware = srcInfo.colorSpace() && dstInfo.colorSpace();
+    const bool isColorAware = dstInfo.colorSpace();
+    SkASSERT(srcInfo.colorSpace() || !isColorAware);
 
     // Handle fancy alpha swizzling if both are ARGB32
     if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel() && !isColorAware) {
@@ -412,11 +384,6 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
      *  Begin section where we try to change colorTypes along the way. Not all combinations
      *  are supported.
      */
-
-    if (kGray_8_SkColorType == srcInfo.colorType() && 4 == dstInfo.bytesPerPixel()) {
-        copy_g8_to_32(dstPixels, dstRB, srcPixels, srcRB, width, height);
-        return true;
-    }
 
     if (kAlpha_8_SkColorType == dstInfo.colorType() &&
         extract_alpha(dstPixels, dstRB, srcPixels, srcRB, srcInfo, ctable)) {
