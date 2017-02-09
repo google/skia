@@ -23,18 +23,6 @@ struct SkPixelInfo {
                            SkColorTable* srcCTable = nullptr);
 };
 
-struct SkDstPixelInfo : SkPixelInfo {
-    void* fPixels;
-};
-
-struct SkSrcPixelInfo : SkPixelInfo {
-    const void* fPixels;
-
-    // Guaranteed to work even if src.fPixels and dst.fPixels are the same
-    // (but not if they overlap partially)
-    bool convertPixelsTo(SkDstPixelInfo* dst, int width, int height) const;
-};
-
 static inline void SkRectMemcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
                                 size_t bytesPerRow, int rowCount) {
     SkASSERT(bytesPerRow <= dstRB);

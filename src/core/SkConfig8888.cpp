@@ -14,9 +14,10 @@
 #include "SkDither.h"
 #include "SkImageInfoPriv.h"
 #include "SkMathPriv.h"
+#include "SkOpts.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
-#include "SkUnPreMultiply.h"
+#include "SkUnPreMultiplyPriv.h"
 
 // Fast Path 1: The memcpy() case.
 static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
@@ -34,6 +35,53 @@ static inline bool can_memcpy(const SkImageInfo& dstInfo, const SkImageInfo& src
 
     return !dstInfo.colorSpace() ||
            SkColorSpace::Equals(dstInfo.colorSpace(), srcInfo.colorSpace());
+}
+
+enum AlphaVerb {
+    kNothing_AlphaVerb,
+    kPremul_AlphaVerb,
+    kUnpremul_AlphaVerb,
+};
+
+template <bool kSwapRB>
+static void wrap_unpremultiply(uint32_t* dst, const void* src, int count) {
+    SkUnpremultiplyRow<kSwapRB>(dst, (const uint32_t*) src, count);
+}
+
+// Fast Path 2: Simple swizzles and premuls.
+void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                          const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
+    void (*proc)(uint32_t* dst, const void* src, int count);
+    const bool swapRB = dstInfo.colorType() != srcInfo.colorType();
+    AlphaVerb alphaVerb = kNothing_AlphaVerb;
+    if (kPremul_SkAlphaType == dstInfo.alphaType() &&
+        kUnpremul_SkAlphaType == srcInfo.alphaType())
+    {
+        alphaVerb = kPremul_AlphaVerb;
+    } else if (kUnpremul_SkAlphaType == dstInfo.alphaType() &&
+               kPremul_SkAlphaType == srcInfo.alphaType()) {
+        alphaVerb = kUnpremul_AlphaVerb;
+    }
+
+    switch (alphaVerb) {
+        case kNothing_AlphaVerb:
+            // If we do not need to swap or multiply, we should hit the memcpy case.
+            SkASSERT(swapRB);
+            proc = SkOpts::RGBA_to_BGRA;
+            break;
+        case kPremul_AlphaVerb:
+            proc = swapRB ? SkOpts::RGBA_to_bgrA : SkOpts::RGBA_to_rgbA;
+            break;
+        case kUnpremul_AlphaVerb:
+            proc = swapRB ? wrap_unpremultiply<true> : wrap_unpremultiply<false>;
+            break;
+    }
+
+    for (int y = 0; y < dstInfo.height(); y++) {
+        proc((uint32_t*) dstPixels, srcPixels, dstInfo.width());
+        dstPixels = SkTAddOffset<void>(dstPixels, dstRB);
+        srcPixels = SkTAddOffset<const void>(srcPixels, srcRB);
+    }
 }
 
 // Default: Use the pipeline.
@@ -110,107 +158,6 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
         // loop to move between rows of src/dst.
         dstRow = SkTAddOffset<void>(dstRow, dstRB);
         srcRow = SkTAddOffset<const void>(srcRow, srcRB);
-    }
-    return true;
-}
-
-enum AlphaVerb {
-    kNothing_AlphaVerb,
-    kPremul_AlphaVerb,
-    kUnpremul_AlphaVerb,
-};
-
-template <bool doSwapRB, AlphaVerb doAlpha> uint32_t convert32(uint32_t c) {
-    if (doSwapRB) {
-        c = SkSwizzle_RB(c);
-    }
-
-    // Lucky for us, in both RGBA and BGRA, the alpha component is always in the same place, so
-    // we can perform premul or unpremul the same way without knowing the swizzles for RGB.
-    switch (doAlpha) {
-        case kNothing_AlphaVerb:
-            // no change
-            break;
-        case kPremul_AlphaVerb:
-            c = SkPreMultiplyARGB(SkGetPackedA32(c), SkGetPackedR32(c),
-                                  SkGetPackedG32(c), SkGetPackedB32(c));
-            break;
-        case kUnpremul_AlphaVerb:
-            c = SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(c);
-            break;
-    }
-    return c;
-}
-
-template <bool doSwapRB, AlphaVerb doAlpha>
-void convert32_row(uint32_t* dst, const uint32_t* src, int count) {
-    // This has to be correct if src == dst (but not partial overlap)
-    for (int i = 0; i < count; ++i) {
-        dst[i] = convert32<doSwapRB, doAlpha>(src[i]);
-    }
-}
-
-static bool is_32bit_colortype(SkColorType ct) {
-    return kRGBA_8888_SkColorType == ct || kBGRA_8888_SkColorType == ct;
-}
-
-static AlphaVerb compute_AlphaVerb(SkAlphaType src, SkAlphaType dst) {
-    SkASSERT(kUnknown_SkAlphaType != src);
-    SkASSERT(kUnknown_SkAlphaType != dst);
-
-    if (kOpaque_SkAlphaType == src || kOpaque_SkAlphaType == dst || src == dst) {
-        return kNothing_AlphaVerb;
-    }
-    if (kPremul_SkAlphaType == dst) {
-        SkASSERT(kUnpremul_SkAlphaType == src);
-        return kPremul_AlphaVerb;
-    } else {
-        SkASSERT(kPremul_SkAlphaType == src);
-        SkASSERT(kUnpremul_SkAlphaType == dst);
-        return kUnpremul_AlphaVerb;
-    }
-}
-
-bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height) const {
-    SkASSERT(width > 0 && height > 0);
-
-    if (!is_32bit_colortype(fColorType) || !is_32bit_colortype(dst->fColorType)) {
-        return false;
-    }
-
-    void (*proc)(uint32_t* dst, const uint32_t* src, int count);
-    AlphaVerb doAlpha = compute_AlphaVerb(fAlphaType, dst->fAlphaType);
-    bool doSwapRB = fColorType != dst->fColorType;
-
-    switch (doAlpha) {
-        case kNothing_AlphaVerb:
-            SkASSERT(doSwapRB);
-            proc = convert32_row<true, kNothing_AlphaVerb>;
-            break;
-        case kPremul_AlphaVerb:
-            if (doSwapRB) {
-                proc = convert32_row<true, kPremul_AlphaVerb>;
-            } else {
-                proc = convert32_row<false, kPremul_AlphaVerb>;
-            }
-            break;
-        case kUnpremul_AlphaVerb:
-            if (doSwapRB) {
-                proc = convert32_row<true, kUnpremul_AlphaVerb>;
-            } else {
-                proc = convert32_row<false, kUnpremul_AlphaVerb>;
-            }
-            break;
-    }
-
-    uint32_t* dstP = static_cast<uint32_t*>(dst->fPixels);
-    const uint32_t* srcP = static_cast<const uint32_t*>(fPixels);
-    size_t srcInc = fRowBytes >> 2;
-    size_t dstInc = dst->fRowBytes >> 2;
-    for (int y = 0; y < height; ++y) {
-        proc(dstP, srcP, width);
-        dstP += dstInc;
-        srcP += srcInc;
     }
     return true;
 }
@@ -358,21 +305,10 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     const bool isColorAware = dstInfo.colorSpace();
     SkASSERT(srcInfo.colorSpace() || !isColorAware);
 
-    // Handle fancy alpha swizzling if both are ARGB32
+    // Fast Path 2: Simple swizzles and premuls.
     if (4 == srcInfo.bytesPerPixel() && 4 == dstInfo.bytesPerPixel() && !isColorAware) {
-        SkDstPixelInfo dstPI;
-        dstPI.fColorType = dstInfo.colorType();
-        dstPI.fAlphaType = dstInfo.alphaType();
-        dstPI.fPixels = dstPixels;
-        dstPI.fRowBytes = dstRB;
-
-        SkSrcPixelInfo srcPI;
-        srcPI.fColorType = srcInfo.colorType();
-        srcPI.fAlphaType = srcInfo.alphaType();
-        srcPI.fPixels = srcPixels;
-        srcPI.fRowBytes = srcRB;
-
-        return srcPI.convertPixelsTo(&dstPI, width, height);
+        swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
+        return true;
     }
 
     if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
