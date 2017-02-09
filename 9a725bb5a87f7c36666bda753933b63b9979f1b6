@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7cc68e4_0174308d",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-09T19:29:18Z",
+      "side": 1,
+      "message": "Is there a tag that corresponds to this? Is this the version used by Chromium and/or Android?",
+      "range": {
+        "startLine": 23,
+        "startChar": 115,
+        "endLine": 23,
+        "endChar": 155
+      },
+      "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
