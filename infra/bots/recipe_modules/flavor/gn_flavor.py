@@ -77,6 +77,21 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_fontconfig'] = 'false'
     if extra_config == 'Mesa':
       args['skia_use_mesa'] = 'true'
+    if extra_config == 'Mini':
+      args.update({
+        'is_component_build':     'true',   # Proves we can link a coherent .so.
+        'is_official_build':      'true',   # No debug symbols.
+        'skia_enable_effects':    'false',
+        'skia_enable_gpu':        'false',
+        'skia_enable_pdf':        'false',
+        'skia_enable_splicer':    'false',
+        'skia_enable_tools':      'false',  # Some tools need GPU or effects.
+        'skia_use_expat':         'false',
+        'skia_use_libjpeg_turbo': 'false',
+        'skia_use_libpng':        'false',
+        'skia_use_libwebp':       'false',
+        'skia_use_zlib':          'false',
+      })
     if extra_config == 'NoGPU':
       args['skia_enable_gpu'] = 'false'
     if extra_config == 'Shared':
