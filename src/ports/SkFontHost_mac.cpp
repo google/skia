@@ -280,7 +280,7 @@ template <typename S, typename D, typename C> struct LinearInterpolater {
         return C()(dst_min + (((value - src_min) * (dst_max - dst_min)) / (src_max - src_min)));
     }
 
-    int map(S val) const {
+    D map(S val) const {
         // -Inf to [0]
         if (val < fMapping[0].src_val) {
             return fMapping[0].dst_val;
@@ -306,6 +306,52 @@ template <typename S, typename D, typename C> struct LinearInterpolater {
 struct RoundCGFloatToInt {
     int operator()(CGFloat s) { return s + 0.5; }
 };
+struct CGFloatIdentity {
+    CGFloat operator()(CGFloat s) { return s; }
+};
+
+/** Convert the [0, 1000] CSS weight to [-1, 1] CTFontDescriptor weight (for system fonts).
+ *
+ *  The -1 to 1 weights reported by CTFontDescriptors have different mappings depending on if the
+ *  CTFont is native or created from a CGDataProvider.
+ */
+static CGFloat fontstyle_to_ct_weight(int fontstyleWeight) {
+    using Interpolator = LinearInterpolater<int, CGFloat, CGFloatIdentity>;
+
+    // Note that Mac supports the old OS2 version A so 0 through 10 are as if multiplied by 100.
+    // However, on this end we can't tell, so this is ignored.
+
+    /** This mapping for native fonts is determined by running the following in an .mm file
+     *  #include <AppKit/AppKit>
+     *  printf("{  100, % #.2f },\n", NSFontWeightUltraLight);
+     *  printf("{  200, % #.2f },\n", NSFontWeightThin);
+     *  printf("{  300, % #.2f },\n", NSFontWeightLight);
+     *  printf("{  400, % #.2f },\n", NSFontWeightRegular);
+     *  printf("{  500, % #.2f },\n", NSFontWeightMedium);
+     *  printf("{  600, % #.2f },\n", NSFontWeightSemibold);
+     *  printf("{  700, % #.2f },\n", NSFontWeightBold);
+     *  printf("{  800, % #.2f },\n", NSFontWeightHeavy);
+     *  printf("{  900, % #.2f },\n", NSFontWeightBlack);
+     */
+    static constexpr Interpolator::Mapping nativeWeightMappings[] = {
+        {    0, -1.00 },
+        {  100, -0.80 },
+        {  200, -0.60 },
+        {  300, -0.40 },
+        {  400,  0.00 },
+        {  500,  0.23 },
+        {  600,  0.30 },
+        {  700,  0.40 },
+        {  800,  0.56 },
+        {  900,  0.62 },
+        { 1000,  1.00 },
+    };
+    static constexpr Interpolator nativeInterpolator(
+            nativeWeightMappings, SK_ARRAY_COUNT(nativeWeightMappings));
+
+    return nativeInterpolator.map(fontstyleWeight);
+}
+
 
 /** Convert the [-1, 1] CTFontDescriptor weight to [0, 1000] CSS weight.
  *
@@ -370,6 +416,21 @@ static int ct_weight_to_fontstyle(CGFloat cgWeight, bool fromDataProvider) {
                             : nativeInterpolator.map(cgWeight);
 }
 
+/** Convert the [0, 10] CSS weight to [-1, 1] CTFontDescriptor width. */
+static int fontstyle_to_ct_width(int fontstyleWidth) {
+    using Interpolator = LinearInterpolater<int, CGFloat, CGFloatIdentity>;
+
+    // Values determined by creating font data with every width, creating a CTFont,
+    // and asking the CTFont for its width. See TypefaceStyle test for basics.
+    static constexpr Interpolator::Mapping widthMappings[] = {
+        {  0, -0.5 },
+        { 10,  0.5 },
+    };
+    static constexpr Interpolator interpolator(widthMappings, SK_ARRAY_COUNT(widthMappings));
+    return interpolator.map(fontstyleWidth);
+}
+
+/** Convert the [-1, 1] CTFontDescriptor width to [0, 10] CSS weight. */
 static int ct_width_to_fontstyle(CGFloat cgWidth) {
     using Interpolator = LinearInterpolater<CGFloat, int, RoundCGFloatToInt>;
 
@@ -509,7 +570,7 @@ static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[
         return nullptr;
     }
 
-    // CTFontTraits
+    // CTFontTraits (symbolic)
     CTFontSymbolicTraits ctFontTraits = 0;
     if (style.weight() >= SkFontStyle::kBold_Weight) {
         ctFontTraits |= kCTFontBoldTrait;
@@ -521,10 +582,30 @@ static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[
             CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
     if (cfFontTraits) {
         CFDictionaryAddValue(cfTraits.get(), kCTFontSymbolicTrait, cfFontTraits.get());
-        CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());
     }
-
-    //TODO: add weight width slant
+    // CTFontTraits (weight)
+    CGFloat ctWeight = fontstyle_to_ct_weight(style.weight());
+    UniqueCFRef<CFNumberRef> cfFontWeight(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctWeight));
+    if (cfFontWeight) {
+        CFDictionaryAddValue(cfTraits.get(), kCTFontWeightTrait, cfFontWeight.get());
+    }
+    // CTFontTraits (width)
+    CGFloat ctWidth = fontstyle_to_ct_width(style.weight());
+    UniqueCFRef<CFNumberRef> cfFontWidth(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctWidth));
+    if (cfFontWidth) {
+        CFDictionaryAddValue(cfTraits.get(), kCTFontWidthTrait, cfFontWidth.get());
+    }
+    // CTFontTraits (slant)
+    CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : 1;
+    UniqueCFRef<CFNumberRef> cfFontSlant(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctSlant));
+    if (cfFontSlant) {
+        CFDictionaryAddValue(cfTraits.get(), kCTFontSlantTrait, cfFontSlant.get());
+    }
+    // CTFontTraits
+    CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());
 
     // CTFontFamilyName
     if (familyName) {
