@@ -138,8 +138,10 @@ SkBaseShadowTessellator::SkBaseShadowTessellator(SkScalar radius, SkColor umbraC
 }
 
 // tesselation tolerance values, in device space pixels
+#if SK_SUPPORT_GPU
 static const SkScalar kQuadTolerance = 0.2f;
 static const SkScalar kCubicTolerance = 0.2f;
+#endif
 static const SkScalar kConicTolerance = 0.5f;
 
 void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {

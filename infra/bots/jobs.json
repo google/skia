@@ -32,6 +32,7 @@
   "Build-Ubuntu-Clang-x86_64-Release",
   "Build-Ubuntu-Clang-x86_64-Release-ASAN",
   "Build-Ubuntu-Clang-x86_64-Release-Fast",
+  "Build-Ubuntu-Clang-x86_64-Release-Mini",
   "Build-Ubuntu-Clang-x86_64-Release-TSAN",
   "Build-Ubuntu-Clang-x86_64-Release-Vulkan",
   "Build-Ubuntu-GCC-x86-Debug",
