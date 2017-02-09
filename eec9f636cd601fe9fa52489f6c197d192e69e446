@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "337079d7_4febfff1",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-09T16:29:27Z",
+      "side": 1,
+      "message": "I\u0027m adjusting it after each drawLine call (to be the previous endY).",
+      "parentUuid": "6cd9a313_68624716",
+      "revId": "eec9f636cd601fe9fa52489f6c197d192e69e446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9d04f58_fe38be2e",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 1
@@ -42,6 +60,24 @@
         "endLine": 649,
         "endChar": 67
       },
+      "revId": "eec9f636cd601fe9fa52489f6c197d192e69e446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b77bcf61_e7ba3bd9",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-09T16:29:27Z",
+      "side": 1,
+      "message": "... eh, it stays on screen, but looks a little goofy. Going to try and format it better.",
+      "parentUuid": "d9d04f58_fe38be2e",
       "revId": "eec9f636cd601fe9fa52489f6c197d192e69e446",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
