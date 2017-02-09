@@ -40,6 +40,24 @@
       "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb7f2793_59e779b9",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-02-09T16:59:34Z",
+      "side": 1,
+      "message": "Is there any reason not to use api.run for the failed step?",
+      "parentUuid": "7f2e710b_4d65a6a6",
+      "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
