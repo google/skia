@@ -705,9 +705,9 @@ private:
      *  unrotated glyph, and then the rotation is applied separately.
      *
      *  CT vertical metrics are pre-rotated (in em space, before transform) 90deg clock-wise.
-     *  This makes kCTFontDefaultOrientation dangerous, because the metrics from
-     *  kCTFontHorizontalOrientation are in a different space from kCTFontVerticalOrientation.
-     *  With kCTFontVerticalOrientation the advances must be unrotated.
+     *  This makes kCTFontOrientationDefault dangerous, because the metrics from
+     *  kCTFontOrientationHorizontal are in a different space from kCTFontOrientationVertical.
+     *  With kCTFontOrientationVertical the advances must be unrotated.
      *
      *  Sometimes, creating a copy of a CTFont with the same size but different trasform will select
      *  different underlying font data. As a result, avoid ever creating more than one CTFont per
@@ -962,13 +962,13 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // The following block produces cgAdvance in CG units (pixels, y up).
     CGSize cgAdvance;
     if (fVertical) {
-        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontVerticalOrientation,
+        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationVertical,
                                    &cgGlyph, &cgAdvance, 1);
         // Vertical advances are returned as widths instead of heights.
         SkTSwap(cgAdvance.height, cgAdvance.width);
         cgAdvance.height = -cgAdvance.height;
     } else {
-        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontHorizontalOrientation,
+        CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
                                    &cgGlyph, &cgAdvance, 1);
     }
     cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
@@ -987,7 +987,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     {
         // CTFontGetBoundingRectsForGlyphs produces cgBounds in CG units (pixels, y up).
         CGRect cgBounds;
-        CTFontGetBoundingRectsForGlyphs(fCTFont.get(), kCTFontHorizontalOrientation,
+        CTFontGetBoundingRectsForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
                                         &cgGlyph, &cgBounds, 1);
         cgBounds = CGRectApplyAffineTransform(cgBounds, fTransform);
 
@@ -1520,7 +1520,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
     CGGlyph glyphs[count];
     CGRect boundingRects[count];
     if (CTFontGetGlyphsForCharacters(ctFont.get(), stem_chars, glyphs, count)) {
-        CTFontGetBoundingRectsForGlyphs(ctFont.get(), kCTFontHorizontalOrientation,
+        CTFontGetBoundingRectsForGlyphs(ctFont.get(), kCTFontOrientationHorizontal,
                                         glyphs, boundingRects, count);
         for (size_t i = 0; i < count; i++) {
             int16_t width = (int16_t) boundingRects[i].size.width;
