@@ -40,6 +40,24 @@
       "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "557c01f1_976545d5",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-09T19:43:09Z",
+      "side": 1,
+      "message": "Not sure. Why do we have our own version? I can see the argument for using AOSP - it should be the version Android is using, so we\u0027ll be testing the right thing.",
+      "parentUuid": "d6687532_2ffcf6c4",
+      "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
