@@ -4,8 +4,7 @@ STRINGIFY(
 
 out gl_PerVertex {
   	layout(builtin=0) vec4 gl_Position;
-    layout(builtin=1) float gl_PointSize;
-    layout(builtin=3) float sk_ClipDistance[];
+  	layout(builtin=1) float gl_PointSize;
 };
 
 layout(builtin=5) int sk_VertexID;
