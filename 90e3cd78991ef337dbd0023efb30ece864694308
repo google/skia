@@ -22,6 +22,24 @@
       "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f2e710b_4d65a6a6",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-09T16:58:06Z",
+      "side": 1,
+      "message": "The failed step is not channeled through api.run.  It does not appear that api.python.inline goes into the api.run code and thus, it could not add the step to _failures",
+      "parentUuid": "cc0cd9ba_f2e846a9",
+      "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
