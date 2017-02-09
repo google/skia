@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7f94db5_83731f98",
+        "filename": "src/effects/gradients/SkClampRange.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-02-09T21:50:04Z",
+      "side": 1,
+      "message": "Consider removing int64_t* result and return std::tuple\u003cbool, int64_t\u003e instead.",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 48
+      },
+      "revId": "e4e3026a259ffd3e06bf3a6831a43663f41ace07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
