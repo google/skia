@@ -126,6 +126,14 @@ private:
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
+    std::unique_ptr<Expression> convertNumberConstructor(
+                                                   Position position,
+                                                   const Type& type,
+                                                   std::vector<std::unique_ptr<Expression>> params);
+    std::unique_ptr<Expression> convertCompoundConstructor(
+                                                   Position position,
+                                                   const Type& type,
+                                                   std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Expression> convertConstructor(Position position,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);

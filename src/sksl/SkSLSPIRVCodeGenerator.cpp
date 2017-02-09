@@ -1500,6 +1500,37 @@ SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, SkWStream& o
     return result;
 }
 
+void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
+                                                 SkWStream& out) {
+    FloatLiteral zero(fContext, Position(), 0);
+    SpvId zeroId = this->writeFloatLiteral(zero);
+    std::vector<SpvId> columnIds;
+    for (int column = 0; column < type.columns(); column++) {
+        this->writeOpCode(SpvOpCompositeConstruct, 3 + type.rows(),
+                          out);
+        this->writeWord(this->getType(type.componentType().toCompound(fContext, type.rows(), 1)),
+                        out);
+        SpvId columnId = this->nextId();
+        this->writeWord(columnId, out);
+        columnIds.push_back(columnId);
+        for (int row = 0; row < type.columns(); row++) {
+            this->writeWord(row == column ? diagonal : zeroId, out);
+        }
+    }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(),
+                      out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(id, out);
+    for (SpvId id : columnIds) {
+        this->writeWord(id, out);
+    }
+}
+
+void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
+                                         const Type& dstType, SkWStream& out) {
+    ABORT("unimplemented");
+}
+
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, SkWStream& out) {
     ASSERT(c.fType.kind() == Type::kMatrix_Kind);
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
@@ -1511,33 +1542,10 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, SkWStream
     SpvId result = this->nextId();
     int rows = c.fType.rows();
     int columns = c.fType.columns();
-    // FIXME this won't work to create a matrix from another matrix
-    if (arguments.size() == 1) {
-        // with a single argument, a matrix will have all of its diagonal entries equal to the
-        // argument and its other values equal to zero
-        // FIXME this won't work for int matrices
-        FloatLiteral zero(fContext, Position(), 0);
-        SpvId zeroId = this->writeFloatLiteral(zero);
-        std::vector<SpvId> columnIds;
-        for (int column = 0; column < columns; column++) {
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + c.fType.rows(),
-                              out);
-            this->writeWord(this->getType(c.fType.componentType().toCompound(fContext, rows, 1)),
-                            out);
-            SpvId columnId = this->nextId();
-            this->writeWord(columnId, out);
-            columnIds.push_back(columnId);
-            for (int row = 0; row < c.fType.columns(); row++) {
-                this->writeWord(row == column ? arguments[0] : zeroId, out);
-            }
-        }
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + columns,
-                          out);
-        this->writeWord(this->getType(c.fType), out);
-        this->writeWord(result, out);
-        for (SpvId id : columnIds) {
-            this->writeWord(id, out);
-        }
+    if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+        this->writeUniformScaleMatrix(result, arguments[0], c.fType, out);
+    } else if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
+        this->writeMatrixCopy(result, arguments[0], c.fArguments[0]->fType, c.fType, out);
     } else {
         std::vector<SpvId> columnIds;
         int currentCount = 0;
