@@ -174,8 +174,12 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     GrTexture* bmpTex = d->fTextures[GrProcessorUnitTest::kSkiaPMTextureIdx];
     GrTexture* maskTex = d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx];
-    float innerThresh = d->fRandom->nextUScalar1();
-    float outerThresh = d->fRandom->nextUScalar1();
+    // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
+    float innerThresh = d->fRandom->nextUScalar1() * .99f + 0.005f;
+    float outerThresh = d->fRandom->nextUScalar1() * .99f + 0.005f;
+    if (innerThresh > outerThresh) {
+        SkTSwap(innerThresh, outerThresh);
+    }
     const int kMaxWidth = 1000;
     const int kMaxHeight = 1000;
     uint32_t width = d->fRandom->nextULessThan(kMaxWidth);
