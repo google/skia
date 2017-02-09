@@ -80,6 +80,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
     }
     desc.finalize();
     std::unique_ptr<Entry>* entry = fMap.find(desc);
+    //entry = nullptr;
     if (!entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
