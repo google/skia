@@ -22,6 +22,24 @@
       "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6687532_2ffcf6c4",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-09T19:32:55Z",
+      "side": 1,
+      "message": "It is libjpeg-turbo 1.5.1 plus Skia\u0027s config file.\n\nShould essentially match AOSP.  Maybe I should try pulling in AOSP?",
+      "parentUuid": "b7cc68e4_0174308d",
+      "revId": "9a725bb5a87f7c36666bda753933b63b9979f1b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
