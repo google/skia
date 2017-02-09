@@ -6,9 +6,10 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _run(self, title, cmd, env=None, infra_step=False):
-    self.m.run(self.m.step, title, cmd=cmd,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+  def _run(self, title, cmd, env=None, infra_step=False, stdout=None):
+    return self.m.run(self.m.step, title, cmd=cmd,
+                      env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step,
+                      stdout=stdout)
 
   def _py(self, title, script, env=None, infra_step=True, args=()):
     self.m.run(self.m.python, title, script=script, args=args,
@@ -146,4 +147,31 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Find the MSAN-built libc++.
       env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
 
-    self._run(name, cmd, env=env)
+    if 'dm' == name and 'Ubuntu16' == self.m.vars.builder_cfg['os']:
+      try:
+        self._run(name, cmd, env=env, stdout=self.m.raw_io.output())
+        result = self.m.step.active_result
+        if result.stdout:
+          result.presentation.logs['stdout'] = result.stdout # pragma: no cover
+      except self.m.step.StepFailure:
+        result = self.m.step.active_result
+        if result.stdout:
+          result.presentation.logs['stdout'] = result.stdout
+
+        self.m.python.inline('clean-stacktrace', """
+        import os
+        import subprocess
+        import sys
+        out = sys.argv[1]
+        print out
+        print 'addr2line'
+        print subprocess.check_output(['addr2line', '-Cfpe', '/lib/x86_64-linux-gnu/libc.so.6', '0x2dc62'])
+        print subprocess.check_output(['addr2line', '-Cfpe', sys.argv[2] + '/linux_vulkan_intel_driver_debug/./libvulkan_intel.so', '0x1f3197'])
+        print subprocess.check_output(['addr2line', '-Cfpe', sys.argv[2] + '/out/Debug/dm', '0x17d38af'])
+        """,
+        args=[self.m.step.active_result.stdout, self.m.vars.slave_dir],
+        infra_step=True)
+        raise
+
+    else:
+      self._run(name, cmd, env=env)

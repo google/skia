@@ -331,7 +331,8 @@
       "SKIA_OUT": "[START_DIR]/out",
       "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_debug/intel_icd.x86_64.json"
     },
-    "name": "dm"
+    "name": "dm",
+    "stdout": "/path/to/tmp/"
   },
   {
     "name": "$result",

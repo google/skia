@@ -227,3 +227,35 @@ def GenTests(api):
     api.step_data('push [START_DIR]/skia/resources/* '+
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )
+
+  builder = 'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Release-Vulkan'
+  yield (
+    api.test('parsing_logs') +
+    api.properties(buildername=builder,
+                   mastername='client.skia',
+                   slavename='skiabot-linux-swarm-000',
+                   buildnumber=6,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    api.step_data('dm', retcode=1, stdout=api.raw_io.output("""
+Likely culprit:
+  vk gm  yuv_nv12_to_rgb_effect
+
+Stack trace:
+    /b/s/w/ir8EK9ZG/out/Debug/dm() [0xee0808]
+    /lib/x86_64-linux-gnu/libc.so.6(+0x35860) [0x7f8494d94860]
+    /b/s/w/ir8EK9ZG/linux_vulkan_intel_driver_debug/./libvulkan_intel.so(+0x1f4d0a) [0x7f84903a6d0a]
+    /b/s/w/ir8EK9ZG/out/Debug/dm() [0x17d38af]
+"""))
+  )
