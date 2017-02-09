@@ -65,9 +65,6 @@ sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region,
                                                   const SkImageFilter::CropRect* cropRect) {
     innerThreshold = pin_0_1(innerThreshold);
     outerThreshold = pin_0_1(outerThreshold);
-    if (innerThreshold > outerThreshold) {
-        return nullptr;
-    }
     if (!SkScalarIsFinite(innerThreshold) || !SkScalarIsFinite(outerThreshold)) {
         return nullptr;
     }
