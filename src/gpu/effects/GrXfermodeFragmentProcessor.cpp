@@ -39,9 +39,10 @@ private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* src,
                                       const GrFragmentProcessor* dst, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && src->hasConstantOutputForConstantInput() &&
-            dst->hasConstantOutputForConstantInput()) {
+        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // softlight.
+        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
+            src->hasConstantOutputForConstantInput() && dst->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
         return kNone_OptimizationFlags;
@@ -197,8 +198,10 @@ public:
 private:
     OptimizationFlags OptFlags(const GrFragmentProcessor* child, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes.
-        if (mode <= SkBlendMode::kLastSeparableMode && child->hasConstantOutputForConstantInput()) {
+        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // softlight.
+        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
+            child->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
         return kNone_OptimizationFlags;

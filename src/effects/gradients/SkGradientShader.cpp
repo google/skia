@@ -1754,7 +1754,9 @@ void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 #if GR_TEST_UTILS
 GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
-    fColorCount = random->nextRangeU(1, kMaxRandomGradientColors);
+    // Set color count to min of 2 so that we don't trigger the const color optimization and make
+    // a non-gradient processor.
+    fColorCount = random->nextRangeU(2, kMaxRandomGradientColors);
     fUseColors4f = random->nextBool();
 
     // if one color, omit stops, otherwise randomly decide whether or not to
