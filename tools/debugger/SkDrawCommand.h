@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
 #include "SkString.h"

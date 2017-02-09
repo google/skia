@@ -8,19 +8,24 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
-#include "SkTypes.h"
 #include "SkBlendMode.h"
-#include "SkBitmap.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
-#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkRasterHandleAllocator.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
 #include "SkSurfaceProps.h"
 #include "SkLights.h"
 #include "../private/SkShadowParams.h"
+
+#if 0
+#include "SkBitmap.h"
+#include "SkImage.h"
+#include "SkRegion.h"
+#else
+class SkBitmap;
+class SkImage;
+class SkRegion;
+#endif
 
 class GrContext;
 class GrRenderTargetContext;

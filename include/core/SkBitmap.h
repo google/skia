@@ -21,7 +21,6 @@ struct SkRect;
 class SkPaint;
 class SkPixelRef;
 class SkPixelRefFactory;
-class SkRegion;
 class SkString;
 
 /** \class SkBitmap

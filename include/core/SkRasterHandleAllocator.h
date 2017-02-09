@@ -10,6 +10,7 @@
 
 #include "SkImageInfo.h"
 
+class SkBitmap;
 class SkCanvas;
 class SkMatrix;
 
