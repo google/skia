@@ -227,3 +227,26 @@ def GenTests(api):
     api.step_data('push [START_DIR]/skia/resources/* '+
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )
+
+  builder = 'Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan'
+  yield (
+    api.test('parsing_logs') +
+    api.properties(buildername=builder,
+                   mastername='client.skia',
+                   slavename='skiabot-linux-swarm-000',
+                   buildnumber=6,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    api.step_data('dm', retcode=1, stdout=api.raw_io.output('StackTracing'))
+  )

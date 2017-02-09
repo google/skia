@@ -6,9 +6,11 @@ import default_flavor
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _run(self, title, cmd, env=None, infra_step=False):
-    self.m.run(self.m.step, title, cmd=cmd,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+  def _run(self, title, cmd, env=None, infra_step=False, stdout=None):
+
+    return self.m.run(self.m.step, title, cmd=cmd,
+                      env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step,
+                      stdout=stdout)
 
   def _py(self, title, script, env=None, infra_step=True, args=()):
     self.m.run(self.m.python, title, script=script, args=args,
@@ -146,4 +148,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Find the MSAN-built libc++.
       env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
 
-    self._run(name, cmd, env=env)
+    if 'dm' == name and 'Ubuntu16' == self.m.vars.builder_cfg['os']:
+      result = self._run(name, cmd, env=env, stdout=self.m.json.output())
+      #print result.stdout
+
+    else:
+      self._run(name, cmd, env=env)

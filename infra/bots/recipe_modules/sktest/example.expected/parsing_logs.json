@@ -194,7 +194,7 @@
       "builder",
       "Test-Ubuntu16-Clang-NUC-GPU-IntelIris540-x86_64-Debug-Vulkan",
       "build_number",
-      "5",
+      "6",
       "--svgs",
       "[START_DIR]/svg",
       "--key",
@@ -334,13 +334,16 @@
     "name": "dm",
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
+      "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@json.output (invalid)@null@@@",
-      "@@@STEP_LOG_END@json.output (invalid)@@@"
+      "@@@STEP_LOG_END@json.output (invalid)@@@",
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {
     "name": "$result",
+    "reason": "Failed build steps: dm",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
