@@ -27,6 +27,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan',
       'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
+      'Build-Ubuntu-Clang-x86_64-Release-Mini',
       'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
