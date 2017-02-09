@@ -45,7 +45,9 @@ private:
     sk_app::Window*        fWindow;
 
     static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
-    double fMeasurements[kMeasurementCount];
+    double fPaintTimes[kMeasurementCount];
+    double fFlushTimes[kMeasurementCount];
+    double fAnimateTimes[kMeasurementCount];
     int fCurrentMeasurement;
 
     SkAnimTimer            fAnimTimer;
