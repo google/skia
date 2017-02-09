@@ -118,6 +118,45 @@ static void expand_range_if_gridfit_only(DWriteFontTypeface* typeface, int size,
     }
 }
 
+/** If the rendering mode for the specified 'size' sets SymmetricSmoothing, return true. */
+static bool gasp_allows_cleartype_symmetric(DWriteFontTypeface* typeface, int size) {
+#ifdef SK_IGNORE_DIRECTWRITE_GASP_FIX
+    return true;
+#endif
+    AutoTDWriteTable<SkOTTableGridAndScanProcedure> gasp(typeface->fDWriteFontFace.get());
+    if (!gasp.fExists) {
+        return false;
+    }
+    if (gasp.fSize < sizeof(SkOTTableGridAndScanProcedure)) {
+        return false;
+    }
+    if (gasp->version != SkOTTableGridAndScanProcedure::version0 &&
+        gasp->version != SkOTTableGridAndScanProcedure::version1)
+    {
+        return false;
+    }
+
+    uint16_t numRanges = SkEndianSwap16(gasp->numRanges);
+    if (numRanges > 1024 ||
+        gasp.fSize < sizeof(SkOTTableGridAndScanProcedure) +
+                     sizeof(SkOTTableGridAndScanProcedure::GaspRange) * numRanges)
+    {
+        return false;
+    }
+
+    const SkOTTableGridAndScanProcedure::GaspRange* rangeTable =
+        SkTAfter<const SkOTTableGridAndScanProcedure::GaspRange>(gasp.get());
+    int minPPEM = -1;
+    for (uint16_t i = 0; i < numRanges; ++i, ++rangeTable) {
+        int maxPPEM = SkEndianSwap16(rangeTable->maxPPEM);
+        if (minPPEM < size && size <= maxPPEM) {
+            return rangeTable->flags.field.SymmetricSmoothing;
+        }
+        minPPEM = maxPPEM;
+    }
+    return false;
+}
+
 static bool has_bitmap_strike(DWriteFontTypeface* typeface, PPEMRange range) {
     SkAutoExclusive l(DWriteFactoryMutex);
     {
@@ -315,10 +354,12 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
 
-    // The normal case is to use natural symmetric rendering and linear metrics.
+    // The normal case is to use natural symmetric rendering (if permitted) and linear metrics.
     } else {
         fTextSizeRender = realTextSize;
-        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
+        fRenderingMode = gasp_allows_cleartype_symmetric(typeface, realTextSize)
+                       ? DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC
+                       : DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = realTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
