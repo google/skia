@@ -15,7 +15,10 @@ static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin o
         SkImageInfo ii = SkImageInfo::Make(size, size, kN32_SkColorType, kPremul_SkAlphaType);
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 0,
                                                           origin, nullptr));
-
+        if (!surf) {
+            return nullptr;
+        }
+        
         SkCanvas* canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorRED);
@@ -91,7 +94,10 @@ protected:
 
         sk_sp<SkImage> bottomLImg = make_image(context, kImgSize, kBottomLeft_GrSurfaceOrigin);
         sk_sp<SkImage> topLImg = make_image(context, kImgSize, kTopLeft_GrSurfaceOrigin);
-
+        if (!bottomLImg || !topLImg) {
+            return;
+        }
+        
         int bigOffset = 2 * kPad + kImgSize;
 
         this->draw(canvas, bottomLImg, SkIPoint::Make(kPad, kPad), 1);
