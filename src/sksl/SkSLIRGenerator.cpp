@@ -1104,15 +1104,15 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
     return this->call(position, *ref->fFunctions[0], std::move(arguments));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
+std::unique_ptr<Expression> IRGenerator::convertConstructor(
                                                     Position position,
                                                     const Type& type,
                                                     std::vector<std::unique_ptr<Expression>> args) {
-    ASSERT(type.isNumber());
-    if (args.size() != 1) {
-        fErrors.error(position, "invalid arguments to '" + type.description() +
-                                "' constructor, (expected exactly 1 argument, but found " +
-                                to_string((uint64_t) args.size()) + ")");
+    // FIXME: add support for structs and arrays
+    Type::Kind kind = type.kind();
+    if (!type.isNumber() && kind != Type::kVector_Kind && kind != Type::kMatrix_Kind &&
+        kind != Type::kArray_Kind) {
+        fErrors.error(position, "cannot construct '" + type.description() + "'");
         return nullptr;
     }
     if (type == *fContext.fFloat_Type && args.size() == 1 &&
@@ -1120,89 +1120,37 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
         int64_t value = ((IntLiteral&) *args[0]).fValue;
         return std::unique_ptr<Expression>(new FloatLiteral(fContext, position, (double) value));
     }
-    if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type ||
-        type == *fContext.fUInt_Type)) {
-        return std::unique_ptr<Expression>(new IntLiteral(fContext,
-                                                          position,
-                                                          ((IntLiteral&) *args[0]).fValue,
-                                                          &type));
-    }
-    if (args[0]->fType == *fContext.fBool_Type) {
-        std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, position, 0));
-        std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, position, 1));
-        return std::unique_ptr<Expression>(
-                                     new TernaryExpression(position, std::move(args[0]),
-                                                           this->coerce(std::move(one), type),
-                                                           this->coerce(std::move(zero),
-                                                                        type)));
-    }
-    if (!args[0]->fType.isNumber()) {
-        fErrors.error(position, "invalid argument to '" + type.description() +
-                                "' constructor (expected a number or bool, but found '" +
-                                args[0]->fType.description() + "')");
-        return nullptr;
-    }
-    return std::unique_ptr<Expression>(new Constructor(position, std::move(type), std::move(args)));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(
-                                                    Position position,
-                                                    const Type& type,
-                                                    std::vector<std::unique_ptr<Expression>> args) {
-    ASSERT(type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind);
-    if (type.kind() == Type::kMatrix_Kind && args.size() == 1 &&
-        args[0]->fType.kind() == Type::kMatrix_Kind) {
-        // matrix from matrix is always legal
-        return std::unique_ptr<Expression>(new Constructor(position, std::move(type),
-                                                           std::move(args)));
-    }
-    int actual = 0;
-    int expected = type.rows() * type.columns();
-    for (size_t i = 0; i < args.size(); i++) {
-        if (args[i]->fType.kind() == Type::kVector_Kind) {
-            if (type.componentType().isNumber() !=
-                args[i]->fType.componentType().isNumber()) {
-                fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
-                                        "parameter to '" + type.description() +
-                                        "' constructor");
-                return nullptr;
-            }
-            actual += args[i]->fType.columns();
-        } else if (args[i]->fType.kind() == Type::kScalar_Kind) {
-            actual += 1;
-            if (type.kind() != Type::kScalar_Kind) {
-                args[i] = this->coerce(std::move(args[i]), type.componentType());
-                if (!args[i]) {
-                    return nullptr;
-                }
-            }
-        } else {
-            fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
-                                    "parameter to '" + type.description() + "' constructor");
-            return nullptr;
-        }
-    }
-    if (actual != 1 && actual != expected) {
-        fErrors.error(position, "invalid arguments to '" + type.description() +
-                                "' constructor (expected " + to_string(expected) +
-                                " scalars, but found " + to_string(actual) + ")");
-        return nullptr;
-    }
-    return std::unique_ptr<Expression>(new Constructor(position, std::move(type), std::move(args)));
-}
-
-std::unique_ptr<Expression> IRGenerator::convertConstructor(
-                                                    Position position,
-                                                    const Type& type,
-                                                    std::vector<std::unique_ptr<Expression>> args) {
-    // FIXME: add support for structs
-    Type::Kind kind = type.kind();
     if (args.size() == 1 && args[0]->fType == type) {
         // argument is already the right type, just return it
         return std::move(args[0]);
     }
     if (type.isNumber()) {
-        return this->convertNumberConstructor(position, type, std::move(args));
+        if (args.size() != 1) {
+            fErrors.error(position, "invalid arguments to '" + type.description() +
+                                    "' constructor, (expected exactly 1 argument, but found " +
+                                    to_string((uint64_t) args.size()) + ")");
+            return nullptr;
+        }
+        if (args[0]->fType == *fContext.fBool_Type) {
+            std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, position, 0));
+            std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, position, 1));
+            return std::unique_ptr<Expression>(
+                                         new TernaryExpression(position, std::move(args[0]),
+                                                               this->coerce(std::move(one), type),
+                                                               this->coerce(std::move(zero),
+                                                                            type)));
+        } else if (!args[0]->fType.isNumber()) {
+            fErrors.error(position, "invalid argument to '" + type.description() +
+                                    "' constructor (expected a number or bool, but found '" +
+                                    args[0]->fType.description() + "')");
+        }
+        if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type ||
+            type == *fContext.fUInt_Type)) {
+            return std::unique_ptr<Expression>(new IntLiteral(fContext,
+                                                              position,
+                                                              ((IntLiteral&) *args[0]).fValue,
+                                                              &type));
+        }
     } else if (kind == Type::kArray_Kind) {
         const Type& base = type.componentType();
         for (size_t i = 0; i < args.size(); i++) {
@@ -1211,14 +1159,46 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
                 return nullptr;
             }
         }
-        return std::unique_ptr<Expression>(new Constructor(position, std::move(type),
-                                                           std::move(args)));
-    } else if (kind == Type::kVector_Kind || kind == Type::kMatrix_Kind) {
-        return this->convertCompoundConstructor(position, type, std::move(args));
     } else {
-        fErrors.error(position, "cannot construct '" + type.description() + "'");
-        return nullptr;
+        ASSERT(kind == Type::kVector_Kind || kind == Type::kMatrix_Kind);
+        int actual = 0;
+        for (size_t i = 0; i < args.size(); i++) {
+            if (args[i]->fType.kind() == Type::kVector_Kind ||
+                args[i]->fType.kind() == Type::kMatrix_Kind) {
+                if (type.componentType().isNumber() !=
+                    args[i]->fType.componentType().isNumber()) {
+                    fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
+                                            "parameter to '" + type.description() +
+                                            "' constructor");
+                    return nullptr;
+                }
+                actual += args[i]->fType.rows() * args[i]->fType.columns();
+            } else if (args[i]->fType.kind() == Type::kScalar_Kind) {
+                actual += 1;
+                if (type.kind() != Type::kScalar_Kind) {
+                    args[i] = this->coerce(std::move(args[i]), type.componentType());
+                    if (!args[i]) {
+                        return nullptr;
+                    }
+                }
+            } else {
+                fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
+                                        "parameter to '" + type.description() + "' constructor");
+                return nullptr;
+            }
+        }
+        int min = type.rows() * type.columns();
+        int max = type.columns() > 1 ? INT_MAX : min;
+        if ((actual < min || actual > max) &&
+            !((kind == Type::kVector_Kind || kind == Type::kMatrix_Kind) && (actual == 1))) {
+            fErrors.error(position, "invalid arguments to '" + type.description() +
+                                    "' constructor (expected " + to_string(min) + " scalar" +
+                                    (min == 1 ? "" : "s") + ", but found " + to_string(actual) +
+                                    ")");
+            return nullptr;
+        }
     }
+    return std::unique_ptr<Expression>(new Constructor(position, std::move(type), std::move(args)));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(

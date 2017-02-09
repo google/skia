@@ -134,10 +134,7 @@ DEF_TEST(SkSLConstructorArgumentCount, r) {
                  "void main() { vec3 x = vec3(1.0, 2.0); }",
                  "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but "
                  "found 2)\n1 error\n");
-    test_failure(r,
-                 "void main() { vec3 x = vec3(1.0, 2.0, 3.0, 4.0); }",
-                 "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but found "
-                 "4)\n1 error\n");
+    test_success(r, "void main() { vec3 x = vec3(1.0, 2.0, 3.0, 4.0); }");
 }
 
 DEF_TEST(SkSLSwizzleScalar, r) {
