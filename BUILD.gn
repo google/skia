@@ -1376,6 +1376,7 @@ if (skia_enable_tools) {
           "tools/viewer/sk_app/android/main_android.cpp",
           "tools/viewer/sk_app/android/surface_glue_android.cpp",
         ]
+        libs += [ "android" ]
       } else if (is_linux) {
         sources += [
           "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
@@ -1404,7 +1405,6 @@ if (skia_enable_tools) {
         if (is_android) {
           sources +=
               [ "tools/viewer/sk_app/android/VulkanWindowContext_android.cpp" ]
-          libs += [ "android" ]
         } else if (is_linux) {
           sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
           libs += [ "X11-xcb" ]

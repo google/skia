@@ -459,7 +459,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // ... but if we're in F16, or the gamut isn't sRGB, we need to render offscreen
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (kRGBA_F16_SkColorType == fColorType || fColorSpace != SkColorSpace::MakeSRGB()) {
+    if (kRGBA_F16_SkColorType == fColorType ||
+        (fColorSpace && fColorSpace != SkColorSpace::MakeSRGB())) {
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), fColorType,
                                              kPremul_SkAlphaType, fColorSpace);
         offscreenSurface = canvas->makeSurface(info);
