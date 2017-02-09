@@ -303,15 +303,19 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
-    SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
-    SkScalar radius = d->fRandom->nextUScalar1();
-
-    RandomGradientParams params(d->fRandom);
-    auto shader = params.fUseColors4f ?
-        SkGradientShader::MakeRadial(center, radius, params.fColors4f, params.fColorSpace,
-                                     params.fStops, params.fColorCount, params.fTileMode) :
-        SkGradientShader::MakeRadial(center, radius, params.fColors,
-                                     params.fStops, params.fColorCount, params.fTileMode);
+    sk_sp<SkShader> shader;
+    do {
+        RandomGradientParams params(d->fRandom);
+        SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+        SkScalar radius = d->fRandom->nextUScalar1();
+        shader = params.fUseColors4f
+                         ? SkGradientShader::MakeRadial(center, radius, params.fColors4f,
+                                                        params.fColorSpace, params.fStops,
+                                                        params.fColorCount, params.fTileMode)
+                         : SkGradientShader::MakeRadial(center, radius, params.fColors,
+                                                        params.fStops, params.fColorCount,
+                                                        params.fTileMode);
+    } while (!shader);
     GrTest::TestAsFPArgs asFPArgs(d);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);

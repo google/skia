@@ -432,6 +432,8 @@ private:
     friend class GrMSAAPathRenderer;             // for access to addDrawOp
     friend class GrStencilAndCoverPathRenderer;  // for access to addDrawOp
     friend class GrTessellatingPathRenderer;     // for access to addDrawOp
+    // for a unit test
+    friend void test_draw_op(GrRenderTargetContext*, sk_sp<GrFragmentProcessor>, GrTexture*);
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
