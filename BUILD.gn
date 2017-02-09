@@ -537,6 +537,8 @@ optional("xml") {
     "//third_party/expat",
   ]
   sources = [
+    "src/svg/SkSVGCanvas.cpp",
+    "src/svg/SkSVGDevice.cpp",
     "src/xml/SkDOM.cpp",
     "src/xml/SkXMLParser.cpp",
     "src/xml/SkXMLWriter.cpp",
@@ -608,8 +610,6 @@ component("skia") {
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
-    "src/svg/SkSVGCanvas.cpp",
-    "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
     "third_party/gif/SkGifImageReader.cpp",
