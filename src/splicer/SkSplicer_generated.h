@@ -11,69 +11,67 @@
 // This file is generated semi-automatically with this command:
 //   $ src/splicer/build_stages.py
 
-#if defined(__aarch64__)
-
-static const unsigned int kSplice_inc_x[] = {
+static const unsigned int aarch64_inc_x[] = {
     0x91001000,                                 //  add           x0, x0, #0x4
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_clear[] = {
+static const unsigned int aarch64_clear[] = {
     0x6f00e400,                                 //  movi          v0.2d, #0x0
     0x6f00e401,                                 //  movi          v1.2d, #0x0
     0x6f00e402,                                 //  movi          v2.2d, #0x0
     0x6f00e403,                                 //  movi          v3.2d, #0x0
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_plus_[] = {
+static const unsigned int aarch64_plus_[] = {
     0x4e24d400,                                 //  fadd          v0.4s, v0.4s, v4.4s
     0x4e25d421,                                 //  fadd          v1.4s, v1.4s, v5.4s
     0x4e26d442,                                 //  fadd          v2.4s, v2.4s, v6.4s
     0x4e27d463,                                 //  fadd          v3.4s, v3.4s, v7.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_srcover[] = {
+static const unsigned int aarch64_srcover[] = {
     0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea3d610,                                 //  fsub          v16.4s, v16.4s, v3.4s
     0x4e24ce00,                                 //  fmla          v0.4s, v16.4s, v4.4s
     0x4e25ce01,                                 //  fmla          v1.4s, v16.4s, v5.4s
     0x4e26ce02,                                 //  fmla          v2.4s, v16.4s, v6.4s
     0x4e27ce03,                                 //  fmla          v3.4s, v16.4s, v7.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_dstover[] = {
+static const unsigned int aarch64_dstover[] = {
     0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea7d610,                                 //  fsub          v16.4s, v16.4s, v7.4s
     0x4e20ce04,                                 //  fmla          v4.4s, v16.4s, v0.4s
     0x4e21ce05,                                 //  fmla          v5.4s, v16.4s, v1.4s
     0x4e22ce06,                                 //  fmla          v6.4s, v16.4s, v2.4s
     0x4e23ce07,                                 //  fmla          v7.4s, v16.4s, v3.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_clamp_0[] = {
+static const unsigned int aarch64_clamp_0[] = {
     0x6f00e410,                                 //  movi          v16.2d, #0x0
     0x4e30f400,                                 //  fmax          v0.4s, v0.4s, v16.4s
     0x4e30f421,                                 //  fmax          v1.4s, v1.4s, v16.4s
     0x4e30f442,                                 //  fmax          v2.4s, v2.4s, v16.4s
     0x4e30f463,                                 //  fmax          v3.4s, v3.4s, v16.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_clamp_1[] = {
+static const unsigned int aarch64_clamp_1[] = {
     0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4eb0f400,                                 //  fmin          v0.4s, v0.4s, v16.4s
     0x4eb0f421,                                 //  fmin          v1.4s, v1.4s, v16.4s
     0x4eb0f442,                                 //  fmin          v2.4s, v2.4s, v16.4s
     0x4eb0f463,                                 //  fmin          v3.4s, v3.4s, v16.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_clamp_a[] = {
+static const unsigned int aarch64_clamp_a[] = {
     0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4eb0f463,                                 //  fmin          v3.4s, v3.4s, v16.4s
     0x4ea3f400,                                 //  fmin          v0.4s, v0.4s, v3.4s
     0x4ea3f421,                                 //  fmin          v1.4s, v1.4s, v3.4s
     0x4ea3f442,                                 //  fmin          v2.4s, v2.4s, v3.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_swap[] = {
+static const unsigned int aarch64_swap[] = {
     0x4ea31c70,                                 //  mov           v16.16b, v3.16b
     0x4ea21c51,                                 //  mov           v17.16b, v2.16b
     0x4ea11c32,                                 //  mov           v18.16b, v1.16b
@@ -86,29 +84,29 @@ static const unsigned int kSplice_swap[] = {
     0x4eb21e45,                                 //  mov           v5.16b, v18.16b
     0x4eb11e26,                                 //  mov           v6.16b, v17.16b
     0x4eb01e07,                                 //  mov           v7.16b, v16.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_move_src_dst[] = {
+static const unsigned int aarch64_move_src_dst[] = {
     0x4ea01c04,                                 //  mov           v4.16b, v0.16b
     0x4ea11c25,                                 //  mov           v5.16b, v1.16b
     0x4ea21c46,                                 //  mov           v6.16b, v2.16b
     0x4ea31c67,                                 //  mov           v7.16b, v3.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_move_dst_src[] = {
+static const unsigned int aarch64_move_dst_src[] = {
     0x4ea41c80,                                 //  mov           v0.16b, v4.16b
     0x4ea51ca1,                                 //  mov           v1.16b, v5.16b
     0x4ea61cc2,                                 //  mov           v2.16b, v6.16b
     0x4ea71ce3,                                 //  mov           v3.16b, v7.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_premul[] = {
+static const unsigned int aarch64_premul[] = {
     0x6e23dc00,                                 //  fmul          v0.4s, v0.4s, v3.4s
     0x6e23dc21,                                 //  fmul          v1.4s, v1.4s, v3.4s
     0x6e23dc42,                                 //  fmul          v2.4s, v2.4s, v3.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_unpremul[] = {
+static const unsigned int aarch64_unpremul[] = {
     0x4d40c870,                                 //  ld1r          {v16.4s}, [x3]
     0x4ea0d871,                                 //  fcmeq         v17.4s, v3.4s, #0.0
     0x6e23fe10,                                 //  fdiv          v16.4s, v16.4s, v3.4s
@@ -116,9 +114,9 @@ static const unsigned int kSplice_unpremul[] = {
     0x6e20de00,                                 //  fmul          v0.4s, v16.4s, v0.4s
     0x6e21de01,                                 //  fmul          v1.4s, v16.4s, v1.4s
     0x6e22de02,                                 //  fmul          v2.4s, v16.4s, v2.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_from_srgb[] = {
+static const unsigned int aarch64_from_srgb[] = {
     0x91005068,                                 //  add           x8, x3, #0x14
     0x4d40c910,                                 //  ld1r          {v16.4s}, [x8]
     0x91004068,                                 //  add           x8, x3, #0x10
@@ -148,9 +146,9 @@ static const unsigned int kSplice_from_srgb[] = {
     0x6e761ea0,                                 //  bsl           v0.16b, v21.16b, v22.16b
     0x6e781e41,                                 //  bsl           v1.16b, v18.16b, v24.16b
     0x6e711e62,                                 //  bsl           v2.16b, v19.16b, v17.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_to_srgb[] = {
+static const unsigned int aarch64_to_srgb[] = {
     0x6ea1d810,                                 //  frsqrte       v16.4s, v0.4s
     0x6ea1d835,                                 //  frsqrte       v21.4s, v1.4s
     0x6e30de17,                                 //  fmul          v23.4s, v16.4s, v16.4s
@@ -211,9 +209,9 @@ static const unsigned int kSplice_to_srgb[] = {
     0x6e701f40,                                 //  bsl           v0.16b, v26.16b, v16.16b
     0x6e721e61,                                 //  bsl           v1.16b, v19.16b, v18.16b
     0x6e741e22,                                 //  bsl           v2.16b, v17.16b, v20.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_scale_u8[] = {
+static const unsigned int aarch64_scale_u8[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
     0xbd400871,                                 //  ldr           s17, [x3,#8]
     0x8b000108,                                 //  add           x8, x8, x0
@@ -233,9 +231,9 @@ static const unsigned int kSplice_scale_u8[] = {
     0x6e21de01,                                 //  fmul          v1.4s, v16.4s, v1.4s
     0x6e22de02,                                 //  fmul          v2.4s, v16.4s, v2.4s
     0x6e23de03,                                 //  fmul          v3.4s, v16.4s, v3.4s
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_load_tables[] = {
+static const unsigned int aarch64_load_tables[] = {
     0xa9402849,                                 //  ldp           x9, x10, [x2]
     0xd37ef408,                                 //  lsl           x8, x0, #2
     0x9100306b,                                 //  add           x11, x3, #0xc
@@ -287,9 +285,9 @@ static const unsigned int kSplice_load_tables[] = {
     0x4e21d863,                                 //  scvtf         v3.4s, v3.4s
     0x6e1c0622,                                 //  mov           v2.s[3], v17.s[0]
     0x4f909063,                                 //  fmul          v3.4s, v3.4s, v16.s[0]
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_load_8888[] = {
+static const unsigned int aarch64_load_8888[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
     0x91003069,                                 //  add           x9, x3, #0xc
     0x4d40c920,                                 //  ld1r          {v0.4s}, [x9]
@@ -310,9 +308,9 @@ static const unsigned int kSplice_load_8888[] = {
     0x4f839021,                                 //  fmul          v1.4s, v1.4s, v3.s[0]
     0x4f839042,                                 //  fmul          v2.4s, v2.4s, v3.s[0]
     0x4f839243,                                 //  fmul          v3.4s, v18.4s, v3.s[0]
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_store_8888[] = {
+static const unsigned int aarch64_store_8888[] = {
     0xbd400470,                                 //  ldr           s16, [x3,#4]
     0xf9400048,                                 //  ldr           x8, [x2]
     0xd37ef409,                                 //  lsl           x9, x0, #2
@@ -331,9 +329,9 @@ static const unsigned int kSplice_store_8888[] = {
     0x4f385610,                                 //  shl           v16.4s, v16.4s, #24
     0x4eb01e30,                                 //  orr           v16.16b, v17.16b, v16.16b
     0x3ca96910,                                 //  str           q16, [x8,x9]
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_load_f16[] = {
+static const unsigned int aarch64_load_f16[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
     0x8b000d08,                                 //  add           x8, x8, x0, lsl #3
     0x0c400510,                                 //  ld4           {v16.4h-v19.4h}, [x8]
@@ -341,9 +339,9 @@ static const unsigned int kSplice_load_f16[] = {
     0x0e217a21,                                 //  fcvtl         v1.4s, v17.4h
     0x0e217a42,                                 //  fcvtl         v2.4s, v18.4h
     0x0e217a63,                                 //  fcvtl         v3.4s, v19.4h
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_store_f16[] = {
+static const unsigned int aarch64_store_f16[] = {
     0xf9400048,                                 //  ldr           x8, [x2]
     0x0e216810,                                 //  fcvtn         v16.4h, v0.4s
     0x0e216831,                                 //  fcvtn         v17.4h, v1.4s
@@ -351,9 +349,9 @@ static const unsigned int kSplice_store_f16[] = {
     0x8b000d08,                                 //  add           x8, x8, x0, lsl #3
     0x0e216873,                                 //  fcvtn         v19.4h, v3.4s
     0x0c000510,                                 //  st4           {v16.4h-v19.4h}, [x8]
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-static const unsigned int kSplice_matrix_3x4[] = {
+static const unsigned int aarch64_matrix_3x4[] = {
     0xaa0203e8,                                 //  mov           x8, x2
     0x91009049,                                 //  add           x9, x2, #0x24
     0x4ddfc913,                                 //  ld1r          {v19.4s}, [x8], #4
@@ -379,72 +377,69 @@ static const unsigned int kSplice_matrix_3x4[] = {
     0x4eb01e00,                                 //  mov           v0.16b, v16.16b
     0x4eb11e21,                                 //  mov           v1.16b, v17.16b
     0x4eb21e42,                                 //  mov           v2.16b, v18.16b
-    0xd65f03c0,                                 //  return        (synthetic)
+    0xd65f03c0,                                 //  return
 };
-
-#elif defined(__ARM_NEON__)
-
-static const unsigned int kSplice_inc_x[] = {
+static const unsigned int armv7_inc_x[] = {
     0xe2800002,                                 //  add           r0, r0, #2
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_clear[] = {
+static const unsigned int armv7_clear[] = {
     0xf2800010,                                 //  vmov.i32      d0, #0
     0xf2801010,                                 //  vmov.i32      d1, #0
     0xf2802010,                                 //  vmov.i32      d2, #0
     0xf2803010,                                 //  vmov.i32      d3, #0
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_plus_[] = {
+static const unsigned int armv7_plus_[] = {
     0xf2000d04,                                 //  vadd.f32      d0, d0, d4
     0xf2011d05,                                 //  vadd.f32      d1, d1, d5
     0xf2022d06,                                 //  vadd.f32      d2, d2, d6
     0xf2033d07,                                 //  vadd.f32      d3, d3, d7
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_srcover[] = {
+static const unsigned int armv7_srcover[] = {
     0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2600d83,                                 //  vsub.f32      d16, d16, d3
     0xf2040c30,                                 //  vfma.f32      d0, d4, d16
     0xf2051c30,                                 //  vfma.f32      d1, d5, d16
     0xf2062c30,                                 //  vfma.f32      d2, d6, d16
     0xf2073c30,                                 //  vfma.f32      d3, d7, d16
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_dstover[] = {
+static const unsigned int armv7_dstover[] = {
     0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2600d87,                                 //  vsub.f32      d16, d16, d7
     0xf2004c30,                                 //  vfma.f32      d4, d0, d16
     0xf2015c30,                                 //  vfma.f32      d5, d1, d16
     0xf2026c30,                                 //  vfma.f32      d6, d2, d16
     0xf2037c30,                                 //  vfma.f32      d7, d3, d16
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_clamp_0[] = {
+static const unsigned int armv7_clamp_0[] = {
     0xf2c00010,                                 //  vmov.i32      d16, #0
     0xf2000f20,                                 //  vmax.f32      d0, d0, d16
     0xf2011f20,                                 //  vmax.f32      d1, d1, d16
     0xf2022f20,                                 //  vmax.f32      d2, d2, d16
     0xf2033f20,                                 //  vmax.f32      d3, d3, d16
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_clamp_1[] = {
+static const unsigned int armv7_clamp_1[] = {
     0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2200f20,                                 //  vmin.f32      d0, d0, d16
     0xf2211f20,                                 //  vmin.f32      d1, d1, d16
     0xf2222f20,                                 //  vmin.f32      d2, d2, d16
     0xf2233f20,                                 //  vmin.f32      d3, d3, d16
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_clamp_a[] = {
+static const unsigned int armv7_clamp_a[] = {
     0xf4e30c9f,                                 //  vld1.32       {d16[]}, [r3 :32]
     0xf2233f20,                                 //  vmin.f32      d3, d3, d16
     0xf2200f03,                                 //  vmin.f32      d0, d0, d3
     0xf2211f03,                                 //  vmin.f32      d1, d1, d3
     0xf2222f03,                                 //  vmin.f32      d2, d2, d3
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_swap[] = {
+static const unsigned int armv7_swap[] = {
     0xeef00b43,                                 //  vmov.f64      d16, d3
     0xeef01b42,                                 //  vmov.f64      d17, d2
     0xeef02b41,                                 //  vmov.f64      d18, d1
@@ -457,29 +452,29 @@ static const unsigned int kSplice_swap[] = {
     0xeeb05b62,                                 //  vmov.f64      d5, d18
     0xeeb06b61,                                 //  vmov.f64      d6, d17
     0xeeb07b60,                                 //  vmov.f64      d7, d16
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_move_src_dst[] = {
+static const unsigned int armv7_move_src_dst[] = {
     0xeeb04b40,                                 //  vmov.f64      d4, d0
     0xeeb05b41,                                 //  vmov.f64      d5, d1
     0xeeb06b42,                                 //  vmov.f64      d6, d2
     0xeeb07b43,                                 //  vmov.f64      d7, d3
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_move_dst_src[] = {
+static const unsigned int armv7_move_dst_src[] = {
     0xeeb00b44,                                 //  vmov.f64      d0, d4
     0xeeb01b45,                                 //  vmov.f64      d1, d5
     0xeeb02b46,                                 //  vmov.f64      d2, d6
     0xeeb03b47,                                 //  vmov.f64      d3, d7
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_premul[] = {
+static const unsigned int armv7_premul[] = {
     0xf3000d13,                                 //  vmul.f32      d0, d0, d3
     0xf3011d13,                                 //  vmul.f32      d1, d1, d3
     0xf3022d13,                                 //  vmul.f32      d2, d2, d3
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_unpremul[] = {
+static const unsigned int armv7_unpremul[] = {
     0xed2d8b04,                                 //  vpush         {d8-d9}
     0xed938a00,                                 //  vldr          s16, [r3]
     0xf2c00010,                                 //  vmov.i32      d16, #0
@@ -491,9 +486,9 @@ static const unsigned int kSplice_unpremul[] = {
     0xf3011d91,                                 //  vmul.f32      d1, d17, d1
     0xf3012d92,                                 //  vmul.f32      d2, d17, d2
     0xecbd8b04,                                 //  vpop          {d8-d9}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_from_srgb[] = {
+static const unsigned int armv7_from_srgb[] = {
     0xed2d8b02,                                 //  vpush         {d8}
     0xe283c018,                                 //  add           ip, r3, #24
     0xed938a07,                                 //  vldr          s16, [r3, #28]
@@ -527,9 +522,9 @@ static const unsigned int kSplice_from_srgb[] = {
     0xf31611b2,                                 //  vbsl          d1, d22, d18
     0xf31921b8,                                 //  vbsl          d2, d25, d24
     0xecbd8b02,                                 //  vpop          {d8}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_to_srgb[] = {
+static const unsigned int armv7_to_srgb[] = {
     0xed2d8b02,                                 //  vpush         {d8}
     0xf3fb0580,                                 //  vrsqrte.f32   d16, d0
     0xe283c02c,                                 //  add           ip, r3, #44
@@ -595,9 +590,9 @@ static const unsigned int kSplice_to_srgb[] = {
     0xf31111b3,                                 //  vbsl          d1, d17, d19
     0xf31221b4,                                 //  vbsl          d2, d18, d20
     0xecbd8b02,                                 //  vpop          {d8}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_scale_u8[] = {
+static const unsigned int armv7_scale_u8[] = {
     0xed2d8b02,                                 //  vpush         {d8}
     0xe24dd008,                                 //  sub           sp, sp, #8
     0xe592c000,                                 //  ldr           ip, [r2]
@@ -617,9 +612,9 @@ static const unsigned int kSplice_scale_u8[] = {
     0xf3003d93,                                 //  vmul.f32      d3, d16, d3
     0xe28dd008,                                 //  add           sp, sp, #8
     0xecbd8b02,                                 //  vpop          {d8}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_load_tables[] = {
+static const unsigned int armv7_load_tables[] = {
     0xe92d41f0,                                 //  push          {r4, r5, r6, r7, r8, lr}
     0xe283600c,                                 //  add           r6, r3, #12
     0xe592c000,                                 //  ldr           ip, [r2]
@@ -657,9 +652,9 @@ static const unsigned int kSplice_load_tables[] = {
     0xe0887105,                                 //  add           r7, r8, r5, lsl #2
     0xed972a00,                                 //  vldr          s4, [r7]
     0xe8bd41f0,                                 //  pop           {r4, r5, r6, r7, r8, lr}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_load_8888[] = {
+static const unsigned int armv7_load_8888[] = {
     0xe92d4800,                                 //  push          {fp, lr}
     0xe592c000,                                 //  ldr           ip, [r2]
     0xe283e00c,                                 //  add           lr, r3, #12
@@ -682,9 +677,9 @@ static const unsigned int kSplice_load_8888[] = {
     0xf2a119c2,                                 //  vmul.f32      d1, d17, d2[0]
     0xf2a029c2,                                 //  vmul.f32      d2, d16, d2[0]
     0xe8bd4800,                                 //  pop           {fp, lr}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_store_8888[] = {
+static const unsigned int armv7_store_8888[] = {
     0xe283c004,                                 //  add           ip, r3, #4
     0xf2c3261f,                                 //  vmov.i32      d18, #1056964608
     0xf2c3361f,                                 //  vmov.i32      d19, #1056964608
@@ -708,9 +703,9 @@ static const unsigned int kSplice_store_8888[] = {
     0xf26001b2,                                 //  vorr          d16, d16, d18
     0xf26001b1,                                 //  vorr          d16, d16, d17
     0xedcc0b00,                                 //  vstr          d16, [ip]
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_load_f16[] = {
+static const unsigned int armv7_load_f16[] = {
     0xed2d8b04,                                 //  vpush         {d8-d9}
     0xe592c000,                                 //  ldr           ip, [r2]
     0xe08cc180,                                 //  add           ip, ip, r0, lsl #3
@@ -726,9 +721,9 @@ static const unsigned int kSplice_load_f16[] = {
     0xeeb02b43,                                 //  vmov.f64      d2, d3
     0xeeb03b49,                                 //  vmov.f64      d3, d9
     0xecbd8b04,                                 //  vpop          {d8-d9}
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_store_f16[] = {
+static const unsigned int armv7_store_f16[] = {
     0xeef00b41,                                 //  vmov.f64      d16, d1
     0xf2631113,                                 //  vorr          d17, d3, d3
     0xeef02b40,                                 //  vmov.f64      d18, d0
@@ -740,9 +735,9 @@ static const unsigned int kSplice_store_f16[] = {
     0xf3f60622,                                 //  vcvt.f16.f32  d16, q9
     0xe08cc180,                                 //  add           ip, ip, r0, lsl #3
     0xf44c084f,                                 //  vst2.16       {d16-d17}, [ip]
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-static const unsigned int kSplice_matrix_3x4[] = {
+static const unsigned int armv7_matrix_3x4[] = {
     0xe282c020,                                 //  add           ip, r2, #32
     0xf4ec3c9f,                                 //  vld1.32       {d19[]}, [ip :32]
     0xe282c02c,                                 //  add           ip, r2, #44
@@ -778,72 +773,1011 @@ static const unsigned int kSplice_matrix_3x4[] = {
     0xf22101b1,                                 //  vorr          d0, d17, d17
     0xf22021b0,                                 //  vorr          d2, d16, d16
     0xf22211b2,                                 //  vorr          d1, d18, d18
-    0xe12fff1e,                                 //  return        (synthetic)
+    0xe12fff1e,                                 //  return
 };
-
-#else
-
-static const unsigned char kSplice_inc_x[] = {
+static const unsigned char sse2_inc_x[] = {
+    0x48,0x83,0xc7,0x04,                        //  add           $0x4,%rdi
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_clear[] = {
+    0x0f,0x57,0xc0,                             //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                             //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                             //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                             //  xorps         %xmm3,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_plus_[] = {
+    0x0f,0x58,0xc4,                             //  addps         %xmm4,%xmm0
+    0x0f,0x58,0xcd,                             //  addps         %xmm5,%xmm1
+    0x0f,0x58,0xd6,                             //  addps         %xmm6,%xmm2
+    0x0f,0x58,0xdf,                             //  addps         %xmm7,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_srcover[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x44,0x0f,0x5c,0xc3,                        //  subps         %xmm3,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xcc,                        //  mulps         %xmm4,%xmm9
+    0x41,0x0f,0x58,0xc1,                        //  addps         %xmm9,%xmm0
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xcd,                        //  mulps         %xmm5,%xmm9
+    0x41,0x0f,0x58,0xc9,                        //  addps         %xmm9,%xmm1
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xce,                        //  mulps         %xmm6,%xmm9
+    0x41,0x0f,0x58,0xd1,                        //  addps         %xmm9,%xmm2
+    0x44,0x0f,0x59,0xc7,                        //  mulps         %xmm7,%xmm8
+    0x41,0x0f,0x58,0xd8,                        //  addps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_dstover[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x44,0x0f,0x5c,0xc7,                        //  subps         %xmm7,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x41,0x0f,0x58,0xe1,                        //  addps         %xmm9,%xmm4
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc9,                        //  mulps         %xmm1,%xmm9
+    0x41,0x0f,0x58,0xe9,                        //  addps         %xmm9,%xmm5
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xca,                        //  mulps         %xmm2,%xmm9
+    0x41,0x0f,0x58,0xf1,                        //  addps         %xmm9,%xmm6
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x41,0x0f,0x58,0xf8,                        //  addps         %xmm8,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_clamp_0[] = {
+    0x45,0x0f,0x57,0xc0,                        //  xorps         %xmm8,%xmm8
+    0x41,0x0f,0x5f,0xc0,                        //  maxps         %xmm8,%xmm0
+    0x41,0x0f,0x5f,0xc8,                        //  maxps         %xmm8,%xmm1
+    0x41,0x0f,0x5f,0xd0,                        //  maxps         %xmm8,%xmm2
+    0x41,0x0f,0x5f,0xd8,                        //  maxps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_clamp_1[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x5d,0xc0,                        //  minps         %xmm8,%xmm0
+    0x41,0x0f,0x5d,0xc8,                        //  minps         %xmm8,%xmm1
+    0x41,0x0f,0x5d,0xd0,                        //  minps         %xmm8,%xmm2
+    0x41,0x0f,0x5d,0xd8,                        //  minps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_clamp_a[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x5d,0xd8,                        //  minps         %xmm8,%xmm3
+    0x0f,0x5d,0xc3,                             //  minps         %xmm3,%xmm0
+    0x0f,0x5d,0xcb,                             //  minps         %xmm3,%xmm1
+    0x0f,0x5d,0xd3,                             //  minps         %xmm3,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_swap[] = {
+    0x44,0x0f,0x28,0xc3,                        //  movaps        %xmm3,%xmm8
+    0x44,0x0f,0x28,0xca,                        //  movaps        %xmm2,%xmm9
+    0x44,0x0f,0x28,0xd1,                        //  movaps        %xmm1,%xmm10
+    0x44,0x0f,0x28,0xd8,                        //  movaps        %xmm0,%xmm11
+    0x0f,0x28,0xc4,                             //  movaps        %xmm4,%xmm0
+    0x0f,0x28,0xcd,                             //  movaps        %xmm5,%xmm1
+    0x0f,0x28,0xd6,                             //  movaps        %xmm6,%xmm2
+    0x0f,0x28,0xdf,                             //  movaps        %xmm7,%xmm3
+    0x41,0x0f,0x28,0xe3,                        //  movaps        %xmm11,%xmm4
+    0x41,0x0f,0x28,0xea,                        //  movaps        %xmm10,%xmm5
+    0x41,0x0f,0x28,0xf1,                        //  movaps        %xmm9,%xmm6
+    0x41,0x0f,0x28,0xf8,                        //  movaps        %xmm8,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_move_src_dst[] = {
+    0x0f,0x28,0xe0,                             //  movaps        %xmm0,%xmm4
+    0x0f,0x28,0xe9,                             //  movaps        %xmm1,%xmm5
+    0x0f,0x28,0xf2,                             //  movaps        %xmm2,%xmm6
+    0x0f,0x28,0xfb,                             //  movaps        %xmm3,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_move_dst_src[] = {
+    0x0f,0x28,0xc4,                             //  movaps        %xmm4,%xmm0
+    0x0f,0x28,0xcd,                             //  movaps        %xmm5,%xmm1
+    0x0f,0x28,0xd6,                             //  movaps        %xmm6,%xmm2
+    0x0f,0x28,0xdf,                             //  movaps        %xmm7,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_premul[] = {
+    0x0f,0x59,0xc3,                             //  mulps         %xmm3,%xmm0
+    0x0f,0x59,0xcb,                             //  mulps         %xmm3,%xmm1
+    0x0f,0x59,0xd3,                             //  mulps         %xmm3,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_unpremul[] = {
+    0x45,0x0f,0x57,0xc0,                        //  xorps         %xmm8,%xmm8
+    0x44,0x0f,0xc2,0xc3,0x00,                   //  cmpeqps       %xmm3,%xmm8
+    0xf3,0x44,0x0f,0x10,0x09,                   //  movss         (%rcx),%xmm9
+    0x45,0x0f,0xc6,0xc9,0x00,                   //  shufps        $0x0,%xmm9,%xmm9
+    0x44,0x0f,0x5e,0xcb,                        //  divps         %xmm3,%xmm9
+    0x45,0x0f,0x55,0xc1,                        //  andnps        %xmm9,%xmm8
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x41,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_from_srgb[] = {
+    0xf3,0x44,0x0f,0x10,0x41,0x1c,              //  movss         0x1c(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x45,0x0f,0x28,0xe8,                        //  movaps        %xmm8,%xmm13
+    0x44,0x0f,0x59,0xe8,                        //  mulps         %xmm0,%xmm13
+    0x44,0x0f,0x28,0xe0,                        //  movaps        %xmm0,%xmm12
+    0x45,0x0f,0x59,0xe4,                        //  mulps         %xmm12,%xmm12
+    0xf3,0x44,0x0f,0x10,0x49,0x18,              //  movss         0x18(%rcx),%xmm9
+    0x45,0x0f,0xc6,0xc9,0x00,                   //  shufps        $0x0,%xmm9,%xmm9
+    0xf3,0x44,0x0f,0x10,0x51,0x10,              //  movss         0x10(%rcx),%xmm10
+    0xf3,0x44,0x0f,0x10,0x59,0x14,              //  movss         0x14(%rcx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0x45,0x0f,0x28,0xf1,                        //  movaps        %xmm9,%xmm14
+    0x44,0x0f,0x59,0xf0,                        //  mulps         %xmm0,%xmm14
+    0x45,0x0f,0x58,0xf3,                        //  addps         %xmm11,%xmm14
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0x45,0x0f,0x59,0xf4,                        //  mulps         %xmm12,%xmm14
+    0x45,0x0f,0x58,0xf2,                        //  addps         %xmm10,%xmm14
+    0xf3,0x44,0x0f,0x10,0x61,0x20,              //  movss         0x20(%rcx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x41,0x0f,0xc2,0xc4,0x01,                   //  cmpltps       %xmm12,%xmm0
+    0x44,0x0f,0x54,0xe8,                        //  andps         %xmm0,%xmm13
+    0x41,0x0f,0x55,0xc6,                        //  andnps        %xmm14,%xmm0
+    0x41,0x0f,0x56,0xc5,                        //  orps          %xmm13,%xmm0
+    0x45,0x0f,0x28,0xe8,                        //  movaps        %xmm8,%xmm13
+    0x44,0x0f,0x59,0xe9,                        //  mulps         %xmm1,%xmm13
+    0x44,0x0f,0x28,0xf1,                        //  movaps        %xmm1,%xmm14
+    0x45,0x0f,0x59,0xf6,                        //  mulps         %xmm14,%xmm14
+    0x45,0x0f,0x28,0xf9,                        //  movaps        %xmm9,%xmm15
+    0x44,0x0f,0x59,0xf9,                        //  mulps         %xmm1,%xmm15
+    0x45,0x0f,0x58,0xfb,                        //  addps         %xmm11,%xmm15
+    0x45,0x0f,0x59,0xfe,                        //  mulps         %xmm14,%xmm15
+    0x45,0x0f,0x58,0xfa,                        //  addps         %xmm10,%xmm15
+    0x41,0x0f,0xc2,0xcc,0x01,                   //  cmpltps       %xmm12,%xmm1
+    0x44,0x0f,0x54,0xe9,                        //  andps         %xmm1,%xmm13
+    0x41,0x0f,0x55,0xcf,                        //  andnps        %xmm15,%xmm1
+    0x41,0x0f,0x56,0xcd,                        //  orps          %xmm13,%xmm1
+    0x44,0x0f,0x59,0xc2,                        //  mulps         %xmm2,%xmm8
+    0x44,0x0f,0x28,0xea,                        //  movaps        %xmm2,%xmm13
+    0x45,0x0f,0x59,0xed,                        //  mulps         %xmm13,%xmm13
+    0x44,0x0f,0x59,0xca,                        //  mulps         %xmm2,%xmm9
+    0x45,0x0f,0x58,0xcb,                        //  addps         %xmm11,%xmm9
+    0x45,0x0f,0x59,0xcd,                        //  mulps         %xmm13,%xmm9
+    0x45,0x0f,0x58,0xca,                        //  addps         %xmm10,%xmm9
+    0x41,0x0f,0xc2,0xd4,0x01,                   //  cmpltps       %xmm12,%xmm2
+    0x44,0x0f,0x54,0xc2,                        //  andps         %xmm2,%xmm8
+    0x41,0x0f,0x55,0xd1,                        //  andnps        %xmm9,%xmm2
+    0x41,0x0f,0x56,0xd0,                        //  orps          %xmm8,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_to_srgb[] = {
+    0x0f,0x29,0x7c,0x24,0xe8,                   //  movaps        %xmm7,-0x18(%rsp)
+    0x0f,0x29,0x74,0x24,0xd8,                   //  movaps        %xmm6,-0x28(%rsp)
+    0x0f,0x28,0xf5,                             //  movaps        %xmm5,%xmm6
+    0x0f,0x28,0xec,                             //  movaps        %xmm4,%xmm5
+    0x0f,0x28,0xe3,                             //  movaps        %xmm3,%xmm4
+    0x44,0x0f,0x52,0xc0,                        //  rsqrtps       %xmm0,%xmm8
+    0x45,0x0f,0x53,0xe8,                        //  rcpps         %xmm8,%xmm13
+    0x45,0x0f,0x52,0xf8,                        //  rsqrtps       %xmm8,%xmm15
+    0xf3,0x0f,0x10,0x19,                        //  movss         (%rcx),%xmm3
+    0xf3,0x44,0x0f,0x10,0x41,0x24,              //  movss         0x24(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x45,0x0f,0x28,0xf0,                        //  movaps        %xmm8,%xmm14
+    0x44,0x0f,0x59,0xf0,                        //  mulps         %xmm0,%xmm14
+    0x0f,0xc6,0xdb,0x00,                        //  shufps        $0x0,%xmm3,%xmm3
+    0xf3,0x44,0x0f,0x10,0x51,0x28,              //  movss         0x28(%rcx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x59,0x2c,              //  movss         0x2c(%rcx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x61,0x30,              //  movss         0x30(%rcx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x45,0x0f,0x59,0xeb,                        //  mulps         %xmm11,%xmm13
+    0x45,0x0f,0x58,0xec,                        //  addps         %xmm12,%xmm13
+    0x45,0x0f,0x59,0xfa,                        //  mulps         %xmm10,%xmm15
+    0x45,0x0f,0x58,0xfd,                        //  addps         %xmm13,%xmm15
+    0x44,0x0f,0x28,0xcb,                        //  movaps        %xmm3,%xmm9
+    0x45,0x0f,0x5d,0xcf,                        //  minps         %xmm15,%xmm9
+    0xf3,0x44,0x0f,0x10,0x69,0x34,              //  movss         0x34(%rcx),%xmm13
+    0x45,0x0f,0xc6,0xed,0x00,                   //  shufps        $0x0,%xmm13,%xmm13
+    0x41,0x0f,0xc2,0xc5,0x01,                   //  cmpltps       %xmm13,%xmm0
+    0x44,0x0f,0x54,0xf0,                        //  andps         %xmm0,%xmm14
+    0x41,0x0f,0x55,0xc1,                        //  andnps        %xmm9,%xmm0
+    0x41,0x0f,0x56,0xc6,                        //  orps          %xmm14,%xmm0
+    0x44,0x0f,0x52,0xc9,                        //  rsqrtps       %xmm1,%xmm9
+    0x45,0x0f,0x53,0xf1,                        //  rcpps         %xmm9,%xmm14
+    0x45,0x0f,0x52,0xc9,                        //  rsqrtps       %xmm9,%xmm9
+    0x45,0x0f,0x59,0xf3,                        //  mulps         %xmm11,%xmm14
+    0x45,0x0f,0x58,0xf4,                        //  addps         %xmm12,%xmm14
+    0x45,0x0f,0x59,0xca,                        //  mulps         %xmm10,%xmm9
+    0x45,0x0f,0x58,0xce,                        //  addps         %xmm14,%xmm9
+    0x44,0x0f,0x28,0xf3,                        //  movaps        %xmm3,%xmm14
+    0x45,0x0f,0x5d,0xf1,                        //  minps         %xmm9,%xmm14
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc9,                        //  mulps         %xmm1,%xmm9
+    0x41,0x0f,0xc2,0xcd,0x01,                   //  cmpltps       %xmm13,%xmm1
+    0x44,0x0f,0x54,0xc9,                        //  andps         %xmm1,%xmm9
+    0x41,0x0f,0x55,0xce,                        //  andnps        %xmm14,%xmm1
+    0x41,0x0f,0x56,0xc9,                        //  orps          %xmm9,%xmm1
+    0x44,0x0f,0x52,0xca,                        //  rsqrtps       %xmm2,%xmm9
+    0x45,0x0f,0x53,0xf1,                        //  rcpps         %xmm9,%xmm14
+    0x45,0x0f,0x59,0xf3,                        //  mulps         %xmm11,%xmm14
+    0x45,0x0f,0x58,0xf4,                        //  addps         %xmm12,%xmm14
+    0x41,0x0f,0x52,0xf9,                        //  rsqrtps       %xmm9,%xmm7
+    0x41,0x0f,0x59,0xfa,                        //  mulps         %xmm10,%xmm7
+    0x41,0x0f,0x58,0xfe,                        //  addps         %xmm14,%xmm7
+    0x0f,0x5d,0xdf,                             //  minps         %xmm7,%xmm3
+    0x44,0x0f,0x59,0xc2,                        //  mulps         %xmm2,%xmm8
+    0x41,0x0f,0xc2,0xd5,0x01,                   //  cmpltps       %xmm13,%xmm2
+    0x44,0x0f,0x54,0xc2,                        //  andps         %xmm2,%xmm8
+    0x0f,0x55,0xd3,                             //  andnps        %xmm3,%xmm2
+    0x41,0x0f,0x56,0xd0,                        //  orps          %xmm8,%xmm2
+    0x0f,0x28,0xdc,                             //  movaps        %xmm4,%xmm3
+    0x0f,0x28,0xe5,                             //  movaps        %xmm5,%xmm4
+    0x0f,0x28,0xee,                             //  movaps        %xmm6,%xmm5
+    0x0f,0x28,0x74,0x24,0xd8,                   //  movaps        -0x28(%rsp),%xmm6
+    0x0f,0x28,0x7c,0x24,0xe8,                   //  movaps        -0x18(%rsp),%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_scale_u8[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x66,0x44,0x0f,0x6e,0x04,0x38,              //  movd          (%rax,%rdi,1),%xmm8
+    0x66,0x45,0x0f,0xef,0xc9,                   //  pxor          %xmm9,%xmm9
+    0x66,0x45,0x0f,0x60,0xc1,                   //  punpcklbw     %xmm9,%xmm8
+    0x66,0x45,0x0f,0x61,0xc1,                   //  punpcklwd     %xmm9,%xmm8
+    0x45,0x0f,0x5b,0xc0,                        //  cvtdq2ps      %xmm8,%xmm8
+    0xf3,0x44,0x0f,0x10,0x49,0x08,              //  movss         0x8(%rcx),%xmm9
+    0x45,0x0f,0xc6,0xc9,0x00,                   //  shufps        $0x0,%xmm9,%xmm9
+    0x45,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm9
+    0x41,0x0f,0x59,0xc1,                        //  mulps         %xmm9,%xmm0
+    0x41,0x0f,0x59,0xc9,                        //  mulps         %xmm9,%xmm1
+    0x41,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm2
+    0x41,0x0f,0x59,0xd9,                        //  mulps         %xmm9,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_load_tables[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x4c,0x8b,0x42,0x08,                        //  mov           0x8(%rdx),%r8
+    0xf3,0x44,0x0f,0x6f,0x04,0xb8,              //  movdqu        (%rax,%rdi,4),%xmm8
+    0x66,0x0f,0x6e,0x41,0x0c,                   //  movd          0xc(%rcx),%xmm0
+    0x66,0x0f,0x70,0xc0,0x00,                   //  pshufd        $0x0,%xmm0,%xmm0
+    0x66,0x45,0x0f,0x6f,0xc8,                   //  movdqa        %xmm8,%xmm9
+    0x66,0x41,0x0f,0x72,0xd1,0x08,              //  psrld         $0x8,%xmm9
+    0x66,0x44,0x0f,0xdb,0xc8,                   //  pand          %xmm0,%xmm9
+    0x66,0x45,0x0f,0x6f,0xd0,                   //  movdqa        %xmm8,%xmm10
+    0x66,0x41,0x0f,0x72,0xd2,0x10,              //  psrld         $0x10,%xmm10
+    0x66,0x44,0x0f,0xdb,0xd0,                   //  pand          %xmm0,%xmm10
+    0x66,0x41,0x0f,0xdb,0xc0,                   //  pand          %xmm8,%xmm0
+    0x66,0x0f,0x70,0xd8,0x4e,                   //  pshufd        $0x4e,%xmm0,%xmm3
+    0x66,0x48,0x0f,0x7e,0xd8,                   //  movq          %xmm3,%rax
+    0x41,0x89,0xc1,                             //  mov           %eax,%r9d
+    0x48,0xc1,0xe8,0x20,                        //  shr           $0x20,%rax
+    0x66,0x49,0x0f,0x7e,0xc2,                   //  movq          %xmm0,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x43,0x0f,0x10,0x1c,0x90,              //  movss         (%r8,%r10,4),%xmm3
+    0xf3,0x41,0x0f,0x10,0x04,0x80,              //  movss         (%r8,%rax,4),%xmm0
+    0x0f,0x14,0xd8,                             //  unpcklps      %xmm0,%xmm3
+    0xf3,0x43,0x0f,0x10,0x04,0x98,              //  movss         (%r8,%r11,4),%xmm0
+    0xf3,0x43,0x0f,0x10,0x0c,0x88,              //  movss         (%r8,%r9,4),%xmm1
+    0x0f,0x14,0xc1,                             //  unpcklps      %xmm1,%xmm0
+    0x0f,0x14,0xc3,                             //  unpcklps      %xmm3,%xmm0
+    0x48,0x8b,0x42,0x10,                        //  mov           0x10(%rdx),%rax
+    0x66,0x41,0x0f,0x70,0xc9,0x4e,              //  pshufd        $0x4e,%xmm9,%xmm1
+    0x66,0x49,0x0f,0x7e,0xc8,                   //  movq          %xmm1,%r8
+    0x45,0x89,0xc1,                             //  mov           %r8d,%r9d
+    0x49,0xc1,0xe8,0x20,                        //  shr           $0x20,%r8
+    0x66,0x4d,0x0f,0x7e,0xca,                   //  movq          %xmm9,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x42,0x0f,0x10,0x1c,0x90,              //  movss         (%rax,%r10,4),%xmm3
+    0xf3,0x42,0x0f,0x10,0x0c,0x80,              //  movss         (%rax,%r8,4),%xmm1
+    0x0f,0x14,0xd9,                             //  unpcklps      %xmm1,%xmm3
+    0xf3,0x42,0x0f,0x10,0x0c,0x98,              //  movss         (%rax,%r11,4),%xmm1
+    0xf3,0x42,0x0f,0x10,0x14,0x88,              //  movss         (%rax,%r9,4),%xmm2
+    0x0f,0x14,0xca,                             //  unpcklps      %xmm2,%xmm1
+    0x0f,0x14,0xcb,                             //  unpcklps      %xmm3,%xmm1
+    0x48,0x8b,0x42,0x18,                        //  mov           0x18(%rdx),%rax
+    0x66,0x41,0x0f,0x70,0xd2,0x4e,              //  pshufd        $0x4e,%xmm10,%xmm2
+    0x66,0x49,0x0f,0x7e,0xd0,                   //  movq          %xmm2,%r8
+    0x45,0x89,0xc1,                             //  mov           %r8d,%r9d
+    0x49,0xc1,0xe8,0x20,                        //  shr           $0x20,%r8
+    0x66,0x4d,0x0f,0x7e,0xd2,                   //  movq          %xmm10,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x46,0x0f,0x10,0x0c,0x90,              //  movss         (%rax,%r10,4),%xmm9
+    0xf3,0x42,0x0f,0x10,0x14,0x80,              //  movss         (%rax,%r8,4),%xmm2
+    0x44,0x0f,0x14,0xca,                        //  unpcklps      %xmm2,%xmm9
+    0xf3,0x42,0x0f,0x10,0x14,0x98,              //  movss         (%rax,%r11,4),%xmm2
+    0xf3,0x42,0x0f,0x10,0x1c,0x88,              //  movss         (%rax,%r9,4),%xmm3
+    0x0f,0x14,0xd3,                             //  unpcklps      %xmm3,%xmm2
+    0x41,0x0f,0x14,0xd1,                        //  unpcklps      %xmm9,%xmm2
+    0x66,0x41,0x0f,0x72,0xd0,0x18,              //  psrld         $0x18,%xmm8
+    0x45,0x0f,0x5b,0xc0,                        //  cvtdq2ps      %xmm8,%xmm8
+    0xf3,0x0f,0x10,0x59,0x08,                   //  movss         0x8(%rcx),%xmm3
+    0x0f,0xc6,0xdb,0x00,                        //  shufps        $0x0,%xmm3,%xmm3
+    0x41,0x0f,0x59,0xd8,                        //  mulps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_load_8888[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x0f,0x6f,0x1c,0xb8,                   //  movdqu        (%rax,%rdi,4),%xmm3
+    0x66,0x0f,0x6e,0x41,0x0c,                   //  movd          0xc(%rcx),%xmm0
+    0x66,0x0f,0x70,0xc0,0x00,                   //  pshufd        $0x0,%xmm0,%xmm0
+    0x66,0x0f,0x6f,0xcb,                        //  movdqa        %xmm3,%xmm1
+    0x66,0x0f,0x72,0xd1,0x08,                   //  psrld         $0x8,%xmm1
+    0x66,0x0f,0xdb,0xc8,                        //  pand          %xmm0,%xmm1
+    0x66,0x0f,0x6f,0xd3,                        //  movdqa        %xmm3,%xmm2
+    0x66,0x0f,0x72,0xd2,0x10,                   //  psrld         $0x10,%xmm2
+    0x66,0x0f,0xdb,0xd0,                        //  pand          %xmm0,%xmm2
+    0x66,0x0f,0xdb,0xc3,                        //  pand          %xmm3,%xmm0
+    0x0f,0x5b,0xc0,                             //  cvtdq2ps      %xmm0,%xmm0
+    0xf3,0x44,0x0f,0x10,0x41,0x08,              //  movss         0x8(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x0f,0x5b,0xc9,                             //  cvtdq2ps      %xmm1,%xmm1
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x0f,0x5b,0xd2,                             //  cvtdq2ps      %xmm2,%xmm2
+    0x41,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm2
+    0x66,0x0f,0x72,0xd3,0x18,                   //  psrld         $0x18,%xmm3
+    0x0f,0x5b,0xdb,                             //  cvtdq2ps      %xmm3,%xmm3
+    0x41,0x0f,0x59,0xd8,                        //  mulps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_store_8888[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x44,0x0f,0x10,0x41,0x04,              //  movss         0x4(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x66,0x45,0x0f,0x5b,0xc9,                   //  cvtps2dq      %xmm9,%xmm9
+    0x45,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm10
+    0x44,0x0f,0x59,0xd1,                        //  mulps         %xmm1,%xmm10
+    0x66,0x45,0x0f,0x5b,0xd2,                   //  cvtps2dq      %xmm10,%xmm10
+    0x66,0x41,0x0f,0x72,0xf2,0x08,              //  pslld         $0x8,%xmm10
+    0x66,0x45,0x0f,0xeb,0xd1,                   //  por           %xmm9,%xmm10
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xca,                        //  mulps         %xmm2,%xmm9
+    0x66,0x45,0x0f,0x5b,0xc9,                   //  cvtps2dq      %xmm9,%xmm9
+    0x66,0x41,0x0f,0x72,0xf1,0x10,              //  pslld         $0x10,%xmm9
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x66,0x45,0x0f,0x5b,0xc0,                   //  cvtps2dq      %xmm8,%xmm8
+    0x66,0x41,0x0f,0x72,0xf0,0x18,              //  pslld         $0x18,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc1,                   //  por           %xmm9,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc2,                   //  por           %xmm10,%xmm8
+    0xf3,0x44,0x0f,0x7f,0x04,0xb8,              //  movdqu        %xmm8,(%rax,%rdi,4)
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_load_f16[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x0f,0x6f,0x04,0xf8,                   //  movdqu        (%rax,%rdi,8),%xmm0
+    0xf3,0x0f,0x6f,0x4c,0xf8,0x10,              //  movdqu        0x10(%rax,%rdi,8),%xmm1
+    0x66,0x0f,0x6f,0xd8,                        //  movdqa        %xmm0,%xmm3
+    0x66,0x0f,0x61,0xd9,                        //  punpcklwd     %xmm1,%xmm3
+    0x66,0x0f,0x69,0xc1,                        //  punpckhwd     %xmm1,%xmm0
+    0x66,0x0f,0x6f,0xcb,                        //  movdqa        %xmm3,%xmm1
+    0x66,0x0f,0x61,0xc8,                        //  punpcklwd     %xmm0,%xmm1
+    0x66,0x0f,0x69,0xd8,                        //  punpckhwd     %xmm0,%xmm3
+    0x66,0x45,0x0f,0xef,0xc0,                   //  pxor          %xmm8,%xmm8
+    0x66,0x0f,0x6f,0xc1,                        //  movdqa        %xmm1,%xmm0
+    0x66,0x41,0x0f,0x61,0xc0,                   //  punpcklwd     %xmm8,%xmm0
+    0x66,0x0f,0x72,0xf0,0x0d,                   //  pslld         $0xd,%xmm0
+    0x66,0x0f,0x6e,0x51,0x38,                   //  movd          0x38(%rcx),%xmm2
+    0x66,0x44,0x0f,0x70,0xca,0x00,              //  pshufd        $0x0,%xmm2,%xmm9
+    0x41,0x0f,0x59,0xc1,                        //  mulps         %xmm9,%xmm0
+    0x66,0x41,0x0f,0x69,0xc8,                   //  punpckhwd     %xmm8,%xmm1
+    0x66,0x0f,0x72,0xf1,0x0d,                   //  pslld         $0xd,%xmm1
+    0x41,0x0f,0x59,0xc9,                        //  mulps         %xmm9,%xmm1
+    0x66,0x0f,0x6f,0xd3,                        //  movdqa        %xmm3,%xmm2
+    0x66,0x41,0x0f,0x61,0xd0,                   //  punpcklwd     %xmm8,%xmm2
+    0x66,0x0f,0x72,0xf2,0x0d,                   //  pslld         $0xd,%xmm2
+    0x41,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm2
+    0x66,0x41,0x0f,0x69,0xd8,                   //  punpckhwd     %xmm8,%xmm3
+    0x66,0x0f,0x72,0xf3,0x0d,                   //  pslld         $0xd,%xmm3
+    0x41,0x0f,0x59,0xd9,                        //  mulps         %xmm9,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_store_f16[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x66,0x44,0x0f,0x6e,0x41,0x3c,              //  movd          0x3c(%rcx),%xmm8
+    0x66,0x45,0x0f,0x70,0xc0,0x00,              //  pshufd        $0x0,%xmm8,%xmm8
+    0x66,0x45,0x0f,0x6f,0xc8,                   //  movdqa        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x66,0x41,0x0f,0x72,0xd1,0x0d,              //  psrld         $0xd,%xmm9
+    0x66,0x45,0x0f,0x6f,0xd0,                   //  movdqa        %xmm8,%xmm10
+    0x44,0x0f,0x59,0xd1,                        //  mulps         %xmm1,%xmm10
+    0x66,0x41,0x0f,0x72,0xd2,0x0d,              //  psrld         $0xd,%xmm10
+    0x66,0x45,0x0f,0x6f,0xd8,                   //  movdqa        %xmm8,%xmm11
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x66,0x41,0x0f,0x72,0xd3,0x0d,              //  psrld         $0xd,%xmm11
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x66,0x41,0x0f,0x72,0xd0,0x0d,              //  psrld         $0xd,%xmm8
+    0x66,0x41,0x0f,0x73,0xfa,0x02,              //  pslldq        $0x2,%xmm10
+    0x66,0x45,0x0f,0xeb,0xd1,                   //  por           %xmm9,%xmm10
+    0x66,0x41,0x0f,0x73,0xf8,0x02,              //  pslldq        $0x2,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc3,                   //  por           %xmm11,%xmm8
+    0x66,0x45,0x0f,0x6f,0xca,                   //  movdqa        %xmm10,%xmm9
+    0x66,0x45,0x0f,0x62,0xc8,                   //  punpckldq     %xmm8,%xmm9
+    0xf3,0x44,0x0f,0x7f,0x0c,0xf8,              //  movdqu        %xmm9,(%rax,%rdi,8)
+    0x66,0x45,0x0f,0x6a,0xd0,                   //  punpckhdq     %xmm8,%xmm10
+    0xf3,0x44,0x0f,0x7f,0x54,0xf8,0x10,         //  movdqu        %xmm10,0x10(%rax,%rdi,8)
+    0xc3,                                       //  return
+};
+static const unsigned char sse2_matrix_3x4[] = {
+    0x44,0x0f,0x28,0xc9,                        //  movaps        %xmm1,%xmm9
+    0x44,0x0f,0x28,0xc0,                        //  movaps        %xmm0,%xmm8
+    0xf3,0x0f,0x10,0x02,                        //  movss         (%rdx),%xmm0
+    0xf3,0x0f,0x10,0x4a,0x04,                   //  movss         0x4(%rdx),%xmm1
+    0x0f,0xc6,0xc0,0x00,                        //  shufps        $0x0,%xmm0,%xmm0
+    0xf3,0x44,0x0f,0x10,0x52,0x0c,              //  movss         0xc(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x18,              //  movss         0x18(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x24,              //  movss         0x24(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x41,0x0f,0x58,0xc2,                        //  addps         %xmm10,%xmm0
+    0x0f,0xc6,0xc9,0x00,                        //  shufps        $0x0,%xmm1,%xmm1
+    0xf3,0x44,0x0f,0x10,0x52,0x10,              //  movss         0x10(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x1c,              //  movss         0x1c(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x28,              //  movss         0x28(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x41,0x0f,0x58,0xca,                        //  addps         %xmm10,%xmm1
+    0xf3,0x44,0x0f,0x10,0x52,0x08,              //  movss         0x8(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x14,              //  movss         0x14(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x20,              //  movss         0x20(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0xf3,0x44,0x0f,0x10,0x6a,0x2c,              //  movss         0x2c(%rdx),%xmm13
+    0x45,0x0f,0xc6,0xed,0x00,                   //  shufps        $0x0,%xmm13,%xmm13
+    0x44,0x0f,0x59,0xe2,                        //  mulps         %xmm2,%xmm12
+    0x45,0x0f,0x58,0xe5,                        //  addps         %xmm13,%xmm12
+    0x45,0x0f,0x59,0xd9,                        //  mulps         %xmm9,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x28,0xd2,                        //  movaps        %xmm10,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_inc_x[] = {
+    0x48,0x83,0xc7,0x04,                        //  add           $0x4,%rdi
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_clear[] = {
+    0x0f,0x57,0xc0,                             //  xorps         %xmm0,%xmm0
+    0x0f,0x57,0xc9,                             //  xorps         %xmm1,%xmm1
+    0x0f,0x57,0xd2,                             //  xorps         %xmm2,%xmm2
+    0x0f,0x57,0xdb,                             //  xorps         %xmm3,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_plus_[] = {
+    0x0f,0x58,0xc4,                             //  addps         %xmm4,%xmm0
+    0x0f,0x58,0xcd,                             //  addps         %xmm5,%xmm1
+    0x0f,0x58,0xd6,                             //  addps         %xmm6,%xmm2
+    0x0f,0x58,0xdf,                             //  addps         %xmm7,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_srcover[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x44,0x0f,0x5c,0xc3,                        //  subps         %xmm3,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xcc,                        //  mulps         %xmm4,%xmm9
+    0x41,0x0f,0x58,0xc1,                        //  addps         %xmm9,%xmm0
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xcd,                        //  mulps         %xmm5,%xmm9
+    0x41,0x0f,0x58,0xc9,                        //  addps         %xmm9,%xmm1
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xce,                        //  mulps         %xmm6,%xmm9
+    0x41,0x0f,0x58,0xd1,                        //  addps         %xmm9,%xmm2
+    0x44,0x0f,0x59,0xc7,                        //  mulps         %xmm7,%xmm8
+    0x41,0x0f,0x58,0xd8,                        //  addps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_dstover[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x44,0x0f,0x5c,0xc7,                        //  subps         %xmm7,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x41,0x0f,0x58,0xe1,                        //  addps         %xmm9,%xmm4
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc9,                        //  mulps         %xmm1,%xmm9
+    0x41,0x0f,0x58,0xe9,                        //  addps         %xmm9,%xmm5
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xca,                        //  mulps         %xmm2,%xmm9
+    0x41,0x0f,0x58,0xf1,                        //  addps         %xmm9,%xmm6
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x41,0x0f,0x58,0xf8,                        //  addps         %xmm8,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_clamp_0[] = {
+    0x45,0x0f,0x57,0xc0,                        //  xorps         %xmm8,%xmm8
+    0x41,0x0f,0x5f,0xc0,                        //  maxps         %xmm8,%xmm0
+    0x41,0x0f,0x5f,0xc8,                        //  maxps         %xmm8,%xmm1
+    0x41,0x0f,0x5f,0xd0,                        //  maxps         %xmm8,%xmm2
+    0x41,0x0f,0x5f,0xd8,                        //  maxps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_clamp_1[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x5d,0xc0,                        //  minps         %xmm8,%xmm0
+    0x41,0x0f,0x5d,0xc8,                        //  minps         %xmm8,%xmm1
+    0x41,0x0f,0x5d,0xd0,                        //  minps         %xmm8,%xmm2
+    0x41,0x0f,0x5d,0xd8,                        //  minps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_clamp_a[] = {
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x5d,0xd8,                        //  minps         %xmm8,%xmm3
+    0x0f,0x5d,0xc3,                             //  minps         %xmm3,%xmm0
+    0x0f,0x5d,0xcb,                             //  minps         %xmm3,%xmm1
+    0x0f,0x5d,0xd3,                             //  minps         %xmm3,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_swap[] = {
+    0x44,0x0f,0x28,0xc3,                        //  movaps        %xmm3,%xmm8
+    0x44,0x0f,0x28,0xca,                        //  movaps        %xmm2,%xmm9
+    0x44,0x0f,0x28,0xd1,                        //  movaps        %xmm1,%xmm10
+    0x44,0x0f,0x28,0xd8,                        //  movaps        %xmm0,%xmm11
+    0x0f,0x28,0xc4,                             //  movaps        %xmm4,%xmm0
+    0x0f,0x28,0xcd,                             //  movaps        %xmm5,%xmm1
+    0x0f,0x28,0xd6,                             //  movaps        %xmm6,%xmm2
+    0x0f,0x28,0xdf,                             //  movaps        %xmm7,%xmm3
+    0x41,0x0f,0x28,0xe3,                        //  movaps        %xmm11,%xmm4
+    0x41,0x0f,0x28,0xea,                        //  movaps        %xmm10,%xmm5
+    0x41,0x0f,0x28,0xf1,                        //  movaps        %xmm9,%xmm6
+    0x41,0x0f,0x28,0xf8,                        //  movaps        %xmm8,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_move_src_dst[] = {
+    0x0f,0x28,0xe0,                             //  movaps        %xmm0,%xmm4
+    0x0f,0x28,0xe9,                             //  movaps        %xmm1,%xmm5
+    0x0f,0x28,0xf2,                             //  movaps        %xmm2,%xmm6
+    0x0f,0x28,0xfb,                             //  movaps        %xmm3,%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_move_dst_src[] = {
+    0x0f,0x28,0xc4,                             //  movaps        %xmm4,%xmm0
+    0x0f,0x28,0xcd,                             //  movaps        %xmm5,%xmm1
+    0x0f,0x28,0xd6,                             //  movaps        %xmm6,%xmm2
+    0x0f,0x28,0xdf,                             //  movaps        %xmm7,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_premul[] = {
+    0x0f,0x59,0xc3,                             //  mulps         %xmm3,%xmm0
+    0x0f,0x59,0xcb,                             //  mulps         %xmm3,%xmm1
+    0x0f,0x59,0xd3,                             //  mulps         %xmm3,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_unpremul[] = {
+    0x44,0x0f,0x28,0xc0,                        //  movaps        %xmm0,%xmm8
+    0x45,0x0f,0x57,0xc9,                        //  xorps         %xmm9,%xmm9
+    0xf3,0x44,0x0f,0x10,0x11,                   //  movss         (%rcx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0x44,0x0f,0x5e,0xd3,                        //  divps         %xmm3,%xmm10
+    0x0f,0x28,0xc3,                             //  movaps        %xmm3,%xmm0
+    0x41,0x0f,0xc2,0xc1,0x00,                   //  cmpeqps       %xmm9,%xmm0
+    0x66,0x45,0x0f,0x38,0x14,0xd1,              //  blendvps      %xmm0,%xmm9,%xmm10
+    0x45,0x0f,0x59,0xc2,                        //  mulps         %xmm10,%xmm8
+    0x41,0x0f,0x59,0xca,                        //  mulps         %xmm10,%xmm1
+    0x41,0x0f,0x59,0xd2,                        //  mulps         %xmm10,%xmm2
+    0x41,0x0f,0x28,0xc0,                        //  movaps        %xmm8,%xmm0
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_from_srgb[] = {
+    0xf3,0x44,0x0f,0x10,0x59,0x1c,              //  movss         0x1c(%rcx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0x45,0x0f,0x28,0xd3,                        //  movaps        %xmm11,%xmm10
+    0x44,0x0f,0x59,0xd0,                        //  mulps         %xmm0,%xmm10
+    0x44,0x0f,0x28,0xf0,                        //  movaps        %xmm0,%xmm14
+    0x45,0x0f,0x59,0xf6,                        //  mulps         %xmm14,%xmm14
+    0xf3,0x44,0x0f,0x10,0x41,0x18,              //  movss         0x18(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0xf3,0x44,0x0f,0x10,0x61,0x10,              //  movss         0x10(%rcx),%xmm12
+    0xf3,0x44,0x0f,0x10,0x69,0x14,              //  movss         0x14(%rcx),%xmm13
+    0x45,0x0f,0xc6,0xed,0x00,                   //  shufps        $0x0,%xmm13,%xmm13
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x45,0x0f,0x58,0xcd,                        //  addps         %xmm13,%xmm9
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x45,0x0f,0x59,0xce,                        //  mulps         %xmm14,%xmm9
+    0x45,0x0f,0x58,0xcc,                        //  addps         %xmm12,%xmm9
+    0xf3,0x44,0x0f,0x10,0x71,0x20,              //  movss         0x20(%rcx),%xmm14
+    0x45,0x0f,0xc6,0xf6,0x00,                   //  shufps        $0x0,%xmm14,%xmm14
+    0x41,0x0f,0xc2,0xc6,0x01,                   //  cmpltps       %xmm14,%xmm0
+    0x66,0x45,0x0f,0x38,0x14,0xca,              //  blendvps      %xmm0,%xmm10,%xmm9
+    0x45,0x0f,0x28,0xfb,                        //  movaps        %xmm11,%xmm15
+    0x44,0x0f,0x59,0xf9,                        //  mulps         %xmm1,%xmm15
+    0x0f,0x28,0xc1,                             //  movaps        %xmm1,%xmm0
+    0x0f,0x59,0xc0,                             //  mulps         %xmm0,%xmm0
+    0x45,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm10
+    0x44,0x0f,0x59,0xd1,                        //  mulps         %xmm1,%xmm10
+    0x45,0x0f,0x58,0xd5,                        //  addps         %xmm13,%xmm10
+    0x44,0x0f,0x59,0xd0,                        //  mulps         %xmm0,%xmm10
+    0x45,0x0f,0x58,0xd4,                        //  addps         %xmm12,%xmm10
+    0x41,0x0f,0xc2,0xce,0x01,                   //  cmpltps       %xmm14,%xmm1
+    0x0f,0x28,0xc1,                             //  movaps        %xmm1,%xmm0
+    0x66,0x45,0x0f,0x38,0x14,0xd7,              //  blendvps      %xmm0,%xmm15,%xmm10
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x0f,0x28,0xc2,                             //  movaps        %xmm2,%xmm0
+    0x0f,0x59,0xc0,                             //  mulps         %xmm0,%xmm0
+    0x44,0x0f,0x59,0xc2,                        //  mulps         %xmm2,%xmm8
+    0x45,0x0f,0x58,0xc5,                        //  addps         %xmm13,%xmm8
+    0x44,0x0f,0x59,0xc0,                        //  mulps         %xmm0,%xmm8
+    0x45,0x0f,0x58,0xc4,                        //  addps         %xmm12,%xmm8
+    0x41,0x0f,0xc2,0xd6,0x01,                   //  cmpltps       %xmm14,%xmm2
+    0x0f,0x28,0xc2,                             //  movaps        %xmm2,%xmm0
+    0x66,0x45,0x0f,0x38,0x14,0xc3,              //  blendvps      %xmm0,%xmm11,%xmm8
+    0x41,0x0f,0x28,0xc1,                        //  movaps        %xmm9,%xmm0
+    0x41,0x0f,0x28,0xca,                        //  movaps        %xmm10,%xmm1
+    0x41,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_to_srgb[] = {
+    0x0f,0x29,0x7c,0x24,0xe8,                   //  movaps        %xmm7,-0x18(%rsp)
+    0x0f,0x28,0xfe,                             //  movaps        %xmm6,%xmm7
+    0x0f,0x28,0xf5,                             //  movaps        %xmm5,%xmm6
+    0x0f,0x28,0xec,                             //  movaps        %xmm4,%xmm5
+    0x0f,0x28,0xe3,                             //  movaps        %xmm3,%xmm4
+    0x0f,0x28,0xda,                             //  movaps        %xmm2,%xmm3
+    0x0f,0x28,0xd1,                             //  movaps        %xmm1,%xmm2
+    0x44,0x0f,0x52,0xc0,                        //  rsqrtps       %xmm0,%xmm8
+    0x45,0x0f,0x53,0xc8,                        //  rcpps         %xmm8,%xmm9
+    0x45,0x0f,0x52,0xd0,                        //  rsqrtps       %xmm8,%xmm10
+    0xf3,0x44,0x0f,0x10,0x01,                   //  movss         (%rcx),%xmm8
+    0xf3,0x44,0x0f,0x10,0x59,0x24,              //  movss         0x24(%rcx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0x41,0x0f,0x28,0xcb,                        //  movaps        %xmm11,%xmm1
+    0x0f,0x59,0xc8,                             //  mulps         %xmm0,%xmm1
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0xf3,0x44,0x0f,0x10,0x61,0x28,              //  movss         0x28(%rcx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0xf3,0x44,0x0f,0x10,0x69,0x2c,              //  movss         0x2c(%rcx),%xmm13
+    0x45,0x0f,0xc6,0xed,0x00,                   //  shufps        $0x0,%xmm13,%xmm13
+    0xf3,0x44,0x0f,0x10,0x71,0x30,              //  movss         0x30(%rcx),%xmm14
+    0x45,0x0f,0xc6,0xf6,0x00,                   //  shufps        $0x0,%xmm14,%xmm14
+    0x45,0x0f,0x59,0xcd,                        //  mulps         %xmm13,%xmm9
+    0x45,0x0f,0x58,0xce,                        //  addps         %xmm14,%xmm9
+    0x45,0x0f,0x59,0xd4,                        //  mulps         %xmm12,%xmm10
+    0x45,0x0f,0x58,0xd1,                        //  addps         %xmm9,%xmm10
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x45,0x0f,0x5d,0xca,                        //  minps         %xmm10,%xmm9
+    0xf3,0x44,0x0f,0x10,0x79,0x34,              //  movss         0x34(%rcx),%xmm15
+    0x45,0x0f,0xc6,0xff,0x00,                   //  shufps        $0x0,%xmm15,%xmm15
+    0x41,0x0f,0xc2,0xc7,0x01,                   //  cmpltps       %xmm15,%xmm0
+    0x66,0x44,0x0f,0x38,0x14,0xc9,              //  blendvps      %xmm0,%xmm1,%xmm9
+    0x0f,0x52,0xc2,                             //  rsqrtps       %xmm2,%xmm0
+    0x0f,0x53,0xc8,                             //  rcpps         %xmm0,%xmm1
+    0x0f,0x52,0xc0,                             //  rsqrtps       %xmm0,%xmm0
+    0x41,0x0f,0x59,0xcd,                        //  mulps         %xmm13,%xmm1
+    0x41,0x0f,0x58,0xce,                        //  addps         %xmm14,%xmm1
+    0x41,0x0f,0x59,0xc4,                        //  mulps         %xmm12,%xmm0
+    0x0f,0x58,0xc1,                             //  addps         %xmm1,%xmm0
+    0x45,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm10
+    0x44,0x0f,0x5d,0xd0,                        //  minps         %xmm0,%xmm10
+    0x41,0x0f,0x28,0xcb,                        //  movaps        %xmm11,%xmm1
+    0x0f,0x59,0xca,                             //  mulps         %xmm2,%xmm1
+    0x41,0x0f,0xc2,0xd7,0x01,                   //  cmpltps       %xmm15,%xmm2
+    0x0f,0x28,0xc2,                             //  movaps        %xmm2,%xmm0
+    0x66,0x44,0x0f,0x38,0x14,0xd1,              //  blendvps      %xmm0,%xmm1,%xmm10
+    0x0f,0x52,0xc3,                             //  rsqrtps       %xmm3,%xmm0
+    0x0f,0x53,0xc8,                             //  rcpps         %xmm0,%xmm1
+    0x41,0x0f,0x59,0xcd,                        //  mulps         %xmm13,%xmm1
+    0x41,0x0f,0x58,0xce,                        //  addps         %xmm14,%xmm1
+    0x0f,0x52,0xc0,                             //  rsqrtps       %xmm0,%xmm0
+    0x41,0x0f,0x59,0xc4,                        //  mulps         %xmm12,%xmm0
+    0x0f,0x58,0xc1,                             //  addps         %xmm1,%xmm0
+    0x44,0x0f,0x5d,0xc0,                        //  minps         %xmm0,%xmm8
+    0x44,0x0f,0x59,0xdb,                        //  mulps         %xmm3,%xmm11
+    0x41,0x0f,0xc2,0xdf,0x01,                   //  cmpltps       %xmm15,%xmm3
+    0x0f,0x28,0xc3,                             //  movaps        %xmm3,%xmm0
+    0x66,0x45,0x0f,0x38,0x14,0xc3,              //  blendvps      %xmm0,%xmm11,%xmm8
+    0x41,0x0f,0x28,0xc1,                        //  movaps        %xmm9,%xmm0
+    0x41,0x0f,0x28,0xca,                        //  movaps        %xmm10,%xmm1
+    0x41,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm2
+    0x0f,0x28,0xdc,                             //  movaps        %xmm4,%xmm3
+    0x0f,0x28,0xe5,                             //  movaps        %xmm5,%xmm4
+    0x0f,0x28,0xee,                             //  movaps        %xmm6,%xmm5
+    0x0f,0x28,0xf7,                             //  movaps        %xmm7,%xmm6
+    0x0f,0x28,0x7c,0x24,0xe8,                   //  movaps        -0x18(%rsp),%xmm7
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_scale_u8[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x66,0x44,0x0f,0x38,0x31,0x04,0x38,         //  pmovzxbd      (%rax,%rdi,1),%xmm8
+    0x45,0x0f,0x5b,0xc0,                        //  cvtdq2ps      %xmm8,%xmm8
+    0xf3,0x44,0x0f,0x10,0x49,0x08,              //  movss         0x8(%rcx),%xmm9
+    0x45,0x0f,0xc6,0xc9,0x00,                   //  shufps        $0x0,%xmm9,%xmm9
+    0x45,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm9
+    0x41,0x0f,0x59,0xc1,                        //  mulps         %xmm9,%xmm0
+    0x41,0x0f,0x59,0xc9,                        //  mulps         %xmm9,%xmm1
+    0x41,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm2
+    0x41,0x0f,0x59,0xd9,                        //  mulps         %xmm9,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_load_tables[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x4c,0x8b,0x42,0x08,                        //  mov           0x8(%rdx),%r8
+    0xf3,0x44,0x0f,0x6f,0x04,0xb8,              //  movdqu        (%rax,%rdi,4),%xmm8
+    0x66,0x0f,0x6e,0x41,0x0c,                   //  movd          0xc(%rcx),%xmm0
+    0x66,0x0f,0x70,0xc0,0x00,                   //  pshufd        $0x0,%xmm0,%xmm0
+    0x66,0x41,0x0f,0x6f,0xc8,                   //  movdqa        %xmm8,%xmm1
+    0x66,0x0f,0x72,0xd1,0x08,                   //  psrld         $0x8,%xmm1
+    0x66,0x0f,0xdb,0xc8,                        //  pand          %xmm0,%xmm1
+    0x66,0x41,0x0f,0x6f,0xd0,                   //  movdqa        %xmm8,%xmm2
+    0x66,0x0f,0x72,0xd2,0x10,                   //  psrld         $0x10,%xmm2
+    0x66,0x0f,0xdb,0xd0,                        //  pand          %xmm0,%xmm2
+    0x66,0x41,0x0f,0xdb,0xc0,                   //  pand          %xmm8,%xmm0
+    0x66,0x48,0x0f,0x3a,0x16,0xc0,0x01,         //  pextrq        $0x1,%xmm0,%rax
+    0x41,0x89,0xc1,                             //  mov           %eax,%r9d
+    0x48,0xc1,0xe8,0x20,                        //  shr           $0x20,%rax
+    0x66,0x49,0x0f,0x7e,0xc2,                   //  movq          %xmm0,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x43,0x0f,0x10,0x04,0x98,              //  movss         (%r8,%r11,4),%xmm0
+    0x66,0x43,0x0f,0x3a,0x21,0x04,0x90,0x10,    //  insertps      $0x10,(%r8,%r10,4),%xmm0
+    0xf3,0x43,0x0f,0x10,0x1c,0x88,              //  movss         (%r8,%r9,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xc3,0x20,              //  insertps      $0x20,%xmm3,%xmm0
+    0xf3,0x41,0x0f,0x10,0x1c,0x80,              //  movss         (%r8,%rax,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xc3,0x30,              //  insertps      $0x30,%xmm3,%xmm0
+    0x48,0x8b,0x42,0x10,                        //  mov           0x10(%rdx),%rax
+    0x66,0x49,0x0f,0x3a,0x16,0xc8,0x01,         //  pextrq        $0x1,%xmm1,%r8
+    0x45,0x89,0xc1,                             //  mov           %r8d,%r9d
+    0x49,0xc1,0xe8,0x20,                        //  shr           $0x20,%r8
+    0x66,0x49,0x0f,0x7e,0xca,                   //  movq          %xmm1,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x42,0x0f,0x10,0x0c,0x98,              //  movss         (%rax,%r11,4),%xmm1
+    0x66,0x42,0x0f,0x3a,0x21,0x0c,0x90,0x10,    //  insertps      $0x10,(%rax,%r10,4),%xmm1
+    0xf3,0x42,0x0f,0x10,0x1c,0x88,              //  movss         (%rax,%r9,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xcb,0x20,              //  insertps      $0x20,%xmm3,%xmm1
+    0xf3,0x42,0x0f,0x10,0x1c,0x80,              //  movss         (%rax,%r8,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xcb,0x30,              //  insertps      $0x30,%xmm3,%xmm1
+    0x48,0x8b,0x42,0x18,                        //  mov           0x18(%rdx),%rax
+    0x66,0x49,0x0f,0x3a,0x16,0xd0,0x01,         //  pextrq        $0x1,%xmm2,%r8
+    0x45,0x89,0xc1,                             //  mov           %r8d,%r9d
+    0x49,0xc1,0xe8,0x20,                        //  shr           $0x20,%r8
+    0x66,0x49,0x0f,0x7e,0xd2,                   //  movq          %xmm2,%r10
+    0x45,0x89,0xd3,                             //  mov           %r10d,%r11d
+    0x49,0xc1,0xea,0x20,                        //  shr           $0x20,%r10
+    0xf3,0x42,0x0f,0x10,0x14,0x98,              //  movss         (%rax,%r11,4),%xmm2
+    0x66,0x42,0x0f,0x3a,0x21,0x14,0x90,0x10,    //  insertps      $0x10,(%rax,%r10,4),%xmm2
+    0xf3,0x42,0x0f,0x10,0x1c,0x88,              //  movss         (%rax,%r9,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xd3,0x20,              //  insertps      $0x20,%xmm3,%xmm2
+    0xf3,0x42,0x0f,0x10,0x1c,0x80,              //  movss         (%rax,%r8,4),%xmm3
+    0x66,0x0f,0x3a,0x21,0xd3,0x30,              //  insertps      $0x30,%xmm3,%xmm2
+    0x66,0x41,0x0f,0x72,0xd0,0x18,              //  psrld         $0x18,%xmm8
+    0x45,0x0f,0x5b,0xc0,                        //  cvtdq2ps      %xmm8,%xmm8
+    0xf3,0x0f,0x10,0x59,0x08,                   //  movss         0x8(%rcx),%xmm3
+    0x0f,0xc6,0xdb,0x00,                        //  shufps        $0x0,%xmm3,%xmm3
+    0x41,0x0f,0x59,0xd8,                        //  mulps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_load_8888[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x0f,0x6f,0x1c,0xb8,                   //  movdqu        (%rax,%rdi,4),%xmm3
+    0x66,0x0f,0x6e,0x41,0x0c,                   //  movd          0xc(%rcx),%xmm0
+    0x66,0x0f,0x70,0xc0,0x00,                   //  pshufd        $0x0,%xmm0,%xmm0
+    0x66,0x0f,0x6f,0xcb,                        //  movdqa        %xmm3,%xmm1
+    0x66,0x0f,0x72,0xd1,0x08,                   //  psrld         $0x8,%xmm1
+    0x66,0x0f,0xdb,0xc8,                        //  pand          %xmm0,%xmm1
+    0x66,0x0f,0x6f,0xd3,                        //  movdqa        %xmm3,%xmm2
+    0x66,0x0f,0x72,0xd2,0x10,                   //  psrld         $0x10,%xmm2
+    0x66,0x0f,0xdb,0xd0,                        //  pand          %xmm0,%xmm2
+    0x66,0x0f,0xdb,0xc3,                        //  pand          %xmm3,%xmm0
+    0x0f,0x5b,0xc0,                             //  cvtdq2ps      %xmm0,%xmm0
+    0xf3,0x44,0x0f,0x10,0x41,0x08,              //  movss         0x8(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x0f,0x5b,0xc9,                             //  cvtdq2ps      %xmm1,%xmm1
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x0f,0x5b,0xd2,                             //  cvtdq2ps      %xmm2,%xmm2
+    0x41,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm2
+    0x66,0x0f,0x72,0xd3,0x18,                   //  psrld         $0x18,%xmm3
+    0x0f,0x5b,0xdb,                             //  cvtdq2ps      %xmm3,%xmm3
+    0x41,0x0f,0x59,0xd8,                        //  mulps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_store_8888[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x44,0x0f,0x10,0x41,0x04,              //  movss         0x4(%rcx),%xmm8
+    0x45,0x0f,0xc6,0xc0,0x00,                   //  shufps        $0x0,%xmm8,%xmm8
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x66,0x45,0x0f,0x5b,0xc9,                   //  cvtps2dq      %xmm9,%xmm9
+    0x45,0x0f,0x28,0xd0,                        //  movaps        %xmm8,%xmm10
+    0x44,0x0f,0x59,0xd1,                        //  mulps         %xmm1,%xmm10
+    0x66,0x45,0x0f,0x5b,0xd2,                   //  cvtps2dq      %xmm10,%xmm10
+    0x66,0x41,0x0f,0x72,0xf2,0x08,              //  pslld         $0x8,%xmm10
+    0x66,0x45,0x0f,0xeb,0xd1,                   //  por           %xmm9,%xmm10
+    0x45,0x0f,0x28,0xc8,                        //  movaps        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xca,                        //  mulps         %xmm2,%xmm9
+    0x66,0x45,0x0f,0x5b,0xc9,                   //  cvtps2dq      %xmm9,%xmm9
+    0x66,0x41,0x0f,0x72,0xf1,0x10,              //  pslld         $0x10,%xmm9
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x66,0x45,0x0f,0x5b,0xc0,                   //  cvtps2dq      %xmm8,%xmm8
+    0x66,0x41,0x0f,0x72,0xf0,0x18,              //  pslld         $0x18,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc1,                   //  por           %xmm9,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc2,                   //  por           %xmm10,%xmm8
+    0xf3,0x44,0x0f,0x7f,0x04,0xb8,              //  movdqu        %xmm8,(%rax,%rdi,4)
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_load_f16[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0xf3,0x0f,0x6f,0x04,0xf8,                   //  movdqu        (%rax,%rdi,8),%xmm0
+    0xf3,0x0f,0x6f,0x4c,0xf8,0x10,              //  movdqu        0x10(%rax,%rdi,8),%xmm1
+    0x66,0x0f,0x6f,0xd8,                        //  movdqa        %xmm0,%xmm3
+    0x66,0x0f,0x61,0xd9,                        //  punpcklwd     %xmm1,%xmm3
+    0x66,0x0f,0x69,0xc1,                        //  punpckhwd     %xmm1,%xmm0
+    0x66,0x0f,0x6f,0xcb,                        //  movdqa        %xmm3,%xmm1
+    0x66,0x0f,0x61,0xc8,                        //  punpcklwd     %xmm0,%xmm1
+    0x66,0x0f,0x69,0xd8,                        //  punpckhwd     %xmm0,%xmm3
+    0x66,0x0f,0x38,0x33,0xc1,                   //  pmovzxwd      %xmm1,%xmm0
+    0x66,0x0f,0x72,0xf0,0x0d,                   //  pslld         $0xd,%xmm0
+    0x66,0x0f,0x6e,0x51,0x38,                   //  movd          0x38(%rcx),%xmm2
+    0x66,0x44,0x0f,0x70,0xc2,0x00,              //  pshufd        $0x0,%xmm2,%xmm8
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x66,0x45,0x0f,0xef,0xc9,                   //  pxor          %xmm9,%xmm9
+    0x66,0x41,0x0f,0x69,0xc9,                   //  punpckhwd     %xmm9,%xmm1
+    0x66,0x0f,0x72,0xf1,0x0d,                   //  pslld         $0xd,%xmm1
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x66,0x0f,0x38,0x33,0xd3,                   //  pmovzxwd      %xmm3,%xmm2
+    0x66,0x0f,0x72,0xf2,0x0d,                   //  pslld         $0xd,%xmm2
+    0x41,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm2
+    0x66,0x41,0x0f,0x69,0xd9,                   //  punpckhwd     %xmm9,%xmm3
+    0x66,0x0f,0x72,0xf3,0x0d,                   //  pslld         $0xd,%xmm3
+    0x41,0x0f,0x59,0xd8,                        //  mulps         %xmm8,%xmm3
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_store_f16[] = {
+    0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
+    0x66,0x44,0x0f,0x6e,0x41,0x3c,              //  movd          0x3c(%rcx),%xmm8
+    0x66,0x45,0x0f,0x70,0xc0,0x00,              //  pshufd        $0x0,%xmm8,%xmm8
+    0x66,0x45,0x0f,0x6f,0xc8,                   //  movdqa        %xmm8,%xmm9
+    0x44,0x0f,0x59,0xc8,                        //  mulps         %xmm0,%xmm9
+    0x66,0x41,0x0f,0x72,0xd1,0x0d,              //  psrld         $0xd,%xmm9
+    0x66,0x45,0x0f,0x6f,0xd0,                   //  movdqa        %xmm8,%xmm10
+    0x44,0x0f,0x59,0xd1,                        //  mulps         %xmm1,%xmm10
+    0x66,0x41,0x0f,0x72,0xd2,0x0d,              //  psrld         $0xd,%xmm10
+    0x66,0x45,0x0f,0x6f,0xd8,                   //  movdqa        %xmm8,%xmm11
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x66,0x41,0x0f,0x72,0xd3,0x0d,              //  psrld         $0xd,%xmm11
+    0x44,0x0f,0x59,0xc3,                        //  mulps         %xmm3,%xmm8
+    0x66,0x41,0x0f,0x72,0xd0,0x0d,              //  psrld         $0xd,%xmm8
+    0x66,0x41,0x0f,0x73,0xfa,0x02,              //  pslldq        $0x2,%xmm10
+    0x66,0x45,0x0f,0xeb,0xd1,                   //  por           %xmm9,%xmm10
+    0x66,0x41,0x0f,0x73,0xf8,0x02,              //  pslldq        $0x2,%xmm8
+    0x66,0x45,0x0f,0xeb,0xc3,                   //  por           %xmm11,%xmm8
+    0x66,0x45,0x0f,0x6f,0xca,                   //  movdqa        %xmm10,%xmm9
+    0x66,0x45,0x0f,0x62,0xc8,                   //  punpckldq     %xmm8,%xmm9
+    0xf3,0x44,0x0f,0x7f,0x0c,0xf8,              //  movdqu        %xmm9,(%rax,%rdi,8)
+    0x66,0x45,0x0f,0x6a,0xd0,                   //  punpckhdq     %xmm8,%xmm10
+    0xf3,0x44,0x0f,0x7f,0x54,0xf8,0x10,         //  movdqu        %xmm10,0x10(%rax,%rdi,8)
+    0xc3,                                       //  return
+};
+static const unsigned char sse41_matrix_3x4[] = {
+    0x44,0x0f,0x28,0xc9,                        //  movaps        %xmm1,%xmm9
+    0x44,0x0f,0x28,0xc0,                        //  movaps        %xmm0,%xmm8
+    0xf3,0x0f,0x10,0x02,                        //  movss         (%rdx),%xmm0
+    0xf3,0x0f,0x10,0x4a,0x04,                   //  movss         0x4(%rdx),%xmm1
+    0x0f,0xc6,0xc0,0x00,                        //  shufps        $0x0,%xmm0,%xmm0
+    0xf3,0x44,0x0f,0x10,0x52,0x0c,              //  movss         0xc(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x18,              //  movss         0x18(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x24,              //  movss         0x24(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x59,0xc0,                        //  mulps         %xmm8,%xmm0
+    0x41,0x0f,0x58,0xc2,                        //  addps         %xmm10,%xmm0
+    0x0f,0xc6,0xc9,0x00,                        //  shufps        $0x0,%xmm1,%xmm1
+    0xf3,0x44,0x0f,0x10,0x52,0x10,              //  movss         0x10(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x1c,              //  movss         0x1c(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x28,              //  movss         0x28(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0x44,0x0f,0x59,0xda,                        //  mulps         %xmm2,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd1,                        //  mulps         %xmm9,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x59,0xc8,                        //  mulps         %xmm8,%xmm1
+    0x41,0x0f,0x58,0xca,                        //  addps         %xmm10,%xmm1
+    0xf3,0x44,0x0f,0x10,0x52,0x08,              //  movss         0x8(%rdx),%xmm10
+    0x45,0x0f,0xc6,0xd2,0x00,                   //  shufps        $0x0,%xmm10,%xmm10
+    0xf3,0x44,0x0f,0x10,0x5a,0x14,              //  movss         0x14(%rdx),%xmm11
+    0x45,0x0f,0xc6,0xdb,0x00,                   //  shufps        $0x0,%xmm11,%xmm11
+    0xf3,0x44,0x0f,0x10,0x62,0x20,              //  movss         0x20(%rdx),%xmm12
+    0x45,0x0f,0xc6,0xe4,0x00,                   //  shufps        $0x0,%xmm12,%xmm12
+    0xf3,0x44,0x0f,0x10,0x6a,0x2c,              //  movss         0x2c(%rdx),%xmm13
+    0x45,0x0f,0xc6,0xed,0x00,                   //  shufps        $0x0,%xmm13,%xmm13
+    0x44,0x0f,0x59,0xe2,                        //  mulps         %xmm2,%xmm12
+    0x45,0x0f,0x58,0xe5,                        //  addps         %xmm13,%xmm12
+    0x45,0x0f,0x59,0xd9,                        //  mulps         %xmm9,%xmm11
+    0x45,0x0f,0x58,0xdc,                        //  addps         %xmm12,%xmm11
+    0x45,0x0f,0x59,0xd0,                        //  mulps         %xmm8,%xmm10
+    0x45,0x0f,0x58,0xd3,                        //  addps         %xmm11,%xmm10
+    0x41,0x0f,0x28,0xd2,                        //  movaps        %xmm10,%xmm2
+    0xc3,                                       //  return
+};
+static const unsigned char hsw_inc_x[] = {
     0x48,0x83,0xc7,0x08,                        //  add           $0x8,%rdi
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_clear[] = {
+static const unsigned char hsw_clear[] = {
     0xc5,0xfc,0x57,0xc0,                        //  vxorps        %ymm0,%ymm0,%ymm0
     0xc5,0xf4,0x57,0xc9,                        //  vxorps        %ymm1,%ymm1,%ymm1
     0xc5,0xec,0x57,0xd2,                        //  vxorps        %ymm2,%ymm2,%ymm2
     0xc5,0xe4,0x57,0xdb,                        //  vxorps        %ymm3,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_plus_[] = {
+static const unsigned char hsw_plus_[] = {
     0xc5,0xfc,0x58,0xc4,                        //  vaddps        %ymm4,%ymm0,%ymm0
     0xc5,0xf4,0x58,0xcd,                        //  vaddps        %ymm5,%ymm1,%ymm1
     0xc5,0xec,0x58,0xd6,                        //  vaddps        %ymm6,%ymm2,%ymm2
     0xc5,0xe4,0x58,0xdf,                        //  vaddps        %ymm7,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_srcover[] = {
+static const unsigned char hsw_srcover[] = {
     0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc5,0x3c,0x5c,0xc3,                        //  vsubps        %ymm3,%ymm8,%ymm8
     0xc4,0xc2,0x5d,0xb8,0xc0,                   //  vfmadd231ps   %ymm8,%ymm4,%ymm0
     0xc4,0xc2,0x55,0xb8,0xc8,                   //  vfmadd231ps   %ymm8,%ymm5,%ymm1
     0xc4,0xc2,0x4d,0xb8,0xd0,                   //  vfmadd231ps   %ymm8,%ymm6,%ymm2
     0xc4,0xc2,0x45,0xb8,0xd8,                   //  vfmadd231ps   %ymm8,%ymm7,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_dstover[] = {
+static const unsigned char hsw_dstover[] = {
     0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc5,0x3c,0x5c,0xc7,                        //  vsubps        %ymm7,%ymm8,%ymm8
     0xc4,0xc2,0x7d,0xb8,0xe0,                   //  vfmadd231ps   %ymm8,%ymm0,%ymm4
     0xc4,0xc2,0x75,0xb8,0xe8,                   //  vfmadd231ps   %ymm8,%ymm1,%ymm5
     0xc4,0xc2,0x6d,0xb8,0xf0,                   //  vfmadd231ps   %ymm8,%ymm2,%ymm6
     0xc4,0xc2,0x65,0xb8,0xf8,                   //  vfmadd231ps   %ymm8,%ymm3,%ymm7
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_clamp_0[] = {
+static const unsigned char hsw_clamp_0[] = {
     0xc4,0x41,0x3c,0x57,0xc0,                   //  vxorps        %ymm8,%ymm8,%ymm8
     0xc4,0xc1,0x7c,0x5f,0xc0,                   //  vmaxps        %ymm8,%ymm0,%ymm0
     0xc4,0xc1,0x74,0x5f,0xc8,                   //  vmaxps        %ymm8,%ymm1,%ymm1
     0xc4,0xc1,0x6c,0x5f,0xd0,                   //  vmaxps        %ymm8,%ymm2,%ymm2
     0xc4,0xc1,0x64,0x5f,0xd8,                   //  vmaxps        %ymm8,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_clamp_1[] = {
+static const unsigned char hsw_clamp_1[] = {
     0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc4,0xc1,0x7c,0x5d,0xc0,                   //  vminps        %ymm8,%ymm0,%ymm0
     0xc4,0xc1,0x74,0x5d,0xc8,                   //  vminps        %ymm8,%ymm1,%ymm1
     0xc4,0xc1,0x6c,0x5d,0xd0,                   //  vminps        %ymm8,%ymm2,%ymm2
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_clamp_a[] = {
+static const unsigned char hsw_clamp_a[] = {
     0xc4,0x62,0x7d,0x18,0x01,                   //  vbroadcastss  (%rcx),%ymm8
     0xc4,0xc1,0x64,0x5d,0xd8,                   //  vminps        %ymm8,%ymm3,%ymm3
     0xc5,0xfc,0x5d,0xc3,                        //  vminps        %ymm3,%ymm0,%ymm0
     0xc5,0xf4,0x5d,0xcb,                        //  vminps        %ymm3,%ymm1,%ymm1
     0xc5,0xec,0x5d,0xd3,                        //  vminps        %ymm3,%ymm2,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_swap[] = {
+static const unsigned char hsw_swap[] = {
     0xc5,0x7c,0x28,0xc3,                        //  vmovaps       %ymm3,%ymm8
     0xc5,0x7c,0x28,0xca,                        //  vmovaps       %ymm2,%ymm9
     0xc5,0x7c,0x28,0xd1,                        //  vmovaps       %ymm1,%ymm10
@@ -856,29 +1790,29 @@ static const unsigned char kSplice_swap[] = {
     0xc5,0x7c,0x29,0xd5,                        //  vmovaps       %ymm10,%ymm5
     0xc5,0x7c,0x29,0xce,                        //  vmovaps       %ymm9,%ymm6
     0xc5,0x7c,0x29,0xc7,                        //  vmovaps       %ymm8,%ymm7
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_move_src_dst[] = {
+static const unsigned char hsw_move_src_dst[] = {
     0xc5,0xfc,0x28,0xe0,                        //  vmovaps       %ymm0,%ymm4
     0xc5,0xfc,0x28,0xe9,                        //  vmovaps       %ymm1,%ymm5
     0xc5,0xfc,0x28,0xf2,                        //  vmovaps       %ymm2,%ymm6
     0xc5,0xfc,0x28,0xfb,                        //  vmovaps       %ymm3,%ymm7
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_move_dst_src[] = {
+static const unsigned char hsw_move_dst_src[] = {
     0xc5,0xfc,0x28,0xc4,                        //  vmovaps       %ymm4,%ymm0
     0xc5,0xfc,0x28,0xcd,                        //  vmovaps       %ymm5,%ymm1
     0xc5,0xfc,0x28,0xd6,                        //  vmovaps       %ymm6,%ymm2
     0xc5,0xfc,0x28,0xdf,                        //  vmovaps       %ymm7,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_premul[] = {
+static const unsigned char hsw_premul[] = {
     0xc5,0xfc,0x59,0xc3,                        //  vmulps        %ymm3,%ymm0,%ymm0
     0xc5,0xf4,0x59,0xcb,                        //  vmulps        %ymm3,%ymm1,%ymm1
     0xc5,0xec,0x59,0xd3,                        //  vmulps        %ymm3,%ymm2,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_unpremul[] = {
+static const unsigned char hsw_unpremul[] = {
     0xc4,0x41,0x3c,0x57,0xc0,                   //  vxorps        %ymm8,%ymm8,%ymm8
     0xc4,0x41,0x64,0xc2,0xc8,0x00,              //  vcmpeqps      %ymm8,%ymm3,%ymm9
     0xc4,0x62,0x7d,0x18,0x11,                   //  vbroadcastss  (%rcx),%ymm10
@@ -887,9 +1821,9 @@ static const unsigned char kSplice_unpremul[] = {
     0xc5,0xbc,0x59,0xc0,                        //  vmulps        %ymm0,%ymm8,%ymm0
     0xc5,0xbc,0x59,0xc9,                        //  vmulps        %ymm1,%ymm8,%ymm1
     0xc5,0xbc,0x59,0xd2,                        //  vmulps        %ymm2,%ymm8,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_from_srgb[] = {
+static const unsigned char hsw_from_srgb[] = {
     0xc4,0x62,0x7d,0x18,0x41,0x1c,              //  vbroadcastss  0x1c(%rcx),%ymm8
     0xc5,0x3c,0x59,0xc8,                        //  vmulps        %ymm0,%ymm8,%ymm9
     0xc5,0x7c,0x59,0xd0,                        //  vmulps        %ymm0,%ymm0,%ymm10
@@ -915,9 +1849,9 @@ static const unsigned char kSplice_from_srgb[] = {
     0xc4,0x42,0x35,0xa8,0xde,                   //  vfmadd213ps   %ymm14,%ymm9,%ymm11
     0xc4,0xc1,0x6c,0xc2,0xd2,0x01,              //  vcmpltps      %ymm10,%ymm2,%ymm2
     0xc4,0xc3,0x25,0x4a,0xd0,0x20,              //  vblendvps     %ymm2,%ymm8,%ymm11,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_to_srgb[] = {
+static const unsigned char hsw_to_srgb[] = {
     0xc5,0x7c,0x52,0xc0,                        //  vrsqrtps      %ymm0,%ymm8
     0xc4,0x41,0x7c,0x53,0xc8,                   //  vrcpps        %ymm8,%ymm9
     0xc4,0x41,0x7c,0x52,0xd0,                   //  vrsqrtps      %ymm8,%ymm10
@@ -951,9 +1885,9 @@ static const unsigned char kSplice_to_srgb[] = {
     0xc5,0x3c,0x59,0xc2,                        //  vmulps        %ymm2,%ymm8,%ymm8
     0xc4,0xc1,0x6c,0xc2,0xd2,0x01,              //  vcmpltps      %ymm10,%ymm2,%ymm2
     0xc4,0xc3,0x35,0x4a,0xd0,0x20,              //  vblendvps     %ymm2,%ymm8,%ymm9,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_scale_u8[] = {
+static const unsigned char hsw_scale_u8[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc4,0x62,0x7d,0x31,0x04,0x38,              //  vpmovzxbd     (%rax,%rdi,1),%ymm8
     0xc4,0x41,0x7c,0x5b,0xc0,                   //  vcvtdq2ps     %ymm8,%ymm8
@@ -963,9 +1897,9 @@ static const unsigned char kSplice_scale_u8[] = {
     0xc5,0xbc,0x59,0xc9,                        //  vmulps        %ymm1,%ymm8,%ymm1
     0xc5,0xbc,0x59,0xd2,                        //  vmulps        %ymm2,%ymm8,%ymm2
     0xc5,0xbc,0x59,0xdb,                        //  vmulps        %ymm3,%ymm8,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_load_tables[] = {
+static const unsigned char hsw_load_tables[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0x4c,0x8b,0x42,0x08,                        //  mov           0x8(%rdx),%r8
     0xc5,0xfc,0x10,0x1c,0xb8,                   //  vmovups       (%rax,%rdi,4),%ymm3
@@ -988,9 +1922,9 @@ static const unsigned char kSplice_load_tables[] = {
     0xc5,0xfc,0x5b,0xdb,                        //  vcvtdq2ps     %ymm3,%ymm3
     0xc4,0x62,0x7d,0x18,0x41,0x08,              //  vbroadcastss  0x8(%rcx),%ymm8
     0xc4,0xc1,0x64,0x59,0xd8,                   //  vmulps        %ymm8,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_load_8888[] = {
+static const unsigned char hsw_load_8888[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc5,0xfc,0x10,0x1c,0xb8,                   //  vmovups       (%rax,%rdi,4),%ymm3
     0xc4,0xe2,0x7d,0x18,0x51,0x0c,              //  vbroadcastss  0xc(%rcx),%ymm2
@@ -1009,9 +1943,9 @@ static const unsigned char kSplice_load_8888[] = {
     0xc5,0xe5,0x72,0xd3,0x18,                   //  vpsrld        $0x18,%ymm3,%ymm3
     0xc5,0xfc,0x5b,0xdb,                        //  vcvtdq2ps     %ymm3,%ymm3
     0xc4,0xc1,0x64,0x59,0xd8,                   //  vmulps        %ymm8,%ymm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_store_8888[] = {
+static const unsigned char hsw_store_8888[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc4,0x62,0x7d,0x18,0x41,0x04,              //  vbroadcastss  0x4(%rcx),%ymm8
     0xc5,0x3c,0x59,0xc8,                        //  vmulps        %ymm0,%ymm8,%ymm9
@@ -1029,9 +1963,9 @@ static const unsigned char kSplice_store_8888[] = {
     0xc4,0x41,0x2d,0xeb,0xc0,                   //  vpor          %ymm8,%ymm10,%ymm8
     0xc4,0x41,0x35,0xeb,0xc0,                   //  vpor          %ymm8,%ymm9,%ymm8
     0xc5,0x7e,0x7f,0x04,0xb8,                   //  vmovdqu       %ymm8,(%rax,%rdi,4)
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_load_f16[] = {
+static const unsigned char hsw_load_f16[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc5,0xfa,0x6f,0x04,0xf8,                   //  vmovdqu       (%rax,%rdi,8),%xmm0
     0xc5,0xfa,0x6f,0x4c,0xf8,0x10,              //  vmovdqu       0x10(%rax,%rdi,8),%xmm1
@@ -1053,9 +1987,9 @@ static const unsigned char kSplice_load_f16[] = {
     0xc4,0xe2,0x7d,0x13,0xd2,                   //  vcvtph2ps     %xmm2,%ymm2
     0xc4,0xc1,0x39,0x6d,0xda,                   //  vpunpckhqdq   %xmm10,%xmm8,%xmm3
     0xc4,0xe2,0x7d,0x13,0xdb,                   //  vcvtph2ps     %xmm3,%ymm3
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_store_f16[] = {
+static const unsigned char hsw_store_f16[] = {
     0x48,0x8b,0x02,                             //  mov           (%rdx),%rax
     0xc4,0xc3,0x7d,0x1d,0xc0,0x04,              //  vcvtps2ph     $0x4,%ymm0,%xmm8
     0xc4,0xc3,0x7d,0x1d,0xc9,0x04,              //  vcvtps2ph     $0x4,%ymm1,%xmm9
@@ -1073,9 +2007,9 @@ static const unsigned char kSplice_store_f16[] = {
     0xc5,0x7a,0x7f,0x4c,0xf8,0x20,              //  vmovdqu       %xmm9,0x20(%rax,%rdi,8)
     0xc4,0x41,0x39,0x6a,0xc2,                   //  vpunpckhdq    %xmm10,%xmm8,%xmm8
     0xc5,0x7a,0x7f,0x44,0xf8,0x30,              //  vmovdqu       %xmm8,0x30(%rax,%rdi,8)
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-static const unsigned char kSplice_matrix_3x4[] = {
+static const unsigned char hsw_matrix_3x4[] = {
     0xc4,0x62,0x7d,0x18,0x0a,                   //  vbroadcastss  (%rdx),%ymm9
     0xc4,0x62,0x7d,0x18,0x52,0x0c,              //  vbroadcastss  0xc(%rdx),%ymm10
     0xc4,0x62,0x7d,0x18,0x5a,0x18,              //  vbroadcastss  0x18(%rdx),%ymm11
@@ -1100,9 +2034,6 @@ static const unsigned char kSplice_matrix_3x4[] = {
     0xc5,0x7c,0x29,0xc0,                        //  vmovaps       %ymm8,%ymm0
     0xc5,0x7c,0x29,0xc9,                        //  vmovaps       %ymm9,%ymm1
     0xc5,0x7c,0x29,0xd2,                        //  vmovaps       %ymm10,%ymm2
-    0xc3,                                       //  return        (synthetic)
+    0xc3,                                       //  return
 };
-
-#endif
-
 #endif//SkSplicer_generated_DEFINED
