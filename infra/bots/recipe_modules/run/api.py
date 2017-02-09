@@ -47,9 +47,6 @@ class SkiaStepApi(recipe_api.RecipeApi):
       raise self.m.step.StepFailure('Failed build steps: %s' %
                                     ', '.join([f.name for f in self._failed]))
 
-  def add_failed_step(self, step):
-    self._failed.append(step)
-
   @property
   def failed_steps(self):
     return self._failed[:]
@@ -87,10 +84,10 @@ class SkiaStepApi(recipe_api.RecipeApi):
     try:
       return steptype(name=name, env=env, **kwargs)
     except self.m.step.StepFailure as e:
+      if abort_on_failure or fail_build_on_failure:
+        self._failed.append(e)
       if abort_on_failure:
         raise  # pragma: no cover
-      if fail_build_on_failure:
-        self._failed.append(e)
 
   def copy_build_products(self, src, dst):
     """Copy whitelisted build products from src to dst."""

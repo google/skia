@@ -47,7 +47,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   # Waits for an android device to be available
   def _wait_for_device(self):
-    self.m.python.inline('wait for device', """
+    self.m.run(self.m.python.inline, 'wait for device', program="""
       import subprocess
       import sys
       import time
@@ -128,7 +128,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
-      self.m.python.inline('dump log', """
+      self.m.run(self.m.python.inline, 'dump log', program="""
       import os
       import subprocess
       import sys
@@ -188,7 +188,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
   def copy_directory_contents_to_device(self, host, device):
     # Copy the tree, avoiding hidden directories and resolving symlinks.
-    self.m.python.inline('push %s/* %s' % (host, device), """
+    self.m.run(self.m.python.inline, 'push %s/* %s' % (host, device),
+               program="""
     import os
     import subprocess
     import sys
