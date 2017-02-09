@@ -17,8 +17,8 @@
 
 #include "etc1.h"
 
-static inline uint32_t compressed_fmt_to_gl_define(SkTextureCompressor::Format fmt) {
-    static const uint32_t kGLDefineMap[SkTextureCompressor::kFormatCnt] = {
+static inline uint32_t compressed_fmt_to_gl_define(SkKTXFile::Format fmt) {
+    static const uint32_t kGLDefineMap[SkKTXFile::kFormatCnt] = {
         GR_GL_COMPRESSED_LUMINANCE_LATC1,      // kLATC_Format
         GR_GL_COMPRESSED_R11_EAC,              // kR11_EAC_Format
         GR_GL_COMPRESSED_ETC1_RGB8,            // kETC1_Format
@@ -38,24 +38,24 @@ static inline uint32_t compressed_fmt_to_gl_define(SkTextureCompressor::Format f
         GR_GL_COMPRESSED_RGBA_ASTC_12x12,      // kASTC_12x12_Format
     };
 
-    GR_STATIC_ASSERT(0 == SkTextureCompressor::kLATC_Format);
-    GR_STATIC_ASSERT(1 == SkTextureCompressor::kR11_EAC_Format);
-    GR_STATIC_ASSERT(2 == SkTextureCompressor::kETC1_Format);
-    GR_STATIC_ASSERT(3 == SkTextureCompressor::kASTC_4x4_Format);
-    GR_STATIC_ASSERT(4 == SkTextureCompressor::kASTC_5x4_Format);
-    GR_STATIC_ASSERT(5 == SkTextureCompressor::kASTC_5x5_Format);
-    GR_STATIC_ASSERT(6 == SkTextureCompressor::kASTC_6x5_Format);
-    GR_STATIC_ASSERT(7 == SkTextureCompressor::kASTC_6x6_Format);
-    GR_STATIC_ASSERT(8 == SkTextureCompressor::kASTC_8x5_Format);
-    GR_STATIC_ASSERT(9 == SkTextureCompressor::kASTC_8x6_Format);
-    GR_STATIC_ASSERT(10 == SkTextureCompressor::kASTC_8x8_Format);
-    GR_STATIC_ASSERT(11 == SkTextureCompressor::kASTC_10x5_Format);
-    GR_STATIC_ASSERT(12 == SkTextureCompressor::kASTC_10x6_Format);
-    GR_STATIC_ASSERT(13 == SkTextureCompressor::kASTC_10x8_Format);
-    GR_STATIC_ASSERT(14 == SkTextureCompressor::kASTC_10x10_Format);
-    GR_STATIC_ASSERT(15 == SkTextureCompressor::kASTC_12x10_Format);
-    GR_STATIC_ASSERT(16 == SkTextureCompressor::kASTC_12x12_Format);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kGLDefineMap) == SkTextureCompressor::kFormatCnt);
+    GR_STATIC_ASSERT(0 == SkKTXFile::kLATC_Format);
+    GR_STATIC_ASSERT(1 == SkKTXFile::kR11_EAC_Format);
+    GR_STATIC_ASSERT(2 == SkKTXFile::kETC1_Format);
+    GR_STATIC_ASSERT(3 == SkKTXFile::kASTC_4x4_Format);
+    GR_STATIC_ASSERT(4 == SkKTXFile::kASTC_5x4_Format);
+    GR_STATIC_ASSERT(5 == SkKTXFile::kASTC_5x5_Format);
+    GR_STATIC_ASSERT(6 == SkKTXFile::kASTC_6x5_Format);
+    GR_STATIC_ASSERT(7 == SkKTXFile::kASTC_6x6_Format);
+    GR_STATIC_ASSERT(8 == SkKTXFile::kASTC_8x5_Format);
+    GR_STATIC_ASSERT(9 == SkKTXFile::kASTC_8x6_Format);
+    GR_STATIC_ASSERT(10 == SkKTXFile::kASTC_8x8_Format);
+    GR_STATIC_ASSERT(11 == SkKTXFile::kASTC_10x5_Format);
+    GR_STATIC_ASSERT(12 == SkKTXFile::kASTC_10x6_Format);
+    GR_STATIC_ASSERT(13 == SkKTXFile::kASTC_10x8_Format);
+    GR_STATIC_ASSERT(14 == SkKTXFile::kASTC_10x10_Format);
+    GR_STATIC_ASSERT(15 == SkKTXFile::kASTC_12x10_Format);
+    GR_STATIC_ASSERT(16 == SkKTXFile::kASTC_12x12_Format);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kGLDefineMap) == SkKTXFile::kFormatCnt);
 
     return kGLDefineMap[fmt];
 }
@@ -168,14 +168,14 @@ SkString SkKTXFile::getValueForKey(const SkString& key) const {
     return SkString();
 }
 
-bool SkKTXFile::isCompressedFormat(SkTextureCompressor::Format fmt) const {
+bool SkKTXFile::isCompressedFormat(Format fmt) const {
     if (!this->valid()) {
         return false;
     }
 
     // This has many aliases
     bool isFmt = false;
-    if (fmt == SkTextureCompressor::kLATC_Format) {
+    if (fmt == kLATC_Format) {
         isFmt = GR_GL_COMPRESSED_RED_RGTC1 == fHeader.fGLInternalFormat ||
                 GR_GL_COMPRESSED_3DC_X == fHeader.fGLInternalFormat;
     }

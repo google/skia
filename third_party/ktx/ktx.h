@@ -10,7 +10,6 @@
 #define SkKTXFile_DEFINED
 
 #include "SkData.h"
-#include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
 #include "SkString.h"
@@ -32,6 +31,39 @@ class SkWStream;
 
 class SkKTXFile {
 public:
+    // Various texture compression formats that we support.
+    enum Format {
+        // Alpha only formats.
+        kLATC_Format,       // 4x4 blocks, (de)compresses A8
+        kR11_EAC_Format,    // 4x4 blocks, (de)compresses A8
+
+        // RGB only formats
+        kETC1_Format,       // 4x4 blocks, compresses RGB 565, decompresses 8-bit RGB
+        //    NOTE: ETC1 supports 8-bit RGB compression, but we
+        //    currently don't have any RGB8 SkColorTypes. We could
+        //    support 8-bit RGBA but we would have to preprocess the
+        //    bitmap to insert alphas.
+
+        // Multi-purpose formats
+        kASTC_4x4_Format,   // 4x4 blocks, no compression, decompresses RGBA
+        kASTC_5x4_Format,   // 5x4 blocks, no compression, decompresses RGBA
+        kASTC_5x5_Format,   // 5x5 blocks, no compression, decompresses RGBA
+        kASTC_6x5_Format,   // 6x5 blocks, no compression, decompresses RGBA
+        kASTC_6x6_Format,   // 6x6 blocks, no compression, decompresses RGBA
+        kASTC_8x5_Format,   // 8x5 blocks, no compression, decompresses RGBA
+        kASTC_8x6_Format,   // 8x6 blocks, no compression, decompresses RGBA
+        kASTC_8x8_Format,   // 8x8 blocks, no compression, decompresses RGBA
+        kASTC_10x5_Format,  // 10x5 blocks, no compression, decompresses RGBA
+        kASTC_10x6_Format,  // 10x6 blocks, no compression, decompresses RGBA
+        kASTC_10x8_Format,  // 10x8 blocks, no compression, decompresses RGBA
+        kASTC_10x10_Format, // 10x10 blocks, no compression, decompresses RGBA
+        kASTC_12x10_Format, // 12x10 blocks, no compression, decompresses RGBA
+        kASTC_12x12_Format, // 12x12 blocks, compresses A8, decompresses RGBA
+
+        kLast_Format = kASTC_12x12_Format
+    };
+    static const int kFormatCnt = kLast_Format + 1;
+
     // The ownership of the data remains with the caller. This class is intended
     // to be used as a logical wrapper around the data in order to properly
     // access the pixels.
@@ -57,7 +89,7 @@ public:
 
     int numMipmaps() const { return static_cast<int>(fHeader.fNumberOfMipmapLevels); }
 
-    bool isCompressedFormat(SkTextureCompressor::Format fmt) const;
+    bool isCompressedFormat(Format fmt) const;
     bool isRGBA8() const;
     bool isRGB8() const;
 
