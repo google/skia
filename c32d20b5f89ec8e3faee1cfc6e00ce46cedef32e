@@ -22,6 +22,24 @@
       "revId": "c32d20b5f89ec8e3faee1cfc6e00ce46cedef32e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97f05d05_5d824017",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-09T19:26:54Z",
+      "side": 1,
+      "message": "I suppose I should have \"nonseparable\" rather than \"advanced\". I\u0027ll fix it in an upcoming change.",
+      "parentUuid": "fe5abd31_3ba00bd9",
+      "revId": "c32d20b5f89ec8e3faee1cfc6e00ce46cedef32e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
