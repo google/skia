@@ -112,12 +112,6 @@ namespace {
         splice(buf, jb_near);      // jb <next 4 bytes>  (b == "before", unsigned less than)
         splice(buf, loop_start - (int)(buf->bytesWritten() + 4));
     }
-    static void ret(SkWStream* buf) {
-        static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
-        static const uint8_t        ret[] = { 0xc3 };
-        splice(buf, vzeroupper);
-        splice(buf, ret);
-    }
 #endif
 
 #if defined(_MSC_VER)
@@ -127,16 +121,16 @@ namespace {
             0x56,                                         // push   %rsi
             0x57,                                         // push   %rdi
             0x48,0x81,0xec,0xa8,0x00,0x00,0x00,           // sub    $0xa8,%rsp
-            0xc5,0x78,0x29,0xbc,0x24,0x90,0x00,0x00,0x00, // vmovaps %xmm15,0x90(%rsp)
-            0xc5,0x78,0x29,0xb4,0x24,0x80,0x00,0x00,0x00, // vmovaps %xmm14,0x80(%rsp)
-            0xc5,0x78,0x29,0x6c,0x24,0x70,                // vmovaps %xmm13,0x70(%rsp)
-            0xc5,0x78,0x29,0x64,0x24,0x60,                // vmovaps %xmm12,0x60(%rsp)
-            0xc5,0x78,0x29,0x5c,0x24,0x50,                // vmovaps %xmm11,0x50(%rsp)
-            0xc5,0x78,0x29,0x54,0x24,0x40,                // vmovaps %xmm10,0x40(%rsp)
-            0xc5,0x78,0x29,0x4c,0x24,0x30,                // vmovaps %xmm9,0x30(%rsp)
-            0xc5,0x78,0x29,0x44,0x24,0x20,                // vmovaps %xmm8,0x20(%rsp)
-            0xc5,0xf8,0x29,0x7c,0x24,0x10,                // vmovaps %xmm7,0x10(%rsp)
-            0xc5,0xf8,0x29,0x34,0x24,                     // vmovaps %xmm6,(%rsp)
+            0x44,0x0f,0x29,0xbc,0x24,0x90,0x00,0x00,0x00, // movaps %xmm15,0x90(%rsp)
+            0x44,0x0f,0x29,0xb4,0x24,0x80,0x00,0x00,0x00, // movaps %xmm14,0x80(%rsp)
+            0x44,0x0f,0x29,0x6c,0x24,0x70,                // movaps %xmm13,0x70(%rsp)
+            0x44,0x0f,0x29,0x64,0x24,0x60,                // movaps %xmm12,0x60(%rsp)
+            0x44,0x0f,0x29,0x5c,0x24,0x50,                // movaps %xmm11,0x50(%rsp)
+            0x44,0x0f,0x29,0x54,0x24,0x40,                // movaps %xmm10,0x40(%rsp)
+            0x44,0x0f,0x29,0x4c,0x24,0x30,                // movaps %xmm9,0x30(%rsp)
+            0x44,0x0f,0x29,0x44,0x24,0x20,                // movaps %xmm8,0x20(%rsp)
+            0x0f,0x29,0x7c,0x24,0x10,                     // movaps %xmm7,0x10(%rsp)
+            0x0f,0x29,0x34,0x24,                          // movaps %xmm6,(%rsp)
             0x48,0x89,0xcf,                               // mov    %rcx,%rdi
             0x48,0x89,0xd6,                               // mov    %rdx,%rsi
             0x4c,0x89,0xc2,                               // mov    %r8,%rdx
@@ -146,16 +140,17 @@ namespace {
     }
     static void after_loop(SkWStream* buf) {
         static const uint8_t system_v_to_ms[] = {
-            0xc5,0xf8,0x28,0x34,0x24,                     // vmovaps (%rsp),%xmm6
-            0xc5,0xf8,0x28,0x7c,0x24,0x10,                // vmovaps 0x10(%rsp),%xmm7
-            0xc5,0x78,0x28,0x44,0x24,0x20,                // vmovaps 0x20(%rsp),%xmm8
-            0xc5,0x78,0x28,0x4c,0x24,0x30,                // vmovaps 0x30(%rsp),%xmm9
-            0xc5,0x78,0x28,0x54,0x24,0x40,                // vmovaps 0x40(%rsp),%xmm10
-            0xc5,0x78,0x28,0x5c,0x24,0x50,                // vmovaps 0x50(%rsp),%xmm11
-            0xc5,0x78,0x28,0x64,0x24,0x60,                // vmovaps 0x60(%rsp),%xmm12
-            0xc5,0x78,0x28,0x6c,0x24,0x70,                // vmovaps 0x70(%rsp),%xmm13
-            0xc5,0x78,0x28,0xb4,0x24,0x80,0x00,0x00,0x00, // vmovaps 0x80(%rsp),%xmm14
-            0xc5,0x78,0x28,0xbc,0x24,0x90,0x00,0x00,0x00, // vmovaps 0x90(%rsp),%xmm15
+            // TODO: vzeroupper here?
+            0x0f,0x28,0x34,0x24,                          // movaps (%rsp),%xmm6
+            0x0f,0x28,0x7c,0x24,0x10,                     // movaps 0x10(%rsp),%xmm7
+            0x44,0x0f,0x28,0x44,0x24,0x20,                // movaps 0x20(%rsp),%xmm8
+            0x44,0x0f,0x28,0x4c,0x24,0x30,                // movaps 0x30(%rsp),%xmm9
+            0x44,0x0f,0x28,0x54,0x24,0x40,                // movaps 0x40(%rsp),%xmm10
+            0x44,0x0f,0x28,0x5c,0x24,0x50,                // movaps 0x50(%rsp),%xmm11
+            0x44,0x0f,0x28,0x64,0x24,0x60,                // movaps 0x60(%rsp),%xmm12
+            0x44,0x0f,0x28,0x6c,0x24,0x70,                // movaps 0x70(%rsp),%xmm13
+            0x44,0x0f,0x28,0xb4,0x24,0x80,0x00,0x00,0x00, // movaps 0x80(%rsp),%xmm14
+            0x44,0x0f,0x28,0xbc,0x24,0x90,0x00,0x00,0x00, // movaps 0x90(%rsp),%xmm15
             0x48,0x81,0xc4,0xa8,0x00,0x00,0x00,           // add    $0xa8,%rsp
             0x5f,                                         // pop    %rdi
             0x5e,                                         // pop    %rsi
@@ -241,35 +236,46 @@ namespace {
     }
 #endif
 
-    static bool splice(SkWStream* buf, SkRasterPipeline::StockStage st) {
-        switch (st) {
-            default: return false;
-        #define CASE(st) case SkRasterPipeline::st: splice_until_ret(buf, kSplice_##st); break
-            CASE(clear);
-            CASE(plus_);
-            CASE(srcover);
-            CASE(dstover);
-            CASE(clamp_0);
-            CASE(clamp_1);
-            CASE(clamp_a);
-            CASE(swap);
-            CASE(move_src_dst);
-            CASE(move_dst_src);
-            CASE(premul);
-            CASE(unpremul);
-            CASE(from_srgb);
-            CASE(to_srgb);
-            CASE(scale_u8);
-            CASE(load_tables);
-            CASE(load_8888);
-            CASE(store_8888);
-            CASE(load_f16);
-            CASE(store_f16);
-            CASE(matrix_3x4);
-        #undef CASE
-        }
-        return true;
+#define CASE(prefix, st) case SkRasterPipeline::st: splice_until_ret(buf, prefix##_##st); break
+#define DEFINE_SPLICE(prefix)                                                        \
+    static bool prefix##_##splice(SkWStream* buf, SkRasterPipeline::StockStage st) { \
+        switch (st) {                                                                \
+            default: return false;                                                   \
+            CASE(prefix, clear);                                                     \
+            CASE(prefix, plus_);                                                     \
+            CASE(prefix, srcover);                                                   \
+            CASE(prefix, dstover);                                                   \
+            CASE(prefix, clamp_0);                                                   \
+            CASE(prefix, clamp_1);                                                   \
+            CASE(prefix, clamp_a);                                                   \
+            CASE(prefix, swap);                                                      \
+            CASE(prefix, move_src_dst);                                              \
+            CASE(prefix, move_dst_src);                                              \
+            CASE(prefix, premul);                                                    \
+            CASE(prefix, unpremul);                                                  \
+            CASE(prefix, from_srgb);                                                 \
+            CASE(prefix, to_srgb);                                                   \
+            CASE(prefix, scale_u8);                                                  \
+            CASE(prefix, load_tables);                                               \
+            CASE(prefix, load_8888);                                                 \
+            CASE(prefix, store_8888);                                                \
+            CASE(prefix, load_f16);                                                  \
+            CASE(prefix, store_f16);                                                 \
+            CASE(prefix, matrix_3x4);                                                \
+        }                                                                            \
+        return true;                                                                 \
     }
+    #if defined(__aarch64__)
+        DEFINE_SPLICE(aarch64)
+    #elif defined(__ARM_NEON__)
+        DEFINE_SPLICE(armv7)
+    #else
+        DEFINE_SPLICE(sse2)
+        DEFINE_SPLICE(sse41)
+        DEFINE_SPLICE(hsw)
+    #endif
+#undef DEFINE_SPLICE
+#undef CASE
 
     struct Spliced {
 
@@ -282,17 +288,46 @@ namespace {
             fSpliced    = nullptr;
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
+
         #if defined(__aarch64__)
+            auto splice_stage = [](SkWStream* buf, SkRasterPipeline::StockStage st) {
+                return aarch64_splice(buf, st);
+            };
+            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, aarch64_inc_x); };
         #elif defined(__ARM_NEON__)
             // Late generation ARMv7, e.g. Cortex A15 or Krait.
             if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
                 return;
             }
+            auto splice_stage = [](SkWStream* buf, SkRasterPipeline::StockStage st) {
+                return armv7_splice(buf, st);
+            };
+            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, armv7_inc_x); };
         #else
-            // To keep things simple, only one x86 target supported: Haswell+ x86-64.
-            if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
+            // To keep things simple, only x86-64 for now.
+            if (sizeof(void*) != 8) {
                 return;
             }
+            bool hsw   = true && SkCpu::Supports(SkCpu::HSW),
+                 sse41 = true && SkCpu::Supports(SkCpu::SSE41);
+            auto splice_stage = [&](SkWStream* buf, SkRasterPipeline::StockStage st) {
+                if (  hsw) { return   hsw_splice(buf, st); }
+                if (sse41) { return sse41_splice(buf, st); }
+                return sse2_splice(buf, st);
+            };
+            auto inc_x = [&](SkWStream* buf) {
+                if (  hsw) { splice_until_ret(buf,   hsw_inc_x); return; }
+                if (sse41) { splice_until_ret(buf, sse41_inc_x); return; }
+                splice_until_ret(buf,  sse2_inc_x);
+            };
+            auto ret = [&](SkWStream* buf) {
+                static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
+                static const uint8_t        ret[] = { 0xc3 };
+                if (hsw) {
+                    splice(buf, vzeroupper);
+                }
+                splice(buf, ret);
+            };
         #endif
 
             SkDynamicMemoryWStream buf;
@@ -312,13 +347,13 @@ namespace {
                 }
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
-                if (!splice(&buf, stages[i].stage)) {
+                if (!splice_stage(&buf, stages[i].stage)) {
                     //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
                     return;
                 }
             }
 
-            splice_until_ret(&buf, kSplice_inc_x);
+            inc_x(&buf);
             loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
             after_loop(&buf);
             ret(&buf);  // We're done.
