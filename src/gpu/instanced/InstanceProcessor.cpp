@@ -115,12 +115,26 @@ public:
 
     void fetchNextParam(GrSLType type = kVec4f_GrSLType) const {
         SkASSERT(fParamsBuffer.isValid());
-        if (type != kVec4f_GrSLType) {
-            fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(type));
+        switch (type) {
+            case kVec2f_GrSLType: // fall through
+            case kVec3f_GrSLType: // fall through
+            case kVec4f_GrSLType:
+                break;
+            default:
+                fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(type));
         }
         fVertexBuilder->appendTexelFetch(fParamsBuffer, "paramsIdx++");
-        if (type != kVec4f_GrSLType) {
-            fVertexBuilder->codeAppend(")");
+        switch (type) {
+            case kVec2f_GrSLType:
+                fVertexBuilder->codeAppend(".xy");
+                break;
+            case kVec3f_GrSLType:
+                fVertexBuilder->codeAppend(".xyz");
+                break;
+            case kVec4f_GrSLType:
+                break;
+            default:
+                fVertexBuilder->codeAppend(")");
         }
     }
 
@@ -1165,8 +1179,10 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
     }
     if (!fOpInfo.fHasPerspective) {
         v->codeAppend("mat2 shapeInverseMatrix = inverse(mat2(shapeMatrix));");
-        v->codeAppend("vec2 fragShapeSpan = abs(vec4(shapeInverseMatrix).xz) + "
-                                           "abs(vec4(shapeInverseMatrix).yw);");
+        v->codeAppend("vec2 fragShapeSpan = abs(vec2(shapeInverseMatrix[0].x,
+                                                     shapeInverseMatrix[1].x)) + "
+                                           "abs(vec2(shapeInverseMatrix[0].y,
+                                                     shapeInverseMatrix[1].y));");
     }
 }
 
