@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69cf78eb_0d20d119",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-02-09T17:17:47Z",
+      "side": 1,
+      "message": "nit: not sure if gerrit/cq knows how to update the unqualified bug numbers - maybe change to chromium:69014, etc?",
+      "revId": "eb040022bb6a1db54f492427c4227ab7caec85bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
