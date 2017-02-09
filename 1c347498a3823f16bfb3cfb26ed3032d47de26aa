@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b37e9714_81c91860",
+        "filename": "infra/bots/recipe_modules/run/api.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-02-09T15:07:05Z",
+      "side": 1,
+      "message": "Not needed.",
+      "range": {
+        "startLine": 92,
+        "startChar": 9,
+        "endLine": 92,
+        "endChar": 29
+      },
+      "revId": "1c347498a3823f16bfb3cfb26ed3032d47de26aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
