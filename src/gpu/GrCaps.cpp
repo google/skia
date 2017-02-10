@@ -22,9 +22,6 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
         case kRGBA_8888_sint_GrPixelConfig: return "RGBA8888_sint";
         case kETC1_GrPixelConfig: return "ETC1";
-        case kLATC_GrPixelConfig: return "LATC";
-        case kR11_EAC_GrPixelConfig: return "R11EAC";
-        case kASTC_12x12_GrPixelConfig: return "ASTC12x12";
         case kRGBA_float_GrPixelConfig: return "RGBAFloat";
         case kRG_float_GrPixelConfig: return "RGFloat";
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";

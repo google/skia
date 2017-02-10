@@ -1925,82 +1925,28 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // No sized/unsized internal format distinction for compressed formats, no external format.
     // Below we set the external formats and types to 0.
-
-    // May change the internal format based on extensions.
-    fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
-        GR_GL_COMPRESSED_LUMINANCE_LATC1;
-    fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
-        GR_GL_COMPRESSED_LUMINANCE_LATC1;
-    if (ctxInfo.hasExtension("GL_EXT_texture_compression_latc") ||
-        ctxInfo.hasExtension("GL_NV_texture_compression_latc")) {
-        fConfigTable[kLATC_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    } else if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(3, 0)) ||
-               ctxInfo.hasExtension("GL_EXT_texture_compression_rgtc") ||
-               ctxInfo.hasExtension("GL_ARB_texture_compression_rgtc")) {
-        // RGTC is identical and available on OpenGL 3.0+ as well as with extensions
-        fConfigTable[kLATC_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat =
-            GR_GL_COMPRESSED_RED_RGTC1;
-        fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
-            GR_GL_COMPRESSED_RED_RGTC1;
-    } else if (ctxInfo.hasExtension("GL_AMD_compressed_3DC_texture")) {
-        fConfigTable[kLATC_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        fConfigTable[kLATC_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_3DC_X;
-        fConfigTable[kLATC_GrPixelConfig].fFormats.fSizedInternalFormat =
-            GR_GL_COMPRESSED_3DC_X;
-
-    }
-    fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
-    fConfigTable[kLATC_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kLATC_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kLATC_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
-
-    fConfigTable[kETC1_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
-    fConfigTable[kETC1_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
-    fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
-    fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kETC1_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(4, 3) || ctxInfo.hasExtension("GL_ARB_ES3_compatibility")) {
-            fConfigTable[kETC1_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    {
+        fConfigTable[kETC1_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_ETC1_RGB8;
+        fConfigTable[kETC1_GrPixelConfig].fFormats.fSizedInternalFormat =
+                                                                         GR_GL_COMPRESSED_ETC1_RGB8;
+        fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
+        fConfigTable[kETC1_GrPixelConfig].fFormats.fExternalType = 0;
+        fConfigTable[kETC1_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+        if (kGL_GrGLStandard == standard) {
+            if (version >= GR_GL_VER(4, 3) || ctxInfo.hasExtension("GL_ARB_ES3_compatibility")) {
+                fConfigTable[kETC1_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+            }
+        } else {
+            if (version >= GR_GL_VER(3, 0) ||
+                ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture") ||
+                // ETC2 is a superset of ETC1, so we can just check for that, too.
+                (ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture") &&
+                 ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGBA8_texture"))) {
+                fConfigTable[kETC1_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+            }
         }
-    } else {
-        if (version >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture") ||
-            // ETC2 is a superset of ETC1, so we can just check for that, too.
-            (ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture") &&
-             ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGBA8_texture"))) {
-            fConfigTable[kETC1_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        }
+        fConfigTable[kETC1_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
     }
-    fConfigTable[kETC1_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-
-    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_COMPRESSED_R11_EAC;
-    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_COMPRESSED_R11_EAC;
-    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = 0;
-    fConfigTable[kR11_EAC_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kR11_EAC_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    // Check for R11_EAC. We don't support R11_EAC on desktop, as most cards default to
-    // decompressing the textures in the driver, and is generally slower.
-    if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) {
-        fConfigTable[kR11_EAC_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    }
-    fConfigTable[kR11_EAC_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
-
-    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fBaseInternalFormat =
-        GR_GL_COMPRESSED_RGBA_ASTC_12x12;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fSizedInternalFormat =
-        GR_GL_COMPRESSED_RGBA_ASTC_12x12;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-        0;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fFormats.fExternalType = 0;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    if (ctxInfo.hasExtension("GL_KHR_texture_compression_astc_hdr") ||
-        ctxInfo.hasExtension("GL_KHR_texture_compression_astc_ldr") ||
-        ctxInfo.hasExtension("GL_OES_texture_compression_astc")) {
-        fConfigTable[kASTC_12x12_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    }
-    fConfigTable[kASTC_12x12_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
     // Bulk populate the texture internal/external formats here and then deal with exceptions below.
 
