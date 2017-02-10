@@ -505,6 +505,6 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
                 canvas->drawImage(texImage, 0, 0);
             }
         }
-        canvas->translate(image->width() + kPad, 0);
+        canvas->translate(kSize + kPad, 0);
     }
 }
