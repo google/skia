@@ -68,12 +68,10 @@ public:
     }
 
 private:
-    // Owned by fAllocator, which will handle the delete.
+    // Owned by fAlloc, which will handle the delete.
     SkBlitter*          fBlitter;
-    SkTBlitterAllocator fAllocator;
 
-    // FIXME - pick a good inline and number.
-    SkArenaAlloc fAlloc{1024};
+    SkArenaAlloc fAlloc{kSkBlitterContextSize};
 };
 #define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
