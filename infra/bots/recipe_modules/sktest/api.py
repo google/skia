@@ -199,6 +199,11 @@ def dm_flags(bot):
     # Android and iOS. skia:5438
     blacklist('_ test _ GrShape')
 
+  if 'iOS' in bot:
+    # This tests code not yet used in production and fails on iOS. Suppressing
+    # until the failure is fixed.
+    blacklist('_ test _ ProcessorOptimizationValidationTest')
+
   if 'Win8' in bot:
     # bungeman: "Doesn't work on Windows anyway, produces unstable GMs with
     # 'Unexpected error' from DirectWrite"
