@@ -13,7 +13,7 @@
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/color_wheel.png";
-    return DrawOptions(256, 256, true, true, true, true, true, false, path);
+    return DrawOptions(256, 256, true, true, true, true, true, false, false, path);
 }
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
@@ -25,4 +25,5 @@ void draw(SkCanvas* canvas) {
                                       SkShader::kRepeat_TileMode,
                                       &matrix));
     canvas->drawPaint(paint);
+    SkDebugf("This is text output: %d", 2);
 }
