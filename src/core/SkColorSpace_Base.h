@@ -206,8 +206,6 @@ protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 
 private:
-    SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
-
     sk_sp<SkData> fProfileData;
 
     friend class SkColorSpace;
