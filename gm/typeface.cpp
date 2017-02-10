@@ -294,3 +294,22 @@ DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 680, SK_ColorWHITE,
 }
 
 #endif
+
+DEF_SIMPLE_GM(embeddedbitmap, canvas, 256, 256) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(30, 15);
+    bitmap.eraseColor(0);
+    SkCanvas offscreen(bitmap);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextSize(13);
+    paint.setTypeface(MakeResourceAsTypeface("/fonts/hintgasp.ttf"));
+    for (bool embedded : { false, true}) {
+        paint.setEmbeddedBitmapText(embedded);
+        offscreen.drawText("A", 1, embedded ? 5 : 15, 15, paint);
+    }
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->scale(10, 10);
+    canvas->drawBitmap(bitmap, -2, 1);
+}
