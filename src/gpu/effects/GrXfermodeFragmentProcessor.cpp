@@ -15,6 +15,18 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGrPriv.h"
 
+// Some of the cpu implementations of blend modes differ too much from the GPU enough that
+// we can't use the cpu implementation to implement constantOutputForConstantInput.
+static inline bool does_cpu_blend_impl_match_gpu(SkBlendMode mode) {
+    // The non-seperable modes differ too much. So does SoftLight. ColorBurn differs too much on our
+    // test iOS device (but we just disable it across the aboard since it may happen on untested
+    // GPUs).
+    return mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
+           mode != SkBlendMode::kColorBurn;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:
     ComposeTwoFragmentProcessor(sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst,
@@ -38,11 +50,8 @@ public:
 private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* src,
                                       const GrFragmentProcessor* dst, SkBlendMode mode) {
-        // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes and
-        // softlight.
-        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
-            src->hasConstantOutputForConstantInput() && dst->hasConstantOutputForConstantInput()) {
+        if (does_cpu_blend_impl_match_gpu(mode) && src->hasConstantOutputForConstantInput() &&
+            dst->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
         return kNone_OptimizationFlags;
@@ -197,11 +206,7 @@ public:
 
 private:
     OptimizationFlags OptFlags(const GrFragmentProcessor* child, SkBlendMode mode) {
-        // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes and
-        // softlight.
-        if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
-            child->hasConstantOutputForConstantInput()) {
+        if (does_cpu_blend_impl_match_gpu(mode) && child->hasConstantOutputForConstantInput()) {
             return kConstantOutputForConstantInput_OptimizationFlag;
         }
         return kNone_OptimizationFlags;

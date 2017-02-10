@@ -1284,6 +1284,7 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
 int main(int argc, char** argv) {
+    SkDebugf("%u", sizeof(SkPath) - sizeof(void*));
     SkCommandLineFlags::Parse(argc, argv);
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
