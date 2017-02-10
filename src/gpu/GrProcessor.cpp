@@ -8,7 +8,6 @@
 #include "GrProcessor.h"
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerParams.h"
 #include "GrTexturePriv.h"

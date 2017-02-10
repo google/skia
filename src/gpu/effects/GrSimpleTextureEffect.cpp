@@ -6,7 +6,6 @@
  */
 
 #include "GrSimpleTextureEffect.h"
-#include "GrInvariantOutput.h"
 #include "GrProxyMove.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -78,10 +77,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    this->updateInvariantOutputForModulation(inout);
-}
 
 void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {

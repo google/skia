@@ -15,7 +15,6 @@
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
@@ -223,10 +222,6 @@ public:
     }
 
     const char* name() const override { return "NormalBevelFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
-    }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalBevelFP; }

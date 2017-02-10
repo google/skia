@@ -7,7 +7,6 @@
 
 #include "GrDefaultGeoProcFactory.h"
 
-#include "GrInvariantOutput.h"
 #include "SkRefCnt.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"

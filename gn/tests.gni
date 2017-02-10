@@ -78,7 +78,6 @@ tests_sources = [
   "$_tests/GeometryTest.cpp",
   "$_tests/GifTest.cpp",
   "$_tests/GLProgramsTest.cpp",
-  "$_tests/GpuColorFilterTest.cpp",
   "$_tests/GpuDrawPathTest.cpp",
   "$_tests/GpuLayerCacheTest.cpp",
   "$_tests/GpuRectanizerTest.cpp",

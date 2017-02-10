@@ -11,7 +11,6 @@
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
-#include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrPLSGeometryProcessor.h"
 #include "GrPathUtils.h"

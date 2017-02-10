@@ -100,7 +100,6 @@ private:
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -240,10 +239,6 @@ public:
     }
 
     const char* name() const override { return "LightingFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
-    }
 
     const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
     const SkColor3f& ambientColor() const { return fAmbientColor; }

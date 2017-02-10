@@ -219,9 +219,6 @@ public:
 
     const char* name() const override { return "RadialShadowMapFP"; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
-    }
     const SkVector3& lightPos() const {
         return fLightPos;
     }

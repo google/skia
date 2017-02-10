@@ -6,7 +6,6 @@
  */
 
 #include "GrBicubicEffect.h"
-#include "GrInvariantOutput.h"
 #include "GrProxyMove.h"
 #include "GrTextureProxy.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -194,11 +193,6 @@ GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
     return fDomain == s.fDomain;
-}
-
-void GrBicubicEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // FIXME: Perhaps we can do better.
-    inout->mulByUnknownSingleComponent();
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
