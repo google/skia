@@ -22,6 +22,30 @@
       "revId": "bd70e7a8c9a10f5b595ebda7493c7d8ae24c3456",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95c878b9_25c5dd95",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-02-10T17:11:03Z",
+      "side": 1,
+      "message": "Ah, that\u0027s a much better idea. It also solves the problems I encounter if I support switching images (where the dimensions may not match).",
+      "parentUuid": "69380a04_d3b0fef1",
+      "range": {
+        "startLine": 769,
+        "startChar": 15,
+        "endLine": 769,
+        "endChar": 76
+      },
+      "revId": "bd70e7a8c9a10f5b595ebda7493c7d8ae24c3456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
