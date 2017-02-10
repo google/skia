@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de182e7a_1244e8b8",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-10T20:25:08Z",
+      "side": 1,
+      "message": "Might be nice to make a member so it cleans up on shutdown?  No big deal if you like this way.",
+      "revId": "98eeecf27cc9d52e27a5d67a6f140e18810a1a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
