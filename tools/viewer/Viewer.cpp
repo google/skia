@@ -26,6 +26,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkSwizzle.h"
+#include "SkTaskGroup.h"
 #include "SkTime.h"
 
 #include "imgui.h"
@@ -180,6 +181,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fZoomScale(SK_Scalar1)
 {
+    static SkTaskGroup::Enabler kTaskGroupEnabler;
     SkGraphics::Init();
     memset(fPaintTimes, 0, sizeof(fPaintTimes));
     memset(fFlushTimes, 0, sizeof(fFlushTimes));
