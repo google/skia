@@ -130,6 +130,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fZoomScale(SK_Scalar1)
 {
+    static SkTaskGroup::Enabler taskGroupEnabler;
     SkGraphics::Init();
     memset(fPaintTimes, 0, sizeof(fPaintTimes));
     memset(fFlushTimes, 0, sizeof(fFlushTimes));
