@@ -86,6 +86,22 @@ public:
         kLeft,
         kRight,
 
+        // Keys needed by ImGui
+        kTab,
+        kPageUp,
+        kPageDown,
+        kDelete,
+        kEscape,
+        kShift,
+        kCtrl,
+        kOption, // AKA Alt
+        kA,
+        kC,
+        kV,
+        kX,
+        kY,
+        kZ,
+
         kOK,      //!< the center key
 
         kVolUp,   //!< volume up    - match android
@@ -115,6 +131,7 @@ public:
     typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
     typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
     typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
+    typedef bool(*OnMouseWheelFunc)(float delta, uint32_t modifiers, void* userData);
     typedef bool(*OnTouchFunc)(intptr_t owner, InputState state, float x, float y, void* userData);
     typedef void(*OnUIStateChangedFunc)(
             const SkString& stateName, const SkString& stateValue, void* userData);
@@ -135,6 +152,11 @@ public:
         fMouseUserData = userData;
     }
 
+    void registerMouseWheelFunc(OnMouseWheelFunc func, void* userData) {
+        fMouseWheelFunc = func;
+        fMouseWheelUserData = userData;
+    }
+
     void registerPaintFunc(OnPaintFunc func, void* userData) {
         fPaintFunc = func;
         fPaintUserData = userData;
@@ -153,6 +175,7 @@ public:
     bool onChar(SkUnichar c, uint32_t modifiers);
     bool onKey(Key key, InputState state, uint32_t modifiers);
     bool onMouse(int x, int y, InputState state, uint32_t modifiers);
+    bool onMouseWheel(float delta, uint32_t modifiers);
     bool onTouch(intptr_t owner, InputState state, float x, float y);  // multi-owner = multi-touch
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
@@ -176,6 +199,8 @@ protected:
     void*        fKeyUserData;
     OnMouseFunc  fMouseFunc;
     void*        fMouseUserData;
+    OnMouseWheelFunc fMouseWheelFunc;
+    void*        fMouseWheelUserData;
     OnTouchFunc  fTouchFunc;
     void*        fTouchUserData;
     OnUIStateChangedFunc

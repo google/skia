@@ -22,13 +22,15 @@ namespace sk_app {
  * Helper class used by applications that want to hook keypresses to trigger events.
  *
  * An app can simply store an instance of CommandSet and then use it as follows:
- * 1) Attach to the Window at initialization time. This registers key handlers on the window.
+ * 1) Attach to the Window at initialization time.
  * 2) Register commands to be executed for characters or keys. Each command needs a Group and a
  *    description (both just strings). Commands attached to Keys (rather than characters) also need
  *    a displayable name for the Key. Finally, a function to execute when the key or character is
  *    pressed must be supplied. The easiest option to is pass in a lambda that captures [this]
  *    (your application object), and performs whatever action is desired.
- * 3) At the end of your onPaint, call drawHelp, and pass in the application's canvas.
+ * 3) Register key and char handlers with the Window, and - depending on your state - forward those
+ *    events to the CommandSet's onKey, onChar, and onSoftKey.
+ * 4) At the end of your onPaint, call drawHelp, and pass in the application's canvas.
 
  * The CommandSet always binds 'h' to cycle through two different help screens. The first shows
  * all commands, organized by Group (with headings for each Group). The second shows all commands
@@ -63,7 +65,7 @@ private:
                 std::function<void(void)> function)
             : fType(kChar_CommandType)
             , fChar(c)
-            , fKeyName(SkStringPrintf("%c", c))
+            , fKeyName(' ' == c ? SkString("Space") : SkStringPrintf("%c", c))
             , fGroup(group)
             , fDescription(description)
             , fFunction(function) {}

@@ -12,17 +12,6 @@
 
 namespace sk_app {
 
-static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
-                           void* userData) {
-    CommandSet* cs = reinterpret_cast<CommandSet*>(userData);
-    return cs->onKey(key, state, modifiers);
-}
-
-static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    CommandSet* cs = reinterpret_cast<CommandSet*>(userData);
-    return cs->onChar(c, modifiers);
-}
-
 CommandSet::CommandSet()
     : fHelpMode(kNone_HelpMode) {
     this->addCommand('h', "Overlays", "Show help screen", [this]() {
@@ -43,8 +32,6 @@ CommandSet::CommandSet()
 
 void CommandSet::attach(Window* window) {
     fWindow = window;
-    window->registerKeyFunc(on_key_handler, this);
-    window->registerCharFunc(on_char_handler, this);
 }
 
 bool CommandSet::onKey(Window::Key key, Window::InputState state, uint32_t modifiers) {
