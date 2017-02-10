@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "94a4fa98_638c352f",
+        "filename": "src/gpu/GrProcOptInfo.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T17:53:41Z",
+      "side": 1,
+      "message": "fTotalPRocessorsVisited may not be 0 when this function is called.",
+      "parentUuid": "c72f8922_9522e554",
+      "range": {
+        "startLine": 16,
+        "startChar": 35,
+        "endLine": 16,
+        "endChar": 47
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9037c4a1_78a14453",
         "filename": "src/gpu/GrProcOptInfo.cpp",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-10T16:09:19Z",
       "side": 1,
       "message": "we don\u0027t want the opaque and modulate checks in here to do we? knowCurrentOutput just means we know the color, not knowing that doesn\u0027t mean we don\u0027t know the other props.",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79be7b53_413d4674",
+        "filename": "src/gpu/GrProcOptInfo.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T17:53:41Z",
+      "side": 1,
+      "message": "Yes, you\u0027re right.",
+      "parentUuid": "9037c4a1_78a14453",
       "range": {
         "startLine": 20,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d1249d85_d6b8593b",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T17:53:41Z",
+      "side": 1,
+      "message": "One of them wasn\u0027t used. There is one caller for the GrColor variation of initialProcessorsToEliminate which could use 4f if the xp override color was 4f. Otherwise it has to do a somewhat awkward dance to make the GrColor be GrColor_ILLEGAL when there is no override. Maybe in a future CL, but not sure that is a good idea. GrDrawOps all use GrColor now.",
+      "parentUuid": "e1b561f0_d5034ad7",
+      "range": {
+        "startLine": 63,
+        "startChar": 5,
+        "endLine": 63,
+        "endChar": 7
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5435787_116f4901",
         "filename": "src/gpu/GrProcOptInfo.h",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-10T16:09:19Z",
       "side": 1,
       "message": "I forget where we left off, are we still planning on removing this functionality and not deleting color stages?",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b30cc2e_b79dab4b",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T17:53:41Z",
+      "side": 1,
+      "message": "I think we still need it for LCD on GPUs w/out dsb.",
+      "parentUuid": "c5435787_116f4901",
       "range": {
         "startLine": 64,
         "startChar": 8,
