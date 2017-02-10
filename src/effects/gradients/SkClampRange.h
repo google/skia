@@ -11,11 +11,13 @@
 #include "SkFixed.h"
 #include "SkScalar.h"
 
-#define SkGradFixed             SkFixed3232
-#define SkScalarToGradFixed(x)  SkScalarToFixed3232(x)
-#define SkFixedToGradFixed(x)   SkFixedToFixed3232(x)
-#define SkGradFixedToFixed(x)   (SkFixed)((x) >> 16)
-#define kFracMax_SkGradFixed    0xFFFFFFFFLL
+#define SkGradFixed               SkFixed3232
+#define SkScalarPinToGradFixed(x) SkScalarToFixed3232(SkTPin(x,                                 \
+                                                             SkFixed3232ToFloat(SkFixed3232Min),\
+                                                             SkFixed3232ToFloat(SkFixed3232Max)))
+#define SkFixedToGradFixed(x)     SkFixedToFixed3232(x)
+#define SkGradFixedToFixed(x)     (SkFixed)((x) >> 16)
+#define kFracMax_SkGradFixed      0xFFFFFFFFLL
 
 /**
  *  Iteration fixed fx by dx, clamping as you go to [0..kFracMax_SkGradFixed], this class
