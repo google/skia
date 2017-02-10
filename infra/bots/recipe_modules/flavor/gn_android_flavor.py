@@ -53,10 +53,9 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       import time
 
       kicks = 0
-      while kicks < 2:
+      while True:
 
         times = 0
-
         while times < 30:
           print 'Waiting for the device to be connected and ready.'
           try:
@@ -70,6 +69,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
             # no device connected/authorized yet
             pass
           time.sleep(5)
+        if kicks >= 3:
+          break
         print 'Giving the device a "kick" by trying to reboot it.'
         kicks += 1
         print subprocess.check_output(['adb', 'reboot'])
