@@ -106,7 +106,10 @@ SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMod
 
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
-    if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
+    if (!picture ||
+        picture->cullRect().isEmpty() ||
+        (tile && tile->isEmpty()) ||
+        (localMatrix && !localMatrix->invert(nullptr))) {
         return SkShader::MakeEmptyShader();
     }
     return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
