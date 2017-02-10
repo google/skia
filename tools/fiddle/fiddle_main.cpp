@@ -14,6 +14,20 @@
 SkBitmap source;
 sk_sp<SkImage> image;
 
+char formatbuffer[1024];
+std::string textoutput;
+
+void SkDebugf(const char * fmt, ...) {
+    int n;
+    va_list args;
+    va_start(args, fmt);
+    n = vsnprintf(formatbuffer, sizeof(formatbuffer), fmt, args);
+    va_end(args);
+    if (n>=0 && n<=sizeof(formatbuffer)) {
+        textoutput.append(formatbuffer);
+    }
+}
+
 static void encode_to_base64(const void* data, size_t size, FILE* out) {
     const uint8_t* input = reinterpret_cast<const uint8_t*>(data);
     const uint8_t* end = &input[size];
@@ -56,6 +70,15 @@ static void dump_output(const sk_sp<SkData>& data,
     }
 }
 
+static void dump_text(const std::string& s,
+                        const char* name, bool last = true) {
+    if (data) {
+        printf("\t\"%s\": \"", name);
+        encode_to_base64(s.c_str(), s.length(), stdout);
+        fputs(last ? "\"\n" : "\",\n", stdout);
+    }
+}
+
 static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     sk_sp<SkImage> img(surface->makeImageSnapshot());
     return img ? img->encode() : nullptr;
@@ -86,6 +109,8 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
 #else
     static sk_sp<GrContext> create_grcontext() { return nullptr; }
 #endif
+
+
 
 int main() {
     const DrawOptions options = GetDrawOptions();
@@ -158,12 +183,14 @@ int main() {
         picture->serialize(&skpStream);
         skpData = skpStream.detachAsData();
     }
+    bool textOnly = options.textOnly;
 
     printf("{\n");
-    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
-    dump_output(gpuData, "Gpu", !pdfData && !skpData);
-    dump_output(pdfData, "Pdf", !skpData);
-    dump_output(skpData, "Skp");
+    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData && !textOnly);
+    dump_output(gpuData, "Gpu", !pdfData && !skpData && !textOnly);
+    dump_output(pdfData, "Pdf", !skpData && !textOnly);
+    dump_output(skpData, "Skp", !textOnly);
+    dump_text(textoutput, "Text");
     printf("}\n");
 
     return 0;
