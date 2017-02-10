@@ -301,6 +301,10 @@ public:
         return ptr;
     }
 
+    void swap(SkAutoTMalloc& other) {
+        SkTSwap(fPtr, other.fPtr);
+    }
+
 private:
     T* fPtr;
 };
