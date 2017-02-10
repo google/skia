@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4e2114d_aff62b1a",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T19:24:24Z",
+      "side": 1,
+      "message": "Could this one go back too?",
+      "revId": "2270fd22ea49890ed28f436877cfdd861dddb10b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
