@@ -10,7 +10,6 @@
 
 #include "GrBuffer.h"
 #include "GrContext.h"
-#include "GrDistanceFieldGenFromVector.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrPipelineBuilder.h"
@@ -21,10 +20,10 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
+#include "SkPathOps.h"
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
-#include "SkMathPriv.h"
-#include "SkPathOps.h"
+#include "GrDistanceFieldGenFromVector.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048
@@ -40,12 +39,9 @@ static int g_NumFreedShapes = 0;
 #endif
 
 // mip levels
-static const int kMinMIP = 16;
-static const int kMinMIPLog = 4;
-static const int kMaxMIP = 162;
-
-static const int kMaxDim = 73;
-static const int kMaxSize = 2*kMaxMIP;
+static const int kSmallMIP = 32;
+static const int kMediumMIP = 73;
+static const int kLargeMIP = 162;
 
 // Callback to clear out internal path cache when eviction occurs
 void GrAADistanceFieldPathRenderer::HandleEviction(GrDrawOpAtlas::AtlasID id, void* pr) {
@@ -111,14 +107,14 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
         return false;
     }
 
-    // Only support paths with bounds within kMaxDim by kMaxDim,
-    // scaled to have bounds within kMaxSize by kMaxSize.
+    // Only support paths with bounds within kMediumMIP by kMediumMIP,
+    // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     SkRect bounds = args.fShape->styledBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
-    return maxDim <= kMaxDim && maxDim * maxScale <= kMaxSize;
+    return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -245,28 +241,20 @@ private:
             const SkRect& bounds = args.fShape.bounds();
             SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
             SkScalar size = maxScale * maxDim;
-            // We try to create the DF at a power of two scaled path resolution (1/2, 1, 2, 4, etc)
-            // In the majority of cases this will yield a crisper rendering.
-            SkScalar mipScale = 1.0f;
-            // for small paths, scale up to a min size between kMinMIP and 2*kMinMIP
-            if (maxDim < kMinMIP) {
-                mipScale = SkIntToScalar(1 << (kMinMIPLog - SkPrevLog2(maxDim)));
-            // for larger paths, initial scale is half the original
-            // gives us a size between kMinMIP and kMaxDim/2 (or close to (kMinMIP, 2*kMinMIP])
-            } else if (maxDim > 2*kMinMIP) {
-                mipScale = 0.5f;
-            }
-            SkScalar smallMipSize = mipScale*maxDim;
-
             SkScalar desiredDimension;
-            if (size <= smallMipSize) {
-                desiredDimension = smallMipSize;
-            } else if (size <= 2*smallMipSize) {
-                desiredDimension = 2*smallMipSize;
-            } else if (size <= 4*smallMipSize) {
-                desiredDimension = 4*smallMipSize;
+            // For minimizing (or the common case of identity) transforms, we try to
+            // create the DF at the appropriately sized native src-space path resolution.
+            // In the majority of cases this will yield a crisper rendering.
+            if (size <= maxDim && maxDim < kSmallMIP) {
+                desiredDimension = maxDim;
+            } else if (size <= kSmallMIP) {
+                desiredDimension = kSmallMIP;
+            } else if (size <= maxDim) {
+                desiredDimension = maxDim;
+            } else if (size <= kMediumMIP) {
+                desiredDimension = kMediumMIP;
             } else {
-                desiredDimension = kMaxMIP;
+                desiredDimension = kLargeMIP;
             }
 
             // check to see if path is cached
