@@ -22,10 +22,11 @@ class GrPrimitiveProcessor;
  */
 class GrProcOptInfo {
 public:
-    GrProcOptInfo() : fInOut(0, static_cast<GrColorComponentFlags>(0)) {}
+    GrProcOptInfo() { this->reset(0, kNone_GrColorComponentFlags); }
 
-    GrProcOptInfo(GrColor color, GrColorComponentFlags colorFlags)
-            : fInOut(color, colorFlags), fInputColor(color) {}
+    GrProcOptInfo(GrColor color, GrColorComponentFlags colorFlags) {
+        this->reset(color, colorFlags);
+    }
 
     void resetToLCDCoverage(GrColor color, GrColorComponentFlags colorFlags) {
         this->internalReset(color, colorFlags, true);
@@ -45,45 +46,65 @@ public:
      */
     void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
 
-    bool isSolidWhite() const { return fInOut.isSolidWhite(); }
-    bool isOpaque() const { return fInOut.isOpaque(); }
-    bool allStagesMultiplyInput() const { return fInOut.allStagesMulInput(); }
+    bool isSolidWhite() const {
+        return fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited &&
+               fLastKnownOutputColor == GrColor4f::OpaqueWhite();
+    }
+    bool isOpaque() const { return fIsOpaque; }
+    bool allProcessorsModulateByPremul() const { return fAllProcessorsModulatePremul; }
     bool isLCDCoverage() const { return fIsLCDCoverage; }
-    GrColor color() const { return fInOut.color(); }
-    GrColorComponentFlags validFlags() const { return fInOut.validFlags(); }
 
     /**
-     * Returns the index of the first effective color processor. If an intermediate processor
-     * doesn't read its input or has a known output, then we can ignore all earlier processors
-     * since they will not affect the final output. Thus the first effective processors index is
-     * the index to the first processor that will have an effect on the final output.
-     *
-     * If processors before the firstEffectiveProcessorIndex() are removed, corresponding values
-     * from inputColorIsUsed(), inputColorToEffectiveProcessor(), removeVertexAttribs(), and
-     * readsDst() must be used when setting up the draw to ensure correct drawing.
+     * If we detected that the result after the first N processors is a known color then we
+     * eliminate those N processors and replace the GrDrawOp's color input to the GrPipeline with
+     * the known output of the Nth processor, so that the Nth+1 fragment processor (or the XP if
+     * there are only N processors) sees its expected input. If this returns 0 then there are no
+     * processors to eliminate.
      */
-    int firstEffectiveProcessorIndex() const { return fFirstEffectiveProcessorIndex; }
+    int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
+        if (fProcessorsVisitedWithKnownOutput > 0) {
+            *newPipelineInputColor = fLastKnownOutputColor.toGrColor();
+        }
+        return SkTMax(0, fProcessorsVisitedWithKnownOutput);
+    }
+    int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
+        if (fProcessorsVisitedWithKnownOutput > 0) {
+            *newPipelineInputColor = fLastKnownOutputColor;
+        }
+        return SkTMax(0, fProcessorsVisitedWithKnownOutput);
+    }
 
-    /**
-     * If input color is used and per-vertex colors are not used, this is the input color to the
-     * first effective processor.
-     */
-    GrColor inputColorToFirstEffectiveProccesor() const { return fInputColor; }
+    bool hasKnownOutputColor(GrColor* knownOutputColor = nullptr) const {
+        if (fProcessorsVisitedWithKnownOutput != fTotalProcessorsVisited) {
+            return false;
+        }
+        if (knownOutputColor) {
+            *knownOutputColor = fLastKnownOutputColor.toGrColor();
+        }
+        return true;
+    }
 
 private:
     void internalReset(GrColor color, GrColorComponentFlags colorFlags, bool isLCDCoverage) {
-        fInOut.reset(color, colorFlags);
-        fFirstEffectiveProcessorIndex = 0;
-        fInputColor = color;
+        fTotalProcessorsVisited = 0;
         fIsLCDCoverage = isLCDCoverage;
+        fIsOpaque = (kA_GrColorComponentFlag & colorFlags) && GrColorIsOpaque(color);
+        fAllProcessorsModulatePremul = true;
+        if (kRGBA_GrColorComponentFlags == colorFlags) {
+            fProcessorsVisitedWithKnownOutput = 0;
+            fLastKnownOutputColor = GrColor4f::FromGrColor(color);
+        } else {
+            // -1 so that we know that even without adding processors that the color is not known.
+            fProcessorsVisitedWithKnownOutput = -1;
+        }
     }
 
-    void internalCalc(const GrFragmentProcessor* const[], int cnt);
-
-    GrInvariantOutput fInOut;
-    int fFirstEffectiveProcessorIndex = 0;
-    bool fIsLCDCoverage = false;
-    GrColor fInputColor = 0;
+    int fTotalProcessorsVisited;
+    int fProcessorsVisitedWithKnownOutput;
+    bool fIsLCDCoverage;
+    bool fIsOpaque;
+    bool fAllProcessorsModulatePremul;
+    GrColor4f fLastKnownOutputColor;
 };
 
 #endif
