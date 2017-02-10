@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkColorSpacePriv_DEFINED
+#define SkColorSpacePriv_DEFINED
 
 #include <math.h>
 
@@ -192,3 +194,4 @@ static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
             return false;
     }
 }
+#endif  // SkColorSpacePriv_DEFINED
