@@ -12,6 +12,7 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
+#include "SkRegion.h"
 #include "SkStream.h"
 
 #include <stdlib.h>
