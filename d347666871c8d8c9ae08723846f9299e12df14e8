@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79daec43_0c83c90a",
+        "filename": "gm/pathfill.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T19:50:26Z",
+      "side": 1,
+      "message": "should this and make_info just return void?",
+      "range": {
+        "startLine": 186,
+        "startChar": 7,
+        "endLine": 186,
+        "endChar": 15
+      },
+      "revId": "d347666871c8d8c9ae08723846f9299e12df14e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98eb60d9_be0fe739",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T19:50:26Z",
+      "side": 1,
+      "message": "Is this the same as 32 - SkCLZ(n)?",
+      "revId": "d347666871c8d8c9ae08723846f9299e12df14e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
