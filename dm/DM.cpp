@@ -356,9 +356,11 @@ static bool in_shard() {
 
 static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
+    SkTDArray<const char*> match;
+    *match.push() = "ProcessorOptimizationValidationTest";
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        !SkCommandLineFlags::ShouldSkip(match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1219,7 +1221,9 @@ static void gather_tests() {
         // Despite its name, factory() is returning a reference to
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        SkTDArray<const char*> match;
+        *match.push() = "ProcessorOptimizationValidationTest";
+        if (SkCommandLineFlags::ShouldSkip(match, test.name)) {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {
