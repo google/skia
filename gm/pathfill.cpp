@@ -183,6 +183,51 @@ static SkScalar make_info(SkPath* path) {
     return SkIntToScalar(44);
 }
 
+static SkScalar make_accessibility(SkPath* path) {
+    path->moveTo(12, 2);
+    path->cubicTo(13.10000038146973f,
+                  2,
+                  14,
+                  2.900000095367432f,
+                  14,
+                  4);
+    path->cubicTo(14,
+                  5.099999904632568f,
+                  13.10000038146973f,
+                  6,
+                  12,
+                  6);
+    path->cubicTo(10.89999961853027f,
+                  6,
+                  10,
+                  5.099999904632568f,
+                  10,
+                  4);
+    path->cubicTo(10,
+                  2.900000095367432f,
+                  10.89999961853027f,
+                  2,
+                  12,
+                  2);
+    path->close();
+    path->moveTo(21, 9);
+    path->lineTo(15, 9);
+    path->lineTo(15, 22);
+    path->lineTo(13, 22);
+    path->lineTo(13, 16);
+    path->lineTo(11, 16);
+    path->lineTo(11, 22);
+    path->lineTo(9, 22);
+    path->lineTo(9, 9);
+    path->lineTo(3, 9);
+    path->lineTo(3, 7);
+    path->lineTo(21, 7);
+    path->lineTo(21, 9);
+    path->close();
+
+    return SkIntToScalar(44);
+}
+
 constexpr MakePathProc gProcs[] = {
     make_frame,
     make_triangle,
@@ -202,6 +247,7 @@ class PathFillGM : public skiagm::GM {
     SkPath  fPath[N];
     SkScalar fDY[N];
     SkPath  fInfoPath;
+    SkPath  fAccessibilityPath;
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {
@@ -209,6 +255,7 @@ protected:
         }
 
         (void) make_info(&fInfoPath);
+        (void) make_accessibility(&fAccessibilityPath);
     }
 
 
@@ -229,9 +276,15 @@ protected:
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
 
+        canvas->save();
         canvas->scale(0.300000011920929f, 0.300000011920929f);
         canvas->translate(50, 50);
         canvas->drawPath(fInfoPath, paint);
+        canvas->restore();
+
+        canvas->scale(2, 2);
+        canvas->translate(5, 15);
+        canvas->drawPath(fAccessibilityPath, paint);
     }
 
 private:
