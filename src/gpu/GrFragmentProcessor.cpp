@@ -394,38 +394,28 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     if (!cnt) {
         return nullptr;
     }
-
+    if (1 == cnt) {
+        return series[0];
+    }
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcOptInfo info(0x0, kNone_GrColorComponentFlags);
     info.analyzeProcessors(sk_sp_address_as_pointer_address(series), cnt);
-    if (kRGBA_GrColorComponentFlags == info.validFlags()) {
-        // TODO: We need to preserve 4f and color spaces during invariant processing. This color
-        // has definitely lost precision, and could easily be in the wrong gamut (or have been
-        // built from colors in multiple spaces).
-        return GrConstColorProcessor::Make(GrColor4f::FromGrColor(info.color()),
-                                           GrConstColorProcessor::kIgnore_InputMode);
-    }
-
     SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;
-
-    int firstIdx = info.firstEffectiveProcessorIndex();
-    cnt -= firstIdx;
-    if (firstIdx > 0) {
-        // See comment above - need to preserve 4f and color spaces during invariant processing.
-        sk_sp<GrFragmentProcessor> colorFP(GrConstColorProcessor::Make(
-            GrColor4f::FromGrColor(info.inputColorToFirstEffectiveProccesor()),
-            GrConstColorProcessor::kIgnore_InputMode));
-        cnt += 1;
+    GrColor4f knownColor;
+    int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
+    if (leadingFPsToEliminate) {
+        sk_sp<GrFragmentProcessor> colorFP(
+                GrConstColorProcessor::Make(knownColor, GrConstColorProcessor::kIgnore_InputMode));
+        if (leadingFPsToEliminate == cnt) {
+            return colorFP;
+        }
+        cnt = cnt - leadingFPsToEliminate + 1;
         replacementSeries.reserve(cnt);
         replacementSeries.emplace_back(std::move(colorFP));
         for (int i = 0; i < cnt - 1; ++i) {
-            replacementSeries.emplace_back(std::move(series[firstIdx + i]));
+            replacementSeries.emplace_back(std::move(series[leadingFPsToEliminate + i]));
         }
         series = replacementSeries.begin();
-    }
-
-    if (1 == cnt) {
-        return series[0];
     }
     return sk_sp<GrFragmentProcessor>(new SeriesFragmentProcessor(series, cnt));
 }

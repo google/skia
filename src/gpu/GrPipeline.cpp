@@ -71,9 +71,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                 *args.fCaps, args.fAnalysis, hasMixedSamples, &args.fDstTexture));
     }
     GrColor overrideColor = GrColor_ILLEGAL;
-    if (args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex() != 0) {
-        overrideColor = args.fAnalysis.fColorPOI.inputColorToFirstEffectiveProccesor();
-    }
+    int colorFPsToEliminate = args.fAnalysis.fColorPOI.initialProcessorsToEliminate(&overrideColor);
 
     GrXferProcessor::OptFlags optFlags = GrXferProcessor::kNone_OptFlags;
 
@@ -98,40 +96,32 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 
     pipeline->fXferProcessor.reset(xferProcessor.get());
 
-    int firstColorProcessorIdx = args.fAnalysis.fColorPOI.firstEffectiveProcessorIndex();
-
-    // TODO: Once we can handle single or four channel input into coverage GrFragmentProcessors
-    // then we can use GrPipelineBuilder's coverageProcInfo (like color above) to set this initial
-    // information.
-    int firstCoverageProcessorIdx = 0;
-
     if ((optFlags & GrXferProcessor::kIgnoreColor_OptFlag) ||
         (optFlags & GrXferProcessor::kOverrideColor_OptFlag)) {
-        firstColorProcessorIdx = args.fProcessors->numColorFragmentProcessors();
+        colorFPsToEliminate = args.fProcessors->numColorFragmentProcessors();
     }
 
     bool usesLocalCoords = false;
 
-    // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline
+    // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
+    // color fragment processors.
     pipeline->fNumColorProcessors =
-            args.fProcessors->numColorFragmentProcessors() - firstColorProcessorIdx;
-    int numTotalProcessors = pipeline->fNumColorProcessors +
-                             args.fProcessors->numCoverageFragmentProcessors() -
-                             firstCoverageProcessorIdx;
+            args.fProcessors->numColorFragmentProcessors() - colorFPsToEliminate;
+    int numTotalProcessors =
+            pipeline->fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
     if (args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
     pipeline->fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
-    for (int i = firstColorProcessorIdx; i < args.fProcessors->numColorFragmentProcessors();
+    for (int i = colorFPsToEliminate; i < args.fProcessors->numColorFragmentProcessors();
          ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         pipeline->fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
     }
 
-    for (int i = firstCoverageProcessorIdx; i < args.fProcessors->numCoverageFragmentProcessors();
-         ++i, ++currFPIdx) {
+    for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         pipeline->fFragmentProcessors[currFPIdx].reset(fp);
         usesLocalCoords = usesLocalCoords || fp->usesLocalCoords();
@@ -158,9 +148,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (xpFactory) {
         xpFactory->getInvariantBlendedColor(args.fAnalysis.fColorPOI, &blendedColor);
     } else {
-        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fAnalysis.fColorPOI.color(),
-                                                            args.fAnalysis.fColorPOI.validFlags(),
-                                                            args.fAnalysis.fColorPOI.isOpaque(),
+        GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(args.fAnalysis.fColorPOI,
                                                             &blendedColor);
     }
     if (blendedColor.fWillBlendWithDst) {

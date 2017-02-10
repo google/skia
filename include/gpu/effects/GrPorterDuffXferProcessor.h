@@ -41,21 +41,8 @@ public:
         by reference because it is global and its ref-cnting methods are not thread safe. */
     static const GrXferProcessor& SimpleSrcOverXP();
 
-    static inline void SrcOverInvariantBlendedColor(
-                                                GrColor inputColor,
-                                                GrColorComponentFlags validColorFlags,
-                                                bool isOpaque,
-                                                GrXPFactory::InvariantBlendedColor* blendedColor) {
-        if (!isOpaque) {
-            blendedColor->fWillBlendWithDst = true;
-            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-            return;
-        }
-        blendedColor->fWillBlendWithDst = false;
-
-        blendedColor->fKnownColor = inputColor;
-        blendedColor->fKnownColorFlags = validColorFlags;
-    }
+    static void SrcOverInvariantBlendedColor(const GrProcOptInfo&,
+                                             GrXPFactory::InvariantBlendedColor*);
 
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineAnalysis&);
 
