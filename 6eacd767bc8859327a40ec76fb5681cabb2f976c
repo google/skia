@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f378fce6_caadf260",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-02-10T16:10:29Z",
+      "side": 1,
+      "message": "If you like, \n\nif (!shaderIsOpaque) {\n  p-\u003eappend(unpremul);\n}\n...\nif (!shaderIsOpaque) {\n  p-\u003eappend(premul);\n}",
+      "revId": "6eacd767bc8859327a40ec76fb5681cabb2f976c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
