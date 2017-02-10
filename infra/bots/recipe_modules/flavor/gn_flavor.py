@@ -2,13 +2,18 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from recipe_engine import util as recipe_util
+
 import default_flavor
+import tempfile
+
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
-  def _run(self, title, cmd, env=None, infra_step=False):
-    self.m.run(self.m.step, title, cmd=cmd,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+  def _run(self, title, cmd, env=None, infra_step=False, stdout=None):
+    return self.m.run(self.m.step, title, cmd=cmd,
+                      env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step,
+                      stdout=stdout)
 
   def _py(self, title, script, env=None, infra_step=True, args=()):
     self.m.run(self.m.python, title, script=script, args=args,
@@ -161,4 +166,71 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Find the MSAN-built libc++.
       env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
 
-    self._run(name, cmd, env=env)
+    if 'dm' == name and 'Ubuntu16' == self.m.vars.builder_cfg['os']:
+      try:
+        out = PrintingOutputDataPlaceholder()
+        self._run(name, cmd, env=env, stdout=out)
+        result = self.m.step.active_result
+        if result.stdout:
+          result.presentation.logs['real_stdout'] = ( # pragma: no cover
+              result.stdout.splitlines())
+      except self.m.step.StepFailure:
+        result = self.m.step.active_result
+        if result.stdout:
+          result.presentation.logs['real_stdout'] = result.stdout.splitlines()
+
+          self._py('symbolize stacktrace',
+                   self.m.vars.infrabots_dir.join('recipe_modules', 'core',
+                   'resources', 'symbolize_stack_trace.py'),
+                   args=[result.stdout, self.m.vars.slave_dir])
+
+        raise
+
+    else:
+      self._run(name, cmd, env=env)
+
+class PrintingFile(object):
+  def __init__(self, backing_file):
+    self._backing_file = backing_file
+
+  def write(s):
+    sys.stdout.write(s)
+    self._backing_file.write(s)
+
+class PrintingOutputDataPlaceholder(recipe_util.OutputPlaceholder):
+  def __init__(self, suffix='', leak_to=None, name=None):
+    self.suffix = suffix
+    self.leak_to = leak_to
+    self._backing_file = None
+    super(self.__class__, self).__init__(name=name)
+
+  @property
+  def backing_file(self):
+    return self._backing_file
+
+  def render(self, test):
+    if self.leak_to:
+      self._backing_file = str(self.leak_to) # pragma: no cover
+      return [self._backing_file] # pragma: no cover
+    if test.enabled:
+      self._backing_file = '/path/to/tmp/' + self.suffix.lstrip('.')
+    else:  # pragma: no cover
+      import os
+      output_fd, self._backing_file = tempfile.mkstemp(suffix=self.suffix)
+      os.close(output_fd)
+
+    return [PrintingFile(self._backing_file)]
+
+  def result(self, presentation, test):
+    if test.enabled:
+      self._backing_file = None
+      return test.data
+    else:  # pragma: no cover
+      try:
+        with open(self._backing_file, 'rb') as f:
+          return f.read()
+      finally:
+        import os
+        if not self.leak_to:
+          os.unlink(self._backing_file)
+        self._backing_file = None
