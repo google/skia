@@ -29,6 +29,8 @@ skia_utils_sources = [
 
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
+  "$_src/utils/SkBitmapSourceDeserializer.cpp",
+  "$_src/utils/SkBitmapSourceDeserializer.h",
   "$_src/utils/SkBitSet.h",
   "$_src/utils/SkBoundaryPatch.cpp",
   "$_src/utils/SkFrontBufferedStream.cpp",
