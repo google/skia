@@ -253,28 +253,6 @@ enum GrPixelConfig {
      */
     kETC1_GrPixelConfig,
     /**
-     * LATC/RGTC/3Dc/BC4 Compressed Data
-     */
-    kLATC_GrPixelConfig,
-    /**
-     * R11 EAC Compressed Data
-     * (Corresponds to section C.3.5 of the OpenGL 4.4 core profile spec)
-     */
-    kR11_EAC_GrPixelConfig,
-
-    /**
-     * 12x12 ASTC Compressed Data
-     * ASTC stands for Adaptive Scalable Texture Compression. It is a technique
-     * that allows for a lot of customization in the compressed representataion
-     * of a block. The only thing fixed in the representation is the block size,
-     * which means that a texture that contains ASTC data must be treated as
-     * having RGBA values. However, there are single-channel encodings which set
-     * the alpha to opaque and all three RGB channels equal effectively making the
-     * compression format a single channel such as R11 EAC and LATC.
-     */
-    kASTC_12x12_GrPixelConfig,
-
-    /**
      * Byte order is r, g, b, a.  This color format is 32 bits per channel
      */
     kRGBA_float_GrPixelConfig,
@@ -314,9 +292,6 @@ static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
@@ -342,11 +317,7 @@ static inline bool GrPixelConfigIsCompressed(GrPixelConfig config) {
 static inline GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) {
     switch (config) {
         case kETC1_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return kRGBA_8888_GrPixelConfig;
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-            return kAlpha_8_GrPixelConfig;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kGray_8_GrPixelConfig:
@@ -383,9 +354,6 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -412,9 +380,6 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -444,9 +409,6 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
@@ -481,9 +443,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
             return 8;
         case kUnknown_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return 0;
     }
     SkFAIL("Invalid pixel config");
@@ -508,9 +467,6 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kUnknown_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return false;
     }
     SkFAIL("Invalid pixel config");
@@ -519,9 +475,6 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
 
 static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     switch (config) {
-        case kR11_EAC_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
             return true;
@@ -562,9 +515,6 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kSBGRA_8888_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return false;
     }
     SkFAIL("Invalid pixel config");
@@ -796,17 +746,10 @@ static inline size_t GrCompressedFormatDataSize(GrPixelConfig config,
     SkASSERT(GrPixelConfigIsCompressed(config));
 
     switch (config) {
-        case kR11_EAC_GrPixelConfig:
-        case kLATC_GrPixelConfig:
         case kETC1_GrPixelConfig:
             SkASSERT((width & 3) == 0);
             SkASSERT((height & 3) == 0);
             return (width >> 2) * (height >> 2) * 8;
-
-        case kASTC_12x12_GrPixelConfig:
-            SkASSERT((width % 12) == 0);
-            SkASSERT((height % 12) == 0);
-            return (width / 12) * (height / 12) * 16;
 
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:

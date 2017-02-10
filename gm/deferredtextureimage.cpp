@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 
-// Helper function that uploads the given SkImage using MakdeFromDeferredTextureImageData and then
+// Helper function that uploads the given SkImage using MakeFromDeferredTextureImageData and then
 // draws the uploaded version at the specified coordinates.
 static void DrawDeferredTextureImageData(SkCanvas* canvas,
                                          SkImage::DeferredTextureImageUsageParams* params) {

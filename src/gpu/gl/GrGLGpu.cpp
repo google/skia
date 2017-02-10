@@ -946,9 +946,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
             return 4;
         case kUnknown_GrPixelConfig:
         case kETC1_GrPixelConfig:
-        case kLATC_GrPixelConfig:
-        case kR11_EAC_GrPixelConfig:
-        case kASTC_12x12_GrPixelConfig:
             return 0;
     }
     SkFAIL("Invalid pixel config");
