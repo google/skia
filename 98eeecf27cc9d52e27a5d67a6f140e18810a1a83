@@ -39,6 +39,30 @@
       "revId": "98eeecf27cc9d52e27a5d67a6f140e18810a1a83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9631c76_119dcaa9",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-02-10T20:31:23Z",
+      "side": 1,
+      "message": "I considered making it a member, but then I suppose if some day \u003e1 viewer instance gets instantiated that would lead to problems. If the reason for cleanup is strictly puristic I might just prefer to leave it static.",
+      "parentUuid": "73f0f3af_2d9b0d8d",
+      "range": {
+        "startLine": 133,
+        "startChar": 32,
+        "endLine": 133,
+        "endChar": 38
+      },
+      "revId": "98eeecf27cc9d52e27a5d67a6f140e18810a1a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
