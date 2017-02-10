@@ -39,7 +39,7 @@ private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* src,
                                       const GrFragmentProcessor* dst, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // The CPU and GPU implementations differ significantly for the nonseparable  modes and
         // softlight.
         if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
             src->hasConstantOutputForConstantInput() && dst->hasConstantOutputForConstantInput()) {
@@ -175,7 +175,11 @@ public:
         SkASSERT(0 == dstIndex);
     }
 
-    const char* name() const override { return "ComposeOne"; }
+    const char* name() const override {
+        SkString* leak = new SkString;
+        leak->printf("Compose One (%s) [%s]", SkBlendMode_Name(fMode), this->childProcessor(0).name());
+        return leak->c_str();
+    }
 
     SkString dumpInfo() const override {
         SkString str;
@@ -198,7 +202,7 @@ public:
 private:
     OptimizationFlags OptFlags(const GrFragmentProcessor* child, SkBlendMode mode) {
         // We only attempt the constant output optimization.
-        // The CPU and GPU implementations differ significantly for the advanced modes and
+        // The CPU and GPU implementations differ significantly for the nonseparable modes and
         // softlight.
         if (mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
             child->hasConstantOutputForConstantInput()) {
