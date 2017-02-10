@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b96a2b3d_618e3703",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T18:58:03Z",
+      "side": 1,
+      "message": "I know it is verbose, I like the big switch because it forces someone make a decision for each new enumerant to prevent bugs.",
+      "revId": "06b8a5bc09078c88493a75148ef4548f2b2971d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41e11319_cb486cea",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T18:58:03Z",
+      "side": 1,
+      "message": "There is an assert at the top that the config is not compressed. I think this case is just to avoid a warning that a valid enum value isn\u0027t handled.",
+      "range": {
+        "startLine": 409,
+        "startChar": 43,
+        "endLine": 409,
+        "endChar": 47
+      },
+      "revId": "06b8a5bc09078c88493a75148ef4548f2b2971d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
