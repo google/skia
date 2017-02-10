@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69380a04_d3b0fef1",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-10T16:16:07Z",
+      "side": 1,
+      "message": "I\u0027d like to change Skia\u0027s terminology here. These aren\u0027t \"texture coords\", they\u0027re local coords. They can be used to access an arbitrary SkShader and not all shaders have a natural domain that we\u0027d map a normalized [0..1]x[0..1] coord to.\n\nYou could install an image shader with a local matrix to make the normalized coords computed by imgui just work.",
+      "range": {
+        "startLine": 769,
+        "startChar": 15,
+        "endLine": 769,
+        "endChar": 76
+      },
+      "revId": "bd70e7a8c9a10f5b595ebda7493c7d8ae24c3456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
