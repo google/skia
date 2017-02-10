@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ec64c03_fa9a9878",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-10T22:23:16Z",
+      "side": 1,
+      "message": "This is probably fine, and makes sense, but I\u0027m trying to remember why we had our own version. You added it in https://codereview.chromium.org/1180983002.\n\nThere was a valgrind bug you fixed in our version (https://codereview.chromium.org/1237213004 for skbug.com/4030). Does Android have the fix?",
+      "range": {
+        "startLine": 23,
+        "startChar": 63,
+        "endLine": 23,
+        "endChar": 164
+      },
+      "revId": "2bf9993145266ab1580f5b273f2b6e818d7ed731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
