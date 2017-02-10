@@ -30,8 +30,7 @@ typedef SkSmallAllocator<3, kSkBlitterContextSize> SkTBlitterAllocator;
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
-                                   const SkMatrix* localMatrix, SkCopyPixelsMode,
-                                   SkTBlitterAllocator* alloc);
+                                   const SkMatrix* localMatrix, SkCopyPixelsMode);
 
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or
@@ -51,8 +50,7 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkSh
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  nullptr.
  */
-extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode,
-                                                  SkTBlitterAllocator* = nullptr);
+extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode);
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
 // may be called to see if the surface and the image share the same pixelref,
