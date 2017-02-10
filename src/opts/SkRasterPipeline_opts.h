@@ -12,6 +12,7 @@
 #include "SkColorLookUpTable.h"
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
+#include "SkConfig8888.h"
 #include "SkHalf.h"
 #include "SkImageShaderContext.h"
 #include "SkMSAN.h"
@@ -526,6 +527,23 @@ STAGE_CTX(load_g8, const uint8_t**) {
     a = 1.0f;
 }
 
+STAGE_CTX(load_index8, const LoadIndex8*) {
+    uint32_t ri[N], gi[N], bi[N], ai[N];
+    auto ptr = ctx->fSrc;
+    for (int i = 0; i < N; i++) {
+        uint32_t rgba = SkSwizzle_RGBA_to_PMColor(ctx->fTable[ptr[i]]);
+        ri[i] = (rgba >>  0) & 0xFF;
+        gi[i] = (rgba >>  8) & 0xFF;
+        bi[i] = (rgba >> 16) & 0xFF;
+        ai[i] = (rgba >> 24) & 0xFF;
+    }
+
+    r = SkNx_cast<float>(SkNi::Load(ri)) * (1.0f / 255.0f);
+    g = SkNx_cast<float>(SkNi::Load(gi)) * (1.0f / 255.0f);
+    b = SkNx_cast<float>(SkNi::Load(bi)) * (1.0f / 255.0f);
+    a = SkNx_cast<float>(SkNi::Load(ai)) * (1.0f / 255.0f);
+}
+
 STAGE_CTX(load_565, const uint16_t**) {
     auto ptr = *ctx + x;
     from_565(load(tail, ptr), &r,&g,&b);
@@ -538,6 +556,17 @@ STAGE_CTX(store_565, uint16_t**) {
                                    | SkNf_round(b, SK_B16_MASK) << SK_B16_SHIFT), ptr);
 }
 
+STAGE_CTX(load_4444, const uint16_t**) {
+    auto ptr = *ctx + x;
+    from_4444(load(tail, ptr), &r,&g,&b,&a);
+}
+STAGE_CTX(store_4444, uint16_t**) {
+    auto ptr = *ctx + x;
+    store(tail, SkNx_cast<uint16_t>( SkNf_round(r, 0xF) << SK_R4444_SHIFT
+                                   | SkNf_round(g, 0xF) << SK_G4444_SHIFT
+                                   | SkNf_round(b, 0xF) << SK_B4444_SHIFT
+                                   | SkNf_round(b, 0xF) << SK_B4444_SHIFT), ptr);
+}
 
 STAGE_CTX(load_f16, const uint64_t**) {
     auto ptr = *ctx + x;
