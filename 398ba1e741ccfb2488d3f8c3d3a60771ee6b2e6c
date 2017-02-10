@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6998ae3a_d83bf51f",
+        "filename": "src/core/SkOpts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-10T16:42:25Z",
+      "side": 1,
+      "message": "rm this ?",
+      "revId": "398ba1e741ccfb2488d3f8c3d3a60771ee6b2e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
