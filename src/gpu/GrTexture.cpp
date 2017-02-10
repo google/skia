@@ -98,7 +98,7 @@ void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* k
     uint32_t flags = desc.fFlags & ~kCheckAllocation_GrSurfaceFlag;
 
     // make sure desc.fConfig fits in 5 bits
-    SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
+    SkASSERT(sk_float_log2(kLast_GrPixelConfig1) <= 5);
     SkASSERT(static_cast<int>(desc.fConfig) < (1 << 5));
     SkASSERT(desc.fSampleCnt < (1 << 8));
     SkASSERT(flags < (1 << 10));

@@ -503,7 +503,7 @@ private:
         GrSwizzle fSwizzle;
     };
 
-    ConfigInfo fConfigTable[kGrPixelConfigCnt];
+    ConfigInfo fConfigTable[kGrPixelConfigCnt1];
 
     typedef GrCaps INHERITED;
 };

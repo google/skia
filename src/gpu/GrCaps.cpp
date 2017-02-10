@@ -22,9 +22,6 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
         case kRGBA_8888_sint_GrPixelConfig: return "RGBA8888_sint";
         case kETC1_GrPixelConfig: return "ETC1";
-        case kLATC_GrPixelConfig: return "LATC";
-        case kR11_EAC_GrPixelConfig: return "R11EAC";
-        case kASTC_12x12_GrPixelConfig: return "ASTC12x12";
         case kRGBA_float_GrPixelConfig: return "RGBAFloat";
         case kRG_float_GrPixelConfig: return "RGFloat";
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
@@ -195,7 +192,7 @@ SkString GrCaps::dump() const {
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
 
-    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
+    for (size_t i = 1; i < kGrPixelConfigCnt1; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is renderable: %s, with MSAA: %s\n",
                   pixel_config_name(config),
@@ -205,7 +202,7 @@ SkString GrCaps::dump() const {
 
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
-    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
+    for (size_t i = 1; i < kGrPixelConfigCnt1; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         r.appendf("%s is uploadable to a texture: %s\n",
                   pixel_config_name(config),

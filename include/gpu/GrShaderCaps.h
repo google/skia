@@ -335,10 +335,10 @@ private:
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
-    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
-    GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
+    GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt1];
+    GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt1];
 
-    uint8_t fSamplerPrecisions[(1 << kGrShaderTypeCount)][kGrPixelConfigCnt];
+    uint8_t fSamplerPrecisions[(1 << kGrShaderTypeCount)][kGrPixelConfigCnt1];
 
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;

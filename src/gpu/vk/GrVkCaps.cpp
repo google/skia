@@ -153,7 +153,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
 
 
     // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+    for (int i = 0; i < kGrPixelConfigCnt1; ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         if (GrPixelConfigIsAlphaOnly(config)) {
             shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
@@ -249,7 +249,7 @@ void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevic
 }
 
 void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice physDev) {
-    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+    for (int i = 0; i < kGrPixelConfigCnt1; ++i) {
         VkFormat format;
         if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
             fConfigTable[i].init(interface, physDev, format);
@@ -260,12 +260,6 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
     const uint16_t kFlagsToRemove = ConfigInfo::kTextureable_Flag|ConfigInfo::kRenderable_Flag;
     fConfigTable[kETC1_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
     fConfigTable[kETC1_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
-    fConfigTable[kLATC_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
-    fConfigTable[kLATC_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
-    fConfigTable[kR11_EAC_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
-    fConfigTable[kR11_EAC_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
-    fConfigTable[kASTC_12x12_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
 }
 
 void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {

@@ -122,7 +122,7 @@ private:
         uint16_t fOptimalFlags;
         uint16_t fLinearFlags;
     };
-    ConfigInfo fConfigTable[kGrPixelConfigCnt];
+    ConfigInfo fConfigTable[kGrPixelConfigCnt1];
 
     StencilFormat fPreferedStencilFormat;
 
