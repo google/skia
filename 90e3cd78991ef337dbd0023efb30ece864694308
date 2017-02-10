@@ -58,6 +58,24 @@
       "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b219382_ec4c8b53",
+        "filename": "infra/bots/recipe_modules/perf/api.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-02-10T14:58:23Z",
+      "side": 1,
+      "message": "See https://skia-review.googlesource.com/c/8266/  I had failed to get that to happen, but was able to figure it out now.",
+      "parentUuid": "fb7f2793_59e779b9",
+      "revId": "90e3cd78991ef337dbd0023efb30ece864694308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
