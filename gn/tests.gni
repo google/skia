@@ -239,7 +239,6 @@ tests_sources = [
   "$_tests/TestUtils.cpp",
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
-  "$_tests/TextureCompressionTest.cpp",
   "$_tests/Time.cpp",
   "$_tests/TLSTest.cpp",
   "$_tests/TopoSortTest.cpp",
