@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkBitmapRegionCodec_DEFINED
+#define SkBitmapRegionCodec_DEFINED
+
 #include "SkBitmap.h"
 #include "SkBitmapRegionDecoder.h"
 #include "SkAndroidCodec.h"
@@ -35,3 +38,4 @@ private:
     typedef SkBitmapRegionDecoder INHERITED;
 
 };
+#endif  // SkBitmapRegionCodec_DEFINED

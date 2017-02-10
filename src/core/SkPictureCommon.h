@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkPictureCommon_DEFINED
+#define SkPictureCommon_DEFINED
 
 // Some shared code used by both SkBigPicture and SkMiniPicture.
 //   SkTextHunter   -- SkRecord visitor that returns true when the op draws text.
@@ -138,3 +140,4 @@ struct SkPathCounter {
 
     int fNumSlowPathsAndDashEffects;
 };
+#endif  // SkPictureCommon_DEFINED

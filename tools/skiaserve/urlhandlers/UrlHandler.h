@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef UrlHandler_DEFINED
+#define UrlHandler_DEFINED
 
 #include "SkColor.h"
 
@@ -162,3 +164,4 @@ public:
                const char* upload_data, size_t* upload_data_size) override;
 };
 
+#endif  // UrlHandler_DEFINED

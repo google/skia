@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkBmpMaskCodec_DEFINED
+#define SkBmpMaskCodec_DEFINED
+
 #include "SkBmpCodec.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
@@ -58,3 +61,4 @@ private:
 
     typedef SkBmpCodec INHERITED;
 };
+#endif  // SkBmpMaskCodec_DEFINED

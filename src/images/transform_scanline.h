@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef transform_scanline_DEFINED
+#define transform_scanline_DEFINED
 
 /**
  * Functions to transform scanlines between packed-pixel formats.
@@ -271,3 +273,4 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     p.append(SkRasterPipeline::store_8888, (void**) &dst);
     p.run(0, width);
 }
+#endif  // transform_scanline_DEFINED

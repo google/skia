@@ -4,7 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+#ifndef SkEmbossMask_Table_DEFINED
+#define SkEmbossMask_Table_DEFINED
 
 #include "SkTypes.h"
 
@@ -1035,3 +1036,4 @@ static const uint16_t gInvSqrtTable[128 * 128] = {
     0x00C0, 0x00C0, 0x00BF, 0x00BE, 0x00BE, 0x00BD, 0x00BC, 0x00BC, 0x00BB, 0x00BA, 0x00BA, 0x00B9, 0x00B8, 0x00B8, 0x00B7, 0x00B6
 };
 #define kDeltaUsedToBuildTable  32
+#endif  // SkEmbossMask_Table_DEFINED

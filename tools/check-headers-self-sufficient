@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+cd "$(dirname "$0")/.."
+
+D=`mktemp`
+for x in $(git ls-files | grep '\.h$') \
+    third_party/externals/jsoncpp/include/json; do
+    dirname "$x";
+done | sort -u | sed 's/^/-I/' > $D
+
+FAIL=0
+for header in $(git ls-files | grep '\.h$'); do
+    case $header in
+        */osmesa_wrapper.h)                   continue;;
+        debugger/QT/*)                        continue;;
+        example/*)                            continue;;
+        experimental/*)                       continue;;
+        include/config/*)                     continue;;
+        include/core/SkPostConfig.h)          continue;;
+        include/gpu/vk/*)                     continue;;
+        include/ports/SkFontMgr_android.h)    continue;;
+        include/ports/SkFontMgr_fontconfig.h) continue;;
+        include/ports/SkTypeface_win.h)       continue;;
+        include/private/*_impl.h)             continue;;
+        include/utils/mac/SkCGUtils.h)        continue;;
+        include/views/SkOSWindow_*.h)         continue;;
+        src/c/sk_c_from_to.h)                 continue;;
+        src/codec/SkJpegDecoderMgr.h)         continue;;
+        src/codec/SkJpegUtility.h)            continue;;
+        src/core/*Template.h)                 continue;;
+        src/core/SkBitmapProcState_*.h)       continue;;
+        src/core/SkFDot6Constants.h)          continue;;
+        src/core/SkLinearBitmapPipeline.h)    continue;;
+        src/core/SkLinearBitmapPipeline_*.h)  continue;;
+        src/core/SkUnPreMultiplyPriv.h)       continue;;
+        src/gpu/vk/*.h)                       continue;;
+        src/images/SkJPEGWriteUtility.h)      continue;;
+        src/opts/*_SSE2.h)                    continue;;
+        src/opts/*_SSSE3.h)                   continue;;
+        src/opts/*_neon.h)                    continue;;
+        src/opts/*_sse.h)                     continue;;
+        src/opts/Sk4px_*.h)                   continue;;
+        src/ports/*)                          continue;;
+        src/utils/*_win.h)                    continue;;
+        src/utils/win/*)                      continue;;
+        src/views/*)                          continue;;
+        third_party/*)                        continue;;
+        tools/fiddle/*)                       continue;;
+        tools/viewer/*)                       continue;;
+    esac
+    if ! (printf '#include "%s"\n#include "%s"\n' "$header" "$header" | \
+            c++ --std=c++11 @"$D" -o /dev/null -c -x c++ - > /dev/null 2>&1); then 
+        printf 'FAIL: %s\n' "$header"
+        FAIL=1
+    fi
+done
+exit $FAIL

@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkBmpRLECodec_DEFINED
+#define SkBmpRLECodec_DEFINED
 
 #include "SkBmpCodec.h"
 #include "SkColorTable.h"
@@ -114,3 +116,4 @@ private:
 
     typedef SkBmpCodec INHERITED;
 };
+#endif  // SkBmpRLECodec_DEFINED
