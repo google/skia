@@ -359,15 +359,15 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
                              SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkGradFixed dx, fx = SkScalarToGradFixed(srcPt.fX);
+        SkGradFixed dx, fx = SkScalarPinToGradFixed(srcPt.fX);
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
             // todo: do we need a real/high-precision value for dx here?
-            dx = SkScalarToGradFixed(step.fX);
+            dx = SkScalarPinToGradFixed(step.fX);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarToGradFixed(fDstToIndex.getScaleX());
+            dx = SkScalarPinToGradFixed(fDstToIndex.getScaleX());
         }
 
         LinearShadeProc shadeProc = shadeSpan_linear_repeat;
