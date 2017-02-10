@@ -201,8 +201,17 @@ private:
     // V51: more SkXfermode -> SkBlendMode
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
-    static const uint32_t     MIN_PICTURE_VERSION = 44;     // Produced by Chrome M54
+    static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
     static const uint32_t CURRENT_PICTURE_VERSION = 51;
+
+    static_assert(MIN_PICTURE_VERSION <= 41,
+                  "Remove kFontFileName and related code from SkFontDescriptor.cpp.");
+
+    static_assert(MIN_PICTURE_VERSION <= 42,
+                  "Remove COMMENT API handlers from SkPicturePlayback.cpp");
+
+    static_assert(MIN_PICTURE_VERSION <= 43,
+                  "Remove SkBitmapSourceDeserializer.");
 
     static_assert(MIN_PICTURE_VERSION <= 45,
                   "Remove decoding of old SkTypeface::Style from SkFontDescriptor.cpp.");
