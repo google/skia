@@ -53,36 +53,6 @@ struct SK_API SkColorSpaceTransferFn {
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
-#ifdef SK_USE_LEGACY_NAMED_COLOR_SPACE
-    /**
-     *  Common, named profiles that we can recognize.
-     */
-    enum Named : uint8_t {
-        /**
-         *  By far the most common color space.
-         *  This is the default space for images, unmarked content, and monitors.
-         */
-        kSRGB_Named,
-
-        /**
-         *  Very common wide gamut color space.
-         *  Often used by images and monitors.
-         */
-        kAdobeRGB_Named,
-
-        /**
-         *  Colorspace with the sRGB primaries, but a linear (1.0) gamma. Commonly used for
-         *  half-float surfaces, and high precision individual colors (gradient stops, etc...)
-         */
-        kSRGBLinear_Named,
-    };
-
-    /**
-     *  Create a common, named SkColorSpace.
-     */
-    static sk_sp<SkColorSpace> MakeNamed(Named);
-#endif
-
     /**
      *  Create the sRGB color space.
      */

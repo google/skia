@@ -199,12 +199,6 @@ static SkColorSpace* gAdobeRGB;
 static SkColorSpace* gSRGB;
 static SkColorSpace* gSRGBLinear;
 
-#ifdef SK_USE_LEGACY_NAMED_COLOR_SPACE
-sk_sp<SkColorSpace> SkColorSpace::MakeNamed(Named named) {
-    return SkColorSpace_Base::MakeNamed((SkColorSpace_Base::Named) named);
-}
-#endif
-
 sk_sp<SkColorSpace> SkColorSpace_Base::MakeNamed(Named named) {
     static SkOnce sRGBOnce;
     static SkOnce adobeRGBOnce;
