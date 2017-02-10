@@ -9,6 +9,7 @@
 #define SkCanvasStack_DEFINED
 
 #include "SkNWayCanvas.h"
+#include "SkRegion.h"
 #include "SkTArray.h"
 
 /**
