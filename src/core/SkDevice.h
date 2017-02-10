@@ -14,7 +14,7 @@
 #include "SkSurfaceProps.h"
 
 // enable to test new device-base clipping
-//#define SK_USE_DEVICE_CLIPPING
+#define SK_USE_DEVICE_CLIPPING
 
 class SkBitmap;
 class SkDraw;
@@ -126,13 +126,9 @@ public:
     void setCTM(const SkMatrix& ctm) {
         fCTM = ctm;
     }
-    void setGlobalCTM(const SkMatrix& ctm) {
-        fCTM = ctm;
-        if (fOrigin.fX | fOrigin.fY) {
-            fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
-        }
-    }
-    
+    void setGlobalCTM(const SkMatrix& ctm);
+    virtual void validateDevBounds(const SkIRect&) {}
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -367,7 +363,7 @@ private:
     virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
     // just called by SkCanvas when built as a layer
-    void setOrigin(int x, int y) { fOrigin.set(x, y); }
+    void setOrigin(const SkMatrix& ctm, int x, int y);
 
     /** Causes any deferred drawing to the device to be completed.
      */
@@ -390,6 +386,23 @@ private:
     SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
+};
+
+class SkAutoDeviceCTM : SkNoncopyable {
+public:
+    SkAutoDeviceCTM(SkBaseDevice* device, const SkMatrix& ctm)
+        : fDevice(device)
+        , fPrevCTM(device->ctm())
+    {
+        fDevice->setCTM(ctm);
+    }
+    ~SkAutoDeviceCTM() {
+        fDevice->setCTM(fPrevCTM);
+    }
+
+private:
+    SkBaseDevice*   fDevice;
+    const SkMatrix  fPrevCTM;
 };
 
 #endif
