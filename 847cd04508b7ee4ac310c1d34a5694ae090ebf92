@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15b0c957_86606308",
+        "filename": "gm/convexpaths.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-10T19:40:26Z",
+      "side": 1,
+      "message": "Noticed the indenting was off when looking through this code, figured I\u0027d fix it.",
+      "range": {
+        "startLine": 261,
+        "startChar": 26,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "847cd04508b7ee4ac310c1d34a5694ae090ebf92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
