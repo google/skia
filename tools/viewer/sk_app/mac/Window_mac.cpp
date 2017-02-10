@@ -92,7 +92,26 @@ static Window::Key get_key(const SDL_Keysym& keysym) {
         { SDLK_UP, Window::Key::kUp },
         { SDLK_DOWN, Window::Key::kDown },
         { SDLK_LEFT, Window::Key::kLeft },
-        { SDLK_RIGHT, Window::Key::kRight }
+        { SDLK_RIGHT, Window::Key::kRight },
+        { SDLK_TAB, Window::Key::kTab },
+        { SDLK_PAGEUP, Window::Key::kPageUp },
+        { SDLK_PAGEDOWN, Window::Key::kPageDown },
+        { SDLK_HOME, Window::Key::kHome },
+        { SDLK_END, Window::Key::kEnd },
+        { SDLK_DELETE, Window::Key::kDelete },
+        { SDLK_ESCAPE, Window::Key::kEscape },
+        { SDLK_LSHIFT, Window::Key::kShift },
+        { SDLK_RSHIFT, Window::Key::kShift },
+        { SDLK_LCTRL, Window::Key::kCtrl },
+        { SDLK_RCTRL, Window::Key::kCtrl },
+        { SDLK_LALT, Window::Key::kOption },
+        { SDLK_LALT, Window::Key::kOption },
+        { 'A', Window::Key::kA },
+        { 'C', Window::Key::kC },
+        { 'V', Window::Key::kV },
+        { 'X', Window::Key::kX },
+        { 'Y', Window::Key::kY },
+        { 'Z', Window::Key::kZ },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fSDLK == keysym.sym) {
@@ -176,24 +195,22 @@ bool Window_mac::handleEvent(const SDL_Event& event) {
             break;
 
         case SDL_MOUSEMOTION:
-            // only track if left button is down
-            if (event.motion.state & SDL_BUTTON_LMASK) {
-                this->onMouse(event.motion.x, event.motion.y,
-                              Window::kMove_InputState, get_modifiers(event));
-            }
+            this->onMouse(event.motion.x, event.motion.y,
+                          Window::kMove_InputState, get_modifiers(event));
+            break;
+
+        case SDL_MOUSEWHEEL:
+            this->onMouseWheel(event.wheel.y, get_modifiers(event));
             break;
 
         case SDL_KEYDOWN: {
-            if (event.key.keysym.sym == SDLK_ESCAPE) {
-                return true;
-            }
             Window::Key key = get_key(event.key.keysym);
             if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, Window::kDown_InputState,
-                                   get_modifiers(event));
-            } else {
-                (void) this->onChar((SkUnichar) event.key.keysym.sym,
-                                    get_modifiers(event));
+                if (!this->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        return true;
+                    }
+                }
             }
         } break;
 
@@ -202,6 +219,13 @@ bool Window_mac::handleEvent(const SDL_Event& event) {
             if (key != Window::Key::kNONE) {
                 (void) this->onKey(key, Window::kUp_InputState,
                                    get_modifiers(event));
+            }
+        } break;
+
+        case SDL_TEXTINPUT: {
+            const char* textIter = &event.text.text[0];
+            while (SkUnichar c = SkUTF8_NextUnichar(&textIter)) {
+                (void) this->onChar(c, get_modifiers(event));
             }
         } break;
 
