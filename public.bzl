@@ -254,7 +254,6 @@ BASE_SRCS_IOS = struct(
     ],
     exclude = [
         "src/codec/*Ico*.cpp",
-        "src/codec/*Jpeg*.cpp",
         "src/codec/*Webp*.cpp",
         "src/codec/*Png*",
         "src/codec/*Raw*.cpp",
@@ -584,6 +583,7 @@ DEFINES_ANDROID = [
 DEFINES_IOS = [
     "SK_BUILD_FOR_IOS",
     "SK_BUILD_NO_OPTS",
+    "SK_HAS_JPEG_LIBRARY",
     "SK_IGNORE_ETC1_SUPPORT",
     "SKNX_NO_SIMD",
 ]
