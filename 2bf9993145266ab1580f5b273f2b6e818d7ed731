@@ -22,6 +22,30 @@
       "revId": "2bf9993145266ab1580f5b273f2b6e818d7ed731",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8f570ef_bc76d300",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-02-10T22:51:19Z",
+      "side": 1,
+      "message": "That was a suppression because valgrind has a bug, so we\u0027re ok there.\n\nI think we\u0027ve had our own version since before Android had libjpeg-turbo.  We could just use AOSP now, except we need additional config code for Windows.",
+      "parentUuid": "0ec64c03_fa9a9878",
+      "range": {
+        "startLine": 23,
+        "startChar": 63,
+        "endLine": 23,
+        "endChar": 164
+      },
+      "revId": "2bf9993145266ab1580f5b273f2b6e818d7ed731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
