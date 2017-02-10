@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c72f8922_9522e554",
+        "filename": "src/gpu/GrProcOptInfo.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-10T16:09:19Z",
+      "side": 1,
+      "message": "am I wrong in thinking that this just sets fTotalProcessorsVisited to cnt? In that case why not just do that?",
+      "range": {
+        "startLine": 16,
+        "startChar": 35,
+        "endLine": 16,
+        "endChar": 47
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9037c4a1_78a14453",
+        "filename": "src/gpu/GrProcOptInfo.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-10T16:09:19Z",
+      "side": 1,
+      "message": "we don\u0027t want the opaque and modulate checks in here to do we? knowCurrentOutput just means we know the color, not knowing that doesn\u0027t mean we don\u0027t know the other props.",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1b561f0_d5034ad7",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-10T16:09:19Z",
+      "side": 1,
+      "message": "Do we really need GrColor and GrColor4f versions of all these functions?",
+      "range": {
+        "startLine": 63,
+        "startChar": 5,
+        "endLine": 63,
+        "endChar": 7
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5435787_116f4901",
+        "filename": "src/gpu/GrProcOptInfo.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-10T16:09:19Z",
+      "side": 1,
+      "message": "I forget where we left off, are we still planning on removing this functionality and not deleting color stages?",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "cff343b4eaa69302e66355af4e98c868f735d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
