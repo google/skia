@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8cf984ce_1c228cf1",
+        "filename": "gm/pathfill.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-10T20:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79daec43_0c83c90a",
+      "range": {
+        "startLine": 186,
+        "startChar": 7,
+        "endLine": 186,
+        "endChar": 15
+      },
+      "revId": "d347666871c8d8c9ae08723846f9299e12df14e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98eb60d9_be0fe739",
         "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-02-10T19:50:26Z",
       "side": 1,
       "message": "Is this the same as 32 - SkCLZ(n)?",
+      "revId": "d347666871c8d8c9ae08723846f9299e12df14e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56f0a4fa_49779fed",
+        "filename": "src/gpu/ops/GrAADistanceFieldPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-02-10T20:27:52Z",
+      "side": 1,
+      "message": "Thanks, I knew there was something out there like that -- couldn\u0027t remember where to find it. Done.",
+      "parentUuid": "98eb60d9_be0fe739",
       "revId": "d347666871c8d8c9ae08723846f9299e12df14e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
