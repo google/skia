@@ -25,7 +25,10 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkSwizzle.h"
 #include "SkTime.h"
+
+#include "imgui.h"
 
 using namespace sk_app;
 
@@ -50,6 +53,51 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
     Viewer* viewer = reinterpret_cast<Viewer*>(userData);
 
     return viewer->onUIStateChanged(stateName, stateValue);
+}
+
+static bool on_mouse_handler(int x, int y, Window::InputState state, uint32_t modifiers,
+                             void* userData) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos.x = static_cast<float>(x);
+    io.MousePos.y = static_cast<float>(y);
+    if (Window::kDown_InputState == state) {
+        io.MouseDown[0] = true;
+    } else if (Window::kUp_InputState == state) {
+        io.MouseDown[0] = false;
+    }
+    return true;
+}
+
+static bool on_mouse_wheel_handler(float delta, uint32_t modifiers, void* userData) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseWheel += delta;
+    return true;
+}
+
+static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
+                           void* userData) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
+
+    if (io.WantCaptureKeyboard) {
+        return true;
+    } else {
+        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+        return viewer->onKey(key, state, modifiers);
+    }
+}
+
+static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantTextInput) {
+        if (c > 0 && c < 0x10000) {
+            io.AddInputCharacter(c);
+        }
+        return true;
+    } else {
+        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+        return viewer->onChar(c, modifiers);
+    }
 }
 
 static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
@@ -122,6 +170,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
     , fDisplayStats(false)
     , fRefresh(false)
+    , fShowImGuiDebugWindow(false)
+    , fShowImGuiTestWindow(false)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorType(kN32_SkColorType)
     , fColorSpace(nullptr)
@@ -159,8 +209,20 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->registerPaintFunc(on_paint_handler, this);
     fWindow->registerTouchFunc(on_touch_handler, this);
     fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+    fWindow->registerMouseFunc(on_mouse_handler, this);
+    fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
+    fWindow->registerKeyFunc(on_key_handler, this);
+    fWindow->registerCharFunc(on_char_handler, this);
 
     // add key-bindings
+    fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
+        this->fShowImGuiDebugWindow = !this->fShowImGuiDebugWindow;
+        fWindow->inval();
+    });
+    fCommands.addCommand('g', "GUI", "Toggle GUI Demo", [this]() {
+        this->fShowImGuiTestWindow = !this->fShowImGuiTestWindow;
+        fWindow->inval();
+    });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
         this->fDisplayStats = !this->fDisplayStats;
         fWindow->inval();
@@ -234,6 +296,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             fWindow->registerPaintFunc(on_paint_handler, this);
             fWindow->registerTouchFunc(on_touch_handler, this);
             fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+            fWindow->registerMouseFunc(on_mouse_handler, this);
+            fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
+            fWindow->registerKeyFunc(on_key_handler, this);
+            fWindow->registerCharFunc(on_char_handler, this);
         }
 #endif
         fWindow->attach(fBackendType, DisplayParams());
@@ -251,6 +317,39 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     // set up first frame
     fCurrentSlide = 0;
     setupCurrentSlide(-1);
+
+    // ImGui initialization:
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize.x = static_cast<float>(fWindow->width());
+    io.DisplaySize.y = static_cast<float>(fWindow->height());
+
+    // Keymap...
+    io.KeyMap[ImGuiKey_Tab] = (int)Window::Key::kTab;
+    io.KeyMap[ImGuiKey_LeftArrow] = (int)Window::Key::kLeft;
+    io.KeyMap[ImGuiKey_RightArrow] = (int)Window::Key::kRight;
+    io.KeyMap[ImGuiKey_UpArrow] = (int)Window::Key::kUp;
+    io.KeyMap[ImGuiKey_DownArrow] = (int)Window::Key::kDown;
+    io.KeyMap[ImGuiKey_PageUp] = (int)Window::Key::kPageUp;
+    io.KeyMap[ImGuiKey_PageDown] = (int)Window::Key::kPageDown;
+    io.KeyMap[ImGuiKey_Home] = (int)Window::Key::kHome;
+    io.KeyMap[ImGuiKey_End] = (int)Window::Key::kEnd;
+    io.KeyMap[ImGuiKey_Delete] = (int)Window::Key::kDelete;
+    io.KeyMap[ImGuiKey_Backspace] = (int)Window::Key::kBack;
+    io.KeyMap[ImGuiKey_Enter] = (int)Window::Key::kOK;
+    io.KeyMap[ImGuiKey_Escape] = (int)Window::Key::kEscape;
+    io.KeyMap[ImGuiKey_A] = (int)Window::Key::kA;
+    io.KeyMap[ImGuiKey_C] = (int)Window::Key::kC;
+    io.KeyMap[ImGuiKey_V] = (int)Window::Key::kV;
+    io.KeyMap[ImGuiKey_X] = (int)Window::Key::kX;
+    io.KeyMap[ImGuiKey_Y] = (int)Window::Key::kY;
+    io.KeyMap[ImGuiKey_Z] = (int)Window::Key::kZ;
+
+    int w, h;
+    unsigned char* pixels;
+    io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
+    SkImageInfo info = SkImageInfo::MakeA8(w, h);
+    SkPixmap pmap(info, pixels, info.minRowBytes());
+    fImGuiFontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
 
     fWindow->show();
 }
@@ -498,6 +597,18 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
+    // Update ImGui input
+    ImGuiIO& io = ImGui::GetIO();
+    io.DeltaTime = 1.0f / 60.0f;
+    io.DisplaySize.x = static_cast<float>(fWindow->width());
+    io.DisplaySize.y = static_cast<float>(fWindow->height());
+
+    io.KeyAlt = io.KeysDown[static_cast<int>(Window::Key::kOption)];
+    io.KeyCtrl = io.KeysDown[static_cast<int>(Window::Key::kCtrl)];
+    io.KeyShift = io.KeysDown[static_cast<int>(Window::Key::kShift)];
+
+    ImGui::NewFrame();
+
     drawSlide(canvas);
 
     // Advance our timing bookkeeping
@@ -509,6 +620,8 @@ void Viewer::onPaint(SkCanvas* canvas) {
         drawStats(canvas);
     }
     fCommands.drawHelp(canvas);
+
+    drawImGui(canvas);
 
     // Update the FPS
     updateUIState();
@@ -598,13 +711,102 @@ void Viewer::drawStats(SkCanvas* canvas) {
     canvas->restore();
 }
 
+void Viewer::drawImGui(SkCanvas* canvas) {
+    // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
+    if (fShowImGuiTestWindow) {
+        ImGui::ShowTestWindow(&fShowImGuiTestWindow);
+    }
+
+    if (fShowImGuiDebugWindow) {
+        if (ImGui::Begin("Debug", &fShowImGuiDebugWindow)) {
+            if (ImGui::CollapsingHeader("Slide")) {
+                static ImGuiTextFilter filter;
+                filter.Draw();
+                int previousSlide = fCurrentSlide;
+                fCurrentSlide = 0;
+                for (auto slide : fSlides) {
+                    if (filter.PassFilter(slide->getName().c_str())) {
+                        ImGui::BulletText("%s", slide->getName().c_str());
+                        if (ImGui::IsItemClicked()) {
+                            setupCurrentSlide(previousSlide);
+                            break;
+                        }
+                    }
+                    ++fCurrentSlide;
+                }
+                if (fCurrentSlide >= fSlides.count()) {
+                    fCurrentSlide = previousSlide;
+                }
+            }
+        }
+
+        ImGui::End();
+    }
+
+    // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
+    // (widgets, etc...) that have been issued
+    ImGui::Render();
+
+    // Then we fetch the most recent data, and convert it so we can render with Skia
+    const ImDrawData* drawData = ImGui::GetDrawData();
+    SkTDArray<SkPoint> pos;
+    SkTDArray<SkPoint> uv;
+    SkTDArray<SkColor> color;
+    SkPaint imguiPaint;
+    imguiPaint.setColor(SK_ColorWHITE);
+    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / fImGuiFontImage->width(),
+                                               1.0f / fImGuiFontImage->height());
+    imguiPaint.setShader(fImGuiFontImage->makeShader(SkShader::kClamp_TileMode,
+                                                     SkShader::kClamp_TileMode,
+                                                     &localMatrix));
+    imguiPaint.setFilterQuality(kLow_SkFilterQuality);
+
+    for (int i = 0; i < drawData->CmdListsCount; ++i) {
+        const ImDrawList* drawList = drawData->CmdLists[i];
+
+        // De-interleave all vertex data (sigh), convert to Skia types
+        pos.rewind(); uv.rewind(); color.rewind();
+        for (int i = 0; i < drawList->VtxBuffer.size(); ++i) {
+            const ImDrawVert& vert = drawList->VtxBuffer[i];
+            pos.push(SkPoint::Make(vert.pos.x, vert.pos.y));
+            uv.push(SkPoint::Make(vert.uv.x, vert.uv.y));
+            color.push(vert.col);
+        }
+        // ImGui colors are RGBA
+        SkSwapRB(color.begin(), color.begin(), color.count());
+
+        int indexOffset = 0;
+
+        // Draw everything with canvas.drawVertices...
+        for (int j = 0; j < drawList->CmdBuffer.size(); ++j) {
+            const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
+
+            // TODO: Find min/max index for each draw, so we know how many vertices (sigh)
+            if (drawCmd->UserCallback) {
+                drawCmd->UserCallback(drawList, drawCmd);
+            } else {
+                canvas->save();
+                canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
+                                                  drawCmd->ClipRect.z, drawCmd->ClipRect.w));
+                canvas->drawVertices(SkCanvas::kTriangles_VertexMode, drawList->VtxBuffer.size(),
+                                     pos.begin(), uv.begin(), color.begin(),
+                                     drawList->IdxBuffer.begin() + indexOffset, drawCmd->ElemCount,
+                                     imguiPaint);
+                indexOffset += drawCmd->ElemCount;
+                canvas->restore();
+            }
+        }
+    }
+}
+
 void Viewer::onIdle() {
     double startTime = SkTime::GetMSecs();
     fAnimTimer.updateTime();
     bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
     fAnimateTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
 
-    if (animateWantsInval || fDisplayStats || fRefresh) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (animateWantsInval || fDisplayStats || fRefresh || io.MetricsActiveWindows) {
         fWindow->inval();
     }
 }
@@ -705,4 +907,12 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     } else {
         SkDebugf("Unknown stateName: %s", stateName.c_str());
     }
+}
+
+bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) {
+    return fCommands.onKey(key, state, modifiers);
+}
+
+bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
+    return fCommands.onChar(c, modifiers);
 }

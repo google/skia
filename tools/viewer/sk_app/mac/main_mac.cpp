@@ -32,8 +32,10 @@ int main(int argc, char* argv[]) {
                 case SDL_MOUSEMOTION:
                 case SDL_MOUSEBUTTONDOWN:
                 case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEWHEEL:
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
+                case SDL_TEXTINPUT:
                     done = sk_app::Window_mac::HandleWindowEvent(event);
                     break;
                     

@@ -107,7 +107,23 @@ static Window::Key get_key(WPARAM vk) {
         { VK_UP, Window::Key::kUp },
         { VK_DOWN, Window::Key::kDown },
         { VK_LEFT, Window::Key::kLeft },
-        { VK_RIGHT, Window::Key::kRight }
+        { VK_RIGHT, Window::Key::kRight },
+        { VK_TAB, Window::Key::kTab },
+        { VK_PRIOR, Window::Key::kPageUp },
+        { VK_NEXT, Window::Key::kPageDown },
+        { VK_HOME, Window::Key::kHome },
+        { VK_END, Window::Key::kEnd },
+        { VK_DELETE, Window::Key::kDelete },
+        { VK_ESCAPE, Window::Key::kEscape },
+        { VK_SHIFT, Window::Key::kShift },
+        { VK_CONTROL, Window::Key::kCtrl },
+        { VK_MENU, Window::Key::kOption },
+        { 'A', Window::Key::kA },
+        { 'C', Window::Key::kC },
+        { 'V', Window::Key::kV },
+        { 'X', Window::Key::kX },
+        { 'Y', Window::Key::kY },
+        { 'Z', Window::Key::kZ },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fVK == vk) {
@@ -151,6 +167,7 @@ static uint32_t get_modifiers(UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
         case WM_MOUSEMOVE:
+        case WM_MOUSEWHEEL:
             if (wParam & MK_CONTROL) {
                 modifiers |= Window::kControl_ModifierKey;
             }
@@ -236,23 +253,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                                             get_modifiers(message, wParam, lParam));
         } break;
 
-        case WM_MOUSEMOVE: 
-            // only track if left button is down
-            if ((wParam & MK_LBUTTON) != 0) {
-                int xPos = GET_X_LPARAM(lParam);
-                int yPos = GET_Y_LPARAM(lParam);
+        case WM_MOUSEMOVE: {
+            int xPos = GET_X_LPARAM(lParam);
+            int yPos = GET_Y_LPARAM(lParam);
 
-                //if (!gIsFullscreen)
-                //{
-                //    RECT rc = { 0, 0, 640, 480 };
-                //    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-                //    xPos -= rc.left;
-                //    yPos -= rc.top;
-                //}
+            //if (!gIsFullscreen)
+            //{
+            //    RECT rc = { 0, 0, 640, 480 };
+            //    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+            //    xPos -= rc.left;
+            //    yPos -= rc.top;
+            //}
 
-                eventHandled = window->onMouse(xPos, yPos, Window::kMove_InputState,
-                                               get_modifiers(message, wParam, lParam));
-            }
+            eventHandled = window->onMouse(xPos, yPos, Window::kMove_InputState,
+                                           get_modifiers(message, wParam, lParam));
+        } break;
+
+        case WM_MOUSEWHEEL:
+            eventHandled = window->onMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f,
+                                                get_modifiers(message, wParam, lParam));
             break;
 
         default:
