@@ -10,6 +10,7 @@
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkString.h"
 #include "SkTextBlob.h"

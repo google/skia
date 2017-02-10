@@ -16,6 +16,7 @@
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkRect.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkRSXform.h"
 #include "SkString.h"

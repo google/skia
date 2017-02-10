@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkRegion.h"
 #include "SkUtils.h"
 #include "SkView.h"
 
