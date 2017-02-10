@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef CodecPriv_DEFINED
+#define CodecPriv_DEFINED
 
 #include "SkBitmap.h"
 #include "SkCodec.h"
@@ -32,3 +34,4 @@ inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
             bm->rowBytes(), nullptr, colorPtr, colorCountPtr);
     return result == SkCodec::kSuccess || result == SkCodec::kIncompleteInput;
 }
+#endif  // CodecPriv_DEFINED

@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef PathOpsTSectDebug_DEFINED
+#define PathOpsTSectDebug_DEFINED
 
 #include "SkPathOpsTSect.h"
 
@@ -219,3 +221,4 @@ void SkTSpan<TCurve, OppCurve>::dumpID() const {
         SkDebugf("%c", cE);
     }
 }
+#endif  // PathOpsTSectDebug_DEFINED
