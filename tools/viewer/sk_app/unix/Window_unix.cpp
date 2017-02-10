@@ -155,7 +155,26 @@ static Window::Key get_key(KeySym keysym) {
         { XK_Up, Window::Key::kUp },
         { XK_Down, Window::Key::kDown },
         { XK_Left, Window::Key::kLeft },
-        { XK_Right, Window::Key::kRight }
+        { XK_Right, Window::Key::kRight },
+        { XK_Tab, Window::Key::kTab },
+        { XK_Page_Up, Window::Key::kPageUp },
+        { XK_Page_Down, Window::Key::kPageDown },
+        { XK_Home, Window::Key::kHome },
+        { XK_End, Window::Key::kEnd },
+        { XK_Delete, Window::Key::kDelete },
+        { XK_Escape, Window::Key::kEscape },
+        { XK_Shift_L, Window::Key::kShift },
+        { XK_Shift_R, Window::Key::kShift },
+        { XK_Control_L, Window::Key::kCtrl },
+        { XK_Control_R, Window::Key::kCtrl },
+        { XK_Alt_L, Window::Key::kOption },
+        { XK_Alt_R, Window::Key::kOption },
+        { 'A', Window::Key::kA },
+        { 'C', Window::Key::kC },
+        { 'V', Window::Key::kV },
+        { 'X', Window::Key::kX },
+        { 'Y', Window::Key::kY },
+        { 'Z', Window::Key::kZ },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fXK == keysym) {
@@ -200,9 +219,17 @@ bool Window_unix::handleEvent(const XEvent& event) {
             break;
 
         case ButtonPress:
-            if (event.xbutton.button == Button1) {
-                this->onMouse(event.xbutton.x, event.xbutton.y,
-                              Window::kDown_InputState, get_modifiers(event));
+            switch (event.xbutton.button) {
+                case Button1:
+                    this->onMouse(event.xbutton.x, event.xbutton.y,
+                                  Window::kDown_InputState, get_modifiers(event));
+                    break;
+                case Button4:
+                    this->onMouseWheel(1.0f, get_modifiers(event));
+                    break;
+                case Button5:
+                    this->onMouseWheel(-1.0f, get_modifiers(event));
+                    break;
             }
             break;
 
@@ -214,30 +241,25 @@ bool Window_unix::handleEvent(const XEvent& event) {
             break;
 
         case MotionNotify:
-            // only track if left button is down
-            if (event.xmotion.state & Button1Mask) {
-                this->onMouse(event.xmotion.x, event.xmotion.y, 
-                              Window::kMove_InputState, get_modifiers(event));
-            }
+            this->onMouse(event.xmotion.x, event.xmotion.y,
+                          Window::kMove_InputState, get_modifiers(event));
             break;
 
         case KeyPress: {
             int shiftLevel = (event.xkey.state & ShiftMask) ? 1 : 0;
-            KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
-                                               0, shiftLevel);
-            if (keysym == XK_Escape) {
-                return true;
-            }
+            KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode, 0, shiftLevel);
             Window::Key key = get_key(keysym);
             if (key != Window::Key::kNONE) {
-                (void) this->onKey(key, Window::kDown_InputState, 
-                                   get_modifiers(event));
-            } else {
-                long uni = keysym2ucs(keysym);
-                if (uni != -1) {
-                    (void) this->onChar((SkUnichar) uni, 
-                                        get_modifiers(event));
+                if (!this->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
+                    if (keysym == XK_Escape) {
+                        return true;
+                    }
                 }
+            }
+
+            long uni = keysym2ucs(keysym);
+            if (uni != -1) {
+                (void) this->onChar((SkUnichar) uni, get_modifiers(event));
             }
         } break;
 

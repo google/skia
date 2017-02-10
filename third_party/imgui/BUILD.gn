@@ -1,0 +1,19 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("imgui") {
+  public_include_dirs = [ "../externals/imgui" ]
+
+  sources = [
+    "../externals/imgui/imgui.cpp",
+    "../externals/imgui/imgui_demo.cpp",
+    "../externals/imgui/imgui_draw.cpp",
+  ]
+}
