@@ -17,7 +17,7 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
+    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar, args.fRTAdjustName);
     if (kVec2f_GrSLType == gpArgs.fPositionVar.getType()) {
         args.fVaryingHandler->setNoPerspective();
     }
