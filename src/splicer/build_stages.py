@@ -111,7 +111,7 @@ print '''/*
 parse_object_file('aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
 parse_object_file(  'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
                   target='elf32-littlearm')
-#parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 #parse_object_file('sse41.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 parse_object_file(  'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 print '#endif//SkSplicer_generated_DEFINED'
