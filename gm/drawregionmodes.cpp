@@ -11,7 +11,6 @@
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkImageFilter.h"
-#include "SkRegion.h"
 
 class DrawRegionModesGM : public skiagm::GM {
 public:
