@@ -6,6 +6,7 @@
  */
 
 #include "sk_types_priv.h"
+#include "SkMatrix44.h"
 #include "SkShadowMaskFilter.h"
 #include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
@@ -371,5 +372,12 @@ static_assert ((int)SkMask::Format::kA8_Format       == (int)A8_SK_MASK_FORMAT, 
 static_assert ((int)SkMask::Format::k3D_Format       == (int)THREE_D_SK_MASK_FORMAT,   ASSERT_MSG(SkMask::Format, sk_mask_format_t));
 static_assert ((int)SkMask::Format::kARGB32_Format   == (int)ARGB32_SK_MASK_FORMAT,    ASSERT_MSG(SkMask::Format, sk_mask_format_t));
 static_assert ((int)SkMask::Format::kLCD16_Format    == (int)LCD16_SK_MASK_FORMAT,     ASSERT_MSG(SkMask::Format, sk_mask_format_t));
+
+// sk_matrix44_type_mask_t
+static_assert ((int)SkMatrix44::TypeMask::kIdentity_Mask      == (int)IDENTITY_SK_MATRIX44_TYPE_MASK,      ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kTranslate_Mask     == (int)TRANSLATE_SK_MATRIX44_TYPE_MASK,     ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kScale_Mask         == (int)SCALE_SK_MATRIX44_TYPE_MASK,         ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kAffine_Mask        == (int)AFFINE_SK_MATRIX44_TYPE_MASK,        ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
+static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIVE_SK_MATRIX44_TYPE_MASK,   ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
 
 #endif

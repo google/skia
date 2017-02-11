@@ -689,6 +689,30 @@ static inline const sk_3dview_t* To3DView(const Sk3DView* p) {
     return reinterpret_cast<const sk_3dview_t*>(p);
 }
 
+static inline const SkMatrix44& AsMatrix44(const sk_matrix44_t& p) {
+    return reinterpret_cast<const SkMatrix44&>(p);
+}
+
+static inline SkMatrix44& AsMatrix44(sk_matrix44_t& p) {
+    return reinterpret_cast<SkMatrix44&>(p);
+}
+
+static inline const SkMatrix44* AsMatrix44(const sk_matrix44_t* p) {
+    return reinterpret_cast<const SkMatrix44*>(p);
+}
+
+static inline SkMatrix44* AsMatrix44(sk_matrix44_t* p) {
+    return reinterpret_cast<SkMatrix44*>(p);
+}
+
+static inline sk_matrix44_t* ToMatrix44(SkMatrix44* p) {
+    return reinterpret_cast<sk_matrix44_t*>(p);
+}
+
+static inline const sk_matrix44_t* ToMatrix44(const SkMatrix44* p) {
+    return reinterpret_cast<const sk_matrix44_t*>(p);
+}
+
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],

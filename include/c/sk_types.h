@@ -120,6 +120,16 @@ typedef struct {
     float   mat[9];
 } sk_matrix_t;
 
+typedef struct sk_matrix44_t sk_matrix44_t;
+
+typedef enum {
+    IDENTITY_SK_MATRIX44_TYPE_MASK = 0,
+    TRANSLATE_SK_MATRIX44_TYPE_MASK = 0x01,
+    SCALE_SK_MATRIX44_TYPE_MASK = 0x02,
+    AFFINE_SK_MATRIX44_TYPE_MASK = 0x04,
+    PERSPECTIVE_SK_MATRIX44_TYPE_MASK = 0x08 
+} sk_matrix44_type_mask_t;
+
 /**
     A sk_canvas_t encapsulates all of the state about drawing into a
     destination This includes a reference to the destination itself,
