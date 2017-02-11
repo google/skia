@@ -19,18 +19,18 @@ objdump = 'gobjdump'
 
 cflags = '-std=c++11 -Os -fomit-frame-pointer'.split()
 
-sse2 = '-msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
+sse2 = '-mno-red-zone -msse2 -mno-sse3 -mno-ssse3 -mno-sse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse2 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'sse2.o'])
 
-sse41 = '-msse4.1'.split()
+sse41 = '-mno-red-zone -msse4.1'.split()
 subprocess.check_call(['clang++'] + cflags + sse41 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'sse41.o'])
 
 
-hsw = '-mavx2 -mfma -mf16c'.split()
+hsw = '-mno-red-zone -mavx2 -mfma -mf16c'.split()
 subprocess.check_call(['clang++'] + cflags + hsw +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'hsw.o'])
@@ -111,7 +111,7 @@ print '''/*
 parse_object_file('aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
 parse_object_file(  'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
                   target='elf32-littlearm')
-#parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 #parse_object_file('sse41.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 parse_object_file(  'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
 print '#endif//SkSplicer_generated_DEFINED'
