@@ -100,9 +100,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode 
                                     const SkMatrix* localMatrix,
                                     SkTBlitterAllocator* allocator) {
     SkShader* shader;
-    if (!image ||
-        bitmap_is_too_big(image->width(), image->height()) ||
-        (localMatrix && !localMatrix->invert(nullptr))) {
+    if (!image || bitmap_is_too_big(image->width(), image->height())) {
         if (nullptr == allocator) {
             shader = new SkEmptyShader;
         } else {

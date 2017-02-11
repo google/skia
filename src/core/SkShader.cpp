@@ -45,11 +45,13 @@ static inline void dec_shader_counter() {
 #endif
 }
 
-SkShader::SkShader(const SkMatrix* localMatrix)
-    : fLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I()) {
-    SkASSERT(!localMatrix || localMatrix->invert(nullptr));
-
+SkShader::SkShader(const SkMatrix* localMatrix) {
     inc_shader_counter();
+    if (localMatrix) {
+        fLocalMatrix = *localMatrix;
+    } else {
+        fLocalMatrix.reset();
+    }
     // Pre-cache so future calls to fLocalMatrix.getType() are threadsafe.
     (void)fLocalMatrix.getType();
 }
