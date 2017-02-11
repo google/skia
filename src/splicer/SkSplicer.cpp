@@ -242,35 +242,44 @@ namespace {
     }
 #endif
 
-    static bool splice(SkWStream* buf, SkRasterPipeline::StockStage st) {
-        switch (st) {
-            default: return false;
-        #define CASE(st) case SkRasterPipeline::st: splice_until_ret(buf, kSplice_##st); break
-            CASE(clear);
-            CASE(plus_);
-            CASE(srcover);
-            CASE(dstover);
-            CASE(clamp_0);
-            CASE(clamp_1);
-            CASE(clamp_a);
-            CASE(swap);
-            CASE(move_src_dst);
-            CASE(move_dst_src);
-            CASE(premul);
-            CASE(unpremul);
-            CASE(from_srgb);
-            CASE(to_srgb);
-            CASE(scale_u8);
-            CASE(load_tables);
-            CASE(load_8888);
-            CASE(store_8888);
-            CASE(load_f16);
-            CASE(store_f16);
-            CASE(matrix_3x4);
-        #undef CASE
-        }
-        return true;
+#define CASE(prefix, st) case SkRasterPipeline::st: splice_until_ret(buf, prefix##_##st); break
+#define DEFINE_SPLICE_STAGE(prefix)                                                        \
+    static bool prefix##_##splice_stage(SkWStream* buf, SkRasterPipeline::StockStage st) { \
+        switch (st) {                                                                      \
+            default: return false;                                                         \
+            CASE(prefix, clear);                                                           \
+            CASE(prefix, plus_);                                                           \
+            CASE(prefix, srcover);                                                         \
+            CASE(prefix, dstover);                                                         \
+            CASE(prefix, clamp_0);                                                         \
+            CASE(prefix, clamp_1);                                                         \
+            CASE(prefix, clamp_a);                                                         \
+            CASE(prefix, swap);                                                            \
+            CASE(prefix, move_src_dst);                                                    \
+            CASE(prefix, move_dst_src);                                                    \
+            CASE(prefix, premul);                                                          \
+            CASE(prefix, unpremul);                                                        \
+            CASE(prefix, from_srgb);                                                       \
+            CASE(prefix, to_srgb);                                                         \
+            CASE(prefix, scale_u8);                                                        \
+            CASE(prefix, load_tables);                                                     \
+            CASE(prefix, load_8888);                                                       \
+            CASE(prefix, store_8888);                                                      \
+            CASE(prefix, load_f16);                                                        \
+            CASE(prefix, store_f16);                                                       \
+            CASE(prefix, matrix_3x4);                                                      \
+        }                                                                                  \
+        return true;                                                                       \
     }
+    #if defined(__aarch64__)
+        DEFINE_SPLICE_STAGE(aarch64)
+    #elif defined(__ARM_NEON__)
+        DEFINE_SPLICE_STAGE(armv7)
+    #else
+        DEFINE_SPLICE_STAGE(hsw)
+    #endif
+#undef DEFINE_SPLICE
+#undef CASE
 
     struct Spliced {
 
@@ -284,16 +293,22 @@ namespace {
             // If we return early anywhere in here, !fSpliced means we'll use fBackup instead.
 
         #if defined(__aarch64__)
+            auto splice_stage = aarch64_splice_stage;
+            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, aarch64_inc_x); };
         #elif defined(__ARM_NEON__)
             // Late generation ARMv7, e.g. Cortex A15 or Krait.
             if (!SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
                 return;
             }
+            auto splice_stage = armv7_splice_stage;
+            auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, armv7_inc_x); };
         #else
             // To keep things simple, only one x86 target supported: Haswell+ x86-64.
             if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
                 return;
             }
+            auto splice_stage = hsw_splice_stage;
+            auto inc_x = [&](SkWStream* buf) { splice_until_ret(buf, hsw_inc_x); };
         #endif
 
             SkDynamicMemoryWStream buf;
@@ -313,13 +328,13 @@ namespace {
                 }
 
                 // Splice in the code for the Stages, generated offline into SkSplicer_generated.h.
-                if (!splice(&buf, stages[i].stage)) {
+                if (!splice_stage(&buf, stages[i].stage)) {
                     //SkDebugf("SkSplicer can't yet handle stage %d.\n", stages[i].stage);
                     return;
                 }
             }
 
-            splice_until_ret(&buf, kSplice_inc_x);
+            inc_x(&buf);
             loop(&buf, loop_start);  // Loop back to handle more pixels if not done.
             after_loop(&buf);
             ret(&buf);  // We're done.

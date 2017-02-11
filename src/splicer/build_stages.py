@@ -9,6 +9,8 @@ import re
 import subprocess
 import sys
 
+sys.stdout = open('src/splicer/SkSplicer_generated.h', 'w')
+
 ndk = '/Users/mtklein/brew/opt/android-ndk/'
 objdump = 'gobjdump'
 
@@ -51,8 +53,9 @@ subprocess.check_call(['clang++'] + cflags + armv7 +
                       ['-c', 'src/splicer/SkSplicer_stages.cpp'] +
                       ['-o', 'armv7.o'])
 
-def parse_object_file(dst, dot_o, array_type, jump, ret, target=None):
-  cmd = [ objdump, '-d', dot_o]
+def parse_object_file(dot_o, array_type, jump, ret, target=None):
+  prefix = dot_o.replace('.o', '_')
+  cmd = [ objdump, '-d', '--insn-width=8', dot_o]
   if target:
     cmd += ['--target', target]
   for line in subprocess.check_output(cmd).split('\n'):
@@ -63,7 +66,7 @@ def parse_object_file(dst, dot_o, array_type, jump, ret, target=None):
     # E.g. 00000000000003a4 <_load_f16>:
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
-      print >>dst,'static const', array_type, 'kSplice_' + m.group(1) + '[] = {'
+      print 'static const', array_type, prefix + m.group(1) + '[] = {'
       continue
 
     columns = line.split('\t')
@@ -84,16 +87,15 @@ def parse_object_file(dst, dot_o, array_type, jump, ret, target=None):
     if code == jump:
       code = ret
       inst = 'return'
-      args = '(synthetic)'
+      args = ''
 
     hexed = ''.join('0x'+x+',' for x in code.split(' '))
-    print >>dst,'    ' + hexed + ' '*(44-len(hexed)) + \
-                '//  ' + inst  + ' '*(14-len(inst))  + args
+    print '    ' + hexed + ' '*(44-len(hexed)) + \
+          '//  ' + inst  + (' '*(14-len(inst)) + args if args else '')
     if code == ret:
-      print >>dst,'};'
+      print '};'
 
-with open('src/splicer/SkSplicer_generated.h', 'w') as f:
-  print >>f,'''/*
+print '''/*
  * Copyright 2017 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -105,14 +107,11 @@ with open('src/splicer/SkSplicer_generated.h', 'w') as f:
 
 // This file is generated semi-automatically with this command:
 //   $ src/splicer/build_stages.py
-
-#if defined(__aarch64__)
 '''
-  parse_object_file(f, 'aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
-  print >>f,'\n#elif defined(__ARM_NEON__)\n'
-  parse_object_file(f, 'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
+parse_object_file('aarch64.o', 'unsigned int', '14000000', 'd65f03c0')
+parse_object_file(  'armv7.o', 'unsigned int', 'eafffffe', 'e12fff1e',
                   target='elf32-littlearm')
-  print >>f,'\n#else\n'
-  parse_object_file(f, 'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
-  print >>f,'\n#endif\n'
-  print >>f,'#endif//SkSplicer_generated_DEFINED'
+#parse_object_file( 'sse2.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+#parse_object_file('sse41.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+parse_object_file(  'hsw.o', 'unsigned char', 'e9 00 00 00 00', 'c3')
+print '#endif//SkSplicer_generated_DEFINED'
