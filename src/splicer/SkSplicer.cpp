@@ -112,12 +112,6 @@ namespace {
         splice(buf, jb_near);      // jb <next 4 bytes>  (b == "before", unsigned less than)
         splice(buf, loop_start - (int)(buf->bytesWritten() + 4));
     }
-    static void ret(SkWStream* buf) {
-        static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
-        static const uint8_t        ret[] = { 0xc3 };
-        splice(buf, vzeroupper);
-        splice(buf, ret);
-    }
 #endif
 
 #if defined(_MSC_VER)
@@ -279,6 +273,7 @@ namespace {
         DEFINE_SPLICE_STAGE(armv7)
     #else
         DEFINE_SPLICE_STAGE(hsw)
+        DEFINE_SPLICE_STAGE(sse2)
     #endif
 #undef DEFINE_SPLICE
 #undef CASE
@@ -305,12 +300,25 @@ namespace {
             auto splice_stage = armv7_splice_stage;
             auto inc_x = [](SkWStream* buf) { splice_until_ret(buf, armv7_inc_x); };
         #else
-            // To keep things simple, only one x86 target supported: Haswell+ x86-64.
-            if (!SkCpu::Supports(SkCpu::HSW) || sizeof(void*) != 8) {
+            // To keep things simple, only x86-64 supported.
+            if (sizeof(void*) != 8) {
                 return;
             }
-            auto splice_stage = hsw_splice_stage;
-            auto inc_x = [&](SkWStream* buf) { splice_until_ret(buf, hsw_inc_x); };
+            bool hsw = true && SkCpu::Supports(SkCpu::HSW);
+
+            auto splice_stage = hsw ? hsw_splice_stage : sse2_splice_stage;
+            auto inc_x = [hsw](SkWStream* buf) {
+                if (hsw) { splice_until_ret(buf,  hsw_inc_x); }
+                else     { splice_until_ret(buf, sse2_inc_x); }
+            };
+            auto ret = [hsw](SkWStream* buf) {
+                static const uint8_t vzeroupper[] = { 0xc5, 0xf8, 0x77 };
+                static const uint8_t        ret[] = { 0xc3 };
+                if (hsw) {
+                    splice(buf, vzeroupper);
+                }
+                splice(buf, ret);
+            };
         #endif
 
             SkDynamicMemoryWStream buf;
