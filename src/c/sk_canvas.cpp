@@ -283,3 +283,6 @@ void sk_canvas_draw_image_lattice(sk_canvas_t* ccanvas,
     AsCanvas(ccanvas)->drawImageLattice(AsImage(image), AsLattice(*lattice), AsRect(*dst), AsPaint(paint));
 }
 
+void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, sk_vertex_mode_t vmode, int vertexCount, const sk_point_t* vertices, const sk_point_t* texs, const sk_color_t* colors, sk_blendmode_t mode, const uint16_t* indices, int indexCount, const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawVertices((SkCanvas::VertexMode)vmode, vertexCount, AsPoint(vertices), AsPoint(texs), colors, (SkBlendMode)mode, indices, indexCount, AsPaint(*paint));
+}

@@ -380,4 +380,9 @@ static_assert ((int)SkMatrix44::TypeMask::kScale_Mask         == (int)SCALE_SK_M
 static_assert ((int)SkMatrix44::TypeMask::kAffine_Mask        == (int)AFFINE_SK_MATRIX44_TYPE_MASK,        ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
 static_assert ((int)SkMatrix44::TypeMask::kPerspective_Mask   == (int)PERSPECTIVE_SK_MATRIX44_TYPE_MASK,   ASSERT_MSG(SkMatrix44::TypeMask, sk_matrix44_type_mask_t));
 
+// sk_vertex_mode_t
+static_assert ((int)SkCanvas::VertexMode::kTriangles_VertexMode       == (int)TRIANGLES_SK_VERTEX_MODE,        ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+static_assert ((int)SkCanvas::VertexMode::kTriangleStrip_VertexMode   == (int)TRIANGLE_STRIP_SK_VERTEX_MODE,   ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+static_assert ((int)SkCanvas::VertexMode::kTriangleFan_VertexMode     == (int)TRIANGLE_FAN_SK_VERTEX_MODE,     ASSERT_MSG(SkCanvas::VertexMode, sk_vertex_mode_t));
+
 #endif
