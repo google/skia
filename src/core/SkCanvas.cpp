@@ -1257,7 +1257,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     DeviceCM* layer =
             new DeviceCM(newDevice.get(), paint, this, fConservativeRasterClip, stashedMatrix);
 
-    layer->fNext = fMCRec->fTopLayer;
+    // only have a "next" if this new layer doesn't affect the clip (rare)
+    layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
@@ -1299,7 +1300,7 @@ void SkCanvas::internalRestore() {
         recorder will have already recorded the restore).
     */
     if (layer) {
-        if (layer->fNext) {
+        if (fMCRec) {
             const SkIPoint& origin = layer->fDevice->getOrigin();
             this->internalDrawDevice(layer->fDevice, origin.x(), origin.y(), layer->fPaint);
             // restore what we smashed in internalSaveLayer
