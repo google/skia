@@ -39,6 +39,7 @@ class GrFragmentProcessor;
  */
 class SK_API SkShader : public SkFlattenable {
 public:
+    SkShader(const SkMatrix* localMatrix = NULL);
     virtual ~SkShader();
 
     /**
@@ -466,8 +467,6 @@ public:
                       const SkMatrix& ctm, const SkPaint&) const;
 
 protected:
-    SkShader(const SkMatrix* localMatrix = nullptr);
-
     void flatten(SkWriteBuffer&) const override;
 
     bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;
@@ -499,7 +498,9 @@ protected:
                                 const SkMatrix* /*local matrix*/) const;
 
 private:
-    const SkMatrix fLocalMatrix;
+    // This is essentially const, but not officially so it can be modified in
+    // constructors.
+    SkMatrix fLocalMatrix;
 
     // So the SkLocalMatrixShader can whack fLocalMatrix in its SkReadBuffer constructor.
     friend class SkLocalMatrixShader;
