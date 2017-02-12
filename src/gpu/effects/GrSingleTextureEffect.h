@@ -11,7 +11,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "SkMatrix.h"
 
 class GrTexture;
@@ -53,22 +52,6 @@ protected:
                           GrSamplerParams::FilterMode filterMode);
     GrSingleTextureEffect(GrContext*, OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&, const GrSamplerParams&);
-
-    /**
-     * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that
-     * the subclass output color will be a modulation of the input color with a value read from the
-     * texture.
-     */
-    void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
-        GrPixelConfig config = this->textureSampler(0).texture()->config();
-        if (GrPixelConfigIsAlphaOnly(config)) {
-            inout->mulByUnknownSingleComponent();
-        } else if (GrPixelConfigIsOpaque(config)) {
-            inout->mulByUnknownOpaqueFourComponents();
-        } else {
-            inout->mulByUnknownFourComponents();
-        }
-    }
 
     /**
      * Can be used as a helper to implement subclass onOptimizationFlags(). It assumes that

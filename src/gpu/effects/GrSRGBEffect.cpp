@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -80,10 +79,6 @@ GrSRGBEffect::GrSRGBEffect(Mode mode)
 bool GrSRGBEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrSRGBEffect& other = s.cast<GrSRGBEffect>();
     return other.fMode == fMode;
-}
-
-void GrSRGBEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown();
 }
 
 static inline float srgb_to_linear(float srgb) {

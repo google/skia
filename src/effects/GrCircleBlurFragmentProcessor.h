@@ -59,8 +59,6 @@ private:
                fTextureRadius == cbfp.fTextureRadius;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     SkRect              fCircle;
     SkScalar            fSolidRadius;
     float               fTextureRadius;

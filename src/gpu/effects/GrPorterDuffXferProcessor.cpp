@@ -765,39 +765,33 @@ GrXferProcessor* GrPorterDuffXPFactory::onCreateXferProcessor(const GrCaps& caps
     return new PorterDuffXferProcessor(blendFormula);
 }
 
-void GrPorterDuffXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                                     InvariantBlendedColor* blendedColor) const {
-    // Find the blended color info based on the formula that does not have coverage.
+GrXPFactory::OutputAnalysis GrPorterDuffXPFactory::outputAnalysis(
+        const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI) const {
     BlendFormula colorFormula = gBlendTable[colorPOI.isOpaque()][0][(int)fBlendMode];
-    if (colorFormula.usesDstColor()) {
-        blendedColor->fWillBlendWithDst = true;
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-        return;
-    }
-
-    blendedColor->fWillBlendWithDst = false;
-
     SkASSERT(kAdd_GrBlendEquation == colorFormula.fBlendEquation);
+    OutputAnalysis::ReadsDst readsDst = (colorFormula.usesDstColor() || !coveragePOI.isSolidWhite())
+                                                ? OutputAnalysis::ReadsDst::kYes
+                                                : OutputAnalysis::ReadsDst::kNo;
 
-    switch (colorFormula.fSrcCoeff) {
-        case kZero_GrBlendCoeff:
-            blendedColor->fKnownColor = 0;
-            blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
-            return;
-        case kOne_GrBlendCoeff:
-            blendedColor->fKnownColorFlags =
-                    colorPOI.hasKnownOutputColor(&blendedColor->fKnownColor)
-                            ? kRGBA_GrColorComponentFlags
-                            : kNone_GrColorComponentFlags;
-            return;
-        default:
-            blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-            return;
+    if (!colorFormula.usesDstColor()) {
+        GrColor srcColor;
+        switch (colorFormula.fSrcCoeff) {
+            case kZero_GrBlendCoeff:
+                return OutputAnalysis::MakeColor(GrColor_TRANSPARENT_BLACK, readsDst);
+            case kOne_GrBlendCoeff:
+                if (!colorPOI.hasKnownOutputColor(&srcColor)) {
+                    break;
+                }
+                return OutputAnalysis::MakeColor(srcColor, readsDst);
+            default:
+                break;
+        }
     }
+    return OutputAnalysis::MakeUnknown(readsDst);
 }
 
-bool GrPorterDuffXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
-                                             CoverageType coverageType) const {
+bool GrPorterDuffXPFactory::willReadDstInShader(const GrCaps& caps, ColorType colorType,
+                                                CoverageType coverageType) const {
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         return false;
     }
@@ -900,19 +894,18 @@ sk_sp<GrXferProcessor> GrPorterDuffXPFactory::CreateNoCoverageXP(SkBlendMode ble
     return sk_make_sp<PorterDuffXferProcessor>(formula);
 }
 
-void GrPorterDuffXPFactory::SrcOverInvariantBlendedColor(
-        const GrProcOptInfo& colorPOI, GrXPFactory::InvariantBlendedColor* blendedColor) {
+GrXPFactory::OutputAnalysis GrPorterDuffXPFactory::SrcOverOutputAnalysis(
+        const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI) {
     if (!colorPOI.isOpaque()) {
-        blendedColor->fWillBlendWithDst = true;
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
-        return;
+        return OutputAnalysis::MakeUnknown(OutputAnalysis::ReadsDst::kYes);
     }
-    blendedColor->fWillBlendWithDst = false;
-    if (colorPOI.hasKnownOutputColor(&blendedColor->fKnownColor)) {
-        blendedColor->fKnownColorFlags = kRGBA_GrColorComponentFlags;
-    } else {
-        blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+    OutputAnalysis::ReadsDst readsDst = coveragePOI.isSolidWhite() ? OutputAnalysis::ReadsDst::kNo
+                                                                   : OutputAnalysis::ReadsDst::kYes;
+    GrColor srcColor;
+    if (colorPOI.hasKnownOutputColor(&srcColor)) {
+        return OutputAnalysis::MakeColor(srcColor, readsDst);
     }
+    return OutputAnalysis::MakeUnknown(readsDst);
 }
 
 bool GrPorterDuffXPFactory::SrcOverWillNeedDstTexture(const GrCaps& caps,

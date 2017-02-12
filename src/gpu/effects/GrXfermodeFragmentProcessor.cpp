@@ -8,7 +8,6 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLBlend.h"
@@ -125,10 +124,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const ComposeTwoFragmentProcessor& cs = other.cast<ComposeTwoFragmentProcessor>();
         return fMode == cs.fMode;
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
     }
 
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
@@ -360,32 +355,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& that) const override {
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        SkXfermode::Coeff skSrcCoeff, skDstCoeff;
-        if (SkXfermode::ModeAsCoeff(fMode, &skSrcCoeff, &skDstCoeff)) {
-            GrBlendCoeff srcCoeff = SkXfermodeCoeffToGrBlendCoeff(skSrcCoeff);
-            GrBlendCoeff dstCoeff = SkXfermodeCoeffToGrBlendCoeff(skDstCoeff);
-            GrInvariantOutput childOutput(0xFFFFFFFF, kRGBA_GrColorComponentFlags);
-            this->childProcessor(0).computeInvariantOutput(&childOutput);
-            GrColor blendColor;
-            GrColorComponentFlags blendFlags;
-            if (kDst_Child == fChild) {
-                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff,
-                                               inout->color(), inout->validFlags(),
-                                               childOutput.color(), childOutput.validFlags(),
-                                               &blendColor, &blendFlags);
-            } else {
-                GrGetCoeffBlendKnownComponents(srcCoeff, dstCoeff,
-                                               childOutput.color(), childOutput.validFlags(),
-                                               inout->color(), inout->validFlags(),
-                                               &blendColor, &blendFlags);
-            }
-            inout->setToOther(blendFlags, blendColor);
-        } else {
-            inout->setToUnknown();
-        }
     }
 
     GrColor4f constantOutputForConstantInput(GrColor4f inputColor) const override {

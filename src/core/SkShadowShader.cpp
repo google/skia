@@ -558,9 +558,6 @@ public:
 
     const char* name() const override { return "shadowFP"; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->mulByUnknownFourComponents();
-    }
     int32_t numLights() const { return fNumNonAmbLights; }
     const SkColor3f& ambientColor() const { return fAmbientColor; }
     bool isPointLight(int i) const {

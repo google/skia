@@ -16,7 +16,6 @@
 #include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrDrawingManager.h"
-#include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
@@ -84,7 +83,6 @@ private:
         GLBigKeyProcessor::GenKey(*this, caps, b);
     }
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override { }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -131,11 +129,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToOther(kRGBA_GrColorComponentFlags, GrColor_WHITE);
-        this->childProcessor(0).computeInvariantOutput(inout);
-    }
 
     typedef GrFragmentProcessor INHERITED;
 };

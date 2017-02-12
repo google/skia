@@ -7,7 +7,6 @@
 
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrProcOptInfo.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -137,9 +136,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->premulFourChannelColor();
-        }
         GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
             return input.premul();
         }
@@ -195,38 +191,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
             }
             return flags;
         }
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            // TODO: Add a helper to GrInvariantOutput that handles multiplying by color with flags?
-            if (!(inout->validFlags() & kA_GrColorComponentFlag)) {
-                inout->setToUnknown();
-                return;
-            }
 
-            GrInvariantOutput childOutput(GrColor_WHITE, kRGBA_GrColorComponentFlags);
-            this->childProcessor(0).computeInvariantOutput(&childOutput);
-
-            if (0 == GrColorUnpackA(inout->color()) || 0 == GrColorUnpackA(childOutput.color())) {
-                inout->mulByKnownFourComponents(0x0);
-                return;
-            }
-            GrColorComponentFlags commonFlags = childOutput.validFlags() & inout->validFlags();
-            GrColor c0 = GrPremulColor(inout->color());
-            GrColor c1 = childOutput.color();
-            GrColor color = 0x0;
-            if (commonFlags & kR_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1)) <<
-                    GrColor_SHIFT_R;
-            }
-            if (commonFlags & kG_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1)) <<
-                    GrColor_SHIFT_G;
-            }
-            if (commonFlags & kB_GrColorComponentFlag) {
-                color |= SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1)) <<
-                    GrColor_SHIFT_B;
-            }
-            inout->setToOther(commonFlags, color);
-        }
         GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
             GrColor4f childColor = ConstantOutputForConstantInput(this->childProcessor(0),
                                                                   GrColor4f::OpaqueWhite());
@@ -310,11 +275,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
             return fColor == that.cast<ReplaceInputFragmentProcessor>().fColor;
         }
 
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor());
-            this->childProcessor(0).computeInvariantOutput(inout);
-        }
-
         GrColor4f constantOutputForConstantInput(GrColor4f) const override {
             return ConstantOutputForConstantInput(this->childProcessor(0), fColor);
         }
@@ -324,8 +284,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         typedef GrFragmentProcessor INHERITED;
     };
 
-    GrInvariantOutput childOut(0x0, kNone_GrColorComponentFlags);
-    fp->computeInvariantOutput(&childOut);
     return sk_sp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(fp), color));
 }
 
@@ -375,11 +333,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-        void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-            for (int i = 0; i < this->numChildProcessors(); ++i) {
-                this->childProcessor(i).computeInvariantOutput(inout);
-            }
-        }
         GrColor4f constantOutputForConstantInput(GrColor4f color) const override {
             int childCnt = this->numChildProcessors();
             for (int i = 0; i < childCnt; ++i) {

@@ -339,10 +339,13 @@ GrXferProcessor* GrCoverageSetOpXPFactory::onCreateXferProcessor(const GrCaps& c
     return CoverageSetOpXP::Create(fRegionOp, fInvertCoverage);
 }
 
-void GrCoverageSetOpXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                                        InvariantBlendedColor* blendedColor) const {
-    blendedColor->fWillBlendWithDst = SkRegion::kReplace_Op != fRegionOp;
-    blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+GrXPFactory::OutputAnalysis GrCoverageSetOpXPFactory::outputAnalysis(
+        const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI) const {
+    if (coveragePOI.isSolidWhite() || SkRegion::kReplace_Op == fRegionOp) {
+        return OutputAnalysis::MakeUnknown(OutputAnalysis::ReadsDst::kNo);
+    } else {
+        return OutputAnalysis::MakeUnknown(OutputAnalysis::ReadsDst::kYes);
+    }
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrCoverageSetOpXPFactory);

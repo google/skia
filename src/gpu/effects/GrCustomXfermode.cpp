@@ -10,7 +10,6 @@
 #include "GrCoordTransform.h"
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrShaderCaps.h"
@@ -332,16 +331,16 @@ public:
     constexpr CustomXPFactory(SkBlendMode mode)
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
-    void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                  GrXPFactory::InvariantBlendedColor*) const override;
-
 private:
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineAnalysis&,
                                            bool hasMixedSamples,
                                            const DstTexture*) const override;
 
-    bool willReadDstColor(const GrCaps&, ColorType, CoverageType) const override;
+    OutputAnalysis outputAnalysis(const GrProcOptInfo& colorPOI,
+                                  const GrProcOptInfo& coveragePOI) const override;
+
+    bool willReadDstInShader(const GrCaps&, ColorType, CoverageType) const override;
 
     GR_DECLARE_XP_FACTORY_TEST;
 
@@ -367,18 +366,17 @@ GrXferProcessor* CustomXPFactory::onCreateXferProcessor(const GrCaps& caps,
     return new CustomXP(dstTexture, hasMixedSamples, fMode);
 }
 
-bool CustomXPFactory::willReadDstColor(const GrCaps& caps, ColorType colorType,
-                                       CoverageType coverageType) const {
+bool CustomXPFactory::willReadDstInShader(const GrCaps& caps, ColorType colorType,
+                                          CoverageType coverageType) const {
     // This should not be called if we're using PLS dst read.
     static constexpr bool kUsesPLSRead = false;
     return !can_use_hw_blend_equation(fHWBlendEquation, kUsesPLSRead,
                                       CoverageType::kLCD == coverageType, caps);
 }
 
-void CustomXPFactory::getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
-                                               InvariantBlendedColor* blendedColor) const {
-    blendedColor->fWillBlendWithDst = true;
-    blendedColor->fKnownColorFlags = kNone_GrColorComponentFlags;
+GrXPFactory::OutputAnalysis CustomXPFactory::outputAnalysis(
+        const GrProcOptInfo& colorPOI, const GrProcOptInfo& coveragePOI) const {
+    return OutputAnalysis::MakeUnknown(OutputAnalysis::ReadsDst::kYes);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);

@@ -8,7 +8,6 @@
 #include "GrOvalEffect.h"
 
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "SkRect.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -42,8 +41,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     SkPoint             fCenter;
     SkScalar            fRadius;
     GrPrimitiveEdgeType    fEdgeType;
@@ -57,10 +54,6 @@ sk_sp<GrFragmentProcessor> CircleEffect::Make(GrPrimitiveEdgeType edgeType, cons
                                               SkScalar radius) {
     SkASSERT(radius >= 0);
     return sk_sp<GrFragmentProcessor>(new CircleEffect(edgeType, center, radius));
-}
-
-void CircleEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
 }
 
 CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
@@ -207,8 +200,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     SkPoint             fCenter;
     SkVector            fRadii;
     GrPrimitiveEdgeType    fEdgeType;
@@ -224,10 +215,6 @@ sk_sp<GrFragmentProcessor> EllipseEffect::Make(GrPrimitiveEdgeType edgeType,
                                                SkScalar ry) {
     SkASSERT(rx >= 0 && ry >= 0);
     return sk_sp<GrFragmentProcessor>(new EllipseEffect(edgeType, center, rx, ry));
-}
-
-void EllipseEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
 }
 
 EllipseEffect::EllipseEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar rx,

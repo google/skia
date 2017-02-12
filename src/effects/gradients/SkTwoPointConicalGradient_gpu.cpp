@@ -10,7 +10,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "GrPaint.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
