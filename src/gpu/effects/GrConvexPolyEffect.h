@@ -78,8 +78,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GrPrimitiveEdgeType    fEdgeType;
     int                    fEdgeCount;
     SkScalar               fEdges[3 * kMaxEdges];

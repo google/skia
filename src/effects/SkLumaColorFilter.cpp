@@ -13,7 +13,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
@@ -113,10 +112,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // The output is always black. The alpha value for the color passed in is arbitrary.
-        inout->setToOther(kRGB_GrColorComponentFlags, GrColorPackRGBA(0, 0, 0, 0));
-    }
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
         float luma = SK_ITU_BT709_LUM_COEFF_R * input.fRGBA[0] +
                      SK_ITU_BT709_LUM_COEFF_G * input.fRGBA[1] +

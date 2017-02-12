@@ -99,8 +99,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GrTextureDomain fDomain;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;

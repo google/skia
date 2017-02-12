@@ -111,8 +111,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrSingleTextureEffect INHERITED;

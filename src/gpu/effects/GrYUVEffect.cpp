@@ -10,7 +10,6 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -191,11 +190,6 @@ private:
         return (fColorSpace == s.getColorSpace()) && (fNV12 == s.isNV12());
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // YUV is opaque
-        inout->setToOther(kA_GrColorComponentFlag, 0xFF << GrColor_SHIFT_A);
-    }
-
     GrCoordTransform fYTransform;
     TextureSampler   fYSampler;
     GrCoordTransform fUTransform;
@@ -352,10 +346,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const RGBToYUVEffect& s = sBase.cast<RGBToYUVEffect>();
         return fColorSpace == s.getColorSpace() && fOutputChannels == s.outputChannels();
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
     }
 
     GrCoordTransform    fTransform;

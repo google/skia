@@ -6,7 +6,6 @@
  */
 
 #include "effects/GrConstColorProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -61,29 +60,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (kIgnore_InputMode == fMode) {
-        inout->setToOther(kRGBA_GrColorComponentFlags, fColor.toGrColor());
-    } else {
-        float r = fColor.fRGBA[0];
-        bool colorIsSingleChannel = r == fColor.fRGBA[1] && r == fColor.fRGBA[2] &&
-                                    r == fColor.fRGBA[3];
-        if (kModulateRGBA_InputMode == fMode) {
-            if (colorIsSingleChannel) {
-                inout->mulByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
-            } else {
-                inout->mulByKnownFourComponents(fColor.toGrColor());
-            }
-        } else {
-            if (colorIsSingleChannel) {
-                inout->mulAlphaByKnownSingleComponent(SkToU8(sk_float_round2int(255.0f * r)));
-            } else {
-                inout->mulAlphaByKnownFourComponents(fColor.toGrColor());
-            }
-        }
-    }
-}
 
 GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
     switch (fMode) {

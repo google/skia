@@ -58,8 +58,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     Mode   fMode;

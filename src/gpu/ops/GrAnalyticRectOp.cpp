@@ -9,7 +9,6 @@
 
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"

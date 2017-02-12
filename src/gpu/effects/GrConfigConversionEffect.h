@@ -64,8 +64,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GrSwizzle       fSwizzle;
     PMConversion    fPMConversion;
 

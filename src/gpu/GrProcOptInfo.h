@@ -9,7 +9,7 @@
 #define GrProcOptInfo_DEFINED
 
 #include "GrColor.h"
-#include "GrInvariantOutput.h"
+#include "GrPipelineInput.h"
 
 class GrDrawOp;
 class GrFragmentProcessor;

@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -87,8 +86,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -249,10 +246,6 @@ bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
             this->fYInvZoom == s.fYInvZoom &&
             this->fXInvInset == s.fXInvInset &&
             this->fYInvInset == s.fYInvInset);
-}
-
-void GrMagnifierEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    this->updateInvariantOutputForModulation(inout);
 }
 
 #endif

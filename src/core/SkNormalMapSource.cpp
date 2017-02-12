@@ -18,7 +18,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "GrSamplerParams.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -102,10 +101,6 @@ public:
     }
 
     const char* name() const override { return "NormalMapFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
-    }
 
     const SkMatrix& invCTM() const { return fInvCTM; }
 

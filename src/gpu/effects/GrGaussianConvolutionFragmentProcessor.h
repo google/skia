@@ -9,7 +9,6 @@
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
 #include "Gr1DKernelEffect.h"
-#include "GrInvariantOutput.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.
@@ -72,12 +71,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // If the texture was opaque we could know that the output color if we knew the sum of the
-        // kernel values.
-        inout->mulByUnknownFourComponents();
-    }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 

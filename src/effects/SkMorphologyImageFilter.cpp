@@ -18,7 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrFixedClip.h"
-#include "GrInvariantOutput.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
@@ -176,8 +175,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType, const float bounds[2]);
@@ -361,12 +358,6 @@ bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
             this->direction() == s.direction() &&
             this->useRange() == s.useRange() &&
             this->type() == s.type());
-}
-
-void GrMorphologyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // This is valid because the color components of the result of the kernel all come
-    // exactly from existing values in the source texture.
-    this->updateInvariantOutputForModulation(inout);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

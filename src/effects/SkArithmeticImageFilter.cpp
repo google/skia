@@ -285,11 +285,6 @@ private:
                fEnforcePMColor == fp.fEnforcePMColor;
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // TODO: optimize this
-        inout->setToUnknown();
-    }
-
     // This could implement the const input -> const output optimization but it's unlikely to help.
     ArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                  sk_sp<GrFragmentProcessor> dst)

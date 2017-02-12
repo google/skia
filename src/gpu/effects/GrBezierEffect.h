@@ -11,7 +11,6 @@
 #include "GrCaps.h"
 #include "GrProcessor.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrTypesPriv.h"
 
 /**

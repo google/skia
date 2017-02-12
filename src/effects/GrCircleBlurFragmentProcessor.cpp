@@ -10,9 +10,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
 #include "GrTextureProvider.h"
-
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -105,10 +103,6 @@ void GrCircleBlurFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& ca
                                                           GrProcessorKeyBuilder* b) const {
     // The code for this processor is always the same so there is nothing to add to the key.
     return;
-}
-
-void GrCircleBlurFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
 }
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half kernel

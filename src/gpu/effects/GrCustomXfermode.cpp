@@ -10,7 +10,6 @@
 #include "GrCoordTransform.h"
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrShaderCaps.h"

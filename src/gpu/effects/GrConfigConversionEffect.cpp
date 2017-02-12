@@ -8,7 +8,6 @@
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -134,10 +133,6 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrConfigConversionEffect& other = s.cast<GrConfigConversionEffect>();
     return other.fSwizzle == fSwizzle &&
            other.fPMConversion == fPMConversion;
-}
-
-void GrConfigConversionEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    this->updateInvariantOutputForModulation(inout);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

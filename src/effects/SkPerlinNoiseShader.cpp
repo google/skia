@@ -18,7 +18,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -530,10 +529,6 @@ private:
                fNumOctaves == s.fNumOctaves &&
                fStitchTiles == s.fStitchTiles &&
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
     }
 
     GrPerlinNoiseEffect(SkPerlinNoiseShader::Type type, int numOctaves, bool stitchTiles,

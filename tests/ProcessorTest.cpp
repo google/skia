@@ -64,11 +64,6 @@ public:
         b->add32(sk_atomic_inc(&gKey));
     }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // We don't care about optimizing these processors.
-        inout->setToUnknown();
-    }
-
 private:
     TestFP(const SkTArray<sk_sp<GrTexture>>& textures, const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)

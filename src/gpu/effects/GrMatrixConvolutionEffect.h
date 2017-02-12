@@ -9,7 +9,6 @@
 #define GrMatrixConvolutionEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "GrInvariantOutput.h"
 #include "GrTextureDomain.h"
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
@@ -108,11 +107,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // TODO: Try to do better?
-        inout->mulByUnknownFourComponents();
-    }
 
     SkIRect         fBounds;
     SkISize         fKernelSize;

@@ -190,7 +190,6 @@ bool SkRRectsGaussianEdgeMaskFilterImpl::filterMask(SkMask* dst, const SkMask& s
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -452,10 +451,6 @@ public:
     }
 
     const char* name() const override { return "RRectsGaussianEdgeFP"; }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        inout->setToUnknown();
-    }
 
     const SkRRect& first() const { return fFirst; }
     Mode firstMode() const { return fFirstMode; }

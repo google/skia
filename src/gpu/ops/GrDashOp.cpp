@@ -13,7 +13,6 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"

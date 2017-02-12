@@ -18,7 +18,6 @@
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrPaint.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
@@ -558,10 +557,6 @@ public:
 protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // lighting shaders are complicated. We just throw up our hands.
-        inout->mulByUnknownFourComponents();
-    }
 
 private:
     const SkImageFilterLight* fLight;

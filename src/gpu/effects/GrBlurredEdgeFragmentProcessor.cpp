@@ -6,7 +6,6 @@
  */
 
 #include "effects/GrBlurredEdgeFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -66,10 +65,6 @@ void GrBlurredEdgeFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 bool GrBlurredEdgeFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrBlurredEdgeFP& that = other.cast<GrBlurredEdgeFP>();
     return that.fMode == fMode;
-}
-
-void GrBlurredEdgeFP::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownFourComponents();
 }
 
 

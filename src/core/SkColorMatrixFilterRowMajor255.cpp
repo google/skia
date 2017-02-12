@@ -270,7 +270,6 @@ SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) c
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -365,50 +364,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor& s) const override {
         const ColorMatrixEffect& cme = s.cast<ColorMatrixEffect>();
         return 0 == memcmp(fMatrix, cme.fMatrix, sizeof(fMatrix));
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        // We only bother to check whether the alpha channel will be constant. If SkColorMatrix had
-        // type flags it might be worth checking the other components.
-
-        // The matrix is defined such the 4th row determines the output alpha. The first four
-        // columns of that row multiply the input r, g, b, and a, respectively, and the last column
-        // is the "translation".
-        static const uint32_t kRGBAFlags[] = {
-            kR_GrColorComponentFlag,
-            kG_GrColorComponentFlag,
-            kB_GrColorComponentFlag,
-            kA_GrColorComponentFlag
-        };
-        static const int kShifts[] = {
-            GrColor_SHIFT_R, GrColor_SHIFT_G, GrColor_SHIFT_B, GrColor_SHIFT_A,
-        };
-        enum {
-            kAlphaRowStartIdx = 15,
-            kAlphaRowTranslateIdx = 19,
-        };
-
-        SkScalar outputA = 0;
-        for (int i = 0; i < 4; ++i) {
-            // If any relevant component of the color to be passed through the matrix is non-const
-            // then we can't know the final result.
-            if (0 != fMatrix[kAlphaRowStartIdx + i]) {
-                if (!(inout->validFlags() & kRGBAFlags[i])) {
-                    inout->setToUnknown();
-                    return;
-                } else {
-                    uint32_t component = (inout->color() >> kShifts[i]) & 0xFF;
-                    outputA += fMatrix[kAlphaRowStartIdx + i] * component;
-                }
-            }
-        }
-        outputA += fMatrix[kAlphaRowTranslateIdx];
-        // We pin the color to [0,1]. This would happen to the *final* color output from the frag
-        // shader but currently the effect does not pin its own output. So in the case of over/
-        // underflow this may deviate from the actual result. Maybe the effect should pin its
-        // result if the matrix could over/underflow for any component?
-        inout->setToOther(kA_GrColorComponentFlag,
-                          static_cast<uint8_t>(SkScalarPin(outputA, 0, 255)) << GrColor_SHIFT_A);
     }
 
     SkScalar fMatrix[20];

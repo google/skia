@@ -427,8 +427,6 @@ protected:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 
 private:

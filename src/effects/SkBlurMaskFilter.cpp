@@ -21,7 +21,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
 #include "GrTextureProxy.h"
@@ -823,8 +822,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     static GrTexture* CreateBlurProfileTexture(GrTextureProvider*, float sigma);
 
     SkRect          fRect;
@@ -999,10 +996,6 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return this->getSigma() == s.getSigma() && this->getRect() == s.getRect();
 }
 
-void GrRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
-}
-
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
 
 #if GR_TEST_UTILS
@@ -1092,8 +1085,6 @@ private:
                                        GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     SkRRect             fRRect;
     float               fSigma;
@@ -1203,10 +1194,6 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
     return sk_sp<GrFragmentProcessor>(new GrRRectBlurEffect(xformedSigma,
                                                             devRRect,
                                                             mask.get()));
-}
-
-void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
 }
 
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture* ninePatchTexture)

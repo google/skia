@@ -7,7 +7,6 @@
 
 #include "GrDitherEffect.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "SkRect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -35,16 +34,10 @@ private:
     // All dither effects are equal
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     typedef GrFragmentProcessor INHERITED;
 };
-
-void DitherEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->setToUnknown();
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

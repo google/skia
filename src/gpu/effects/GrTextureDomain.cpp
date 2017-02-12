@@ -8,7 +8,6 @@
 #include "GrTextureDomain.h"
 
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
 #include "GrShaderCaps.h"
 #include "GrSimpleTextureEffect.h"
 #include "GrSurfaceProxyPriv.h"
@@ -359,18 +358,6 @@ bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     return this->fTextureDomain == s.fTextureDomain;
 }
 
-void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) {
-        if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).texture()->config())) {
-            inout->mulByUnknownSingleComponent();
-        } else {
-            inout->mulByUnknownFourComponents();
-        }
-    } else {
-        this->updateInvariantOutputForModulation(inout);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
@@ -502,15 +489,6 @@ bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProce
     return dstdfp.fTextureSampler.texture() == fTextureSampler.texture() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
-}
-
-void GrDeviceSpaceTextureDecalFragmentProcessor::onComputeInvariantOutput(
-        GrInvariantOutput* inout) const {
-    if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).texture()->config())) {
-        inout->mulByUnknownSingleComponent();
-    } else {
-        inout->mulByUnknownFourComponents();
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

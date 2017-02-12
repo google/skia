@@ -6,11 +6,8 @@
  */
 
 #include "GrDistanceFieldGeoProc.h"
-#include "GrInvariantOutput.h"
 #include "GrTexture.h"
-
 #include "SkDistanceFieldGen.h"
-
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"

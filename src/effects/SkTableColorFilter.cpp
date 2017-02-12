@@ -361,7 +361,6 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 
 #include "GrContext.h"
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "GrTextureStripAtlas.h"
 #include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -387,19 +386,13 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
     ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row, unsigned flags);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    TextureSampler          fTextureSampler;
-
-    // currently not used in shader code, just to assist onComputeInvariantOutput().
-    unsigned                fFlags;
-
-    GrTextureStripAtlas*    fAtlas;
-    int                     fRow;
+    TextureSampler fTextureSampler;
+    GrTextureStripAtlas* fAtlas;
+    int fRow;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -514,7 +507,6 @@ ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atla
                                    unsigned flags)
         : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
         , fTextureSampler(texture)
-        , fFlags(flags)
         , fAtlas(atlas)
         , fRow(row) {
     this->initClassID<ColorTableEffect>();
@@ -544,25 +536,6 @@ bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {
     SkASSERT(SkToBool(fAtlas) == SkToBool(that.fAtlas));
     // Ok to always do this comparison since both would be -1 if non-atlased.
     return fRow == that.fRow;
-}
-
-void ColorTableEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // If we kept the table in the effect then we could actually run known inputs through the
-    // table.
-    GrColorComponentFlags invalidateFlags = kNone_GrColorComponentFlags;
-    if (fFlags & SkTable_ColorFilter::kR_Flag) {
-        invalidateFlags |= kR_GrColorComponentFlag;
-    }
-    if (fFlags & SkTable_ColorFilter::kG_Flag) {
-        invalidateFlags |= kG_GrColorComponentFlag;
-    }
-    if (fFlags & SkTable_ColorFilter::kB_Flag) {
-        invalidateFlags |= kB_GrColorComponentFlag;
-    }
-    if (fFlags & SkTable_ColorFilter::kA_Flag) {
-        invalidateFlags |= kA_GrColorComponentFlag;
-    }
-    inout->invalidateComponents(invalidateFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
