@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84859e07_9da2b6e4",
+        "filename": "src/gpu/effects/GrDitherEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-12T14:03:11Z",
+      "side": 1,
+      "message": "This can go out of range. Caught by the unit test when this was used with compose one.",
+      "range": {
+        "startLine": 86,
+        "startChar": 45,
+        "endLine": 86,
+        "endChar": 80
+      },
+      "revId": "c2e551a03e19d3c040a4d68aa3ebce417b8eddf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a3eabe9_ea024fd3",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-12T14:03:11Z",
+      "side": 1,
+      "message": "This and the clamping on line 113 match the software implementation. The results more closely match now in the imagefiltersgraph GM. The fact that this went out of range was what was blocking this class from advertising the modulation optimization. This was caught by the unit test when this fp was used in compose two.",
+      "range": {
+        "startLine": 101,
+        "startChar": 41,
+        "endLine": 101,
+        "endChar": 58
+      },
+      "revId": "c2e551a03e19d3c040a4d68aa3ebce417b8eddf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
