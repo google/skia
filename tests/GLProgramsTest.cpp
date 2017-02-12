@@ -189,14 +189,14 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
     }
     // If we didn't terminate, choose either the left or right subtree to fulfill
     // the minLevels requirement of this tree; the other child can have as few levels as it wants.
-    // Also choose a random xfer mode that's supported by CreateFrom2Procs().
+    // Also choose a random xfer mode.
     if (minLevels > 1) {
         --minLevels;
     }
     sk_sp<GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels, maxLevels - 1));
     sk_sp<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
     SkBlendMode mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0,
-                                                               (int)SkBlendMode::kLastCoeffMode));
+                                                               (int)SkBlendMode::kLastMode));
     sk_sp<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
         fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
@@ -216,8 +216,8 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     // Randomly choose to either create a linear pipeline of procs or create one proc tree
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
-        // A full tree with 5 levels (31 nodes) may exceed the max allowed length of the gl
-        // processor key; maxTreeLevels should be a number from 1 to 4 inclusive.
+        // A full tree with 5 levels (31 nodes) may cause a program that exceeds shader limits
+        // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
         const int maxTreeLevels = 4;
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
         paint->addColorFragmentProcessor(std::move(fp));
