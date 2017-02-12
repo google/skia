@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c03378a_f62757e5",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-02-12T15:23:53Z",
+      "side": 1,
+      "message": "Is this really true? Regardless of what the child processors are can this always be rearranged to be SrcColor * F, for some function F?",
+      "range": {
+        "startLine": 116,
+        "startChar": 8,
+        "endLine": 116,
+        "endChar": 50
+      },
+      "revId": "a6706ab1c1a57ce41da30c5e1bf5fb009ee385b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
