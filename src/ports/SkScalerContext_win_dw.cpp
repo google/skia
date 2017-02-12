@@ -424,9 +424,7 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
         Shared l(DWriteFactoryMutex);
         this->getDWriteTypeface()->fDWriteFontFace->GetMetrics(&dwfm);
     }
-    SkScalar advanceX = SkScalarMulDiv(fTextSizeMeasure,
-                                       SkIntToScalar(gm.advanceWidth),
-                                       SkIntToScalar(dwfm.designUnitsPerEm));
+    SkScalar advanceX = fTextSizeMeasure * gm.advanceWidth / dwfm.designUnitsPerEm;
 
     SkVector vecs[1] = { { advanceX, 0 } };
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||

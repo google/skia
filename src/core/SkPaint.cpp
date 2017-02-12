@@ -926,6 +926,20 @@ static void FontMetricsDescProc(SkTypeface* typeface, const SkScalerContextEffec
     SkGlyphCache::VisitCache(typeface, effects, desc, FontMetricsCacheProc, context);
 }
 
+void SkPaint::FontMetrics::scale(SkScalar scale) {
+    fTop *= scale;
+    fAscent *= scale;
+    fDescent *= scale;
+    fBottom *= scale;
+    fLeading *= scale;
+    fAvgCharWidth *= scale;
+    fXMin *= scale;
+    fXMax *= scale;
+    fXHeight *= scale;
+    fUnderlineThickness *= scale;
+    fUnderlinePosition *= scale;
+}
+
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
@@ -945,17 +959,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     paint.descriptorProc(nullptr, kNone_ScalerContextFlags, zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale) {
-        metrics->fTop *= scale;
-        metrics->fAscent *= scale;
-        metrics->fDescent *= scale;
-        metrics->fBottom *= scale;
-        metrics->fLeading *= scale;
-        metrics->fAvgCharWidth *= scale;
-        metrics->fXMin *= scale;
-        metrics->fXMax *= scale;
-        metrics->fXHeight *= scale;
-        metrics->fUnderlineThickness *= scale;
-        metrics->fUnderlinePosition *= scale;
+        metrics->scale(scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }

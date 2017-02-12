@@ -757,6 +757,7 @@ public:
             return false;
         }
 
+        void scale(SkScalar);
     };
 
     /** Return the recommend spacing between lines (which will be

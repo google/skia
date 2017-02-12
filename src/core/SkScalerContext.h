@@ -249,7 +249,7 @@ public:
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
     void        getPath(SkPackedGlyphID, SkPath*);
-    void        getFontMetrics(SkPaint::FontMetrics*);
+    void        getFontMetrics(SkPaint::FontMetrics*, SkScalar scale = 1);
 
     /** Return the size in bytes of the associated gamma lookup table
      */
