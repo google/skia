@@ -204,13 +204,21 @@ CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
     return CoverageType::kSingleChannel;
 }
 
-bool GrXPFactory::willReadDstColor(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
+GrXPFactory::OutputAnalysis GrXPFactory::GetOutputAnalysis(const GrXPFactory* factory,
+                                                           const GrProcOptInfo& colorPOI,
+                                                           const GrProcOptInfo& coveragePOI) {
+    return factory ? factory->outputAnalysis(colorPOI, coveragePOI)
+                   : GrPorterDuffXPFactory::SrcOverOutputAnalysis(colorPOI, coveragePOI);
+}
+
+bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
+                                      const GrPipelineAnalysis& analysis) const {
     if (analysis.fUsesPLSDstRead) {
         return true;
     }
     ColorType colorType = analysis_color_type(analysis);
     CoverageType coverageType = analysis_coverage_type(analysis);
-    return this->willReadDstColor(caps, colorType, coverageType);
+    return this->willReadDstInShader(caps, colorType, coverageType);
 }
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& analysis,
@@ -218,7 +226,7 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstColor(caps, analysis)) {
+    if (this->willReadDstInShader(caps, analysis)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {
@@ -234,5 +242,5 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
 
 bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
     return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
-           this->willReadDstColor(caps, analysis);
+           this->willReadDstInShader(caps, analysis);
 }
