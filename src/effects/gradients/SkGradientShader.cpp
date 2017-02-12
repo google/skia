@@ -1121,7 +1121,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrInvariantOutput.h"
 #include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
@@ -1742,14 +1741,6 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
         }
     }
     return GrColorSpaceXform::Equals(this->fColorSpaceXform.get(), ge.fColorSpaceXform.get());
-}
-
-void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    if (fIsOpaque) {
-        inout->mulByUnknownOpaqueFourComponents();
-    } else {
-        inout->mulByUnknownFourComponents();
-    }
 }
 
 #if GR_TEST_UTILS

@@ -16,7 +16,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrCoordTransform.h"
-#include "GrInvariantOutput.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 
@@ -249,8 +248,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -522,15 +519,6 @@ bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
     return fXChannelSelector == s.fXChannelSelector &&
            fYChannelSelector == s.fYChannelSelector &&
            fScale == s.fScale;
-}
-
-void GrDisplacementMapEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    // Any displacement offset bringing a pixel out of bounds will output a color of (0,0,0,0),
-    // so the only way we'd get a constant alpha is if the input color image has a constant alpha
-    // and no displacement offset push any texture coordinates out of bounds OR if the constant
-    // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
-    // not of constant color when a displacement effect is applied.
-    inout->setToUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

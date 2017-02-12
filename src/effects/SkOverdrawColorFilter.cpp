@@ -50,7 +50,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "GrFragmentProcessor.h"
-#include "GrInvariantOutput.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -63,7 +62,6 @@ private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override;
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
 
     OverdrawFragmentProcessor(const GrColor4f* colors);
 
@@ -120,10 +118,6 @@ bool OverdrawFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) cons
     const OverdrawFragmentProcessor& that = other.cast<OverdrawFragmentProcessor>();
     return 0 == memcmp(fColors, that.fColors,
                        sizeof(GrColor4f) * SkOverdrawColorFilter::kNumColors);
-}
-
-void OverdrawFragmentProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->invalidateComponents(kRGBA_GrColorComponentFlags);
 }
 
 GLOverdrawFragmentProcessor::GLOverdrawFragmentProcessor(const GrColor4f* colors) {

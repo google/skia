@@ -6,7 +6,6 @@
  */
 
 #include "GrConvexPolyEffect.h"
-#include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
 #include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -42,15 +41,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const AARectEffect& aare = other.cast<AARectEffect>();
         return fRect == aare.fRect;
-    }
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
-        if (fRect.isEmpty()) {
-            // An empty rect will have no coverage anywhere.
-            inout->mulByKnownSingleComponent(0);
-        } else {
-            inout->mulByUnknownSingleComponent();
-        }
     }
 
     SkRect              fRect;
@@ -324,10 +314,6 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType edgeType
 }
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
-
-void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
-}
 
 void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                GrProcessorKeyBuilder* b) const {
