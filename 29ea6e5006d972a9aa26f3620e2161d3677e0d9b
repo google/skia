@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4aa43192_77f703e3",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T16:34:08Z",
+      "side": 1,
+      "message": "private?",
+      "range": {
+        "startLine": 760,
+        "startChar": 8,
+        "endLine": 760,
+        "endChar": 29
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cda292ef_c8a3fcd6",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T16:34:08Z",
+      "side": 1,
+      "message": "Could we just put this directly at the call sites that pass in a \u0027scale\u0027? There are only two, and they are specifically for testing.",
+      "range": {
+        "startLine": 576,
+        "startChar": 8,
+        "endLine": 576,
+        "endChar": 25
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b77d2d9_4d4df13c",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T16:34:08Z",
+      "side": 1,
+      "message": "This seems odd to pass a scale to the scaler context. The scaler context itself lives in device space, and scaling on top of that seems odd. This is also only used by testing scaler contexts.",
+      "range": {
+        "startLine": 252,
+        "startChar": 53,
+        "endLine": 252,
+        "endChar": 72
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5739996_f0144341",
+        "filename": "src/effects/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T16:34:08Z",
+      "side": 1,
+      "message": "nit: looks like this line got a bit long",
+      "range": {
+        "startLine": 193,
+        "startChar": 100,
+        "endLine": 193,
+        "endChar": 108
+      },
+      "revId": "29ea6e5006d972a9aa26f3620e2161d3677e0d9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
