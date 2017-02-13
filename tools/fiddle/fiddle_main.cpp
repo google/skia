@@ -7,12 +7,29 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 #include "fiddle_main.h"
 
 // Globals externed in fiddle_main.h
 SkBitmap source;
 sk_sp<SkImage> image;
+
+// Globals used by the local impl of SkDebugf.
+char formatbuffer[1024];
+std::string textoutput("");
+
+void SkDebugf(const char * fmt, ...) {
+    int n;
+    va_list args;
+    va_start(args, fmt);
+    n = vsnprintf(formatbuffer, sizeof(formatbuffer), fmt, args);
+    va_end(args);
+    if (n>=0 && n<=int(sizeof(formatbuffer))) {
+        textoutput.append(formatbuffer);
+        textoutput.append("\n");
+    }
+}
 
 static void encode_to_base64(const void* data, size_t size, FILE* out) {
     const uint8_t* input = reinterpret_cast<const uint8_t*>(data);
@@ -56,6 +73,13 @@ static void dump_output(const sk_sp<SkData>& data,
     }
 }
 
+static void dump_text(const std::string& s,
+                        const char* name, bool last = true) {
+    printf("\t\"%s\": \"", name);
+    encode_to_base64(s.c_str(), s.length(), stdout);
+    fputs(last ? "\"\n" : "\",\n", stdout);
+}
+
 static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     sk_sp<SkImage> img(surface->makeImageSnapshot());
     return img ? img->encode() : nullptr;
@@ -87,8 +111,18 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     static sk_sp<GrContext> create_grcontext() { return nullptr; }
 #endif
 
+
+
 int main() {
-    const DrawOptions options = GetDrawOptions();
+    DrawOptions options = GetDrawOptions();
+    // If textOnly then only do one type of image, otherwise the text
+    // output is duplicated for each type.
+    if (options.textOnly) {
+        options.raster = true;
+        options.gpu = false;
+        options.pdf = false;
+        options.skp = false;
+    }
     if (options.source) {
         sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {
@@ -158,12 +192,14 @@ int main() {
         picture->serialize(&skpStream);
         skpData = skpStream.detachAsData();
     }
+    bool textOnly = options.textOnly;
 
     printf("{\n");
-    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
-    dump_output(gpuData, "Gpu", !pdfData && !skpData);
-    dump_output(pdfData, "Pdf", !skpData);
-    dump_output(skpData, "Skp");
+    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData && !textOnly);
+    dump_output(gpuData, "Gpu", !pdfData && !skpData && !textOnly);
+    dump_output(pdfData, "Pdf", !skpData && !textOnly);
+    dump_output(skpData, "Skp", !textOnly);
+    dump_text(textoutput, "Text");
     printf("}\n");
 
     return 0;
