@@ -117,7 +117,8 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
 
 // static
 void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                          bool doConsumeDegerates, SkWStream* content) {
+                          bool doConsumeDegerates, SkWStream* content,
+                          SkScalar tolerance) {
     // Filling a path with no area results in a drawing in PDF renderers but
     // Chrome expects to be able to draw some such entities with no visible
     // result, so we detect those cases and discard the drawing for them.
@@ -131,7 +132,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     {
         SkPDFUtils::AppendRectangle(rect, content);
         return;
-    }    
+    }
 
     enum SkipFillState {
         kEmpty_SkipFillState,
@@ -169,9 +170,8 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                 fillState = kNonSingleLine_SkipFillState;
                 break;
             case SkPath::kConic_Verb: {
-                const SkScalar tol = SK_Scalar1 / 4;
                 SkAutoConicToQuads converter;
-                const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tol);
+                const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     append_quad(&quads[i * 2], &currentSegment);
                 }
@@ -183,9 +183,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                 fillState = kNonSingleLine_SkipFillState;
                 break;
             case SkPath::kClose_Verb:
-
-                    ClosePath(&currentSegment);
-
+                ClosePath(&currentSegment);
                 currentSegment.writeToStream(content);
                 currentSegment.reset();
                 break;
