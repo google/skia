@@ -204,13 +204,29 @@ CoverageType analysis_coverage_type(const GrPipelineAnalysis& analysis) {
     return CoverageType::kSingleChannel;
 }
 
-bool GrXPFactory::willReadDstColor(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
+bool GrXPFactory::WillReadDst(const GrXPFactory* factory, const GrProcOptInfo& colorInput,
+                              const GrProcOptInfo& coverageInput) {
+    if (factory) {
+        return factory->willReadsDst(colorInput, coverageInput);
+    }
+    return GrPorterDuffXPFactory::WillSrcOverReadDst(factory, colorInput, coverageInput);
+}
+
+bool GrXPFactory::IsPreCoverageBlendedColorConstant(const GrXPFactory* factory, const GrProcOptInfo& colorInput, GrColor* color) {
+    if (factory) {
+        return factory->isPreCoverageBlendedColorConstant(colorInput, color);
+    }
+    return GrPorterDuffXPFactory::IsSrcOverPreCoverageBlendedColorConstant(factory, colorInput, color);
+}
+
+bool GrXPFactory::willReadDstInShader(const GrCaps& caps,
+                                      const GrPipelineAnalysis& analysis) const {
     if (analysis.fUsesPLSDstRead) {
         return true;
     }
     ColorType colorType = analysis_color_type(analysis);
     CoverageType coverageType = analysis_coverage_type(analysis);
-    return this->willReadDstColor(caps, colorType, coverageType);
+    return this->willReadDstInShader(caps, colorType, coverageType);
 }
 
 GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& analysis,
@@ -218,7 +234,7 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
                                                   const DstTexture* dstTexture,
                                                   const GrCaps& caps) const {
 #ifdef SK_DEBUG
-    if (this->willReadDstColor(caps, analysis)) {
+    if (this->willReadDstInShader(caps, analysis)) {
         if (!caps.shaderCaps()->dstReadInShaderSupport()) {
             SkASSERT(dstTexture && dstTexture->texture());
         } else {
@@ -234,5 +250,5 @@ GrXferProcessor* GrXPFactory::createXferProcessor(const GrPipelineAnalysis& anal
 
 bool GrXPFactory::willNeedDstTexture(const GrCaps& caps, const GrPipelineAnalysis& analysis) const {
     return !analysis.fUsesPLSDstRead && !caps.shaderCaps()->dstReadInShaderSupport() &&
-           this->willReadDstColor(caps, analysis);
+           this->willReadDstInShader(caps, analysis);
 }
