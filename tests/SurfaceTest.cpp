@@ -13,6 +13,7 @@
 #include "SkImage_Base.h"
 #include "SkOverdrawCanvas.h"
 #include "SkPath.h"
+#include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
