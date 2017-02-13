@@ -301,7 +301,8 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm,
+                                           SkTBlitterAllocator* allocator) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
         SkAutoLockPixels autoLockPixels(bm);
@@ -312,17 +313,23 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
         return nullptr;
     }
 
+    sk_sp<SkImage> image;
     if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
         SkBitmap tmp(bm);
         tmp.lockPixels();
         SkPixmap pmap;
         if (tmp.getPixels() && tmp.peekPixels(&pmap)) {
-            return SkImage::MakeRasterCopy(pmap);
+            image = SkImage::MakeRasterCopy(pmap);
         }
     } else {
-        return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+        if (allocator) {
+            image.reset(allocator->createT<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm));
+            image.get()->ref(); // account for the allocator being an owner
+        } else {
+            image = sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+        }
     }
-    return sk_sp<SkImage>();
+    return image;
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
