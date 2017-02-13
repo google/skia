@@ -781,13 +781,16 @@ void SkPDFDevice::drawPath(const SkDraw& d,
     if (!content.entry()) {
         return;
     }
+    SkScalar matrixScale = matrix.mapRadius(1.0f);
+    SkScalar tolerance = matrixScale > 0.0f ? 0.25f / matrixScale : 0.25f;
     bool consumeDegeratePathSegments =
            paint.getStyle() == SkPaint::kFill_Style ||
            (paint.getStrokeCap() != SkPaint::kRound_Cap &&
             paint.getStrokeCap() != SkPaint::kSquare_Cap);
     SkPDFUtils::EmitPath(*pathPtr, paint.getStyle(),
                          consumeDegeratePathSegments,
-                         &content.entry()->fContent);
+                         &content.entry()->fContent,
+                         tolerance);
     SkPDFUtils::PaintPath(paint.getStyle(), pathPtr->getFillType(),
                           &content.entry()->fContent);
 }
