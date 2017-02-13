@@ -16,6 +16,24 @@
       "revId": "2270fd22ea49890ed28f436877cfdd861dddb10b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41962738_c0ac1d05",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-02-13T12:34:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4e2114d_aff62b1a",
+      "revId": "2270fd22ea49890ed28f436877cfdd861dddb10b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
