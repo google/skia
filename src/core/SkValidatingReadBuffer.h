@@ -51,15 +51,7 @@ public:
     void readRect(SkRect* rect) override;
     void readRRect(SkRRect* rrect) override;
     void readRegion(SkRegion* region) override;
-    void readPath(SkPath* path) override;
-
-    // binary data and arrays
-    bool readByteArray(void* value, size_t size) override;
-    bool readColorArray(SkColor* colors, size_t size) override;
-    bool readColor4fArray(SkColor4f* colors, size_t size) override;
-    bool readIntArray(int32_t* values, size_t size) override;
-    bool readPointArray(SkPoint* points, size_t size) override;
-    bool readScalarArray(SkScalar* values, size_t size) override;
+    bool SK_WARN_UNUSED_RESULT readPath1(SkPath* path) override;
 
     // helpers to get info about arrays and binary data
     uint32_t getArrayCount() override;
@@ -70,7 +62,7 @@ public:
     bool validateAvailable(size_t size) override;
 
 private:
-    bool readArray(void* value, size_t size, size_t elementSize);
+    bool readArray(void* value, size_t size, size_t elementSize) override;
 
     void setMemory(const void* data, size_t size);
 

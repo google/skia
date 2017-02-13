@@ -172,15 +172,23 @@ void SkValidatingReadBuffer::readRegion(SkRegion* region) {
     }
 }
 
-void SkValidatingReadBuffer::readPath(SkPath* path) {
+bool SkValidatingReadBuffer::readPath1(SkPath* path) {
+#if 0
     size_t size = 0;
     if (!fError) {
-        size = path->readFromMemory(fReader.peek(), fReader.available());
+        size = path->readFromMemory1(fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
         (void)this->skip(size);
     }
+#endif
+
+    if (!fError && SkPath::MakeFromBuffer(*this, path)) {
+        return true;
+    }
+    
+    return false;
 }
 
 bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
@@ -198,6 +206,7 @@ bool SkValidatingReadBuffer::readArray(void* value, size_t size, size_t elementS
     return false;
 }
 
+#if 0
 bool SkValidatingReadBuffer::readByteArray(void* value, size_t size) {
     return this->readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
 }
@@ -221,6 +230,7 @@ bool SkValidatingReadBuffer::readPointArray(SkPoint* points, size_t size) {
 bool SkValidatingReadBuffer::readScalarArray(SkScalar* values, size_t size) {
     return this->readArray(values, size, sizeof(SkScalar));
 }
+#endif
 
 uint32_t SkValidatingReadBuffer::getArrayCount() {
     const size_t inc = sizeof(uint32_t);

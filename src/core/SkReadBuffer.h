@@ -135,7 +135,7 @@ public:
     virtual void readRRect(SkRRect* rrect);
     virtual void readRegion(SkRegion* region);
 
-    virtual void readPath(SkPath* path);
+    virtual bool SK_WARN_UNUSED_RESULT readPath1(SkPath* path);
     virtual void readPaint(SkPaint* paint) { paint->unflatten(*this); }
 
     virtual SkFlattenable* readFlattenable(SkFlattenable::Type);
@@ -152,12 +152,29 @@ public:
     sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
 
     // binary data and arrays
-    virtual bool readByteArray(void* value, size_t size);
-    virtual bool readColorArray(SkColor* colors, size_t size);
-    virtual bool readColor4fArray(SkColor4f* colors, size_t size);
-    virtual bool readIntArray(int32_t* values, size_t size);
-    virtual bool readPointArray(SkPoint* points, size_t size);
-    virtual bool readScalarArray(SkScalar* values, size_t size);
+    bool readByteArray(void* value, size_t size) {
+        return this->readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
+    }
+
+    bool readColorArray(SkColor* colors, size_t size) {
+        return this->readArray(colors, size, sizeof(SkColor));
+    }
+
+    bool readColor4fArray(SkColor4f* colors, size_t size) {
+        return this->readArray(colors, size, sizeof(SkColor4f));
+    }
+
+    bool readIntArray(int32_t* values, size_t size) {
+        return this->readArray(values, size, sizeof(int32_t));
+    }
+
+    bool readPointArray(SkPoint* points, size_t size) {
+        return this->readArray(points, size, sizeof(SkPoint));
+    }
+
+    bool readScalarArray(SkScalar* values, size_t size) {
+        return this->readArray(values, size, sizeof(SkScalar));
+    }
 
     sk_sp<SkData> readByteArrayAsData() {
         size_t len = this->getArrayCount();
@@ -165,7 +182,10 @@ public:
             return SkData::MakeEmpty();
         }
         void* buffer = sk_malloc_throw(len);
-        this->readByteArray(buffer, len);
+        if (!this->readByteArray(buffer, len)) {
+            sk_free(buffer);
+            return SkData::MakeEmpty();
+        }
         return SkData::MakeFromMalloc(buffer, len);
     }
 
@@ -219,6 +239,8 @@ public:
     SkInflator* getInflator() const { return fInflator; }
     void setInflator(SkInflator* inf) { fInflator = inf; }
 
+    void align4();
+
 //    sk_sp<SkImage> inflateImage();
     
 protected:
@@ -243,7 +265,7 @@ protected:
     SkTHashMap<uint32_t, SkString> fFlattenableDict;
 
 private:
-    bool readArray(void* value, size_t size, size_t elementSize);
+    virtual bool readArray(void* value, size_t size, size_t elementSize);
 
     uint32_t fFlags;
     int fVersion;

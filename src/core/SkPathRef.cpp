@@ -218,71 +218,76 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
     return true;
 }
 
-SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
-    SkPathRef* ref = new SkPathRef;
+#include "SkReadBuffer.h"
 
-    int32_t packed;
-    if (!buffer->readS32(&packed)) {
-        delete ref;
+sk_sp<SkPathRef> SkPathRef::MakeFromBuffer(SkReadBuffer& reader) {
+    int32_t packed = reader.readInt();
+    if (!reader.isValid()) {
         return nullptr;
     }
 
-    ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
+    bool isFinite = (packed >> kIsFinite_SerializationShift) & 1;
     uint8_t segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     bool isOval  = (packed >> kIsOval_SerializationShift) & 1;
     bool isRRect  = (packed >> kIsRRect_SerializationShift) & 1;
     bool rrectOrOvalIsCCW = (packed >> kRRectOrOvalIsCCW_SerializationShift) & 1;
     unsigned rrectOrOvalStartIdx = (packed >> kRRectOrOvalStartIdx_SerializationShift) & 0x7;
 
-    int32_t verbCount, pointCount, conicCount;
+    uint32_t genID = reader.readUInt();
+    int32_t verbCount = reader.readInt();
+    int32_t pointCount = reader.readInt();
+    int32_t conicCount = reader.readInt();
+
     ptrdiff_t maxPtrDiff = std::numeric_limits<ptrdiff_t>::max();
-    if (!buffer->readU32(&(ref->fGenerationID)) ||
-        !buffer->readS32(&verbCount) ||
-        verbCount < 0 ||
-        static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
-        !buffer->readS32(&pointCount) ||
-        pointCount < 0 ||
-        static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
+
+    if (!reader.isValid() ||
+        verbCount < 0 || static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
+        pointCount < 0 || static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
         sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount >
-            static_cast<size_t>(maxPtrDiff) ||
-        !buffer->readS32(&conicCount) ||
+                                                            static_cast<size_t>(maxPtrDiff) ||
         conicCount < 0) {
-        delete ref;
         return nullptr;
     }
 
-    ref->resetToSize(verbCount, pointCount, conicCount);
-    SkASSERT(verbCount == ref->countVerbs());
-    SkASSERT(pointCount == ref->countPoints());
-    SkASSERT(conicCount == ref->fConicWeights.count());
+    sk_sp<SkPathRef> result(new SkPathRef);
 
-    if (!buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t)) ||
-        !buffer->read(ref->fPoints, pointCount * sizeof(SkPoint)) ||
-        !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
-        !buffer->read(&ref->fBounds, sizeof(SkRect))) {
-        delete ref;
+    result->fGenerationID = genID;
+
+    result->resetToSize(verbCount, pointCount, conicCount);
+    SkASSERT(verbCount == result->countVerbs());
+    SkASSERT(pointCount == result->countPoints());
+    SkASSERT(conicCount == result->fConicWeights.count());
+
+    if (!reader.readByteArray(result->verbsMemWritable(), verbCount) ||
+        !reader.readPointArray(result->fPoints, pointCount) ||
+        !reader.readScalarArray(result->fConicWeights.begin(), conicCount)) {
+        return nullptr;
+    }
+
+    reader.readRect(&result->fBounds);
+    if (!reader.isValid()) {
         return nullptr;
     }
 
     // Check that the verbs are valid, and imply the correct number of pts and conics
     {
         int pCount, cCount;
-        if (!deduce_pts_conics(ref->verbsMemBegin(), ref->countVerbs(), &pCount, &cCount) ||
-            pCount != ref->countPoints() || cCount != ref->fConicWeights.count()) {
-            delete ref;
+        if (!deduce_pts_conics(result->verbsMemBegin(), result->countVerbs(), &pCount, &cCount) ||
+            pCount != result->countPoints() || cCount != result->fConicWeights.count()) {
             return nullptr;
         }
     }
     
-    ref->fBoundsIsDirty = false;
+    result->fBoundsIsDirty = false;
 
     // resetToSize clears fSegmentMask and fIsOval
-    ref->fSegmentMask = segmentMask;
-    ref->fIsOval = isOval;
-    ref->fIsRRect = isRRect;
-    ref->fRRectOrOvalIsCCW = rrectOrOvalIsCCW;
-    ref->fRRectOrOvalStartIdx = rrectOrOvalStartIdx;
-    return ref;
+    result->fSegmentMask = segmentMask;
+    result->fIsFinite = isFinite;
+    result->fIsOval = isOval;
+    result->fIsRRect = isRRect;
+    result->fRRectOrOvalIsCCW = rrectOrOvalIsCCW;
+    result->fRRectOrOvalStartIdx = rrectOrOvalStartIdx;
+    return result;
 }
 
 void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {

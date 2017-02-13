@@ -540,7 +540,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 const int count = buffer.readInt();
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
-                    buffer.readPath(&fPaths[i]);
+                    if (!buffer.readPath1(&fPaths[i])) {
+                        return false;
+                    }
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:

@@ -18,8 +18,8 @@
 #include "SkRefCnt.h"
 #include <stddef.h> // ptrdiff_t
 
-class SkRBuffer;
 class SkWBuffer;
+class SkReadBuffer;
 
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
@@ -234,7 +234,7 @@ public:
                                       const SkPathRef& src,
                                       const SkMatrix& matrix);
 
-    static SkPathRef* CreateFromBuffer(SkRBuffer* buffer);
+    static sk_sp<SkPathRef> MakeFromBuffer(SkReadBuffer&);
 
     /**
      * Rollsback a path ref to zero verbs and points with the assumption that the path ref will be

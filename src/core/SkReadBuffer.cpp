@@ -170,8 +170,13 @@ void SkReadBuffer::readRegion(SkRegion* region) {
     fReader.readRegion(region);
 }
 
-void SkReadBuffer::readPath(SkPath* path) {
-    fReader.readPath(path);
+bool SkReadBuffer::readPath1(SkPath* path) {
+    if (SkPath::MakeFromBuffer(*this, path)) {
+        return true;
+    }
+
+    fReader.skip(fReader.available());
+    return false;
 }
 
 bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
@@ -185,30 +190,6 @@ bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
     SkASSERT(false);
     fReader.skip(fReader.available());
     return false;
-}
-
-bool SkReadBuffer::readByteArray(void* value, size_t size) {
-    return readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
-}
-
-bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor));
-}
-
-bool SkReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor4f));
-}
-
-bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return readArray(values, size, sizeof(int32_t));
-}
-
-bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return readArray(points, size, sizeof(SkPoint));
-}
-
-bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return readArray(values, size, sizeof(SkScalar));
 }
 
 uint32_t SkReadBuffer::getArrayCount() {

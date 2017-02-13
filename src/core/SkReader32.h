@@ -106,9 +106,11 @@ public:
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
 
+#if 0
     bool readPath(SkPath* path) {
-        return this->readObjectFromMemory(path);
+        return this->readObjectFromMemory1(path);
     }
+#endif
 
     bool readMatrix(SkMatrix* matrix) {
         return this->readObjectFromMemory(matrix);
@@ -152,6 +154,17 @@ private:
         (void)this->skip(success ? size : this->available());
         return success;
     }
+
+#if 0
+    template <typename T> bool readObjectFromMemory1(T* obj) {
+        size_t size = obj->readFromMemory1(this->peek(), this->available());
+        // If readFromMemory() fails (which means that available() was too small), it returns 0
+        bool success = (size > 0) && (size <= this->available()) && (SkAlign4(size) == size);
+        // In case of failure, we want to skip to the end
+        (void)this->skip(success ? size : this->available());
+        return success;
+    }
+#endif
 
     // these are always 4-byte aligned
     const char* fCurr;  // current position within buffer

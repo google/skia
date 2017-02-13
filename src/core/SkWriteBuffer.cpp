@@ -114,7 +114,7 @@ void SkBinaryWriteBuffer::writeRegion(const SkRegion& region) {
 }
 
 void SkBinaryWriteBuffer::writePath(const SkPath& path) {
-    fWriter.writePath(path);
+    path.flatten(*this);
 }
 
 size_t SkBinaryWriteBuffer::writeStream(SkStream* stream, size_t length) {

@@ -130,11 +130,13 @@ public:
         rrect.writeToMemory(this->reserve(SkRRect::kSizeInMemory));
     }
 
+#if 0
     void writePath(const SkPath& path) {
         size_t size = path.writeToMemory(NULL);
         SkASSERT(SkAlign4(size) == size);
         path.writeToMemory(this->reserve(size));
     }
+#endif
 
     void writeMatrix(const SkMatrix& matrix) {
         size_t size = matrix.writeToMemory(NULL);
