@@ -11,17 +11,12 @@
 #include "glsl/GrGLSLVarying.h"
 
 GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
-    : INHERITED(program)
-    , fRtAdjustName(nullptr) {
+    : INHERITED(program) {
 }
 
-void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
-    SkASSERT(!fRtAdjustName);
-
+void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar,
+                                                           const char* rtAdjustName) {
     // setup RT Uniform
-    fProgramBuilder->addRTAdjustmentUniform(kHigh_GrSLPrecision,
-                                            fProgramBuilder->rtAdjustment(),
-                                            &fRtAdjustName);
     if (this->getProgramBuilder()->desc()->header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
@@ -33,17 +28,17 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
         this->codeAppendf("_posTmp = floor(_posTmp) + vec2(0.5, 0.5);"
                           "gl_Position = vec4(_posTmp.x * %s.x + %s.y,"
                                              "_posTmp.y * %s.z + %s.w, 0, 1);}",
-                          fRtAdjustName, fRtAdjustName, fRtAdjustName, fRtAdjustName);
+                          rtAdjustName, rtAdjustName, rtAdjustName, rtAdjustName);
     } else if (kVec3f_GrSLType == posVar.getType()) {
         this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
-                          posVar.c_str(), fRtAdjustName,
-                          posVar.c_str(), fRtAdjustName,
+                          posVar.c_str(), rtAdjustName,
+                          posVar.c_str(), rtAdjustName,
                           posVar.c_str());
     } else {
         SkASSERT(kVec2f_GrSLType == posVar.getType());
         this->codeAppendf("gl_Position = vec4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
-                          posVar.c_str(), fRtAdjustName, fRtAdjustName,
-                          posVar.c_str(), fRtAdjustName, fRtAdjustName);
+                          posVar.c_str(), rtAdjustName, rtAdjustName,
+                          posVar.c_str(), rtAdjustName, rtAdjustName);
     }
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
