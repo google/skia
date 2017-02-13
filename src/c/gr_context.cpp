@@ -53,6 +53,10 @@ void gr_context_flush(gr_context_t* context) {
     AsGrContext(context)->flush();
 }
 
+void gr_context_reset_context(gr_context_t* context, uint32_t state) {
+    AsGrContext(context)->resetContext(state);
+}
+
 
 const gr_glinterface_t* gr_glinterface_default_interface() {
     return ToGrGLInterface(GrGLDefaultInterface());

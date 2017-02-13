@@ -25,6 +25,7 @@ SK_C_API void gr_context_set_resource_cache_limits(gr_context_t* context, int ma
 SK_C_API void gr_context_get_resource_cache_usage(gr_context_t* context, int* maxResources, size_t* maxResourceBytes);
 SK_C_API int gr_context_get_recommended_sample_count(gr_context_t* context, gr_pixelconfig_t config, float dpi);
 SK_C_API void gr_context_flush(gr_context_t* context);
+SK_C_API void gr_context_reset_context(gr_context_t* context, uint32_t state);
 
 SK_C_API const gr_glinterface_t* gr_glinterface_default_interface();
 SK_C_API const gr_glinterface_t* gr_glinterface_create_native_interface();
