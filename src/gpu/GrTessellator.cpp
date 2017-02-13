@@ -1149,6 +1149,9 @@ Vertex* check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, C
 void sanitize_contours(Vertex** contours, int contourCnt, bool approximate) {
     for (int i = 0; i < contourCnt; ++i) {
         SkASSERT(contours[i]);
+        if (approximate) {
+            round(&contours[i]->fPrev->fPoint);
+        }
         for (Vertex* v = contours[i];;) {
             if (approximate) {
                 round(&v->fPoint);
@@ -1162,7 +1165,7 @@ void sanitize_contours(Vertex** contours, int contourCnt, bool approximate) {
                 v->fPrev->fNext = v->fNext;
                 v->fNext->fPrev = v->fPrev;
                 if (contours[i] == v) {
-                    contours[i] = v->fNext;
+                    contours[i] = v->fPrev;
                 }
                 v = v->fPrev;
             } else {
