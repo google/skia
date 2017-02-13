@@ -147,6 +147,7 @@ gm_sources = [
   "$_gm/hairlines.cpp",
   "$_gm/hairmodes.cpp",
   "$_gm/hardstop_gradients.cpp",
+  "$_gm/highcontrastfilter.cpp",
   "$_gm/hittestpath.cpp",
   "$_gm/image.cpp",
   "$_gm/image_pict.cpp",
