@@ -528,7 +528,7 @@
   },
   {
     "name": "$result",
-    "reason": "Failed build steps: dm",
+    "reason": "Failed build steps: dm, dm",
     "recipe_result": null,
     "status_code": 1
   }
