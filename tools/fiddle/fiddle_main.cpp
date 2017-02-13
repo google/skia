@@ -192,14 +192,16 @@ int main() {
         picture->serialize(&skpStream);
         skpData = skpStream.detachAsData();
     }
-    bool textOnly = options.textOnly;
 
     printf("{\n");
-    dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData && !textOnly);
-    dump_output(gpuData, "Gpu", !pdfData && !skpData && !textOnly);
-    dump_output(pdfData, "Pdf", !skpData && !textOnly);
-    dump_output(skpData, "Skp", !textOnly);
-    dump_text(textoutput, "Text");
+    if (!options.textOnly) {
+        dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
+        dump_output(gpuData, "Gpu", !pdfData && !skpData);
+        dump_output(pdfData, "Pdf", !skpData);
+        dump_output(skpData, "Skp");
+    } else {
+        dump_text(textoutput, "Text");
+    }
     printf("}\n");
 
     return 0;
