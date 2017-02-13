@@ -17,9 +17,6 @@
 #include "SkLights.h"
 #include "../private/SkShadowParams.h"
 
-// remove this as soon as clients do their own IWYU
-#include "SkRegion.h"
-
 class GrContext;
 class GrRenderTargetContext;
 class SkBaseDevice;
