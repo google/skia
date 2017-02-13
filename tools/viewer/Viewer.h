@@ -60,9 +60,12 @@ private:
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
-    sk_sp<SkImage>         fImGuiFontImage;
+    SkPaint                fImGuiFontPaint;
     bool                   fShowImGuiDebugWindow;
     bool                   fShowImGuiTestWindow;
+
+    bool                   fShowZoomWindow;
+    sk_sp<SkImage>         fLastImage;
 
     sk_app::Window::BackendType fBackendType;
 

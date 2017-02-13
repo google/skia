@@ -173,6 +173,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fRefresh(false)
     , fShowImGuiDebugWindow(false)
     , fShowImGuiTestWindow(false)
+    , fShowZoomWindow(false)
+    , fLastImage(nullptr)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorType(kN32_SkColorType)
     , fColorSpace(nullptr)
@@ -223,6 +225,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('g', "GUI", "Toggle GUI Demo", [this]() {
         this->fShowImGuiTestWindow = !this->fShowImGuiTestWindow;
+        fWindow->inval();
+    });
+    fCommands.addCommand('z', "GUI", "Toggle zoom window", [this]() {
+        this->fShowZoomWindow = !this->fShowZoomWindow;
         fWindow->inval();
     });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
@@ -351,7 +357,14 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
     SkImageInfo info = SkImageInfo::MakeA8(w, h);
     SkPixmap pmap(info, pixels, info.minRowBytes());
-    fImGuiFontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
+    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+    auto fontShader = fontImage->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                            &localMatrix);
+    fImGuiFontPaint.setShader(fontShader);
+    fImGuiFontPaint.setColor(SK_ColorWHITE);
+    fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
+    io.Fonts->TexID = &fImGuiFontPaint;
 
     fWindow->show();
 }
@@ -559,10 +572,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // By default, we render directly into the window's surface/canvas
     SkCanvas* slideCanvas = canvas;
+    fLastImage.reset();
 
-    // ... but if we're in F16, or the gamut isn't sRGB, we need to render offscreen
+    // If we're in F16, or the gamut isn't sRGB, or we're zooming, we need to render offscreen
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (kRGBA_F16_SkColorType == fColorType ||
+    if (kRGBA_F16_SkColorType == fColorType || fShowZoomWindow ||
         (fColorSpace && fColorSpace != SkColorSpace::MakeSRGB())) {
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), fColorType,
                                              kPremul_SkAlphaType, fColorSpace);
@@ -586,12 +600,12 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
-        auto slideImage = offscreenSurface->makeImageSnapshot();
+        fLastImage = offscreenSurface->makeImageSnapshot();
 
         // Tag the image with the sRGB gamut, so no further color space conversion happens
         sk_sp<SkColorSpace> cs = (kRGBA_F16_SkColorType == fColorType)
             ? SkColorSpace::MakeSRGBLinear() : SkColorSpace::MakeSRGB();
-        auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(slideImage.get(), cs.get());
+        auto retaggedImage = SkImageMakeRasterCopyAndAssignColorSpace(fLastImage.get(), cs.get());
         canvas->drawImage(retaggedImage, 0, 0);
     }
 
@@ -745,6 +759,30 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         ImGui::End();
     }
 
+    SkPaint zoomImagePaint;
+    if (fShowZoomWindow && fLastImage) {
+        if (ImGui::Begin("Zoom", &fShowZoomWindow, ImVec2(200, 200))) {
+            static int zoomFactor = 4;
+            ImGui::SliderInt("Scale", &zoomFactor, 1, 16);
+
+            zoomImagePaint.setShader(fLastImage->makeShader(SkShader::kClamp_TileMode,
+                                                            SkShader::kClamp_TileMode));
+            zoomImagePaint.setColor(SK_ColorWHITE);
+
+            // Zoom by shrinking the corner UVs towards the mouse cursor
+            ImVec2 mousePos = ImGui::GetMousePos();
+            ImVec2 avail = ImGui::GetContentRegionAvail();
+
+            ImVec2 zoomHalfExtents = ImVec2((avail.x * 0.5f) / zoomFactor,
+                                            (avail.y * 0.5f) / zoomFactor);
+            ImGui::Image(&zoomImagePaint, avail,
+                         ImVec2(mousePos.x - zoomHalfExtents.x, mousePos.y - zoomHalfExtents.y),
+                         ImVec2(mousePos.x + zoomHalfExtents.x, mousePos.y + zoomHalfExtents.y));
+        }
+
+        ImGui::End();
+    }
+
     // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
     // (widgets, etc...) that have been issued
     ImGui::Render();
@@ -754,14 +792,6 @@ void Viewer::drawImGui(SkCanvas* canvas) {
     SkTDArray<SkPoint> pos;
     SkTDArray<SkPoint> uv;
     SkTDArray<SkColor> color;
-    SkPaint imguiPaint;
-    imguiPaint.setColor(SK_ColorWHITE);
-    SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / fImGuiFontImage->width(),
-                                               1.0f / fImGuiFontImage->height());
-    imguiPaint.setShader(fImGuiFontImage->makeShader(SkShader::kClamp_TileMode,
-                                                     SkShader::kClamp_TileMode,
-                                                     &localMatrix));
-    imguiPaint.setFilterQuality(kLow_SkFilterQuality);
 
     for (int i = 0; i < drawData->CmdListsCount; ++i) {
         const ImDrawList* drawList = drawData->CmdLists[i];
@@ -787,13 +817,16 @@ void Viewer::drawImGui(SkCanvas* canvas) {
             if (drawCmd->UserCallback) {
                 drawCmd->UserCallback(drawList, drawCmd);
             } else {
+                SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
+                SkASSERT(paint);
+
                 canvas->save();
                 canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
                                                   drawCmd->ClipRect.z, drawCmd->ClipRect.w));
                 canvas->drawVertices(SkCanvas::kTriangles_VertexMode, drawList->VtxBuffer.size(),
                                      pos.begin(), uv.begin(), color.begin(),
                                      drawList->IdxBuffer.begin() + indexOffset, drawCmd->ElemCount,
-                                     imguiPaint);
+                                     *paint);
                 indexOffset += drawCmd->ElemCount;
                 canvas->restore();
             }
