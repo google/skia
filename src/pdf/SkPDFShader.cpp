@@ -1214,8 +1214,15 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
 SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
                           const SkIRect& bbox, SkScalar rasterScale,
                           SkBitmap* imageDst)
-        : fCanvasTransform(canvasTransform),
-          fBBox(bbox) {
+        : fType(SkShader::kNone_GradientType)
+        , fInfo{0, nullptr, nullptr, {{0.0f, 0.0f}, {0.0f, 0.0f}},
+                {0.0f, 0.0f}, SkShader::kClamp_TileMode, 0}
+        , fCanvasTransform(canvasTransform)
+        , fShaderTransform{SkMatrix::I()}
+        , fBBox(bbox)
+        , fBitmapKey{{0, 0, 0, 0}, 0}
+        , fImageTileModes{SkShader::kClamp_TileMode,
+                          SkShader::kClamp_TileMode} {
     SkASSERT(imageDst);
     fInfo.fColorCount = 0;
     fInfo.fColors = nullptr;

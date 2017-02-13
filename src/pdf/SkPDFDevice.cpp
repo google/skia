@@ -2011,49 +2011,48 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     SkShader* shader = paint.getShader();
     SkColor color = paint.getColor();
     if (shader) {
-        // PDF positions patterns relative to the initial transform, so
-        // we need to apply the current transform to the shader parameters.
-        SkMatrix transform = matrix;
-        transform.postConcat(fInitialTransform);
-
-        // PDF doesn't support kClamp_TileMode, so we simulate it by making
-        // a pattern the size of the current clip.
-        SkIRect bounds = clipRegion.getBounds();
-
-        // We need to apply the initial transform to bounds in order to get
-        // bounds in a consistent coordinate system.
-        SkRect boundsTemp;
-        boundsTemp.set(bounds);
-        fInitialTransform.mapRect(&boundsTemp);
-        boundsTemp.roundOut(&bounds);
-
-        SkScalar rasterScale =
-                SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
-        pdfShader = SkPDFShader::GetPDFShader(
-                fDocument, fRasterDpi, shader, transform, bounds, rasterScale);
-
-        if (pdfShader.get()) {
-            // pdfShader has been canonicalized so we can directly compare
-            // pointers.
-            int resourceIndex = fShaderResources.find(pdfShader.get());
-            if (resourceIndex < 0) {
-                resourceIndex = fShaderResources.count();
-                fShaderResources.push(pdfShader.get());
-                pdfShader.get()->ref();
-            }
-            entry->fShaderIndex = resourceIndex;
-        } else {
-            // A color shader is treated as an invalid shader so we don't have
-            // to set a shader just for a color.
+        if (SkShader::kColor_GradientType == shader->asAGradient(nullptr)) {
+            // We don't have to set a shader just for a color.
             SkShader::GradientInfo gradientInfo;
-            SkColor gradientColor;
+            SkColor gradientColor = SK_ColorBLACK;
             gradientInfo.fColors = &gradientColor;
             gradientInfo.fColorOffsets = nullptr;
             gradientInfo.fColorCount = 1;
-            if (shader->asAGradient(&gradientInfo) ==
-                    SkShader::kColor_GradientType) {
-                entry->fColor = SkColorSetA(gradientColor, 0xFF);
-                color = gradientColor;
+            SkAssertResult(shader->asAGradient(&gradientInfo) == SkShader::kColor_GradientType);
+            entry->fColor = SkColorSetA(gradientColor, 0xFF);
+            color = gradientColor;
+        } else {
+            // PDF positions patterns relative to the initial transform, so
+            // we need to apply the current transform to the shader parameters.
+            SkMatrix transform = matrix;
+            transform.postConcat(fInitialTransform);
+
+            // PDF doesn't support kClamp_TileMode, so we simulate it by making
+            // a pattern the size of the current clip.
+            SkIRect bounds = clipRegion.getBounds();
+
+            // We need to apply the initial transform to bounds in order to get
+            // bounds in a consistent coordinate system.
+            SkRect boundsTemp;
+            boundsTemp.set(bounds);
+            fInitialTransform.mapRect(&boundsTemp);
+            boundsTemp.roundOut(&bounds);
+
+            SkScalar rasterScale =
+                    SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
+            pdfShader = SkPDFShader::GetPDFShader(
+                    fDocument, fRasterDpi, shader, transform, bounds, rasterScale);
+
+            if (pdfShader.get()) {
+                // pdfShader has been canonicalized so we can directly compare
+                // pointers.
+                int resourceIndex = fShaderResources.find(pdfShader.get());
+                if (resourceIndex < 0) {
+                    resourceIndex = fShaderResources.count();
+                    fShaderResources.push(pdfShader.get());
+                    pdfShader.get()->ref();
+                }
+                entry->fShaderIndex = resourceIndex;
             }
         }
     }
