@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkAlphaThresholdFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkRegion.h"
 #include "SkSurface.h"
 
 #define WIDTH 500
