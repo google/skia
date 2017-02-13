@@ -76,7 +76,7 @@ void GrPaint::addCoverageTextureProcessor(GrContext* ctx, sk_sp<GrTextureProxy> 
 }
 
 bool GrPaint::internalIsConstantBlendedColor(GrColor paintColor, GrColor* color) const {
-    GrProcOptInfo colorProcInfo(paintColor, kRGBA_GrColorComponentFlags);
+    GrProcOptInfo colorProcInfo((GrPipelineInput(paintColor)));
     colorProcInfo.analyzeProcessors(
             sk_sp_address_as_pointer_address(fColorFragmentProcessors.begin()),
             this->numColorFragmentProcessors());

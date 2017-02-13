@@ -15,33 +15,55 @@
  * of a GrPipeline. This is also the GrPrimitiveProcessor color or coverage *output*.
  */
 struct GrPipelineInput {
-    GrPipelineInput()
-            : fValidFlags(kNone_GrColorComponentFlags), fColor(0), fIsLCDCoverage(false) {}
+    enum class Opaque {
+        kNo,
+        kYes,
+    };
 
-    void setKnownFourComponents(GrColor color) {
+    explicit GrPipelineInput(Opaque opaque = Opaque::kNo)
+            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0 ) {}
+
+    explicit GrPipelineInput(GrColor color) : fFlags(kColorIsKnown_Flag), fColor(color) {}
+
+    void setToConstant(GrColor color) {
         fColor = color;
-        fValidFlags = kRGBA_GrColorComponentFlags;
+        if (GrColorIsOpaque(color)) {
+            fFlags = kColorIsKnown_Flag | kIsOpaque_Flag;
+        } else {
+            fFlags = kColorIsKnown_Flag;
+        }
     }
 
-    void setUnknownFourComponents() { fValidFlags = kNone_GrColorComponentFlags; }
+    void setToUnknown() { fFlags = 0; }
 
-    void setUnknownOpaqueFourComponents() {
-        fColor = 0xffU << GrColor_SHIFT_A;
-        fValidFlags = kA_GrColorComponentFlag;
+    void setToUnknownOpaque() { fFlags = kIsOpaque_Flag; }
+
+    void setToConstantSingleChannel(uint8_t alpha) {
+        this->setToConstant(GrColorPackRGBA(alpha, alpha, alpha, alpha));
     }
 
-    void setKnownSingleComponent(uint8_t alpha) {
-        fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
-        fValidFlags = kRGBA_GrColorComponentFlags;
+    void setToLCDCoverage() { fFlags = kIsLCDCoverage_Flag; }
+
+    bool isLCDCoverage() const { return SkToBool(kIsLCDCoverage_Flag & fFlags); }
+
+    bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
+
+    bool isConstant(GrColor* color) const {
+        if (kColorIsKnown_Flag & fFlags) {
+            *color = fColor;
+            return true;
+        }
+        return false;
     }
 
-    void setUnknownSingleComponent() { fValidFlags = kNone_GrColorComponentFlags; }
-
-    void setUsingLCDCoverage() { fIsLCDCoverage = true; }
-
-    GrColorComponentFlags fValidFlags;
+private:
+    enum Flags {
+        kColorIsKnown_Flag = 0x1,
+        kIsOpaque_Flag = 0x2,
+        kIsLCDCoverage_Flag = 0x4,
+    };
+    uint32_t fFlags;
     GrColor fColor;
-    bool fIsLCDCoverage;
 };
 
 #endif
