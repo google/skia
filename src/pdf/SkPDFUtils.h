@@ -45,10 +45,10 @@ void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                  SkScalar dstX, SkScalar dstY, SkWStream* content);
 void AppendRectangle(const SkRect& rect, SkWStream* content);
 void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                     bool doConsumeDegerates, SkWStream* content);
+              bool doConsumeDegerates, SkWStream* content, SkScalar tolerance = 0.25f);
 inline void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                     SkWStream* content) {
-    SkPDFUtils::EmitPath(path, paintStyle, true, content);
+                     SkWStream* content, SkScalar tolerance = 0.25f) {
+    SkPDFUtils::EmitPath(path, paintStyle, true, content, tolerance);
 }
 void ClosePath(SkWStream* content);
 void PaintPath(SkPaint::Style style, SkPath::FillType fill,
