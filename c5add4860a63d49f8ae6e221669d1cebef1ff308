@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bfbbf5bd_f535355c",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-13T18:22:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "289103d9_13d0fd81",
+      "range": {
+        "startLine": 14,
+        "startChar": 11,
+        "endLine": 14,
+        "endChar": 34
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da7e078e_ae1b6b9e",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 17
@@ -48,6 +72,29 @@
     },
     {
       "key": {
+        "uuid": "08b762f0_0aa981ec",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-13T18:22:57Z",
+      "side": 1,
+      "message": "Done",
+      "range": {
+        "startLine": 28,
+        "startChar": 23,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9dd1cf52_6d388331",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 17
@@ -59,6 +106,30 @@
       "writtenOn": "2017-02-13T17:35:40Z",
       "side": 1,
       "message": "How do we handle out-of-range inputs (e.g. fContrast \u003c 1, etc.)? Do we check and return null from factory?",
+      "range": {
+        "startLine": 52,
+        "startChar": 14,
+        "endLine": 52,
+        "endChar": 18
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2460266_0f5626de",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-13T18:22:57Z",
+      "side": 1,
+      "message": "The input is clamped to the valid range in the hidden implementation class.\n\nI modified it to also check the validity and return null from ::Make, and added\na test for this.",
+      "parentUuid": "9dd1cf52_6d388331",
       "range": {
         "startLine": 52,
         "startChar": 14,
@@ -91,6 +162,30 @@
       "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a37a7ff_53510c03",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2017-02-13T18:22:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54f7ad73_887e5a52",
+      "range": {
+        "startLine": 62,
+        "startChar": 43,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
