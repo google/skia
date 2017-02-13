@@ -97,23 +97,12 @@ static bool bitmap_is_too_big(int w, int h) {
 }
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
-                                    const SkMatrix* localMatrix,
-                                    SkTBlitterAllocator* allocator) {
-    SkShader* shader;
+                                    const SkMatrix* localMatrix) {
     if (!image || bitmap_is_too_big(image->width(), image->height())) {
-        if (nullptr == allocator) {
-            shader = new SkEmptyShader;
-        } else {
-            shader = allocator->createT<SkEmptyShader>();
-        }
+        return sk_make_sp<SkEmptyShader>();
     } else {
-        if (nullptr == allocator) {
-            shader = new SkImageShader(image, tx, ty, localMatrix);
-        } else {
-            shader = allocator->createT<SkImageShader>(image, tx, ty, localMatrix);
-        }
+        return sk_make_sp<SkImageShader>(image, tx, ty, localMatrix);
     }
-    return sk_sp<SkShader>(shader);
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -197,15 +186,9 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                    SkShader::TileMode tmy, const SkMatrix* localMatrix,
-                                   SkCopyPixelsMode cpm, SkTBlitterAllocator* allocator) {
-    // Until we learn otherwise, it seems that any caller that is passing an allocator must be
-    // assuming that the returned shader will have a stack-frame lifetime, so we assert that
-    // they are also asking for kNever_SkCopyPixelsMode. If that proves otherwise, we can remove
-    // or modify this assert.
-    SkASSERT(!allocator || (kNever_SkCopyPixelsMode == cpm));
-
-    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm, allocator),
-                               tmx, tmy, localMatrix, allocator);
+                                   SkCopyPixelsMode cpm) {
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
+                               tmx, tmy, localMatrix);
 }
 
 static sk_sp<SkFlattenable> SkBitmapProcShader_CreateProc(SkReadBuffer& buffer) {
