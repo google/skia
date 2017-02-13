@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "45770ee8_124f42b8",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T18:59:02Z",
+      "side": 1,
+      "message": "Unfortunate this is called \u0027reset\u0027 instead of \u0027resize\u0027. Renaming this to \u0027resize\u0027 would reduce confusion (and is one of the reasons we stuck this in include/private, so we can change these things).",
+      "range": {
+        "startLine": 271,
+        "startChar": 7,
+        "endLine": 271,
+        "endChar": 12
+      },
+      "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a4d0aab_82951136",
         "filename": "include/private/SkTemplates.h",
         "patchSetId": 4
@@ -37,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "6fd2035a_0601c2f8",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T18:59:02Z",
+      "side": 1,
+      "message": "I actually like \u0027reset\u0027 here because it lines up with std::unique_ptr. Indeed, it would be nice if this class just inherited from the array version of std::unique_ptr with the deleter set to sk_free.",
+      "parentUuid": "6a4d0aab_82951136",
+      "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "800c5328_ccece2a1",
         "filename": "include/private/SkTemplates.h",
         "patchSetId": 4
@@ -69,6 +110,24 @@
       "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b346249_cb8077c3",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-02-13T18:59:02Z",
+      "side": 1,
+      "message": "I actually like this all on one line here. It\u0027s idiomatic and makes it easier to reason about. They\u0027re both the same code.",
+      "parentUuid": "800c5328_ccece2a1",
+      "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
