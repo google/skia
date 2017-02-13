@@ -39,6 +39,10 @@ void SkBinaryWriteBuffer::writeByteArray(const void* data, size_t size) {
     fWriter.writePad(data, size);
 }
 
+void SkBinaryWriteBuffer::writeRawByteArray(const void* data, size_t size) {
+    fWriter.writePad(data, size);
+}
+
 void SkBinaryWriteBuffer::writeBool(bool value) {
     fWriter.writeBool(value);
 }
@@ -97,6 +101,10 @@ void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) 
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
+void SkBinaryWriteBuffer::writeRawPointArray(const SkPoint* point, uint32_t count) {
+    fWriter.write(point, count * sizeof(SkPoint));
+}
+
 void SkBinaryWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
@@ -114,7 +122,7 @@ void SkBinaryWriteBuffer::writeRegion(const SkRegion& region) {
 }
 
 void SkBinaryWriteBuffer::writePath(const SkPath& path) {
-    fWriter.writePath(path);
+    path.flatten(*this);
 }
 
 size_t SkBinaryWriteBuffer::writeStream(SkStream* stream, size_t length) {

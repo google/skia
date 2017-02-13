@@ -32,6 +32,7 @@ public:
     virtual bool isCrossProcess() const = 0;
 
     virtual void writeByteArray(const void* data, size_t size) = 0;
+    virtual void writeRawByteArray(const void* data, size_t size) = 0;
     void writeDataAsByteArray(SkData* data) {
         this->writeByteArray(data->data(), data->size());
     }
@@ -53,6 +54,7 @@ public:
     virtual void writeColor4fArray(const SkColor4f* color, uint32_t count) = 0;
     virtual void writePoint(const SkPoint& point) = 0;
     virtual void writePointArray(const SkPoint* point, uint32_t count) = 0;
+    virtual void writeRawPointArray(const SkPoint* point, uint32_t count) = 0;
     virtual void writeMatrix(const SkMatrix& matrix) = 0;
     virtual void writeIRect(const SkIRect& rect) = 0;
     virtual void writeRect(const SkRect& rect) = 0;
@@ -98,6 +100,7 @@ public:
     size_t bytesWritten() const { return fWriter.bytesWritten(); }
 
     void writeByteArray(const void* data, size_t size) override;
+    void writeRawByteArray(const void* data, size_t size) override;
     void writeBool(bool value) override;
     void writeScalar(SkScalar value) override;
     void writeScalarArray(const SkScalar* value, uint32_t count) override;
@@ -113,6 +116,7 @@ public:
     void writeColor4fArray(const SkColor4f* color, uint32_t count) override;
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
+    void writeRawPointArray(const SkPoint* point, uint32_t count) override;
     void writeMatrix(const SkMatrix& matrix) override;
     void writeIRect(const SkIRect& rect) override;
     void writeRect(const SkRect& rect) override;

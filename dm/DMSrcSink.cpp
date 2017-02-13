@@ -1081,6 +1081,8 @@ static const SkRect kSKPViewport = {0,0, 1000,1000};
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
+    SkDebugf("------------- %s\n", this->name().c_str());
+
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());

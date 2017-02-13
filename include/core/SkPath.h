@@ -12,11 +12,11 @@
 #include "SkPathRef.h"
 #include "SkRefCnt.h"
 
-class SkReader32;
-class SkWriter32;
 class SkAutoPathBoundsUpdate;
-class SkString;
+class SkReadBuffer;
 class SkRRect;
+class SkString;
+class SkWriteBuffer;
 class SkWStream;
 
 /** \class SkPath
@@ -1087,19 +1087,18 @@ public:
     void dumpHex() const;
 
     /**
-     *  Write the path to the buffer, and return the number of bytes written.
-     *  If buffer is NULL, it still returns the number of bytes.
+     *  Write the path to the buffer
      */
-    size_t writeToMemory(void* buffer) const;
+    void flatten(SkWriteBuffer&) const;
+
     /**
-     * Initializes the path from the buffer
+     * Creates a path from the buffer
      *
-     * @param buffer Memory to read from
-     * @param length Amount of memory available in the buffer
-     * @return number of bytes read (must be a multiple of 4) or
-     *         0 if there was not enough memory available
+     * @param buffer source of bits
+     * @param result where the read-in path will be placed
+     * @return true on success; false on failure
      */
-    size_t readFromMemory(const void* buffer, size_t length);
+    static bool MakeFromBuffer(SkReadBuffer&, SkPath* result);
 
     /** Returns a non-zero, globally unique value corresponding to the set of verbs
         and points in the path (but not the fill type [except on Android skbug.com/1762]).
