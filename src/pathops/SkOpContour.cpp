@@ -62,7 +62,7 @@ void SkOpContourBuilder::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkSca
         this->addLine(pts);
         return;
     }
-    SkChunkAlloc* allocator = fContour->globalState()->allocator();
+    SkArenaAlloc* allocator = fContour->globalState()->allocator();
     switch (verb) {
         case SkPath::kQuad_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 3);
@@ -106,7 +106,7 @@ void SkOpContourBuilder::addQuad(SkPoint pts[3]) {
 void SkOpContourBuilder::flush() {
     if (!fLastIsLine)
         return;
-    SkChunkAlloc* allocator = fContour->globalState()->allocator();
+    SkArenaAlloc* allocator = fContour->globalState()->allocator();
     SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 2);
     memcpy(ptStorage, fLastLine, sizeof(fLastLine));
     (void) fContour->addLine(ptStorage);
