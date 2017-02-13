@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a4d0aab_82951136",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-13T18:52:31Z",
+      "side": 1,
+      "message": "doesn\u0027t need to be exposed.  Also, two resets() can be confusing.",
+      "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "800c5328_ccece2a1",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-02-13T18:52:31Z",
+      "side": 1,
+      "message": "no need for a reset:\n\n    sk_free(fPtr);\n    fPtr \u003d that.release();",
+      "revId": "03565fd52fa0cc6e59b4f95f003b60effc525332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
