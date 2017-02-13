@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b000d36d_11998c76",
+        "filename": "include/gpu/GrXferProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-13T16:58:48Z",
+      "side": 0,
+      "message": "Now colorPOI always has all components or none of the pre-blended color so having flags here doesn\u0027t make sense. Moreover the two questions this function answers are never needed in the same place. Also, I am changing the meaning of the fWillBlendWithDst to consider both color and coverage blending (see other inline comment). So I broke this up into two queries.",
+      "range": {
+        "startLine": 339,
+        "startChar": 17,
+        "endLine": 339,
+        "endChar": 41
+      },
+      "revId": "6c2f80147285aaa38132c5b7f13ac92a62387fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ad2a716_99fbc629",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-13T16:58:48Z",
+      "side": 0,
+      "message": "This is only used by the path processor. It uses it to stencil and then cover multiple paths at time (stencil them all, one cover step). This change will make this function return false when the draw contains coverage. I think this is more correct than what the top paragraph of this comment indicates. It would probably be ok to combine paths if the coverage arose only as path edge AA. However, that will never be the case here as NVPR doesn\u0027t use shader computed coverage for AA. If we have coverage from some other effect (unlikely) I don\u0027t think we should allow this optimization. Our current implementations in XPFactory subclasses are inconsistent about whether they considered coverage when determining if the dst was read despite this comment.",
+      "range": {
+        "startLine": 93,
+        "startChar": 9,
+        "endLine": 93,
+        "endChar": 30
+      },
+      "revId": "6c2f80147285aaa38132c5b7f13ac92a62387fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
