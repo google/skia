@@ -33,7 +33,7 @@ public:
 private:
     void initSlides();
     void updateTitle();
-    void setColorMode(SkColorType, sk_sp<SkColorSpace>);
+    void setColorMode(SkColorType, bool colorManaged);
     void setupCurrentSlide(int previousSlide);
 
     void updateUIState();
@@ -71,6 +71,7 @@ private:
 
     // Color properties for slide rendering
     SkColorType            fColorType;
+    bool                   fColorManaged;
     sk_sp<SkColorSpace>    fColorSpace;
 
     // transform data
