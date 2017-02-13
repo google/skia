@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "289103d9_13d0fd81",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-13T17:35:40Z",
+      "side": 1,
+      "message": "naming: moving into SkHightContrastConfig or add Sk prefix. Slight pref for the former",
+      "range": {
+        "startLine": 14,
+        "startChar": 11,
+        "endLine": 14,
+        "endChar": 34
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da7e078e_ae1b6b9e",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-13T17:35:40Z",
+      "side": 1,
+      "message": "why doesn\u0027t this default to kNoInvert? Seems like the other params default to \"noop\"",
+      "range": {
+        "startLine": 28,
+        "startChar": 23,
+        "endLine": 28,
+        "endChar": 46
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dd1cf52_6d388331",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-13T17:35:40Z",
+      "side": 1,
+      "message": "How do we handle out-of-range inputs (e.g. fContrast \u003c 1, etc.)? Do we check and return null from factory?",
+      "range": {
+        "startLine": 52,
+        "startChar": 14,
+        "endLine": 52,
+        "endChar": 18
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f7ad73_887e5a52",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-13T17:35:40Z",
+      "side": 1,
+      "message": "no need to inherit from anything here. See SkGradientShader.h",
+      "range": {
+        "startLine": 62,
+        "startChar": 43,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
