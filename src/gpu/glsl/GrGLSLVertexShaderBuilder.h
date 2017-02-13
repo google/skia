@@ -20,11 +20,9 @@ class GrGLSLVertexBuilder : public GrGLSLShaderBuilder {
 public:
     GrGLSLVertexBuilder(GrGLSLProgramBuilder* program);
 
-    void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
+    void transformToNormalizedDeviceSpace(const GrShaderVar& posVar, const char* rtAdjustName);
 private:
     void onFinalize() override;
-
-    const char* fRtAdjustName;
 
     friend class GrGLProgramBuilder;
 

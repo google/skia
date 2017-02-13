@@ -75,6 +75,7 @@ public:
                  const char* outputColor,
                  const char* outputCoverage,
                  const char* distanceVectorName,
+                 const char* rtAdjustName,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
                  const ImageStorageHandle* imageStorages,
@@ -89,6 +90,7 @@ public:
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
             , fDistanceVectorName(distanceVectorName)
+            , fRTAdjustName(rtAdjustName)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
             , fImageStorages(imageStorages)
@@ -103,6 +105,7 @@ public:
         const char* fOutputColor;
         const char* fOutputCoverage;
         const char* fDistanceVectorName;
+        const char* fRTAdjustName;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
         const ImageStorageHandle* fImageStorages;
