@@ -142,12 +142,15 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
     sys.stdout.write('%s\n  SYNC IS DISABLED.\n' % directory)
     return
 
-  if 0 == subprocess.call(
-      [git, 'checkout', '--quiet', checkoutable], cwd=directory):
-    # if this succeeds, skip slow `git fetch`.
-    if verbose:
-      status(directory, checkoutable)  # Success.
-    return
+  with open(os.devnull, 'w') as devnull:
+    # If this fails, we will fetch before trying again.  Don't spam user
+    # with error infomation.
+    if 0 == subprocess.call([git, 'checkout', '--quiet', checkoutable],
+                            cwd=directory, stderr=devnull):
+      # if this succeeds, skip slow `git fetch`.
+      if verbose:
+        status(directory, checkoutable)  # Success.
+      return
 
   # If the repo has changed, always force use of the correct repo.
   # If origin already points to repo, this is a quick no-op.
