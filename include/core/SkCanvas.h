@@ -8,35 +8,36 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
-#include "SkTypes.h"
 #include "SkBlendMode.h"
-#include "SkBitmap.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
-#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkRasterHandleAllocator.h"
-#include "SkRefCnt.h"
-#include "SkRegion.h"
 #include "SkSurfaceProps.h"
 #include "SkLights.h"
 #include "../private/SkShadowParams.h"
 
+// remove this as soon as clients do their own IWYU
+#include "SkRegion.h"
+
 class GrContext;
 class GrRenderTargetContext;
 class SkBaseDevice;
+class SkBitmap;
 class SkCanvasClipVisitor;
 class SkClipStack;
 class SkData;
 class SkDraw;
 class SkDrawable;
 class SkDrawFilter;
+class SkImage;
 class SkImageFilter;
 class SkMetaData;
 class SkPath;
 class SkPicture;
 class SkPixmap;
 class SkRasterClip;
+class SkRegion;
 class SkRRect;
 struct SkRSXform;
 class SkSurface;
