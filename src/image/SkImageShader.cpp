@@ -98,7 +98,9 @@ static bool bitmap_is_too_big(int w, int h) {
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix) {
-    if (!image || bitmap_is_too_big(image->width(), image->height())) {
+    if (!image ||
+        bitmap_is_too_big(image->width(), image->height()) ||
+        (localMatrix && !localMatrix->invert(nullptr))) {
         return sk_make_sp<SkEmptyShader>();
     } else {
         return sk_make_sp<SkImageShader>(image, tx, ty, localMatrix);
