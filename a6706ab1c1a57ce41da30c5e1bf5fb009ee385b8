@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "74eaff8d_34feee6b",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-02-13T14:49:01Z",
+      "side": 1,
+      "message": "I suppose there should a caveat that the computed color that is modulated must be independent of whether the input color is premultiplied by coverage or not. So a FP that unpremul\u0027ed its input and did some calculation on that is OK but one that uses the input alpha or doesn\u0027t unpremul the r,g,b is not. By that standard this FP does not make the grade since it passes its the original r,g,b to the two child processors.\n\nI\u0027ll update this CL to remove the flag here and then prepare a follow up that clarifies this point in the comments and perhaps renames it to something more specific to the tweak alpha optimization.",
+      "parentUuid": "3eeff52c_29a1f5c2",
+      "range": {
+        "startLine": 116,
+        "startChar": 8,
+        "endLine": 116,
+        "endChar": 50
+      },
+      "revId": "a6706ab1c1a57ce41da30c5e1bf5fb009ee385b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3596c0b_9280677d",
         "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
         "patchSetId": 10
