@@ -1539,7 +1539,7 @@ private:
     static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
-                                     SkBaseDevice* dst, const SkMatrix& ctm,
+                                     SkBaseDevice* dst, SkIPoint dstOrigin, const SkMatrix& ctm,
                                      const SkClipStack* clipStack);
 
     enum ShaderOverrideOpacity {
