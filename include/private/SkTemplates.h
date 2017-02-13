@@ -252,6 +252,8 @@ public:
         fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
     }
 
+    SkAutoTMalloc(SkAutoTMalloc<T>&& that) : fPtr(that.release()) {}
+
     ~SkAutoTMalloc() {
         sk_free(fPtr);
     }
@@ -261,7 +263,7 @@ public:
         if (count) {
             fPtr = reinterpret_cast<T*>(sk_realloc_throw(fPtr, count * sizeof(T)));
         } else {
-            this->reset(0);
+            this->reset(nullptr);
         }
     }
 
@@ -270,6 +272,14 @@ public:
         sk_free(fPtr);
         fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
         return fPtr;
+    }
+
+    /** Frees the current ptr and replaces it with the provided value. The provided ptr must be a
+     *  value which can be passed to sk_free.
+     */
+    void reset(T* ptr) {
+        sk_free(fPtr);
+        fPtr = ptr;
     }
 
     T* get() const { return fPtr; }
@@ -288,6 +298,11 @@ public:
 
     const T& operator[](int index) const {
         return fPtr[index];
+    }
+
+    SkAutoTMalloc& operator=(SkAutoTMalloc<T>&& that) {
+        this->reset(that.release());
+        return *this;
     }
 
     /**
