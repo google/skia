@@ -142,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "74320471_6d5b0f60",
+        "filename": "include/effects/SkHighContrastFilter.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-02-13T20:32:12Z",
+      "side": 1,
+      "message": "Lets update the dox to state this behavior.\n\n(btw -- that sounds fine, or returning null sounds fine)",
+      "parentUuid": "a2460266_0f5626de",
+      "range": {
+        "startLine": 52,
+        "startChar": 14,
+        "endLine": 52,
+        "endChar": 18
+      },
+      "revId": "c5add4860a63d49f8ae6e221669d1cebef1ff308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "54f7ad73_887e5a52",
         "filename": "include/effects/SkHighContrastFilter.h",
         "patchSetId": 17
