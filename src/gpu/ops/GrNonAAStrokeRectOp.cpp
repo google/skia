@@ -103,8 +103,8 @@ private:
     NonAAStrokeRectOp() : INHERITED(ClassID()) {}
 
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(fColor);
-        input->pipelineCoverageInput()->setKnownSingleComponent(0xFF);
+        input->pipelineColorInput()->setToConstant(fColor);
+        input->pipelineCoverageInput()->setToSolidCoverage();
     }
 
     void onPrepareDraws(Target* target) const override {
