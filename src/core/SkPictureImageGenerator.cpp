@@ -6,39 +6,12 @@
  */
 
 #include "SkImage_Base.h"
-#include "SkImageGenerator.h"
 #include "SkCanvas.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureImageGenerator.h"
 #include "SkSurface.h"
-#include "SkTLazy.h"
-
-class SkPictureImageGenerator : SkImageGenerator {
-public:
-    static SkImageGenerator* Create(const SkISize&, const SkPicture*, const SkMatrix*,
-                                    const SkPaint*, SkImage::BitDepth, sk_sp<SkColorSpace>);
-
-protected:
-    bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkPMColor ctable[],
-                     int* ctableCount) override;
-    bool onComputeScaledDimensions(SkScalar scale, SupportedSizes*) override;
-    bool onGenerateScaledPixels(const SkPixmap&) override;
-
-#if SK_SUPPORT_GPU
-    GrTexture* onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&) override;
-#endif
-
-private:
-    SkPictureImageGenerator(const SkImageInfo& info, const SkPicture*, const SkMatrix*,
-                            const SkPaint*);
-
-    sk_sp<const SkPicture> fPicture;
-    SkMatrix               fMatrix;
-    SkTLazy<SkPaint>       fPaint;
-
-    typedef SkImageGenerator INHERITED;
-};
 
 SkImageGenerator* SkPictureImageGenerator::Create(const SkISize& size, const SkPicture* picture,
                                                   const SkMatrix* matrix, const SkPaint* paint,
@@ -141,6 +114,12 @@ SkImageGenerator* SkImageGenerator::NewFromPicture(const SkISize& size, const Sk
                                                    const SkMatrix* matrix, const SkPaint* paint,
                                                    SkImage::BitDepth bitDepth,
                                                    sk_sp<SkColorSpace> colorSpace) {
+    // Check this here (rather than in SkPictureImageGenerator::Create) so SkPictureShader
+    // has a private entry point to create legacy picture backed images.
+    if (!colorSpace) {
+        return nullptr;
+    }
+
     return SkPictureImageGenerator::Create(size, picture, matrix, paint, bitDepth,
                                            std::move(colorSpace));
 }
