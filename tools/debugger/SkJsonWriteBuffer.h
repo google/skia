@@ -24,6 +24,7 @@ public:
     bool isCrossProcess() const override { return false; }
 
     void writeByteArray(const void* data, size_t size) override;
+    void writeRawByteArray(const void* data, size_t size) override;
     void writeBool(bool value) override;
     void writeScalar(SkScalar value) override;
     void writeScalarArray(const SkScalar* value, uint32_t count) override;
@@ -39,6 +40,7 @@ public:
     void writeColor4fArray(const SkColor4f* color, uint32_t count) override;
     void writePoint(const SkPoint& point) override;
     void writePointArray(const SkPoint* point, uint32_t count) override;
+    void writeRawPointArray(const SkPoint* point, uint32_t count) override;
     void writeMatrix(const SkMatrix& matrix) override;
     void writeIRect(const SkIRect& rect) override;
     void writeRect(const SkRect& rect) override;

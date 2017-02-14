@@ -139,8 +139,10 @@ sk_sp<SkFlattenable> SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkPath path;
-    buffer.readPath(&path);
-    return SkPath2DPathEffect::Make(matrix, path);
+    if (buffer.readPath(&path)) {
+        return SkPath2DPathEffect::Make(matrix, path);
+    }
+    return nullptr;
 }
 
 void SkPath2DPathEffect::flatten(SkWriteBuffer& buffer) const {

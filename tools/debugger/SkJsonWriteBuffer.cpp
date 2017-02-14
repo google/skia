@@ -25,6 +25,10 @@ void SkJsonWriteBuffer::writeByteArray(const void* data, size_t size) {
     this->append("byteArray", jsonArray);
 }
 
+void SkJsonWriteBuffer::writeRawByteArray(const void* data, size_t size) {
+    this->writeByteArray(data, size);
+}
+
 void SkJsonWriteBuffer::writeBool(bool value) {
     this->append("bool", value);
 }
@@ -105,6 +109,10 @@ void SkJsonWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
         jsonArray.append(SkDrawCommand::MakeJsonPoint(point[i]));
     }
     this->append("pointArray", jsonArray);
+}
+
+void SkJsonWriteBuffer::writeRawPointArray(const SkPoint* point, uint32_t count) {
+    this->writePointArray(point, count);
 }
 
 void SkJsonWriteBuffer::writeMatrix(const SkMatrix& matrix) {

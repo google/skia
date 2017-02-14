@@ -63,8 +63,8 @@ template<> struct SerializationUtils<SkPath> {
     static void Write(SkWriteBuffer& writer, const SkPath* path) {
         writer.writePath(*path);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkPath* path) {
-        reader.readPath(path);
+    static bool Read(SkValidatingReadBuffer& reader, SkPath* path) {
+        return reader.readPath(path);
     }
 };
 
@@ -453,7 +453,7 @@ DEF_TEST(Serialization, reporter) {
     // Test path serialization
     {
         SkPath path;
-        TestObjectSerialization(&path, reporter);
+        TestObjectSerializationNoAlign<SkPath, false>(&path, reporter);
     }
 
     // Test region serialization
