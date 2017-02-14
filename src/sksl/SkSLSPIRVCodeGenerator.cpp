@@ -1873,10 +1873,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, S
             SkString name("sksl_synthetic_uniforms");
             Type intfStruct(Position(), name, fields);
             Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false, Layout::Format::kUnspecified,
-                          false);
+                          false, Layout::kUnspecified_Primitive, -1);
             Variable intfVar(Position(), Modifiers(layout, Modifiers::kUniform_Flag), name,
                              intfStruct, Variable::kGlobal_Storage);
-            InterfaceBlock intf(Position(), intfVar, st);
+            InterfaceBlock intf(Position(), intfVar, name, SkString(""),
+                                std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
         }
@@ -2857,6 +2858,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SkWStream& ou
             break;
         case Program::kFragment_Kind:
             this->writeWord(SpvExecutionModelFragment, out);
+            break;
+        case Program::kGeometry_Kind:
+            this->writeWord(SpvExecutionModelGeometry, out);
             break;
     }
     this->writeWord(fFunctionMap[main], out);

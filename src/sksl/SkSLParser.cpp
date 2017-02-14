@@ -111,6 +111,26 @@ Parser::Parser(SkString text, SymbolTable& types, ErrorReporter& errors)
         // avoid unused warning
         yyunput(0, nullptr, fScanner);
     }
+
+    fLayoutKeys[SkString("location")]                    = kLocation_LayoutKey;
+    fLayoutKeys[SkString("offset")]                      = kOffset_LayoutKey;
+    fLayoutKeys[SkString("binding")]                     = kBinding_LayoutKey;
+    fLayoutKeys[SkString("index")]                       = kIndex_LayoutKey;
+    fLayoutKeys[SkString("set")]                         = kSet_LayoutKey;
+    fLayoutKeys[SkString("builtin")]                     = kBuiltin_LayoutKey;
+    fLayoutKeys[SkString("input_attachment_index")]      = kInputAttachmentIndex_LayoutKey;
+    fLayoutKeys[SkString("origin_upper_left")]           = kOriginUpperLeft_LayoutKey;
+    fLayoutKeys[SkString("override_coverage")]           = kOverrideCoverage_LayoutKey;
+    fLayoutKeys[SkString("blend_support_all_equations")] = kBlendSupportAllEquations_LayoutKey;
+    fLayoutKeys[SkString("push_constant")]               = kPushConstant_LayoutKey;
+    fLayoutKeys[SkString("points")]                      = kPoints_LayoutKey;
+    fLayoutKeys[SkString("lines")]                       = kLines_LayoutKey;
+    fLayoutKeys[SkString("line_strip")]                  = kLineStrip_LayoutKey;
+    fLayoutKeys[SkString("lines_adjacency")]             = kLinesAdjacency_LayoutKey;
+    fLayoutKeys[SkString("triangles")]                   = kTriangles_LayoutKey;
+    fLayoutKeys[SkString("triangle_strip")]              = kTriangleStrip_LayoutKey;
+    fLayoutKeys[SkString("triangles_adjacency")]         = kTrianglesAdjacency_LayoutKey;
+    fLayoutKeys[SkString("max_vertices")]                = kMaxVertices_LayoutKey;
 }
 
 Parser::~Parser() {
@@ -550,39 +570,80 @@ Layout Parser::layout() {
     bool blendSupportAllEquations = false;
     Layout::Format format = Layout::Format::kUnspecified;
     bool pushConstant = false;
+    Layout::Primitive primitive = Layout::kUnspecified_Primitive;
+    int maxVertices = -1;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
             return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                          pushConstant);
+                          pushConstant, primitive, maxVertices);
         }
         for (;;) {
             Token t = this->nextToken();
-            if (t.fText == "location") {
-                location = this->layoutInt();
-            } else if (t.fText == "offset") {
-                offset = this->layoutInt();
-            } else if (t.fText == "binding") {
-                binding = this->layoutInt();
-            } else if (t.fText == "index") {
-                index = this->layoutInt();
-            } else if (t.fText == "set") {
-                set = this->layoutInt();
-            } else if (t.fText == "builtin") {
-                builtin = this->layoutInt();
-            } else if (t.fText == "input_attachment_index") {
-                 inputAttachmentIndex = this->layoutInt();
-            } else if (t.fText == "origin_upper_left") {
-                originUpperLeft = true;
-            } else if (t.fText == "override_coverage") {
-                overrideCoverage = true;
-            } else if (t.fText == "blend_support_all_equations") {
-                blendSupportAllEquations = true;
+            auto found = fLayoutKeys.find(t.fText);
+            if (found != fLayoutKeys.end()) {
+                switch (found->second) {
+                    case kLocation_LayoutKey:
+                        location = this->layoutInt();
+                        break;
+                    case kOffset_LayoutKey:
+                        offset = this->layoutInt();
+                        break;
+                    case kBinding_LayoutKey:
+                        binding = this->layoutInt();
+                        break;
+                    case kIndex_LayoutKey:
+                        index = this->layoutInt();
+                        break;
+                    case kSet_LayoutKey:
+                        set = this->layoutInt();
+                        break;
+                    case kBuiltin_LayoutKey:
+                        builtin = this->layoutInt();
+                        break;
+                    case kInputAttachmentIndex_LayoutKey:
+                        inputAttachmentIndex = this->layoutInt();
+                        break;
+                    case kOriginUpperLeft_LayoutKey:
+                        originUpperLeft = true;
+                        break;
+                    case kOverrideCoverage_LayoutKey:
+                        overrideCoverage = true;
+                        break;
+                    case kBlendSupportAllEquations_LayoutKey:
+                        blendSupportAllEquations = true;
+                        break;
+                    case kPushConstant_LayoutKey:
+                        pushConstant = true;
+                        break;
+                    case kPoints_LayoutKey:
+                        primitive = Layout::kPoints_Primitive;
+                        break;
+                    case kLines_LayoutKey:
+                        primitive = Layout::kLines_Primitive;
+                        break;
+                    case kLineStrip_LayoutKey:
+                        primitive = Layout::kLineStrip_Primitive;
+                        break;
+                    case kLinesAdjacency_LayoutKey:
+                        primitive = Layout::kLinesAdjacency_Primitive;
+                        break;
+                    case kTriangles_LayoutKey:
+                        primitive = Layout::kTriangles_Primitive;
+                        break;                    
+                    case kTriangleStrip_LayoutKey:
+                        primitive = Layout::kTriangleStrip_Primitive;
+                        break;                    
+                    case kTrianglesAdjacency_LayoutKey:
+                        primitive = Layout::kTrianglesAdjacency_Primitive;
+                        break;
+                    case kMaxVertices_LayoutKey:
+                        maxVertices = this->layoutInt();
+                        break;
+                }
             } else if (Layout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
-            } else if (t.fText == "push_constant") {
-                pushConstant = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText +
                                           "' is not a valid layout qualifier").c_str());
@@ -598,7 +659,7 @@ Layout Parser::layout() {
     }
     return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                   originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                  pushConstant);
+                  pushConstant, primitive, maxVertices);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
@@ -749,7 +810,7 @@ std::unique_ptr<ASTType> Parser::type() {
                                                 ASTType::kIdentifier_Kind));
 }
 
-/* IDENTIFIER LBRACE varDeclaration* RBRACE */
+/* IDENTIFIER LBRACE varDeclaration* RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? */
 std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
@@ -772,14 +833,29 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
         decls.push_back(std::move(decl));
     }
     this->nextToken();
-    SkString valueName;
+    SkString instanceName;
+    std::vector<std::unique_ptr<ASTExpression>> sizes;
     if (this->peek().fKind == Token::IDENTIFIER) {
-        valueName = this->nextToken().fText;
+        instanceName = this->nextToken().fText;
+        while (this->peek().fKind == Token::LBRACKET) {
+            this->expect(Token::LBRACKET, "'['");
+            if (this->peek().fKind != Token::RBRACKET) {
+                std::unique_ptr<ASTExpression> size = this->expression();
+                if (!size) {
+                    return nullptr;
+                }
+                sizes.push_back(std::move(size));
+            } else {
+                sizes.push_back(nullptr);
+            }
+            this->expect(Token::RBRACKET, "']'");
+        }
     }
     this->expect(Token::SEMICOLON, "';'");
     return std::unique_ptr<ASTDeclaration>(new ASTInterfaceBlock(name.fPosition, mods,
-                                                                 name.fText, std::move(valueName),
-                                                                 std::move(decls)));
+                                                                 name.fText, std::move(decls),
+                                                                 std::move(instanceName),
+                                                                 std::move(sizes)));
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
