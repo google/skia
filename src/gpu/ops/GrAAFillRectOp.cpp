@@ -204,8 +204,8 @@ public:
 
 private:
     void getPipelineAnalysisInput(GrPipelineAnalysisDrawOpInput* input) const override {
-        input->pipelineColorInput()->setKnownFourComponents(this->first()->color());
-        input->pipelineCoverageInput()->setUnknownSingleComponent();
+        input->pipelineColorInput()->setToConstant(this->first()->color());
+        input->pipelineCoverageInput()->setToUnknown();
     }
 
     void onPrepareDraws(Target* target) const override {
