@@ -1306,6 +1306,7 @@ if (skia_enable_tools) {
   test_app("fuzz") {
     sources = [
       "fuzz/FilterFuzz.cpp",
+      "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzGradients.cpp",
       "fuzz/FuzzParsePath.cpp",
