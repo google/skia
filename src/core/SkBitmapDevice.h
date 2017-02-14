@@ -15,6 +15,7 @@
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
+#include "SkRasterClipStack.h"
 #include "SkRect.h"
 #include "SkScalar.h"
 #include "SkSize.h"
@@ -132,6 +133,8 @@ protected:
     void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
     void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
+    void validateDevBounds(const SkIRect& r) override;
 
 private:
     friend class SkCanvas;
@@ -155,7 +158,7 @@ private:
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
-    SkTArray<SkRasterClip>  fRCStack;
+    SkRasterClipStack  fRCStack;
 
     void setNewSize(const SkISize&);  // Used by SkCanvas for resetForNextPicture().
 

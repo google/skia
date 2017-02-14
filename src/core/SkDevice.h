@@ -121,18 +121,17 @@ public:
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
+    void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
+        this->onSetDeviceClipRestriction(mutableClipRestriction);
+    }
 
     const SkMatrix& ctm() const { return fCTM; }
     void setCTM(const SkMatrix& ctm) {
         fCTM = ctm;
     }
-    void setGlobalCTM(const SkMatrix& ctm) {
-        fCTM = ctm;
-        if (fOrigin.fX | fOrigin.fY) {
-            fCTM.postTranslate(-SkIntToScalar(fOrigin.fX), -SkIntToScalar(fOrigin.fY));
-        }
-    }
-    
+    void setGlobalCTM(const SkMatrix& ctm);
+    virtual void validateDevBounds(const SkIRect&) {}
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -157,6 +156,7 @@ protected:
     virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
     virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
+    virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -367,7 +367,7 @@ private:
     virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
     // just called by SkCanvas when built as a layer
-    void setOrigin(int x, int y) { fOrigin.set(x, y); }
+    void setOrigin(const SkMatrix& ctm, int x, int y);
 
     /** Causes any deferred drawing to the device to be completed.
      */
@@ -390,6 +390,23 @@ private:
     SkMatrix             fCTM;
 
     typedef SkRefCnt INHERITED;
+};
+
+class SkAutoDeviceCTMRestore : SkNoncopyable {
+public:
+    SkAutoDeviceCTMRestore(SkBaseDevice* device, const SkMatrix& ctm)
+        : fDevice(device)
+        , fPrevCTM(device->ctm())
+    {
+        fDevice->setCTM(ctm);
+    }
+    ~SkAutoDeviceCTMRestore() {
+        fDevice->setCTM(fPrevCTM);
+    }
+
+private:
+    SkBaseDevice*   fDevice;
+    const SkMatrix  fPrevCTM;
 };
 
 #endif
