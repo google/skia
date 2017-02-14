@@ -201,7 +201,13 @@ STAGE(srcover) {
     b = fma(db, A, b);
     a = fma(da, A, a);
 }
-STAGE(dstover) { srcover_k(x,limit,ctx,k, dr,dg,db,da, r,g,b,a); }
+STAGE(dstover) {
+    auto DA = k->_1 - da;
+    r = fma(r, DA, dr);
+    g = fma(g, DA, dg);
+    b = fma(b, DA, db);
+    a = fma(a, DA, da);
+}
 
 STAGE(clamp_0) {
     r = max(r, 0);
