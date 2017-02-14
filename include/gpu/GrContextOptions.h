@@ -85,6 +85,12 @@ struct GrContextOptions {
      * sRGB support.
      */
     bool fRequireDecodeDisableForSRGB = true;
+
+    /**
+     * If true, the GPU will not be used to perform YUV -> RGB conversion when generating
+     * textures from codec-backed images.
+     */
+    bool fDisableGpuYUVConversion = false;
 };
 
 #endif

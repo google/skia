@@ -91,6 +91,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fResourceCache = new GrResourceCache(fCaps);
     fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
 
+    fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fDidTestPMConversions = false;
 
     GrRenderTargetOpList::Options rtOpListOptions;
