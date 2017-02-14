@@ -296,7 +296,6 @@ skia_core_sources = [
   "$_src/core/SkSharedMutex.cpp",
   "$_src/core/SkSharedMutex.h",
   "$_src/core/SkSinglyLinkedList.h",
-  "$_src/core/SkSmallAllocator.h",
   "$_src/core/SkSpanProcs.cpp",
   "$_src/core/SkSpecialImage.cpp",
   "$_src/core/SkSpecialImage.h",
